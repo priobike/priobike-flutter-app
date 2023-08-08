@@ -76,14 +76,14 @@ List<Waypoint> convertNodesToWaypoints(List<NavigationNode> nodes, Distance vinc
 String formatDuration(Duration duration) {
   final seconds = duration.inSeconds;
   if (seconds < 60) {
-    return "${seconds.toStringAsFixed(0)} Sekunden";
+    return "${seconds.toStringAsFixed(0)} s";
   }
   if (seconds < 3600) {
     final minutes = seconds / 60;
-    return "${minutes.toStringAsFixed(2)} Minuten";
+    return "${minutes.toStringAsFixed(2)} min";
   }
   final hours = seconds / 3600;
-  return "${hours.toStringAsFixed(2)} Stunden";
+  return "${hours.toStringAsFixed(2)} h";
 }
 
 /// Converts routes (initial + reroute-routes) to a list of navigation nodes that were actually passed.

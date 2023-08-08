@@ -5,8 +5,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -86,21 +84,10 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
       return Container();
     }
 
-    return Column(
-      children: [
-        SubHeader(
-          text: 'Deine letzte Fahrt',
-          context: context,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
-          textAlign: TextAlign.center,
-        ),
-        const SmallVSpace(),
-        TrackDetailsView(
-          track: track!,
-          startImage: startImage!,
-          destinationImage: destinationImage!,
-        ),
-      ],
+    return TrackDetailsView(
+      track: track!,
+      startImage: startImage!,
+      destinationImage: destinationImage!,
     );
   }
 }

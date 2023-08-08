@@ -167,11 +167,10 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
           delay: const Duration(milliseconds: 250),
           child: Row(
             children: [
-              const SizedBox(width: 40),
-              Content(
+              const SizedBox(width: 42),
+              BoldContent(
                 text: "Vorherige Fahrten",
                 context: context,
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
               ),
               Expanded(child: Container()),
               IconTextButton(
@@ -185,15 +184,16 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                 onPressed: () =>
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
               ),
-              const SizedBox(width: 24),
+              const SizedBox(width: 32),
             ],
           ),
         ),
-        const SmallVSpace(),
+        const VSpace(),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(children: animatedViews),
-        )
+        ),
+        const VSpace(),
       ],
     );
   }

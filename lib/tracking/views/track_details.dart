@@ -7,10 +7,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
@@ -283,11 +283,10 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     ];
 
     return Stack(
-      alignment: Alignment.topCenter,
+      alignment: Alignment.center,
       children: [
         ClipRect(
           child: SizedBox(
-            height: 200,
             child: ShaderMask(
               shaderCallback: (rect) {
                 return const LinearGradient(
@@ -324,23 +323,26 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
             ),
           ),
         ),
-        HPad(
+        Padding(
+          padding: const EdgeInsets.only(top: 32, left: 42, right: 42),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (tabController != null)
-                TabPageSelector(
-                  controller: tabController!,
-                  selectedColor: CI.blue,
-                  indicatorSize: 6,
-                  borderStyle: BorderStyle.none,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
-                  key: GlobalKey(),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BoldContent(text: "Letzte Fahrt", context: context),
+                  Content(
+                    text: lastTrackDateFormatted,
+                    context: context,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
               const SmallVSpace(),
               SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 220,
+                height: 264,
                 child: PageView(
                   controller: pageController,
                   clipBehavior: Clip.none,
@@ -353,42 +355,23 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   },
                   children: [
                     if (positions.isNotEmpty)
-                      Column(
-                        children: [
-                          const Text(
-                            "GPS-Aufzeichnung",
-                            style: TextStyle(
-                              fontSize: 11,
-                              height: 1.2,
-                              color: CI.blue,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 200,
-                            width: 200,
-                            child: TrackPictogram(
-                              key: GlobalKey(),
-                              track: positions,
-                              minSpeedColor: CI.blue,
-                              maxSpeedColor: CI.blueLight,
-                            ),
-                          ),
-                        ],
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        opacity: tabController?.index == 0 ? 1 : 0,
+                        child: TrackPictogram(
+                          key: GlobalKey(),
+                          track: positions,
+                          minSpeedColor: CI.blue,
+                          maxSpeedColor: CI.blueLight,
+                        ),
                       ),
                     if (routeNodes.isNotEmpty)
-                      Column(
+                      Stack(
+                        alignment: Alignment.bottomCenter,
                         children: [
-                          const Text(
-                            "Voreingestellte Route",
-                            style: TextStyle(
-                              fontSize: 11,
-                              height: 1.2,
-                              color: CI.blue,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 150,
-                            width: 150,
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 300),
+                            opacity: tabController?.index == 1 ? 1 : 0,
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: RoutePictogram(
@@ -401,11 +384,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                               ),
                             ),
                           ),
-                          IconTextButton(
-                            iconColor: Colors.white,
-                            icon: Icons.arrow_right_alt_rounded,
-                            label: "Erneut fahren",
-                            boxConstraints: const BoxConstraints(maxWidth: 200),
+                          Tile(
+                            fill: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                            padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
                             onPressed: () {
                               HapticFeedback.mediumImpact();
 
@@ -428,32 +409,34 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                                 );
                               }
                             },
-                          ),
+                            content: BoldContent(text: "Route erneut fahren", context: context),
+                          )
                         ],
                       ),
                   ],
                 ),
               ),
-              Small(
-                text: "($lastTrackDateFormatted)",
-                context: context,
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                textAlign: TextAlign.center,
-              ),
-              if (positions.isNotEmpty) ...[
-                const VSpace(),
-                GridView.count(
-                  crossAxisSpacing: 8,
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  mainAxisSpacing: 8,
-                  crossAxisCount: 2,
-                  childAspectRatio: 4,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: rideDetails,
+              if (tabController != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: TabPageSelector(
+                    controller: tabController!,
+                    selectedColor: Theme.of(context).colorScheme.onBackground,
+                    indicatorSize: 6,
+                    borderStyle: BorderStyle.none,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                    key: GlobalKey(),
+                  ),
                 ),
-                const SmallVSpace(),
-              ],
+              if (positions.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: rideDetails,
+                  ),
+                ),
             ],
           ),
         )
