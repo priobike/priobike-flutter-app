@@ -297,15 +297,9 @@ class RoutingViewState extends State<RoutingView> {
                           ),
                           const VSpace(),
                           BigButton(
-                            label: "Letzten Wegpunkt löschen",
+                            label: "Zurück zum Hauptmenu",
                             onPressed: () async {
-                              if (routing!.selectedWaypoints != null && routing!.selectedWaypoints!.isNotEmpty) {
-                                routing!.selectedWaypoints!.removeLast();
-                                routing!.waypointRemoved = true;
-                              } else {
-                                log.e("Tried to delete last waypoint, but there is no waypoint to delete");
-                              }
-                              await routing!.loadRoutes();
+                              Navigator.of(context).pop();
                             },
                           ),
                         ],

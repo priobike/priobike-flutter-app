@@ -158,6 +158,19 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Remove a new waypoint at index.
+  Future<void> removeWaypointAt(int index) async {
+    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
+
+    final removedWaypoints = selectedWaypoints!.toList();
+    removedWaypoints.removeAt(index);
+    // Prevents adding a position waypoint when only 1 waypoint left.
+    waypointRemoved = true;
+
+    selectWaypoints(removedWaypoints);
+    loadRoutes();
+  }
+
   /// Select new waypoints.
   Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;
@@ -357,15 +370,8 @@ class Routing with ChangeNotifier {
     waypointsOutOfBoundaries = false;
     notifyListeners();
 
-    if (selectedWaypoints!.length < 2) {
-      // Waypoint got removed and therefore don't add a new waypoint.
-      if (waypointRemoved) {
-        hadErrorDuringFetch = false;
-        isFetchingRoute = false;
-        waypointRemoved = false;
-        notifyListeners();
-        return null;
-      }
+    // If a Waypoint got removed don't add the position to the selected waypoints.
+    if (selectedWaypoints!.length < 2 && !waypointRemoved) {
       // Get the last position as the start point.
       if (getIt<Positioning>().lastPosition != null) {
         selectedWaypoints = [
@@ -380,10 +386,13 @@ class Routing with ChangeNotifier {
         hadErrorDuringFetch = true;
         waypointsOutOfBoundaries = true;
         isFetchingRoute = false;
+        waypointRemoved = false;
         notifyListeners();
         return null;
       }
     }
+    // Reset waypointRemoved.
+    waypointRemoved = false;
 
     // Check if the waypoints are inside of the city boundaries.
     if (!inCityBoundary(selectedWaypoints!)) {
