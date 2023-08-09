@@ -370,28 +370,39 @@ class Routing with ChangeNotifier {
     waypointsOutOfBoundaries = false;
     notifyListeners();
 
-    // If a Waypoint got removed don't add the position to the selected waypoints.
-    if (selectedWaypoints!.length < 2 && !waypointRemoved) {
-      // Get the last position as the start point.
-      if (getIt<Positioning>().lastPosition != null) {
-        selectedWaypoints = [
-          Waypoint(
-            getIt<Positioning>().lastPosition!.latitude,
-            getIt<Positioning>().lastPosition!.longitude,
-            address: "Aktueller Standort",
-          ),
-          ...selectedWaypoints!,
-        ];
+    if (selectedWaypoints!.length < 2) {
+      // If a Waypoint got removed don't add the position to the selected waypoints.
+      if (!waypointRemoved) {
+        // Get the last position as the start point.
+        if (getIt<Positioning>().lastPosition != null) {
+          selectedWaypoints = [
+            Waypoint(
+              getIt<Positioning>().lastPosition!.latitude,
+              getIt<Positioning>().lastPosition!.longitude,
+              address: "Aktueller Standort",
+            ),
+            ...selectedWaypoints!,
+          ];
+        } else {
+          hadErrorDuringFetch = true;
+          waypointsOutOfBoundaries = true;
+          isFetchingRoute = false;
+          waypointRemoved = false;
+          notifyListeners();
+          return null;
+        }
       } else {
-        hadErrorDuringFetch = true;
-        waypointsOutOfBoundaries = true;
+        // Nothing to do load. Just a single point.
+        hadErrorDuringFetch = false;
         isFetchingRoute = false;
         waypointRemoved = false;
+        selectedRoute = null;
         notifyListeners();
         return null;
       }
     }
-    // Reset waypointRemoved.
+
+    // Reset waypointRemoved for selectedWaypoints >= 2.
     waypointRemoved = false;
 
     // Check if the waypoints are inside of the city boundaries.
