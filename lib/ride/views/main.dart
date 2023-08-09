@@ -63,12 +63,6 @@ class RideViewState extends State<RideView> {
     settings = getIt<Settings>();
     settings.addListener(update);
 
-    routing = getIt<Routing>();
-    ride = getIt<Ride>();
-
-    // Save current route if the app crashes or the user unintentionally closes it.
-    ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
-
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         final deviceWidth = MediaQuery.of(context).size.width;
@@ -84,6 +78,10 @@ class RideViewState extends State<RideView> {
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
         final ride = getIt<Ride>();
+
+        // Save current route if the app crashes or the user unintentionally closes it.
+        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
+
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);

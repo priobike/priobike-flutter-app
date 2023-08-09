@@ -77,8 +77,6 @@ class Ride with ChangeNotifier {
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
-  static const defaultLastRoute = null;
-  static const defaultLastRouteID = 0;
 
   /// Set the last route in shared preferences.
   Future<bool> setLastRoute(List<Waypoint> lastRoute, int lastRouteID, [SharedPreferences? storage]) async {
@@ -106,7 +104,7 @@ class Ride with ChangeNotifier {
     lastRoute = null;
     lastRouteID = 0;
     bool success = await storage.remove(lastRouteKey);
-    success = success & await storage.remove(lastRouteIDKey);
+    success = success && await storage.remove(lastRouteIDKey);
     if (!success) {
       log.e("Failed to remove lastRoute");
     } else {
@@ -126,7 +124,7 @@ class Ride with ChangeNotifier {
         this.lastRouteID = lastRouteID;
       }
     } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
+      /* Do nothing. */
     }
   }
 

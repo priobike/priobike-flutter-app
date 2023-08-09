@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/views/shortcuts/save_shortcut_dialog.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -13,18 +13,25 @@ class RestartRouteDialog extends AlertDialog {
     Key? key,
     required int lastRouteID,
     required List<Waypoint> lastRoute,
-    required Ride ride,
-    required Routing routing,
     required BuildContext context,
   }) : super(
           key: key,
-          title: const Text('Fahrt abgebrochen'),
-          content: const Text(
-              'Die letzte Fahrt wurde unerwartet beendet. Wollen sie die Navigation der Route fortsetzen oder die Route speichern?'),
+          title: BoldSubHeader(
+            text: 'Fahrt abgebrochen',
+            context: context,
+          ),
+          content: BoldContent(
+            text:
+                'Die letzte Fahrt wurde unerwartet beendet. Willst du die Navigation der Route fortsetzen oder die Route speichern?',
+            context: context,
+          ),
+          buttonPadding: const EdgeInsets.symmetric(horizontal: 5),
+          // actionsPadding: ,
           actions: [
             TextButton(
-              child: Content(text: 'Fortsetzen', context: context),
+              child: BoldContent(text: 'Fortsetzen', color: Theme.of(context).colorScheme.primary, context: context),
               onPressed: () async {
+                Routing routing = getIt<Routing>();
                 // Set waypoints, load route and load ride view.
                 await routing.selectWaypoints(lastRoute);
                 await routing.loadRoutes();
@@ -39,7 +46,6 @@ class RestartRouteDialog extends AlertDialog {
                       builder: (BuildContext context) => const RideView(),
                     ),
                   );
-                  // Remove last route after loading is complete.
                 } else {
                   // In case there is any error fetching the route.
                   if (routing.hadErrorDuringFetch) {
@@ -52,7 +58,7 @@ class RestartRouteDialog extends AlertDialog {
               },
             ),
             TextButton(
-              child: Content(text: 'Speichern', context: context),
+              child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
               onPressed: () {
                 ShortcutRoute shortcutRoute = ShortcutRoute(name: "", waypoints: lastRoute);
                 // Set waypoints and load ride view.
@@ -61,7 +67,7 @@ class RestartRouteDialog extends AlertDialog {
               },
             ),
             TextButton(
-              child: Content(text: 'Verwerfen', context: context),
+              child: BoldContent(text: 'Abbr.', color: Theme.of(context).colorScheme.primary, context: context),
               onPressed: () async {
                 Navigator.of(context).pop();
               },

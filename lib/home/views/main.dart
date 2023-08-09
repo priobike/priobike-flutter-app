@@ -128,8 +128,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
               builder: (context) => RestartRouteDialog(
                 lastRouteID: ride.lastRouteID,
                 lastRoute: lastRoute,
-                routing: routing,
-                ride: ride,
                 context: context,
               ),
             );
