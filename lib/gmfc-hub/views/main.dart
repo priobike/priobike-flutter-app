@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/database/database.dart';
 import 'package:priobike/statistics/views/total.dart';
 
 class GamificationHubView extends StatefulWidget {
@@ -15,8 +18,6 @@ class GamificationHubView extends StatefulWidget {
 class GamificationHubViewState extends State<GamificationHubView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
-
-  //final TestRepository repository = TestRepository();
 
   @override
   void initState() {
@@ -65,15 +66,15 @@ class GamificationHubViewState extends State<GamificationHubView> {
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: TextButton(
           onPressed: () async {
-            /*var test = TestObject(Random().nextInt(100000000));
-            test = await repository.create(test);
+            var test = TestObjectsCompanion.insert(number: Random().nextInt(999999999));
+            var result = (await AppDatabase.instance.testDao.create(test))!;
             if (!mounted) return;
             showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
                       title: const Text('Object Generated'),
-                      content: Text("TestObject(id: ${test.id}, number: ${test.number})"),
-                    ));*/
+                      content: Text("TestObject(id: ${result.id}, number: ${result.number})"),
+                    ));
           },
           child: const Text("Generate"),
         ));
