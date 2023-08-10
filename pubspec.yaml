@@ -86,6 +86,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.1
   json_serializable: ^6.6.0 # Used for serializing model objects of the gamification db
+  build_runner: ^2.3.0 # Used to generate the code for serializing database objects
 
 # Configuration of the splash screens.
 flutter_native_splash:

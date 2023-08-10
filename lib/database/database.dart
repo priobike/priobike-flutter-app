@@ -3,6 +3,8 @@ import 'package:sqflite/sqflite.dart';
 
 /// Class holding the database required for the gamification data structure. It can be accessed as a Singleton.
 class AppDatabase {
+  static const String idType = "INTEGER PRIMARY KEY AUTOINCREMENT";
+  static const String intType = "INTEGER NOT NULL";
   static const String dbFileName = "main.db";
 
   /// Static instance of the class to access it as a singleton.
@@ -22,11 +24,19 @@ class AppDatabase {
   Future<Database> _initDB() async {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, dbFileName);
-    return openDatabase(path, version: 5, onCreate: _createDB);
+    return openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   /// Callback function for when the database is created. Creates the required database tables.
   Future _createDB(Database db, int version) async {
-    //TODO: intialize required tables
+    initializeTestTable(db);
+  }
+
+  Future initializeTestTable(Database db) async {
+    await db.execute("""
+      CREATE TABLE test_table (
+        id $idType,
+        number $intType
+      )""");
   }
 }
