@@ -135,6 +135,11 @@ class RideAssist with ChangeNotifier {
       gaugeStopsCopy.remove(double.infinity);
     }
 
+    // Size to 0 - 0.5 range.
+    for(int i=0; i<gaugeStopsCopy.length; i++) {
+      gaugeStopsCopy[i] = gaugeStopsCopy[i] * 0.5;
+    }
+
     WearableCommunicator.sendMessage({
       "gaugeData": {
         "gaugeColors": gaugeColors.map((e) => [e.red, e.green, e.blue]).toList(),
