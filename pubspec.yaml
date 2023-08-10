@@ -69,8 +69,9 @@ dependencies:
   qr_code_scanner: ^1.0.1 # Used to scan QR codes
   url_launcher: ^6.1.10 # Used to open URLs
   in_app_review: ^2.0.6 # Used to rate the app
-  sqflite: ^2.2.0+3 # Used for the gamification database
+  sqflite: ^2.2.0 # Used for the gamification database
   path: ^1.8.2 # Used for the gamification database
+  json_annotation: ^4.8.1 # Used for serializing model objects of the gamification db
 
 
 dev_dependencies:
@@ -84,6 +85,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.1
+  json_serializable: ^6.6.0 # Used for serializing model objects of the gamification db
 
 # Configuration of the splash screens.
 flutter_native_splash:

@@ -1,7 +1,8 @@
+/// Abstract class for objects managed by a corresponding [Repository].
 abstract class RepositoryObject {
   int? get id;
 
   Map<String, dynamic> toMap();
 
-  copy({int? id});
+  copyWithId({int? id});
 }
