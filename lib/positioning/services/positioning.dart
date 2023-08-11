@@ -105,7 +105,6 @@ class Positioning with ChangeNotifier {
     final settings = getIt<Settings>();
     if (settings.positioningMode == PositioningMode.gnss) {
       positionSource = GNSSPositionSource();
-      log.i("Using gnss positioning source.");
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
       final routing = getIt<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.

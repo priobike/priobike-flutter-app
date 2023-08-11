@@ -136,7 +136,7 @@ class RideAssist with ChangeNotifier {
     }
 
     // Size to 0 - 0.5 range.
-    for(int i=0; i<gaugeStopsCopy.length; i++) {
+    for (int i = 0; i < gaugeStopsCopy.length; i++) {
       gaugeStopsCopy[i] = gaugeStopsCopy[i] * 0.5;
     }
 

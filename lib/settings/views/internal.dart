@@ -22,6 +22,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/settings/views/wear_communication_test.dart';
 import 'package:priobike/settings/views/wear_pretests.dart';
+import 'package:priobike/settings/views/wear_tutorial.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -202,7 +203,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Tutorial (TODO)",
                     icon: Icons.tv,
-                    callback: () => {},
+                    callback: () =>
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const WearTutorialView())),
                   ),
                 ),
                 Padding(
