@@ -552,6 +552,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  location:
+    dependency: "direct main"
+    description:
+      name: location
+      sha256: "153c5d779e3bfe293ba326105522ab3e3971f11390b32c7e4dce804aa23655dc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
+  location_platform_interface:
+    dependency: transitive
+    description:
+      name: location_platform_interface
+      sha256: "7ef30443cffadad54d534dfd370fe126bc087655aaa53f181570b9812a87a806"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
+  location_web:
+    dependency: transitive
+    description:
+      name: location_web
+      sha256: "00624210b3461976d868471b3e136886a0e166eebe09db636e7d0a4057648fbb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   mapbox_maps_flutter:
     dependency: "direct main"
     description:

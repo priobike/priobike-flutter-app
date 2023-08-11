@@ -36,6 +36,7 @@ dependencies:
   fluttertoast: ^8.0.8 # Minimalistic popup callable from everywhere
   cupertino_icons: ^1.0.2 # Icons package
   geolocator: ^9.0.2 # GPS tracking
+  location: ^5.0.0 # Better GPS tracking
   shared_preferences: ^2.0.15 # Access to shared preferences or user defaults (iOS)
   latlong2: ^0.8.1 # Distance calculations and more
   flutter_native_splash: ^2.1.6 # Generated splash screen, see below

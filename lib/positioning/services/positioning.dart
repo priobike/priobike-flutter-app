@@ -4,6 +4,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:location/location.dart' hide LocationAccuracy;
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
@@ -41,6 +42,9 @@ class Positioning with ChangeNotifier {
 
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
+
+  /// The Location instance.
+  Location location = Location();
 
   Positioning({this.positionSource});
 
@@ -107,19 +111,23 @@ class Positioning with ChangeNotifier {
       positionSource = GNSSPositionSource();
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
       final routing = getIt<Routing>();
-      final positions = routing.selectedRoute?.route // Fallback to center location of city.
-              .map((e) => LatLng(e.lat, e.lon))
-              .toList() ??
-          [settings.backend.center];
-      positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
+      final positions =
+          routing.selectedRoute?.route // Fallback to center location of city.
+                  .map((e) => LatLng(e.lat, e.lon))
+                  .toList() ??
+              [settings.backend.center];
+      positionSource =
+          PathMockPositionSource(speed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
       final routing = getIt<Routing>();
-      final positions = routing.selectedRoute?.route // Fallback to center location of city.
-              .map((e) => LatLng(e.lat, e.lon))
-              .toList() ??
-          [settings.backend.center];
-      positionSource = PathMockPositionSource(speed: 40 / 3.6, positions: positions);
+      final positions =
+          routing.selectedRoute?.route // Fallback to center location of city.
+                  .map((e) => LatLng(e.lat, e.lon))
+                  .toList() ??
+              [settings.backend.center];
+      positionSource =
+          PathMockPositionSource(speed: 40 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (40 km/h).");
     } else if (settings.positioningMode == PositioningMode.recordedDresden) {
       positionSource = RecordedMockPositionSource.mockDresden;
@@ -128,13 +136,16 @@ class Positioning with ChangeNotifier {
       positionSource = RecordedMockPositionSource.mockHamburg;
       log.i("Using mocked positioning source for Hamburg.");
     } else if (settings.positioningMode == PositioningMode.hamburgStatic1) {
-      positionSource = StaticMockPositionSource(LatLng(53.5529283, 10.004511), 270);
+      positionSource =
+          StaticMockPositionSource(LatLng(53.5529283, 10.004511), 270);
       log.i("Using mocked position source for Hamburg main station.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
-      positionSource = StaticMockPositionSource(LatLng(51.030077, 13.729404), 270);
+      positionSource =
+          StaticMockPositionSource(LatLng(51.030077, 13.729404), 270);
       log.i("Using mocked position source for traffic light 1 in Dresden.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
-      positionSource = StaticMockPositionSource(LatLng(51.030241, 13.728205), 1);
+      positionSource =
+          StaticMockPositionSource(LatLng(51.030241, 13.728205), 1);
       log.i("Using mocked position source for traffic light 2 in Dresden.");
     } else {
       throw Exception("Unknown position source.");
@@ -142,7 +153,8 @@ class Positioning with ChangeNotifier {
   }
 
   /// Request a single location update. This will not be recorded.
-  Future<void> requestSingleLocation({required void Function() onNoPermission}) async {
+  Future<void> requestSingleLocation(
+      {required void Function() onNoPermission}) async {
     await initializePositionSource();
 
     final hasPermission = await requestGeolocatorPermission();
@@ -153,7 +165,8 @@ class Positioning with ChangeNotifier {
       return;
     }
 
-    lastPosition = await positionSource!.getPosition(desiredAccuracy: LocationAccuracy.high);
+    lastPosition = await positionSource!
+        .getPosition(desiredAccuracy: LocationAccuracy.high);
     notifyListeners();
   }
 
@@ -176,20 +189,20 @@ class Positioning with ChangeNotifier {
 
     // Only use kCLLocationAccuracyBestForNavigation if the device is charging.
     // See: https://developer.apple.com/documentation/corelocation/kcllocationaccuracybestfornavigation
-    final desiredAccuracy = await Battery().batteryState == BatteryState.charging
-        ? LocationAccuracy.bestForNavigation // Requires additional energy for sensor fusion.
-        : LocationAccuracy.best;
+    final desiredAccuracy = await Battery().batteryState ==
+            BatteryState.charging
+        ? LocationAccuracy
+            .bestForNavigation // Requires additional energy for sensor fusion.
+        : LocationAccuracy.high;
 
-    var positionStream = await positionSource!.startPositioning(
-      locationSettings: LocationSettings(
-        accuracy: desiredAccuracy,
-        distanceFilter: 0,
-      ),
-    );
+    var positionStream =
+        await positionSource!.startPositioning(locationSettings: null);
 
     positionSubscription = positionStream.listen(
       (Position position) {
         if (!isGeolocating) return;
+        // Remove bad value.
+        if (position.latitude == -1 || position.longitude == -1) return;
         lastPosition = position;
         positions.add(position);
         // Snap the position to the route.

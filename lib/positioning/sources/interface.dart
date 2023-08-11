@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart' hide LocationAccuracy;
 
 abstract class PositionSource {
   /// Check if location services are enabled.
