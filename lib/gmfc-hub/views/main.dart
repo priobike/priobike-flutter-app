@@ -1,5 +1,6 @@
-import 'dart:math';
+import 'dart:math' as m;
 
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -19,9 +20,16 @@ class GamificationHubViewState extends State<GamificationHubView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  List<TestObject> objects = [];
+
   @override
   void initState() {
     super.initState();
+    AppDatabase.instance.testDao.streamAllObjects().listen((event) {
+      setState(() {
+        objects = event;
+      });
+    });
   }
 
   @override
@@ -53,6 +61,8 @@ class GamificationHubViewState extends State<GamificationHubView> {
                 const TotalStatisticsView(),
                 const SmallVSpace(),
                 generateTestObjectButton(),
+                const SmallVSpace(),
+                generateObjetList(),
               ],
             ),
           ),
@@ -66,8 +76,8 @@ class GamificationHubViewState extends State<GamificationHubView> {
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: TextButton(
           onPressed: () async {
-            var test = TestObjectsCompanion.insert(number: Random().nextInt(999999999));
-            var result = (await AppDatabase.instance.testDao.create(test))!;
+            var test = TestObjectsCompanion.insert(number: m.Random().nextInt(999999999));
+            var result = (await AppDatabase.instance.testDao.createObject(test))!;
             if (!mounted) return;
             showDialog(
                 context: context,
@@ -78,5 +88,35 @@ class GamificationHubViewState extends State<GamificationHubView> {
           },
           child: const Text("Generate"),
         ));
+  }
+
+  Widget generateObjetList() {
+    return Column(
+      children: objects
+          .map(
+            (o) => Container(
+              color: Color((m.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0),
+              padding: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () {
+                  var obj = TestObject(id: o.id, number: m.Random().nextInt(999999999));
+                  AppDatabase.instance.testDao.updateObject(obj);
+                },
+                onDoubleTap: () {
+                  AppDatabase.instance.testDao.deleteObject(o);
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text("id: ${o.id}"),
+                    Text("number: ${o.number}"),
+                  ],
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
   }
 }
