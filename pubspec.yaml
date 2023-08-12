@@ -69,6 +69,9 @@ dependencies:
   qr_code_scanner: ^1.0.1 # Used to scan QR codes
   url_launcher: ^6.1.10 # Used to open URLs
   in_app_review: ^2.0.6 # Used to rate the app
+  drift: ^2.8.0 # Used for the local database
+  sqlite3_flutter_libs: ^0.5.0 # Needed for the drift database which is based on sqlite
+  path: ^1.8.2 # Used to determine the database file location
 
 dev_dependencies:
   flutter_launcher_icons: ^0.11.0 # Generate app icons
@@ -81,6 +84,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.1
+  drift_dev: ^2.8.0 # 
+  build_runner: ^2.3.0 # Used to generate code with the drift package
 
 # Configuration of the splash screens.
 flutter_native_splash:
