@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:priobike/database/database.dart';
-import 'package:priobike/database/database_dao.dart';
+import 'package:priobike/common/database/database.dart';
+import 'package:priobike/common/database/database_dao.dart';
 
 part 'test_object.g.dart';
 

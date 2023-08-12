@@ -1,15 +1,15 @@
 import 'package:drift/drift.dart';
-import 'package:priobike/database/database.dart';
+import 'package:priobike/common/database/database.dart';
 
 /// Abstract database access object (DAO) class to be extendet by actual DAOs with corresponding [Table].
 /// T specifies the [DataClass] held by the table.
 abstract class DatabaseDao<T extends DataClass> extends DatabaseAccessor<AppDatabase> {
   DatabaseDao(AppDatabase attachedDatabase) : super(attachedDatabase);
 
-  /// Corresponding table of this DAO.
+  /// Table corresponding to DAOs extending this class. Needs to be implemented.
   TableInfo get table;
 
-  /// Select statement to filter table by a given value of the primary key.
+  /// Select statement to filter table by a given value of the primary key. Needs to be implemented.
   SimpleSelectStatement selectByPrimaryKey(dynamic value);
 
   /// Simple select statement to select the whole table.

@@ -71,19 +71,20 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
   /// Update the speedometer.
   void updateSpeedometer() {
-    if (routing.hadErrorDuringFetch) return;
-
     // Fetch the maximum speed from the settings service.
     maxSpeed = getIt<Settings>().speedMode.maxSpeed;
 
     // Animate the speed to the new value.
     final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
+
     // Scale between minSpeed and maxSpeed.
     final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
     // Animate to the new value.
     speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
     // Load the gauge colors and steps, from the predictor.
-    loadGauge(ride);
+    if (!routing.hadErrorDuringFetch) {
+      loadGauge(ride);
+    }
 
     setState(() {});
   }
