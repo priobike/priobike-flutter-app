@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math' as m;
 
 import 'package:drift/drift.dart' as drift;
@@ -104,6 +105,12 @@ class GamificationHubViewState extends State<GamificationHubView> {
                 },
                 onDoubleTap: () {
                   AppDatabase.instance.testDao.deleteObject(o);
+                },
+                onLongPress: () {
+                  log("Start Stream");
+                  AppDatabase.instance.testDao
+                      .streamObjectByPrimaryKey(o.id)
+                      .listen((result) => log("Object(${o.id}) Stream: ${(result?.number.toString()) ?? "Empty"}"));
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
