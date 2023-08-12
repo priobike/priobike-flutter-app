@@ -11,6 +11,8 @@ class GameIntro extends StatefulWidget {
   State<GameIntro> createState() => _GameIntroState();
 }
 
+/// This view is displayed when the user first presses the game card from the home view. It provides the user with
+/// information about the gamification features and gives them the option to participate.
 class _GameIntroState extends State<GameIntro> {
   /// The associated intro service, which is injected by the provider.
   late GameIntroService introService;
@@ -36,8 +38,13 @@ class _GameIntroState extends State<GameIntro> {
 
   @override
   Widget build(BuildContext context) {
+    // Show empty page, until the shared preferences have been loaded.
     if (!introService.loadedValues) return const SizedBox.shrink();
+
+    /// If the intro has been started, show the gamification hub.
     if (introService.startedIntro) return const GamificationHubView();
+
+    /// Otherwise, show the first page of the intro.
     return const GameInfoPage();
   }
 }

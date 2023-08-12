@@ -6,6 +6,8 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/main.dart';
 
+/// This view shows the user basic information about the gamification features and allows them to start the intro
+/// to participate in it.
 class GameInfoPage extends StatelessWidget {
   const GameInfoPage({Key? key}) : super(key: key);
 
