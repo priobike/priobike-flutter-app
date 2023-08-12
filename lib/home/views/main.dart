@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/intro/views/info_page.dart';
 import 'package:priobike/gamification/intro/views/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -26,7 +25,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
-import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -68,9 +66,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
-  /// The associated statistics service, which is injected by the provider.
-  late Statistics statistics;
-
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
@@ -99,7 +94,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     routing = getIt<Routing>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
-    statistics = getIt<Statistics>();
 
     // Check if app should be rated.
     if (askRateAppList.contains(settings.useCounter)) {

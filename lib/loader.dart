@@ -18,7 +18,6 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -64,7 +63,6 @@ class LoaderState extends State<Loader> {
       // Load local stuff.
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
-      await getIt<Statistics>().loadStatistics();
       await getIt<Layers>().loadPreferences();
       await getIt<MapDesigns>().loadPreferences();
       final tracking = getIt<Tracking>();

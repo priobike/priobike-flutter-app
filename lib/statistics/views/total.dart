@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/database/database.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/colors.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
-import 'package:priobike/main.dart';
-import 'package:priobike/statistics/services/statistics.dart';
 
 class TotalStatisticsView extends StatefulWidget {
-  const TotalStatisticsView({Key? key}) : super(key: key);
+  final RideSummary? rideSummary;
+
+  const TotalStatisticsView({Key? key, this.rideSummary}) : super(key: key);
 
   @override
   State<TotalStatisticsView> createState() => TotalStatisticsViewState();
 }
 
 class TotalStatisticsViewState extends State<TotalStatisticsView> {
-  /// The statistics service, which is injected by the provider.
-  late Statistics statistics;
-
   /// padding for the rows used in the statistics view
   double paddingStats = 16.0;
 
@@ -27,41 +25,11 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   @override
   void initState() {
     super.initState();
-    statistics = getIt<Statistics>();
-    statistics.addListener(update);
   }
 
   @override
   void dispose() {
-    statistics.removeListener(update);
     super.dispose();
-  }
-
-  Widget renderCo2Stats() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Container(
-        alignment: Alignment.centerRight,
-        child: LevelView(
-          levels: const [
-            // Bronze levels
-            Level(value: 0, title: "Öko-Kämpfer", color: Medals.bronze),
-            Level(value: 1, title: "Grüner Riese", color: Medals.bronze),
-            // Silver levels
-            Level(value: 5, title: "Planetenschützer", color: Medals.silver),
-            Level(value: 10, title: "Nachhaltigkeits-Star", color: Medals.silver),
-            // Gold levels
-            Level(value: 25, title: "Öko-Held", color: Medals.gold),
-            Level(value: 50, title: "Umwelt-Retter", color: Medals.gold),
-            // PrioBike (Blue) levels
-            Level(value: 100, title: "Klima-Champion", color: Medals.priobike),
-          ],
-          value: (statistics.totalSavedCO2Kg ?? 0),
-          icon: Icons.co2_rounded,
-          unit: "kg",
-        ),
-      ),
-    );
   }
 
   Widget renderDistanceStats() {
@@ -83,7 +51,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             // PrioBike (Blue) levels
             Level(value: 1000, title: "Radfahr-Champion", color: Medals.priobike),
           ],
-          value: (statistics.totalDistanceMeters ?? 0) / 1000,
+          value: (widget.rideSummary?.distance ?? 0) / 1000,
           icon: Icons.directions_bike_rounded,
           unit: "km",
         ),
@@ -110,7 +78,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             // PrioBike (Blue) levels
             Level(value: 3000, title: "Radrennen-Routinier", color: Medals.priobike),
           ],
-          value: (statistics.totalDurationSeconds ?? 0.0) / 60,
+          value: (widget.rideSummary?.duration ?? 0) / 60,
           icon: Icons.timer_outlined,
           unit: "min",
         ),
@@ -128,7 +96,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               BoldContent(
-                text: "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
+                text: "⌀ ${(widget.rideSummary?.averageSpeed.toInt() ?? 0).round()} km/h",
                 context: context,
               ),
               const SizedBox(height: 4),
@@ -165,7 +133,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
         width: MediaQuery.of(context).size.width,
         child: Column(
           children: [
-            renderCo2Stats(),
             renderDistanceStats(),
             renderDurationStats(),
             renderSpeedStats(),

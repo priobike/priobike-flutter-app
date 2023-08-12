@@ -6,6 +6,11 @@ part 'user_profile.g.dart';
 
 class UserProfiles extends Table {
   IntColumn get id => integer().autoIncrement()();
+  RealColumn get totalDistance => real()();
+  RealColumn get totalDuration => real()();
+  RealColumn get totalElevationGain => real()();
+  RealColumn get totalElevationLoss => real()();
+  DateTimeColumn get joinDate => dateTime()();
 }
 
 @DriftAccessor(tables: [UserProfiles])

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/database/database.dart';
+import 'package:priobike/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -16,9 +18,18 @@ class GamificationHubViewState extends State<GamificationHubView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  List<RideSummary> rides = [];
+
+  RideSummaryDao rideDao = AppDatabase.instance.rideSummaryDao;
+
   @override
   void initState() {
     super.initState();
+    rideDao.streamAllObjects().listen((update) {
+      setState(() {
+        rides = update;
+      });
+    });
   }
 
   @override
@@ -47,12 +58,55 @@ class GamificationHubViewState extends State<GamificationHubView> {
                   ],
                 ),
                 const SmallVSpace(),
-                const TotalStatisticsView(),
+                TotalStatisticsView(
+                  rideSummary: calculateTotalSummary(),
+                ),
+                const SmallVSpace(),
+                generateRideList(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget generateRideList() {
+    return Column(
+      children: rides
+          .map(
+            (ride) => Container(
+              padding: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onDoubleTap: () {
+                  rideDao.deleteObject(ride);
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text("id: ${ride.id},"),
+                    Text("dis: ${ride.distance.toInt()},"),
+                    Text("dur: ${ride.duration.toInt()},"),
+                    Text("avg speed: ${ride.averageSpeed.toInt()},"),
+                  ],
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  RideSummary? calculateTotalSummary() {
+    if (rides.isEmpty) return null;
+    return RideSummary(
+      id: 0,
+      distance: rides.map((r) => r.distance).reduce((a, b) => a + b),
+      duration: rides.map((r) => r.duration).reduce((a, b) => a + b),
+      elevationGain: rides.map((r) => r.elevationGain).reduce((a, b) => a + b),
+      elevationLoss: rides.map((r) => r.elevationLoss).reduce((a, b) => a + b),
+      averageSpeed: rides.map((r) => r.averageSpeed).reduce((a, b) => a + b) / rides.length,
     );
   }
 }

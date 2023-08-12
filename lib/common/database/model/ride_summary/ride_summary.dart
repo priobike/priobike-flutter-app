@@ -8,6 +8,10 @@ part 'ride_summary.g.dart';
 class RideSummaries extends Table {
   IntColumn get id => integer().autoIncrement()();
   RealColumn get distance => real()();
+  RealColumn get duration => real()();
+  RealColumn get elevationGain => real()();
+  RealColumn get elevationLoss => real()();
+  RealColumn get averageSpeed => real()();
 }
 
 @DriftAccessor(tables: [RideSummaries])
