@@ -366,7 +366,7 @@ class Routing with ChangeNotifier {
         ];
       } else {
         hadErrorDuringFetch = true;
-        waypointsOutOfBoundaries = true;
+        waypointsOutOfBoundaries = false;
         isFetchingRoute = false;
         notifyListeners();
         return null;
