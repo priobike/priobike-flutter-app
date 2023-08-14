@@ -8,10 +8,7 @@ import 'package:priobike/gamification/intro/views/intro_page.dart';
 import 'package:priobike/main.dart';
 
 class GamePrefsPage extends GameIntroPage {
-  final Function onBackButton;
-
-  const GamePrefsPage(this.onBackButton, {Key? key, required AnimationController controller})
-      : super(key: key, controller: controller);
+  const GamePrefsPage({Key? key, required AnimationController controller}) : super(key: key, controller: controller);
 
   @override
   IconData get confirmButtonIcon => Icons.check;
@@ -20,29 +17,56 @@ class GamePrefsPage extends GameIntroPage {
   String get confirmButtonLabel => "Auswahl Bestätigen";
 
   @override
-  void onBackButtonTab(BuildContext context) => onBackButton;
+  void onBackButtonTab(BuildContext context) => getIt<GameIntroService>().setStartedIntro(false);
 
   @override
-  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().confirmPreferences();
+  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().setPrefsSet(true);
 
   @override
-  Widget buildMainContent(BuildContext context) {
-    return HPad(
-      child: Fade(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 164),
-              SubHeader(text: "Wähle deine Preferenzen:", context: context),
-              const GamePrefListElement(label: "Test1"),
-              const GamePrefListElement(label: "Test2"),
-              const GamePrefListElement(label: "Test3"),
-              const GamePrefListElement(label: "Test4"),
-              const GamePrefListElement(label: "Test5"),
-              const GamePrefListElement(label: "Test6"),
-              const SizedBox(height: 164),
-            ],
+  Widget get mainContent => const Content();
+}
+
+class Content extends StatelessWidget {
+  const Content({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: HPad(
+        child: Fade(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 64 + 16),
+                Header(text: "Wähle deine Preferenzen:", context: context),
+                const GamePrefListElement(
+                  label: "Test1",
+                  prefKey: GameIntroService.prefKeyTest1,
+                ),
+                const GamePrefListElement(
+                  label: "Test2",
+                  prefKey: GameIntroService.prefKeyTest2,
+                ),
+                const GamePrefListElement(
+                  label: "Test3",
+                  prefKey: GameIntroService.prefKeyTest3,
+                ),
+                const GamePrefListElement(
+                  label: "Test4",
+                  prefKey: GameIntroService.prefKeyTest4,
+                ),
+                const GamePrefListElement(
+                  label: "Test5",
+                  prefKey: GameIntroService.prefKeyTest5,
+                ),
+                const GamePrefListElement(
+                  label: "Test6",
+                  prefKey: GameIntroService.prefKeyTest6,
+                ),
+                const SizedBox(height: 164),
+              ],
+            ),
           ),
         ),
       ),
@@ -53,12 +77,12 @@ class GamePrefsPage extends GameIntroPage {
 class GamePrefListElement extends StatefulWidget {
   final String label;
 
-  //final Function onTap;
+  final String prefKey;
 
   const GamePrefListElement({
     Key? key,
     required this.label,
-    //required this.onTap,
+    required this.prefKey,
   }) : super(key: key);
 
   @override
@@ -66,17 +90,38 @@ class GamePrefListElement extends StatefulWidget {
 }
 
 class _GamePrefListElementState extends State<GamePrefListElement> {
+  /// The associated intro service, which is injected by the provider.
+  late GameIntroService introService;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    introService = getIt<GameIntroService>();
+    introService.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    introService.removeListener(update);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
+    var service = getIt<GameIntroService>();
+    var selected = service.stringInPrefs(widget.prefKey);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Tile(
-        splash: theme.primaryColor,
-        fill: Colors.white,
-        onPressed: () {
-          log.w("${widget.label} pressed");
-        },
+        splash: selected ? Colors.white : theme.primaryColor,
+        fill: selected ? theme.primaryColor : Colors.white,
+        onPressed: () => service.addOrRemoveFromPrefs(widget.prefKey),
         content: Center(child: Text(widget.label)),
       ),
     );

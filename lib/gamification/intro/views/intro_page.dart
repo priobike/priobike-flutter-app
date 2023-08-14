@@ -3,11 +3,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 
 abstract class GameIntroPage extends AnimatedWidget {
-  const GameIntroPage({
-    Key? key,
-    required AnimationController controller,
-  }) : super(key: key, listenable: controller);
-
   IconData get confirmButtonIcon;
 
   String get confirmButtonLabel;
@@ -16,7 +11,12 @@ abstract class GameIntroPage extends AnimatedWidget {
 
   void onConfirmButtonTab(BuildContext context);
 
-  Widget buildMainContent(BuildContext context);
+  Widget get mainContent;
+
+  const GameIntroPage({
+    Key? key,
+    required AnimationController controller,
+  }) : super(key: key, listenable: controller);
 
   Animation<Offset> get _buttonAnimation => Tween<Offset>(
         begin: const Offset(0.0, 1.0),
@@ -45,7 +45,7 @@ abstract class GameIntroPage extends AnimatedWidget {
               alignment: Alignment.topCenter,
               child: SlideTransition(
                 position: _contentAnimation,
-                child: buildMainContent(context),
+                child: mainContent,
               ),
             ),
             SafeArea(

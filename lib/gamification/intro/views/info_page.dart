@@ -13,27 +13,36 @@ class GameInfoPage extends GameIntroPage {
   IconData get confirmButtonIcon => Icons.check;
 
   @override
-  String get confirmButtonLabel => "Teilnehmen";
+  String get confirmButtonLabel => "Weiter";
 
   @override
   void onBackButtonTab(BuildContext context) => Navigator.pop(context);
 
   @override
-  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().startIntro();
+  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().setStartedIntro(true);
 
   @override
-  Widget buildMainContent(BuildContext context) {
-    return HPad(
-      child: Fade(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 164),
-              Header(text: "PrioBike Challenge", context: context),
-              const SmallVSpace(),
-              SubHeader(text: "Möchtest Du an der PrioBike Challenge teilnehmen?", context: context),
-            ],
+  Widget get mainContent => const Content();
+}
+
+class Content extends StatelessWidget {
+  const Content({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: HPad(
+        child: Fade(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 64 + 16),
+                Header(text: "PrioBike Challenge", context: context),
+                const SmallVSpace(),
+                SubHeader(text: "Möchtest Du an der PrioBike Challenge teilnehmen?", context: context),
+              ],
+            ),
           ),
         ),
       ),

@@ -22,18 +22,23 @@ class _GameIntroState extends State<GameIntro> with SingleTickerProviderStateMix
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    _controller.reverse().then((value) => setState(() {}));
+    if (introService.pageChanged) {
+      introService.pageChanged = false;
+      _controller.reverse().then((value) => setState(() {}));
+      return;
+    }
+    setState(() {});
   }
 
   @override
   void initState() {
-    super.initState();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
     introService = getIt<GameIntroService>();
     introService.addListener(update);
+    super.initState();
   }
 
   @override
@@ -46,15 +51,14 @@ class _GameIntroState extends State<GameIntro> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     _controller.forward();
 
-    return GamePrefsPage(() => Navigator.pop(context), controller: _controller);
-
     // Show empty page, until the shared preferences have been loaded.
-    if (!introService.loadedValues) return const SizedBox.shrink();
+    //if (!introService.loadedValues) return const SizedBox.shrink();
+
+    if (!introService.startedIntro) return GameInfoPage(controller: _controller);
+
+    if (!introService.prefsSet) return GamePrefsPage(controller: _controller);
 
     /// If the intro has been started, show the gamification hub.
-    if (introService.startedIntro) return const GamificationHubView();
-
-    /// Otherwise, show the first page of the intro.
-    return GameInfoPage(controller: _controller);
+    return const GamificationHubView();
   }
 }
