@@ -168,6 +168,15 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+
+      if (!inCityBoundary(selectedWaypoints!)) {
+        hadErrorDuringFetch = true;
+        waypointsOutOfBoundaries = true;
+      } else {
+        hadErrorDuringFetch = false;
+        waypointsOutOfBoundaries = false;
+      }
+
       notifyListeners();
       return;
     }

@@ -279,7 +279,7 @@ class RoutingViewState extends State<RoutingView> {
                 Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
                 const VSpace(),
                 BoldSmall(
-                  text: "Tut uns Leid, aber diese Route konnte nicht geladen werden.",
+                  text: "Tut uns Leid, aber das konnte nicht geladen werden.",
                   context: context,
                   textAlign: TextAlign.center,
                 ),
