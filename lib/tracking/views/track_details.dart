@@ -132,13 +132,13 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   /// Load the track.
   Future<void> loadTrack() async {
     routeNodes = getPassedNodes(widget.track.routes.values.toList(), vincenty);
+    positions.clear();
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
     try {
       final gpsFile = await widget.track.gpsCSVFile;
       final gpsFileLines = await gpsFile.readAsLines();
-      positions.clear();
       // Skip the first line, which is the header.
       for (var i = 1; i < gpsFileLines.length; i++) {
         final lineContents = gpsFileLines[i].split(',');
@@ -371,7 +371,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                         children: [
                           AnimatedOpacity(
                             duration: const Duration(milliseconds: 300),
-                            opacity: tabController?.index == 1 ? 1 : 0,
+                            opacity: (tabController?.index ?? 1) == 1 ? 1 : 0,
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: RoutePictogram(
@@ -428,7 +428,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                     key: GlobalKey(),
                   ),
                 ),
-              if (positions.isNotEmpty)
+              if (rideDetails.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: Row(
