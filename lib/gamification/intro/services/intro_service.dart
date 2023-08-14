@@ -11,7 +11,10 @@ class GameIntroService with ChangeNotifier {
   static const prefKeyTest6 = "priobike.game.prefs.test6";
 
   /// The key under which the information if the user has started the intro is stored in shared preferences.
-  static const startedIntroKey = "priobike.game.intro.started";
+  static const finishedTutorialKey = "priobike.game.finishedTutorial";
+
+  /// Shared preferences instance to store and retrieve at which point of the intro the user is.
+  SharedPreferences? _prefs;
 
   bool pageChanged = false;
 
@@ -29,9 +32,27 @@ class GameIntroService with ChangeNotifier {
 
   bool get prefsSet => _prefsSet;
 
+  bool _tutorialFinished = false;
+
+  bool get tutoralFinished => _tutorialFinished;
+
+  String _username = "";
+
+  String get username => _username;
+
+  void setUsername(String value) {
+    _username = value;
+    notifyListeners();
+  }
+
+  void setTutorialFinished(bool value) {
+    _tutorialFinished = value;
+    _prefs?.setBool(finishedTutorialKey, _tutorialFinished);
+    notifyListeners();
+  }
+
   void setStartedIntro(bool value) {
     _startedIntro = value;
-    _prefs?.setBool(startedIntroKey, _startedIntro);
     pageChanged = true;
     notifyListeners();
   }
@@ -49,11 +70,8 @@ class GameIntroService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Shared preferences instance to store and retrieve at which point of the intro the user is.
-  SharedPreferences? _prefs;
-
   GameIntroService() {
-    //_loadValues();
+    _loadValues();
   }
 
   void setPrefsSet(bool value) {
@@ -65,7 +83,6 @@ class GameIntroService with ChangeNotifier {
   /// Load values from shared preferences.
   void _loadValues() async {
     _prefs = await SharedPreferences.getInstance();
-    _startedIntro = _prefs?.getBool(startedIntroKey) ?? false;
     _loadedValues = true;
     notifyListeners();
   }

@@ -16,13 +16,13 @@ class GameInfoPage extends GameIntroPage {
   String get confirmButtonLabel => "Weiter";
 
   @override
+  Widget get mainContent => const Content();
+
+  @override
   void onBackButtonTab(BuildContext context) => Navigator.pop(context);
 
   @override
   void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().setStartedIntro(true);
-
-  @override
-  Widget get mainContent => const Content();
 }
 
 class Content extends StatelessWidget {

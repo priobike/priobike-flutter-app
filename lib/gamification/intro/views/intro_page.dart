@@ -7,11 +7,11 @@ abstract class GameIntroPage extends AnimatedWidget {
 
   String get confirmButtonLabel;
 
+  Widget get mainContent;
+
   void onBackButtonTab(BuildContext context);
 
   void onConfirmButtonTab(BuildContext context);
-
-  Widget get mainContent;
 
   const GameIntroPage({
     Key? key,
@@ -37,6 +37,7 @@ abstract class GameIntroPage extends AnimatedWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         color: Theme.of(context).colorScheme.surface,
         child: Stack(

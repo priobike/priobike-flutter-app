@@ -17,13 +17,13 @@ class GamePrefsPage extends GameIntroPage {
   String get confirmButtonLabel => "Auswahl Bestätigen";
 
   @override
+  Widget get mainContent => const Content();
+
+  @override
   void onBackButtonTab(BuildContext context) => getIt<GameIntroService>().setStartedIntro(false);
 
   @override
   void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().setPrefsSet(true);
-
-  @override
-  Widget get mainContent => const Content();
 }
 
 class Content extends StatelessWidget {

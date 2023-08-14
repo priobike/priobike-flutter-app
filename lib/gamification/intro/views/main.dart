@@ -3,6 +3,7 @@ import 'package:priobike/gamification/hub/views/main.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/info_page.dart';
 import 'package:priobike/gamification/intro/views/prefs_page.dart';
+import 'package:priobike/gamification/intro/views/username_page.dart';
 import 'package:priobike/main.dart';
 
 class GameIntro extends StatefulWidget {
@@ -52,13 +53,14 @@ class _GameIntroState extends State<GameIntro> with SingleTickerProviderStateMix
     _controller.forward();
 
     // Show empty page, until the shared preferences have been loaded.
-    //if (!introService.loadedValues) return const SizedBox.shrink();
+    if (!introService.loadedValues) return const SizedBox.shrink();
 
-    if (!introService.startedIntro) return GameInfoPage(controller: _controller);
+    if (introService.tutoralFinished) return const GamificationHubView();
 
-    if (!introService.prefsSet) return GamePrefsPage(controller: _controller);
+    if (introService.prefsSet) return GameUsernamePage(controller: _controller);
 
-    /// If the intro has been started, show the gamification hub.
-    return const GamificationHubView();
+    if (introService.startedIntro) return GamePrefsPage(controller: _controller);
+
+    return GameInfoPage(controller: _controller);
   }
 }
