@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/all_track_history.dart';
@@ -32,8 +33,14 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// The list of the newest tracks.
-  List<Track> newestTracks = [];
+  List<Track> newestTracks = List.empty(growable: true);
+
+  /// The count of total tracks.
+  int totalTracks = 0;
 
   /// The image of the route start icon.
   ui.Image? startImage;
@@ -57,10 +64,19 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     }
 
     newestTracks.clear();
+    totalTracks = 0;
 
     // Get max. 10 newest tracks
-    for (var i = tracking.previousTracks!.length - 2; i >= 0 && i > tracking.previousTracks!.length - 11; i--) {
-      newestTracks.add(tracking.previousTracks![i]);
+    var i = tracking.previousTracks!.length - 2;
+    final backend = getIt<Settings>().backend;
+    while (i >= 0) {
+      if (tracking.previousTracks![i].backend == backend) {
+        if (newestTracks.length < 10) {
+          newestTracks.add(tracking.previousTracks![i]);
+        }
+        totalTracks++;
+      }
+      i--;
     }
   }
 
@@ -70,6 +86,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
     tracking = getIt<Tracking>();
     tracking.addListener(update);
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -84,6 +102,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         destinationImage = (await destinationCodec.getNextFrame()).image;
 
         await tracking.loadPreviousTracks();
+
+        await loadRoutes();
       },
     );
   }
@@ -91,6 +111,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   @override
   void dispose() {
     tracking.removeListener(update);
+    settings.removeListener(update);
     super.dispose();
   }
 
@@ -132,14 +153,14 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
     // Show a hint for the other tracks if there are more than 10.
     // We need "+ 1" because the newest track in the larger view above is not in the newestTracks list.
-    if ((newestTracks.length + 1) < tracking.previousTracks!.length) {
+    if ((newestTracks.length + 1) < totalTracks) {
       views.add(
         Align(
           alignment: Alignment.center,
           child: Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Content(
-              text: "... und ${tracking.previousTracks!.length - newestTracks.length} weitere.",
+              text: "... und ${totalTracks - newestTracks.length} weitere.",
               context: context,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.4),
             ),

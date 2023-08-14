@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_details.dart';
@@ -24,6 +25,9 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// The newest track.
   Track? track;
 
@@ -34,11 +38,24 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
   ui.Image? destinationImage;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  Future<void> update() async {
+  void update() {
+    getLatestTrack();
+    setState(() {});
+  }
+
+  /// Gets the latest track.
+  void getLatestTrack() {
     if (tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) {
-      setState(() {
-        track = tracking.previousTracks!.last;
-      });
+      final backend = getIt<Settings>().backend;
+      for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
+        Track track = tracking.previousTracks![i];
+        if (track.backend == backend) {
+          setState(() {
+            this.track = track;
+          });
+          break;
+        }
+      }
     }
   }
 
@@ -48,6 +65,8 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
     initializeDateFormatting();
     tracking = getIt<Tracking>();
     tracking.addListener(update);
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -63,9 +82,7 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
 
         await tracking.loadPreviousTracks();
 
-        if (tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) {
-          track = tracking.previousTracks!.last;
-        }
+        getLatestTrack();
 
         setState(() {});
       },
@@ -75,6 +92,7 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
   @override
   void dispose() {
     tracking.removeListener(update);
+    settings.removeListener(update);
     super.dispose();
   }
 

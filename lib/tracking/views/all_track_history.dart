@@ -12,6 +12,8 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,9 +41,12 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   /// The used disk space.
   String? usedDiskSpace;
 
+  /// The previous tracks.
+  List<Track> previousTracks = List.empty(growable: true);
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   Future<void> update() async {
-    await loadStorage();
+    await loadTracks();
     setState(() {});
   }
 
@@ -66,16 +71,35 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
         await tracking.loadPreviousTracks();
 
-        // Needs to be loaded after the tracks are loaded because we use them to calculate the total storage.
-        await loadStorage();
+        // Needs to be loaded after the tracks are loaded because we use them.
+        await loadTracks();
 
         setState(() {});
       },
     );
   }
 
+  /// Loads the tracks.
+  Future<void> loadTracks() async {
+    previousTracks.clear();
+    if (tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) {
+      final backend = getIt<Settings>().backend;
+      for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
+        Track track = tracking.previousTracks![i];
+        if (track.backend == backend) {
+          previousTracks.add(track);
+        }
+      }
+    }
+    await loadStorage();
+  }
+
+  /// Loads the used disk space of the tracks.
   Future<void> loadStorage() async {
-    if (tracking.previousTracks == null) return;
+    if (previousTracks.isEmpty) {
+      usedDiskSpace = "0 Byte";
+      return;
+    }
 
     // Get the bytes of the tracks in the shared preferences.
     final prefs = await SharedPreferences.getInstance();
@@ -84,7 +108,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     var bytes = utf8.encode(sharedPreferencesString ?? "").length;
 
     // Add the bytes of the track files on the disk.
-    for (final track in tracking.previousTracks!) {
+    for (final track in previousTracks) {
       final directory = await track.trackDirectory;
       if (await directory.exists()) {
         final files = await directory.list(recursive: true).toList();
@@ -116,8 +140,6 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     final shortcutWidth = MediaQuery.of(context).size.width / 2;
     final shortcutHeight = max(shortcutWidth, 128.0);
 
-    final reversedTracks = tracking.previousTracks?.reversed.toList() ?? [];
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -146,7 +168,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                         crossAxisCount: 2,
                         physics: const NeverScrollableScrollPhysics(),
                         childAspectRatio: 0.85,
-                        children: reversedTracks
+                        children: previousTracks
                             .asMap()
                             .entries
                             .map(
@@ -174,7 +196,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                       child: BlendIn(
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.easeInOutCubic,
-                        delay: Duration(milliseconds: 200 * reversedTracks.length),
+                        delay: Duration(milliseconds: 200 * previousTracks.length),
                         child: Content(
                           text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
                           context: context,
