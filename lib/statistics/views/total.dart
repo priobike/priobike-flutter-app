@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/database/database.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/colors.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
+import 'package:priobike/gamification/common/database/database.dart';
 
 class TotalStatisticsView extends StatefulWidget {
   final RideSummary? rideSummary;

@@ -4,8 +4,8 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:priobike/common/database/model/ride_summary/ride_summary.dart';
-import 'package:priobike/common/database/model/user_profile.dart/user_profile.dart';
+import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/common/database/model/user_profile.dart/user_profile.dart';
 
 part 'database.g.dart';
 

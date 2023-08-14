@@ -172,7 +172,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 child: BoldContent(
                   textAlign: TextAlign.right,
                   text: (summary?.duration ?? 0.0) >= 60
-                      ? "${((summary?.duration ?? 0) / 60).toStringAsFixed(2)} min"
+                      ? "${((summary?.duration ?? 0) / 60).toStringAsFixed(0)} min ${((summary?.duration ?? 0) % 60).toStringAsFixed(0)} s"
                       : "${(summary?.duration ?? 0).toStringAsFixed(0)} s",
                   context: context,
                 ),

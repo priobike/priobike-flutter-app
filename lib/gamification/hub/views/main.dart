@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:priobike/common/database/database.dart';
-import 'package:priobike/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/statistics/views/total.dart';
 
 class GamificationHubView extends StatefulWidget {
