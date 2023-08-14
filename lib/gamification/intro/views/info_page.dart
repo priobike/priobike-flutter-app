@@ -16,10 +16,10 @@ class GameInfoPage extends GameIntroPage {
   String get confirmButtonLabel => "Teilnehmen";
 
   @override
-  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().startIntro();
+  void onBackButtonTab(BuildContext context) => Navigator.pop(context);
 
   @override
-  void onBackButtonTab(BuildContext context) => Navigator.pop(context);
+  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().startIntro();
 
   @override
   Widget buildMainContent(BuildContext context) {

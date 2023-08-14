@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/main.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/info_page.dart';
+import 'package:priobike/gamification/intro/views/prefs_page.dart';
 import 'package:priobike/main.dart';
 
 class GameIntro extends StatefulWidget {
@@ -44,6 +45,8 @@ class _GameIntroState extends State<GameIntro> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     _controller.forward();
+
+    return GamePrefsPage(() => Navigator.pop(context), controller: _controller);
 
     // Show empty page, until the shared preferences have been loaded.
     if (!introService.loadedValues) return const SizedBox.shrink();

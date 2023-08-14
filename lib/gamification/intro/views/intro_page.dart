@@ -12,11 +12,11 @@ abstract class GameIntroPage extends AnimatedWidget {
 
   String get confirmButtonLabel;
 
-  Widget buildMainContent(BuildContext context);
-
   void onBackButtonTab(BuildContext context);
 
   void onConfirmButtonTab(BuildContext context);
+
+  Widget buildMainContent(BuildContext context);
 
   Animation<Offset> get _buttonAnimation => Tween<Offset>(
         begin: const Offset(0.0, 1.0),

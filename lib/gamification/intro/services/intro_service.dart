@@ -31,6 +31,10 @@ class GameIntroService with ChangeNotifier {
     notifyListeners();
   }
 
+  void confirmPreferences() {
+    notifyListeners();
+  }
+
   /// Load values from shared preferences.
   void _loadValues() async {
     _prefs = await SharedPreferences.getInstance();
