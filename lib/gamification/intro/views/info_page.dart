@@ -5,30 +5,27 @@ import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/intro_page.dart';
 import 'package:priobike/main.dart';
 
-class GameInfoPage extends GameIntroPage {
-  const GameInfoPage({Key? key, required AnimationController controller}) : super(key: key, controller: controller);
+/// Intro page which shows basic info about the gamification functionality to the user.
+class GameInfoPage extends StatelessWidget {
+  /// Controller which handles the appear animation.
+  final AnimationController animationController;
+
+  const GameInfoPage({Key? key, required this.animationController}) : super(key: key);
 
   @override
-  IconData get confirmButtonIcon => Icons.check;
-
-  @override
-  String get confirmButtonLabel => "Weiter";
-
-  @override
-  bool get withContentFade => true;
-
-  @override
-  void onBackButtonTab(BuildContext context) => Navigator.pop(context);
-
-  @override
-  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().setStartedIntro(true);
-
-  @override
-  List<Widget> getContentElements(BuildContext context) => [
+  Widget build(BuildContext context) {
+    return GameIntroPage(
+      animationController: animationController,
+      confirmButtonLabel: "Weiter",
+      onBackButtonTab: () => Navigator.pop(context),
+      onConfirmButtonTab: () => getIt<GameIntroService>().setStartedIntro(true),
+      contentList: [
         const SizedBox(height: 64 + 16),
         Header(text: "PrioBike Challenge", context: context),
         const SmallVSpace(),
         SubHeader(text: "Möchtest Du an der PrioBike Challenge teilnehmen?", context: context),
         const SizedBox(height: 82),
-      ];
+      ],
+    );
+  }
 }

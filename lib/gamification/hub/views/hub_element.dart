@@ -32,9 +32,9 @@ class GamificationHubElement extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(24)),
         ),
         child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            width: MediaQuery.of(context).size.width,
-            child: content),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: content,
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:priobike/gamification/common/database/database_dao.dart';
 
 part 'ride_summary.g.dart';
 
+/// Table which holds ride summary objects, which contain relevant information of rides which the user has done.
 @DataClassName('RideSummary')
 class RideSummaries extends Table {
   IntColumn get id => integer().autoIncrement()();

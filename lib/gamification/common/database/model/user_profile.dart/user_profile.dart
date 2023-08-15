@@ -4,6 +4,7 @@ import 'package:priobike/gamification/common/database/database_dao.dart';
 
 part 'user_profile.g.dart';
 
+/// Table for the gamification user profile as a database object.
 class UserProfiles extends Table {
   IntColumn get id => integer().autoIncrement()();
   RealColumn get totalDistance => real()();

@@ -5,26 +5,22 @@ import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/intro_page.dart';
 import 'package:priobike/main.dart';
 
-class GamePrefsPage extends GameIntroPage {
-  const GamePrefsPage({Key? key, required AnimationController controller}) : super(key: key, controller: controller);
+/// Intro page which gives the user the option to choose which parts of the gamification
+/// functionality they want to active.
+class GamePrefsPage extends StatelessWidget {
+  /// Controller which handles the appear animation.
+  final AnimationController animationController;
+
+  const GamePrefsPage({Key? key, required this.animationController}) : super(key: key);
 
   @override
-  IconData get confirmButtonIcon => Icons.check;
-
-  @override
-  String get confirmButtonLabel => "Auswahl Bestätigen";
-
-  @override
-  bool get withContentFade => true;
-
-  @override
-  void onBackButtonTab(BuildContext context) => getIt<GameIntroService>().setStartedIntro(false);
-
-  @override
-  void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().setPrefsSet(true);
-
-  @override
-  List<Widget> getContentElements(BuildContext context) => [
+  Widget build(BuildContext context) {
+    return GameIntroPage(
+      animationController: animationController,
+      confirmButtonLabel: "Auswahl Bestätigen",
+      onBackButtonTab: () => getIt<GameIntroService>().setStartedIntro(false),
+      onConfirmButtonTab: () => getIt<GameIntroService>().setPrefsSet(true),
+      contentList: [
         const SizedBox(height: 64 + 16),
         Header(text: "Wähle deine Preferenzen:", context: context),
         SubHeader(text: "Keine Angst, du kannst deine Auswahl später noch ändern", context: context),
@@ -53,7 +49,9 @@ class GamePrefsPage extends GameIntroPage {
           prefKey: GameIntroService.prefKeyTest6,
         ),
         const SizedBox(height: 82),
-      ];
+      ],
+    );
+  }
 }
 
 class GamePrefListElement extends StatefulWidget {

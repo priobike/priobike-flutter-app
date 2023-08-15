@@ -5,6 +5,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 
 class RideSummaryService with ChangeNotifier {
+  /// The last registered summary.
   RideSummary? _lastSummary;
 
   RideSummary? get lastSummary => _lastSummary;
@@ -53,6 +54,7 @@ class RideSummaryService with ChangeNotifier {
     _lastSummary = await AppDatabase.instance.rideSummaryDao.createObject(summary);
   }
 
+  /// Reset the stored temporary informatin.
   void reset() {
     _lastSummary = null;
   }

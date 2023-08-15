@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/hub/services/game_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages the gamification intro views.
@@ -16,26 +17,37 @@ class GameIntroService with ChangeNotifier {
   /// Shared preferences instance to store and retrieve at which point of the intro the user is.
   SharedPreferences? _prefs;
 
+  /// This variable is set true by a page of the game intro, if it has been finished.
   bool pageChanged = false;
 
-  /// Bool which determines wether the shared preferences have been loaded
+  /// Bool which is true when the shared preferences have been loaded
   bool _loadedValues = false;
 
   bool get loadedValues => _loadedValues;
 
-  /// Bool which determines wether the user has started the game intro.
+  /// Bool which is true when the user has started the game intro.
   bool _startedIntro = false;
 
   bool get startedIntro => _startedIntro;
 
+  void setStartedIntro(bool value) {
+    _startedIntro = value;
+    pageChanged = true;
+    notifyListeners();
+  }
+
+  /// Bool which is true, when the user has entered and confirms game preferences.
   bool _prefsSet = false;
 
   bool get prefsSet => _prefsSet;
 
-  bool _tutorialFinished = false;
+  void setPrefsSet(bool value) {
+    _prefsSet = value;
+    pageChanged = true;
+    notifyListeners();
+  }
 
-  bool get tutoralFinished => _tutorialFinished;
-
+  /// String which holds the username entered by the user in the corresponding intro page.
   String _username = "";
 
   String get username => _username;
@@ -45,45 +57,45 @@ class GameIntroService with ChangeNotifier {
     notifyListeners();
   }
 
-  void setTutorialFinished(bool value) {
-    _tutorialFinished = value;
+  /// Bool which is true, when the user finished the tutorial.
+  bool _tutorialFinished = false;
+
+  bool get tutoralFinished => _tutorialFinished;
+
+  /// Set the tutorial as finished in the shared prefs and also store the selected game prefs there.
+  void finishTutorial() {
+    _tutorialFinished = true;
     _prefs?.setBool(finishedTutorialKey, _tutorialFinished);
+    _prefs?.setStringList(GameService.userPreferencesKey, _gamePrefs);
     pageChanged = true;
     notifyListeners();
   }
 
-  void setStartedIntro(bool value) {
-    _startedIntro = value;
-    pageChanged = true;
-    notifyListeners();
-  }
-
+  /// List of the selected game preferences of the user as string keys.
   final List<String> _gamePrefs = [];
 
-  bool stringInPrefs(String value) => _gamePrefs.contains(value);
+  /// Returns true, if a given string key is inside of the list of selected game prefs.
+  bool stringInPrefs(String key) => _gamePrefs.contains(key);
 
-  void addOrRemoveFromPrefs(String pref) {
-    if (_gamePrefs.contains(pref)) {
-      _gamePrefs.remove(pref);
+  /// Removes a key out of the user game prefs, if the key is inside the lits. Otherwise adds it to the list.
+  void addOrRemoveFromPrefs(String key) {
+    if (_gamePrefs.contains(key)) {
+      _gamePrefs.remove(key);
     } else {
-      _gamePrefs.add(pref);
+      _gamePrefs.add(key);
     }
     notifyListeners();
   }
 
+  /// Basic constructor which loads the shared preferences and the relevant values.
   GameIntroService() {
     _loadValues();
   }
 
-  void setPrefsSet(bool value) {
-    _prefsSet = value;
-    pageChanged = true;
-    notifyListeners();
-  }
-
-  /// Load values from shared preferences.
+  /// Get instance of shared preferences and load values.
   void _loadValues() async {
     _prefs = await SharedPreferences.getInstance();
+    _tutorialFinished = _prefs?.getBool(finishedTutorialKey) ?? false;
     _loadedValues = true;
     notifyListeners();
   }

@@ -78,13 +78,13 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
     if (introService.tutoralFinished) return const GamificationHubView();
 
     // Open the username page, if the user already did everything else of the intro.
-    if (introService.prefsSet) return GameUsernamePage(controller: _animationController);
+    if (introService.prefsSet) return GameUsernamePage(animationController: _animationController);
 
     // Open the preference page, if the user already did everything else of the intro.
-    if (introService.startedIntro) return GamePrefsPage(controller: _animationController);
+    if (introService.startedIntro) return GamePrefsPage(animationController: _animationController);
 
     // If the user hasn't done any part of the intro, open the info page.
-    return GameInfoPage(controller: _animationController);
+    return GameInfoPage(animationController: _animationController);
   }
 
   @override

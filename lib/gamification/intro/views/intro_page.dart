@@ -3,37 +3,58 @@ import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 
-abstract class GameIntroPage extends AnimatedWidget {
-  IconData get confirmButtonIcon;
+/// Widget which displays a page of the gamification intro. Handles the animation to let the content appear and
+/// ensures a uniform style between the intro pages.
+///
+/// Each Page consist of a back button at the top, a list of content widgets and a confirmation button at the bottom.
+class GameIntroPage extends StatelessWidget {
+  /// Controller which handles the appear animation.
+  final AnimationController animationController;
 
-  String get confirmButtonLabel;
+  /// Icon which is displayed on the confirmation button.
+  final IconData confirmButtonIcon;
 
-  bool get withContentFade;
+  /// Text label on the confirmation button.
+  final String confirmButtonLabel;
 
-  void onBackButtonTab(BuildContext context);
+  /// Determines wether the content list should be faded at the top and bottom.
+  final bool withContentFade;
 
-  void onConfirmButtonTab(BuildContext context);
+  /// Callback for the back button at the top.
+  final Function() onBackButtonTab;
 
-  List<Widget> getContentElements(BuildContext context);
+  /// Callback for the confirmation button.
+  final Function() onConfirmButtonTab;
+
+  /// List of content widgets displayed on the page.
+  final List<Widget> contentList;
 
   const GameIntroPage({
     Key? key,
-    required AnimationController controller,
-  }) : super(key: key, listenable: controller);
+    required this.animationController,
+    this.confirmButtonIcon = Icons.check,
+    required this.confirmButtonLabel,
+    this.withContentFade = true,
+    required this.onBackButtonTab,
+    required this.onConfirmButtonTab,
+    required this.contentList,
+  }) : super(key: key);
 
+  /// Animation for the confirmation button. The button slides in from the bottom.
   Animation<Offset> get _buttonAnimation => Tween<Offset>(
         begin: const Offset(0.0, 1.0),
         end: Offset.zero,
       ).animate(CurvedAnimation(
-        parent: listenable as Animation<double>,
+        parent: animationController,
         curve: Curves.easeIn,
       ));
 
+  /// Animation for the list of content widgets, which slide in from the top.
   Animation<Offset> get _contentAnimation => Tween<Offset>(
-        begin: const Offset(0.0, -1.0),
+        begin: const Offset(1.0, 0.0),
         end: Offset.zero,
       ).animate(CurvedAnimation(
-        parent: listenable as Animation<double>,
+        parent: animationController,
         curve: Curves.easeIn,
       ));
 
@@ -49,9 +70,18 @@ abstract class GameIntroPage extends AnimatedWidget {
               alignment: Alignment.topCenter,
               child: SlideTransition(
                 position: _contentAnimation,
-                child: IntroContent(
-                  withFade: withContentFade,
-                  elements: getContentElements(context),
+                child: SafeArea(
+                  child: HPad(
+                    child: Fade(
+                      stops: withContentFade ? [0, 0.05, 0.85, 0.95] : null,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: contentList,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -61,7 +91,7 @@ abstract class GameIntroPage extends AnimatedWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      AppBackButton(onPressed: () => onBackButtonTab(context)),
+                      AppBackButton(onPressed: onBackButtonTab),
                     ],
                   ),
                 ],
@@ -73,44 +103,14 @@ abstract class GameIntroPage extends AnimatedWidget {
                 position: _buttonAnimation,
                 child: Pad(
                   child: BigButton(
-                    icon: confirmButtonIcon,
-                    iconColor: Colors.white,
-                    label: confirmButtonLabel,
-                    onPressed: () => onConfirmButtonTab(context),
-                  ),
+                      icon: confirmButtonIcon,
+                      iconColor: Colors.white,
+                      label: confirmButtonLabel,
+                      onPressed: onConfirmButtonTab),
                 ),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class IntroContent extends StatelessWidget {
-  final List<Widget> elements;
-
-  final bool withFade;
-
-  const IntroContent({
-    Key? key,
-    required this.elements,
-    required this.withFade,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: HPad(
-        child: Fade(
-          stops: withFade ? [0, 0.05, 0.85, 0.95] : null,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: elements,
-            ),
-          ),
         ),
       ),
     );
