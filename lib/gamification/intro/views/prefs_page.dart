@@ -27,7 +27,7 @@ class GamePrefsPage extends StatelessWidget {
         SubHeader(text: "Keine Angst, du kannst deine Auswahl später noch ändern", context: context),
         const GamePrefListElement(
           label: "Fahrt-Zusammenfassungen anzeigen",
-          prefKey: GameService.prefsRideSummariesKey,
+          prefKey: UserProfileService.prefsRideSummariesKey,
         ),
         const SizedBox(height: 82),
       ],

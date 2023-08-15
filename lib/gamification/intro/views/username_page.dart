@@ -10,12 +10,12 @@ class GameUsernamePage extends StatelessWidget {
   /// Controller which handles the appear animation.
   final AnimationController animationController;
 
+  /// Global key to access the text form field in which to enter the username.
   final GlobalKey<FormState> _textFormKey = GlobalKey<FormState>();
-
-  final GameIntroService service = getIt<GameIntroService>();
 
   GameUsernamePage({Key? key, required this.animationController}) : super(key: key);
 
+  /// Widget which includes a text form field for the user to enter a username.
   Widget _buildInputField(BuildContext context) {
     return VPad(
       child: Form(
@@ -63,7 +63,7 @@ class GameUsernamePage extends StatelessWidget {
             hintText: 'Benutzername',
           ),
           style: Theme.of(context).textTheme.titleMedium!,
-          initialValue: service.username,
+          initialValue: getIt<GameIntroService>().username,
           maxLines: 1,
           validator: (value) {
             if (value == null || value.length < 4) {
@@ -71,7 +71,7 @@ class GameUsernamePage extends StatelessWidget {
             } else if (value.length > 20) {
               return 'Dein Username darf höchstens 20 Zeichen lang sein!';
             }
-            service.setUsername(value);
+            getIt<GameIntroService>().setUsername(value);
             return null;
           },
           onFieldSubmitted: (value) => _textFormKey.currentState!.validate(),
@@ -80,6 +80,7 @@ class GameUsernamePage extends StatelessWidget {
     );
   }
 
+  /// Loading indicator to cover the content while the intro service is loading.
   Widget _getLoadingWidget(BuildContext context) {
     return Center(
       child: Container(
@@ -109,14 +110,15 @@ class GameUsernamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var loading = getIt<GameIntroService>().loading;
     return Stack(
       children: [
         GameIntroPage(
           animationController: animationController,
           confirmButtonLabel: "Beitreten",
           withContentFade: false,
-          onBackButtonTab: () => getIt<GameIntroService>().setPrefsSet(false),
-          onConfirmButtonTab: service.loading
+          onBackButtonTab: loading ? null : () => getIt<GameIntroService>().setPrefsSet(false),
+          onConfirmButtonTab: loading
               ? null
               : () {
                   if (_textFormKey.currentState == null) return;
@@ -132,7 +134,7 @@ class GameUsernamePage extends StatelessWidget {
             _buildInputField(context),
           ],
         ),
-        service.loading ? _getLoadingWidget(context) : Stack(),
+        loading ? _getLoadingWidget(context) : Stack(),
       ],
     );
   }

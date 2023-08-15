@@ -51,25 +51,27 @@ class GameIntroService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Variable which is true, when the intro process is currently in a loading state.
+  bool _loading = false;
+
+  bool get loading => _loading;
+
   /// Bool which is true, when the user finished the tutorial.
   bool _introFinished = false;
 
   bool get introFinished => _introFinished;
 
-  bool _loading = false;
-
-  bool get loading => _loading;
-
   /// Set the tutorial as finished in the shared prefs and also store the selected game prefs there.
   void finishIntro() async {
     _loading = true;
     notifyListeners();
-    _prefs?.setString(GameService.userNameKey, username);
-    _prefs?.setStringList(GameService.userPreferencesKey, _gamePrefs);
+    _prefs?.setString(UserProfileService.userNameKey, username);
+    _prefs?.setStringList(UserProfileService.userPreferencesKey, _gamePrefs);
     _prefs?.setBool(finishedIntroKey, _introFinished);
-    await getIt<GameService>().loadOrCreateProfile();
+    await getIt<UserProfileService>().loadOrCreateProfile();
     _introFinished = true;
     pageChanged = true;
+    _loading = false;
     notifyListeners();
   }
 
@@ -91,11 +93,11 @@ class GameIntroService with ChangeNotifier {
 
   /// Basic constructor which loads the shared preferences and the relevant values.
   GameIntroService() {
-    _loadValues();
+    loadValues();
   }
 
   /// Get instance of shared preferences and load values.
-  void _loadValues() async {
+  void loadValues() async {
     _prefs = await SharedPreferences.getInstance();
     _introFinished = _prefs?.getBool(finishedIntroKey) ?? false;
     _loadedValues = true;

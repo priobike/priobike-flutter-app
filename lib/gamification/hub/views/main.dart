@@ -6,6 +6,8 @@ import 'package:priobike/gamification/intro/views/prefs_page.dart';
 import 'package:priobike/gamification/intro/views/username_page.dart';
 import 'package:priobike/main.dart';
 
+/// The game view is displayed when the user presses the game card on the home view. It either starts the game intro,
+/// or opens the gamification hub, where the user can access all game elements.
 class GameView extends StatefulWidget {
   const GameView({Key? key}) : super(key: key);
 
@@ -13,8 +15,6 @@ class GameView extends StatefulWidget {
   State<GameView> createState() => _GameViewState();
 }
 
-/// The game view is displayed when the user presses the game card on the home view. It either starts the game intro,
-/// or opens the gamification hub, where the user can access all game elements.
 class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin {
   /// The associated intro service, which is injected by the provider.
   late GameIntroService introService;
@@ -53,6 +53,9 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
 
   /// Handles when the android back button is pressed.
   Future<bool> _onWillPop() async {
+    // If the service is loading currently, do nothing.
+    if (introService.loading) return false;
+
     // Close view, if the relevant intro values haven't been loaded yet, or if the intro was already finished.
     if (!introService.loadedValues || introService.introFinished) return true;
 

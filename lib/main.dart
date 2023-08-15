@@ -85,7 +85,7 @@ Future<void> main() async {
   getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<GameIntroService>(GameIntroService());
   getIt.registerSingleton<RideSummaryService>(RideSummaryService());
-  getIt.registerSingleton<GameService>(GameService());
+  getIt.registerSingleton<UserProfileService>(UserProfileService());
 
   runZonedGuarded(() async {
     runApp(const App());

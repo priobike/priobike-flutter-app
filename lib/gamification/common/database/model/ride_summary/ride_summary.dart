@@ -35,7 +35,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     await _createMock(1208, 400, 12, 14);
     await _createMock(3124, 621, 64, 120);
     await _createMock(14029, 2354, 312, 122);
-    getIt<GameService>().updateUserData();
+    getIt<UserProfileService>().updateUserData();
   }
 
   Future _createMock(double distance, double duration, double gain, double loss) async {

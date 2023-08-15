@@ -21,7 +21,7 @@ class GameIntroPage extends StatelessWidget {
   final bool withContentFade;
 
   /// Callback for the back button at the top.
-  final Function() onBackButtonTab;
+  final Function()? onBackButtonTab;
 
   /// Callback for the confirmation button.
   final Function()? onConfirmButtonTab;

@@ -70,12 +70,12 @@ class AppBackButton extends StatelessWidget {
   final IconData icon;
 
   /// The callback that is executed when the button is pressed.
-  final void Function() onPressed;
+  final void Function()? onPressed;
   final double? elevation;
 
   const AppBackButton({
     this.icon = Icons.chevron_left,
-    required this.onPressed,
+    this.onPressed,
     this.elevation,
     Key? key,
   }) : super(key: key);

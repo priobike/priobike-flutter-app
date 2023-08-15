@@ -13,7 +13,7 @@ class TotalStatisticsView extends StatelessWidget {
   /// padding for the rows used in the statistics view
   final double paddingStats = 16.0;
 
-  final GameService _gameService = getIt<GameService>();
+  final UserProfileService _gameService = getIt<UserProfileService>();
 
   Widget renderDistanceStats() {
     return Padding(
