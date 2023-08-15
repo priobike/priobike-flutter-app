@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/gamification/hub/services/game_service.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/intro_page.dart';
 import 'package:priobike/main.dart';
@@ -25,28 +26,8 @@ class GamePrefsPage extends StatelessWidget {
         Header(text: "Wähle deine Preferenzen:", context: context),
         SubHeader(text: "Keine Angst, du kannst deine Auswahl später noch ändern", context: context),
         const GamePrefListElement(
-          label: "Das hier ist Test 1",
-          prefKey: GameIntroService.prefKeyTest1,
-        ),
-        const GamePrefListElement(
-          label: "Test 2 ist hier",
-          prefKey: GameIntroService.prefKeyTest2,
-        ),
-        const GamePrefListElement(
-          label: "Achtung Achtung Test 3",
-          prefKey: GameIntroService.prefKeyTest3,
-        ),
-        const GamePrefListElement(
-          label: "Heyhey Test 4 hier",
-          prefKey: GameIntroService.prefKeyTest4,
-        ),
-        const GamePrefListElement(
-          label: "Nennen wir das hier Test 5",
-          prefKey: GameIntroService.prefKeyTest5,
-        ),
-        const GamePrefListElement(
-          label: "Könnte Test 6 sein",
-          prefKey: GameIntroService.prefKeyTest6,
+          label: "Fahrt-Zusammenfassungen anzeigen",
+          prefKey: GameService.prefsRideSummariesKey,
         ),
         const SizedBox(height: 82),
       ],

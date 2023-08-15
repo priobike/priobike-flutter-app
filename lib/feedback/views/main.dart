@@ -171,9 +171,9 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
                 child: BoldContent(
                   textAlign: TextAlign.right,
-                  text: (summary?.duration ?? 0.0) >= 60
-                      ? "${((summary?.duration ?? 0) / 60).toStringAsFixed(0)} min ${((summary?.duration ?? 0) % 60).toStringAsFixed(0)} s"
-                      : "${(summary?.duration ?? 0).toStringAsFixed(0)} s",
+                  text: (summary?.durationSeconds ?? 0.0) >= 60
+                      ? "${((summary?.durationSeconds ?? 0) / 60).toStringAsFixed(0)} min ${((summary?.durationSeconds ?? 0) % 60).toStringAsFixed(0)} s"
+                      : "${(summary?.durationSeconds ?? 0).toStringAsFixed(0)} s",
                   context: context,
                 ),
               ),
@@ -201,9 +201,9 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
                 child: BoldContent(
                   textAlign: TextAlign.right,
-                  text: (summary?.distance ?? 0.0) >= 1000
-                      ? "${((summary?.distance ?? 0.0) / 1000).toStringAsFixed(2)} km"
-                      : "${(summary?.distance ?? 0.0).toStringAsFixed(0)} m",
+                  text: (summary?.distanceMetres ?? 0.0) >= 1000
+                      ? "${((summary?.distanceMetres ?? 0.0) / 1000).toStringAsFixed(2)} km"
+                      : "${(summary?.distanceMetres ?? 0.0).toStringAsFixed(0)} m",
                   context: context,
                 ),
               ),
@@ -231,7 +231,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
                 child: BoldContent(
                   textAlign: TextAlign.right,
-                  text: "Ø ${(summary?.averageSpeed ?? 0.00).toStringAsFixed(2)} km/h",
+                  text: "Ø ${(summary?.averageSpeedKmh ?? 0.00).toStringAsFixed(2)} km/h",
                   context: context,
                 ),
               ),

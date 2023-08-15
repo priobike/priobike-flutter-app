@@ -5,8 +5,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/hub/services/game_service.dart';
 import 'package:priobike/gamification/hub/views/hub_element.dart';
 import 'package:priobike/gamification/hub/views/total.dart';
+import 'package:priobike/main.dart';
 
 class GamificationHubView extends StatefulWidget {
   const GamificationHubView({
@@ -18,22 +20,32 @@ class GamificationHubView extends StatefulWidget {
 }
 
 class GamificationHubViewState extends State<GamificationHubView> with TickerProviderStateMixin {
+  late GameService _gameService;
+
   final List<AnimationController> _openAnimationControllers = [];
 
   List<RideSummary> rides = [];
 
   RideSummaryDao rideDao = AppDatabase.instance.rideSummaryDao;
 
+  Map<String, Widget> get mappedHubElements => {
+        GameService.prefsRideSummariesKey: generateRideList(),
+      };
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
-  void _createAndStartAnimationControllers() {
-    for (int i = 0; i < 2; i++) {
+  void _createAndStartAnimationControllers() async {
+    for (int i = 0; i < 3; i++) {
       var controller = AnimationController(
         duration: const Duration(milliseconds: 400),
         vsync: this,
       );
       _openAnimationControllers.add(controller);
+    }
+    await Future.delayed(const Duration(milliseconds: 400));
+    for (int i = 0; i < _openAnimationControllers.length; i++) {
+      var controller = _openAnimationControllers[i];
       if (i > 1) {
         var prevController = _openAnimationControllers[i - 1];
         prevController.addListener(() {
@@ -48,16 +60,19 @@ class GamificationHubViewState extends State<GamificationHubView> with TickerPro
   @override
   void initState() {
     super.initState();
+    _gameService = getIt<GameService>();
+    _gameService.addListener(update);
+    _createAndStartAnimationControllers();
     rideDao.streamAllObjects().listen((update) {
       setState(() {
         rides = update;
       });
     });
-    _createAndStartAnimationControllers();
   }
 
   @override
   void dispose() {
+    _gameService.removeListener(update);
     for (var controller in _openAnimationControllers) {
       controller.dispose();
     }
@@ -76,34 +91,37 @@ class GamificationHubViewState extends State<GamificationHubView> with TickerPro
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    AppBackButton(onPressed: () => Navigator.pop(context)),
-                    const HSpace(),
-                    Expanded(
-                      child: FadeTransition(
-                        opacity: CurvedAnimation(
-                          parent: _openAnimationControllers.first,
-                          curve: Curves.easeIn,
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        AppBackButton(onPressed: () => Navigator.pop(context)),
+                        const HSpace(),
+                        Expanded(
+                          child: FadeTransition(
+                            opacity: CurvedAnimation(
+                              parent: _openAnimationControllers.first,
+                              curve: Curves.easeIn,
+                            ),
+                            child: SubHeader(text: "Spiel", context: context),
+                          ),
                         ),
-                        child: SubHeader(text: "Spiel", context: context),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-                const SmallVSpace(),
-                GamificationHubElement(
-                  controller: _openAnimationControllers[1],
-                  content: TotalStatisticsView(
-                    rideSummary: calculateTotalSummary(),
-                  ),
-                ),
-                const SmallVSpace(),
-                generateRideList(),
-              ],
+                    GamificationHubElement(
+                      controller: _openAnimationControllers[1],
+                      content: TotalStatisticsView(),
+                    ),
+                  ] +
+                  _gameService.userPrefs
+                      .map(
+                        (key) => GamificationHubElement(
+                          controller: _openAnimationControllers[_gameService.userPrefs.indexOf(key) + 2],
+                          content: mappedHubElements[key]!,
+                        ),
+                      )
+                      .toList(),
             ),
           ),
         ),
@@ -126,27 +144,15 @@ class GamificationHubViewState extends State<GamificationHubView> with TickerPro
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text("id: ${ride.id},"),
-                    Text("dis: ${ride.distance.toInt()},"),
-                    Text("dur: ${ride.duration.toInt()},"),
-                    Text("avg speed: ${ride.averageSpeed.toInt()},"),
+                    Text("dis: ${ride.distanceMetres.toInt()},"),
+                    Text("dur: ${ride.durationSeconds.toInt()},"),
+                    Text("avg: ${ride.averageSpeedKmh.toInt()},"),
                   ],
                 ),
               ),
             ),
           )
           .toList(),
-    );
-  }
-
-  RideSummary? calculateTotalSummary() {
-    if (rides.isEmpty) return null;
-    return RideSummary(
-      id: 0,
-      distance: rides.map((r) => r.distance).reduce((a, b) => a + b),
-      duration: rides.map((r) => r.duration).reduce((a, b) => a + b),
-      elevationGain: rides.map((r) => r.elevationGain).reduce((a, b) => a + b),
-      elevationLoss: rides.map((r) => r.elevationLoss).reduce((a, b) => a + b),
-      averageSpeed: rides.map((r) => r.averageSpeed).reduce((a, b) => a + b) / rides.length,
     );
   }
 }

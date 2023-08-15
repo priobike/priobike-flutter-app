@@ -4,33 +4,16 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/colors.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
-import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/main.dart';
 
-class TotalStatisticsView extends StatefulWidget {
-  final RideSummary? rideSummary;
+class TotalStatisticsView extends StatelessWidget {
+  TotalStatisticsView({Key? key}) : super(key: key);
 
-  const TotalStatisticsView({Key? key, this.rideSummary}) : super(key: key);
-
-  @override
-  State<TotalStatisticsView> createState() => TotalStatisticsViewState();
-}
-
-class TotalStatisticsViewState extends State<TotalStatisticsView> {
   /// padding for the rows used in the statistics view
-  double paddingStats = 16.0;
+  final double paddingStats = 16.0;
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {});
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  final GameService _gameService = getIt<GameService>();
 
   Widget renderDistanceStats() {
     return Padding(
@@ -51,7 +34,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             // PrioBike (Blue) levels
             Level(value: 1000, title: "Radfahr-Champion", color: Medals.priobike),
           ],
-          value: (widget.rideSummary?.distance ?? 0) / 1000,
+          value: (_gameService.totalDistanceMetres) / 1000,
           icon: Icons.directions_bike_rounded,
           unit: "km",
         ),
@@ -78,7 +61,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             // PrioBike (Blue) levels
             Level(value: 3000, title: "Radrennen-Routinier", color: Medals.priobike),
           ],
-          value: (widget.rideSummary?.duration ?? 0) / 60,
+          value: (_gameService.totalDurationSeconds) / 60,
           icon: Icons.timer_outlined,
           unit: "min",
         ),
@@ -86,7 +69,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
     );
   }
 
-  Widget renderSpeedStats() {
+  Widget renderSpeedStats(BuildContext context) {
     return Row(
       children: [
         Container(
@@ -96,7 +79,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               BoldContent(
-                text: "⌀ ${(widget.rideSummary?.averageSpeed.toInt() ?? 0).round()} km/h",
+                text: "⌀ ${(_gameService.averageSpeedKmh).round()} km/h",
                 context: context,
               ),
               const SizedBox(height: 4),
@@ -124,9 +107,10 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Header(text: _gameService.username, context: context),
         renderDistanceStats(),
         renderDurationStats(),
-        renderSpeedStats(),
+        renderSpeedStats(context),
       ],
     );
   }

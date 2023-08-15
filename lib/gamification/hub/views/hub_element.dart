@@ -25,15 +25,18 @@ class GamificationHubElement extends StatelessWidget {
   Widget build(BuildContext context) {
     return SlideTransition(
       position: _animation,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: content,
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: content,
+          ),
         ),
       ),
     );

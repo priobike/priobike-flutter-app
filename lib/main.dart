@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/gamification/common/services/summary_service.dart';
+import 'package:priobike/gamification/hub/services/game_service.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -84,6 +85,7 @@ Future<void> main() async {
   getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<GameIntroService>(GameIntroService());
   getIt.registerSingleton<RideSummaryService>(RideSummaryService());
+  getIt.registerSingleton<GameService>(GameService());
 
   runZonedGuarded(() async {
     runApp(const App());

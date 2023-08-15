@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages the gamification intro views.
 class GameIntroService with ChangeNotifier {
-  static const prefKeyTest1 = "priobike.game.prefs.test1";
-  static const prefKeyTest2 = "priobike.game.prefs.test2";
-  static const prefKeyTest3 = "priobike.game.prefs.test3";
-  static const prefKeyTest4 = "priobike.game.prefs.test4";
-  static const prefKeyTest5 = "priobike.game.prefs.test5";
-  static const prefKeyTest6 = "priobike.game.prefs.test6";
-
   /// The key under which the information if the user has started the intro is stored in shared preferences.
   static const finishedTutorialKey = "priobike.game.finishedTutorial";
 
@@ -63,10 +57,12 @@ class GameIntroService with ChangeNotifier {
   bool get tutoralFinished => _tutorialFinished;
 
   /// Set the tutorial as finished in the shared prefs and also store the selected game prefs there.
-  void finishTutorial() {
+  void finishTutorial() async {
     _tutorialFinished = true;
-    _prefs?.setBool(finishedTutorialKey, _tutorialFinished);
+    _prefs?.setString(GameService.userNameKey, username);
     _prefs?.setStringList(GameService.userPreferencesKey, _gamePrefs);
+    _prefs?.setBool(finishedTutorialKey, _tutorialFinished);
+    await getIt<GameService>().loadOrCreateProfile();
     pageChanged = true;
     notifyListeners();
   }

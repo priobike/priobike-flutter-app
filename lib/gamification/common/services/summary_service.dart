@@ -43,11 +43,11 @@ class RideSummaryService with ChangeNotifier {
 
     // Create the summary.
     var summary = RideSummariesCompanion.insert(
-      distance: totalDistance,
-      duration: totalDuration / 1000, //Convert to seconds
-      elevationGain: totalElevationGain,
-      elevationLoss: totalElevationLoss,
-      averageSpeed: (totalDistance / (totalDuration / 1000)) * 3.6, //Convert to km/h
+      distanceMetres: totalDistance,
+      durationSeconds: totalDuration / 1000, //Convert to seconds
+      elevationGainMetres: totalElevationGain,
+      elevationLossMetres: totalElevationLoss,
+      averageSpeedKmh: (totalDistance / (totalDuration / 1000)) * 3.6, //Convert to km/h
     );
 
     // Insert summary into database and save result in class variable.
