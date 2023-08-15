@@ -183,7 +183,7 @@ class Positioning with ChangeNotifier {
         : LocationAccuracy.best;
 
     // Set the time interval for android.
-    LocationSettings locationSettings = Platform.isAndroid
+    final locationSettings = Platform.isAndroid
         ? AndroidSettings(
             intervalDuration: const Duration(seconds: 1),
             accuracy: desiredAccuracy,
