@@ -59,15 +59,19 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
           opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
           child: AspectRatio(
             aspectRatio: 1,
-            child: CustomPaint(
-              painter: TrackPainter(
-                fraction: fraction,
-                track: widget.track,
-                blurRadius: 10,
-                minSpeedColor: widget.minSpeedColor,
-                maxSpeedColor: widget.maxSpeedColor,
-                maxSpeed: maxSpeed,
-                minSpeed: minSpeed,
+            child: Padding(
+              // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
+              padding: const EdgeInsets.all(30.0),
+              child: CustomPaint(
+                painter: TrackPainter(
+                  fraction: fraction,
+                  track: widget.track,
+                  blurRadius: 10,
+                  minSpeedColor: widget.minSpeedColor,
+                  maxSpeedColor: widget.maxSpeedColor,
+                  maxSpeed: maxSpeed,
+                  minSpeed: minSpeed,
+                ),
               ),
             ),
           ),
@@ -77,33 +81,42 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
           opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
           child: AspectRatio(
             aspectRatio: 1,
-            child: CustomPaint(
-              painter: TrackPainter(
-                fraction: fraction,
-                track: widget.track,
-                blurRadius: 5,
-                minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
-                maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
-                maxSpeed: maxSpeed,
-                minSpeed: minSpeed,
+            child: Padding(
+              // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
+              padding: const EdgeInsets.all(30.0),
+              child: CustomPaint(
+                painter: TrackPainter(
+                  fraction: fraction,
+                  track: widget.track,
+                  blurRadius: 5,
+                  minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
+                  maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
+                  maxSpeed: maxSpeed,
+                  minSpeed: minSpeed,
+                ),
               ),
             ),
           ),
         ),
         AspectRatio(
           aspectRatio: 1,
-          child: CustomPaint(
-            painter: TrackPainter(
-              fraction: fraction,
-              track: widget.track,
-              blurRadius: 0,
-              minSpeedColor: widget.minSpeedColor,
-              maxSpeedColor: widget.maxSpeedColor,
-              maxSpeed: maxSpeed,
-              minSpeed: minSpeed,
+          child: Padding(
+            // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
+            padding: const EdgeInsets.all(30.0),
+            child: CustomPaint(
+              painter: TrackPainter(
+                fraction: fraction,
+                track: widget.track,
+                blurRadius: 0,
+                minSpeedColor: widget.minSpeedColor,
+                maxSpeedColor: widget.maxSpeedColor,
+                maxSpeed: maxSpeed,
+                minSpeed: minSpeed,
+              ),
             ),
           ),
         ),
+        // Legend
         Positioned(
           bottom: 0,
           child: Row(

@@ -32,6 +32,9 @@ class BlendInState extends State<BlendIn> with SingleTickerProviderStateMixin {
   /// The animation used to animate the opacity.
   late Animation<double> animation;
 
+  /// The future which is used to delay the animation.
+  late Future future;
+
   @override
   void initState() {
     super.initState();
@@ -40,11 +43,12 @@ class BlendInState extends State<BlendIn> with SingleTickerProviderStateMixin {
       CurvedAnimation(parent: controller, curve: widget.curve),
     );
     // Run the animation with the delay.
-    Future<void>.delayed(widget.delay, controller.forward);
+    future = Future<void>.delayed(widget.delay, controller.forward);
   }
 
   @override
   void dispose() {
+    future.ignore();
     controller.dispose();
     super.dispose();
   }

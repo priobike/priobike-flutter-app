@@ -279,7 +279,7 @@ class RoutingViewState extends State<RoutingView> {
                 Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
                 const VSpace(),
                 BoldSmall(
-                  text: "Tut uns Leid, aber diese Route konnte nicht geladen werden.",
+                  text: "Tut uns Leid, aber das konnte nicht geladen werden.",
                   context: context,
                   textAlign: TextAlign.center,
                 ),
@@ -297,14 +297,9 @@ class RoutingViewState extends State<RoutingView> {
                           ),
                           const VSpace(),
                           BigButton(
-                            label: "Letzten Wegpunkt löschen",
+                            label: "Zurück zum Hauptmenu",
                             onPressed: () async {
-                              if (routing!.selectedWaypoints != null && routing!.selectedWaypoints!.isNotEmpty) {
-                                routing!.selectedWaypoints!.removeLast();
-                              } else {
-                                log.e("Tried to delete last waypoint, but there is no waypoint to delete");
-                              }
-                              await routing!.loadRoutes();
+                              Navigator.of(context).pop();
                             },
                           ),
                         ],

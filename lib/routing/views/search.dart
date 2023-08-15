@@ -252,7 +252,6 @@ class CurrentPosition extends StatelessWidget {
         title: BoldSmall(
           text: "Aktueller Standort",
           context: context,
-          color: Colors.white,
         ),
         trailing: Padding(
           padding: const EdgeInsets.only(right: 8),

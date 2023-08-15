@@ -10,7 +10,9 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
+import 'package:priobike/home/views/poi/your_bike.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/home/views/restart_route_dialog.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
@@ -19,6 +21,8 @@ import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
+import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -30,6 +34,8 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status_tabs.dart';
+import 'package:priobike/tracking/views/last_track.dart';
+import 'package:priobike/tracking/views/track_history.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
@@ -60,6 +66,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
+
+  /// The associated ride service, which is injected by the provider.
+  late Ride ride;
 
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
@@ -96,6 +105,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
+    ride = getIt<Ride>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
@@ -103,6 +113,30 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Check if app should be rated.
     if (askRateAppList.contains(settings.useCounter)) {
       rateApp();
+    }
+
+    // Check if the last route finished accordingly.
+    if (ride.lastRoute != null) {
+      // Copy waypoints.
+      List<Waypoint> lastRoute = ride.lastRoute!;
+      // Remove last route entry.
+      ride.removeLastRoute();
+      // Open restart route dialog.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          // Execute callback if page is mounted
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => RestartRouteDialog(
+                lastRouteID: ride.lastRouteID,
+                lastRoute: lastRoute,
+                context: context,
+              ),
+            );
+          }
+        },
+      );
     }
   }
 
@@ -265,8 +299,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ),
                     ),
                   const VSpace(),
-                  const BlendIn(
-                    child: StatusTabsView(),
+                  BlendIn(
+                    child: StatusTabsView(triggerRebuild: () => setState(() {})),
                   ),
                   const VSpace(),
                   BlendIn(
@@ -277,9 +311,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BoldContent(text: "Deine Strecken & Orte", context: context),
+                            BoldContent(text: "Navigation", context: context),
                             const SizedBox(height: 4),
-                            Small(text: "Direkt zum Ziel navigieren", context: context),
+                            Small(text: "Deine Strecken und Orte", context: context),
                           ],
                         ),
                         Expanded(child: Container()),
@@ -320,6 +354,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   ),
                   const BlendIn(
                     delay: Duration(milliseconds: 750),
+                    child: YourBikeView(),
+                  ),
+                  const VSpace(),
+                  const BlendIn(
+                    delay: Duration(milliseconds: 750),
                     child: ProfileView(),
                   ),
                   if (settings.enableGamification)
@@ -331,6 +370,10 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ),
                       SizedBox(height: 48),
                     ]),
+                  const VSpace(),
+                  const LastTrackView(),
+                  const VSpace(),
+                  const TrackHistoryView(),
                   const VSpace(),
                   Container(
                     width: double.infinity,
