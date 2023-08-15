@@ -155,6 +155,35 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Remove a new waypoint at index.
+  Future<void> removeWaypointAt(int index) async {
+    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
+
+    final removedWaypoints = selectedWaypoints!.toList();
+    removedWaypoints.removeAt(index);
+
+    selectWaypoints(removedWaypoints);
+
+    if (selectedWaypoints!.length < 2) {
+      selectedRoute = null;
+      allRoutes = null;
+      fetchedWaypoints = null;
+
+      if (!inCityBoundary(selectedWaypoints!)) {
+        hadErrorDuringFetch = true;
+        waypointsOutOfBoundaries = true;
+      } else {
+        hadErrorDuringFetch = false;
+        waypointsOutOfBoundaries = false;
+      }
+
+      notifyListeners();
+      return;
+    }
+
+    loadRoutes();
+  }
+
   /// Select new waypoints.
   Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;

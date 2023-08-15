@@ -108,17 +108,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.loadRoutes();
   }
 
-  /// A callback that is executed when the user removes a waypoint.
-  Future<void> onRemoveWaypoint(int index) async {
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
-
-    final removedWaypoints = routing.selectedWaypoints!.toList();
-    removedWaypoints.removeAt(index);
-
-    routing.selectWaypoints(removedWaypoints);
-    routing.loadRoutes();
-  }
-
   Widget renderDragIndicator(BuildContext context) {
     return Container(
       alignment: AlignmentDirectional.center,
@@ -137,7 +126,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     for (int i = 0; i < (routing.selectedWaypoints?.length ?? 0); i++) {
       final waypoint = routing.selectedWaypoints![i];
       widgets.add(RouteWaypointItem(
-        onDelete: () => onRemoveWaypoint(i),
+        onDelete: () => routing.removeWaypointAt(i),
         key: Key("$i"),
         count: routing.selectedWaypoints?.length ?? 0,
         idx: i,
