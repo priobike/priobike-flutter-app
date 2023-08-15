@@ -6,7 +6,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/intro/views/main.dart';
+import 'package:priobike/gamification/hub/views/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -324,7 +324,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         delay: const Duration(milliseconds: 1000),
                         child: GestureDetector(
                           onTap: () =>
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const GameIntro())),
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const GameView())),
                           child: Container(
                             margin: const EdgeInsets.symmetric(horizontal: 24),
                             decoration: BoxDecoration(
