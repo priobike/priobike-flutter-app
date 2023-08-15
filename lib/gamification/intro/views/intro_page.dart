@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 
@@ -7,11 +8,13 @@ abstract class GameIntroPage extends AnimatedWidget {
 
   String get confirmButtonLabel;
 
-  Widget get mainContent;
+  bool get withContentFade;
 
   void onBackButtonTab(BuildContext context);
 
   void onConfirmButtonTab(BuildContext context);
+
+  List<Widget> getContentElements(BuildContext context);
 
   const GameIntroPage({
     Key? key,
@@ -46,7 +49,10 @@ abstract class GameIntroPage extends AnimatedWidget {
               alignment: Alignment.topCenter,
               child: SlideTransition(
                 position: _contentAnimation,
-                child: mainContent,
+                child: IntroContent(
+                  withFade: withContentFade,
+                  elements: getContentElements(context),
+                ),
               ),
             ),
             SafeArea(
@@ -76,6 +82,35 @@ abstract class GameIntroPage extends AnimatedWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class IntroContent extends StatelessWidget {
+  final List<Widget> elements;
+
+  final bool withFade;
+
+  const IntroContent({
+    Key? key,
+    required this.elements,
+    required this.withFade,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: HPad(
+        child: Fade(
+          stops: withFade ? [0, 0.05, 0.85, 0.95] : null,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: elements,
+            ),
+          ),
         ),
       ),
     );

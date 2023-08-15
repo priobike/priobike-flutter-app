@@ -48,6 +48,7 @@ class GameIntroService with ChangeNotifier {
   void setTutorialFinished(bool value) {
     _tutorialFinished = value;
     _prefs?.setBool(finishedTutorialKey, _tutorialFinished);
+    pageChanged = true;
     notifyListeners();
   }
 

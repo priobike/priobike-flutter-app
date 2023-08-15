@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/fx.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
@@ -17,61 +15,45 @@ class GamePrefsPage extends GameIntroPage {
   String get confirmButtonLabel => "Auswahl Bestätigen";
 
   @override
-  Widget get mainContent => const Content();
+  bool get withContentFade => true;
 
   @override
   void onBackButtonTab(BuildContext context) => getIt<GameIntroService>().setStartedIntro(false);
 
   @override
   void onConfirmButtonTab(BuildContext context) => getIt<GameIntroService>().setPrefsSet(true);
-}
-
-class Content extends StatelessWidget {
-  const Content({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: HPad(
-        child: Fade(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 64 + 16),
-                Header(text: "Wähle deine Preferenzen:", context: context),
-                const GamePrefListElement(
-                  label: "Test1",
-                  prefKey: GameIntroService.prefKeyTest1,
-                ),
-                const GamePrefListElement(
-                  label: "Test2",
-                  prefKey: GameIntroService.prefKeyTest2,
-                ),
-                const GamePrefListElement(
-                  label: "Test3",
-                  prefKey: GameIntroService.prefKeyTest3,
-                ),
-                const GamePrefListElement(
-                  label: "Test4",
-                  prefKey: GameIntroService.prefKeyTest4,
-                ),
-                const GamePrefListElement(
-                  label: "Test5",
-                  prefKey: GameIntroService.prefKeyTest5,
-                ),
-                const GamePrefListElement(
-                  label: "Test6",
-                  prefKey: GameIntroService.prefKeyTest6,
-                ),
-                const SizedBox(height: 164),
-              ],
-            ),
-          ),
+  List<Widget> getContentElements(BuildContext context) => [
+        const SizedBox(height: 64 + 16),
+        Header(text: "Wähle deine Preferenzen:", context: context),
+        SubHeader(text: "Keine Angst, du kannst deine Auswahl später noch ändern", context: context),
+        const GamePrefListElement(
+          label: "Das hier ist Test 1",
+          prefKey: GameIntroService.prefKeyTest1,
         ),
-      ),
-    );
-  }
+        const GamePrefListElement(
+          label: "Test 2 ist hier",
+          prefKey: GameIntroService.prefKeyTest2,
+        ),
+        const GamePrefListElement(
+          label: "Achtung Achtung Test 3",
+          prefKey: GameIntroService.prefKeyTest3,
+        ),
+        const GamePrefListElement(
+          label: "Heyhey Test 4 hier",
+          prefKey: GameIntroService.prefKeyTest4,
+        ),
+        const GamePrefListElement(
+          label: "Nennen wir das hier Test 5",
+          prefKey: GameIntroService.prefKeyTest5,
+        ),
+        const GamePrefListElement(
+          label: "Könnte Test 6 sein",
+          prefKey: GameIntroService.prefKeyTest6,
+        ),
+        const SizedBox(height: 82),
+      ];
 }
 
 class GamePrefListElement extends StatefulWidget {
@@ -119,10 +101,18 @@ class _GamePrefListElementState extends State<GamePrefListElement> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Tile(
-        splash: selected ? Colors.white : theme.primaryColor,
-        fill: selected ? theme.primaryColor : Colors.white,
+        showShadow: false,
+        borderWidth: 3,
+        borderColor: selected ? theme.colorScheme.primary : Colors.grey.withOpacity(0.25),
+        splash: Colors.grey.withOpacity(0.1),
+        fill: theme.colorScheme.background,
         onPressed: () => service.addOrRemoveFromPrefs(widget.prefKey),
-        content: Center(child: Text(widget.label)),
+        content: Center(
+          child: SubHeader(
+            text: widget.label,
+            context: context,
+          ),
+        ),
       ),
     );
   }

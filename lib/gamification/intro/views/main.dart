@@ -48,10 +48,23 @@ class _GameIntroState extends State<GameIntro> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    _controller.forward();
+  Future<bool> _onWillPop() async {
+    if (!introService.loadedValues || introService.tutoralFinished) return true;
 
+    if (introService.prefsSet) {
+      introService.setPrefsSet(false);
+      return false;
+    }
+
+    if (introService.startedIntro) {
+      introService.setStartedIntro(false);
+      return false;
+    }
+
+    return true;
+  }
+
+  Widget _getContent() {
     // Show empty page, until the shared preferences have been loaded.
     if (!introService.loadedValues) return const SizedBox.shrink();
 
@@ -62,5 +75,15 @@ class _GameIntroState extends State<GameIntro> with SingleTickerProviderStateMix
     if (introService.startedIntro) return GamePrefsPage(controller: _controller);
 
     return GameInfoPage(controller: _controller);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _controller.forward();
+
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: _getContent(),
+    );
   }
 }
