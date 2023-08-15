@@ -54,7 +54,7 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
   /// Handles when the android back button is pressed.
   Future<bool> _onWillPop() async {
     // Close view, if the relevant intro values haven't been loaded yet, or if the intro was already finished.
-    if (!introService.loadedValues || introService.tutoralFinished) return true;
+    if (!introService.loadedValues || introService.introFinished) return true;
 
     // If the user is still in the process of the tutorial, navigate to the previous page.
     if (introService.prefsSet) {
@@ -75,7 +75,7 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
     if (!introService.loadedValues) return const SizedBox.shrink();
 
     // Open the gamification hub, if the intro has been finished by the user.
-    if (introService.tutoralFinished) return const GamificationHubView();
+    if (introService.introFinished) return const GamificationHubView();
 
     // Open the username page, if the user already did everything else of the intro.
     if (introService.prefsSet) return GameUsernamePage(animationController: _animationController);

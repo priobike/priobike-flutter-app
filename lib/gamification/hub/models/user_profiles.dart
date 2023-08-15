@@ -17,5 +17,5 @@ class UserProfile {
     required String parsedJoinDate,
     this.prefs = const [],
   })  : joinDate = DateTime.parse(parsedJoinDate),
-        averageSpeedKmh = (totalDistanceMetres / totalDistanceMetres) * 3.6;
+        averageSpeedKmh = totalDurationSeconds == 0 ? 0 : (totalDistanceMetres / totalDurationSeconds) * 3.6;
 }

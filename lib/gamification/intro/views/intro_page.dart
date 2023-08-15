@@ -24,7 +24,7 @@ class GameIntroPage extends StatelessWidget {
   final Function() onBackButtonTab;
 
   /// Callback for the confirmation button.
-  final Function() onConfirmButtonTab;
+  final Function()? onConfirmButtonTab;
 
   /// List of content widgets displayed on the page.
   final List<Widget> contentList;

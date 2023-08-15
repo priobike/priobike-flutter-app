@@ -42,12 +42,13 @@ class GameService with ChangeNotifier {
   }
 
   Future<void> loadOrCreateProfile() async {
+    await Future.delayed(Duration(seconds: 3));
     var prefs = await SharedPreferences.getInstance();
-    if (!(prefs.getBool(GameIntroService.finishedTutorialKey) ?? false)) return;
-    var joinDate = prefs.getString(userJoinDateKey);
     var username = prefs.getString(userNameKey);
+    if (username == null) return;
+    var joinDate = prefs.getString(userJoinDateKey);
     // If there is no join date, the user profile hasn't been created and stored in the prefs, so it is done here.
-    if (joinDate == null && username != null) {
+    if (joinDate == null) {
       joinDate = DateTime.now().toIso8601String();
       prefs.setString(userJoinDateKey, joinDate);
       _userProfile = UserProfile(
@@ -57,7 +58,7 @@ class GameService with ChangeNotifier {
       await updateUserData();
     }
     // If the user values were already created, load them from prefs.
-    else if (joinDate != null && username != null) {
+    else {
       _userProfile = UserProfile(
         totalDistanceMetres: prefs.getDouble(userTotalDistanceKey) ?? 0,
         totalDurationSeconds: prefs.getDouble(userTotalDurationKey) ?? 0,
@@ -67,8 +68,6 @@ class GameService with ChangeNotifier {
         username: username,
         prefs: prefs.getStringList(userPreferencesKey) ?? [],
       );
-    } else {
-      throw Exception("No username set");
     }
   }
 

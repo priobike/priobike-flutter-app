@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Service which manages the gamification intro views.
 class GameIntroService with ChangeNotifier {
   /// The key under which the information if the user has started the intro is stored in shared preferences.
-  static const finishedTutorialKey = "priobike.game.finishedTutorial";
+  static const finishedIntroKey = "priobike.game.finishedIntro";
 
   /// Shared preferences instance to store and retrieve at which point of the intro the user is.
   SharedPreferences? _prefs;
@@ -52,17 +52,23 @@ class GameIntroService with ChangeNotifier {
   }
 
   /// Bool which is true, when the user finished the tutorial.
-  bool _tutorialFinished = false;
+  bool _introFinished = false;
 
-  bool get tutoralFinished => _tutorialFinished;
+  bool get introFinished => _introFinished;
+
+  bool _loading = false;
+
+  bool get loading => _loading;
 
   /// Set the tutorial as finished in the shared prefs and also store the selected game prefs there.
-  void finishTutorial() async {
-    _tutorialFinished = true;
+  void finishIntro() async {
+    _loading = true;
+    notifyListeners();
     _prefs?.setString(GameService.userNameKey, username);
     _prefs?.setStringList(GameService.userPreferencesKey, _gamePrefs);
-    _prefs?.setBool(finishedTutorialKey, _tutorialFinished);
+    _prefs?.setBool(finishedIntroKey, _introFinished);
     await getIt<GameService>().loadOrCreateProfile();
+    _introFinished = true;
     pageChanged = true;
     notifyListeners();
   }
@@ -91,7 +97,7 @@ class GameIntroService with ChangeNotifier {
   /// Get instance of shared preferences and load values.
   void _loadValues() async {
     _prefs = await SharedPreferences.getInstance();
-    _tutorialFinished = _prefs?.getBool(finishedTutorialKey) ?? false;
+    _introFinished = _prefs?.getBool(finishedIntroKey) ?? false;
     _loadedValues = true;
     notifyListeners();
   }
