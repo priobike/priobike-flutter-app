@@ -339,8 +339,6 @@ class Ride with ChangeNotifier {
     calcCurrentSGIndex = null;
     calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
-    lastRoute = null;
-    lastRouteID = 0;
     notifyListeners();
   }
 }

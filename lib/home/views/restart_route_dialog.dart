@@ -27,6 +27,8 @@ class RestartRouteDialog extends AlertDialog {
           ),
           buttonPadding: const EdgeInsets.symmetric(horizontal: 5),
           // actionsPadding: ,
+          actionsAlignment: MainAxisAlignment.start,
+          actionsOverflowAlignment: OverflowBarAlignment.center,
           actions: [
             TextButton(
               child: BoldContent(text: 'Fortsetzen', color: Theme.of(context).colorScheme.primary, context: context),
@@ -67,7 +69,7 @@ class RestartRouteDialog extends AlertDialog {
               },
             ),
             TextButton(
-              child: BoldContent(text: 'Abbr.', color: Theme.of(context).colorScheme.primary, context: context),
+              child: BoldContent(text: 'Abbrechen', color: Theme.of(context).colorScheme.primary, context: context),
               onPressed: () async {
                 Navigator.of(context).pop();
               },
