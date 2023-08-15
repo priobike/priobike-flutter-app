@@ -134,9 +134,6 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  /// Holds the state whether a waypoint was removed previously.
-  bool waypointRemoved = false;
-
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -164,10 +161,26 @@ class Routing with ChangeNotifier {
 
     final removedWaypoints = selectedWaypoints!.toList();
     removedWaypoints.removeAt(index);
-    // Prevents adding a position waypoint when only 1 waypoint left.
-    waypointRemoved = true;
 
     selectWaypoints(removedWaypoints);
+
+    if (selectedWaypoints!.length < 2) {
+      selectedRoute = null;
+      allRoutes = null;
+      fetchedWaypoints = null;
+
+      if (!inCityBoundary(selectedWaypoints!)) {
+        hadErrorDuringFetch = true;
+        waypointsOutOfBoundaries = true;
+      } else {
+        hadErrorDuringFetch = false;
+        waypointsOutOfBoundaries = false;
+      }
+
+      notifyListeners();
+      return;
+    }
+
     loadRoutes();
   }
 
@@ -217,7 +230,6 @@ class Routing with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
-    waypointRemoved = false;
     notifyListeners();
   }
 
@@ -371,39 +383,24 @@ class Routing with ChangeNotifier {
     notifyListeners();
 
     if (selectedWaypoints!.length < 2) {
-      // If a Waypoint got removed don't add the position to the selected waypoints.
-      if (!waypointRemoved) {
-        // Get the last position as the start point.
-        if (getIt<Positioning>().lastPosition != null) {
-          selectedWaypoints = [
-            Waypoint(
-              getIt<Positioning>().lastPosition!.latitude,
-              getIt<Positioning>().lastPosition!.longitude,
-              address: "Aktueller Standort",
-            ),
-            ...selectedWaypoints!,
-          ];
-        } else {
-          hadErrorDuringFetch = true;
-          waypointsOutOfBoundaries = true;
-          isFetchingRoute = false;
-          waypointRemoved = false;
-          notifyListeners();
-          return null;
-        }
+      // Get the last position as the start point.
+      if (getIt<Positioning>().lastPosition != null) {
+        selectedWaypoints = [
+          Waypoint(
+            getIt<Positioning>().lastPosition!.latitude,
+            getIt<Positioning>().lastPosition!.longitude,
+            address: "Aktueller Standort",
+          ),
+          ...selectedWaypoints!,
+        ];
       } else {
-        // Nothing to do load. Just a single point.
-        hadErrorDuringFetch = false;
+        hadErrorDuringFetch = true;
+        waypointsOutOfBoundaries = false;
         isFetchingRoute = false;
-        waypointRemoved = false;
-        selectedRoute = null;
         notifyListeners();
         return null;
       }
     }
-
-    // Reset waypointRemoved for selectedWaypoints >= 2.
-    waypointRemoved = false;
 
     // Check if the waypoints are inside of the city boundaries.
     if (!inCityBoundary(selectedWaypoints!)) {
