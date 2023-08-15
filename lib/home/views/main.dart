@@ -266,8 +266,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ),
                     ),
                   const VSpace(),
-                  const BlendIn(
-                    child: StatusTabsView(),
+                  BlendIn(
+                    child: StatusTabsView(triggerRebuild: () => setState(() {})),
                   ),
                   const VSpace(),
                   BlendIn(
