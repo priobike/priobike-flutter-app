@@ -150,7 +150,9 @@ class _SizeReportingWidgetState extends State<SizeReportingWidget> {
 }
 
 class StatusTabsView extends StatefulWidget {
-  const StatusTabsView({Key? key}) : super(key: key);
+  final Function triggerRebuild;
+
+  const StatusTabsView({Key? key, required this.triggerRebuild}) : super(key: key);
 
   @override
   StatusTabsViewState createState() => StatusTabsViewState();
@@ -180,11 +182,11 @@ class StatusTabsViewState extends State<StatusTabsView> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
-      child: const ExpandablePageView(
+      child: ExpandablePageView(
         children: [
-          StatusView(),
-          StatusHistoryView(time: StatusHistoryTime.day),
-          StatusHistoryView(time: StatusHistoryTime.week),
+          StatusView(triggerRebuild: widget.triggerRebuild),
+          const StatusHistoryView(time: StatusHistoryTime.day),
+          const StatusHistoryView(time: StatusHistoryTime.week),
         ],
       ),
     );

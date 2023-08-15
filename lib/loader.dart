@@ -15,6 +15,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -81,6 +82,7 @@ class LoaderState extends State<Loader> {
       final weather = getIt<Weather>();
       await weather.fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
+      await getIt<Ride>().loadLastRoute();
       settings.incrementUseCounter();
     } catch (e) {
       HapticFeedback.heavyImpact();

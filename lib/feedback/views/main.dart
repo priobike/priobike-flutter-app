@@ -11,12 +11,12 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/feedback/views/stars.dart';
-import 'package:priobike/gamification/common/services/summary_service.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
 class FeedbackView extends StatefulWidget {
@@ -39,8 +39,8 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The associated feedback service, which is injected by the provider.
   late Feedback feedback;
 
-  /// The associated ride summary, which is injected by the provider.
-  late RideSummaryService summaryService;
+  /// The associated statistics service, which is injected by the provider.
+  late Statistics statistics;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -86,8 +86,8 @@ class FeedbackViewState extends State<FeedbackView> {
     tracking.addListener(update);
     feedback = getIt<Feedback>();
     feedback.addListener(update);
-    summaryService = getIt<RideSummaryService>();
-    summaryService.addListener(update);
+    statistics = getIt<Statistics>();
+    statistics.addListener(update);
   }
 
   @override
@@ -95,7 +95,7 @@ class FeedbackViewState extends State<FeedbackView> {
     routing.removeListener(update);
     tracking.removeListener(update);
     feedback.removeListener(update);
-    summaryService.removeListener(update);
+    statistics.removeListener(update);
     super.dispose();
   }
 
@@ -129,7 +129,6 @@ class FeedbackViewState extends State<FeedbackView> {
 
   Widget renderSummary() {
     const paddingText = 4.0;
-    final summary = summaryService.lastSummary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -171,9 +170,9 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
                 child: BoldContent(
                   textAlign: TextAlign.right,
-                  text: (summary?.durationSeconds ?? 0.0) >= 60
-                      ? "${((summary?.durationSeconds ?? 0) / 60).toStringAsFixed(0)} min ${((summary?.durationSeconds ?? 0) % 60).toStringAsFixed(0)} s"
-                      : "${(summary?.durationSeconds ?? 0).toStringAsFixed(0)} s",
+                  text: (statistics.currentSummary?.durationSeconds ?? 0.0) >= 60
+                      ? "${((statistics.currentSummary?.durationSeconds ?? 0) / 60).toStringAsFixed(2)} min"
+                      : "${(statistics.currentSummary?.durationSeconds ?? 0).toStringAsFixed(0)} s",
                   context: context,
                 ),
               ),
@@ -201,9 +200,9 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
                 child: BoldContent(
                   textAlign: TextAlign.right,
-                  text: (summary?.distanceMetres ?? 0.0) >= 1000
-                      ? "${((summary?.distanceMetres ?? 0.0) / 1000).toStringAsFixed(2)} km"
-                      : "${(summary?.distanceMetres ?? 0.0).toStringAsFixed(0)} m",
+                  text: (statistics.currentSummary?.distanceMeters ?? 0.0) >= 1000
+                      ? "${((statistics.currentSummary?.distanceMeters ?? 0.0) / 1000).toStringAsFixed(2)} km"
+                      : "${(statistics.currentSummary?.distanceMeters ?? 0.0).toStringAsFixed(0)} m",
                   context: context,
                 ),
               ),
@@ -231,7 +230,29 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
                 child: BoldContent(
                   textAlign: TextAlign.right,
-                  text: "Ø ${(summary?.averageSpeedKmh ?? 0.00).toStringAsFixed(2)} km/h",
+                  text: "Ø ${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
+                  context: context,
+                ),
+              ),
+            ],
+          ),
+          TableRow(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.left,
+                  text: "CO2 gespart",
+                  context: context,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: BoldContent(
+                  textAlign: TextAlign.right,
+                  text: (statistics.currentSummary?.savedCo2inG ?? 0.0) >= 1000
+                      ? "${((statistics.currentSummary?.savedCo2inG ?? 0.0) / 1000).toStringAsFixed(2)} kg"
+                      : "${(statistics.currentSummary?.savedCo2inG ?? 0.0).toStringAsFixed(2)} g",
                   context: context,
                 ),
               ),
@@ -317,7 +338,7 @@ class FeedbackViewState extends State<FeedbackView> {
                         child: TrackPictogram(
                           track: getIt<Positioning>().positions,
                           minSpeedColor: CI.blue,
-                          maxSpeedColor: CI.blue,
+                          maxSpeedColor: CI.blueLight,
                         ),
                       ),
                     ),

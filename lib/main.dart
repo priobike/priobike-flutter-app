@@ -6,6 +6,7 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/gamification/common/services/summary_service.dart';
 import 'package:priobike/gamification/hub/services/game_service.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
@@ -28,6 +29,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -78,6 +80,7 @@ Future<void> main() async {
   getIt.registerSingleton<Positioning>(Positioning());
   getIt.registerSingleton<Datastream>(Datastream());
   getIt.registerSingleton<Tracking>(Tracking());
+  getIt.registerSingleton<Statistics>(Statistics());
   getIt.registerSingleton<Feedback>(Feedback());
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<Traffic>(Traffic());
@@ -86,6 +89,7 @@ Future<void> main() async {
   getIt.registerSingleton<GameIntroService>(GameIntroService());
   getIt.registerSingleton<RideSummaryService>(RideSummaryService());
   getIt.registerSingleton<UserProfileService>(UserProfileService());
+  getIt.registerSingleton<POI>(POI());
 
   runZonedGuarded(() async {
     runApp(const App());

@@ -37,6 +37,12 @@ class RideViewState extends State<RideView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
+  /// The associated ride service, which is injected by the provider.
+  late Ride ride;
+
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
 
@@ -72,6 +78,10 @@ class RideViewState extends State<RideView> {
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
         final ride = getIt<Ride>();
+
+        // Save current route if the app crashes or the user unintentionally closes it.
+        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
+
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
@@ -105,6 +115,9 @@ class RideViewState extends State<RideView> {
                   needsReroute = true;
                   return;
                 }
+
+                // Save current route if the app crashes or the user unintentionally closes it.
+                ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
 
                 needsReroute = false;
                 await ride.selectRoute(routes.first);

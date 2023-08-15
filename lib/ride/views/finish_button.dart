@@ -3,13 +3,13 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
-import 'package:priobike/gamification/common/services/summary_service.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
@@ -80,8 +80,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
     await tracking.end(); // Performs all needed resets.
 
     // Calculate a summary of the ride.
-    final summaryService = getIt<RideSummaryService>();
-    await summaryService.calculateAndStoreSummary();
+    final statistics = getIt<Statistics>();
+    await statistics.calculateSummary();
 
     // Disconnect from the mqtt broker.
     final datastream = getIt<Datastream>();
@@ -90,6 +90,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // End the recommendations.
     final ride = getIt<Ride>();
     await ride.stopNavigation();
+    // Remove last route since the ride continues.
+    ride.removeLastRoute();
 
     // Stop the geolocation.
     final position = getIt<Positioning>();
@@ -104,7 +106,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
             child: FeedbackView(
               onSubmitted: (context) async {
                 // Reset the statistics.
-                summaryService.reset();
+                await statistics.reset();
 
                 // Reset the ride service.
                 await ride.reset();
