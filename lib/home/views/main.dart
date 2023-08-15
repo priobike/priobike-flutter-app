@@ -12,6 +12,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/poi/your_bike.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/home/views/restart_route_dialog.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
@@ -20,6 +21,8 @@ import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
+import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -64,6 +67,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// The associated ride service, which is injected by the provider.
+  late Ride ride;
+
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
 
@@ -99,6 +105,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
+    ride = getIt<Ride>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
@@ -106,6 +113,30 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Check if app should be rated.
     if (askRateAppList.contains(settings.useCounter)) {
       rateApp();
+    }
+
+    // Check if the last route finished accordingly.
+    if (ride.lastRoute != null) {
+      // Copy waypoints.
+      List<Waypoint> lastRoute = ride.lastRoute!;
+      // Remove last route entry.
+      ride.removeLastRoute();
+      // Open restart route dialog.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          // Execute callback if page is mounted
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => RestartRouteDialog(
+                lastRouteID: ride.lastRouteID,
+                lastRoute: lastRoute,
+                context: context,
+              ),
+            );
+          }
+        },
+      );
     }
   }
 
