@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart' hide Route;
@@ -181,11 +182,20 @@ class Positioning with ChangeNotifier {
         ? LocationAccuracy.bestForNavigation // Requires additional energy for sensor fusion.
         : LocationAccuracy.best;
 
+    // Set the time interval for android.
+    LocationSettings locationSettings = Platform.isAndroid
+        ? AndroidSettings(
+            intervalDuration: const Duration(seconds: 1),
+            accuracy: desiredAccuracy,
+            distanceFilter: 0,
+          )
+        : LocationSettings(
+            accuracy: desiredAccuracy,
+            distanceFilter: 0,
+          );
+
     var positionStream = await positionSource!.startPositioning(
-      locationSettings: LocationSettings(
-        accuracy: desiredAccuracy,
-        distanceFilter: 0,
-      ),
+      locationSettings: locationSettings,
     );
 
     positionSubscription = positionStream.listen(
