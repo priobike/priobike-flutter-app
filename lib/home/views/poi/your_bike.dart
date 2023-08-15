@@ -43,14 +43,14 @@ class YourBikeElementButton extends StatelessWidget {
                 child: Stack(
                   children: [
                     Transform.translate(
-                      offset: Offset(0, MediaQuery.of(context).devicePixelRatio * 7),
+                      offset: Offset(0, MediaQuery.of(context).size.width * 0.04),
                       child: Transform.scale(
                         scale: 1.25,
                         child: image,
                       ),
                     ),
                     Transform.translate(
-                      offset: Offset(0, MediaQuery.of(context).devicePixelRatio * 15),
+                      offset: Offset(0, MediaQuery.of(context).size.width * 0.08),
                       child: Align(
                         alignment: Alignment.center,
                         child: Small(
