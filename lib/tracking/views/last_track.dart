@@ -45,16 +45,20 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
 
   /// Gets the latest track.
   void getLatestTrack() {
-    if (tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) {
-      final backend = getIt<Settings>().backend;
-      for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
-        Track track = tracking.previousTracks![i];
-        if (track.backend == backend) {
-          setState(() {
-            this.track = track;
-          });
-          break;
-        }
+    track = null;
+
+    if (tracking.previousTracks == null || tracking.previousTracks!.isEmpty) {
+      return;
+    }
+
+    final backend = getIt<Settings>().backend;
+    for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
+      Track track = tracking.previousTracks![i];
+      if (track.backend == backend) {
+        setState(() {
+          this.track = track;
+        });
+        break;
       }
     }
   }
