@@ -108,8 +108,6 @@ class RideViewState extends State<RideView> {
               lock.run(() async {
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes();
-                // Save current route if the app crashes or the user unintentionally closes it.
-                ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
 
                 if (routes == null || routes.isEmpty) {
                   // If we have no routes (e.g. because of routing error or because the user left the city boundaries),
@@ -117,6 +115,9 @@ class RideViewState extends State<RideView> {
                   needsReroute = true;
                   return;
                 }
+
+                // Save current route if the app crashes or the user unintentionally closes it.
+                ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
 
                 needsReroute = false;
                 await ride.selectRoute(routes.first);
