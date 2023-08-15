@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:priobike/common/database/database.dart';
+import 'package:priobike/gamification/common/database/database.dart';
 
 /// Abstract database access object (DAO) class to be extendet by actual DAOs with corresponding [Table].
 /// T specifies the [DataClass] held by the table.

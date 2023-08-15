@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/hub/views/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -28,8 +29,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
-import 'package:priobike/statistics/services/statistics.dart';
-import 'package:priobike/statistics/views/total.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -76,9 +75,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
-  /// The associated statistics service, which is injected by the provider.
-  late Statistics statistics;
-
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
@@ -108,7 +104,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     ride = getIt<Ride>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
-    statistics = getIt<Statistics>();
 
     // Check if app should be rated.
     if (askRateAppList.contains(settings.useCounter)) {
@@ -362,13 +357,41 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     child: ProfileView(),
                   ),
                   if (settings.enableGamification)
-                    Column(children: const [
-                      SizedBox(height: 48),
+                    Column(children: [
+                      const VSpace(),
                       BlendIn(
-                        delay: Duration(milliseconds: 1000),
-                        child: TotalStatisticsView(),
+                        delay: const Duration(milliseconds: 1000),
+                        child: GestureDetector(
+                          onTap: () =>
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const GameView())),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 24),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.background,
+                              borderRadius: const BorderRadius.all(Radius.circular(24)),
+                            ),
+                            child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      alignment: Alignment.centerLeft,
+                                      padding: const EdgeInsets.only(top: 16, bottom: 16),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          BoldContent(text: "PrioBike Challenge", context: context),
+                                          const SizedBox(height: 4),
+                                          Small(text: "Dein aktueller Fortschritt", context: context),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                          ),
+                        ),
                       ),
-                      SizedBox(height: 48),
                     ]),
                   const VSpace(),
                   const LastTrackView(),

@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/hub/services/game_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
@@ -309,6 +310,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Umfrage zurücksetzen",
                     icon: Icons.recycling,
                     callback: () => getIt<Settings>().setDismissedSurvey(false),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Game-Profil zurücksetzen",
+                    icon: Icons.recycling,
+                    callback: () => getIt<UserProfileService>().resetUserProfile(),
                   ),
                 ),
                 Padding(
