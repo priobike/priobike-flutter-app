@@ -109,7 +109,7 @@ class _MonthStatsViewState extends State<MonthStatsView> {
     } else if (selectedIndex == null) {
       return '${distances.reduce((a, b) => a + b).round()} km';
     } else {
-      return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!] : distances[selectedIndex!].round()} km';
+      return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!].toStringAsFixed(1) : distances[selectedIndex!].round()} km';
     }
   }
 
@@ -136,7 +136,7 @@ class _MonthStatsViewState extends State<MonthStatsView> {
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelMedium!),
       handleBarToucH: (int? index) => setState(() => selectedIndex = index),
       headerSubTitle: (selectedIndex == null ? '' : '$selectedIndex. ') + getMonthString(widget.firstDay.month),
-      headerTitle: 'Monat',
+      headerTitle: 'Dieser Monat',
       headerInfoText: getHeaderInfoText(),
     );
   }

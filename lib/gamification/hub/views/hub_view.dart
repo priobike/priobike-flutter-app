@@ -150,7 +150,8 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
                           child: mappedHubElements[key]!,
                         ),
                       )
-                      .toList(),
+                      .toList() +
+                  [const SmallVSpace()],
             ),
           ),
         ),

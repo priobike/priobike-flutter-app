@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:drift/drift.dart';
-import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/database_dao.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
@@ -76,7 +75,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
 
   void _createMocks() async {
     var today = DateTime.now();
-    for (int i = 0; i < 21; i++) {
+    for (int i = 1; i < 21; i++) {
       var day = today.subtract(Duration(days: i));
       var rides = Random().nextInt(3) + 1;
       for (int e = 0; e < rides; e++) {

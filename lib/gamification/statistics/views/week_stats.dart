@@ -104,7 +104,7 @@ class _WeekStatsViewState extends State<WeekStatsView> {
     if (selectedIndex == null) {
       return '${distances.reduce((a, b) => a + b).round()} km';
     } else {
-      return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!] : distances[selectedIndex!].round()} km';
+      return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!].toStringAsFixed(1) : distances[selectedIndex!].round()} km';
     }
   }
 
@@ -120,7 +120,7 @@ class _WeekStatsViewState extends State<WeekStatsView> {
       headerSubTitle: selectedIndex == null
           ? '$firstDay - $lastDay'
           : DateFormat("dd.MM").format(widget.startDay.add(Duration(days: selectedIndex!))),
-      headerTitle: 'Woche',
+      headerTitle: 'Diese Woche',
       headerInfoText: getHeaderInfoText(),
     );
   }

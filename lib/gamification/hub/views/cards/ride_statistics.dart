@@ -28,44 +28,68 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 256,
-      child: GameHubCard(
-        content: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              child: PageView(
-                controller: pageController,
-                clipBehavior: Clip.hardEdge,
-                onPageChanged: (int index) => setState(() {
-                  // Update tab controller index to update the indicator.
-                  tabController.index = index;
-                }),
+    return GameHubCard(
+      content: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: 224,
+            child: PageView(
+              controller: pageController,
+              clipBehavior: Clip.hardEdge,
+              onPageChanged: (int index) => setState(() {
+                // Update tab controller index to update the indicator.
+                tabController.index = index;
+              }),
+              children: [
+                WeekStatsView(startDay: DateTime(2023, 8, 14)),
+                MonthStatsView(firstDay: DateTime(2023, 8, 1)),
+                MultipleWeeksStatsView(
+                  firstWeekStartDay: DateTime(2023, 7, 17),
+                  lastWeekStartDay: DateTime(2023, 8, 14),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: TabPageSelector(
+              controller: tabController,
+              selectedColor: Theme.of(context).colorScheme.primary,
+              indicatorSize: 6,
+              borderStyle: BorderStyle.none,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+              key: GlobalKey(),
+            ),
+          ),
+          GestureDetector(
+            child: Container(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  MultipleWeeksStatsView(
-                    firstWeekStartDay: DateTime(2023, 6, 12),
-                    lastWeekStartDay: DateTime(2023, 8, 14),
+                  Icon(
+                    Icons.expand_more,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                   ),
-                  WeekStatsView(startDay: DateTime(2023, 8, 14)),
-                  MonthStatsView(firstDay: DateTime(2023, 8, 1)),
+                  Text(
+                    "mehr anzeigen",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
+                  ),
+                  Icon(
+                    Icons.expand_more,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: TabPageSelector(
-                controller: tabController,
-                selectedColor: Theme.of(context).colorScheme.primary,
-                indicatorSize: 6,
-                borderStyle: BorderStyle.none,
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
-                key: GlobalKey(),
-              ),
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

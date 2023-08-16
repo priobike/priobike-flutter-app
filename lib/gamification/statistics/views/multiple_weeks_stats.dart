@@ -33,21 +33,19 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
 
   @override
   void initState() {
-    var currentStartDay = widget.firstWeekStartDay;
-    var diffToLastDay = widget.lastWeekStartDay.difference(currentStartDay).inDays;
+    var tmpStartDay = widget.firstWeekStartDay;
     do {
       distances.add(0);
-      rides[currentStartDay] = [];
-      var startDay = currentStartDay;
+      rides[tmpStartDay] = [];
+      var startDay = tmpStartDay;
       // Listen to ride data and update local list accordingly.
       rideDao.streamSummariesOfWeek(startDay).listen((update) {
         rides[startDay] = update;
         calculateDistances();
         setState(() {});
       });
-      currentStartDay = currentStartDay.add(const Duration(days: 7));
-      diffToLastDay = widget.lastWeekStartDay.difference(currentStartDay).inDays;
-    } while (diffToLastDay >= 0);
+      tmpStartDay = tmpStartDay.add(const Duration(days: 7));
+    } while (widget.lastWeekStartDay.difference(tmpStartDay).inDays >= 0);
 
     super.initState();
   }
@@ -73,13 +71,38 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
               y: d,
               color: color,
               selected: selectedIndex == null ? null : (selectedIndex == i),
-              width: 10,
+              width: 30,
             ))
         .toList();
   }
 
   Widget getTitlesX(double value, TitleMeta meta, {required TextStyle style}) {
-    return const SizedBox.shrink();
+    var today = DateTime.now();
+    var difference = today.difference(rides.keys.elementAt(value.toInt())).inDays;
+    var todayInWeek = difference < 7;
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 8,
+      child: Column(
+        children: [
+          Text(
+            DateFormat("dd.MM").format(rides.keys.elementAt(value.toInt())),
+            style: todayInWeek ? style.copyWith(fontWeight: FontWeight.bold) : style,
+          ),
+          !todayInWeek
+              ? const SizedBox.shrink()
+              : SizedBox.fromSize(
+                  size: const Size(32, 3),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(3)),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+        ],
+      ),
+    );
   }
 
   String getHeaderInfoText() {
@@ -90,15 +113,26 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
     }
   }
 
+  String getSubTitle() {
+    if (selectedIndex == null) {
+      var firstWeek = rides.keys.first;
+      var lastWeek = rides.keys.last.add(const Duration(days: 6));
+      return '${DateFormat("dd.MM").format(firstWeek)} - ${DateFormat("dd.MM").format(lastWeek)}';
+    }
+    var currentWeekFirstDay = rides.keys.elementAt(selectedIndex!);
+    var currentWeekLastDay = currentWeekFirstDay.add(const Duration(days: 6));
+    return '${DateFormat("dd.MM").format(currentWeekFirstDay)} - ${DateFormat("dd.MM").format(currentWeekLastDay)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return RideStatisticsGraph(
       maxY: maxY > 0 ? maxY : 1,
       bars: getBars(Theme.of(context).colorScheme.primary),
-      getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelMedium!),
+      getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelSmall!),
       handleBarToucH: (int? index) => setState(() => selectedIndex = index),
-      headerSubTitle: selectedIndex == null ? '' : DateFormat("dd.MM").format(rides.keys.elementAt(selectedIndex!)),
-      headerTitle: '10 Wochen',
+      headerSubTitle: getSubTitle(),
+      headerTitle: 'Letzten 5 Wochen',
       headerInfoText: getHeaderInfoText(),
     );
   }

@@ -101,7 +101,7 @@ class RideStatisticsGraph extends StatelessWidget {
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ),
-                  reservedSize: 26,
+                  reservedSize: 30,
                 ),
               ),
               bottomTitles: AxisTitles(
