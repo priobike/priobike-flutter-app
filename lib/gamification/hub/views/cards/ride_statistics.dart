@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
+import 'package:priobike/gamification/statistics/views/week_stats.dart';
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
 class RideStatisticsCard extends StatefulWidget {
@@ -40,10 +41,10 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
                   // Update tab controller index to update the indicator.
                   tabController.index = index;
                 }),
-                children: const [
-                  RideStatisticsGraph(),
-                  RideStatisticsGraph(),
-                  RideStatisticsGraph(),
+                children: [
+                  WeekStatsView(startDay: DateTime(2023, 8, 14)),
+                  WeekStatsView(startDay: DateTime(2023, 8, 7)),
+                  WeekStatsView(startDay: DateTime(2023, 7, 31)),
                 ],
               ),
             ),
@@ -62,19 +63,5 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
         ),
       ),
     );
-  }
-}
-
-class RideStatisticsGraph extends StatefulWidget {
-  const RideStatisticsGraph({Key? key}) : super(key: key);
-
-  @override
-  State<RideStatisticsGraph> createState() => _RideStatisticsGraphState();
-}
-
-class _RideStatisticsGraphState extends State<RideStatisticsGraph> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }

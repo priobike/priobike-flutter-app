@@ -65,7 +65,7 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
     Future.delayed(const Duration(milliseconds: 200)).then(
       (value) => _animationController.forward(),
     );
-    //_createAndStartAnimationControllers();
+    // Listen to ride data and update local list accordingly.
     rideDao.streamAllObjects().listen((update) {
       setState(() {
         rides = update;

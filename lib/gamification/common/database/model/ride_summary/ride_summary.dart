@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:drift/drift.dart';
+import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/database_dao.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
@@ -47,14 +50,33 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     );
   }
 
+  Stream<List<RideSummary>> streamSummariesOfWeek(DateTime firstDay) {
+    var lastDay = firstDay.add(const Duration(days: 7));
+    return (select(rideSummaries)
+          ..where((tbl) {
+            var startTime = tbl.startTime;
+            return startTime.isBetweenValues(firstDay, lastDay);
+          }))
+        .watch();
+  }
+
   void _createMocks() async {
-    await _createMock(1208, 400, 12, 14, DateTime(2023, 8, 12));
-    await _createMock(3124, 621, 64, 120, DateTime(2023, 8, 10));
-    await _createMock(14029, 2354, 312, 122, DateTime(2023, 8, 9));
+    var today = DateTime.now();
+    for (int i = 0; i < 21; i++) {
+      var day = today.subtract(Duration(days: i));
+      var rides = Random().nextInt(3) + 1;
+      for (int e = 0; e < rides; e++) {
+        await _createMock(day);
+      }
+    }
     getIt<UserProfileService>().updateUserData();
   }
 
-  Future _createMock(double distance, double duration, double gain, double loss, DateTime start) async {
+  Future _createMock(DateTime start) async {
+    var duration = Random().nextDouble() * 3600;
+    var distance = duration * 5 * (1 + 0.3 * Random().nextDouble());
+    var gain = Random().nextDouble() * 400;
+    var loss = Random().nextDouble() * 400;
     return createObject(
       RideSummariesCompanion.insert(
           distanceMetres: distance,
