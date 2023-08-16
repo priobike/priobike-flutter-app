@@ -27,13 +27,13 @@ const audioSuccess = "sounds/success.mp3";
 const int newPhaseThreshold = 1;
 
 /// The Points where a message should be played if not in window.
-const List<int> messagePoints = [1000, 500, 100, 50];
+const List<int> messagePoints = [1000, 500, 200, 100, 50];
 
 /// The Margins for the message points.
-const List<int> messagePointMargins = [600, 150, 60];
+const List<int> messagePointMargins = [600, 275, 150, 60];
 
 /// The buffer where messages should not be played before and in turns.
-const int bufferDistTurn = 25;
+const int bufferDistTurn = 35;
 
 class RideAssist with ChangeNotifier {
   /// Logger for this class.
@@ -63,7 +63,7 @@ class RideAssist with ChangeNotifier {
   bool slowLoopRunning = false;
 
   /// Int that counts how many messages got played by interval method.
-  int messagesPlayedCounter = 0;
+  int messagesPlayedCounter = -1;
 
   /// SG that is currently selected.
   Sg? currentSG;
@@ -115,7 +115,7 @@ class RideAssist with ChangeNotifier {
         "lat": lat,
         "lon": lon,
         "bearing": bearing,
-        "zoom": zoom,
+        "zoom": zoom > 2 ? zoom - 2 : zoom,
         "kmh": kmh,
       },
     });
@@ -172,6 +172,12 @@ class RideAssist with ChangeNotifier {
 
     final double kmh = (positioning.lastPosition?.speed ?? 0.0) * 3.6;
 
+    // Too less speed.
+    if (kmh < 7) {
+      reset();
+      return;
+    }
+
     final phases = ride.predictionComponent!.recommendation?.calcPhasesFromNow ?? [];
     final qualities = ride.predictionComponent!.recommendation?.calcQualitiesFromNow ?? [];
 
@@ -194,7 +200,6 @@ class RideAssist with ChangeNotifier {
   }
 
   /// Ride assist easy algorithm.
-  /// TODO Refactor code.
   rideAssistEasy(List<Phase> phases, List<double> qualities, double kmh) {
     // Calculate current Phase.
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
@@ -261,7 +266,6 @@ class RideAssist with ChangeNotifier {
         newPhaseCounter = 0;
       } else {
         // New recommendation and not in green window phase.
-        // TODO Check if there is a green Phase.
         if (greenPhaseAvailable(phases)) {
           playInfo();
           inGreenPhase = false;
@@ -275,11 +279,6 @@ class RideAssist with ChangeNotifier {
   /// Ride assist continuous algorithm.
   rideAssistContinuous(List<Phase> phases, List<double> qualities, double kmh) {
     // Calculate current Phase.
-    if (kmh < 5) {
-      reset();
-      return;
-    }
-
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
@@ -336,8 +335,7 @@ class RideAssist with ChangeNotifier {
   rideAssistInterval(List<Phase> phases, List<double> qualities, double kmh) {
     // Calculate current Phase.
     // Too less speed.
-    if (kmh < 5 ||
-        !greenPhaseAvailable(phases) ||
+    if (!greenPhaseAvailable(phases) ||
         ride.calcDistanceToNextSG == null ||
         ride.calcDistanceToNextTurn == null ||
         ride.calcCurrentSG == null) {
@@ -348,7 +346,6 @@ class RideAssist with ChangeNotifier {
     if (currentSG == null || currentSG != ride.calcCurrentSG) {
       currentSG = ride.calcCurrentSG;
       messagesPlayedCounter = 0;
-      //
     }
 
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
@@ -382,17 +379,17 @@ class RideAssist with ChangeNotifier {
     }
 
     // Initial phase. Play message once.
-    if (messagesPlayedCounter == 0 &&
+    if (messagesPlayedCounter == -1 &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn &&
         ride.calcDistanceToNextSG! >= messagePoints[0]) {
-      messagesPlayedCounter = 1;
+      messagesPlayedCounter = 0;
       playControlSequence();
       return;
     }
 
     // Second phase less then 50m. Play control sequence.
     if (messagesPlayedCounter <= 4 &&
-        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 1] &&
+        ride.calcDistanceToNextSG! <= messagePoints[4] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 5;
       playControlSequence();
@@ -401,8 +398,8 @@ class RideAssist with ChangeNotifier {
 
     // Second phase less then 100m. Play control sequence.
     if (messagesPlayedCounter <= 3 &&
-        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 2] &&
-        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 1] &&
+        ride.calcDistanceToNextSG! <= messagePoints[3] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[3] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 4;
       playControlSequence();
@@ -411,20 +408,30 @@ class RideAssist with ChangeNotifier {
 
     // Second phase less then 500m. Play control sequence.
     if (messagesPlayedCounter <= 2 &&
-        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 3] &&
-        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 2] &&
+        ride.calcDistanceToNextSG! <= messagePoints[2] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[2] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 3;
       playControlSequence();
       return;
     }
 
-    // Second phase less then 1000m. Play control sequence.
-    if (messagesPlayedCounter <= 2 &&
-        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 4] &&
-        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 3] &&
+    // Second phase less then 200m. Play control sequence.
+    if (messagesPlayedCounter <= 1 &&
+        ride.calcDistanceToNextSG! <= messagePoints[1] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[1] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 2;
+      playControlSequence();
+      return;
+    }
+
+    // Second phase less then 1000m. Play control sequence.
+    if (messagesPlayedCounter == 0 &&
+        ride.calcDistanceToNextSG! <= messagePoints[0] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[0] &&
+        ride.calcDistanceToNextTurn! >= bufferDistTurn) {
+      messagesPlayedCounter = 1;
       playControlSequence();
       return;
     }
@@ -433,11 +440,11 @@ class RideAssist with ChangeNotifier {
   /// Returns the int of the closest green phase (on same distance faster is returned).
   /// TODO find a more suitable solution. Maybe start from 15kmh.
   int getClosestPhase(List<Phase> phases, int second) {
+    // Second (speed) minus i must be above this value to be visible. Else its too fast.
+    final int maxSecond = ((ride.calcDistanceToNextSG!) / (settings.speedMode.maxSpeed / 3.6)).round();
     for (int i = 0; i < phases.length; i++) {
       // Check in direction second - i.
-      if (second - i >= 0 &&
-          second - i < phases.length &&
-          ((ride.calcDistanceToNextSG! * 3.6) / second + i) <= settings.speedMode.maxSpeed) {
+      if (second - i >= 0 && second - i < phases.length && (second - i) > maxSecond) {
         if (phases[second - i] == Phase.green) {
           // Return phase faster.
           return second - i;
@@ -514,8 +521,8 @@ class RideAssist with ChangeNotifier {
   /// Returns a bool if a suitable green phase is available for the current recommendation.
   bool greenPhaseAvailable(List<Phase> phases) {
     bool greenPhaseAvailable = false;
-    for (int i = 0; i < phases.length; i++) {
-      // TODO Calc > 30kmh
+    final int maxSecond = ((ride.calcDistanceToNextSG! * 3.6) / settings.speedMode.maxSpeed).round();
+    for (int i = 0; i < maxSecond; i++) {
       if (phases[i] == Phase.green) {
         greenPhaseAvailable = true;
       }
@@ -571,7 +578,7 @@ class RideAssist with ChangeNotifier {
     audioPlayer1.stop();
     audioPlayer2.stop();
     newPhaseCounter = 0;
-    messagesPlayedCounter = 0;
+    messagesPlayedCounter = -1;
     currentSG = null;
     notifyListeners();
   }
