@@ -48,6 +48,12 @@ class $RideSummariesTable extends RideSummaries
   late final GeneratedColumn<double> averageSpeedKmh = GeneratedColumn<double>(
       'average_speed_kmh', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _startTimeMeta =
+      const VerificationMeta('startTime');
+  @override
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+      'start_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -55,7 +61,8 @@ class $RideSummariesTable extends RideSummaries
         durationSeconds,
         elevationGainMetres,
         elevationLossMetres,
-        averageSpeedKmh
+        averageSpeedKmh,
+        startTime
       ];
   @override
   String get aliasedName => _alias ?? 'ride_summaries';
@@ -109,6 +116,12 @@ class $RideSummariesTable extends RideSummaries
     } else if (isInserting) {
       context.missing(_averageSpeedKmhMeta);
     }
+    if (data.containsKey('start_time')) {
+      context.handle(_startTimeMeta,
+          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
     return context;
   }
 
@@ -132,6 +145,8 @@ class $RideSummariesTable extends RideSummaries
           data['${effectivePrefix}elevation_loss_metres'])!,
       averageSpeedKmh: attachedDatabase.typeMapping.read(
           DriftSqlType.double, data['${effectivePrefix}average_speed_kmh'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
     );
   }
 
@@ -148,13 +163,15 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
   final double elevationGainMetres;
   final double elevationLossMetres;
   final double averageSpeedKmh;
+  final DateTime startTime;
   const RideSummary(
       {required this.id,
       required this.distanceMetres,
       required this.durationSeconds,
       required this.elevationGainMetres,
       required this.elevationLossMetres,
-      required this.averageSpeedKmh});
+      required this.averageSpeedKmh,
+      required this.startTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -164,6 +181,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
     map['elevation_gain_metres'] = Variable<double>(elevationGainMetres);
     map['elevation_loss_metres'] = Variable<double>(elevationLossMetres);
     map['average_speed_kmh'] = Variable<double>(averageSpeedKmh);
+    map['start_time'] = Variable<DateTime>(startTime);
     return map;
   }
 
@@ -175,6 +193,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
       elevationGainMetres: Value(elevationGainMetres),
       elevationLossMetres: Value(elevationLossMetres),
       averageSpeedKmh: Value(averageSpeedKmh),
+      startTime: Value(startTime),
     );
   }
 
@@ -190,6 +209,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
       elevationLossMetres:
           serializer.fromJson<double>(json['elevationLossMetres']),
       averageSpeedKmh: serializer.fromJson<double>(json['averageSpeedKmh']),
+      startTime: serializer.fromJson<DateTime>(json['startTime']),
     );
   }
   @override
@@ -202,6 +222,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
       'elevationGainMetres': serializer.toJson<double>(elevationGainMetres),
       'elevationLossMetres': serializer.toJson<double>(elevationLossMetres),
       'averageSpeedKmh': serializer.toJson<double>(averageSpeedKmh),
+      'startTime': serializer.toJson<DateTime>(startTime),
     };
   }
 
@@ -211,7 +232,8 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
           double? durationSeconds,
           double? elevationGainMetres,
           double? elevationLossMetres,
-          double? averageSpeedKmh}) =>
+          double? averageSpeedKmh,
+          DateTime? startTime}) =>
       RideSummary(
         id: id ?? this.id,
         distanceMetres: distanceMetres ?? this.distanceMetres,
@@ -219,6 +241,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
         elevationGainMetres: elevationGainMetres ?? this.elevationGainMetres,
         elevationLossMetres: elevationLossMetres ?? this.elevationLossMetres,
         averageSpeedKmh: averageSpeedKmh ?? this.averageSpeedKmh,
+        startTime: startTime ?? this.startTime,
       );
   @override
   String toString() {
@@ -228,14 +251,15 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
           ..write('durationSeconds: $durationSeconds, ')
           ..write('elevationGainMetres: $elevationGainMetres, ')
           ..write('elevationLossMetres: $elevationLossMetres, ')
-          ..write('averageSpeedKmh: $averageSpeedKmh')
+          ..write('averageSpeedKmh: $averageSpeedKmh, ')
+          ..write('startTime: $startTime')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, distanceMetres, durationSeconds,
-      elevationGainMetres, elevationLossMetres, averageSpeedKmh);
+      elevationGainMetres, elevationLossMetres, averageSpeedKmh, startTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -245,7 +269,8 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
           other.durationSeconds == this.durationSeconds &&
           other.elevationGainMetres == this.elevationGainMetres &&
           other.elevationLossMetres == this.elevationLossMetres &&
-          other.averageSpeedKmh == this.averageSpeedKmh);
+          other.averageSpeedKmh == this.averageSpeedKmh &&
+          other.startTime == this.startTime);
 }
 
 class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
@@ -255,6 +280,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   final Value<double> elevationGainMetres;
   final Value<double> elevationLossMetres;
   final Value<double> averageSpeedKmh;
+  final Value<DateTime> startTime;
   const RideSummariesCompanion({
     this.id = const Value.absent(),
     this.distanceMetres = const Value.absent(),
@@ -262,6 +288,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
     this.elevationGainMetres = const Value.absent(),
     this.elevationLossMetres = const Value.absent(),
     this.averageSpeedKmh = const Value.absent(),
+    this.startTime = const Value.absent(),
   });
   RideSummariesCompanion.insert({
     this.id = const Value.absent(),
@@ -270,11 +297,13 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
     required double elevationGainMetres,
     required double elevationLossMetres,
     required double averageSpeedKmh,
+    required DateTime startTime,
   })  : distanceMetres = Value(distanceMetres),
         durationSeconds = Value(durationSeconds),
         elevationGainMetres = Value(elevationGainMetres),
         elevationLossMetres = Value(elevationLossMetres),
-        averageSpeedKmh = Value(averageSpeedKmh);
+        averageSpeedKmh = Value(averageSpeedKmh),
+        startTime = Value(startTime);
   static Insertable<RideSummary> custom({
     Expression<int>? id,
     Expression<double>? distanceMetres,
@@ -282,6 +311,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
     Expression<double>? elevationGainMetres,
     Expression<double>? elevationLossMetres,
     Expression<double>? averageSpeedKmh,
+    Expression<DateTime>? startTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -292,6 +322,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
       if (elevationLossMetres != null)
         'elevation_loss_metres': elevationLossMetres,
       if (averageSpeedKmh != null) 'average_speed_kmh': averageSpeedKmh,
+      if (startTime != null) 'start_time': startTime,
     });
   }
 
@@ -301,7 +332,8 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
       Value<double>? durationSeconds,
       Value<double>? elevationGainMetres,
       Value<double>? elevationLossMetres,
-      Value<double>? averageSpeedKmh}) {
+      Value<double>? averageSpeedKmh,
+      Value<DateTime>? startTime}) {
     return RideSummariesCompanion(
       id: id ?? this.id,
       distanceMetres: distanceMetres ?? this.distanceMetres,
@@ -309,6 +341,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
       elevationGainMetres: elevationGainMetres ?? this.elevationGainMetres,
       elevationLossMetres: elevationLossMetres ?? this.elevationLossMetres,
       averageSpeedKmh: averageSpeedKmh ?? this.averageSpeedKmh,
+      startTime: startTime ?? this.startTime,
     );
   }
 
@@ -335,6 +368,9 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
     if (averageSpeedKmh.present) {
       map['average_speed_kmh'] = Variable<double>(averageSpeedKmh.value);
     }
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
+    }
     return map;
   }
 
@@ -346,7 +382,8 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
           ..write('durationSeconds: $durationSeconds, ')
           ..write('elevationGainMetres: $elevationGainMetres, ')
           ..write('elevationLossMetres: $elevationLossMetres, ')
-          ..write('averageSpeedKmh: $averageSpeedKmh')
+          ..write('averageSpeedKmh: $averageSpeedKmh, ')
+          ..write('startTime: $startTime')
           ..write(')'))
         .toString();
   }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 /// Wrapper class for the elements shown in a list in the gamification hub view. Handles the animation with which the
@@ -10,7 +12,11 @@ class GamificationHubElement extends StatelessWidget {
   /// Content to be displayed inside of the element card.
   final Widget content;
 
-  const GamificationHubElement({Key? key, required this.controller, required this.content}) : super(key: key);
+  final double start, end;
+
+  const GamificationHubElement(
+      {Key? key, required this.controller, required this.content, required this.start, required this.end})
+      : super(key: key);
 
   /// Animation which lets the element slide in from the left of the screen.
   Animation<Offset> get _animation => Tween<Offset>(
@@ -18,7 +24,7 @@ class GamificationHubElement extends StatelessWidget {
         end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: controller,
-        curve: Curves.easeIn,
+        curve: Interval(min(start, 1.0), min(end, 1.0), curve: Curves.easeIn),
       ));
 
   @override

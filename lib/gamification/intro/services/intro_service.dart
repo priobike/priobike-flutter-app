@@ -67,7 +67,7 @@ class GameIntroService with ChangeNotifier {
     notifyListeners();
     _prefs?.setString(UserProfileService.userNameKey, username);
     _prefs?.setStringList(UserProfileService.userPreferencesKey, _gamePrefs);
-    _prefs?.setBool(finishedIntroKey, _introFinished);
+    _prefs?.setBool(finishedIntroKey, true);
     await getIt<UserProfileService>().loadOrCreateProfile();
     _introFinished = true;
     pageChanged = true;

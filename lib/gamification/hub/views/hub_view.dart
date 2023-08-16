@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -21,7 +22,7 @@ class GamificationHubView extends StatefulWidget {
   GamificationHubViewState createState() => GamificationHubViewState();
 }
 
-class GamificationHubViewState extends State<GamificationHubView> with TickerProviderStateMixin {
+class GamificationHubViewState extends State<GamificationHubView> with SingleTickerProviderStateMixin {
   /// The service which manages and provides the user profile.
   late UserProfileService _profileService;
 
@@ -31,8 +32,8 @@ class GamificationHubViewState extends State<GamificationHubView> with TickerPro
   /// Loaded rides in a list.
   List<RideSummary> rides = [];
 
-  /// List of controllers which control the animation whith which the displayed widgets appear after opening the view.
-  final List<AnimationController> _openAnimationControllers = [];
+  /// Controller which controls the animation when opening this view.
+  late AnimationController _animationController;
 
   /// A map which maps the keys of possible gamification components to corresponding views.
   /// This map is needed to decide which views to display to the user.
@@ -43,12 +44,25 @@ class GamificationHubViewState extends State<GamificationHubView> with TickerPro
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  Animation<double> get _fadeAnimation => CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0, 0.4, curve: Curves.easeIn),
+      );
+
   @override
   void initState() {
     super.initState();
     _profileService = getIt<UserProfileService>();
     _profileService.addListener(update);
-    _createAndStartAnimationControllers();
+    // Init animation controller and start the animation after a short delay, to let the view load first.
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    Future.delayed(const Duration(milliseconds: 200)).then(
+      (value) => _animationController.forward(),
+    );
+    //_createAndStartAnimationControllers();
     rideDao.streamAllObjects().listen((update) {
       setState(() {
         rides = update;
@@ -59,41 +73,8 @@ class GamificationHubViewState extends State<GamificationHubView> with TickerPro
   @override
   void dispose() {
     _profileService.removeListener(update);
-    for (var controller in _openAnimationControllers) {
-      controller.dispose();
-    }
+    _animationController.dispose();
     super.dispose();
-  }
-
-  /// This function initializes the required number of animation controllers and starts them one by one in specified
-  /// intervals to create a smooth opening animation.
-  void _createAndStartAnimationControllers() async {
-    /// Create for each component which the user activated one controller, plus a controller for the profile card
-    /// and a controller for the header at the top.
-    for (int i = 0; i < _profileService.userPrefs.length + 2; i++) {
-      var controller = AnimationController(
-        duration: const Duration(milliseconds: 400),
-        vsync: this,
-      );
-      _openAnimationControllers.add(controller);
-    }
-
-    /// Start animation with a short delay to make it smoother.
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    /// Start the animations one by one to create the smooth look.
-    for (int i = 0; i < _openAnimationControllers.length; i++) {
-      var controller = _openAnimationControllers[i];
-      if (i > 1) {
-        /// Start animating a widget, when the animation of the previous widget in the list is halfway finished.
-        var prevController = _openAnimationControllers[i - 1];
-        prevController.addListener(() {
-          if (prevController.value > 0.5) controller.forward();
-        });
-      } else {
-        controller.forward();
-      }
-    }
   }
 
   @override
@@ -113,28 +94,56 @@ class GamificationHubViewState extends State<GamificationHubView> with TickerPro
                       mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        AppBackButton(onPressed: () => Navigator.pop(context)),
+                        AppBackButton(
+                          onPressed: () {
+                            _animationController.duration = const Duration(milliseconds: 500);
+                            _animationController.reverse().then((value) => Navigator.pop(context));
+                          },
+                        ),
                         const HSpace(),
                         Expanded(
                           child: FadeTransition(
-                            opacity: CurvedAnimation(
-                              parent: _openAnimationControllers.first,
-                              curve: Curves.easeIn,
+                            opacity: _fadeAnimation,
+                            child: SubHeader(
+                              text: "PrioBike Challenge",
+                              context: context,
+                              textAlign: TextAlign.center,
                             ),
-                            child: SubHeader(text: "Spiel", context: context),
+                          ),
+                        ),
+                        const HSpace(),
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: SmallIconButton(
+                              icon: Icons.settings,
+                              onPressed: () {
+                                _animationController.duration = const Duration(milliseconds: 500);
+                                _animationController.reverse();
+                                // TODO: Navigator.push(SETTINGS)
+                              },
+                              fill: Theme.of(context).colorScheme.background,
+                              splash: Theme.of(context).colorScheme.surface,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     GamificationHubElement(
-                      controller: _openAnimationControllers[1],
+                      start: 0,
+                      end: 0.4,
+                      controller: _animationController,
                       content: TotalStatisticsView(),
                     ),
                   ] +
+                  // Create a hub element for each game component the user has selected in their prefs.
                   _profileService.userPrefs
-                      .map(
-                        (key) => GamificationHubElement(
-                          controller: _openAnimationControllers[_profileService.userPrefs.indexOf(key) + 2],
+                      .mapIndexed(
+                        (i, key) => GamificationHubElement(
+                          start: 0.2 + (i * 0.2),
+                          end: 0.6 + (i * 0.2),
+                          controller: _animationController,
                           content: mappedHubElements[key]!,
                         ),
                       )
