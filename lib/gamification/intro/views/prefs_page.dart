@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/intro_page.dart';
 import 'package:priobike/main.dart';
@@ -28,6 +28,10 @@ class GamePrefsPage extends StatelessWidget {
         const GamePrefListElement(
           label: "Fahrt-Zusammenfassungen anzeigen",
           prefKey: UserProfileService.prefsRideSummariesKey,
+        ),
+        const GamePrefListElement(
+          label: "Fahrt-Statistiken anzeigen",
+          prefKey: UserProfileService.presRideStatisticsKey,
         ),
         const SizedBox(height: 82),
       ],

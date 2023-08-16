@@ -4,14 +4,13 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/colors.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
-import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
+import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/main.dart';
 
-class TotalStatisticsView extends StatelessWidget {
-  TotalStatisticsView({Key? key}) : super(key: key);
-
-  /// padding for the rows used in the statistics view
-  final double paddingStats = 16.0;
+/// A gamification hub card, which displays basic info about the user profile.
+class UserProfileCard extends StatelessWidget {
+  UserProfileCard({Key? key}) : super(key: key);
 
   final UserProfileService _gameService = getIt<UserProfileService>();
 
@@ -74,7 +73,7 @@ class TotalStatisticsView extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -105,13 +104,16 @@ class TotalStatisticsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Header(text: _gameService.username, context: context),
-        renderDistanceStats(),
-        renderDurationStats(),
-        renderSpeedStats(context),
-      ],
+    return GameHubCard(
+      content: Column(
+        children: [
+          const SmallVSpace(),
+          Header(text: _gameService.username, context: context),
+          renderDistanceStats(),
+          renderDurationStats(),
+          renderSpeedStats(context),
+        ],
+      ),
     );
   }
 }

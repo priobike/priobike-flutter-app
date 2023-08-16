@@ -6,9 +6,11 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
-import 'package:priobike/gamification/hub/services/game_service.dart';
-import 'package:priobike/gamification/hub/views/hub_element.dart';
-import 'package:priobike/gamification/hub/views/total.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
+import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
+import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
+import 'package:priobike/gamification/hub/views/cards/ride_statistics.dart';
+import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
 import 'package:priobike/main.dart';
 
 /// This view is the center point of the gamification functionality. It provides the user with all the information about
@@ -39,6 +41,7 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
   /// This map is needed to decide which views to display to the user.
   Map<String, Widget> get mappedHubElements => {
         UserProfileService.prefsRideSummariesKey: generateRideList(),
+        UserProfileService.presRideStatisticsKey: const RideStatisticsCard(),
       };
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -130,21 +133,21 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
                         ),
                       ],
                     ),
-                    GamificationHubElement(
+                    GameHubAnimationWrapper(
                       start: 0,
                       end: 0.4,
                       controller: _animationController,
-                      content: TotalStatisticsView(),
+                      child: UserProfileCard(),
                     ),
                   ] +
                   // Create a hub element for each game component the user has selected in their prefs.
                   _profileService.userPrefs
                       .mapIndexed(
-                        (i, key) => GamificationHubElement(
+                        (i, key) => GameHubAnimationWrapper(
                           start: 0.2 + (i * 0.2),
                           end: 0.6 + (i * 0.2),
                           controller: _animationController,
-                          content: mappedHubElements[key]!,
+                          child: mappedHubElements[key]!,
                         ),
                       )
                       .toList(),
@@ -156,29 +159,31 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
   }
 
   Widget generateRideList() {
-    return Column(
-      children: rides
-          .map(
-            (ride) => Container(
-              padding: const EdgeInsets.all(8),
-              child: GestureDetector(
-                onDoubleTap: () {
-                  rideDao.deleteObject(ride);
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text("id: ${ride.id},"),
-                    Text("dis: ${ride.distanceMetres.toInt()},"),
-                    Text("dur: ${ride.durationSeconds.toInt()},"),
-                    Text("avg: ${ride.averageSpeedKmh.toInt()},"),
-                  ],
+    return GameHubCard(
+      content: Column(
+        children: rides
+            .map(
+              (ride) => Container(
+                padding: const EdgeInsets.all(8),
+                child: GestureDetector(
+                  onDoubleTap: () {
+                    rideDao.deleteObject(ride);
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text("id: ${ride.id},"),
+                      Text("dis: ${ride.distanceMetres.toInt()},"),
+                      Text("dur: ${ride.durationSeconds.toInt()},"),
+                      Text("avg: ${ride.averageSpeedKmh.toInt()},"),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          )
-          .toList(),
+            )
+            .toList(),
+      ),
     );
   }
 }
