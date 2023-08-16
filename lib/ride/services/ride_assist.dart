@@ -213,65 +213,69 @@ class RideAssist with ChangeNotifier {
     }
 
     // Check if there is a previous value of inGreenPhase.
-    if (inGreenPhase != null) {
-      // Either in green phase or not.
-      // Check if there is still a green phase available.
-      if (greenPhaseAvailable(phases)) {
-        // If the phase is green.
-        if (phase == Phase.green) {
-          // If the previous phase was not green.
-          if (!inGreenPhase!) {
-            // Check if the phase is left long enough.
-            if (newPhaseCounter >= newPhaseThreshold) {
-              // Old recommendation and entering green phase window.
-              playSuccess();
-              inGreenPhase = true;
-              newPhaseCounter = 0;
+    print(ride.calcDistanceToNextTurn!);
+    if (ride.calcDistanceToNextTurn! > bufferDistTurn) {
+      if (inGreenPhase != null) {
+        // Either in green phase or not.
+        // Check if there is still a green phase available.
+        if (greenPhaseAvailable(phases)) {
+          // If the phase is green.
+          if (phase == Phase.green) {
+            // If the previous phase was not green.
+            if (!inGreenPhase!) {
+              // Check if the phase is left long enough.
+              if (newPhaseCounter >= newPhaseThreshold) {
+                // Old recommendation and entering green phase window.
+                playSuccess();
+                inGreenPhase = true;
+                newPhaseCounter = 0;
+              } else {
+                // Increment counter.
+                newPhaseCounter += 1;
+              }
             } else {
-              // Increment counter.
-              newPhaseCounter += 1;
+              // Hit the old phase again and therefore reset the counter.
+              newPhaseCounter = 0;
             }
           } else {
-            // Hit the old phase again and therefore reset the counter.
-            newPhaseCounter = 0;
+            // If the previous phase was green.
+            if (inGreenPhase!) {
+              // Check if the phase is left long enough.
+              if (newPhaseCounter >= newPhaseThreshold) {
+                // Old recommendation and entering green phase window.
+                playInfo();
+                inGreenPhase = false;
+                newPhaseCounter = 0;
+              } else {
+                // Increment counter.
+                newPhaseCounter += 1;
+              }
+            } else {
+              // Hit the old phase again and therefore reset the counter.
+              newPhaseCounter = 0;
+            }
           }
         } else {
-          // If the previous phase was green.
-          if (inGreenPhase!) {
-            // Check if the phase is left long enough.
-            if (newPhaseCounter >= newPhaseThreshold) {
-              // Old recommendation and entering green phase window.
-              playInfo();
-              inGreenPhase = false;
-              newPhaseCounter = 0;
-            } else {
-              // Increment counter.
-              newPhaseCounter += 1;
-            }
-          } else {
-            // Hit the old phase again and therefore reset the counter.
-            newPhaseCounter = 0;
-          }
-        }
-      } else {
-        inGreenPhase = null;
-        newPhaseCounter = 0;
-      }
-    } else {
-      // Not in any phase yet. Therefore play signal.
-      if (phase == Phase.green) {
-        // New recommendation and in green window phase.
-        playSuccess();
-        inGreenPhase = true;
-        newPhaseCounter = 0;
-      } else {
-        // New recommendation and not in green window phase.
-        if (greenPhaseAvailable(phases)) {
-          playInfo();
-          inGreenPhase = false;
+          inGreenPhase = null;
           newPhaseCounter = 0;
         }
-        // Message that there is a green phase available.
+      } else {
+        // Only play signal after turns.
+        // Not in any phase yet. Therefore play signal.
+        if (phase == Phase.green) {
+          // New recommendation and in green window phase.
+          playSuccess();
+          inGreenPhase = true;
+          newPhaseCounter = 0;
+        } else {
+          // New recommendation and not in green window phase.
+          if (greenPhaseAvailable(phases)) {
+            playInfo();
+            inGreenPhase = false;
+            newPhaseCounter = 0;
+          }
+          // Message that there is a green phase available.
+        }
       }
     }
   }
@@ -522,7 +526,7 @@ class RideAssist with ChangeNotifier {
   bool greenPhaseAvailable(List<Phase> phases) {
     bool greenPhaseAvailable = false;
     final int maxSecond = ((ride.calcDistanceToNextSG! * 3.6) / settings.speedMode.maxSpeed).round();
-    for (int i = 0; i < maxSecond; i++) {
+    for (int i = maxSecond;  i < phases.length; i++) {
       if (phases[i] == Phase.green) {
         greenPhaseAvailable = true;
       }
