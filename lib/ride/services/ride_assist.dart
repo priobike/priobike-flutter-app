@@ -213,7 +213,6 @@ class RideAssist with ChangeNotifier {
     }
 
     // Check if there is a previous value of inGreenPhase.
-    print(ride.calcDistanceToNextTurn!);
     if (ride.calcDistanceToNextTurn! > bufferDistTurn) {
       if (inGreenPhase != null) {
         // Either in green phase or not.
