@@ -9,7 +9,9 @@ import 'package:priobike/gamification/statistics/views/ride_graph.dart';
 class WeekStatsView extends StatefulWidget {
   final DateTime startDay;
 
-  const WeekStatsView({Key? key, required this.startDay}) : super(key: key);
+  final Function() tabHandler;
+
+  const WeekStatsView({Key? key, required this.startDay, required this.tabHandler}) : super(key: key);
 
   @override
   State<WeekStatsView> createState() => _WeekStatsViewState();
@@ -116,7 +118,10 @@ class _WeekStatsViewState extends State<WeekStatsView> {
       maxY: maxY > 0 ? maxY : 1,
       bars: getBars(Theme.of(context).colorScheme.primary),
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelMedium!),
-      handleBarToucH: (int? index) => setState(() => selectedIndex = index),
+      handleBarToucH: (int? index) async {
+        if (selectedIndex == null && index == null) await widget.tabHandler();
+        setState(() => selectedIndex = index);
+      },
       headerSubTitle: selectedIndex == null
           ? '$firstDay - $lastDay'
           : DateFormat("dd.MM").format(widget.startDay.add(Duration(days: selectedIndex!))),

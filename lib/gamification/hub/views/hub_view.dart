@@ -11,6 +11,7 @@ import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/gamification/hub/views/cards/ride_statistics.dart';
 import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
+import 'package:priobike/gamification/statistics/views/statistics_view.dart';
 import 'package:priobike/main.dart';
 
 /// This view is the center point of the gamification functionality. It provides the user with all the information about
@@ -41,7 +42,7 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
   /// This map is needed to decide which views to display to the user.
   Map<String, Widget> get mappedHubElements => {
         UserProfileService.prefsRideSummariesKey: generateRideList(),
-        UserProfileService.presRideStatisticsKey: const RideStatisticsCard(),
+        UserProfileService.presRideStatisticsKey: RideStatisticsCard(openView: openPage),
       };
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -78,6 +79,26 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
     _profileService.removeListener(update);
     _animationController.dispose();
     super.dispose();
+  }
+
+  void openPage(Widget view) {
+    _animationController.duration = const Duration(milliseconds: 500);
+    _animationController
+        .reverse()
+        .then(
+          (value) => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => view,
+            ),
+          ),
+        )
+        .then(
+          (value) => Future.delayed(
+            const Duration(milliseconds: 200),
+          ).then(
+            (value) => _animationController.forward(),
+          ),
+        );
   }
 
   @override

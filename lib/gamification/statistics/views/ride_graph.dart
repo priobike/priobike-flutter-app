@@ -84,7 +84,9 @@ class RideStatisticsGraph extends StatelessWidget {
           BarChartData(
             barTouchData: BarTouchData(
                 handleBuiltInTouches: false,
-                touchCallback: (p0, p1) => handleBarToucH(p1?.spot?.touchedBarGroupIndex),
+                touchCallback: (p0, p1) {
+                  handleBarToucH(p1?.spot?.touchedBarGroupIndex);
+                },
                 touchExtraThreshold: const EdgeInsets.all(8)),
             borderData: FlBorderData(show: false),
             titlesData: FlTitlesData(

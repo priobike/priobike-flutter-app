@@ -1,12 +1,17 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/gamification/statistics/views/month_stats.dart';
 import 'package:priobike/gamification/statistics/views/multiple_weeks_stats.dart';
+import 'package:priobike/gamification/statistics/views/statistics_view.dart';
 import 'package:priobike/gamification/statistics/views/week_stats.dart';
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
 class RideStatisticsCard extends StatefulWidget {
-  const RideStatisticsCard({Key? key}) : super(key: key);
+  final Function(Widget view) openView;
+
+  const RideStatisticsCard({Key? key, required this.openView}) : super(key: key);
 
   @override
   State<RideStatisticsCard> createState() => _RideStatisticsCardState();
@@ -26,9 +31,14 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
     super.dispose();
   }
 
+  Future<void> onTap() async {
+    widget.openView(const StatisticsView());
+  }
+
   @override
   Widget build(BuildContext context) {
     return GameHubCard(
+      onTap: onTap,
       content: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -43,7 +53,7 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
                 tabController.index = index;
               }),
               children: [
-                WeekStatsView(startDay: DateTime(2023, 8, 14)),
+                WeekStatsView(startDay: DateTime(2023, 8, 14), tabHandler: onTap),
                 MonthStatsView(firstDay: DateTime(2023, 8, 1)),
                 MultipleWeeksStatsView(
                   firstWeekStartDay: DateTime(2023, 7, 17),
@@ -63,32 +73,6 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
               key: GlobalKey(),
             ),
           ),
-          GestureDetector(
-            child: Container(
-              padding: const EdgeInsets.only(top: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Icon(
-                    Icons.expand_more,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                  ),
-                  Text(
-                    "mehr anzeigen",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
-                  ),
-                  Icon(
-                    Icons.expand_more,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                  ),
-                ],
-              ),
-            ),
-          )
         ],
       ),
     );
