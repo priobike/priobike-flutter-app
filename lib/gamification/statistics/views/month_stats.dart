@@ -1,37 +1,40 @@
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/statistics/views/ride_graph.dart';
 
-class WeekStatsView extends StatefulWidget {
-  final DateTime startDay;
+class MonthStatsView extends StatefulWidget {
+  final DateTime firstDay;
 
-  const WeekStatsView({Key? key, required this.startDay}) : super(key: key);
+  const MonthStatsView({Key? key, required this.firstDay}) : super(key: key);
 
   @override
-  State<WeekStatsView> createState() => _WeekStatsViewState();
+  State<MonthStatsView> createState() => _MonthStatsViewState();
 }
 
-class _WeekStatsViewState extends State<WeekStatsView> {
+class _MonthStatsViewState extends State<MonthStatsView> {
   /// Ride DAO required to load the rides from the db.
   final RideSummaryDao rideDao = AppDatabase.instance.rideSummaryDao;
 
   /// Loaded rides in a list.
   List<RideSummary> rides = [];
 
-  final List<double> distances = List.filled(7, 0);
+  late List<double> distances;
 
   double maxY = 0;
 
   int? selectedIndex;
 
+  late int numberOfDays;
+
   @override
   void initState() {
+    numberOfDays = getNumberOfDays();
+    distances = List.filled(numberOfDays, 0);
     // Listen to ride data and update local list accordingly.
-    rideDao.streamSummariesOfWeek(widget.startDay).listen((update) {
+    rideDao.streamSummariesOfMonth(widget.firstDay).listen((update) {
       rides = update;
       calculateDistances();
       setState(() {});
@@ -39,10 +42,16 @@ class _WeekStatsViewState extends State<WeekStatsView> {
     super.initState();
   }
 
+  int getNumberOfDays() {
+    var firstDay = widget.firstDay;
+    var isDecember = firstDay.month == 12;
+    var lastDay = DateTime(isDecember ? firstDay.year + 1 : firstDay.year, (isDecember ? 0 : firstDay.month + 1), 0);
+    return lastDay.day;
+  }
+
   void calculateDistances() {
-    for (int i = 0; i < 7; i++) {
-      var weekDay = widget.startDay.add(Duration(days: i)).day;
-      var ridesOnDay = rides.where((ride) => ride.startTime.day == weekDay);
+    for (int i = 0; i < numberOfDays; i++) {
+      var ridesOnDay = rides.where((r) => r.startTime.day == i);
       if (ridesOnDay.isEmpty) continue;
       var distanceSum = ridesOnDay.map((r) => r.distanceMetres).reduce((a, b) => a + b) / 1000;
       if (distanceSum > 10) distanceSum = distanceSum.floorToDouble();
@@ -61,27 +70,21 @@ class _WeekStatsViewState extends State<WeekStatsView> {
               y: d,
               color: color,
               selected: selectedIndex == null ? null : (selectedIndex == i),
+              width: 3,
             ))
         .toList();
   }
 
   Widget getTitlesX(double value, TitleMeta meta, {required TextStyle style}) {
-    var today = DateTime.now();
-    var todayIndex = today.difference(widget.startDay).inDays;
-    String text = 'Mo';
-    if (value == 1) text = 'Di';
-    if (value == 2) text = 'Mi';
-    if (value == 3) text = 'Do';
-    if (value == 4) text = 'Fr';
-    if (value == 5) text = 'Sa';
-    if (value == 6) text = 'So';
+    if ((value + 1) % 5 > 0) return const SizedBox.shrink();
+    var todayIndex = DateTime.now().day;
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
       child: Column(
         children: [
           Text(
-            text,
+            (value.toInt() + 1).toString(),
             style: todayIndex == value ? style.copyWith(fontWeight: FontWeight.bold) : style,
           ),
           todayIndex != value
@@ -101,26 +104,39 @@ class _WeekStatsViewState extends State<WeekStatsView> {
   }
 
   String getHeaderInfoText() {
-    if (selectedIndex == null) {
+    if (distances.isEmpty) {
+      return '';
+    } else if (selectedIndex == null) {
       return '${distances.reduce((a, b) => a + b).round()} km';
     } else {
       return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!] : distances[selectedIndex!].round()} km';
     }
   }
 
+  String getMonthString(int i) {
+    if (i == 1) return 'Januar';
+    if (i == 2) return 'Februar';
+    if (i == 3) return 'März';
+    if (i == 4) return 'April';
+    if (i == 5) return 'Mai';
+    if (i == 6) return 'Juni';
+    if (i == 7) return 'Juli';
+    if (i == 8) return 'August';
+    if (i == 9) return 'September';
+    if (i == 10) return 'Oktober';
+    if (i == 11) return 'November';
+    return 'Dezember';
+  }
+
   @override
   Widget build(BuildContext context) {
-    var firstDay = DateFormat("dd.MM").format(widget.startDay);
-    var lastDay = DateFormat("dd.MM").format(widget.startDay.add(const Duration(days: 6)));
     return RideStatisticsGraph(
       maxY: maxY > 0 ? maxY : 1,
       bars: getBars(Theme.of(context).colorScheme.primary),
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelMedium!),
       handleBarToucH: (int? index) => setState(() => selectedIndex = index),
-      headerSubTitle: selectedIndex == null
-          ? '$firstDay - $lastDay'
-          : DateFormat("dd.MM").format(widget.startDay.add(Duration(days: selectedIndex!))),
-      headerTitle: 'Woche',
+      headerSubTitle: (selectedIndex == null ? '' : '$selectedIndex. ') + getMonthString(widget.firstDay.month),
+      headerTitle: 'Monat',
       headerInfoText: getHeaderInfoText(),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
+import 'package:priobike/gamification/statistics/views/month_stats.dart';
 import 'package:priobike/gamification/statistics/views/week_stats.dart';
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
@@ -15,7 +16,7 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
   final PageController pageController = PageController();
 
   /// Controller which connects the tab indicator to the page view.
-  late final TabController tabController = TabController(length: 3, vsync: this);
+  late final TabController tabController = TabController(length: 2, vsync: this);
 
   @override
   void dispose() {
@@ -43,8 +44,7 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
                 }),
                 children: [
                   WeekStatsView(startDay: DateTime(2023, 8, 14)),
-                  WeekStatsView(startDay: DateTime(2023, 8, 7)),
-                  WeekStatsView(startDay: DateTime(2023, 7, 31)),
+                  MonthStatsView(firstDay: DateTime(2023, 8, 1)),
                 ],
               ),
             ),

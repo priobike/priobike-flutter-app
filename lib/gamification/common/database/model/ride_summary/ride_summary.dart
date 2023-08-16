@@ -25,7 +25,10 @@ class RideSummaries extends Table {
 @DriftAccessor(tables: [RideSummaries])
 class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin {
   RideSummaryDao(AppDatabase attachedDatabase) : super(attachedDatabase) {
-    _createMocks(); // This is just for testing /TODO remove
+    // Fill the database with mocks, if it is empty - TODO remove
+    getAllObjects().then((result) {
+      if (result.isEmpty) _createMocks();
+    });
   }
 
   @override
@@ -52,6 +55,17 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
 
   Stream<List<RideSummary>> streamSummariesOfWeek(DateTime firstDay) {
     var lastDay = firstDay.add(const Duration(days: 7));
+    return (select(rideSummaries)
+          ..where((tbl) {
+            var startTime = tbl.startTime;
+            return startTime.isBetweenValues(firstDay, lastDay);
+          }))
+        .watch();
+  }
+
+  Stream<List<RideSummary>> streamSummariesOfMonth(DateTime firstDay) {
+    var isDecember = firstDay.month == 12;
+    var lastDay = DateTime(isDecember ? firstDay.year + 1 : firstDay.year, (isDecember ? 0 : firstDay.month + 1), 0);
     return (select(rideSummaries)
           ..where((tbl) {
             var startTime = tbl.startTime;
