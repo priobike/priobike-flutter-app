@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/gamification/statistics/graphs/month/compact_month_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/month/month_graph.dart';
 import 'package:priobike/gamification/statistics/graphs/multiple_weeks/compact_multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/graphs/week/compact_week_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/week/week_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
-import 'package:priobike/gamification/statistics/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/statistics_view.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
 class RideStatisticsCard extends StatefulWidget {

@@ -36,7 +36,7 @@ class _CompactMultipleWeeksGraphState extends State<CompactMultipleWeeksGraph> {
   Widget build(BuildContext context) {
     return CompactGraph(
       infoText: getInfoText(),
-      subTitle: getSubTitle(),
+      subTitle: viewModel.getRangeOrWeekStr(),
       title: 'Letzten 5 Wochen',
       graph: MultipleWeeksStatsGraph(
         tabHandler: widget.tabHandler,
@@ -49,15 +49,5 @@ class _CompactMultipleWeeksGraphState extends State<CompactMultipleWeeksGraph> {
     if (viewModel.yValues.isEmpty) return '';
     if (viewModel.selectedIndex == null) return '${StatUtils.getListSumStr(viewModel.yValues)} km';
     return '${StatUtils.convertDoubleToStr(viewModel.yValues[viewModel.selectedIndex!])} km';
-  }
-
-  String getSubTitle() {
-    if (viewModel.rideMap.keys.isEmpty) return '';
-    if (viewModel.selectedIndex == null) {
-      return StatUtils.getFromToStr(
-          viewModel.rideMap.keys.first, viewModel.rideMap.keys.last.add(const Duration(days: 6)));
-    }
-    var currentWeekFirstDay = viewModel.rideMap.keys.elementAt(viewModel.selectedIndex!);
-    return StatUtils.getFromToStr(currentWeekFirstDay, currentWeekFirstDay.add(const Duration(days: 6)));
   }
 }

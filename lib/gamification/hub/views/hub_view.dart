@@ -8,7 +8,6 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
-import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/gamification/hub/views/cards/ride_statistics.dart';
 import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
 import 'package:priobike/main.dart';

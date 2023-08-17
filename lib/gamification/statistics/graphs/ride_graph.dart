@@ -57,47 +57,50 @@ class RideStatisticsGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BarChart(
-      BarChartData(
-        barTouchData: BarTouchData(
-            handleBuiltInTouches: false,
-            touchCallback: (p0, p1) {
-              if (p0 is FlTapUpEvent) {
-                handleBarToucH(p1?.spot?.touchedBarGroupIndex);
-              }
-            },
-            touchExtraThreshold: const EdgeInsets.all(8)),
-        borderData: FlBorderData(show: false),
-        titlesData: FlTitlesData(
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) => SideTitleWidget(
-                axisSide: AxisSide.left,
-                space: 4,
-                child: Text(
-                  meta.formattedValue,
-                  style: Theme.of(context).textTheme.labelSmall,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: BarChart(
+        BarChartData(
+          barTouchData: BarTouchData(
+              handleBuiltInTouches: false,
+              touchCallback: (p0, p1) {
+                if (p0 is FlTapUpEvent) {
+                  handleBarToucH(p1?.spot?.touchedBarGroupIndex);
+                }
+              },
+              touchExtraThreshold: const EdgeInsets.all(8)),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) => SideTitleWidget(
+                  axisSide: AxisSide.left,
+                  space: 4,
+                  child: Text(
+                    meta.formattedValue,
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
                 ),
+                reservedSize: 30,
               ),
-              reservedSize: 30,
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                getTitlesWidget: getTitlesX,
+                showTitles: true,
+                reservedSize: 27,
+              ),
             ),
           ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              getTitlesWidget: getTitlesX,
-              showTitles: true,
-              reservedSize: 27,
-            ),
-          ),
+          maxY: maxY == 0 ? 1 : maxY,
+          gridData: FlGridData(drawVerticalLine: false),
+          barGroups: getBars(),
         ),
-        maxY: maxY == 0 ? 1 : maxY,
-        gridData: FlGridData(drawVerticalLine: false),
-        barGroups: getBars(),
+        swapAnimationDuration: Duration.zero,
       ),
-      swapAnimationDuration: Duration.zero,
     );
   }
 }

@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:collection/collection.dart';
@@ -60,6 +59,14 @@ class WeekGraphViewModel extends GraphViewModel {
     }
     notifyListeners();
   }
+
+  String getRangeOrSelectedDateStr() {
+    if (selectedIndex == null) {
+      return StatUtils.getFromToStr(startDay, startDay.add(const Duration(days: 6)));
+    } else {
+      return StatUtils.getDateStr(startDay.add(Duration(days: selectedIndex!)));
+    }
+  }
 }
 
 class MonthGraphViewModel extends GraphViewModel {
@@ -93,6 +100,10 @@ class MonthGraphViewModel extends GraphViewModel {
     var lastDay = DateTime(isDecember ? firstDay.year + 1 : firstDay.year, (isDecember ? 0 : firstDay.month + 1), 0);
     return lastDay.day;
   }
+
+  String getMonthOrSelectedDayStr() {
+    return (selectedIndex == null ? '' : '$selectedIndex. ') + StatUtils.getMonthStr(month);
+  }
 }
 
 class MultipleWeeksGraphViewModel extends GraphViewModel {
@@ -121,5 +132,14 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
   void updateValues(var update, int index) {
     _rideMap[_rideMap.keys.elementAt(index)] = update;
     _rideMap.values.forEachIndexed((i, ridesInWeek) => yValues[i] = StatUtils.getDistanceSum(ridesInWeek));
+  }
+
+  String getRangeOrWeekStr() {
+    if (rideMap.keys.isEmpty) return '';
+    if (selectedIndex == null) {
+      return StatUtils.getFromToStr(rideMap.keys.first, rideMap.keys.last.add(const Duration(days: 6)));
+    }
+    var currentWeekFirstDay = rideMap.keys.elementAt(selectedIndex!);
+    return StatUtils.getFromToStr(currentWeekFirstDay, currentWeekFirstDay.add(const Duration(days: 6)));
   }
 }

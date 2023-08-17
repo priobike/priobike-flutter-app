@@ -36,7 +36,7 @@ class _CompactWeekGraphState extends State<CompactWeekGraph> {
   Widget build(BuildContext context) {
     return CompactGraph(
       infoText: getInfoText(),
-      subTitle: getSubTitle(),
+      subTitle: viewModel.getRangeOrSelectedDateStr(),
       title: 'Diese Woche',
       graph: WeekStatsGraph(
         tabHandler: widget.tabHandler,
@@ -52,14 +52,6 @@ class _CompactWeekGraphState extends State<CompactWeekGraph> {
       return '${StatUtils.getListSumStr(viewModel.yValues)} km';
     } else {
       return '${StatUtils.convertDoubleToStr(viewModel.yValues[viewModel.selectedIndex!])} km';
-    }
-  }
-
-  String getSubTitle() {
-    if (viewModel.selectedIndex == null) {
-      return StatUtils.getFromToStr(viewModel.startDay, viewModel.startDay.add(const Duration(days: 6)));
-    } else {
-      return StatUtils.getDateStr(viewModel.startDay.add(Duration(days: viewModel.selectedIndex!)));
     }
   }
 }

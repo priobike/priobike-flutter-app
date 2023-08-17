@@ -36,7 +36,7 @@ class _CompactMonthStatsGraphState extends State<CompactMonthStatsGraph> {
   Widget build(BuildContext context) {
     return CompactGraph(
       infoText: getInfoText(),
-      subTitle: getSubTitle(),
+      subTitle: viewModel.getMonthOrSelectedDayStr(),
       title: 'Dieser Monat',
       graph: MonthStatsGraph(
         tabHandler: widget.tabHandler,
@@ -53,10 +53,5 @@ class _CompactMonthStatsGraphState extends State<CompactMonthStatsGraph> {
     } else {
       return '${StatUtils.convertDoubleToStr(viewModel.yValues[viewModel.selectedIndex!])} km';
     }
-  }
-
-  String getSubTitle() {
-    return (viewModel.selectedIndex == null ? '' : '${viewModel.selectedIndex}. ') +
-        StatUtils.getMonthStr(viewModel.month);
   }
 }
