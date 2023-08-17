@@ -115,7 +115,7 @@ class App extends StatelessWidget {
         return MaterialApp(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
-          navigatorObservers: [routeObserver],
+          navigatorObservers: [routeObserver, HeroController()],
           theme: ThemeData(
             dialogBackgroundColor: const Color(0xFFFFFFFF),
             fontFamily: 'HamburgSans',

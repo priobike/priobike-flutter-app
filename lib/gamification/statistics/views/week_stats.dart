@@ -11,7 +11,14 @@ class WeekStatsView extends StatefulWidget {
 
   final Function() tabHandler;
 
-  const WeekStatsView({Key? key, required this.startDay, required this.tabHandler}) : super(key: key);
+  final String? headerTitle;
+
+  const WeekStatsView({
+    Key? key,
+    required this.startDay,
+    required this.tabHandler,
+    this.headerTitle,
+  }) : super(key: key);
 
   @override
   State<WeekStatsView> createState() => _WeekStatsViewState();
@@ -110,10 +117,18 @@ class _WeekStatsViewState extends State<WeekStatsView> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  String getSubHeader() {
     var firstDay = DateFormat("dd.MM").format(widget.startDay);
     var lastDay = DateFormat("dd.MM").format(widget.startDay.add(const Duration(days: 6)));
+    if (selectedIndex == null) {
+      return '$firstDay - $lastDay';
+    } else {
+      return DateFormat("dd.MM").format(widget.startDay.add(Duration(days: selectedIndex!)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return RideStatisticsGraph(
       maxY: maxY > 0 ? maxY : 1,
       bars: getBars(Theme.of(context).colorScheme.primary),
@@ -122,10 +137,8 @@ class _WeekStatsViewState extends State<WeekStatsView> {
         if (selectedIndex == null && index == null) await widget.tabHandler();
         setState(() => selectedIndex = index);
       },
-      headerSubTitle: selectedIndex == null
-          ? '$firstDay - $lastDay'
-          : DateFormat("dd.MM").format(widget.startDay.add(Duration(days: selectedIndex!))),
-      headerTitle: 'Diese Woche',
+      headerSubTitle: (widget.headerTitle == null) ? '' : getSubHeader(),
+      headerTitle: widget.headerTitle ?? getSubHeader(),
       headerInfoText: getHeaderInfoText(),
     );
   }

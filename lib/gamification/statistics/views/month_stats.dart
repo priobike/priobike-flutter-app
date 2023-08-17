@@ -6,9 +6,21 @@ import 'package:priobike/gamification/common/database/model/ride_summary/ride_su
 import 'package:priobike/gamification/statistics/views/ride_graph.dart';
 
 class MonthStatsView extends StatefulWidget {
-  final DateTime firstDay;
+  final int year;
 
-  const MonthStatsView({Key? key, required this.firstDay}) : super(key: key);
+  final int month;
+
+  final String? headerTitle;
+
+  final Function() tabHandler;
+
+  const MonthStatsView({
+    Key? key,
+    required this.year,
+    required this.tabHandler,
+    required this.month,
+    this.headerTitle,
+  }) : super(key: key);
 
   @override
   State<MonthStatsView> createState() => _MonthStatsViewState();
@@ -21,6 +33,8 @@ class _MonthStatsViewState extends State<MonthStatsView> {
   /// Loaded rides in a list.
   List<RideSummary> rides = [];
 
+  late DateTime firstDay;
+
   late List<double> distances;
 
   double maxY = 0;
@@ -31,10 +45,11 @@ class _MonthStatsViewState extends State<MonthStatsView> {
 
   @override
   void initState() {
+    firstDay = DateTime(widget.year, widget.month, 1);
     numberOfDays = getNumberOfDays();
     distances = List.filled(numberOfDays, 0);
     // Listen to ride data and update local list accordingly.
-    rideDao.streamSummariesOfMonth(widget.firstDay).listen((update) {
+    rideDao.streamSummariesOfMonth(firstDay).listen((update) {
       rides = update;
       calculateDistances();
       setState(() {});
@@ -43,7 +58,6 @@ class _MonthStatsViewState extends State<MonthStatsView> {
   }
 
   int getNumberOfDays() {
-    var firstDay = widget.firstDay;
     var isDecember = firstDay.month == 12;
     var lastDay = DateTime(isDecember ? firstDay.year + 1 : firstDay.year, (isDecember ? 0 : firstDay.month + 1), 0);
     return lastDay.day;
@@ -70,7 +84,7 @@ class _MonthStatsViewState extends State<MonthStatsView> {
               y: d,
               color: color,
               selected: selectedIndex == null ? null : (selectedIndex == i),
-              width: 3,
+              width: 5,
             ))
         .toList();
   }
@@ -128,15 +142,24 @@ class _MonthStatsViewState extends State<MonthStatsView> {
     return 'Dezember';
   }
 
+  String getSubHeader() {
+    var prefix = '';
+    if (selectedIndex != null) prefix = '$selectedIndex. ';
+    return prefix + getMonthString(firstDay.month);
+  }
+
   @override
   Widget build(BuildContext context) {
     return RideStatisticsGraph(
       maxY: maxY > 0 ? maxY : 1,
       bars: getBars(Theme.of(context).colorScheme.primary),
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelMedium!),
-      handleBarToucH: (int? index) => setState(() => selectedIndex = index),
-      headerSubTitle: (selectedIndex == null ? '' : '$selectedIndex. ') + getMonthString(widget.firstDay.month),
-      headerTitle: 'Dieser Monat',
+      handleBarToucH: (int? index) async {
+        if (selectedIndex == null && index == null) await widget.tabHandler();
+        setState(() => selectedIndex = index);
+      },
+      headerSubTitle: (widget.headerTitle == null) ? '' : getSubHeader(),
+      headerTitle: widget.headerTitle ?? getSubHeader(),
       headerInfoText: getHeaderInfoText(),
     );
   }

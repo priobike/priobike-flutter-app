@@ -7,11 +7,14 @@ import 'package:priobike/gamification/common/database/model/ride_summary/ride_su
 import 'package:priobike/gamification/statistics/views/ride_graph.dart';
 
 class MultipleWeeksStatsView extends StatefulWidget {
-  final DateTime firstWeekStartDay;
-
   final DateTime lastWeekStartDay;
 
-  const MultipleWeeksStatsView({Key? key, required this.firstWeekStartDay, required this.lastWeekStartDay})
+  final int numOfWeeks;
+
+  final Function() tabHandler;
+
+  const MultipleWeeksStatsView(
+      {Key? key, required this.lastWeekStartDay, required this.numOfWeeks, required this.tabHandler})
       : super(key: key);
 
   @override
@@ -33,8 +36,10 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
 
   @override
   void initState() {
-    var tmpStartDay = widget.firstWeekStartDay;
-    do {
+    var tmpStartDay = widget.lastWeekStartDay;
+    tmpStartDay = tmpStartDay.subtract(Duration(days: 7 * (widget.numOfWeeks - 1)));
+
+    for (int i = 0; i < widget.numOfWeeks; i++) {
       distances.add(0);
       rides[tmpStartDay] = [];
       var startDay = tmpStartDay;
@@ -45,7 +50,7 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
         setState(() {});
       });
       tmpStartDay = tmpStartDay.add(const Duration(days: 7));
-    } while (widget.lastWeekStartDay.difference(tmpStartDay).inDays >= 0);
+    }
 
     super.initState();
   }
@@ -130,7 +135,10 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
       maxY: maxY > 0 ? maxY : 1,
       bars: getBars(Theme.of(context).colorScheme.primary),
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelSmall!),
-      handleBarToucH: (int? index) => setState(() => selectedIndex = index),
+      handleBarToucH: (int? index) async {
+        if (selectedIndex == null && index == null) await widget.tabHandler();
+        setState(() => selectedIndex = index);
+      },
       headerSubTitle: getSubTitle(),
       headerTitle: 'Letzten 5 Wochen',
       headerInfoText: getHeaderInfoText(),

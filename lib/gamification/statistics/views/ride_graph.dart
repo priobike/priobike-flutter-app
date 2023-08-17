@@ -50,6 +50,7 @@ class RideStatisticsGraph extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,7 +70,7 @@ class RideStatisticsGraph extends StatelessWidget {
           Text(
             headerInfoText,
             style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
-          )
+          ),
         ],
       ),
     );
@@ -85,7 +86,9 @@ class RideStatisticsGraph extends StatelessWidget {
             barTouchData: BarTouchData(
                 handleBuiltInTouches: false,
                 touchCallback: (p0, p1) {
-                  handleBarToucH(p1?.spot?.touchedBarGroupIndex);
+                  if (p0 is FlTapUpEvent) {
+                    handleBarToucH(p1?.spot?.touchedBarGroupIndex);
+                  }
                 },
                 touchExtraThreshold: const EdgeInsets.all(8)),
             borderData: FlBorderData(show: false),

@@ -53,11 +53,21 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
                 tabController.index = index;
               }),
               children: [
-                WeekStatsView(startDay: DateTime(2023, 8, 14), tabHandler: onTap),
-                MonthStatsView(firstDay: DateTime(2023, 8, 1)),
+                WeekStatsView(
+                  startDay: DateTime(2023, 8, 14),
+                  tabHandler: onTap,
+                  headerTitle: 'Diese Woche',
+                ),
+                MonthStatsView(
+                  year: 2023,
+                  month: 8,
+                  tabHandler: onTap,
+                  headerTitle: 'Dieser Monat',
+                ),
                 MultipleWeeksStatsView(
-                  firstWeekStartDay: DateTime(2023, 7, 17),
                   lastWeekStartDay: DateTime(2023, 8, 14),
+                  numOfWeeks: 5,
+                  tabHandler: onTap,
                 ),
               ],
             ),

@@ -11,7 +11,6 @@ import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/gamification/hub/views/cards/ride_statistics.dart';
 import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
-import 'package:priobike/gamification/statistics/views/statistics_view.dart';
 import 'package:priobike/main.dart';
 
 /// This view is the center point of the gamification functionality. It provides the user with all the information about
@@ -63,7 +62,7 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    Future.delayed(const Duration(milliseconds: 200)).then(
+    Future.delayed(const Duration(milliseconds: 500)).then(
       (value) => _animationController.forward(),
     );
     // Listen to ride data and update local list accordingly.
@@ -82,19 +81,20 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
   }
 
   void openPage(Widget view) {
-    _animationController.duration = const Duration(milliseconds: 500);
     _animationController
         .reverse()
         .then(
           (value) => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => view,
+            PageRouteBuilder(
+              transitionDuration: const Duration(milliseconds: 300),
+              reverseTransitionDuration: const Duration(milliseconds: 300),
+              pageBuilder: (context, animation, secondaryAnimation) => view,
             ),
           ),
         )
         .then(
           (value) => Future.delayed(
-            const Duration(milliseconds: 200),
+            const Duration(milliseconds: 300),
           ).then(
             (value) => _animationController.forward(),
           ),
@@ -114,45 +114,48 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                     const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        AppBackButton(
-                          onPressed: () {
-                            _animationController.duration = const Duration(milliseconds: 500);
-                            _animationController.reverse().then((value) => Navigator.pop(context));
-                          },
-                        ),
-                        const HSpace(),
-                        Expanded(
-                          child: FadeTransition(
+                    Hero(
+                      tag: 'hero.tag.backButton',
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          AppBackButton(
+                            onPressed: () {
+                              _animationController.duration = const Duration(milliseconds: 500);
+                              _animationController.reverse().then((value) => Navigator.pop(context));
+                            },
+                          ),
+                          const HSpace(),
+                          Expanded(
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: SubHeader(
+                                text: "PrioBike Challenge",
+                                context: context,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          const HSpace(),
+                          FadeTransition(
                             opacity: _fadeAnimation,
-                            child: SubHeader(
-                              text: "PrioBike Challenge",
-                              context: context,
-                              textAlign: TextAlign.center,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: SmallIconButton(
+                                icon: Icons.settings,
+                                onPressed: () {
+                                  _animationController.duration = const Duration(milliseconds: 500);
+                                  _animationController.reverse();
+                                  // TODO: Navigator.push(SETTINGS)
+                                },
+                                fill: Theme.of(context).colorScheme.background,
+                                splash: Theme.of(context).colorScheme.surface,
+                              ),
                             ),
                           ),
-                        ),
-                        const HSpace(),
-                        FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SmallIconButton(
-                              icon: Icons.settings,
-                              onPressed: () {
-                                _animationController.duration = const Duration(milliseconds: 500);
-                                _animationController.reverse();
-                                // TODO: Navigator.push(SETTINGS)
-                              },
-                              fill: Theme.of(context).colorScheme.background,
-                              splash: Theme.of(context).colorScheme.surface,
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     GameHubAnimationWrapper(
                       start: 0,
