@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/number_symbols_data.dart';
-import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/statistics/views/month_stats.dart';
-import 'package:priobike/gamification/statistics/views/multiple_weeks_stats.dart';
-import 'package:priobike/gamification/statistics/views/week_stats.dart';
 
 class StatisticsView extends StatefulWidget {
   const StatisticsView({Key? key}) : super(key: key);
@@ -84,11 +79,11 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SmallVSpace(),
-                      StatisticsHistoryView(pages: getWeekStatistics(10)),
+                      //StatisticsHistoryView(pages: getWeekStatistics(10)),
                       const SmallVSpace(),
-                      StatisticsHistoryView(pages: getMonthStatistics(6)),
+                      //StatisticsHistoryView(pages: getMonthStatistics(6)),
                       const SmallVSpace(),
-                      StatisticsHistoryView(pages: getMultipleWeekStatistics(5)),
+                      //StatisticsHistoryView(pages: getMultipleWeekStatistics(5)),
                     ],
                   ),
                 ),
@@ -100,6 +95,7 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
     );
   }
 
+  /*
   List<Widget> getWeekStatistics(int numOfWeeks) {
     List<Widget> stats = [];
     var today = DateTime.now();
@@ -108,7 +104,11 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
     for (int i = 0; i < numOfWeeks; i++) {
       var tmpWeekStart = weekStart.subtract(Duration(days: 7 * i));
       stats.add(
-        WeekStatsView(startDay: tmpWeekStart, tabHandler: () {}),
+        WeekStatsGraph(
+          startDay: tmpWeekStart,
+          tabHandler: () {},
+          onChanged: (List<double> values, int? selected) {},
+        ),
       );
     }
     return stats.reversed.toList();
@@ -119,7 +119,12 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
     var month = DateTime.now().month;
     var year = DateTime.now().year;
     for (int i = 0; i < numOfMonths; i++) {
-      stats.add(MonthStatsView(year: year, month: month, tabHandler: () {}));
+      stats.add(MonthStatsGraph(
+        year: year,
+        month: month,
+        tabHandler: () {},
+        onChanged: (List<double> values, int? selected) {},
+      ));
       if (month == 1) {
         month = 12;
         year -= 1;
@@ -136,11 +141,16 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
     var weekStart = today.subtract(Duration(days: today.weekday - 1));
     weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
     for (int i = 0; i < numOfIntervals; i++) {
-      stats.add(MultipleWeeksStatsView(lastWeekStartDay: weekStart, numOfWeeks: 5, tabHandler: () {}));
+      stats.add(MultipleWeeksStatsGraph(
+        lastWeekStartDay: weekStart,
+        numOfWeeks: 5,
+        tabHandler: () {},
+        onChanged: (List<double> values, List<DateTime> weekStarts, int? selected) {},
+      ));
       weekStart = weekStart.subtract(Duration(days: 7 * numOfIntervals));
     }
     return stats.reversed.toList();
-  }
+  }*/
 }
 
 class StatisticsHistoryView extends StatelessWidget {

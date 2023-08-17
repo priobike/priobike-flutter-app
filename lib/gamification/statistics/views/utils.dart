@@ -1,8 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 
 class StatUtils {
-  static double getFittingMax(double num) {
+  static double getFittingMax(List<double> values) {
+    if (values.isEmpty) return 0;
+    var num = values.max;
     if (num <= 5) return num;
     if (num <= 10) return num.ceilToDouble();
     if (num <= 50) return roundUpToInterval(num, 5);

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
-import 'package:priobike/gamification/statistics/views/month_stats.dart';
-import 'package:priobike/gamification/statistics/views/multiple_weeks_stats.dart';
+import 'package:priobike/gamification/statistics/graphs/month/compact_month_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/month/month_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/multiple_weeks/compact_multiple_weeks_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/week/compact_week_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/week/week_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/statistics_view.dart';
-import 'package:priobike/gamification/statistics/views/week_stats.dart';
+import 'package:priobike/gamification/statistics/views/utils.dart';
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
 class RideStatisticsCard extends StatefulWidget {
@@ -51,22 +57,9 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
                 tabController.index = index;
               }),
               children: [
-                WeekStatsView(
-                  startDay: DateTime(2023, 8, 14),
-                  tabHandler: onTap,
-                  headerTitle: 'Diese Woche',
-                ),
-                MonthStatsView(
-                  year: 2023,
-                  month: 8,
-                  tabHandler: onTap,
-                  headerTitle: 'Dieser Monat',
-                ),
-                MultipleWeeksStatsView(
-                  lastWeekStartDay: DateTime(2023, 8, 14),
-                  numOfWeeks: 5,
-                  tabHandler: onTap,
-                ),
+                CompactWeekGraph(tabHandler: onTap),
+                CompactMonthStatsGraph(tabHandler: onTap),
+                CompactMultipleWeeksGraph(tabHandler: onTap),
               ],
             ),
           ),
@@ -84,19 +77,5 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
         ],
       ),
     );
-  }
-}
-
-class GraphWidget extends StatefulWidget {
-  const GraphWidget({Key? key}) : super(key: key);
-
-  @override
-  State<GraphWidget> createState() => _GraphWidgetState();
-}
-
-class _GraphWidgetState extends State<GraphWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }

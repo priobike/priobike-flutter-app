@@ -1,0 +1,125 @@
+
+import 'dart:async';
+
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/statistics/views/utils.dart';
+
+abstract class GraphViewModel with ChangeNotifier {
+  /// Ride DAO required to load the rides from the db.
+  final RideSummaryDao rideDao = AppDatabase.instance.rideSummaryDao;
+
+  late List<double> _yValues;
+  List<double> get yValues => _yValues;
+
+  int? _selectedIndex;
+  int? get selectedIndex => _selectedIndex;
+
+  void setSelectedIndex(int? selected) {
+    _selectedIndex = selected;
+    notifyListeners();
+  }
+
+  final List<Stream> _streams = [];
+
+  final List<StreamSubscription> _streamSubs = [];
+
+  void endStreams() {
+    for (var sub in _streamSubs) {
+      sub.cancel();
+    }
+  }
+
+  void startStreams() {
+    _streams.forEachIndexed((i, stream) => stream.listen((update) => updateValues(update, i)));
+  }
+
+  void updateValues(List<RideSummary> update, int index);
+}
+
+class WeekGraphViewModel extends GraphViewModel {
+  final DateTime startDay;
+  List<RideSummary> _rides = [];
+
+  List<RideSummary> get rides => _rides;
+
+  WeekGraphViewModel(this.startDay) {
+    _yValues = List.filled(7, 0);
+    _streams.add(rideDao.streamSummariesOfWeek(startDay));
+  }
+
+  @override
+  void updateValues(var update, int index) {
+    _rides = update;
+    for (int i = 0; i < 7; i++) {
+      var weekDay = startDay.add(Duration(days: i)).day;
+      var ridesOnDay = rides.where((ride) => ride.startTime.day == weekDay);
+      _yValues[i] = StatUtils.getDistanceSum(ridesOnDay.toList());
+    }
+    notifyListeners();
+  }
+}
+
+class MonthGraphViewModel extends GraphViewModel {
+  final int year;
+  final int month;
+
+  List<RideSummary> _rides = [];
+
+  List<RideSummary> get rides => _rides;
+
+  late DateTime firstDay;
+
+  int numberOfDays = 0;
+
+  MonthGraphViewModel(this.year, this.month) : firstDay = DateTime(year, month, 1) {
+    numberOfDays = getNumberOfDays();
+    _yValues = List.filled(numberOfDays, 0);
+    _streams.add(rideDao.streamSummariesOfMonth(firstDay));
+  }
+
+  @override
+  void updateValues(var update, int index) {
+    _rides = update;
+    for (int i = 0; i < numberOfDays; i++) {
+      _yValues[i] = StatUtils.getDistanceSum(rides.where((r) => r.startTime.day == i).toList());
+    }
+  }
+
+  int getNumberOfDays() {
+    var isDecember = firstDay.month == 12;
+    var lastDay = DateTime(isDecember ? firstDay.year + 1 : firstDay.year, (isDecember ? 0 : firstDay.month + 1), 0);
+    return lastDay.day;
+  }
+}
+
+class MultipleWeeksGraphViewModel extends GraphViewModel {
+  final DateTime lastWeekStartDay;
+  final int numOfWeeks;
+
+  final Map<DateTime, List<RideSummary>> _rideMap = {};
+
+  Map<DateTime, List<RideSummary>> get rideMap => _rideMap;
+
+  MultipleWeeksGraphViewModel(this.lastWeekStartDay, this.numOfWeeks) {
+    _yValues = [];
+    var tmpStartDay = lastWeekStartDay;
+    tmpStartDay = tmpStartDay.subtract(Duration(days: 7 * (numOfWeeks - 1)));
+    for (int i = 0; i < numOfWeeks; i++) {
+      yValues.add(0);
+      _rideMap[tmpStartDay] = [];
+      tmpStartDay = tmpStartDay.add(const Duration(days: 7));
+    }
+    for (var key in _rideMap.keys) {
+      _streams.add(rideDao.streamSummariesOfWeek(key));
+    }
+  }
+
+  @override
+  void updateValues(var update, int index) {
+    _rideMap[_rideMap.keys.elementAt(index)] = update;
+    _rideMap.values.forEachIndexed((i, ridesInWeek) => yValues[i] = StatUtils.getDistanceSum(ridesInWeek));
+  }
+}
