@@ -8,7 +8,7 @@ final Article articleDataFailures = Article(
   "assets/images/wiki/wiki-datenausfaelle-icon.png",
   [
     "Wir bei PrioBike möchten sicherstellen, dass du immer sicher und schnell durch die Stadt radeln kannst. Deshalb arbeiten wir unter Hochdruck daran, unsere Geschwindigkeitsempfehlungen so zuverlässig wie möglich zu machen. Das klappt aber nicht immer.",
-    "Unsere Geschwindigkeitsempfehungen basieren auf den Echtzeitdaten, die uns Ampeln im Hamburg senden. Anhand der Echtzeitdaten können wir dann die Schaltprogramme der Ampeln rekonstruieren, und daraus die Geschwindigkeitsempfehlung berechnen. Manchmal kommt es aber vor, dass die Daten der Ampeln ausfallen oder nicht ganz zuverlässig sind.",
+    "Unsere Geschwindigkeitsempfehungen basieren auf den Echtzeitdaten, die uns Ampeln in Hamburg senden. Anhand der Echtzeitdaten können wir dann die Schaltprogramme der Ampeln rekonstruieren, und daraus die Geschwindigkeitsempfehlung berechnen. Manchmal kommt es aber vor, dass die Daten der Ampeln ausfallen oder nicht ganz zuverlässig sind.",
     "Hinter dem System versteckt sich ein kompliziertes Netzwerk aus Ampeln und Verkehrsrechnern, in dem Ausfälle nicht ausgeschlossen sind. Im besten Fall erhalten wir über 10.000 Nachrichten der Ampeln in Hamburg jede Minute - eine riesige Menge Daten! Die müssen auch erstmal durch die Internetleitung passen. Wir tun alles dafür, dass Ausfälle in Zukunft so selten sind wie möglich. Ja, wirklich!",
     "Wenn es dann doch mal nicht so gut klappt, kannst du das aber schon im Voraus über die angezeigte Datenverfügbarkeit in der App sehen. Diese errechnet sich aus dem Anteil von Ampeln, die gerade Daten senden, in Relation zu den insgesamt ans System angebundenen Ampeln. Damit weißt du immer voll bescheid.",
   ],
