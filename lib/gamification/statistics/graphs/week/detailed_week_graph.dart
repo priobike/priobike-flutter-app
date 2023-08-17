@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/statistics/graphs/detailed_labled_graph.dart';
 import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/graphs/week/week_graph.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/main.dart';
 
 class DetailedWeekGraph extends StatefulWidget {
   const DetailedWeekGraph({Key? key}) : super(key: key);
@@ -13,16 +15,30 @@ class DetailedWeekGraph extends StatefulWidget {
 class _DetailedWeekGraphState extends State<DetailedWeekGraph> {
   late PageController pageController;
 
+  late StatisticService statService;
+
   List<WeekGraphViewModel> viewModels = [];
 
-  int displayedPageIndex = 0;
+  int displayedPageIndex = 10 - 1;
 
   void update() => setState(() {});
 
   @override
   void initState() {
+    statService = getIt<StatisticService>();
+    statService.addListener(update);
     createViewModels(10);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    for (var vm in viewModels) {
+      vm.endStreams();
+    }
+    statService.removeListener(update);
+    pageController.dispose();
+    super.dispose();
   }
 
   void createViewModels(int numOfWeeks) {
@@ -50,16 +66,11 @@ class _DetailedWeekGraphState extends State<DetailedWeekGraph> {
   }
 
   @override
-  void dispose() {
-    for (var vm in viewModels) {
-      vm.endStreams();
-    }
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (viewModels.isEmpty) return const SizedBox.shrink();
+    for (var vm in viewModels) {
+      vm.setRideInfoType(statService.selectedRideInfo);
+    }
     return DetailedGraph(
       pageController: pageController,
       graphs: viewModels
@@ -68,7 +79,7 @@ class _DetailedWeekGraphState extends State<DetailedWeekGraph> {
                 viewModel: vm,
               ))
           .toList(),
-      graphInfo: viewModels.elementAt(displayedPageIndex).getRangeOrSelectedDateStr(),
+      currentViewModel: viewModels.elementAt(displayedPageIndex),
     );
   }
 }

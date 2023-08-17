@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 
 class StatUtils {
   static double getFittingMax(List<double> values) {
@@ -17,15 +18,6 @@ class StatUtils {
     return interval * (num / interval).ceilToDouble();
   }
 
-  static String convertDoubleToStr(double num) {
-    if (num < 10) return num.toStringAsFixed(1);
-    return num.round().toString();
-  }
-
-  static String getListSumStr(List<double> list) {
-    return StatUtils.convertDoubleToStr(list.reduce((a, b) => a + b));
-  }
-
   static String getDateStr(DateTime date) {
     return DateFormat("dd.MM").format(date);
   }
@@ -34,11 +26,43 @@ class StatUtils {
     return '${getDateStr(first)} - ${getDateStr(last)}';
   }
 
-  static double getDistanceSum(List<RideSummary> list) {
+  static double getOverallValueFromSummaries(List<RideSummary> list, RideInfoType type) {
     if (list.isEmpty) return 0;
-    var sum = list.map((r) => r.distanceMetres).reduce((a, b) => a + b) / 1000;
-    if (sum > 10) sum = sum.floorToDouble();
-    return sum;
+    return getOverallValueFromDouble(list.map((ride) => getRideValueFromType(ride, type)).toList(), type);
+  }
+
+  static double getOverallValueFromDouble(List<double> list, RideInfoType type) {
+    if (type == RideInfoType.averageSpeed) {
+      return list.average;
+    }
+    return getListSum(list);
+  }
+
+  static String getFormattedStrByRideType(double value, RideInfoType type) {
+    String result = value.toStringAsFixed(0);
+    if ((type == RideInfoType.distance || type == RideInfoType.duration) && value < 100) {
+      result = value.toStringAsFixed(1);
+    } else {
+      result = value.toStringAsFixed(0);
+    }
+    if (type == RideInfoType.distance) result += ' km';
+    if (type == RideInfoType.duration) result += ' min';
+    if (type == RideInfoType.averageSpeed) result += ' km/h';
+    return result;
+  }
+
+  static double getListSum(List<double> list) {
+    if (list.isEmpty) return 0;
+    return list.reduce((a, b) => a + b);
+  }
+
+  static double getRideValueFromType(RideSummary ride, RideInfoType infoType) {
+    if (infoType == RideInfoType.distance) return ride.distanceMetres / 1000;
+    if (infoType == RideInfoType.duration) return ride.durationSeconds / 60;
+    if (infoType == RideInfoType.averageSpeed) return ride.averageSpeedKmh;
+    if (infoType == RideInfoType.elevationGain) return ride.elevationGainMetres;
+    if (infoType == RideInfoType.elevationLoss) return ride.elevationLossMetres;
+    return 0;
   }
 
   static String getWeekStr(int i) {

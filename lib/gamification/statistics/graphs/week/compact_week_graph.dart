@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/statistics/graphs/compact_labled_graph.dart';
 import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/graphs/week/week_graph.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 
 class CompactWeekGraph extends StatefulWidget {
   final Function() tabHandler;
@@ -35,23 +34,13 @@ class _CompactWeekGraphState extends State<CompactWeekGraph> {
   @override
   Widget build(BuildContext context) {
     return CompactGraph(
-      infoText: getInfoText(),
-      subTitle: viewModel.getRangeOrSelectedDateStr(),
+      infoText: viewModel.selectedOrOverallValueStr,
+      subTitle: viewModel.rangeOrSelectedDateStr,
       title: 'Diese Woche',
       graph: WeekStatsGraph(
         tabHandler: widget.tabHandler,
         viewModel: viewModel,
       ),
     );
-  }
-
-  String getInfoText() {
-    if (viewModel.yValues.isEmpty) {
-      return '';
-    } else if (viewModel.selectedIndex == null) {
-      return '${StatUtils.getListSumStr(viewModel.yValues)} km';
-    } else {
-      return '${StatUtils.convertDoubleToStr(viewModel.yValues[viewModel.selectedIndex!])} km';
-    }
   }
 }

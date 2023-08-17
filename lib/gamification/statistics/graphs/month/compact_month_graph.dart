@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/statistics/graphs/compact_labled_graph.dart';
 import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/graphs/month/month_graph.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 
 class CompactMonthStatsGraph extends StatefulWidget {
   final Function() tabHandler;
@@ -35,23 +34,13 @@ class _CompactMonthStatsGraphState extends State<CompactMonthStatsGraph> {
   @override
   Widget build(BuildContext context) {
     return CompactGraph(
-      infoText: getInfoText(),
-      subTitle: viewModel.getMonthOrSelectedDayStr(),
+      infoText: viewModel.selectedOrOverallValueStr,
+      subTitle: viewModel.rangeOrSelectedDateStr,
       title: 'Dieser Monat',
       graph: MonthStatsGraph(
         tabHandler: widget.tabHandler,
         viewModel: viewModel,
       ),
     );
-  }
-
-  String getInfoText() {
-    if (viewModel.yValues.isEmpty) {
-      return '';
-    } else if (viewModel.selectedIndex == null) {
-      return '${StatUtils.getListSumStr(viewModel.yValues)} km';
-    } else {
-      return '${StatUtils.convertDoubleToStr(viewModel.yValues[viewModel.selectedIndex!])} km';
-    }
   }
 }

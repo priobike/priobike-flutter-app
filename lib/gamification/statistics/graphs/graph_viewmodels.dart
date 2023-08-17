@@ -4,11 +4,21 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/utils.dart';
 
 abstract class GraphViewModel with ChangeNotifier {
   /// Ride DAO required to load the rides from the db.
   final RideSummaryDao rideDao = AppDatabase.instance.rideSummaryDao;
+
+  RideInfoType _rideInfoType = RideInfoType.distance;
+
+  void setRideInfoType(RideInfoType type) {
+    _rideInfoType = type;
+    updateValues();
+  }
+
+  RideInfoType get rideInfoType => _rideInfoType;
 
   late List<double> _yValues;
   List<double> get yValues => _yValues;
@@ -32,10 +42,33 @@ abstract class GraphViewModel with ChangeNotifier {
   }
 
   void startStreams() {
-    _streams.forEachIndexed((i, stream) => stream.listen((update) => updateValues(update, i)));
+    _streams.forEachIndexed((i, stream) => stream.listen((update) {
+          updateValues(update: update, index: i);
+          notifyListeners();
+        }));
   }
 
-  void updateValues(List<RideSummary> update, int index);
+  void updateValues({List<RideSummary>? update, int? index});
+
+  String get overallValueStr {
+    var overallVal = StatUtils.getOverallValueFromDouble(yValues, _rideInfoType);
+    return StatUtils.getFormattedStrByRideType(overallVal, _rideInfoType);
+  }
+
+  String get selectedValueStr {
+    if (selectedIndex == null) return '';
+    return StatUtils.getFormattedStrByRideType(yValues[selectedIndex!], _rideInfoType);
+  }
+
+  String get selectedOrOverallValueStr {
+    if (yValues.isEmpty) return '';
+    if (selectedIndex == null) return overallValueStr;
+    return selectedValueStr;
+  }
+
+  String get valuesAverage => StatUtils.getFormattedStrByRideType(yValues.average, _rideInfoType);
+
+  String get rangeOrSelectedDateStr;
 }
 
 class WeekGraphViewModel extends GraphViewModel {
@@ -50,17 +83,17 @@ class WeekGraphViewModel extends GraphViewModel {
   }
 
   @override
-  void updateValues(var update, int index) {
-    _rides = update;
+  void updateValues({List<RideSummary>? update, int? index}) {
+    if (update != null) _rides = update;
     for (int i = 0; i < 7; i++) {
       var weekDay = startDay.add(Duration(days: i)).day;
       var ridesOnDay = rides.where((ride) => ride.startTime.day == weekDay);
-      _yValues[i] = StatUtils.getDistanceSum(ridesOnDay.toList());
+      _yValues[i] = StatUtils.getOverallValueFromSummaries(ridesOnDay.toList(), _rideInfoType);
     }
-    notifyListeners();
   }
 
-  String getRangeOrSelectedDateStr() {
+  @override
+  String get rangeOrSelectedDateStr {
     if (selectedIndex == null) {
       return StatUtils.getFromToStr(startDay, startDay.add(const Duration(days: 6)));
     } else {
@@ -88,10 +121,11 @@ class MonthGraphViewModel extends GraphViewModel {
   }
 
   @override
-  void updateValues(var update, int index) {
-    _rides = update;
+  void updateValues({List<RideSummary>? update, int? index}) {
+    if (update != null) _rides = update;
     for (int i = 0; i < numberOfDays; i++) {
-      _yValues[i] = StatUtils.getDistanceSum(rides.where((r) => r.startTime.day == i).toList());
+      _yValues[i] =
+          StatUtils.getOverallValueFromSummaries(rides.where((r) => r.startTime.day == i).toList(), _rideInfoType);
     }
   }
 
@@ -101,7 +135,8 @@ class MonthGraphViewModel extends GraphViewModel {
     return lastDay.day;
   }
 
-  String getMonthOrSelectedDayStr() {
+  @override
+  String get rangeOrSelectedDateStr {
     return (selectedIndex == null ? '' : '$selectedIndex. ') + StatUtils.getMonthStr(month);
   }
 }
@@ -129,12 +164,14 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
   }
 
   @override
-  void updateValues(var update, int index) {
-    _rideMap[_rideMap.keys.elementAt(index)] = update;
-    _rideMap.values.forEachIndexed((i, ridesInWeek) => yValues[i] = StatUtils.getDistanceSum(ridesInWeek));
+  void updateValues({List<RideSummary>? update, int? index}) {
+    if (update != null && index != null) _rideMap[_rideMap.keys.elementAt(index)] = update;
+    _rideMap.values.forEachIndexed(
+        (i, ridesInWeek) => yValues[i] = StatUtils.getOverallValueFromSummaries(ridesInWeek, _rideInfoType));
   }
 
-  String getRangeOrWeekStr() {
+  @override
+  String get rangeOrSelectedDateStr {
     if (rideMap.keys.isEmpty) return '';
     if (selectedIndex == null) {
       return StatUtils.getFromToStr(rideMap.keys.first, rideMap.keys.last.add(const Duration(days: 6)));
