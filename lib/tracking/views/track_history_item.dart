@@ -14,6 +14,7 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:priobike/tracking/views/all_track_history.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
 import 'package:priobike/tracking/views/track_details.dart';
 
@@ -224,7 +225,32 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 top: 0,
                 child: IconButton(
                   key: const ValueKey("delete"),
-                  onPressed: () => getIt<Tracking>().deleteTrack(widget.track),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Fahrt löschen"),
+                          content: const Text("Bitte bestätige, dass du diese Fahrt löschen möchtest."),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Abbrechen"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                getIt<Tracking>().deleteTrack(widget.track);
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Löschen"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                   icon: Icon(
                     Icons.delete_rounded,
                     size: 22,
