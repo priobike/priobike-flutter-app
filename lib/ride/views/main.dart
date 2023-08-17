@@ -250,6 +250,18 @@ class RideViewState extends State<RideView> {
                 ),
               RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               const DatastreamView(),
+              if (settings.watchStandalone)
+                Container(
+                  color: Colors.black.withOpacity(0.85),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Center(
+                    child: BoldSubHeader(
+                      context: context,
+                      text: "Standalone Mode",
+                    ),
+                  ),
+                ),
               const FinishRideButton(),
               if (!cameraFollowsUserLocation)
                 SafeArea(

@@ -17,7 +17,7 @@ import 'package:wearable_communicator/wearable_communicator.dart';
 
 // Audios.
 const audioContinuousFaster = "sounds/continuous_faster.mp3";
-const audioContinuousSlower = "sounds/continuous_slower2.mp3";
+const audioContinuousSlower = "sounds/continuous_slower.mp3";
 const audioIntervalFaster = "sounds/interval_faster.mp3";
 const audioIntervalSlower = "sounds/interval_slower.mp3";
 const audioInfo = "sounds/info.mp3";
@@ -367,7 +367,7 @@ class RideAssist with ChangeNotifier {
         inGreenPhase = true;
         return;
       }
-      int closestPhase = getClosestPhase(phases, second);
+      int closestPhase = getClosestPhaseToIdeal(phases);
       if (second - closestPhase >= 0) {
         // Less time needed => drive faster.
         playFaster();
@@ -465,20 +465,45 @@ class RideAssist with ChangeNotifier {
     return -1;
   }
 
+  /// Returns the int of the closest green phase (on same distance faster is returned).
+  int getClosestPhaseToIdeal(List<Phase> phases) {
+    // Second (speed) minus i must be above this value to be visible. Else its too fast.
+    final int maxSecond = ((ride.calcDistanceToNextSG!) / (settings.speedMode.maxSpeed / 3.6)).round();
+    final int idealSecond = ((ride.calcDistanceToNextSG!) / (18 / 3.6)).round();
+    for (int i = 0; i < phases.length; i++) {
+      // Check in direction second - i.
+      if (idealSecond - i >= 0 && idealSecond - i < phases.length && (idealSecond - i) > maxSecond) {
+        if (phases[idealSecond - i] == Phase.green) {
+          // Return phase faster.
+          return idealSecond - i;
+        }
+      }
+      // Check in direction second + i. To prevent going for phases outside the maxSpeed.
+      if (idealSecond + i < phases.length) {
+        if (phases[idealSecond + i] == Phase.green) {
+          // Return phase slower.
+          return idealSecond + i;
+        }
+      }
+    }
+    // No phase found.
+    return -1;
+  }
+
   void startSlowerLoop() {
-    if (settings.modalityMode == ModalityMode.vibration) {
+    if (settings.modalityMode == ModalityMode.vibration || settings.watchStandalone) {
       sendOutput("slower");
     } else {
       // Then start timer.
       audioPlayer1.play(AssetSource(audioContinuousSlower));
-      timer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
+      timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
         audioPlayer2.play(AssetSource(audioContinuousSlower));
       });
     }
   }
 
   void startFasterLoop() {
-    if (settings.modalityMode == ModalityMode.vibration) {
+    if (settings.modalityMode == ModalityMode.vibration || settings.watchStandalone) {
       sendOutput("faster");
     } else {
       // Then start timer.
@@ -490,7 +515,7 @@ class RideAssist with ChangeNotifier {
   }
 
   void playSlower() {
-    if (settings.modalityMode == ModalityMode.vibration) {
+    if (settings.modalityMode == ModalityMode.vibration || settings.watchStandalone) {
       sendOutput("slower");
     } else {
       // Then start timer.
@@ -499,7 +524,7 @@ class RideAssist with ChangeNotifier {
   }
 
   void playFaster() {
-    if (settings.modalityMode == ModalityMode.vibration) {
+    if (settings.modalityMode == ModalityMode.vibration || settings.watchStandalone) {
       sendOutput("faster");
     } else {
       // Then start timer.
@@ -508,7 +533,7 @@ class RideAssist with ChangeNotifier {
   }
 
   void stopSignalLoop() {
-    if (settings.modalityMode == ModalityMode.vibration) {
+    if (settings.modalityMode == ModalityMode.vibration || settings.watchStandalone) {
       sendOutput("stop_loop");
     } else {
       if (timer != null) {
@@ -525,7 +550,7 @@ class RideAssist with ChangeNotifier {
   bool greenPhaseAvailable(List<Phase> phases) {
     bool greenPhaseAvailable = false;
     final int maxSecond = ((ride.calcDistanceToNextSG! * 3.6) / settings.speedMode.maxSpeed).round();
-    for (int i = maxSecond;  i < phases.length; i++) {
+    for (int i = maxSecond; i < phases.length; i++) {
       if (phases[i] == Phase.green) {
         greenPhaseAvailable = true;
       }
@@ -535,23 +560,21 @@ class RideAssist with ChangeNotifier {
 
   /// Function which plays the success signal.
   void playSuccess() {
-    if (settings.modalityMode == ModalityMode.audio) {
-      playPhoneAudioSuccess();
-    }
-    if (settings.modalityMode == ModalityMode.vibration) {
+    if (settings.modalityMode == ModalityMode.vibration || settings.watchStandalone) {
       // Send message to wear device.
       sendOutput("success");
+    } else {
+      playPhoneAudioSuccess();
     }
   }
 
   /// Function which plays the info signal.
   void playInfo() {
-    if (settings.modalityMode == ModalityMode.audio) {
-      playPhoneAudioInfo();
-    }
-    if (settings.modalityMode == ModalityMode.vibration) {
+    if (settings.modalityMode == ModalityMode.vibration || settings.watchStandalone) {
       // Send message to wear device.
       sendOutput("info");
+    } else {
+      playPhoneAudioInfo();
     }
   }
 
