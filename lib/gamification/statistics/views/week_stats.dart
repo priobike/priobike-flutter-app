@@ -43,6 +43,7 @@ class _WeekStatsViewState extends State<WeekStatsView> {
     rideDao.streamSummariesOfWeek(widget.startDay).listen((update) {
       rides = update;
       calculateDistances();
+      //if (!mounted) return;
       setState(() {});
     });
     super.initState();

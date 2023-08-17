@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/number_symbols_data.dart';
+import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -48,47 +49,51 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SingleChildScrollView(
-          child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                Hero(
-                  tag: 'hero.tag.backButton',
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
+        body: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              const SmallVSpace(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  AppBackButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  const HSpace(),
+                  Expanded(
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SubHeader(
+                        text: "Fahrt-Statistiken",
+                        context: context,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const HSpace(),
+                  const SizedBox(width: 56, height: 0),
+                ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AppBackButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      const HSpace(),
-                      Expanded(
-                        child: FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: SubHeader(
-                            text: "Fahrt-Statistiken",
-                            context: context,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      const HSpace(),
-                      const SizedBox(width: 56, height: 0),
+                      const SmallVSpace(),
+                      StatisticsHistoryView(pages: getWeekStatistics(10)),
+                      const SmallVSpace(),
+                      StatisticsHistoryView(pages: getMonthStatistics(6)),
+                      const SmallVSpace(),
+                      StatisticsHistoryView(pages: getMultipleWeekStatistics(5)),
                     ],
                   ),
                 ),
-                const SmallVSpace(),
-                StatisticsHistoryView(pages: getWeekStatistics(10)),
-                const SmallVSpace(),
-                StatisticsHistoryView(pages: getMonthStatistics(6)),
-                const SmallVSpace(),
-                StatisticsHistoryView(pages: getMultipleWeekStatistics(5)),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -99,6 +104,7 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
     List<Widget> stats = [];
     var today = DateTime.now();
     var weekStart = today.subtract(Duration(days: today.weekday - 1));
+    weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
     for (int i = 0; i < numOfWeeks; i++) {
       var tmpWeekStart = weekStart.subtract(Duration(days: 7 * i));
       stats.add(
@@ -128,6 +134,7 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
     List<Widget> stats = [];
     var today = DateTime.now();
     var weekStart = today.subtract(Duration(days: today.weekday - 1));
+    weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
     for (int i = 0; i < numOfIntervals; i++) {
       stats.add(MultipleWeeksStatsView(lastWeekStartDay: weekStart, numOfWeeks: 5, tabHandler: () {}));
       weekStart = weekStart.subtract(Duration(days: 7 * numOfIntervals));
