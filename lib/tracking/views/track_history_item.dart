@@ -70,6 +70,33 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
+  void showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Fahrt löschen"),
+          content: const Text("Bitte bestätige, dass du diese Fahrt löschen möchtest."),
+          actions: [
+            TextButton(
+              child: const Text("Abbrechen"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Löschen"),
+              onPressed: () {
+                getIt<Tracking>().deleteTrack(widget.track);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Parse the date.
@@ -224,32 +251,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 top: 0,
                 child: IconButton(
                   key: const ValueKey("delete"),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Fahrt löschen"),
-                          content: const Text("Bitte bestätige, dass du diese Fahrt löschen möchtest."),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Abbrechen"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                getIt<Tracking>().deleteTrack(widget.track);
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Löschen"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
+                  onPressed: () => showDeleteDialog(),
                   icon: Icon(
                     Icons.delete_rounded,
                     size: 22,
