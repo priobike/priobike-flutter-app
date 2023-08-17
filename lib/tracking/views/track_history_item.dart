@@ -107,20 +107,23 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconTextButton(
-              iconColor: Colors.white,
-              icon: Icons.info_outline_rounded,
-              label: "Details",
-              onPressed: () => showAppSheet(
-                context: context,
-                builder: (context) => TrackDetailsDialog(
-                    track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
-              ),
-            ),
+                iconColor: Colors.white,
+                icon: Icons.info_outline_rounded,
+                label: "Details",
+                onPressed: () {
+                  if (!showMenu) return;
+                  showAppSheet(
+                    context: context,
+                    builder: (context) => TrackDetailsDialog(
+                        track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
+                  );
+                }),
             IconTextButton(
               iconColor: Colors.white,
               icon: Icons.delete_rounded,
               label: "Löschen",
               onPressed: () {
+                if (!showMenu) return;
                 setState(() {
                   showMenu = false;
                 });
