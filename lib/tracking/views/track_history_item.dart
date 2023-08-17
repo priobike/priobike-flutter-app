@@ -14,7 +14,6 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/views/all_track_history.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
 import 'package:priobike/tracking/views/track_details.dart';
 
