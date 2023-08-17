@@ -17,7 +17,6 @@ class UserProfileService with ChangeNotifier {
   static const userJoinDateKey = 'priobike.game.profile.joinDate';
   static const userNameKey = 'priobike.game.profile.username';
 
-  static const prefsRideSummariesKey = 'priobike.game.prefs.rideSummaries';
   static const presRideStatisticsKey = 'priobike.game.prefs.rideStatistics';
 
   /// Object which holds all the user profile values. If it is null, there is no user profile yet.

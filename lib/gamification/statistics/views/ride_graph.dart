@@ -1,12 +1,11 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 
 class RideStatisticsGraph extends StatelessWidget {
-  final List<BarChartGroupData> bars;
-
   final Widget Function(double value, TitleMeta meta) getTitlesX;
 
   final Function(int? index) handleBarToucH;
@@ -19,30 +18,51 @@ class RideStatisticsGraph extends StatelessWidget {
 
   final String headerInfoText;
 
+  final List<double> yValues;
+
+  final double barWidth;
+
+  final int? selectedBar;
+
+  final Color barColor;
+
   const RideStatisticsGraph({
     Key? key,
-    required this.bars,
     required this.getTitlesX,
     required this.maxY,
     required this.handleBarToucH,
     required this.headerTitle,
     required this.headerSubTitle,
     required this.headerInfoText,
+    required this.yValues,
+    required this.barWidth,
+    this.selectedBar,
+    required this.barColor,
   }) : super(key: key);
 
-  static BarChartGroupData createBar(
-      {required int x, required Color color, bool? selected, double? y, double width = 20}) {
+  BarChartGroupData createBar({required int x, bool? selected, double? y, double width = 20}) {
     y ??= Random().nextInt(20).toDouble();
     return BarChartGroupData(
       x: x,
       barRods: [
         BarChartRodData(
           toY: y,
-          color: (selected ?? true) ? color : color.withOpacity(0.25),
+          color: (selected ?? true) ? barColor : barColor.withOpacity(0.25),
           width: width,
         ),
       ],
     );
+  }
+
+  List<BarChartGroupData> getBars() {
+    return yValues
+        .mapIndexed((i, d) => createBar(
+              x: i,
+              y: d,
+              width: barWidth,
+              selected: selectedBar == null ? null : (selectedBar == i),
+            ))
+        .toList();
   }
 
   Widget getDiagramHeader(BuildContext context) {
@@ -117,9 +137,9 @@ class RideStatisticsGraph extends StatelessWidget {
                 ),
               ),
             ),
-            maxY: maxY,
+            maxY: maxY == 0 ? 1 : maxY,
             gridData: FlGridData(drawVerticalLine: false),
-            barGroups: bars,
+            barGroups: getBars(),
           ),
           swapAnimationDuration: Duration.zero,
         ),

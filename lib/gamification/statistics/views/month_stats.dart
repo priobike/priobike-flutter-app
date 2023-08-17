@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/gamification/statistics/views/ride_graph.dart';
 
 class MonthStatsView extends StatefulWidget {
@@ -37,8 +38,6 @@ class _MonthStatsViewState extends State<MonthStatsView> {
 
   late List<double> distances;
 
-  double maxY = 0;
-
   int? selectedIndex;
 
   late int numberOfDays;
@@ -65,28 +64,8 @@ class _MonthStatsViewState extends State<MonthStatsView> {
 
   void calculateDistances() {
     for (int i = 0; i < numberOfDays; i++) {
-      var ridesOnDay = rides.where((r) => r.startTime.day == i);
-      if (ridesOnDay.isEmpty) continue;
-      var distanceSum = ridesOnDay.map((r) => r.distanceMetres).reduce((a, b) => a + b) / 1000;
-      if (distanceSum > 10) distanceSum = distanceSum.floorToDouble();
-      distances[i] = distanceSum;
+      distances[i] = StatUtils.getDistanceSum(rides.where((r) => r.startTime.day == i).toList());
     }
-    maxY = distances.max;
-    if (maxY > 5 && maxY < 10) maxY = maxY.ceilToDouble();
-    if (maxY > 10 && maxY < 50) maxY = 5 * (maxY / 5).ceilToDouble();
-    if (maxY > 50) maxY = 10 * (maxY / 10).ceilToDouble();
-  }
-
-  List<BarChartGroupData> getBars(Color color) {
-    return distances
-        .mapIndexed((i, d) => RideStatisticsGraph.createBar(
-              x: i,
-              y: d,
-              color: color,
-              selected: selectedIndex == null ? null : (selectedIndex == i),
-              width: 5,
-            ))
-        .toList();
   }
 
   Widget getTitlesX(double value, TitleMeta meta, {required TextStyle style}) {
@@ -121,38 +100,24 @@ class _MonthStatsViewState extends State<MonthStatsView> {
     if (distances.isEmpty) {
       return '';
     } else if (selectedIndex == null) {
-      return '${distances.reduce((a, b) => a + b).round()} km';
+      return '${StatUtils.getListSumStr(distances)} km';
     } else {
-      return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!].toStringAsFixed(1) : distances[selectedIndex!].round()} km';
+      return '${StatUtils.convertDoubleToStr(distances[selectedIndex!])} km';
     }
   }
 
-  String getMonthString(int i) {
-    if (i == 1) return 'Januar';
-    if (i == 2) return 'Februar';
-    if (i == 3) return 'März';
-    if (i == 4) return 'April';
-    if (i == 5) return 'Mai';
-    if (i == 6) return 'Juni';
-    if (i == 7) return 'Juli';
-    if (i == 8) return 'August';
-    if (i == 9) return 'September';
-    if (i == 10) return 'Oktober';
-    if (i == 11) return 'November';
-    return 'Dezember';
-  }
-
   String getSubHeader() {
-    var prefix = '';
-    if (selectedIndex != null) prefix = '$selectedIndex. ';
-    return prefix + getMonthString(firstDay.month);
+    return (selectedIndex == null ? '' : '$selectedIndex. ') + StatUtils.getMonthStr(firstDay.month);
   }
 
   @override
   Widget build(BuildContext context) {
     return RideStatisticsGraph(
-      maxY: maxY > 0 ? maxY : 1,
-      bars: getBars(Theme.of(context).colorScheme.primary),
+      maxY: StatUtils.getFittingMax(distances.max),
+      barColor: Theme.of(context).colorScheme.primary,
+      barWidth: 5,
+      selectedBar: selectedIndex,
+      yValues: distances,
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelMedium!),
       handleBarToucH: (int? index) async {
         if (selectedIndex == null && index == null) await widget.tabHandler();

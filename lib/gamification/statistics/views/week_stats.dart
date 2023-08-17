@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/gamification/statistics/views/ride_graph.dart';
 
 class WeekStatsView extends StatefulWidget {
@@ -33,8 +33,6 @@ class _WeekStatsViewState extends State<WeekStatsView> {
 
   final List<double> distances = List.filled(7, 0);
 
-  double maxY = 0;
-
   int? selectedIndex;
 
   @override
@@ -53,38 +51,14 @@ class _WeekStatsViewState extends State<WeekStatsView> {
     for (int i = 0; i < 7; i++) {
       var weekDay = widget.startDay.add(Duration(days: i)).day;
       var ridesOnDay = rides.where((ride) => ride.startTime.day == weekDay);
-      if (ridesOnDay.isEmpty) continue;
-      var distanceSum = ridesOnDay.map((r) => r.distanceMetres).reduce((a, b) => a + b) / 1000;
-      if (distanceSum > 10) distanceSum = distanceSum.floorToDouble();
-      distances[i] = distanceSum;
+      distances[i] = StatUtils.getDistanceSum(ridesOnDay.toList());
     }
-    maxY = distances.max;
-    if (maxY > 5 && maxY < 10) maxY = maxY.ceilToDouble();
-    if (maxY > 10 && maxY < 50) maxY = 5 * (maxY / 5).ceilToDouble();
-    if (maxY > 50) maxY = 10 * (maxY / 10).ceilToDouble();
-  }
-
-  List<BarChartGroupData> getBars(Color color) {
-    return distances
-        .mapIndexed((i, d) => RideStatisticsGraph.createBar(
-              x: i,
-              y: d,
-              color: color,
-              selected: selectedIndex == null ? null : (selectedIndex == i),
-            ))
-        .toList();
   }
 
   Widget getTitlesX(double value, TitleMeta meta, {required TextStyle style}) {
     var today = DateTime.now();
     var todayIndex = today.difference(widget.startDay).inDays;
-    String text = 'Mo';
-    if (value == 1) text = 'Di';
-    if (value == 2) text = 'Mi';
-    if (value == 3) text = 'Do';
-    if (value == 4) text = 'Fr';
-    if (value == 5) text = 'Sa';
-    if (value == 6) text = 'So';
+    String text = StatUtils.getWeekStr(value.toInt());
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
@@ -111,28 +85,31 @@ class _WeekStatsViewState extends State<WeekStatsView> {
   }
 
   String getHeaderInfoText() {
-    if (selectedIndex == null) {
-      return '${distances.reduce((a, b) => a + b).round()} km';
+    if (distances.isEmpty) {
+      return '';
+    } else if (selectedIndex == null) {
+      return '${StatUtils.getListSumStr(distances)} km';
     } else {
-      return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!].toStringAsFixed(1) : distances[selectedIndex!].round()} km';
+      return '${StatUtils.convertDoubleToStr(distances[selectedIndex!])} km';
     }
   }
 
   String getSubHeader() {
-    var firstDay = DateFormat("dd.MM").format(widget.startDay);
-    var lastDay = DateFormat("dd.MM").format(widget.startDay.add(const Duration(days: 6)));
     if (selectedIndex == null) {
-      return '$firstDay - $lastDay';
+      return StatUtils.getFromToStr(widget.startDay, widget.startDay.add(const Duration(days: 6)));
     } else {
-      return DateFormat("dd.MM").format(widget.startDay.add(Duration(days: selectedIndex!)));
+      return StatUtils.getDateStr(widget.startDay.add(Duration(days: selectedIndex!)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return RideStatisticsGraph(
-      maxY: maxY > 0 ? maxY : 1,
-      bars: getBars(Theme.of(context).colorScheme.primary),
+      maxY: StatUtils.getFittingMax(distances.max),
+      barWidth: 20,
+      barColor: Theme.of(context).colorScheme.primary,
+      selectedBar: selectedIndex,
+      yValues: distances,
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelMedium!),
       handleBarToucH: (int? index) async {
         if (selectedIndex == null && index == null) await widget.tabHandler();

@@ -26,10 +26,6 @@ class GamePrefsPage extends StatelessWidget {
         Header(text: "Wähle deine Preferenzen:", context: context),
         SubHeader(text: "Keine Angst, du kannst deine Auswahl später noch ändern", context: context),
         const GamePrefListElement(
-          label: "Fahrt-Zusammenfassungen anzeigen",
-          prefKey: UserProfileService.prefsRideSummariesKey,
-        ),
-        const GamePrefListElement(
           label: "Fahrt-Statistiken anzeigen",
           prefKey: UserProfileService.presRideStatisticsKey,
         ),
@@ -39,6 +35,7 @@ class GamePrefsPage extends StatelessWidget {
   }
 }
 
+/// This widget displays a possible preference which the user can enable or disable by tapping on it.
 class GamePrefListElement extends StatefulWidget {
   final String label;
 

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/gamification/statistics/views/month_stats.dart';
@@ -86,5 +84,19 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
         ],
       ),
     );
+  }
+}
+
+class GraphWidget extends StatefulWidget {
+  const GraphWidget({Key? key}) : super(key: key);
+
+  @override
+  State<GraphWidget> createState() => _GraphWidgetState();
+}
+
+class _GraphWidgetState extends State<GraphWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }

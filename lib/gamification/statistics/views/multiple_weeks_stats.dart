@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/gamification/statistics/views/ride_graph.dart';
 
 class MultipleWeeksStatsView extends StatefulWidget {
@@ -30,8 +30,6 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
 
   final List<double> distances = [];
 
-  double maxY = 0;
-
   int? selectedIndex;
 
   @override
@@ -56,29 +54,7 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
   }
 
   void calculateDistances() {
-    rides.values.forEachIndexed((i, ridesInWeek) {
-      if (ridesInWeek.isEmpty) return;
-      var distanceSum = ridesInWeek.map((r) => r.distanceMetres).reduce((a, b) => a + b) / 1000;
-      if (distanceSum > 10) distanceSum = distanceSum.floorToDouble();
-      distances[i] = distanceSum;
-    });
-    maxY = distances.max;
-    if (maxY > 5 && maxY <= 10) maxY = maxY.ceilToDouble();
-    if (maxY > 10 && maxY <= 50) maxY = 5 * (maxY / 5).ceilToDouble();
-    if (maxY > 50 && maxY <= 100) maxY = 10 * (maxY / 10).ceilToDouble();
-    if (maxY > 100) maxY = 50 * (maxY / 50).ceilToDouble();
-  }
-
-  List<BarChartGroupData> getBars(Color color) {
-    return distances
-        .mapIndexed((i, d) => RideStatisticsGraph.createBar(
-              x: i,
-              y: d,
-              color: color,
-              selected: selectedIndex == null ? null : (selectedIndex == i),
-              width: 30,
-            ))
-        .toList();
+    rides.values.forEachIndexed((i, ridesInWeek) => distances[i] = StatUtils.getDistanceSum(ridesInWeek));
   }
 
   Widget getTitlesX(double value, TitleMeta meta, {required TextStyle style}) {
@@ -91,7 +67,7 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
       child: Column(
         children: [
           Text(
-            DateFormat("dd.MM").format(rides.keys.elementAt(value.toInt())),
+            StatUtils.getDateStr(rides.keys.elementAt(value.toInt())),
             style: todayInWeek ? style.copyWith(fontWeight: FontWeight.bold) : style,
           ),
           !todayInWeek
@@ -111,29 +87,31 @@ class _MultipleWeeksStatsViewState extends State<MultipleWeeksStatsView> {
   }
 
   String getHeaderInfoText() {
-    if (selectedIndex == null) {
-      return '${distances.reduce((a, b) => a + b).round()} km';
+    if (distances.isEmpty) {
+      return '';
+    } else if (selectedIndex == null) {
+      return '${StatUtils.getListSumStr(distances)} km';
     } else {
-      return '${distances[selectedIndex!] < 10 ? distances[selectedIndex!] : distances[selectedIndex!].round()} km';
+      return '${StatUtils.convertDoubleToStr(distances[selectedIndex!])} km';
     }
   }
 
   String getSubTitle() {
     if (selectedIndex == null) {
-      var firstWeek = rides.keys.first;
-      var lastWeek = rides.keys.last.add(const Duration(days: 6));
-      return '${DateFormat("dd.MM").format(firstWeek)} - ${DateFormat("dd.MM").format(lastWeek)}';
+      return StatUtils.getFromToStr(rides.keys.first, rides.keys.last.add(const Duration(days: 6)));
     }
     var currentWeekFirstDay = rides.keys.elementAt(selectedIndex!);
-    var currentWeekLastDay = currentWeekFirstDay.add(const Duration(days: 6));
-    return '${DateFormat("dd.MM").format(currentWeekFirstDay)} - ${DateFormat("dd.MM").format(currentWeekLastDay)}';
+    return StatUtils.getFromToStr(currentWeekFirstDay, currentWeekFirstDay.add(const Duration(days: 6)));
   }
 
   @override
   Widget build(BuildContext context) {
     return RideStatisticsGraph(
-      maxY: maxY > 0 ? maxY : 1,
-      bars: getBars(Theme.of(context).colorScheme.primary),
+      maxY: StatUtils.getFittingMax(distances.max),
+      barColor: Theme.of(context).colorScheme.primary,
+      yValues: distances,
+      barWidth: 30,
+      selectedBar: selectedIndex,
       getTitlesX: (value, meta) => getTitlesX(value, meta, style: Theme.of(context).textTheme.labelSmall!),
       handleBarToucH: (int? index) async {
         if (selectedIndex == null && index == null) await widget.tabHandler();

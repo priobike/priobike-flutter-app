@@ -40,7 +40,6 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
   /// A map which maps the keys of possible gamification components to corresponding views.
   /// This map is needed to decide which views to display to the user.
   Map<String, Widget> get mappedHubElements => {
-        UserProfileService.prefsRideSummariesKey: generateRideList(),
         UserProfileService.presRideStatisticsKey: RideStatisticsCard(openView: openPage),
       };
 
@@ -80,7 +79,10 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
     super.dispose();
   }
 
+  /// This function navigates to a new page by pushing it on top of the hub view. It also handles the transition
+  /// animation of the hub view, both when opening the page and when returning to the hub.
   void openPage(Widget view) {
+    _animationController.duration = const Duration(milliseconds: 500);
     _animationController
         .reverse()
         .then(
@@ -185,35 +187,6 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget generateRideList() {
-    return GameHubCard(
-      content: Column(
-        children: rides
-            .map(
-              (ride) => Container(
-                padding: const EdgeInsets.all(8),
-                child: GestureDetector(
-                  onDoubleTap: () {
-                    rideDao.deleteObject(ride);
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text("id: ${ride.id},"),
-                      Text("dis: ${ride.distanceMetres.toInt()},"),
-                      Text("dur: ${ride.durationSeconds.toInt()},"),
-                      Text("avg: ${ride.averageSpeedKmh.toInt()},"),
-                    ],
-                  ),
-                ),
-              ),
-            )
-            .toList(),
       ),
     );
   }
