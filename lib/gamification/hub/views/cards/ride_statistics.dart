@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
-import 'package:priobike/gamification/statistics/graphs/month/compact_month_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/multiple_weeks/compact_multiple_weeks_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/week/compact_week_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/compact_labled_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/graphs/month/month_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/multiple_weeks/multiple_weeks_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/views/statistics_view.dart';
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
@@ -22,11 +24,37 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
   /// Controller which connects the tab indicator to the page view.
   late final TabController tabController = TabController(length: 3, vsync: this);
 
+  final List<GraphViewModel> graphViewModels = [];
+
+  void update() => setState(() {});
+
+  @override
+  void initState() {
+    initGraphViewModels();
+    super.initState();
+  }
+
   @override
   void dispose() {
     tabController.dispose();
     pageController.dispose();
+    for (var viewModel in graphViewModels) {
+      viewModel.endStreams();
+    }
     super.dispose();
+  }
+
+  void initGraphViewModels() {
+    var today = DateTime.now();
+    today = DateTime(today.year, today.month, today.day);
+    var thisWeeksStart = today.subtract(Duration(days: today.weekday - 1));
+    graphViewModels.add(WeekGraphViewModel(thisWeeksStart));
+    graphViewModels.add(MonthGraphViewModel(today.year, today.month));
+    graphViewModels.add(MultipleWeeksGraphViewModel(thisWeeksStart, 5));
+    for (var viewModel in graphViewModels) {
+      viewModel.startStreams();
+      viewModel.addListener(update);
+    }
   }
 
   Future<void> onTap() async {
@@ -51,9 +79,22 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
                 tabController.index = index;
               }),
               children: [
-                CompactWeekGraph(tabHandler: onTap),
-                CompactMonthStatsGraph(tabHandler: onTap),
-                CompactMultipleWeeksGraph(tabHandler: onTap),
+                CompactGraph(
+                  viewModel: graphViewModels[0],
+                  title: 'Diese Woche',
+                  graph: WeekStatsGraph(tabHandler: onTap, viewModel: graphViewModels[0] as WeekGraphViewModel),
+                ),
+                CompactGraph(
+                  viewModel: graphViewModels[1],
+                  title: 'Dieser Monat',
+                  graph: MonthStatsGraph(tabHandler: onTap, viewModel: graphViewModels[1] as MonthGraphViewModel),
+                ),
+                CompactGraph(
+                  viewModel: graphViewModels[2],
+                  title: '5 Wochen Rückblick',
+                  graph: MultipleWeeksStatsGraph(
+                      tabHandler: onTap, viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                ),
               ],
             ),
           ),

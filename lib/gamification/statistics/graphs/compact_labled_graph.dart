@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
 
 class CompactGraph extends StatelessWidget {
+  final GraphViewModel viewModel;
   final String title;
-  final String subTitle;
-  final String infoText;
   final Widget graph;
 
   const CompactGraph({
     Key? key,
-    required this.graph,
+    required this.viewModel,
     required this.title,
-    required this.subTitle,
-    required this.infoText,
+    required this.graph,
   }) : super(key: key);
 
   @override
@@ -34,14 +33,14 @@ class CompactGraph extends StatelessWidget {
                     textAlign: TextAlign.left,
                   ),
                   Text(
-                    subTitle,
+                    viewModel.rangeOrSelectedDateStr,
                     textAlign: TextAlign.left,
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
               ),
               Text(
-                infoText,
+                viewModel.selectedOrOverallValueStr,
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
             ],
