@@ -110,14 +110,13 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 iconColor: Colors.white,
                 icon: Icons.info_outline_rounded,
                 label: "Details",
-                onPressed: () {
-                  if (!showMenu) return;
-                  showAppSheet(
-                    context: context,
-                    builder: (context) => TrackDetailsDialog(
-                        track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
-                  );
-                }),
+                onPressed: () => showAppSheet(
+                      context: context,
+                      builder: (context) => TrackDetailsDialog(
+                          track: widget.track,
+                          startImage: widget.startImage,
+                          destinationImage: widget.destinationImage),
+                    )),
             IconTextButton(
               iconColor: Colors.white,
               icon: Icons.delete_rounded,
