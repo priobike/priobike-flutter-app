@@ -52,25 +52,29 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     );
   }
 
-  Stream<List<RideSummary>> streamSummariesOfWeek(DateTime firstDay) {
-    var lastDay = firstDay.add(const Duration(days: 7));
+  Stream<List<RideSummary>> streamSummariesInInterval(DateTime firstTimeStamp, DateTime lastTimeStamp) {
     return (select(rideSummaries)
           ..where((tbl) {
             var startTime = tbl.startTime;
-            return startTime.isBetweenValues(firstDay, lastDay);
-          }))
+            return startTime.isBetweenValues(firstTimeStamp, lastTimeStamp);
+          })
+          ..orderBy(
+            [(t) => OrderingTerm(expression: t.startTime)],
+          ))
         .watch();
   }
 
-  Stream<List<RideSummary>> streamSummariesOfMonth(DateTime firstDay) {
-    var isDecember = firstDay.month == 12;
-    var lastDay = DateTime(isDecember ? firstDay.year + 1 : firstDay.year, (isDecember ? 0 : firstDay.month + 1), 0);
-    return (select(rideSummaries)
-          ..where((tbl) {
-            var startTime = tbl.startTime;
-            return startTime.isBetweenValues(firstDay, lastDay);
-          }))
-        .watch();
+  Stream<List<RideSummary>> streamSummariesOfWeek(int year, int month, int day) {
+    var firstDay = DateTime(year, month, day);
+    var lastDay = firstDay.add(const Duration(days: 7));
+    return streamSummariesInInterval(firstDay, lastDay);
+  }
+
+  Stream<List<RideSummary>> streamSummariesOfMonth(int year, int month) {
+    var isDecember = month == 12;
+    var firstDay = DateTime(year, month, 1);
+    var lastDay = DateTime(isDecember ? year + 1 : year, (isDecember ? 0 : month + 1), 0);
+    return streamSummariesInInterval(firstDay, lastDay);
   }
 
   void _createMocks() async {
@@ -80,8 +84,10 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
       var rides = Random().nextInt(3) + 1;
       for (int e = 0; e < rides; e++) {
         await _createMock(day);
+        log.i(day.toIso8601String());
       }
     }
+    log.i('MOCK DATA FINISHED');
     getIt<UserProfileService>().updateUserData();
   }
 

@@ -18,6 +18,8 @@ abstract class GraphViewModel with ChangeNotifier {
     updateValues();
   }
 
+  List<RideSummary> get allRides;
+
   RideInfoType get rideInfoType => _rideInfoType;
 
   late List<double> _yValues;
@@ -79,7 +81,7 @@ class WeekGraphViewModel extends GraphViewModel {
 
   WeekGraphViewModel(this.startDay) {
     _yValues = List.filled(7, 0);
-    _streams.add(rideDao.streamSummariesOfWeek(startDay));
+    _streams.add(rideDao.streamSummariesOfWeek(startDay.year, startDay.month, startDay.day));
   }
 
   @override
@@ -100,6 +102,9 @@ class WeekGraphViewModel extends GraphViewModel {
       return StatUtils.getDateStr(startDay.add(Duration(days: selectedIndex!)));
     }
   }
+
+  @override
+  List<RideSummary> get allRides => _rides;
 }
 
 class MonthGraphViewModel extends GraphViewModel {
@@ -110,14 +115,14 @@ class MonthGraphViewModel extends GraphViewModel {
 
   List<RideSummary> get rides => _rides;
 
-  late DateTime firstDay;
+  final DateTime firstDay;
 
   int numberOfDays = 0;
 
-  MonthGraphViewModel(this.year, this.month) : firstDay = DateTime(year, month, 1) {
+  MonthGraphViewModel(this.year, this.month) : firstDay = DateTime(year, month) {
     numberOfDays = getNumberOfDays();
     _yValues = List.filled(numberOfDays, 0);
-    _streams.add(rideDao.streamSummariesOfMonth(firstDay));
+    _streams.add(rideDao.streamSummariesOfMonth(year, month));
   }
 
   @override
@@ -139,6 +144,9 @@ class MonthGraphViewModel extends GraphViewModel {
   String get rangeOrSelectedDateStr {
     return (selectedIndex == null ? '' : '$selectedIndex. ') + StatUtils.getMonthStr(month);
   }
+
+  @override
+  List<RideSummary> get allRides => _rides;
 }
 
 class MultipleWeeksGraphViewModel extends GraphViewModel {
@@ -159,7 +167,7 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
       tmpStartDay = tmpStartDay.add(const Duration(days: 7));
     }
     for (var key in _rideMap.keys) {
-      _streams.add(rideDao.streamSummariesOfWeek(key));
+      _streams.add(rideDao.streamSummariesOfWeek(key.year, key.month, key.day));
     }
   }
 
@@ -179,4 +187,7 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
     var currentWeekFirstDay = rideMap.keys.elementAt(selectedIndex!);
     return StatUtils.getFromToStr(currentWeekFirstDay, currentWeekFirstDay.add(const Duration(days: 6)));
   }
+
+  @override
+  List<RideSummary> get allRides => _rideMap.values.expand((rides) => rides).toList();
 }

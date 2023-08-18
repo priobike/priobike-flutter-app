@@ -6,7 +6,9 @@ import 'package:priobike/gamification/statistics/services/statistics_service.dar
 import 'package:priobike/main.dart';
 
 class DetailedWeekGraph extends StatefulWidget {
-  const DetailedWeekGraph({Key? key}) : super(key: key);
+  final AnimationController animationController;
+
+  const DetailedWeekGraph({Key? key, required this.animationController}) : super(key: key);
 
   @override
   State<DetailedWeekGraph> createState() => _DetailedWeekGraphState();
@@ -80,6 +82,7 @@ class _DetailedWeekGraphState extends State<DetailedWeekGraph> {
               ))
           .toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
+      animationController: widget.animationController,
     );
   }
 }

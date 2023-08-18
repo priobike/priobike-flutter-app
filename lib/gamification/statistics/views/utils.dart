@@ -22,6 +22,10 @@ class StatUtils {
     return DateFormat("dd.MM").format(date);
   }
 
+  static String getTimeStr(DateTime date) {
+    return DateFormat('hh.mm').format(date);
+  }
+
   static String getFromToStr(DateTime first, DateTime last) {
     return '${getDateStr(first)} - ${getDateStr(last)}';
   }
@@ -39,16 +43,19 @@ class StatUtils {
   }
 
   static String getFormattedStrByRideType(double value, RideInfoType type) {
-    String result = value.toStringAsFixed(0);
-    if ((type == RideInfoType.distance || type == RideInfoType.duration) && value < 100) {
-      result = value.toStringAsFixed(1);
-    } else {
-      result = value.toStringAsFixed(0);
-    }
+    String result = getRoundedStrByRideType(value, type);
     if (type == RideInfoType.distance) result += ' km';
     if (type == RideInfoType.duration) result += ' min';
     if (type == RideInfoType.averageSpeed) result += ' km/h';
     return result;
+  }
+
+  static String getRoundedStrByRideType(double value, RideInfoType type) {
+    if ((type == RideInfoType.distance || type == RideInfoType.averageSpeed) && value < 100) {
+      return value.toStringAsFixed(1);
+    } else {
+      return value.toStringAsFixed(0);
+    }
   }
 
   static double getListSum(List<double> list) {

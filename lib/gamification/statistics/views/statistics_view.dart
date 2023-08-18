@@ -16,11 +16,6 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
   /// Controller which controls the animation when opening this view.
   late AnimationController _animationController;
 
-  Animation<double> get _fadeAnimation => CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0, 0.4, curve: Curves.easeIn),
-      );
-
   @override
   void initState() {
     // Init animation controller and start the animation after a short delay, to let the view load first.
@@ -28,7 +23,7 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    _animationController.forward();
+    Future.delayed(const Duration(milliseconds: 0)).then((value) => _animationController.forward());
     super.initState();
   }
 
@@ -46,43 +41,24 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
+          child: Stack(
             children: [
-              const SmallVSpace(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  AppBackButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  const HSpace(),
-                  Expanded(
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SubHeader(
-                        text: "Wochenübersicht",
-                        context: context,
-                        textAlign: TextAlign.center,
-                      ),
+              DetailedWeekGraph(animationController: _animationController),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    AppBackButton(
+                      onPressed: () async {
+                        _animationController.duration = const Duration(milliseconds: 500);
+                        await _animationController.reverse();
+                        if (!mounted) return;
+                        Navigator.of(context).pop();
+                      },
                     ),
-                  ),
-                  const HSpace(),
-                  const SizedBox(width: 56, height: 0),
-                ],
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      SmallVSpace(),
-                      DetailedWeekGraph(),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ],
