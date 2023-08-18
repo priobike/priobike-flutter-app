@@ -8,7 +8,7 @@ final Article articleDataFailures = Article(
   "assets/images/wiki/wiki-datenausfaelle-icon.png",
   [
     "Wir bei PrioBike möchten sicherstellen, dass du immer sicher und schnell durch die Stadt radeln kannst. Deshalb arbeiten wir unter Hochdruck daran, unsere Geschwindigkeitsempfehlungen so zuverlässig wie möglich zu machen. Das klappt aber nicht immer.",
-    "Unsere Geschwindigkeitsempfehungen basieren auf den Echtzeitdaten, die uns Ampeln im Hamburg senden. Anhand der Echtzeitdaten können wir dann die Schaltprogramme der Ampeln rekonstruieren, und daraus die Geschwindigkeitsempfehlung berechnen. Manchmal kommt es aber vor, dass die Daten der Ampeln ausfallen oder nicht ganz zuverlässig sind.",
+    "Unsere Geschwindigkeitsempfehungen basieren auf den Echtzeitdaten, die uns Ampeln in Hamburg senden. Anhand der Echtzeitdaten können wir dann die Schaltprogramme der Ampeln rekonstruieren, und daraus die Geschwindigkeitsempfehlung berechnen. Manchmal kommt es aber vor, dass die Daten der Ampeln ausfallen oder nicht ganz zuverlässig sind.",
     "Hinter dem System versteckt sich ein kompliziertes Netzwerk aus Ampeln und Verkehrsrechnern, in dem Ausfälle nicht ausgeschlossen sind. Im besten Fall erhalten wir über 10.000 Nachrichten der Ampeln in Hamburg jede Minute - eine riesige Menge Daten! Die müssen auch erstmal durch die Internetleitung passen. Wir tun alles dafür, dass Ausfälle in Zukunft so selten sind wie möglich. Ja, wirklich!",
     "Wenn es dann doch mal nicht so gut klappt, kannst du das aber schon im Voraus über die angezeigte Datenverfügbarkeit in der App sehen. Diese errechnet sich aus dem Anteil von Ampeln, die gerade Daten senden, in Relation zu den insgesamt ans System angebundenen Ampeln. Damit weißt du immer voll bescheid.",
   ],
@@ -71,7 +71,7 @@ final Article articlePrioBike = Article(
   "3 min.",
   "assets/images/wiki/wiki-das-projekt-icon.png",
   [
-    "Hallo liebe Radfahrerinnen und Radfahrer! Ich bin PrioBike, eure freundliche Fahrrad-App. Aber ich bin nicht nur eine App, sondern Teil eines großen Projekts, das Hamburg zu einer fahrradfreundlichen Stadt machen will. Das Projekt ist ist so cool, dass man fast vergisst, dass es sich um Stadtplanung handelt.",
+    "Hallo liebe Radfahrerinnen und Radfahrer! Ich bin PrioBike, eure freundliche Fahrrad-App. Aber ich bin nicht nur eine App, sondern Teil eines großen Projekts, das Hamburg zu einer fahrradfreundlichen Stadt machen will. Das Projekt ist so cool, dass man fast vergisst, dass es sich um Stadtplanung handelt.",
     "Unser neuestes Ding ist die \"Grüne Welle\" entlang dreier Velorouten. Wenn ihr diese Routen benutzt, werdet ihr nicht nur mit frischer Luft und einer schönen Aussicht belohnt, sondern auch mit einer dynamischen Ampelschaltung, die euch mit 18 km/h bei Grün durchfahren lässt. Wenn das kein Grund ist, sich aufs Rad zu schwingen, weiß ich auch nicht weiter.",
     "Aber das ist noch lange nicht alles. Habt ihr schon die PrioBike-Säule auf der Rothenbaumchaussee entdeckt? Sie ist einzigartig in Deutschland und berechnet für jeden Radfahrenden eine individuelle Geschwindigkeitsempfehlung. Das ist fast so cool wie ein Fahrrad mit Raketenantrieb.",
     "Und als ob das noch nicht genug wäre, gibt es an einer Kreuzung sogar eine Umkehrung der klassischen Ampel-Priorisierung. Hier wird der Fuß- und Radverkehr bevorzugt, während der Kfz-Verkehr grünes Licht nur bei Bedarf erhält. Das ist wie ein Fußballspiel, bei dem die Fans die Schiedsrichter sind.",
