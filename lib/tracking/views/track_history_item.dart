@@ -240,6 +240,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     height: widget.width * 0.3,
                     width: widget.width * 0.3,
                     child: RoutePictogram(
+                      key: UniqueKey(),
                       route: routeNodes,
                       startImage: widget.startImage,
                       destinationImage: widget.destinationImage,
@@ -250,7 +251,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 right: 0,
                 top: 0,
                 child: IconButton(
-                  key: const ValueKey("delete"),
                   onPressed: () => showDeleteDialog(),
                   icon: Icon(
                     Icons.delete_rounded,
