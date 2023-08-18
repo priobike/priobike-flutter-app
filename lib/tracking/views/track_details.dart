@@ -363,6 +363,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                           track: positions,
                           minSpeedColor: CI.blue,
                           maxSpeedColor: CI.blueLight,
+                          blurRadius: 2,
                         ),
                       ),
                     if (routeNodes.isNotEmpty)
