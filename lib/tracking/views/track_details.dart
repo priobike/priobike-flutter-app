@@ -360,7 +360,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                         duration: const Duration(milliseconds: 300),
                         opacity: tabController?.index == 0 ? 1 : 0,
                         child: TrackPictogram(
-                          key: GlobalKey(),
+                          key: UniqueKey(),
                           track: positions,
                           minSpeedColor: CI.blue,
                           maxSpeedColor: CI.blueLight,
@@ -377,7 +377,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: RoutePictogram(
-                                key: GlobalKey(),
+                                key: UniqueKey(),
                                 route: routeNodes,
                                 startImage: widget.startImage,
                                 destinationImage: widget.destinationImage,
@@ -433,9 +433,12 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               if (rideDetails.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 6,
+                    direction: Axis.horizontal,
+                    alignment: WrapAlignment.center,
+                    runAlignment: WrapAlignment.center,
                     children: rideDetails,
                   ),
                 ),
