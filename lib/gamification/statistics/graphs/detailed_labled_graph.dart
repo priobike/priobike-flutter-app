@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
@@ -63,7 +64,23 @@ class DetailedGraph extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(width: 64, height: 64),
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: SmallIconButton(
+                      icon: Icons.sync_alt,
+                      onPressed: () async {
+                        animationController.duration = const Duration(milliseconds: 500);
+                        await animationController.reverse();
+                        getIt<StatisticService>().changeStatsType();
+                        await animationController.forward();
+                      },
+                      fill: Theme.of(context).colorScheme.background,
+                      splash: Theme.of(context).colorScheme.surface,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

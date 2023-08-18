@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/statistics/graphs/week/detailed_week_graph.dart';
+import 'package:priobike/gamification/statistics/graphs/month/month_stats.dart';
+import 'package:priobike/gamification/statistics/graphs/multiple_weeks/multiple_weeks_stats.dart';
+import 'package:priobike/gamification/statistics/graphs/week/week_stats.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/main.dart';
 
 class StatisticsView extends StatefulWidget {
   const StatisticsView({Key? key}) : super(key: key);
@@ -16,8 +18,14 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
   /// Controller which controls the animation when opening this view.
   late AnimationController _animationController;
 
+  late StatisticService statService;
+
+  void update() => setState(() {});
+
   @override
   void initState() {
+    statService = getIt<StatisticService>();
+    statService.addListener(update);
     // Init animation controller and start the animation after a short delay, to let the view load first.
     _animationController = AnimationController(
       vsync: this,
@@ -29,6 +37,7 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
 
   @override
   void dispose() {
+    statService.removeListener(update);
     _animationController.dispose();
     super.dispose();
   }
@@ -43,7 +52,12 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
         body: SafeArea(
           child: Stack(
             children: [
-              DetailedWeekGraph(animationController: _animationController),
+              if (statService.statsType == RideStatsType.weeks)
+                DetailedWeekStats(animationController: _animationController),
+              if (statService.statsType == RideStatsType.months)
+                DetailedMonthStats(animationController: _animationController),
+              if (statService.statsType == RideStatsType.multipleWeeks)
+                DetailedMultipleWeekStats(animationController: _animationController),
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Row(
@@ -67,43 +81,4 @@ class _StatisticsViewState extends State<StatisticsView> with SingleTickerProvid
       ),
     );
   }
-
-  /*
-  List<Widget> getMonthStatistics(int numOfMonths) {
-    List<Widget> stats = [];
-    var month = DateTime.now().month;
-    var year = DateTime.now().year;
-    for (int i = 0; i < numOfMonths; i++) {
-      stats.add(MonthStatsGraph(
-        year: year,
-        month: month,
-        tabHandler: () {},
-        onChanged: (List<double> values, int? selected) {},
-      ));
-      if (month == 1) {
-        month = 12;
-        year -= 1;
-      } else {
-        month -= 1;
-      }
-    }
-    return stats.reversed.toList();
-  }
-
-  List<Widget> getMultipleWeekStatistics(int numOfIntervals) {
-    List<Widget> stats = [];
-    var today = DateTime.now();
-    var weekStart = today.subtract(Duration(days: today.weekday - 1));
-    weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
-    for (int i = 0; i < numOfIntervals; i++) {
-      stats.add(MultipleWeeksStatsGraph(
-        lastWeekStartDay: weekStart,
-        numOfWeeks: 5,
-        tabHandler: () {},
-        onChanged: (List<double> values, List<DateTime> weekStarts, int? selected) {},
-      ));
-      weekStart = weekStart.subtract(Duration(days: 7 * numOfIntervals));
-    }
-    return stats.reversed.toList();
-  }*/
 }

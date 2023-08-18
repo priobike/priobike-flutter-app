@@ -8,7 +8,28 @@ enum RideInfoType {
   averageSpeed,
 }
 
+enum RideStatsType {
+  weeks,
+  months,
+  multipleWeeks,
+}
+
 class StatisticService with ChangeNotifier {
+  RideStatsType _statsType = RideStatsType.weeks;
+
+  RideStatsType get statsType => _statsType;
+
+  void setRideStatsType(RideStatsType type) {
+    _statsType = type;
+    notifyListeners();
+  }
+
+  void changeStatsType() {
+    if (statsType == RideStatsType.weeks) return setRideStatsType(RideStatsType.months);
+    if (statsType == RideStatsType.months) return setRideStatsType(RideStatsType.multipleWeeks);
+    if (statsType == RideStatsType.multipleWeeks) return setRideStatsType(RideStatsType.weeks);
+  }
+
   RideInfoType _selectedRideInfo = RideInfoType.distance;
 
   RideInfoType get selectedRideInfo => _selectedRideInfo;
