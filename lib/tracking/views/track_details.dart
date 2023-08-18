@@ -223,8 +223,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
     );
 
-    final List<Widget> rideDetails = [
-      if (trackSummary != null)
+    final List<Widget> rideDetails;
+    if (trackSummary != null) {
+      rideDetails = [
         Column(
           children: [
             Text(
@@ -237,7 +238,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
             ),
           ],
         ),
-      if (trackSummary != null)
         Column(
           children: [
             Text(
@@ -252,7 +252,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
             ),
           ],
         ),
-      if (trackSummary != null)
         Column(
           children: [
             Text(
@@ -265,7 +264,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
             ),
           ],
         ),
-      if (trackSummary != null)
         Column(
           children: [
             Text(
@@ -280,7 +278,10 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
             ),
           ],
         ),
-    ];
+      ];
+    } else {
+      rideDetails = [];
+    }
 
     return Stack(
       alignment: Alignment.center,
