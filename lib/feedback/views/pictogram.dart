@@ -183,17 +183,18 @@ class TrackPainter extends CustomPainter {
 
     // If the track is too long, it will slow down the app.
     // Therefore, we need to reduce the number of points.
-    // If the number of points is > 1000, we reduce it to 1000.
+    // If the number of points is > 500, we reduce it to 500.
     // We do this by applying the following pattern:
-    // - If n_points ~ or < 1000, we keep all points
-    // - If n_points < 2000, we keep every second point
-    // - If n_points < 3000, we keep every third point
+    // - If n_points ~ or < 500, we keep all points
+    // - If n_points < 1000, we keep every second point
+    // - If n_points < 1500, we keep every third point
     // ...
     // Note: 1000 points is roughly 1000 seconds, which is 16 minutes of GPS.
     final trackToDraw = [];
-    if (track.length > 1000) {
-      final step = track.length ~/ 1000;
-      for (var i = 0; i < track.length; i += step) {
+    const threshold = 500;
+    if (track.length > threshold) {
+      final step = track.length ~/ threshold;
+      for (var i = 0; (i + step) < track.length; i += step) {
         trackToDraw.add(track[i]);
       }
     } else {
