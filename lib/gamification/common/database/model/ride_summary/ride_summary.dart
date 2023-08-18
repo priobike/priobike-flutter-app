@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:drift/drift.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/database_dao.dart';
-import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/statistics/models/summary.dart';
 
 part 'ride_summary.g.dart';
 
@@ -15,12 +18,16 @@ class RideSummaries extends Table {
   RealColumn get elevationGainMetres => real()();
   RealColumn get elevationLossMetres => real()();
   RealColumn get averageSpeedKmh => real()();
+  DateTimeColumn get startTime => dateTime()();
 }
 
 @DriftAccessor(tables: [RideSummaries])
 class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin {
   RideSummaryDao(AppDatabase attachedDatabase) : super(attachedDatabase) {
-    _createMocks(); // This is just for testing /TODO remove
+    // Fill the database with mocks, if it is empty - TODO remove
+    getAllObjects().then((result) {
+      if (result.isEmpty) _createMocks();
+    });
   }
 
   @override
@@ -31,21 +38,81 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     return (select(rideSummaries)..where((tbl) => (tbl as $RideSummariesTable).id.equals(value)));
   }
 
+  /// Store ride summary in database.
+  void createObjectFromSummary(Summary summary, DateTime startTime) {
+    createObject(
+      RideSummariesCompanion.insert(
+        distanceMetres: summary.distanceMeters,
+        durationSeconds: summary.durationSeconds,
+        elevationGainMetres: summary.elevationGain,
+        elevationLossMetres: summary.elevationLoss,
+        averageSpeedKmh: summary.averageSpeedKmH,
+        startTime: startTime,
+      ),
+    );
+  }
+
+  /// Returns stream of rides which started in a given time intervall, ordered by the start time.
+  Stream<List<RideSummary>> streamSummariesInInterval(DateTime firstTimeStamp, DateTime lastTimeStamp) {
+    return (select(rideSummaries)
+          ..where((tbl) {
+            var startTime = tbl.startTime;
+            return startTime.isBetweenValues(firstTimeStamp, lastTimeStamp);
+          })
+          ..orderBy(
+            [(t) => OrderingTerm(expression: t.startTime)],
+          ))
+        .watch();
+  }
+
+  /// Returns stream of rides started in a week starting from a given day.
+  Stream<List<RideSummary>> streamSummariesOfWeek(int year, int month, int day) {
+    var firstDay = DateTime(year, month, day);
+    var lastDay = firstDay.add(const Duration(days: 7));
+    return streamSummariesInInterval(firstDay, lastDay);
+  }
+
+  /// Returns stream of rides started in a given month.
+  Stream<List<RideSummary>> streamSummariesOfMonth(int year, int month) {
+    var isDecember = month == 12;
+    var firstDay = DateTime(year, month, 1);
+    var lastDay = DateTime(isDecember ? year + 1 : year, (isDecember ? 0 : month + 1), 0);
+    return streamSummariesInInterval(firstDay, lastDay);
+  }
+
+  /// Generate random mock rides for the last 6 months.
   void _createMocks() async {
-    await _createMock(1208, 400, 12, 14);
-    await _createMock(3124, 621, 64, 120);
-    await _createMock(14029, 2354, 312, 122);
+    var today = DateTime.now();
+    for (int i = 1; i < 30 * 6; i++) {
+      var day = today.subtract(Duration(days: i));
+      var rides = 4 - sqrt(Random().nextInt(24)).floorToDouble();
+      for (int e = 0; e < rides; e++) {
+        await _createMock(day);
+        log.i(day.toIso8601String());
+      }
+    }
+    log.i('Generated mock rides');
     getIt<UserProfileService>().updateUserData();
   }
 
-  Future _createMock(double distance, double duration, double gain, double loss) async {
-    return createObject(
+  /// Generate random mock on a given day.
+  Future _createMock(DateTime day) async {
+    var duration = Random().nextDouble() * 3600;
+    var distance = duration * 5 * (1 + 0.3 * Random().nextDouble());
+    var gain = Random().nextDouble() * 400;
+    var loss = Random().nextDouble() * 400;
+    var hour = Random().nextInt(16) + 6;
+    var minute = Random().nextInt(60);
+    var start = day.copyWith(hour: hour, minute: minute);
+    var ride = await createObject(
       RideSummariesCompanion.insert(
           distanceMetres: distance,
           durationSeconds: duration,
           elevationGainMetres: gain,
           elevationLossMetres: loss,
+          startTime: start,
           averageSpeedKmh: (distance / duration) * 3.6),
     );
+    log.i('new ride: ${ride.toString()}');
   }
 }

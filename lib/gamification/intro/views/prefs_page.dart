@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/intro_page.dart';
 import 'package:priobike/main.dart';
@@ -26,8 +26,8 @@ class GamePrefsPage extends StatelessWidget {
         Header(text: "Wähle deine Preferenzen:", context: context),
         SubHeader(text: "Keine Angst, du kannst deine Auswahl später noch ändern", context: context),
         const GamePrefListElement(
-          label: "Fahrt-Zusammenfassungen anzeigen",
-          prefKey: UserProfileService.prefsRideSummariesKey,
+          label: "Fahrt-Statistiken anzeigen",
+          prefKey: UserProfileService.presRideStatisticsKey,
         ),
         const SizedBox(height: 82),
       ],
@@ -35,6 +35,7 @@ class GamePrefsPage extends StatelessWidget {
   }
 }
 
+/// This widget displays a possible preference which the user can enable or disable by tapping on it.
 class GamePrefListElement extends StatefulWidget {
   final String label;
 

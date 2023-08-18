@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -67,7 +67,7 @@ class GameIntroService with ChangeNotifier {
     notifyListeners();
     _prefs?.setString(UserProfileService.userNameKey, username);
     _prefs?.setStringList(UserProfileService.userPreferencesKey, _gamePrefs);
-    _prefs?.setBool(finishedIntroKey, _introFinished);
+    _prefs?.setBool(finishedIntroKey, true);
     await getIt<UserProfileService>().loadOrCreateProfile();
     _introFinished = true;
     pageChanged = true;

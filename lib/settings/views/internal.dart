@@ -5,7 +5,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/hub/services/game_service.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';

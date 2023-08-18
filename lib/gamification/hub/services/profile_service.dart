@@ -17,7 +17,7 @@ class UserProfileService with ChangeNotifier {
   static const userJoinDateKey = 'priobike.game.profile.joinDate';
   static const userNameKey = 'priobike.game.profile.username';
 
-  static const prefsRideSummariesKey = "priobike.game.prefs.rideSummaries";
+  static const presRideStatisticsKey = 'priobike.game.prefs.rideStatistics';
 
   /// Object which holds all the user profile values. If it is null, there is no user profile yet.
   UserProfile? _userProfile;
@@ -96,25 +96,27 @@ class UserProfileService with ChangeNotifier {
     // If for some reason there is no user profile, return.
     if (_userProfile == null) return;
 
-    // Calculate total distance as sum of all ride distances.
-    _userProfile!.totalDistanceMetres = rides.map((r) => r.distanceMetres).reduce((a, b) => a + b);
-    prefs.setDouble(userTotalDistanceKey, totalDistanceMetres);
+    if (rides.isNotEmpty) {
+      // Calculate total distance as sum of all ride distances.
+      _userProfile!.totalDistanceMetres = rides.map((r) => r.distanceMetres).reduce((a, b) => a + b);
+      prefs.setDouble(userTotalDistanceKey, totalDistanceMetres);
 
-    // Calculate total duration as sum of all ride durations.
-    _userProfile!.totalDurationSeconds = rides.map((r) => r.durationSeconds).reduce((a, b) => a + b);
-    prefs.setDouble(userTotalDurationKey, totalDurationSeconds);
+      // Calculate total duration as sum of all ride durations.
+      _userProfile!.totalDurationSeconds = rides.map((r) => r.durationSeconds).reduce((a, b) => a + b);
+      prefs.setDouble(userTotalDurationKey, totalDurationSeconds);
 
-    // Calculate total elevation gain as sum of all ride elevation gains.
-    _userProfile!.totalElevationGainMetres = rides.map((r) => r.elevationGainMetres).reduce((a, b) => a + b);
-    prefs.setDouble(userTotalElevationGainKey, totalElevationGainMetres);
+      // Calculate total elevation gain as sum of all ride elevation gains.
+      _userProfile!.totalElevationGainMetres = rides.map((r) => r.elevationGainMetres).reduce((a, b) => a + b);
+      prefs.setDouble(userTotalElevationGainKey, totalElevationGainMetres);
 
-    // Calculate total elevation loss as sum of all ride elevation losses.
-    _userProfile!.totalElevationLossMetres = rides.map((r) => r.elevationLossMetres).reduce((a, b) => a + b);
-    prefs.setDouble(userTotalElevationLossKey, totalElevationLossMetres);
+      // Calculate total elevation loss as sum of all ride elevation losses.
+      _userProfile!.totalElevationLossMetres = rides.map((r) => r.elevationLossMetres).reduce((a, b) => a + b);
+      prefs.setDouble(userTotalElevationLossKey, totalElevationLossMetres);
 
-    // Calculate average speed from distance and duration and convert to km/h instead of m/s
-    _userProfile!.averageSpeedKmh = (_userProfile!.totalDistanceMetres / _userProfile!.totalDurationSeconds) * 3.6;
-    prefs.setDouble(userAverageSpeedKey, averageSpeedKmh);
+      // Calculate average speed from distance and duration and convert to km/h instead of m/s
+      _userProfile!.averageSpeedKmh = (_userProfile!.totalDistanceMetres / _userProfile!.totalDurationSeconds) * 3.6;
+      prefs.setDouble(userAverageSpeedKey, averageSpeedKmh);
+    }
 
     // Get user prefs from shared preferences.
     _userProfile!.prefs = prefs.getStringList(userPreferencesKey) ?? [];
