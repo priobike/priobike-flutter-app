@@ -90,7 +90,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                 painter: TrackPainter(
                   fraction: fraction,
                   track: widget.track,
-                  blurRadius: widget.blurRadius,
+                  blurRadius: widget.blurRadius / 2,
                   minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
                   maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
                   maxSpeed: maxSpeed,
