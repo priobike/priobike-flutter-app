@@ -5,7 +5,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -59,9 +58,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   /// The navigation nodes of the driven route.
   List<NavigationNode> routeNodes = [];
 
-  /// Whether the menu is shown.
-  var showMenu = false;
-
   @override
   void initState() {
     super.initState();
@@ -74,11 +70,31 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
-  /// Toggles the menu.
-  void toggleExpanded() {
-    setState(() {
-      showMenu = !showMenu;
-    });
+  void showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Fahrt löschen"),
+          content: const Text("Bitte bestätige, dass du diese Fahrt löschen möchtest."),
+          actions: [
+            TextButton(
+              child: const Text("Abbrechen"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Löschen"),
+              onPressed: () {
+                getIt<Tracking>().deleteTrack(widget.track);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -95,48 +111,16 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
-    // The menu.
-    final Widget menu = SizedBox(
-      height: 110,
-      width: widget.width,
-      child: Tile(
-        fill: Theme.of(context).colorScheme.background,
-        showShadow: false,
-        padding: const EdgeInsets.all(8),
-        content: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconTextButton(
-              iconColor: Colors.white,
-              icon: Icons.info_outline_rounded,
-              label: "Details",
-              onPressed: () => showAppSheet(
-                context: context,
-                builder: (context) => TrackDetailsDialog(
-                    track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
-              ),
-            ),
-            IconTextButton(
-              iconColor: Colors.white,
-              icon: Icons.delete_rounded,
-              label: "Löschen",
-              onPressed: () {
-                setState(() {
-                  showMenu = false;
-                });
-                getIt<Tracking>().deleteTrack(widget.track);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-
     return Container(
       alignment: Alignment.centerLeft,
       width: widget.width,
       padding: EdgeInsets.only(right: widget.rightPad, bottom: 24),
       child: Tile(
+        onPressed: () => showAppSheet(
+          context: context,
+          builder: (context) => TrackDetailsDialog(
+              track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
+        ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: 0.08,
         padding: const EdgeInsets.all(4),
@@ -256,46 +240,23 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     height: widget.width * 0.3,
                     width: widget.width * 0.3,
                     child: RoutePictogram(
+                      key: UniqueKey(),
                       route: routeNodes,
                       startImage: widget.startImage,
                       destinationImage: widget.destinationImage,
                     ),
                   ),
                 ),
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 400),
-                opacity: showMenu ? 1 : 0,
-                curve: Curves.easeInOut,
-                child: menu,
-              ),
               Positioned(
                 right: 0,
                 top: 0,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (child, animation) => ScaleTransition(
-                    scale: animation,
-                    child: child,
+                child: IconButton(
+                  onPressed: () => showDeleteDialog(),
+                  icon: Icon(
+                    Icons.delete_rounded,
+                    size: 22,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                   ),
-                  child: showMenu
-                      ? IconButton(
-                          key: const ValueKey("close"),
-                          onPressed: () => toggleExpanded(),
-                          icon: Icon(
-                            Icons.close_rounded,
-                            size: 22,
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                          ),
-                        )
-                      : IconButton(
-                          key: const ValueKey("more"),
-                          onPressed: () => toggleExpanded(),
-                          icon: Icon(
-                            Icons.more_vert_rounded,
-                            size: 22,
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                          ),
-                        ),
                 ),
               ),
             ],
