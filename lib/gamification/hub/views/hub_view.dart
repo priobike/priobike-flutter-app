@@ -10,6 +10,7 @@ import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
 import 'package:priobike/gamification/hub/views/cards/stats_card.dart';
 import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
+import 'package:priobike/gamification/settings/views/settings_view.dart';
 import 'package:priobike/main.dart';
 
 /// This view is the center point of the gamification functionality. It provides the user with all the information about
@@ -145,11 +146,7 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
                       padding: const EdgeInsets.only(right: 8),
                       child: SmallIconButton(
                         icon: Icons.settings,
-                        onPressed: () {
-                          _animationController.duration = const Duration(milliseconds: 500);
-                          _animationController.reverse();
-                          // TODO: Navigator.push(SETTINGS)
-                        },
+                        onPressed: () => openPage(const GameSettingsView()),
                         fill: Theme.of(context).colorScheme.background,
                         splash: Theme.of(context).colorScheme.surface,
                       ),
