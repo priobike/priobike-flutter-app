@@ -339,6 +339,7 @@ class FeedbackViewState extends State<FeedbackView> {
                           track: getIt<Positioning>().positions,
                           minSpeedColor: CI.blue,
                           maxSpeedColor: CI.blueLight,
+                          blurRadius: 10,
                         ),
                       ),
                     ),
