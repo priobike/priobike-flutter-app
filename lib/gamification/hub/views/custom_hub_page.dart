@@ -78,8 +78,8 @@ class GameHubPage extends StatelessWidget {
                               : Padding(
                                   padding: const EdgeInsets.only(right: 8),
                                   child: SmallIconButton(
-                                    icon: Icons.sync_alt,
-                                    onPressed: () {},
+                                    icon: featureButtonIcon!,
+                                    onPressed: featureButtonCallback!,
                                     fill: Theme.of(context).colorScheme.background,
                                     splash: Theme.of(context).colorScheme.surface,
                                   ),

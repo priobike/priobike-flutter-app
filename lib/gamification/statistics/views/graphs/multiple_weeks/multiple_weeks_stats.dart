@@ -85,7 +85,6 @@ class _DetailedMultipleWeekStatsState extends State<DetailedMultipleWeekStats> {
               ))
           .toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
-      title: 'Mehrere Wochen',
       headerAnimationController: widget.headerAnimationController,
       rideListController: widget.rideListController,
     );

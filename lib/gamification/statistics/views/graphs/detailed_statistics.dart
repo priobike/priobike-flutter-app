@@ -3,8 +3,6 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
@@ -24,9 +22,6 @@ class DetailedStatistics extends StatelessWidget {
 
   /// The viewmodel corresponding to the currently displayed graph.
   final GraphViewModel currentViewModel;
-
-  /// A title for the view.
-  final String title;
 
   /// Simple fade animation for the header and the graphs.
   Animation<double> get _fadeAnimation => CurvedAnimation(
@@ -49,100 +44,57 @@ class DetailedStatistics extends StatelessWidget {
     required this.pageController,
     required this.currentViewModel,
     required this.headerAnimationController,
-    required this.title,
     required this.rideListController,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SmallVSpace(),
-          FadeTransition(
-            opacity: _fadeAnimation,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                const SizedBox(width: 72, height: 64),
-                Expanded(
-                  child: SubHeader(
-                    text: title,
-                    context: context,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-
-                  /// By pressing this icon button, the displayed stat intervals can be changed.
-                  child: SmallIconButton(
-                    icon: Icons.sync_alt,
-                    onPressed: () async {
-                      headerAnimationController.duration = const Duration(milliseconds: 500);
-                      headerAnimationController.reverse();
-                      rideListController.duration = const Duration(milliseconds: 500);
-                      rideListController.reverse();
-                      Future.delayed(const Duration(milliseconds: 500)).then((_) {
-                        getIt<StatisticService>().changeStatInterval();
-                        headerAnimationController.forward();
-                      });
-                    },
-                    fill: Theme.of(context).colorScheme.background,
-                    splash: Theme.of(context).colorScheme.surface,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SmallVSpace(),
-
-          /// This widget contains the graphs in a page view and further information for the displayed graph.
-          FadeTransition(
-            opacity: _fadeAnimation,
-            child: GestureDetector(
-              onTap: () => currentViewModel.setSelectedIndex(null),
-              child: Container(
-                color: Theme.of(context).colorScheme.background,
-                child: Column(
-                  children: [
-                    getGraphHeader(context),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: 224,
-                        child: PageView(
-                          onPageChanged: (_) => rideListController.reset(),
-                          controller: pageController,
-                          clipBehavior: Clip.hardEdge,
-                          children: graphs,
-                        ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// This widget contains the graphs in a page view and further information for the displayed graph.
+        FadeTransition(
+          opacity: _fadeAnimation,
+          child: GestureDetector(
+            onTap: () => currentViewModel.setSelectedIndex(null),
+            child: Container(
+              color: Theme.of(context).colorScheme.background,
+              child: Column(
+                children: [
+                  getGraphHeader(context),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 224,
+                      child: PageView(
+                        onPageChanged: (_) => rideListController.reset(),
+                        controller: pageController,
+                        clipBehavior: Clip.hardEdge,
+                        children: graphs,
                       ),
                     ),
-                    getGraphFooter(context),
-                    getButtonRow(context),
-                  ],
-                ),
+                  ),
+                  getGraphFooter(context),
+                  getButtonRow(context),
+                ],
               ),
             ),
           ),
+        ),
 
-          /// The rides below the graphs are animated into the view after a short delay, to improve performance.
-          FutureBuilder<bool>(
-            key: GlobalKey(),
-            future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
-            builder: (context, snapshot) {
-              if (!(snapshot.data ?? false)) return const SizedBox.shrink();
-              rideListController.duration = const Duration(milliseconds: 500);
-              rideListController.forward();
-              return getRideList(context);
-            },
-          )
-        ],
-      ),
+        /// The rides below the graphs are animated into the view after a short delay, to improve performance.
+        FutureBuilder<bool>(
+          key: GlobalKey(),
+          future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
+          builder: (context, snapshot) {
+            if (!(snapshot.data ?? false)) return const SizedBox.shrink();
+            rideListController.duration = const Duration(milliseconds: 500);
+            rideListController.forward();
+            return getRideList(context);
+          },
+        )
+      ],
     );
   }
 

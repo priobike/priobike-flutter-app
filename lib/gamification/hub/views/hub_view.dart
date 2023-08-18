@@ -10,6 +10,7 @@ import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
 import 'package:priobike/gamification/hub/views/cards/stats_card.dart';
 import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
+import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/views/settings_view.dart';
 import 'package:priobike/main.dart';
 
@@ -108,84 +109,37 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  AppBackButton(
-                    onPressed: () {
-                      _animationController.duration = const Duration(milliseconds: 500);
-                      _animationController.reverse().then((value) => Navigator.pop(context));
-                    },
-                  ),
-                  const HSpace(),
-                  Expanded(
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SubHeader(
-                        text: "PrioBike Challenge",
-                        context: context,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  const HSpace(),
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: SmallIconButton(
-                        icon: Icons.settings,
-                        onPressed: () => openPage(const GameSettingsView()),
-                        fill: Theme.of(context).colorScheme.background,
-                        splash: Theme.of(context).colorScheme.surface,
-                      ),
-                    ),
-                  ),
-                ],
+    return GameHubPage(
+      animationController: _animationController,
+      title: 'PrioBike Challenge',
+      backButtonCallback: () {
+        _animationController.duration = const Duration(milliseconds: 500);
+        _animationController.reverse().then((value) => Navigator.pop(context));
+      },
+      featureButtonIcon: Icons.settings,
+      featureButtonCallback: () => openPage(const GameSettingsView()),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+              GameHubAnimationWrapper(
+                start: 0,
+                end: 0.4,
+                controller: _animationController,
+                child: UserProfileCard(),
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: SafeArea(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                            GameHubAnimationWrapper(
-                              start: 0,
-                              end: 0.4,
-                              controller: _animationController,
-                              child: UserProfileCard(),
-                            ),
-                          ] +
-                          // Create a hub element for each game component the user has selected in their prefs.
-                          _profileService.userPrefs
-                              .mapIndexed(
-                                (i, key) => GameHubAnimationWrapper(
-                                  start: 0.2 + (i * 0.2),
-                                  end: 0.6 + (i * 0.2),
-                                  controller: _animationController,
-                                  child: mappedHubElements[key]!,
-                                ),
-                              )
-                              .toList() +
-                          [const SmallVSpace()],
-                    ),
+            ] +
+            // Create a hub element for each game component the user has selected in their prefs.
+            _profileService.userPrefs
+                .mapIndexed(
+                  (i, key) => GameHubAnimationWrapper(
+                    start: 0.2 + (i * 0.2),
+                    end: 0.6 + (i * 0.2),
+                    controller: _animationController,
+                    child: mappedHubElements[key]!,
                   ),
-                ),
-              ),
-            ],
-          ),
-        ),
+                )
+                .toList() +
+            [const SmallVSpace()],
       ),
     );
   }

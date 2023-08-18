@@ -85,7 +85,6 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
       currentViewModel: viewModels.elementAt(displayedPageIndex),
       headerAnimationController: widget.headerAnimationController,
       rideListController: widget.rideListController,
-      title: 'Wochenübersicht',
     );
   }
 }

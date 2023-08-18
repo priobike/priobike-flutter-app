@@ -91,7 +91,6 @@ class _DetailedMonthStatsState extends State<DetailedMonthStats> {
               ))
           .toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
-      title: 'Monatsübersicht',
       headerAnimationController: widget.headerAnimationController,
       rideListController: widget.rideListController,
     );
