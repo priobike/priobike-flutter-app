@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
-import 'package:priobike/gamification/statistics/graphs/compact_labled_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
-import 'package:priobike/gamification/statistics/graphs/month/month_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/multiple_weeks/multiple_weeks_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/week/week_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/compact_labled_graph.dart';
+import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/statistics_view.dart';
+import 'package:priobike/main.dart';
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
 class RideStatisticsCard extends StatefulWidget {
-  final Function(Widget view) openView;
+  /// Open view function from parent widget is required, to animate the hub cards away when opening the stats view.
+  final Future Function(Widget view) openView;
 
   const RideStatisticsCard({Key? key, required this.openView}) : super(key: key);
 
@@ -24,8 +27,10 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
   /// Controller which connects the tab indicator to the page view.
   late final TabController tabController = TabController(length: 3, vsync: this);
 
+  /// View models of the displayed graphs. They provide the graphs with their corresponding data.
   final List<GraphViewModel> graphViewModels = [];
 
+  /// Update function to rebuilt widget.
   void update() => setState(() {});
 
   @override
@@ -44,6 +49,7 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
     super.dispose();
   }
 
+  /// Initialize view models such that the graphs show the data of the current week, month, and the last 5 weeks.
   void initGraphViewModels() {
     var today = DateTime.now();
     today = DateTime(today.year, today.month, today.day);
@@ -51,14 +57,20 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
     graphViewModels.add(WeekGraphViewModel(thisWeeksStart));
     graphViewModels.add(MonthGraphViewModel(today.year, today.month));
     graphViewModels.add(MultipleWeeksGraphViewModel(thisWeeksStart, 5));
+
+    /// Listen to changes in the viewmodels and rebuilt widget if necessary.
     for (var viewModel in graphViewModels) {
       viewModel.startStreams();
       viewModel.addListener(update);
     }
   }
 
+  /// Handles a tap on the card which is not recognized as an interaction with the graphs.
   Future<void> onTap() async {
-    widget.openView(const StatisticsView());
+    await widget.openView(const StatisticsView());
+    var newIndex = getIt<StatisticService>().statInterval.index;
+    //pageController.animateToPage(newIndex, duration: Duration(milliseconds: 1), curve: Curves.linear);
+    pageController.jumpToPage(newIndex);
   }
 
   @override
@@ -77,6 +89,7 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
               onPageChanged: (int index) => setState(() {
                 // Update tab controller index to update the indicator.
                 tabController.index = index;
+                getIt<StatisticService>().setStatInterval(StatInterval.values[index]);
               }),
               children: [
                 CompactGraph(

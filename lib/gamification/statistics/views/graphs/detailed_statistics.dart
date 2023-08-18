@@ -7,22 +7,30 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/main.dart';
 
-class DetailedGraph extends StatelessWidget {
-  final AnimationController animationController;
-
+/// This widget displayes detailed statistics for a number of given graphs. It also provides the user with functionality
+/// to change the displayed information and time intervals.
+class DetailedStatistics extends StatelessWidget {
+  final AnimationController headerAnimationController;
+  final AnimationController rideListController;
   final PageController pageController;
 
+  /// The graphs, displayed by the widget in a page view to scroll through.
   final List<Widget> graphs;
 
+  /// The viewmodel corresponding to the currently displayed graph.
   final GraphViewModel currentViewModel;
 
+  /// A title for the view.
+  final String title;
+
+  /// Simple fade animation for the header and the graphs.
   Animation<double> get _fadeAnimation => CurvedAnimation(
-        parent: animationController,
+        parent: headerAnimationController,
         curve: const Interval(0, 0.4, curve: Curves.easeIn),
       );
 
@@ -31,16 +39,18 @@ class DetailedGraph extends StatelessWidget {
         begin: const Offset(0.0, 5.0),
         end: Offset.zero,
       ).animate(CurvedAnimation(
-        parent: animationController,
+        parent: rideListController,
         curve: Interval(min(start, 1.0), min(end, 1.0), curve: Curves.easeIn),
       ));
 
-  const DetailedGraph({
+  const DetailedStatistics({
     Key? key,
     required this.graphs,
     required this.pageController,
     required this.currentViewModel,
-    required this.animationController,
+    required this.headerAnimationController,
+    required this.title,
+    required this.rideListController,
   }) : super(key: key);
 
   @override
@@ -59,32 +69,37 @@ class DetailedGraph extends StatelessWidget {
                 const SizedBox(width: 72, height: 64),
                 Expanded(
                   child: SubHeader(
-                    text: "Wochenübersicht",
+                    text: title,
                     context: context,
                     textAlign: TextAlign.center,
                   ),
                 ),
-                FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: SmallIconButton(
-                      icon: Icons.sync_alt,
-                      onPressed: () async {
-                        animationController.duration = const Duration(milliseconds: 500);
-                        await animationController.reverse();
-                        getIt<StatisticService>().changeStatsType();
-                        await animationController.forward();
-                      },
-                      fill: Theme.of(context).colorScheme.background,
-                      splash: Theme.of(context).colorScheme.surface,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+
+                  /// By pressing this icon button, the displayed stat intervals can be changed.
+                  child: SmallIconButton(
+                    icon: Icons.sync_alt,
+                    onPressed: () async {
+                      headerAnimationController.duration = const Duration(milliseconds: 500);
+                      headerAnimationController.reverse();
+                      rideListController.duration = const Duration(milliseconds: 500);
+                      rideListController.reverse();
+                      Future.delayed(const Duration(milliseconds: 500)).then((_) {
+                        getIt<StatisticService>().changeStatInterval();
+                        headerAnimationController.forward();
+                      });
+                    },
+                    fill: Theme.of(context).colorScheme.background,
+                    splash: Theme.of(context).colorScheme.surface,
                   ),
                 ),
               ],
             ),
           ),
           const SmallVSpace(),
+
+          /// This widget contains the graphs in a page view and further information for the displayed graph.
           FadeTransition(
             opacity: _fadeAnimation,
             child: GestureDetector(
@@ -100,6 +115,7 @@ class DetailedGraph extends StatelessWidget {
                         width: MediaQuery.of(context).size.width,
                         height: 224,
                         child: PageView(
+                          onPageChanged: (_) => rideListController.reset(),
                           controller: pageController,
                           clipBehavior: Clip.hardEdge,
                           children: graphs,
@@ -113,14 +129,26 @@ class DetailedGraph extends StatelessWidget {
               ),
             ),
           ),
-          getRideList(context),
+
+          /// The rides below the graphs are animated into the view after a short delay, to improve performance.
+          FutureBuilder<bool>(
+            key: GlobalKey(),
+            future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
+            builder: (context, snapshot) {
+              if (!(snapshot.data ?? false)) return const SizedBox.shrink();
+              rideListController.duration = const Duration(milliseconds: 500);
+              rideListController.forward();
+              return getRideList(context);
+            },
+          )
         ],
       ),
     );
   }
 
+  /// Returns simple graph header, which displays values according to the displayed graph or the selected content.
   Widget getGraphHeader(BuildContext context) {
-    var isAvg = currentViewModel.rideInfoType == RideInfoType.averageSpeed;
+    var isAvg = currentViewModel.rideInfoType == RideInfo.averageSpeed;
     var noSelectedBar = currentViewModel.selectedIndex == null;
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 48, right: 32),
@@ -143,6 +171,7 @@ class DetailedGraph extends StatelessWidget {
     );
   }
 
+  /// Returns a row of buttons which enable the user to change the displayed ride information.
   Widget getButtonRow(var context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16, left: 48, right: 48),
@@ -151,18 +180,19 @@ class DetailedGraph extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          getValueInfo(RideInfoType.distance, context),
-          getValueInfo(RideInfoType.averageSpeed, context),
-          getValueInfo(RideInfoType.duration, context),
+          getRideInfoButton(RideInfo.distance, context),
+          getRideInfoButton(RideInfo.averageSpeed, context),
+          getRideInfoButton(RideInfo.duration, context),
         ],
       ),
     );
   }
 
-  Widget getValueInfo(RideInfoType rideInfoType, var context) {
+  /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
+  Widget getRideInfoButton(RideInfo rideInfoType, var context) {
     double value = getIt<StatisticService>().isTypeSelected(rideInfoType) ? 1 : 0;
     return GestureDetector(
-      onTap: () => getIt<StatisticService>().setRideInfoType(rideInfoType),
+      onTap: () => getIt<StatisticService>().setRideInfo(rideInfoType),
       child: Stack(
         children: [
           Center(
@@ -186,25 +216,14 @@ class DetailedGraph extends StatelessWidget {
     );
   }
 
+  /// Returns footer for graph which contains the displayed or selected time interval and buttons to change the page.
   Widget getGraphFooter(var context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        GestureDetector(
-          onTap: () {
-            pageController.animateToPage(
-              pageController.page!.toInt() - 1,
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeIn,
-            );
-          },
-          child: const Padding(
-            padding: EdgeInsets.all(8),
-            child: Icon(Icons.arrow_back_ios),
-          ),
-        ),
+        getNavigationButton(Icons.arrow_back_ios, -1),
         Expanded(
           child: SubHeader(
             text: currentViewModel.rangeOrSelectedDateStr,
@@ -212,45 +231,59 @@ class DetailedGraph extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-        GestureDetector(
-          onTap: () {
-            pageController.animateToPage(
-              pageController.page!.toInt() + 1,
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeIn,
-            );
-          },
-          child: const Padding(
-            padding: EdgeInsets.all(8),
-            child: Icon(Icons.arrow_forward_ios),
-          ),
-        ),
+        getNavigationButton(Icons.arrow_forward_ios, 1),
       ],
     );
   }
 
+  /// Return button to navigate between pages.
+  Widget getNavigationButton(IconData icon, int direction) {
+    return GestureDetector(
+      onTap: () {
+        /// Animate to next page if button is pressed.
+        pageController.animateToPage(
+          pageController.page!.toInt() + direction,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeIn,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Icon(icon),
+      ),
+    );
+  }
+
+  /// Returns a list of all rides in the current displayed time interval. The rides are grouped by date.
   Widget getRideList(BuildContext context) {
-    var rides = currentViewModel.allRides;
+    var rides = currentViewModel.selectedOrAllRides;
+
+    /// Group rides by day and save in map.
     var groupedRides = rides.groupListsBy((ride) {
       var date = ride.startTime;
       var day = DateTime(date.year, date.month, date.day);
       return day;
     });
+
+    /// Return list of ride groups.
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
-        children: groupedRides.entries
-            .mapIndexed(
-              (i, entry) => SlideTransition(
-                position: getListAnimation(0.2 + (i * 0.2), 0.6 + (i * 0.2)),
-                child: getRideListForDay(entry.key, entry.value, context),
-              ),
-            )
-            .toList(),
+        children: groupedRides.entries.mapIndexed((i, entry) {
+          if (i < 10) {
+            /// The first ten elements in the list appear via slide transition from the bottom.
+            return SlideTransition(
+              position: getListAnimation(0.2 + (i * 0.2), 0.6 + (i * 0.2)),
+              child: getRideListForDay(entry.key, entry.value, context),
+            );
+          }
+          return getRideListForDay(entry.key, entry.value, context);
+        }).toList(),
       ),
     );
   }
 
+  /// Returns list of rides for on a given day as a indicator for the day followed by a list of expandable info widget.
   Widget getRideListForDay(DateTime day, List<RideSummary> rides, var context) {
     return Column(
       children: <Widget>[
@@ -271,11 +304,12 @@ class DetailedGraph extends StatelessWidget {
               ),
             ),
           ] +
-          rides.map((ride) => getExpandable(ride, rides.last == ride, context)).toList(),
+          rides.map((ride) => getRideInfo(ride, rides.last == ride, context)).toList(),
     );
   }
 
-  Widget getExpandable(RideSummary ride, bool isLast, var context) {
+  /// Returns expandable widget containing information for a single ride.
+  Widget getRideInfo(RideSummary ride, bool isLast, var context) {
     return ExpandablePanel(
       theme: ExpandableThemeData(
           headerAlignment: ExpandablePanelHeaderAlignment.center,
@@ -291,18 +325,18 @@ class DetailedGraph extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              getRideValueInfoWidget(
+              getRideInfoValue(
                 StatUtils.getTimeStr(ride.startTime),
                 'Uhr',
                 context,
               ),
-              getRideValueInfoWidget(
-                StatUtils.getRoundedStrByRideType(ride.distanceMetres / 1000, RideInfoType.distance),
+              getRideInfoValue(
+                StatUtils.getRoundedStrByRideType(ride.distanceMetres / 1000, RideInfo.distance),
                 'km',
                 context,
               ),
-              getRideValueInfoWidget(
-                StatUtils.getRoundedStrByRideType(ride.durationSeconds / 60, RideInfoType.duration),
+              getRideInfoValue(
+                StatUtils.getRoundedStrByRideType(ride.durationSeconds / 60, RideInfo.duration),
                 'min',
                 context,
               ),
@@ -322,18 +356,18 @@ class DetailedGraph extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  getRideValueInfoWidget(
-                    StatUtils.getRoundedStrByRideType(ride.averageSpeedKmh, RideInfoType.averageSpeed),
+                  getRideInfoValue(
+                    StatUtils.getRoundedStrByRideType(ride.averageSpeedKmh, RideInfo.averageSpeed),
                     'ø km/h',
                     context,
                   ),
-                  getRideValueInfoWidget(
-                    StatUtils.getRoundedStrByRideType(ride.elevationGainMetres, RideInfoType.elevationGain),
+                  getRideInfoValue(
+                    StatUtils.getRoundedStrByRideType(ride.elevationGainMetres, RideInfo.elevationGain),
                     '↑ m',
                     context,
                   ),
-                  getRideValueInfoWidget(
-                    StatUtils.getRoundedStrByRideType(ride.elevationLossMetres, RideInfoType.elevationLoss),
+                  getRideInfoValue(
+                    StatUtils.getRoundedStrByRideType(ride.elevationLossMetres, RideInfo.elevationLoss),
                     '↓ m',
                     context,
                   ),
@@ -357,7 +391,8 @@ class DetailedGraph extends StatelessWidget {
     );
   }
 
-  Widget getRideValueInfoWidget(String top, String bottom, var context) {
+  /// Returns a simple widget displaying a ride info value and a given label.
+  Widget getRideInfoValue(String top, String bottom, var context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -374,6 +409,7 @@ class DetailedGraph extends StatelessWidget {
     );
   }
 
+  /// Simple seperator between ride widgets.
   Widget getRideSeperator(var isLast, var context) {
     return isLast
         ? const SizedBox.shrink()

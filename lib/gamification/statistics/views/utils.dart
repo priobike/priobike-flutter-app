@@ -3,75 +3,60 @@ import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 
+/// A bunch of utility methods for converting ride data such that it makes sense I guess.
 class StatUtils {
-  static double getFittingMax(List<double> values) {
-    if (values.isEmpty) return 0;
-    var num = values.max;
-    if (num <= 5) return num;
-    if (num <= 10) return num.ceilToDouble();
-    if (num <= 50) return roundUpToInterval(num, 5);
-    if (num <= 100) return roundUpToInterval(num, 10);
-    return roundUpToInterval(num, 50);
-  }
+  /// Get date string as day and month from given date.
+  static String getDateStr(DateTime date) => DateFormat("dd.MM").format(date);
 
-  static double roundUpToInterval(double num, int interval) {
-    return interval * (num / interval).ceilToDouble();
-  }
+  /// Get time string as hour and monuts from given date.
+  static String getTimeStr(DateTime date) => DateFormat('hh.mm').format(date);
 
-  static String getDateStr(DateTime date) {
-    return DateFormat("dd.MM").format(date);
-  }
+  /// Get string for a time interval between to dates.
+  static String getFromToDateStr(DateTime first, DateTime last) => '${getDateStr(first)} - ${getDateStr(last)}';
 
-  static String getTimeStr(DateTime date) {
-    return DateFormat('hh.mm').format(date);
-  }
-
-  static String getFromToStr(DateTime first, DateTime last) {
-    return '${getDateStr(first)} - ${getDateStr(last)}';
-  }
-
-  static double getOverallValueFromSummaries(List<RideSummary> list, RideInfoType type) {
-    if (list.isEmpty) return 0;
-    return getOverallValueFromDouble(list.map((ride) => getRideValueFromType(ride, type)).toList(), type);
-  }
-
-  static double getOverallValueFromDouble(List<double> list, RideInfoType type) {
-    if (type == RideInfoType.averageSpeed) {
+  /// Calculate overall value from given list of values according to a given ride info type.
+  static double getOverallValueFromDouble(List<double> list, RideInfo type) {
+    if (type == RideInfo.averageSpeed) {
       return list.average;
     }
     return getListSum(list);
   }
 
-  static String getFormattedStrByRideType(double value, RideInfoType type) {
+  /// Get formatted string for a given double by rounding it and adding a fitting unit, according to a ride info type.
+  static String getFormattedStrByRideType(double value, RideInfo type) {
     String result = getRoundedStrByRideType(value, type);
-    if (type == RideInfoType.distance) result += ' km';
-    if (type == RideInfoType.duration) result += ' min';
-    if (type == RideInfoType.averageSpeed) result += ' km/h';
+    if (type == RideInfo.distance) result += ' km';
+    if (type == RideInfo.duration) result += ' min';
+    if (type == RideInfo.averageSpeed) result += ' km/h';
     return result;
   }
 
-  static String getRoundedStrByRideType(double value, RideInfoType type) {
-    if ((type == RideInfoType.distance || type == RideInfoType.averageSpeed) && value < 100) {
+  /// Round a given value according to a given ride info type.
+  static String getRoundedStrByRideType(double value, RideInfo type) {
+    if ((type == RideInfo.distance || type == RideInfo.averageSpeed) && value < 100) {
       return value.toStringAsFixed(1);
     } else {
       return value.toStringAsFixed(0);
     }
   }
 
+  /// Calculate sum of values in list.
   static double getListSum(List<double> list) {
     if (list.isEmpty) return 0;
     return list.reduce((a, b) => a + b);
   }
 
-  static double getRideValueFromType(RideSummary ride, RideInfoType infoType) {
-    if (infoType == RideInfoType.distance) return ride.distanceMetres / 1000;
-    if (infoType == RideInfoType.duration) return ride.durationSeconds / 60;
-    if (infoType == RideInfoType.averageSpeed) return ride.averageSpeedKmh;
-    if (infoType == RideInfoType.elevationGain) return ride.elevationGainMetres;
-    if (infoType == RideInfoType.elevationLoss) return ride.elevationLossMetres;
+  /// Get ride info value from given ride according to a given ride info type.
+  static double getRideValueFromType(RideSummary ride, RideInfo infoType) {
+    if (infoType == RideInfo.distance) return ride.distanceMetres / 1000;
+    if (infoType == RideInfo.duration) return ride.durationSeconds / 60;
+    if (infoType == RideInfo.averageSpeed) return ride.averageSpeedKmh;
+    if (infoType == RideInfo.elevationGain) return ride.elevationGainMetres;
+    if (infoType == RideInfo.elevationLoss) return ride.elevationLossMetres;
     return 0;
   }
 
+  /// Convert weekday index to simple string.
   static String getWeekStr(int i) {
     if (i == 0) return 'Mo';
     if (i == 1) return 'Di';
@@ -82,6 +67,7 @@ class StatUtils {
     return 'So';
   }
 
+  /// Convert month index to its name.
   static String getMonthStr(int i) {
     if (i == 1) return 'Januar';
     if (i == 2) return 'Februar';

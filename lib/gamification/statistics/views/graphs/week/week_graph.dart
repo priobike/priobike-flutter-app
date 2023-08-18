@@ -1,30 +1,32 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/utils.dart';
-import 'package:priobike/gamification/statistics/graphs/ride_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
 
-class MonthStatsGraph extends StatelessWidget {
+/// Displayes ride statistics for a single week. The data is obtained from a given [WeekGraphViewModel].
+class WeekStatsGraph extends StatelessWidget {
   final Function() tabHandler;
 
-  final MonthGraphViewModel viewModel;
+  final WeekGraphViewModel viewModel;
 
-  const MonthStatsGraph({
+  const WeekStatsGraph({
     Key? key,
     required this.tabHandler,
     required this.viewModel,
   }) : super(key: key);
 
   Widget getTitlesX(double value, TitleMeta meta, BuildContext context, TextStyle style) {
-    if ((value + 1) % 5 > 0) return const SizedBox.shrink();
-    var todayIndex = DateTime.now().day;
+    var today = DateTime.now();
+    var todayIndex = today.difference(viewModel.startDay).inDays;
+    String text = StatUtils.getWeekStr(value.toInt());
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
       child: Column(
         children: [
           Text(
-            (value.toInt() + 1).toString(),
+            text,
             style: todayIndex == value ? style.copyWith(fontWeight: FontWeight.bold) : style,
           ),
           todayIndex != value
@@ -45,14 +47,13 @@ class MonthStatsGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RideStatisticsGraph(
-      maxY: StatUtils.getFittingMax(viewModel.yValues),
+    return CustomBarGraph(
+      barWidth: 20,
       barColor: Theme.of(context).colorScheme.primary,
-      barWidth: 5,
       selectedBar: viewModel.selectedIndex,
       yValues: viewModel.yValues,
       getTitlesX: (value, meta) => getTitlesX(value, meta, context, Theme.of(context).textTheme.labelMedium!),
-      handleBarToucH: (int? index) async {
+      onTap: (int? index) async {
         if (viewModel.selectedIndex == null && index == null) await tabHandler();
         viewModel.setSelectedIndex(index);
       },

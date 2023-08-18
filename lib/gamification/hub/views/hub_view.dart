@@ -8,7 +8,7 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
-import 'package:priobike/gamification/hub/views/cards/ride_statistics.dart';
+import 'package:priobike/gamification/hub/views/cards/stats_card.dart';
 import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
 import 'package:priobike/main.dart';
 
@@ -45,6 +45,7 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  /// Simple fade animation for the header of the hub view.
   Animation<double> get _fadeAnimation => CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0, 0.4, curve: Curves.easeIn),
@@ -53,6 +54,8 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
   @override
   void initState() {
     super.initState();
+
+    /// Listen to changes in the user profile.
     _profileService = getIt<UserProfileService>();
     _profileService.addListener(update);
     // Init animation controller and start the animation after a short delay, to let the view load first.
@@ -80,9 +83,9 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
 
   /// This function navigates to a new page by pushing it on top of the hub view. It also handles the transition
   /// animation of the hub view, both when opening the page and when returning to the hub.
-  void openPage(Widget view) {
+  Future openPage(Widget view) {
     _animationController.duration = const Duration(milliseconds: 500);
-    _animationController
+    return _animationController
         .reverse()
         .then(
           (value) => Navigator.of(context).push(

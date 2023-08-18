@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 
+/// This widget displays a simple labled graph of ride distances in a given time interval. It gets it info from
+/// a given [GraphViewModel]. The lables include the time interval of the graph, a title, and a value,
+///  which either shows the sum of all distances, or the distance of a selected bar.
 class CompactGraph extends StatelessWidget {
   final GraphViewModel viewModel;
   final String title;

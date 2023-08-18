@@ -1,15 +1,16 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/utils.dart';
-import 'package:priobike/gamification/statistics/graphs/ride_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
 
-class WeekStatsGraph extends StatelessWidget {
+/// Displayes ride statistics for a single week. The data is obtained from a given [MultipleWeeksGraphViewModel].
+class MultipleWeeksStatsGraph extends StatelessWidget {
   final Function() tabHandler;
 
-  final WeekGraphViewModel viewModel;
+  final MultipleWeeksGraphViewModel viewModel;
 
-  const WeekStatsGraph({
+  const MultipleWeeksStatsGraph({
     Key? key,
     required this.tabHandler,
     required this.viewModel,
@@ -17,21 +18,21 @@ class WeekStatsGraph extends StatelessWidget {
 
   Widget getTitlesX(double value, TitleMeta meta, BuildContext context, TextStyle style) {
     var today = DateTime.now();
-    var todayIndex = today.difference(viewModel.startDay).inDays;
-    String text = StatUtils.getWeekStr(value.toInt());
+    var difference = today.difference(viewModel.rideMap.keys.elementAt(value.toInt())).inDays;
+    var todayInWeek = difference < 7;
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
       child: Column(
         children: [
           Text(
-            text,
-            style: todayIndex == value ? style.copyWith(fontWeight: FontWeight.bold) : style,
+            StatUtils.getDateStr(viewModel.rideMap.keys.elementAt(value.toInt())),
+            style: todayInWeek ? style.copyWith(fontWeight: FontWeight.bold) : style,
           ),
-          todayIndex != value
+          !todayInWeek
               ? const SizedBox.shrink()
               : SizedBox.fromSize(
-                  size: const Size(16, 3),
+                  size: const Size(32, 3),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(3)),
@@ -46,14 +47,13 @@ class WeekStatsGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RideStatisticsGraph(
-      maxY: StatUtils.getFittingMax(viewModel.yValues),
-      barWidth: 20,
+    return CustomBarGraph(
       barColor: Theme.of(context).colorScheme.primary,
-      selectedBar: viewModel.selectedIndex,
       yValues: viewModel.yValues,
-      getTitlesX: (value, meta) => getTitlesX(value, meta, context, Theme.of(context).textTheme.labelMedium!),
-      handleBarToucH: (int? index) async {
+      barWidth: 30,
+      selectedBar: viewModel.selectedIndex,
+      getTitlesX: (value, meta) => getTitlesX(value, meta, context, Theme.of(context).textTheme.labelSmall!),
+      onTap: (int? index) async {
         if (viewModel.selectedIndex == null && index == null) await tabHandler();
         viewModel.setSelectedIndex(index);
       },

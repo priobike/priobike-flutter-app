@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/graphs/detailed_labled_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/graph_viewmodels.dart';
-import 'package:priobike/gamification/statistics/graphs/month/month_graph.dart';
-import 'package:priobike/gamification/statistics/graphs/week/week_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/detailed_statistics.dart';
+import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/main.dart';
 
-class DetailedMonthStats extends StatefulWidget {
-  final AnimationController animationController;
+/// This widget shows detailed statistics for the last 5  5-week intervals, using the [DetailedStatistics] widget.
+class DetailedMultipleWeekStats extends StatefulWidget {
+  final AnimationController headerAnimationController;
 
-  const DetailedMonthStats({Key? key, required this.animationController}) : super(key: key);
+  final AnimationController rideListController;
+  const DetailedMultipleWeekStats({
+    Key? key,
+    required this.headerAnimationController,
+    required this.rideListController,
+  }) : super(key: key);
 
   @override
-  State<DetailedMonthStats> createState() => _DetailedMonthStatsState();
+  State<DetailedMultipleWeekStats> createState() => _DetailedMultipleWeekStatsState();
 }
 
-class _DetailedMonthStatsState extends State<DetailedMonthStats> {
-  static int numOfPages = 6;
+class _DetailedMultipleWeekStatsState extends State<DetailedMultipleWeekStats> {
+  static int numOfPages = 5;
 
   late PageController pageController;
 
-  List<MonthGraphViewModel> viewModels = [];
+  List<MultipleWeeksGraphViewModel> viewModels = [];
 
   int displayedPageIndex = numOfPages - 1;
 
@@ -42,20 +47,15 @@ class _DetailedMonthStatsState extends State<DetailedMonthStats> {
   }
 
   void createViewModels() {
-    var month = DateTime.now().month;
-    var year = DateTime.now().year;
-
+    var today = DateTime.now();
+    var weekStart = today.subtract(Duration(days: today.weekday - 1));
+    weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
     for (int i = 0; i < numOfPages; i++) {
-      var viewModel = MonthGraphViewModel(year, month);
+      var viewModel = MultipleWeeksGraphViewModel(weekStart, 5);
       viewModel.startStreams();
       viewModel.addListener(() => update());
       viewModels.add(viewModel);
-      if (month == 1) {
-        month = 12;
-        year -= 1;
-      } else {
-        month -= 1;
-      }
+      weekStart = weekStart.subtract(Duration(days: 7 * numOfPages));
     }
     viewModels = viewModels.reversed.toList();
     pageController = PageController(initialPage: viewModels.length - 1);
@@ -74,18 +74,20 @@ class _DetailedMonthStatsState extends State<DetailedMonthStats> {
   Widget build(BuildContext context) {
     if (viewModels.isEmpty) return const SizedBox.shrink();
     for (var vm in viewModels) {
-      vm.setRideInfoType(getIt<StatisticService>().selectedRideInfo);
+      vm.setRideInfoType(getIt<StatisticService>().rideInfo);
     }
-    return DetailedGraph(
+    return DetailedStatistics(
       pageController: pageController,
       graphs: viewModels
-          .map((vm) => MonthStatsGraph(
+          .map((vm) => MultipleWeeksStatsGraph(
                 tabHandler: () {},
                 viewModel: vm,
               ))
           .toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
-      animationController: widget.animationController,
+      title: 'Mehrere Wochen',
+      headerAnimationController: widget.headerAnimationController,
+      rideListController: widget.rideListController,
     );
   }
 }

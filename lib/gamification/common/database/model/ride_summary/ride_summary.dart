@@ -52,6 +52,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     );
   }
 
+  /// Returns stream of rides which started in a given time intervall, ordered by the start time.
   Stream<List<RideSummary>> streamSummariesInInterval(DateTime firstTimeStamp, DateTime lastTimeStamp) {
     return (select(rideSummaries)
           ..where((tbl) {
@@ -64,12 +65,14 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
         .watch();
   }
 
+  /// Returns stream of rides started in a week starting from a given day.
   Stream<List<RideSummary>> streamSummariesOfWeek(int year, int month, int day) {
     var firstDay = DateTime(year, month, day);
     var lastDay = firstDay.add(const Duration(days: 7));
     return streamSummariesInInterval(firstDay, lastDay);
   }
 
+  /// Returns stream of rides started in a given month.
   Stream<List<RideSummary>> streamSummariesOfMonth(int year, int month) {
     var isDecember = month == 12;
     var firstDay = DateTime(year, month, 1);
@@ -77,26 +80,31 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     return streamSummariesInInterval(firstDay, lastDay);
   }
 
+  /// Generate random mock rides for the last 6 months.
   void _createMocks() async {
     var today = DateTime.now();
     for (int i = 1; i < 30 * 6; i++) {
       var day = today.subtract(Duration(days: i));
-      var rides = Random().nextInt(3) + 1;
+      var rides = 4 - sqrt(Random().nextInt(24)).floorToDouble();
       for (int e = 0; e < rides; e++) {
         await _createMock(day);
         log.i(day.toIso8601String());
       }
     }
-    log.i('MOCK DATA FINISHED');
+    log.i('Generated mock rides');
     getIt<UserProfileService>().updateUserData();
   }
 
-  Future _createMock(DateTime start) async {
+  /// Generate random mock on a given day.
+  Future _createMock(DateTime day) async {
     var duration = Random().nextDouble() * 3600;
     var distance = duration * 5 * (1 + 0.3 * Random().nextDouble());
     var gain = Random().nextDouble() * 400;
     var loss = Random().nextDouble() * 400;
-    return createObject(
+    var hour = Random().nextInt(16) + 6;
+    var minute = Random().nextInt(60);
+    var start = day.copyWith(hour: hour, minute: minute);
+    var ride = await createObject(
       RideSummariesCompanion.insert(
           distanceMetres: distance,
           durationSeconds: duration,
@@ -105,5 +113,6 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
           startTime: start,
           averageSpeedKmh: (distance / duration) * 3.6),
     );
+    log.i('new ride: ${ride.toString()}');
   }
 }
