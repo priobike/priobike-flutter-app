@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
@@ -19,6 +21,15 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
 
   void update() => setState(() {});
 
+  /// Animation for the confirmation button. The button slides in from the bottom.
+  Animation<Offset> getSettingsElementAnimation(double start, double end) => Tween<Offset>(
+        begin: const Offset(0.0, 10.0),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(min(start, 1.0), min(end, 1.0), curve: Curves.easeIn),
+      ));
+
   @override
   void initState() {
     statService = getIt<GameSettingsService>();
@@ -39,11 +50,18 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
       },
       content: Column(
         children: [
-          SettingsElement(
-            title: 'Aktivierte Spiel-Elemente',
-            icon: Icons.list,
-            callback: () {},
-          ),
+          for (int i = 0; i < 5; i++)
+            SlideTransition(
+              position: getSettingsElementAnimation((i * 0.2), 0.4 + (i * 0.2)),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SettingsElement(
+                  title: 'Aktivierte Spiel-Elemente',
+                  icon: Icons.list,
+                  callback: () {},
+                ),
+              ),
+            ),
         ],
       ),
     );

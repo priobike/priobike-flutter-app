@@ -1,9 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
@@ -46,12 +43,6 @@ class GamificationHubViewState extends State<GamificationHubView> with SingleTic
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
-
-  /// Simple fade animation for the header of the hub view.
-  Animation<double> get _fadeAnimation => CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0, 0.4, curve: Curves.easeIn),
-      );
 
   @override
   void initState() {
