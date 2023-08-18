@@ -8,10 +8,12 @@ class TrackPictogram extends StatefulWidget {
   final List<Position> track;
   final Color minSpeedColor;
   final Color maxSpeedColor;
+  final double blurRadius;
 
   const TrackPictogram({
     Key? key,
     required this.track,
+    required this.blurRadius,
     this.minSpeedColor = Colors.green,
     this.maxSpeedColor = Colors.red,
   }) : super(key: key);
@@ -66,7 +68,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                 painter: TrackPainter(
                   fraction: fraction,
                   track: widget.track,
-                  blurRadius: 10,
+                  blurRadius: widget.blurRadius,
                   minSpeedColor: widget.minSpeedColor,
                   maxSpeedColor: widget.maxSpeedColor,
                   maxSpeed: maxSpeed,
