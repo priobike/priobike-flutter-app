@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/ride/services/ride_assist.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -27,12 +28,6 @@ const List<String> continuousImages = [
 ];
 const List<String> standaloneImages = [];
 
-// Audios.
-const audioIntervalFaster = "sounds/interval_faster.mp3";
-const audioIntervalSlower = "sounds/interval_slower.mp3";
-const audioInfo = "sounds/info.mp3";
-const audioSuccess = "sounds/success.mp3";
-
 class WearTutorialView extends StatefulWidget {
   const WearTutorialView({Key? key}) : super(key: key);
 
@@ -47,10 +42,9 @@ class WearTutorialViewState extends State<WearTutorialView> {
 
   late Settings settings;
 
-  late List<String> usedImages = [];
+  late RideAssist rideAssist;
 
-  final AudioPlayer audioPlayer1 = AudioPlayer();
-  final AudioPlayer audioPlayer2 = AudioPlayer();
+  late List<String> usedImages = [];
 
   /// The timer used for the signal loops.
   Timer? timer;
@@ -64,6 +58,13 @@ class WearTutorialViewState extends State<WearTutorialView> {
 
     settings = getIt<Settings>();
     settings.addListener(update);
+    rideAssist = getIt<RideAssist>();
+    rideAssist.addListener(update);
+
+    if (settings.modalityMode == ModalityMode.vibration) {
+      rideAssist.sendStart();
+    }
+
 
     if (settings.watchStandalone) {
       usedImages = standaloneImages;
@@ -83,6 +84,7 @@ class WearTutorialViewState extends State<WearTutorialView> {
   void dispose() {
     super.dispose();
     settings.removeListener(update);
+    rideAssist.removeListener(update);
   }
 
   playSignal() {
@@ -93,76 +95,61 @@ class WearTutorialViewState extends State<WearTutorialView> {
       case RideAssistMode.none:
         return;
       case RideAssistMode.easy:
-        if (settings.modalityMode == ModalityMode.vibration) {
-        } else {
-          // Audio.
-          // Decide which.
           if (tutorialState == 0) {
-            audioPlayer1.play(AssetSource(audioInfo));
+            rideAssist.playInfo();
             timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              audioPlayer2.play(AssetSource(audioInfo));
+              rideAssist.playInfo();
             });
           }
           if (tutorialState == 1) {
-            audioPlayer1.play(AssetSource(audioSuccess));
+            rideAssist.playSuccess();
             timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              audioPlayer2.play(AssetSource(audioSuccess));
+              rideAssist.playSuccess();
             });
           }
           if (tutorialState == 2) {
-            audioPlayer1.play(AssetSource(audioInfo));
+            rideAssist.playInfo();
             timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              audioPlayer2.play(AssetSource(audioInfo));
+              rideAssist.playInfo();
             });
           }
-        }
         break;
       case RideAssistMode.continuous:
-        if (settings.modalityMode == ModalityMode.vibration) {
-        } else {
-          // Audio.
-          // Decide which.
           if (tutorialState == 0) {
             // Nothing.
           }
           if (tutorialState == 1) {
-            audioPlayer1.play(AssetSource(audioInfo));
+            rideAssist.playInfo();
             timer = Timer.periodic(const Duration(milliseconds: 4000), (timer) {
-              audioPlayer2.play(AssetSource(audioInfo));
+              rideAssist.playInfo();
             });
           }
           if (tutorialState == 2) {
-            audioPlayer1.play(AssetSource(audioInfo));
+            rideAssist.playInfo();
             timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-              audioPlayer2.play(AssetSource(audioInfo));
+              rideAssist.playInfo();
             });
           }
-        }
         break;
       case RideAssistMode.interval:
-        if (settings.modalityMode == ModalityMode.vibration) {
-        } else {
-          // Audio.
-          // Decide which.
           if (tutorialState == 0) {
-            audioPlayer1.play(AssetSource(audioSuccess));
+            rideAssist.playSuccess();
             timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              audioPlayer2.play(AssetSource(audioSuccess));
+              rideAssist.playSuccess();
             });
           }
           if (tutorialState == 1) {
-            audioPlayer1.play(AssetSource(audioIntervalSlower));
-            timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              audioPlayer2.play(AssetSource(audioIntervalSlower));
+            rideAssist.playSlower();
+            timer = Timer.periodic(Duration(milliseconds: settings.modalityMode == ModalityMode.vibration ? 10000 : 5000), (timer) {
+              rideAssist.playSlower();
             });
           }
           if (tutorialState == 2) {
-            audioPlayer1.play(AssetSource(audioIntervalFaster));
+            rideAssist.playFaster();
             timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              audioPlayer2.play(AssetSource(audioIntervalFaster));
+              rideAssist.playFaster();
             });
           }
-        }
         break;
     }
   }
@@ -185,6 +172,7 @@ class WearTutorialViewState extends State<WearTutorialView> {
             setState(() {
               if (tutorialState + 1 == usedImages.length && signalPlayed) {
                 stopPlaySignal();
+                rideAssist.sendStop();
                 Navigator.of(context).pop();
               }
               if (!signalPlayed) {
@@ -210,6 +198,7 @@ class WearTutorialViewState extends State<WearTutorialView> {
                 children: [
                   AppBackButton(onPressed: () {
                     stopPlaySignal();
+                    rideAssist.sendStop();
                     Navigator.pop(context);
                   }),
                   const HSpace(),
