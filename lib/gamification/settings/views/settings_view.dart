@@ -82,31 +82,40 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
       title: 'Einstellungen',
       content: Column(
         children: [
-          for (int i = 0; i < 5; i++)
-            (selectedSetting == i)
-                ? FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: SettingsElement(
-                        title: 'Aktivierte Spiel-Elemente',
-                        icon: Icons.list,
-                        callback: () {},
-                      ),
-                    ),
-                  )
-                : SlideTransition(
-                    position: getSettingsElementAnimation(0.2, 0.6),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: SettingsElement(
-                          title: 'Aktivierte Spiel-Elemente',
-                          icon: Icons.list,
-                          callback: () => _openSettingsPage(const GameFeaturesSettingsView(), 0)),
-                    ),
-                  ),
+          getAnimatedSettingsElement(
+            index: 0,
+            view: const GameFeaturesSettingsView(),
+            title: 'Aktivierte Spiel-Elemente',
+            icon: Icons.list,
+          ),
         ],
       ),
     );
+  }
+
+  /// Returns a settings element that is wrapped in an animation for when the elements appear and disappear.
+  Widget getAnimatedSettingsElement(
+      {required int index, required Widget view, required String title, required IconData icon}) {
+    if (selectedSetting == index) {
+      return FadeTransition(
+        opacity: _fadeAnimation,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: SettingsElement(
+            title: 'Aktivierte Spiel-Elemente',
+            icon: Icons.list,
+            callback: () {},
+          ),
+        ),
+      );
+    } else {
+      return SlideTransition(
+        position: getSettingsElementAnimation(0.2, 0.6),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: SettingsElement(title: title, icon: icon, callback: () => _openSettingsPage(view, index)),
+        ),
+      );
+    }
   }
 }
