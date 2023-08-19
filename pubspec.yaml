@@ -160,3 +160,6 @@ flutter:
 
     # Speed Sounds
     - assets/sounds/
+
+    # Tutorial Images
+    - assets/tutorial/

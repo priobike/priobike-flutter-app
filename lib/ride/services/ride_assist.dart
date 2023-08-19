@@ -16,8 +16,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:wearable_communicator/wearable_communicator.dart';
 
 // Audios.
-const audioContinuousFaster = "sounds/continuous_faster.mp3";
-const audioContinuousSlower = "sounds/continuous_slower.mp3";
 const audioIntervalFaster = "sounds/interval_faster.mp3";
 const audioIntervalSlower = "sounds/interval_slower.mp3";
 const audioInfo = "sounds/info.mp3";
@@ -338,7 +336,7 @@ class RideAssist with ChangeNotifier {
   rideAssistInterval(List<Phase> phases, List<double> qualities, double kmh) {
     // Calculate current Phase.
     // Too less speed.
-    if (!greenPhaseAvailable(phases) ||
+    if (!greenPhaseAvailableInGoodRange(phases) ||
         ride.calcDistanceToNextSG == null ||
         ride.calcDistanceToNextTurn == null ||
         ride.calcCurrentSG == null) {
@@ -495,9 +493,9 @@ class RideAssist with ChangeNotifier {
       sendOutput("slower");
     } else {
       // Then start timer.
-      audioPlayer1.play(AssetSource(audioContinuousSlower));
-      timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
-        audioPlayer2.play(AssetSource(audioContinuousSlower));
+      audioPlayer1.play(AssetSource(audioInfo));
+      timer = Timer.periodic(const Duration(milliseconds: 4000), (timer) {
+        audioPlayer2.play(AssetSource(audioInfo));
       });
     }
   }
@@ -507,9 +505,9 @@ class RideAssist with ChangeNotifier {
       sendOutput("faster");
     } else {
       // Then start timer.
-      audioPlayer1.play(AssetSource(audioContinuousFaster));
+      audioPlayer1.play(AssetSource(audioInfo));
       timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-        audioPlayer2.play(AssetSource(audioContinuousFaster));
+        audioPlayer2.play(AssetSource(audioInfo));
       });
     }
   }
@@ -551,6 +549,19 @@ class RideAssist with ChangeNotifier {
     bool greenPhaseAvailable = false;
     final int maxSecond = ((ride.calcDistanceToNextSG! * 3.6) / settings.speedMode.maxSpeed).round();
     for (int i = maxSecond; i < phases.length; i++) {
+      if (phases[i] == Phase.green) {
+        greenPhaseAvailable = true;
+      }
+    }
+    return greenPhaseAvailable;
+  }
+
+  /// Returns a bool if a suitable green phase is available for the current recommendation.
+  bool greenPhaseAvailableInGoodRange(List<Phase> phases) {
+    bool greenPhaseAvailable = false;
+    final int maxSecond = ((ride.calcDistanceToNextSG! * 3.6) / (settings.speedMode.maxSpeed - 4)).round();
+    final int minSecond = ((ride.calcDistanceToNextSG! * 3.6) / (8)).round();
+    for (int i = maxSecond; i < phases.length && i < minSecond; i++) {
       if (phases[i] == Phase.green) {
         greenPhaseAvailable = true;
       }
