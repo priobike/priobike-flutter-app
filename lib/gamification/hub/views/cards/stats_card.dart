@@ -31,7 +31,9 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
   final List<GraphViewModel> graphViewModels = [];
 
   /// Update function to rebuilt widget.
-  void update() => setState(() {});
+  void update() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
@@ -69,8 +71,7 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
   Future<void> onTap() async {
     await widget.openView(const StatisticsView());
     var newIndex = getIt<StatisticService>().statInterval.index;
-    //pageController.animateToPage(newIndex, duration: Duration(milliseconds: 1), curve: Curves.linear);
-    pageController.jumpToPage(newIndex);
+    if (pageController.hasClients) pageController.jumpToPage(newIndex);
   }
 
   @override

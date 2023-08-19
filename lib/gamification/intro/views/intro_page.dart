@@ -88,7 +88,7 @@ class GameIntroPage extends StatelessWidget {
             SafeArea(
               child: Column(
                 children: [
-                  const SizedBox(height: 8),
+                  const SmallVSpace(),
                   Row(
                     children: [
                       AppBackButton(onPressed: onBackButtonTab),

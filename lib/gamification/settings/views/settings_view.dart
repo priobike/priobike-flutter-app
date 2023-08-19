@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/settings/views/feature_settings.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/views/main.dart';
 
@@ -17,26 +19,56 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   /// Controller which controls the animation when opening this view.
   late AnimationController _animationController;
 
-  late GameSettingsService statService;
+  late UserProfileService _profileService;
 
   void update() => setState(() {});
 
+  int? selectedSetting;
+
   /// Animation for the confirmation button. The button slides in from the bottom.
   Animation<Offset> getSettingsElementAnimation(double start, double end) => Tween<Offset>(
-        begin: const Offset(0.0, 10.0),
+        begin: const Offset(1.0, 0.0),
         end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: _animationController,
         curve: Interval(min(start, 1.0), min(end, 1.0), curve: Curves.easeIn),
       ));
 
+  /// Simple fade animation for the header of the hub view.
+  Animation<double> get _fadeAnimation => CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.2, curve: Curves.easeIn),
+      );
+
   @override
   void initState() {
-    statService = getIt<GameSettingsService>();
-    statService.addListener(update);
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
+    _profileService = getIt<UserProfileService>();
+    _profileService.addListener(update);
+    _animationController = AnimationController(vsync: this, duration: LongDuration());
     _animationController.forward();
     super.initState();
+  }
+
+  void _openView(Widget view, int index) {
+    setState(() {
+      selectedSetting = 0;
+    });
+    _animationController.reverse().then(
+          (_) => Navigator.of(context)
+              .push(
+            PageRouteBuilder(
+              transitionDuration: const Duration(milliseconds: 300),
+              reverseTransitionDuration: const Duration(milliseconds: 300),
+              pageBuilder: (context, animation, secondaryAnimation) => view,
+            ),
+          )
+              .then(
+            (_) {
+              selectedSetting = null;
+              _animationController.forward();
+            },
+          ),
+        );
   }
 
   @override
@@ -44,24 +76,31 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
     return GameHubPage(
       animationController: _animationController,
       title: 'Einstellungen',
-      backButtonCallback: () {
-        _animationController.duration = const Duration(milliseconds: 500);
-        _animationController.reverse().then((value) => Navigator.pop(context));
-      },
       content: Column(
         children: [
           for (int i = 0; i < 5; i++)
-            SlideTransition(
-              position: getSettingsElementAnimation((i * 0.2), 0.4 + (i * 0.2)),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: SettingsElement(
-                  title: 'Aktivierte Spiel-Elemente',
-                  icon: Icons.list,
-                  callback: () {},
-                ),
-              ),
-            ),
+            (selectedSetting == i)
+                ? FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SettingsElement(
+                        title: 'Aktivierte Spiel-Elemente',
+                        icon: Icons.list,
+                        callback: () {},
+                      ),
+                    ),
+                  )
+                : SlideTransition(
+                    position: getSettingsElementAnimation(0.2, 0.6),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SettingsElement(
+                          title: 'Aktivierte Spiel-Elemente',
+                          icon: Icons.list,
+                          callback: () => _openView(const GameComponentsSettings(), 0)),
+                    ),
+                  ),
         ],
       ),
     );

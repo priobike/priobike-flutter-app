@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -22,12 +23,6 @@ class DetailedStatistics extends StatelessWidget {
 
   /// The viewmodel corresponding to the currently displayed graph.
   final GraphViewModel currentViewModel;
-
-  /// Simple fade animation for the header and the graphs.
-  Animation<double> get _fadeAnimation => CurvedAnimation(
-        parent: headerAnimationController,
-        curve: const Interval(0, 0.4, curve: Curves.easeIn),
-      );
 
   /// Animation for the confirmation button. The button slides in from the bottom.
   Animation<Offset> getListAnimation(double start, double end) => Tween<Offset>(
@@ -53,8 +48,9 @@ class DetailedStatistics extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         /// This widget contains the graphs in a page view and further information for the displayed graph.
-        FadeTransition(
-          opacity: _fadeAnimation,
+        CustomFadeTransition(
+          controller: headerAnimationController,
+          interval: const Interval(0, 0.4, curve: Curves.easeIn),
           child: GestureDetector(
             onTap: () => currentViewModel.setSelectedIndex(null),
             child: Container(
@@ -89,7 +85,7 @@ class DetailedStatistics extends StatelessWidget {
           future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
           builder: (context, snapshot) {
             if (!(snapshot.data ?? false)) return const SizedBox.shrink();
-            rideListController.duration = const Duration(milliseconds: 500);
+            rideListController.duration = ShortDuration();
             rideListController.forward();
             return getRideList(context);
           },
@@ -195,7 +191,7 @@ class DetailedStatistics extends StatelessWidget {
         /// Animate to next page if button is pressed.
         pageController.animateToPage(
           pageController.page!.toInt() + direction,
-          duration: const Duration(milliseconds: 400),
+          duration: ShortDuration(),
           curve: Curves.easeIn,
         );
       },

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/utils.dart';
 
 /// This view can be used for pages that are accessed from the game hub. It gives them a matching layout, containing
 /// a back button and a header with a title and possibly a feature button.
@@ -17,7 +18,7 @@ class GameHubPage extends StatelessWidget {
   final Widget content;
 
   /// This function is called when the back button is pressed.
-  final Function() backButtonCallback;
+  final Function()? backButtonCallback;
 
   /// The icon for the feature button. If this var is null, there will be no feature button
   final IconData? featureButtonIcon;
@@ -29,17 +30,11 @@ class GameHubPage extends StatelessWidget {
     Key? key,
     required this.animationController,
     required this.title,
-    required this.backButtonCallback,
+    this.backButtonCallback,
     this.featureButtonIcon,
     this.featureButtonCallback,
     required this.content,
   }) : super(key: key);
-
-  /// Simple fade animation for the header of the hub view.
-  Animation<double> get _fadeAnimation => CurvedAnimation(
-        parent: animationController,
-        curve: const Interval(0, 0.4, curve: Curves.easeIn),
-      );
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +52,9 @@ class GameHubPage extends StatelessWidget {
                   children: [
                     const SmallVSpace(),
                     // Header and feature button.
-                    FadeTransition(
-                      opacity: _fadeAnimation,
+                    CustomFadeTransition(
+                      controller: animationController,
+                      interval: const Interval(0, 0.4, curve: Curves.easeIn),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.max,
@@ -99,7 +95,12 @@ class GameHubPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    AppBackButton(onPressed: backButtonCallback),
+                    AppBackButton(
+                        onPressed: backButtonCallback ??
+                            (() {
+                              animationController.duration = ShortDuration();
+                              animationController.reverse().then((value) => Navigator.pop(context));
+                            })),
                   ],
                 ),
               ),

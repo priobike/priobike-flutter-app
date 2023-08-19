@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_stats.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_stats.dart';
@@ -26,15 +27,9 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
     statService = getIt<StatisticService>();
     statService.addListener(update);
     // Init the animation controllers and start the header animation.
-    _headerAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
+    _headerAnimationController = AnimationController(vsync: this, duration: ShortDuration());
     Future.delayed(const Duration(milliseconds: 0)).then((value) => _headerAnimationController.forward());
-    _listAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
+    _listAnimationController = AnimationController(vsync: this, duration: ShortDuration());
     super.initState();
   }
 
@@ -79,27 +74,28 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     return GameHubPage(
-        animationController: _headerAnimationController,
-        title: getTitleFromStatInterval(statService.statInterval),
-        backButtonCallback: () async {
-          _headerAnimationController.duration = const Duration(milliseconds: 500);
-          _headerAnimationController.reverse();
-          _listAnimationController.duration = const Duration(milliseconds: 500);
-          _listAnimationController.reverse();
-          if (!mounted) return;
-          Future.delayed(const Duration(milliseconds: 500)).then((_) => Navigator.of(context).pop());
-        },
-        featureButtonIcon: Icons.sync_alt,
-        featureButtonCallback: () async {
-          _headerAnimationController.duration = const Duration(milliseconds: 500);
-          _headerAnimationController.reverse();
-          _listAnimationController.duration = const Duration(milliseconds: 500);
-          _listAnimationController.reverse();
-          Future.delayed(const Duration(milliseconds: 500)).then((_) {
-            getIt<StatisticService>().changeStatInterval();
-            _headerAnimationController.forward();
-          });
-        },
-        content: getStatsViewFromInterval(statService.statInterval));
+      animationController: _headerAnimationController,
+      title: getTitleFromStatInterval(statService.statInterval),
+      backButtonCallback: () async {
+        _headerAnimationController.duration = ShortDuration();
+        _headerAnimationController.reverse();
+        _listAnimationController.duration = ShortDuration();
+        _listAnimationController.reverse();
+        if (!mounted) return;
+        Future.delayed(ShortDuration()).then((_) => Navigator.of(context).pop());
+      },
+      featureButtonIcon: Icons.sync_alt,
+      featureButtonCallback: () async {
+        _headerAnimationController.duration = ShortDuration();
+        _headerAnimationController.reverse();
+        _listAnimationController.duration = ShortDuration();
+        _listAnimationController.reverse();
+        Future.delayed(ShortDuration()).then((_) {
+          getIt<StatisticService>().changeStatInterval();
+          _headerAnimationController.forward();
+        });
+      },
+      content: getStatsViewFromInterval(statService.statInterval),
+    );
   }
 }

@@ -18,9 +18,6 @@ class UserProfile {
   /// The exact time point the user profile was created.
   DateTime joinDate;
 
-  /// The gamification features the user wants to have enabled as a list of string keys.
-  List<String> prefs;
-
   /// The users' username.
   String username;
 
@@ -31,7 +28,6 @@ class UserProfile {
     this.totalElevationLossMetres = 0,
     required this.username,
     required String parsedJoinDate,
-    this.prefs = const [],
   })  : joinDate = DateTime.parse(parsedJoinDate),
         averageSpeedKmh = totalDurationSeconds == 0 ? 0 : (totalDistanceMetres / totalDurationSeconds) * 3.6;
 }
