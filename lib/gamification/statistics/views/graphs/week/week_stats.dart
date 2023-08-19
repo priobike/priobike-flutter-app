@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/views/graphs/detailed_statistics.dart';
+import 'package:priobike/gamification/statistics/views/detailed_statistics.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -27,7 +27,8 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
 
   int displayedPageIndex = numOfPages - 1;
 
-  void update() => setState(() {});
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
@@ -85,7 +86,6 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
       currentViewModel: viewModels.elementAt(displayedPageIndex),
       headerAnimationController: widget.headerAnimationController,
       rideListController: widget.rideListController,
-      title: 'Wochenübersicht',
     );
   }
 }

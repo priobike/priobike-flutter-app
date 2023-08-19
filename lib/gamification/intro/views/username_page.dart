@@ -117,7 +117,7 @@ class GameUsernamePage extends StatelessWidget {
           animationController: animationController,
           confirmButtonLabel: "Beitreten",
           withContentFade: false,
-          onBackButtonTab: loading ? null : () => getIt<GameIntroService>().setPrefsSet(false),
+          onBackButtonTab: loading ? null : () => getIt<GameIntroService>().setConfirmedFeaturePage(false),
           onConfirmButtonTab: loading
               ? null
               : () {

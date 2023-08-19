@@ -30,13 +30,13 @@ class GameIntroService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Bool which is true, when the user has entered and confirms game preferences.
-  bool _prefsSet = false;
+  /// Bool which is true, when the user has confirmed the game features page.
+  bool _confirmedFeaturePage = false;
 
-  bool get prefsSet => _prefsSet;
+  bool get confirmedFeaturePage => _confirmedFeaturePage;
 
-  void setPrefsSet(bool value) {
-    _prefsSet = value;
+  void setConfirmedFeaturePage(bool value) {
+    _confirmedFeaturePage = value;
     pageChanged = true;
     notifyListeners();
   }
@@ -66,28 +66,11 @@ class GameIntroService with ChangeNotifier {
     _loading = true;
     notifyListeners();
     _prefs?.setString(UserProfileService.userNameKey, username);
-    _prefs?.setStringList(UserProfileService.userPreferencesKey, _gamePrefs);
     _prefs?.setBool(finishedIntroKey, true);
     await getIt<UserProfileService>().loadOrCreateProfile();
     _introFinished = true;
     pageChanged = true;
     _loading = false;
-    notifyListeners();
-  }
-
-  /// List of the selected game preferences of the user as string keys.
-  final List<String> _gamePrefs = [];
-
-  /// Returns true, if a given string key is inside of the list of selected game prefs.
-  bool stringInPrefs(String key) => _gamePrefs.contains(key);
-
-  /// Removes a key out of the user game prefs, if the key is inside the lits. Otherwise adds it to the list.
-  void addOrRemoveFromPrefs(String key) {
-    if (_gamePrefs.contains(key)) {
-      _gamePrefs.remove(key);
-    } else {
-      _gamePrefs.add(key);
-    }
     notifyListeners();
   }
 

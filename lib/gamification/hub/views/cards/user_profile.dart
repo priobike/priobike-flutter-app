@@ -33,7 +33,7 @@ class UserProfileCard extends StatelessWidget {
             // PrioBike (Blue) levels
             Level(value: 1000, title: "Radfahr-Champion", color: Medals.priobike),
           ],
-          value: (_gameService.totalDistanceMetres) / 1000,
+          value: (_gameService.userProfile!.totalDistanceMetres) / 1000,
           icon: Icons.directions_bike_rounded,
           unit: "km",
         ),
@@ -60,7 +60,7 @@ class UserProfileCard extends StatelessWidget {
             // PrioBike (Blue) levels
             Level(value: 3000, title: "Radrennen-Routinier", color: Medals.priobike),
           ],
-          value: (_gameService.totalDurationSeconds) / 60,
+          value: (_gameService.userProfile!.totalDurationSeconds) / 60,
           icon: Icons.timer_outlined,
           unit: "min",
         ),
@@ -78,7 +78,7 @@ class UserProfileCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               BoldContent(
-                text: "⌀ ${(_gameService.averageSpeedKmh).round()} km/h",
+                text: "⌀ ${(_gameService.userProfile!.averageSpeedKmh).round()} km/h",
                 context: context,
               ),
               const SizedBox(height: 4),
@@ -108,7 +108,7 @@ class UserProfileCard extends StatelessWidget {
       content: Column(
         children: [
           const SmallVSpace(),
-          Header(text: _gameService.username, context: context),
+          Header(text: _gameService.userProfile!.username, context: context),
           renderDistanceStats(),
           renderDurationStats(),
           renderSpeedStats(context),

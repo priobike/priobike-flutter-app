@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
 
 /// Displayes ride statistics for a single month. The data is obtained from a given [MonthGraphViewModel].
