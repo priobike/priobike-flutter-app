@@ -30,10 +30,8 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
   /// View models of the displayed graphs. They provide the graphs with their corresponding data.
   final List<GraphViewModel> graphViewModels = [];
 
-  /// Update function to rebuilt widget.
-  void update() {
-    if (mounted) setState(() {});
-  }
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {

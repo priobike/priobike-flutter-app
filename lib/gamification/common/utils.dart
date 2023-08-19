@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-class LongDuration extends Duration {
-  LongDuration() : super(milliseconds: 1000);
+/// Fixed duration for a transition animation that should appear slow.
+class LongTransitionDuration extends Duration {
+  LongTransitionDuration() : super(milliseconds: 1000);
 }
 
-class ShortDuration extends Duration {
-  ShortDuration() : super(milliseconds: 500);
+/// Fixed duration for a transition animation that should appear fast.
+class ShortTransitionDuration extends Duration {
+  ShortTransitionDuration() : super(milliseconds: 500);
 }
 
-/// Simple fade tranistion to animate widgets.
+/// Simple fade tranistion to let widgets appear smooth.
 class CustomFadeTransition extends FadeTransition {
   CustomFadeTransition({Key? key, required AnimationController controller, required Widget child, Interval? interval})
       : super(key: key, opacity: getFadeAnimation(controller, interval), child: child);

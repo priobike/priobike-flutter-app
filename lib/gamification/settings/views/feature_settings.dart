@@ -7,19 +7,24 @@ import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/main.dart';
 
-class GameComponentsSettings extends StatefulWidget {
-  const GameComponentsSettings({Key? key}) : super(key: key);
+/// This view enables the user to enable or disable the gamification features.
+class GameFeaturesSettingsView extends StatefulWidget {
+  const GameFeaturesSettingsView({Key? key}) : super(key: key);
 
   @override
-  State<GameComponentsSettings> createState() => _GameComponentsSettingsState();
+  State<GameFeaturesSettingsView> createState() => _GameFeaturesSettingsViewState();
 }
 
-class _GameComponentsSettingsState extends State<GameComponentsSettings> with SingleTickerProviderStateMixin {
+class _GameFeaturesSettingsViewState extends State<GameFeaturesSettingsView> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
+  /// This text gives the user the necessary information about the feature selection process.
+  final String infoText =
+      'Wähle die Features aus, an denen Du teilnehmen möchtest. Nur die werden Dir dann auch angezeigt.';
 
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: ShortDuration());
+    _animationController = AnimationController(vsync: this, duration: ShortTransitionDuration());
     _animationController.forward();
     super.initState();
   }
@@ -35,9 +40,12 @@ class _GameComponentsSettingsState extends State<GameComponentsSettings> with Si
           child: Column(
             children: [
               const SmallVSpace(),
-              Center(
-                child: Content(text: 'Wähle die Features aus, die Du nutzen möchtest.', context: context),
+              HPad(
+                child: Center(
+                  child: BoldContent(text: infoText, context: context),
+                ),
               ),
+              const SmallVSpace(),
               ...GameSettingsService.gameFeaturesLabelMap.entries
                   .map((e) => GameFeatureElement(label: e.value, featureKey: e.key))
                   .toList(),

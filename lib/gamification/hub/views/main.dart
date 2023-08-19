@@ -46,7 +46,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
       };
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {});
+  void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
@@ -60,9 +60,9 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
     // Init animation controller and start the animation after a short delay, to let the view load first.
     _animationController = AnimationController(
       vsync: this,
-      duration: LongDuration(),
+      duration: LongTransitionDuration(),
     );
-    Future.delayed(ShortDuration()).then(
+    Future.delayed(ShortTransitionDuration()).then(
       (value) => _animationController.forward(),
     );
     // Listen to ride data and update local list accordingly.
@@ -83,7 +83,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
   /// This function navigates to a new page by pushing it on top of the hub view. It also handles the transition
   /// animation of the hub view, both when opening the page and when returning to the hub.
   Future openPage(Widget view) {
-    _animationController.duration = ShortDuration();
+    _animationController.duration = ShortTransitionDuration();
     return _animationController
         .reverse()
         .then(

@@ -27,7 +27,8 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
 
   int displayedPageIndex = numOfPages - 1;
 
-  void update() => setState(() {});
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {

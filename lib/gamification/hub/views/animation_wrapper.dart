@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-/// Wrapper class for elements on the game hub which should appear with a sliding animation from the right side. 
+/// Wrapper class for elements on the game hub which should appear with a sliding animation from the right side.
 class GameHubAnimationWrapper extends StatelessWidget {
   /// Controller which controls the element animation.
   final AnimationController controller;
@@ -10,6 +10,7 @@ class GameHubAnimationWrapper extends StatelessWidget {
   /// Content to be displayed inside of the element card.
   final Widget child;
 
+  /// Start and end of the animation interval.
   final double start, end;
 
   const GameHubAnimationWrapper(

@@ -31,13 +31,15 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
       _animationController.reverse().then((value) => setState(() {}));
       return;
     }
-    setState(() {});
+
+    /// Called when a listener callback of a ChangeNotifier is fired.
+    if (mounted) setState(() {});
   }
 
   @override
   void initState() {
     _animationController = AnimationController(
-      duration: ShortDuration(),
+      duration: ShortTransitionDuration(),
       vsync: this,
     );
     // Add listener to game intro service, which manages the whole intro process.

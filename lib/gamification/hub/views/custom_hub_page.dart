@@ -98,7 +98,7 @@ class GameHubPage extends StatelessWidget {
                     AppBackButton(
                         onPressed: backButtonCallback ??
                             (() {
-                              animationController.duration = ShortDuration();
+                              animationController.duration = ShortTransitionDuration();
                               animationController.reverse().then((value) => Navigator.pop(context));
                             })),
                   ],

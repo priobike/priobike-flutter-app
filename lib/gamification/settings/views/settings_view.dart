@@ -8,6 +8,7 @@ import 'package:priobike/gamification/settings/views/feature_settings.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/views/main.dart';
 
+/// In this view the user can modify the gamification settings available.
 class GameSettingsView extends StatefulWidget {
   const GameSettingsView({Key? key}) : super(key: key);
 
@@ -19,10 +20,13 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   /// Controller which controls the animation when opening this view.
   late AnimationController _animationController;
 
+  /// Service which provides the view with the necessary user profile data.
   late UserProfileService _profileService;
 
-  void update() => setState(() {});
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
+  /// Index of the setting selected by the user.
   int? selectedSetting;
 
   /// Animation for the confirmation button. The button slides in from the bottom.
@@ -44,27 +48,27 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   void initState() {
     _profileService = getIt<UserProfileService>();
     _profileService.addListener(update);
-    _animationController = AnimationController(vsync: this, duration: LongDuration());
+    _animationController = AnimationController(vsync: this, duration: LongTransitionDuration());
     _animationController.forward();
     super.initState();
   }
 
-  void _openView(Widget view, int index) {
-    setState(() {
-      selectedSetting = 0;
-    });
+  /// Open the view corresponding to a specific selected setting.
+  void _openSettingsPage(Widget view, int index) {
+    setState(() => selectedSetting = 0);
+    _animationController.duration = ShortTransitionDuration();
     _animationController.reverse().then(
           (_) => Navigator.of(context)
               .push(
             PageRouteBuilder(
-              transitionDuration: const Duration(milliseconds: 300),
-              reverseTransitionDuration: const Duration(milliseconds: 300),
+              transitionDuration: const Duration(milliseconds: 0),
+              reverseTransitionDuration: const Duration(milliseconds: 0),
               pageBuilder: (context, animation, secondaryAnimation) => view,
             ),
           )
               .then(
             (_) {
-              selectedSetting = null;
+              setState(() => selectedSetting = null);
               _animationController.forward();
             },
           ),
@@ -98,7 +102,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
                       child: SettingsElement(
                           title: 'Aktivierte Spiel-Elemente',
                           icon: Icons.list,
-                          callback: () => _openView(const GameComponentsSettings(), 0)),
+                          callback: () => _openSettingsPage(const GameFeaturesSettingsView(), 0)),
                     ),
                   ),
         ],
