@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -26,7 +25,7 @@ const List<String> continuousImages = [
   "assets/tutorial/too_fast.png",
   "assets/tutorial/too_slow.png",
 ];
-const List<String> standaloneImages = [];
+const List<String> standaloneImages = ["assets/tutorial/watch_standalone.png"];
 
 class WearTutorialView extends StatefulWidget {
   const WearTutorialView({Key? key}) : super(key: key);
@@ -66,9 +65,6 @@ class WearTutorialViewState extends State<WearTutorialView> {
     }
 
 
-    if (settings.watchStandalone) {
-      usedImages = standaloneImages;
-    }
     if (settings.rideAssistMode == RideAssistMode.easy) {
       usedImages = easyImages;
     }
@@ -77,6 +73,9 @@ class WearTutorialViewState extends State<WearTutorialView> {
     }
     if (settings.rideAssistMode == RideAssistMode.interval) {
       usedImages = intervalImages;
+    }
+    if (settings.watchStandalone) {
+      usedImages = standaloneImages;
     }
   }
 
@@ -95,61 +94,56 @@ class WearTutorialViewState extends State<WearTutorialView> {
       case RideAssistMode.none:
         return;
       case RideAssistMode.easy:
-          if (tutorialState == 0) {
+        if (tutorialState == 0) {
+          rideAssist.playInfo();
+          timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
             rideAssist.playInfo();
-            timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              rideAssist.playInfo();
-            });
-          }
-          if (tutorialState == 1) {
+          });
+        }
+        if (tutorialState == 1) {
+          rideAssist.playSuccess();
+          timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
             rideAssist.playSuccess();
-            timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              rideAssist.playSuccess();
-            });
-          }
-          if (tutorialState == 2) {
+          });
+        }
+        if (tutorialState == 2) {
+          rideAssist.playInfo();
+          timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
             rideAssist.playInfo();
-            timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              rideAssist.playInfo();
-            });
-          }
+          });
+        }
         break;
       case RideAssistMode.continuous:
-          if (tutorialState == 0) {
-            // Nothing.
-          }
-          if (tutorialState == 1) {
-            rideAssist.playInfo();
-            timer = Timer.periodic(const Duration(milliseconds: 4000), (timer) {
-              rideAssist.playInfo();
-            });
-          }
-          if (tutorialState == 2) {
-            rideAssist.playInfo();
-            timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-              rideAssist.playInfo();
-            });
-          }
+        if (tutorialState == 0) {
+          // Nothing.
+        }
+        if (tutorialState == 1) {
+          rideAssist.startSlowerLoop();
+        }
+        if (tutorialState == 2) {
+          rideAssist.startFasterLoop();
+        }
         break;
       case RideAssistMode.interval:
-          if (tutorialState == 0) {
+        if (tutorialState == 0) {
+          rideAssist.playSuccess();
+          timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
             rideAssist.playSuccess();
-            timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              rideAssist.playSuccess();
-            });
-          }
-          if (tutorialState == 1) {
+          });
+        }
+        if (tutorialState == 1) {
+          rideAssist.playSlower();
+          timer = Timer.periodic(Duration(milliseconds: settings.modalityMode == ModalityMode.vibration ? 10000 : 5000),
+              (timer) {
             rideAssist.playSlower();
-            timer = Timer.periodic(Duration(milliseconds: settings.modalityMode == ModalityMode.vibration ? 10000 : 5000), (timer) {
-              rideAssist.playSlower();
-            });
-          }
-          if (tutorialState == 2) {
+          });
+        }
+        if (tutorialState == 2) {
+          rideAssist.playFaster();
+          timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
             rideAssist.playFaster();
-            timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-              rideAssist.playFaster();
-            });
-          }
+          });
+        }
         break;
     }
   }
@@ -157,6 +151,9 @@ class WearTutorialViewState extends State<WearTutorialView> {
   stopPlaySignal() {
     if (timer != null && timer!.isActive) {
       timer!.cancel();
+    }
+    if (settings.rideAssistMode == RideAssistMode.continuous) {
+      rideAssist.stopSignalLoop();
     }
   }
 
