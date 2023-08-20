@@ -9,8 +9,8 @@ import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/main.dart';
 
 /// A gamification hub card, which displays basic info about the user profile.
-class UserProfileCard extends StatelessWidget {
-  UserProfileCard({Key? key}) : super(key: key);
+class GameChallengesCard extends StatelessWidget {
+  GameChallengesCard({Key? key}) : super(key: key);
 
   final GameProfileService _gameService = getIt<GameProfileService>();
 
@@ -29,7 +29,7 @@ class UserProfileCard extends StatelessWidget {
             Level(value: 150, title: "Fahrrad-Buddha", color: Medals.silver),
             // Gold levels
             Level(value: 250, title: "Velociped-Virtuose", color: Medals.gold),
-            Level(value: 500, title: "Sattel-Kenner", color: Medals.gold),
+            Level(value: 5000, title: "Sattel-Kenner", color: Medals.gold),
             // PrioBike (Blue) levels
             Level(value: 10000, title: "Radfahr-Champion", color: Medals.priobike),
           ],
@@ -107,8 +107,6 @@ class UserProfileCard extends StatelessWidget {
     return GameHubCard(
       content: Column(
         children: [
-          const SmallVSpace(),
-          Header(text: _gameService.userProfile!.username, context: context),
           renderDistanceStats(),
           renderDurationStats(),
           renderSpeedStats(context),

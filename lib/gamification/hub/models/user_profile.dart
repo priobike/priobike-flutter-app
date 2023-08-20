@@ -21,11 +21,23 @@ class UserProfile {
   /// The users' username.
   String username;
 
+  /// The xp of the user.
+  int xp;
+
+  /// The number of silver trophies the user has.
+  int silverTrophies;
+
+  /// The number of gold trophies the user has.
+  int goldTrophies;
+
   UserProfile({
     this.totalDistanceKilometres = 0,
     this.totalDurationMinutes = 0,
     this.totalElevationGainMetres = 0,
     this.totalElevationLossMetres = 0,
+    this.xp = 0,
+    this.silverTrophies = 0,
+    this.goldTrophies = 0,
     required this.username,
     required this.joinDate,
   }) : averageSpeedKmh = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
@@ -35,6 +47,9 @@ class UserProfile {
         'totalDurationSeconds': totalDurationMinutes,
         'totalElevationGainMetres': totalElevationGainMetres,
         'totalElevationLossMetres': totalElevationLossMetres,
+        'xp': xp,
+        'silverTrophies': silverTrophies,
+        'goldTrophies': goldTrophies,
         'username': username,
         'joinDate': joinDate.toIso8601String(),
       };
@@ -44,6 +59,9 @@ class UserProfile {
         totalDurationMinutes: json['totalDistanceMetres'],
         totalElevationGainMetres: json['totalElevationGainMetres'],
         totalElevationLossMetres: json['totalElevationLossMetres'],
+        xp: json['xp'],
+        silverTrophies: json['silverTrophies'],
+        goldTrophies: json['goldTrophies'],
         username: json['username'],
         joinDate: DateTime.parse(json['joinDate']),
       );

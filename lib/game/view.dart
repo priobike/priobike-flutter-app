@@ -37,9 +37,6 @@ class LevelViewState extends State<LevelView> {
   /// If the view is currently animating.
   bool animating = false;
 
-  /// The percentage of the circular progress that hides the level circle.
-  double circleCoverPct = 0;
-
   /// The current level.
   Level getCurrentLevel() {
     var currentLevel = widget.levels.first;
@@ -69,16 +66,16 @@ class LevelViewState extends State<LevelView> {
   /// Run the bling animation.
   Future<void> runAnimation({delay = 0}) async {
     if (animating) return;
-    animating = true;
+    // Start the circle animation by setting animating to true.
+    setState(() {
+      animating = true;
+    });
     await Future.delayed(Duration(milliseconds: delay));
     final currentLevel = getCurrentLevel();
-    // Animate the circle cover.
-    setState(() {
-      circleCoverPct = 1;
-    });
+    // Stop the circle cover animation after 1 second.
     Future.delayed(const Duration(milliseconds: 1000), () {
       setState(() {
-        circleCoverPct = 0;
+        animating = false;
       });
     });
     // Make a nice "bling" gradient animation.
@@ -168,34 +165,89 @@ class LevelViewState extends State<LevelView> {
               ),
             ),
             const SizedBox(width: 8),
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                LevelRing(levels: widget.levels, value: widget.value, color: currentLevel.color, icon: widget.icon),
-                TweenAnimationBuilder<double>(
-                  duration: const Duration(milliseconds: 1000),
-                  curve: Curves.easeInOutCubicEmphasized,
-                  tween: Tween<double>(
-                    begin: 0,
-                    end: circleCoverPct,
-                  ),
-                  builder: (context, value, _) => Transform(
-                    // Rotate by 180° to make the animation start at the bottom.
-                    // Flip the animation by multiplying with -1.
-                    transform: Matrix4.diagonal3Values(1, -1, 1),
-                    alignment: Alignment.center,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 8,
-                      value: value,
-                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.background),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            AnimatedLevelRing(
+                levels: widget.levels,
+                value: widget.value,
+                color: currentLevel.color,
+                icon: widget.icon,
+                buildWithAnimation: animating)
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A level ring, that can be built with a animation, which covers the outer circle temporary.
+class AnimatedLevelRing extends StatelessWidget {
+  /// The levels to display.
+  final List<Level> levels;
+
+  /// The current value.
+  final double value;
+
+  /// The color of the circle.
+  final Color color;
+
+  /// The icon to be displayed.
+  final IconData icon;
+
+  /// The size of the ring. The icon size also depends on this value.
+  final double ringSize;
+
+  /// Whether to built the level ring with an animated circle that covers the level indicators temporary.
+  final bool buildWithAnimation;
+
+  const AnimatedLevelRing({
+    Key? key,
+    required this.levels,
+    required this.value,
+    required this.color,
+    required this.icon,
+    this.ringSize = 42,
+    required this.buildWithAnimation,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var coverWidth = ringSize / 12 + 2;
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        LevelRing(
+          levels: levels,
+          value: value,
+          color: color,
+          icon: icon,
+          ringSize: ringSize,
+        ),
+        TweenAnimationBuilder<double>(
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOutCubicEmphasized,
+          tween: Tween<double>(
+            begin: 0,
+            end: buildWithAnimation ? 1 : 0,
+          ),
+          builder: (context, value, _) => Transform(
+            // Rotate by 180° to make the animation start at the bottom.
+            // Flip the animation by multiplying with -1.
+            transform: Matrix4.diagonal3Values(1, -1, 1),
+            alignment: Alignment.center,
+            child: Center(
+              child: SizedBox.fromSize(
+                  size: Size.square(ringSize + 2),
+                  child: ClipOval(
+                    clipBehavior: Clip.hardEdge,
+                    child: CircularProgressIndicator(
+                      strokeWidth: coverWidth * 2,
+                      value: value,
+                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.background),
+                    ),
+                  )),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -214,12 +266,16 @@ class LevelRing extends StatefulWidget {
   /// The icon to be displayed.
   final IconData icon;
 
+  /// The size of the ring. The icon size also depends on this value.
+  final double ringSize;
+
   const LevelRing({
     Key? key,
     required this.levels,
     required this.value,
     required this.color,
     required this.icon,
+    this.ringSize = 42,
   }) : super(key: key);
 
   @override
@@ -242,8 +298,8 @@ class LevelRingState extends State<LevelRing> {
       child: Column(children: [
         Stack(children: [
           SizedBox(
-            width: 42,
-            height: 42,
+            width: widget.ringSize,
+            height: widget.ringSize,
             child: AspectRatio(
               // Use 1.0 to ensure that the custom painter
               // will draw inside a container with width == height
@@ -254,10 +310,11 @@ class LevelRingState extends State<LevelRing> {
             ),
           ),
           SizedBox(
-            width: 42,
-            height: 42,
+            width: widget.ringSize,
+            height: widget.ringSize,
             child: Icon(
               widget.icon,
+              size: 24 * (widget.ringSize / 42),
               color: brightness == Brightness.light
                   ? HSLColor.fromColor(widget.color).withLightness(0.5).toColor()
                   : HSLColor.fromColor(widget.color).withLightness(0.7).toColor(),

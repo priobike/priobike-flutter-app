@@ -4,10 +4,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
-import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
+import 'package:priobike/gamification/hub/views/cards/challenge_card.dart';
 import 'package:priobike/gamification/hub/views/cards/stats_card.dart';
-import 'package:priobike/gamification/hub/views/cards/user_profile.dart';
+import 'package:priobike/gamification/hub/views/cards/profile_card.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/settings/views/settings_view.dart';
@@ -25,9 +25,6 @@ class GameHubView extends StatefulWidget {
 }
 
 class GameHubViewState extends State<GameHubView> with SingleTickerProviderStateMixin {
-  /// The service which manages and provides the user profile.
-  late GameProfileService _profileService;
-
   late GameSettingsService _settingsService;
 
   /// Ride DAO required to load the rides from the db.
@@ -42,6 +39,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
   /// A map which maps the keys of possible gamification components to corresponding views.
   /// This map is needed to decide which views to display to the user.
   Map<String, Widget> get mappedHubElements => {
+        GameSettingsService.gameFeatureChallengesKey: GameChallengesCard(),
         GameSettingsService.gameFeatureStatisticsKey: RideStatisticsCard(openView: openPage),
       };
 
@@ -53,10 +51,6 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
     super.initState();
     _settingsService = getIt<GameSettingsService>();
     _settingsService.addListener(update);
-
-    /// Listen to changes in the user profile.
-    _profileService = getIt<GameProfileService>();
-    _profileService.addListener(update);
     // Init animation controller and start the animation after a short delay, to let the view load first.
     _animationController = AnimationController(
       vsync: this,
@@ -75,7 +69,6 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
 
   @override
   void dispose() {
-    _profileService.removeListener(update);
     _animationController.dispose();
     super.dispose();
   }
@@ -118,7 +111,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
                 start: 0,
                 end: 0.4,
                 controller: _animationController,
-                child: UserProfileCard(),
+                child: const GameProfileCard(),
               ),
             ] +
             // Create a hub element for each game feature the user has enabled.

@@ -389,14 +389,311 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   }
 }
 
+class $DistanceChallengesTable extends DistanceChallenges
+    with TableInfo<$DistanceChallengesTable, DistanceChallenge> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DistanceChallengesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _xpMeta = const VerificationMeta('xp');
+  @override
+  late final GeneratedColumn<int> xp = GeneratedColumn<int>(
+      'xp', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _intervalStartMeta =
+      const VerificationMeta('intervalStart');
+  @override
+  late final GeneratedColumn<DateTime> intervalStart =
+      GeneratedColumn<DateTime>('interval_start', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _intervalEndMeta =
+      const VerificationMeta('intervalEnd');
+  @override
+  late final GeneratedColumn<DateTime> intervalEnd = GeneratedColumn<DateTime>(
+      'interval_end', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _targetDistanceMeta =
+      const VerificationMeta('targetDistance');
+  @override
+  late final GeneratedColumn<double> targetDistance = GeneratedColumn<double>(
+      'target_distance', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, xp, intervalStart, intervalEnd, targetDistance];
+  @override
+  String get aliasedName => _alias ?? 'distance_challenges';
+  @override
+  String get actualTableName => 'distance_challenges';
+  @override
+  VerificationContext validateIntegrity(Insertable<DistanceChallenge> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('xp')) {
+      context.handle(_xpMeta, xp.isAcceptableOrUnknown(data['xp']!, _xpMeta));
+    } else if (isInserting) {
+      context.missing(_xpMeta);
+    }
+    if (data.containsKey('interval_start')) {
+      context.handle(
+          _intervalStartMeta,
+          intervalStart.isAcceptableOrUnknown(
+              data['interval_start']!, _intervalStartMeta));
+    } else if (isInserting) {
+      context.missing(_intervalStartMeta);
+    }
+    if (data.containsKey('interval_end')) {
+      context.handle(
+          _intervalEndMeta,
+          intervalEnd.isAcceptableOrUnknown(
+              data['interval_end']!, _intervalEndMeta));
+    } else if (isInserting) {
+      context.missing(_intervalEndMeta);
+    }
+    if (data.containsKey('target_distance')) {
+      context.handle(
+          _targetDistanceMeta,
+          targetDistance.isAcceptableOrUnknown(
+              data['target_distance']!, _targetDistanceMeta));
+    } else if (isInserting) {
+      context.missing(_targetDistanceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DistanceChallenge map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DistanceChallenge(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      xp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
+      intervalStart: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}interval_start'])!,
+      intervalEnd: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}interval_end'])!,
+      targetDistance: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}target_distance'])!,
+    );
+  }
+
+  @override
+  $DistanceChallengesTable createAlias(String alias) {
+    return $DistanceChallengesTable(attachedDatabase, alias);
+  }
+}
+
+class DistanceChallenge extends DataClass
+    implements Insertable<DistanceChallenge> {
+  final int id;
+  final int xp;
+  final DateTime intervalStart;
+  final DateTime intervalEnd;
+  final double targetDistance;
+  const DistanceChallenge(
+      {required this.id,
+      required this.xp,
+      required this.intervalStart,
+      required this.intervalEnd,
+      required this.targetDistance});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['xp'] = Variable<int>(xp);
+    map['interval_start'] = Variable<DateTime>(intervalStart);
+    map['interval_end'] = Variable<DateTime>(intervalEnd);
+    map['target_distance'] = Variable<double>(targetDistance);
+    return map;
+  }
+
+  DistanceChallengesCompanion toCompanion(bool nullToAbsent) {
+    return DistanceChallengesCompanion(
+      id: Value(id),
+      xp: Value(xp),
+      intervalStart: Value(intervalStart),
+      intervalEnd: Value(intervalEnd),
+      targetDistance: Value(targetDistance),
+    );
+  }
+
+  factory DistanceChallenge.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DistanceChallenge(
+      id: serializer.fromJson<int>(json['id']),
+      xp: serializer.fromJson<int>(json['xp']),
+      intervalStart: serializer.fromJson<DateTime>(json['intervalStart']),
+      intervalEnd: serializer.fromJson<DateTime>(json['intervalEnd']),
+      targetDistance: serializer.fromJson<double>(json['targetDistance']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'xp': serializer.toJson<int>(xp),
+      'intervalStart': serializer.toJson<DateTime>(intervalStart),
+      'intervalEnd': serializer.toJson<DateTime>(intervalEnd),
+      'targetDistance': serializer.toJson<double>(targetDistance),
+    };
+  }
+
+  DistanceChallenge copyWith(
+          {int? id,
+          int? xp,
+          DateTime? intervalStart,
+          DateTime? intervalEnd,
+          double? targetDistance}) =>
+      DistanceChallenge(
+        id: id ?? this.id,
+        xp: xp ?? this.xp,
+        intervalStart: intervalStart ?? this.intervalStart,
+        intervalEnd: intervalEnd ?? this.intervalEnd,
+        targetDistance: targetDistance ?? this.targetDistance,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DistanceChallenge(')
+          ..write('id: $id, ')
+          ..write('xp: $xp, ')
+          ..write('intervalStart: $intervalStart, ')
+          ..write('intervalEnd: $intervalEnd, ')
+          ..write('targetDistance: $targetDistance')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, xp, intervalStart, intervalEnd, targetDistance);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DistanceChallenge &&
+          other.id == this.id &&
+          other.xp == this.xp &&
+          other.intervalStart == this.intervalStart &&
+          other.intervalEnd == this.intervalEnd &&
+          other.targetDistance == this.targetDistance);
+}
+
+class DistanceChallengesCompanion extends UpdateCompanion<DistanceChallenge> {
+  final Value<int> id;
+  final Value<int> xp;
+  final Value<DateTime> intervalStart;
+  final Value<DateTime> intervalEnd;
+  final Value<double> targetDistance;
+  const DistanceChallengesCompanion({
+    this.id = const Value.absent(),
+    this.xp = const Value.absent(),
+    this.intervalStart = const Value.absent(),
+    this.intervalEnd = const Value.absent(),
+    this.targetDistance = const Value.absent(),
+  });
+  DistanceChallengesCompanion.insert({
+    this.id = const Value.absent(),
+    required int xp,
+    required DateTime intervalStart,
+    required DateTime intervalEnd,
+    required double targetDistance,
+  })  : xp = Value(xp),
+        intervalStart = Value(intervalStart),
+        intervalEnd = Value(intervalEnd),
+        targetDistance = Value(targetDistance);
+  static Insertable<DistanceChallenge> custom({
+    Expression<int>? id,
+    Expression<int>? xp,
+    Expression<DateTime>? intervalStart,
+    Expression<DateTime>? intervalEnd,
+    Expression<double>? targetDistance,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (xp != null) 'xp': xp,
+      if (intervalStart != null) 'interval_start': intervalStart,
+      if (intervalEnd != null) 'interval_end': intervalEnd,
+      if (targetDistance != null) 'target_distance': targetDistance,
+    });
+  }
+
+  DistanceChallengesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? xp,
+      Value<DateTime>? intervalStart,
+      Value<DateTime>? intervalEnd,
+      Value<double>? targetDistance}) {
+    return DistanceChallengesCompanion(
+      id: id ?? this.id,
+      xp: xp ?? this.xp,
+      intervalStart: intervalStart ?? this.intervalStart,
+      intervalEnd: intervalEnd ?? this.intervalEnd,
+      targetDistance: targetDistance ?? this.targetDistance,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (xp.present) {
+      map['xp'] = Variable<int>(xp.value);
+    }
+    if (intervalStart.present) {
+      map['interval_start'] = Variable<DateTime>(intervalStart.value);
+    }
+    if (intervalEnd.present) {
+      map['interval_end'] = Variable<DateTime>(intervalEnd.value);
+    }
+    if (targetDistance.present) {
+      map['target_distance'] = Variable<double>(targetDistance.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DistanceChallengesCompanion(')
+          ..write('id: $id, ')
+          ..write('xp: $xp, ')
+          ..write('intervalStart: $intervalStart, ')
+          ..write('intervalEnd: $intervalEnd, ')
+          ..write('targetDistance: $targetDistance')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RideSummariesTable rideSummaries = $RideSummariesTable(this);
+  late final $DistanceChallengesTable distanceChallenges =
+      $DistanceChallengesTable(this);
   late final RideSummaryDao rideSummaryDao =
       RideSummaryDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [rideSummaries];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [rideSummaries, distanceChallenges];
 }

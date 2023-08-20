@@ -6,9 +6,11 @@ class GameSettingsService with ChangeNotifier {
   static const enabledFeatureListKey = 'priobike.game.prefs.enabledFeatures';
 
   static const gameFeatureStatisticsKey = 'priobike.game.features.statistics';
+  static const gameFeatureChallengesKey = 'priobike.game.features.challenges';
 
   /// Map of the feature keys to describing labels.
   static Map<String, String> get gameFeaturesLabelMap => {
+        gameFeatureChallengesKey: 'Regelmäßige Challenges',
         gameFeatureStatisticsKey: 'Fahrtstatistiken anzeigen',
       };
 
