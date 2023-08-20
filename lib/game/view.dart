@@ -293,7 +293,7 @@ class LevelRingState extends State<LevelRing> {
           width: 2,
         ),
         color: Theme.of(context).colorScheme.background,
-        borderRadius: const BorderRadius.all(Radius.circular(24)),
+        borderRadius: const BorderRadius.all(Radius.circular(48)),
       ),
       child: Column(children: [
         Stack(children: [
@@ -314,7 +314,7 @@ class LevelRingState extends State<LevelRing> {
             height: widget.ringSize,
             child: Icon(
               widget.icon,
-              size: 24 * (widget.ringSize / 42),
+              size: 0.5 * widget.ringSize,
               color: brightness == Brightness.light
                   ? HSLColor.fromColor(widget.color).withLightness(0.5).toColor()
                   : HSLColor.fromColor(widget.color).withLightness(0.7).toColor(),
