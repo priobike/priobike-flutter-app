@@ -1,5 +1,5 @@
-/// This class holds the relevant data of a user.
-class UserProfile {
+/// This class holds the relevant game data of a user.
+class GameProfile {
   /// The total distance covered by a user while using the app.
   double totalDistanceKilometres;
 
@@ -30,7 +30,7 @@ class UserProfile {
   /// The number of gold trophies the user has.
   int goldTrophies;
 
-  UserProfile({
+  GameProfile({
     this.totalDistanceKilometres = 0,
     this.totalDurationMinutes = 0,
     this.totalElevationGainMetres = 0,
@@ -54,7 +54,7 @@ class UserProfile {
         'joinDate': joinDate.toIso8601String(),
       };
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
+  factory GameProfile.fromJson(Map<String, dynamic> json) => GameProfile(
         totalDistanceKilometres: json['totalDistanceMetres'],
         totalDurationMinutes: json['totalDistanceMetres'],
         totalElevationGainMetres: json['totalElevationGainMetres'],

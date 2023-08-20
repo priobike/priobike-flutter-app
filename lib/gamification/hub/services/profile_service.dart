@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
-import 'package:priobike/gamification/hub/models/user_profile.dart';
+import 'package:priobike/gamification/hub/models/game_profile.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -23,11 +23,11 @@ class GameProfileService with ChangeNotifier {
   SharedPreferences? _prefs;
 
   /// Object which holds all the user profile values. If it is null, there is no user profile yet.
-  UserProfile? _userProfile;
-  UserProfile? get userProfile => _userProfile;
+  GameProfile? _profile;
+  GameProfile? get profile => _profile;
 
   /// Returns true, if there is a valid user profile.
-  bool get hasUserData => _userProfile != null;
+  bool get hasProfile => _profile != null;
 
   GameProfileService() {
     _loadProfile();
@@ -42,13 +42,13 @@ class GameProfileService with ChangeNotifier {
     _prefs ??= await SharedPreferences.getInstance();
 
     /// Create profile and set join date to now.
-    _userProfile = UserProfile(
+    _profile = GameProfile(
       joinDate: DateTime.now(),
       username: username,
     );
 
     /// Try to save profile in shared prefs and return false if not successful.
-    if (!(await _prefs?.setString(userProfileKey, jsonEncode(_userProfile!.toJson().toString())) ?? false)) {
+    if (!(await _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson().toString())) ?? false)) {
       return false;
     }
 
@@ -71,7 +71,7 @@ class GameProfileService with ChangeNotifier {
     /// Try to load profile string from prefs and parse to user profile if possible.
     var parsedProfile = _prefs?.getString(userProfileKey);
     if (parsedProfile == null) return;
-    _userProfile = UserProfile.fromJson(jsonDecode(parsedProfile));
+    _profile = GameProfile.fromJson(jsonDecode(parsedProfile));
 
     /// If a profile was loaded, start the database stream of rides, to update the profile data accordingly.
     startRideStream();
@@ -80,19 +80,19 @@ class GameProfileService with ChangeNotifier {
   /// Update user profile data according to database and user prefs and save in shared pref.
   Future<void> updateProfileData(List<RideSummary> rides) async {
     // If for some reason there is no user profile, return.
-    if (_userProfile == null) return;
+    if (_profile == null) return;
 
     /// Load rides from database and update profile data accordingly.
     rides = await rideDao.getAllObjects();
-    _userProfile!.totalDistanceKilometres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.distance);
-    _userProfile!.totalDurationMinutes = StatUtils.getOverallValueFromSummaries(rides, RideInfo.duration);
-    _userProfile!.totalElevationGainMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationGain);
-    _userProfile!.totalElevationLossMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationLoss);
-    _userProfile!.averageSpeedKmh = StatUtils.getOverallValueFromSummaries(rides, RideInfo.averageSpeed);
+    _profile!.totalDistanceKilometres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.distance);
+    _profile!.totalDurationMinutes = StatUtils.getOverallValueFromSummaries(rides, RideInfo.duration);
+    _profile!.totalElevationGainMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationGain);
+    _profile!.totalElevationLossMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationLoss);
+    _profile!.averageSpeedKmh = StatUtils.getOverallValueFromSummaries(rides, RideInfo.averageSpeed);
 
     /// Update profile in shared preferences.
     _prefs ??= await SharedPreferences.getInstance();
-    _prefs?.setString(userProfileKey, jsonEncode(_userProfile!.toJson()));
+    _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson()));
 
     notifyListeners();
   }
@@ -100,7 +100,7 @@ class GameProfileService with ChangeNotifier {
   /// Helper function which removes a created user profile. Just for tests currently.
   void resetUserProfile() async {
     var prefs = await SharedPreferences.getInstance();
-    _userProfile = null;
+    _profile = null;
     prefs.remove(userProfileKey);
     prefs.remove(profileExistsKey);
     prefs.remove(GameSettingsService.enabledFeatureListKey);

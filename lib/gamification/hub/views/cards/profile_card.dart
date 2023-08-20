@@ -65,7 +65,7 @@ class _GameProfileCardState extends State<GameProfileCard> {
   Level? get currentLevel {
     Level? prevLvl;
     for (var level in _levels) {
-      if (_profileService.userProfile!.xp < level.value) break;
+      if (_profileService.profile!.xp < level.value) break;
       prevLvl = level;
     }
     return prevLvl;
@@ -128,7 +128,7 @@ class _GameProfileCardState extends State<GameProfileCard> {
 
   @override
   Widget build(BuildContext context) {
-    var profile = _profileService.userProfile!;
+    var profile = _profileService.profile!;
     return GameHubCard(
       content: Column(
         children: [
@@ -157,7 +157,7 @@ class _GameProfileCardState extends State<GameProfileCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          BoldSubHeader(text: _profileService.userProfile!.username, context: context),
+                          BoldSubHeader(text: _profileService.profile!.username, context: context),
                           Small(
                               text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
                               context: context),
