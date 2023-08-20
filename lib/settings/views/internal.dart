@@ -317,7 +317,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Game-Profil zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => getIt<UserProfileService>().resetUserProfile(),
+                    callback: () => getIt<GameProfileService>().resetUserProfile(),
                   ),
                 ),
                 Padding(

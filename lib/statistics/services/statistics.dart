@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -124,8 +125,11 @@ class Statistics with ChangeNotifier {
       elevationLoss: totalElevationLoss,
     );
 
-    // Store summary in database.
-    AppDatabase.instance.rideSummaryDao.createObjectFromSummary(currentSummary!, start);
+    // Store summary in database, if a user profile exists.
+    final storage = await SharedPreferences.getInstance();
+    if (storage.getBool(GameProfileService.profileExistsKey) ?? false) {
+      AppDatabase.instance.rideSummaryDao.createObjectFromSummary(currentSummary!, start);
+    }
 
     addSummary(currentSummary!);
   }

@@ -26,7 +26,7 @@ class GameHubView extends StatefulWidget {
 
 class GameHubViewState extends State<GameHubView> with SingleTickerProviderStateMixin {
   /// The service which manages and provides the user profile.
-  late UserProfileService _profileService;
+  late GameProfileService _profileService;
 
   late GameSettingsService _settingsService;
 
@@ -55,7 +55,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
     _settingsService.addListener(update);
 
     /// Listen to changes in the user profile.
-    _profileService = getIt<UserProfileService>();
+    _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
     // Init animation controller and start the animation after a short delay, to let the view load first.
     _animationController = AnimationController(

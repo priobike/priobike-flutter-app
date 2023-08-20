@@ -88,7 +88,7 @@ Future<void> main() async {
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<GameIntroService>(GameIntroService());
-  getIt.registerSingleton<UserProfileService>(UserProfileService());
+  getIt.registerSingleton<GameProfileService>(GameProfileService());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<StatisticService>(StatisticService());
   getIt.registerSingleton<GameSettingsService>(GameSettingsService());

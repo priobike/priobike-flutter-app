@@ -12,7 +12,7 @@ import 'package:priobike/main.dart';
 class UserProfileCard extends StatelessWidget {
   UserProfileCard({Key? key}) : super(key: key);
 
-  final UserProfileService _gameService = getIt<UserProfileService>();
+  final GameProfileService _gameService = getIt<GameProfileService>();
 
   Widget renderDistanceStats() {
     return Padding(
@@ -31,9 +31,9 @@ class UserProfileCard extends StatelessWidget {
             Level(value: 250, title: "Velociped-Virtuose", color: Medals.gold),
             Level(value: 500, title: "Sattel-Kenner", color: Medals.gold),
             // PrioBike (Blue) levels
-            Level(value: 1000, title: "Radfahr-Champion", color: Medals.priobike),
+            Level(value: 10000, title: "Radfahr-Champion", color: Medals.priobike),
           ],
-          value: (_gameService.userProfile!.totalDistanceMetres) / 1000,
+          value: (_gameService.userProfile!.totalDistanceKilometres),
           icon: Icons.directions_bike_rounded,
           unit: "km",
         ),
@@ -58,9 +58,9 @@ class UserProfileCard extends StatelessWidget {
             Level(value: 600, title: "Pedal-Powerhouse", color: Medals.gold),
             Level(value: 1200, title: "Tour de Force", color: Medals.gold),
             // PrioBike (Blue) levels
-            Level(value: 3000, title: "Radrennen-Routinier", color: Medals.priobike),
+            Level(value: 30000, title: "Radrennen-Routinier", color: Medals.priobike),
           ],
-          value: (_gameService.userProfile!.totalDurationSeconds) / 60,
+          value: (_gameService.userProfile!.totalDurationMinutes),
           icon: Icons.timer_outlined,
           unit: "min",
         ),

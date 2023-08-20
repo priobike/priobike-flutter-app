@@ -22,13 +22,24 @@ class StatUtils {
     return getListSum(list);
   }
 
-  /// Get formatted string for a given double by rounding it and adding a fitting unit, according to a ride info type.
+  /// Calculate overall value from a given list of rides.
+  static double getOverallValueFromSummaries(List<RideSummary> list, RideInfo type) {
+    if (list.isEmpty) return 0;
+    return StatUtils.getOverallValueFromDouble(
+      list.map((ride) => StatUtils.getConvertedRideValueFromType(ride, type)).toList(),
+      type,
+    );
+  }
+
+  /// Get formatted string for a given double by rounding it and giving it
+  /// a fitting label, all according to a given ride info type.
   static String getFormattedStrByRideType(double value, RideInfo type) {
-    String result = getRoundedStrByRideType(value, type);
-    if (type == RideInfo.distance) result += ' km';
-    if (type == RideInfo.duration) result += ' min';
-    if (type == RideInfo.averageSpeed) result += ' km/h';
-    return result;
+    String label = '';
+    if (type == RideInfo.distance) label = 'km';
+    if (type == RideInfo.duration) label = 'min';
+    if (type == RideInfo.averageSpeed) label = 'km/h';
+
+    return '${getRoundedStrByRideType(value, type)} $label';
   }
 
   /// Round a given value according to a given ride info type.
@@ -46,8 +57,8 @@ class StatUtils {
     return list.reduce((a, b) => a + b);
   }
 
-  /// Get ride info value from given ride according to a given ride info type.
-  static double getRideValueFromType(RideSummary ride, RideInfo infoType) {
+  /// Get ride info value from given ride according to a given ride info type. Also convert m to km and s to min.
+  static double getConvertedRideValueFromType(RideSummary ride, RideInfo infoType) {
     if (infoType == RideInfo.distance) return ride.distanceMetres / 1000;
     if (infoType == RideInfo.duration) return ride.durationSeconds / 60;
     if (infoType == RideInfo.averageSpeed) return ride.averageSpeedKmh;

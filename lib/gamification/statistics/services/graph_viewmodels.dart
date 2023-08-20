@@ -60,13 +60,6 @@ abstract class GraphViewModel with ChangeNotifier {
     return StatUtils.getFormattedStrByRideType(overallVal, _rideInfoType);
   }
 
-  /// Calculate overall value from a given list of rides.
-  double getOverallValueFromSummaries(List<RideSummary> list) {
-    if (list.isEmpty) return 0;
-    return StatUtils.getOverallValueFromDouble(
-        list.map((ride) => StatUtils.getRideValueFromType(ride, rideInfoType)).toList(), rideInfoType);
-  }
-
   /// Returns a string containing the value of the selected bar, formatted according to the ride info type.
   String get selectedValueStr {
     if (selectedIndex == null) return '';
@@ -124,7 +117,7 @@ class WeekGraphViewModel extends GraphViewModel {
     for (int i = 0; i < 7; i++) {
       var weekDay = startDay.add(Duration(days: i)).day;
       var ridesOnDay = rides.where((ride) => ride.startTime.day == weekDay);
-      _yValues[i] = getOverallValueFromSummaries(ridesOnDay.toList());
+      _yValues[i] = StatUtils.getOverallValueFromSummaries(ridesOnDay.toList(), rideInfoType);
     }
   }
 
@@ -171,7 +164,8 @@ class MonthGraphViewModel extends GraphViewModel {
 
     /// For each day in the month, save sum of ride info values on that day.
     for (int i = 0; i < numberOfDays; i++) {
-      _yValues[i] = getOverallValueFromSummaries(rides.where((r) => r.startTime.day == i).toList());
+      _yValues[i] =
+          StatUtils.getOverallValueFromSummaries(rides.where((r) => r.startTime.day == i).toList(), rideInfoType);
     }
   }
 
@@ -230,7 +224,8 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
     if (update != null && index != null) _rideMap[_rideMap.keys.elementAt(index)] = update;
 
     /// Update yValues as sum of ride info values for each week in the ride map.
-    _rideMap.values.forEachIndexed((i, ridesInWeek) => yValues[i] = getOverallValueFromSummaries(ridesInWeek));
+    _rideMap.values.forEachIndexed(
+        (i, ridesInWeek) => yValues[i] = StatUtils.getOverallValueFromSummaries(ridesInWeek, rideInfoType));
   }
 
   @override

@@ -21,7 +21,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   late AnimationController _animationController;
 
   /// Service which provides the view with the necessary user profile data.
-  late UserProfileService _profileService;
+  late GameProfileService _profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
@@ -46,7 +46,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
 
   @override
   void initState() {
-    _profileService = getIt<UserProfileService>();
+    _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
     _animationController = AnimationController(vsync: this, duration: LongTransitionDuration());
     _animationController.forward();

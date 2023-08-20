@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/intro/views/intro_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';

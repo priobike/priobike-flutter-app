@@ -3,8 +3,7 @@ import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/database_dao.dart';
-import 'package:priobike/gamification/hub/services/profile_service.dart';
-import 'package:priobike/main.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/statistics/models/summary.dart';
 
 part 'ride_summary.g.dart';
@@ -23,6 +22,9 @@ class RideSummaries extends Table {
 
 @DriftAccessor(tables: [RideSummaries])
 class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin {
+  /// The logger for this service.
+  final logger = Logger("RideDAO");
+
   RideSummaryDao(AppDatabase attachedDatabase) : super(attachedDatabase) {
     // Fill the database with mocks, if it is empty - TODO remove
     getAllObjects().then((result) {
@@ -88,11 +90,9 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
       var rides = 4 - sqrt(Random().nextInt(24)).floorToDouble();
       for (int e = 0; e < rides; e++) {
         await _createMock(day);
-        log.i(day.toIso8601String());
       }
     }
-    log.i('Generated mock rides');
-    getIt<UserProfileService>().updateUserData();
+    logger.i('Generated mock rides');
   }
 
   /// Generate random mock on a given day.
@@ -104,7 +104,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     var hour = Random().nextInt(16) + 6;
     var minute = Random().nextInt(60);
     var start = day.copyWith(hour: hour, minute: minute);
-    var ride = await createObject(
+    await createObject(
       RideSummariesCompanion.insert(
           distanceMetres: distance,
           durationSeconds: duration,
@@ -113,6 +113,5 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
           startTime: start,
           averageSpeedKmh: (distance / duration) * 3.6),
     );
-    log.i('new ride: ${ride.toString()}');
   }
 }

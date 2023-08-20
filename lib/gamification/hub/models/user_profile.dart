@@ -1,10 +1,10 @@
 /// This class holds the relevant data of a user.
 class UserProfile {
   /// The total distance covered by a user while using the app.
-  double totalDistanceMetres;
+  double totalDistanceKilometres;
 
   /// The total duration the user drove while using the app.
-  double totalDurationSeconds;
+  double totalDurationMinutes;
 
   /// The total elevation gain the user covered.
   double totalElevationGainMetres;
@@ -22,12 +22,29 @@ class UserProfile {
   String username;
 
   UserProfile({
-    this.totalDistanceMetres = 0,
-    this.totalDurationSeconds = 0,
+    this.totalDistanceKilometres = 0,
+    this.totalDurationMinutes = 0,
     this.totalElevationGainMetres = 0,
     this.totalElevationLossMetres = 0,
     required this.username,
-    required String parsedJoinDate,
-  })  : joinDate = DateTime.parse(parsedJoinDate),
-        averageSpeedKmh = totalDurationSeconds == 0 ? 0 : (totalDistanceMetres / totalDurationSeconds) * 3.6;
+    required this.joinDate,
+  }) : averageSpeedKmh = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
+
+  Map<String, dynamic> toJson() => {
+        'totalDistanceMetres': totalDistanceKilometres,
+        'totalDurationSeconds': totalDurationMinutes,
+        'totalElevationGainMetres': totalElevationGainMetres,
+        'totalElevationLossMetres': totalElevationLossMetres,
+        'username': username,
+        'joinDate': joinDate.toIso8601String(),
+      };
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
+        totalDistanceKilometres: json['totalDistanceMetres'],
+        totalDurationMinutes: json['totalDistanceMetres'],
+        totalElevationGainMetres: json['totalElevationGainMetres'],
+        totalElevationLossMetres: json['totalElevationLossMetres'],
+        username: json['username'],
+        joinDate: DateTime.parse(json['joinDate']),
+      );
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This services manages the game settings of the user.
 class GameSettingsService with ChangeNotifier {
+  static const enabledFeatureListKey = 'priobike.game.prefs.enabledFeatures';
+
   static const gameFeatureStatisticsKey = 'priobike.game.features.statistics';
 
   /// Map of the feature keys to describing labels.
@@ -25,7 +26,7 @@ class GameSettingsService with ChangeNotifier {
   /// Load settings from shared preferences and store in local variables.
   void _loadEnabledFeatures() async {
     _prefs ??= await SharedPreferences.getInstance();
-    _enabledFeatures = _prefs!.getStringList(UserProfileService.userPreferencesKey) ?? [];
+    _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
   }
 
   /// Returns true, if a given string key is inside of the list of selected game prefs.
@@ -39,7 +40,7 @@ class GameSettingsService with ChangeNotifier {
       _enabledFeatures.add(key);
     }
     _prefs ??= await SharedPreferences.getInstance();
-    _prefs!.setStringList(UserProfileService.userPreferencesKey, _enabledFeatures);
+    _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
     notifyListeners();
   }
 }

@@ -5,9 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages the gamification intro views.
 class GameIntroService with ChangeNotifier {
-  /// The key under which the information if the user has started the intro is stored in shared preferences.
-  static const finishedIntroKey = "priobike.game.finishedIntro";
-
   /// Shared preferences instance to store and retrieve at which point of the intro the user is.
   SharedPreferences? _prefs;
 
@@ -65,10 +62,8 @@ class GameIntroService with ChangeNotifier {
   void finishIntro() async {
     _loading = true;
     notifyListeners();
-    _prefs?.setString(UserProfileService.userNameKey, username);
-    _prefs?.setBool(finishedIntroKey, true);
-    await getIt<UserProfileService>().loadOrCreateProfile();
-    _introFinished = true;
+    await getIt<GameProfileService>().createProfile(username);
+    _introFinished = _prefs?.getBool(GameProfileService.profileExistsKey) ?? false;
     pageChanged = true;
     _loading = false;
     notifyListeners();
@@ -82,7 +77,7 @@ class GameIntroService with ChangeNotifier {
   /// Get instance of shared preferences and load values.
   void loadValues() async {
     _prefs = await SharedPreferences.getInstance();
-    _introFinished = _prefs?.getBool(finishedIntroKey) ?? false;
+    _introFinished = _prefs?.getBool(GameProfileService.profileExistsKey) ?? false;
     _loadedValues = true;
     notifyListeners();
   }
