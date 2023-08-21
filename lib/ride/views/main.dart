@@ -201,7 +201,7 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
-    getIt<RideAssist>().reset();
+    getIt<RideAssist>().resetAll();
     super.dispose();
   }
 
@@ -250,18 +250,18 @@ class RideViewState extends State<RideView> {
                 ),
               RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               const DatastreamView(),
-              // if (settings.watchStandalone)
-              //   Container(
-              //     color: Colors.black.withOpacity(0.85),
-              //     width: MediaQuery.of(context).size.width,
-              //     height: MediaQuery.of(context).size.height,
-              //     child: Center(
-              //       child: BoldSubHeader(
-              //         context: context,
-              //         text: "Standalone Mode",
-              //       ),
-              //     ),
-              //   ),
+              if (settings.watchStandalone)
+                Container(
+                  color: Colors.black.withOpacity(0.95),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Center(
+                    child: BoldSubHeader(
+                      context: context,
+                      text: "Standalone Mode",
+                    ),
+                  ),
+                ),
               const FinishRideButton(),
               if (!cameraFollowsUserLocation)
                 SafeArea(

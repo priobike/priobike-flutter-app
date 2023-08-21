@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart' hide Route;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -12,6 +14,7 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/models/test.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:wearable_communicator/wearable_communicator.dart';
 
@@ -69,6 +72,8 @@ class RideAssist with ChangeNotifier {
   /// The timer used for the signal loops.
   Timer? timer;
 
+  List<TestData> testData = [];
+
   /// Start communication to wear device.
   Future<void> startListening() async {
     WearableListener.listenForMessage((msg) {
@@ -87,6 +92,7 @@ class RideAssist with ChangeNotifier {
     WearableCommunicator.sendMessage({
       "startNavigation": true,
     });
+    testData = [];
   }
 
   /// Send start signal to device in standalone mode.
@@ -95,6 +101,7 @@ class RideAssist with ChangeNotifier {
       WearableCommunicator.sendMessage({
         "startNavigationStandalone": routing.selectedRoute!.route.map((e) => [e.lon, e.lat]).toList(),
       });
+      testData = [];
     }
   }
 
@@ -124,6 +131,39 @@ class RideAssist with ChangeNotifier {
     WearableCommunicator.sendMessage({
       "stopNavigation": true,
     });
+    // Save testData.
+    saveTestData();
+  }
+
+  Future<void> saveTestData() async {
+    // Save data in File on phone.
+    final date = DateTime.now().toIso8601String();
+    final test = {
+      "date": date,
+      "data": testData,
+    };
+
+    await writeJson(json.encode(test), date);
+  }
+
+  Future<File> writeJson(String json, String date) async {
+    var status = await Permission.storage.status;
+    if (status.isDenied) {
+      // We didn't ask for permission yet or the permission has been denied before but not permanently.
+      await Permission.storage.request();
+    }
+
+    Directory directory = Directory("/storage/emulated/0/Download/results");
+
+    final exPath = directory.path;
+    await Directory(exPath).create(recursive: true);
+    var dateSplit = date.split("T");
+    var time = dateSplit[1].split(".")[0].replaceAll(":", "_");
+
+    File file = File('$exPath/result_${dateSplit[0]}$time.txt');
+
+    // Write the data in the file.
+    return await file.writeAsString(json);
   }
 
   /// Send Gauge data to watch.
@@ -498,6 +538,14 @@ class RideAssist with ChangeNotifier {
         audioPlayer2.play(AssetSource(audioInfo));
       });
     }
+
+    if (positioning.lastPosition != null) {
+      testData.add(TestData(
+          inputType: InputType.slowerLoop,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition!.latitude,
+          lon: positioning.lastPosition!.longitude));
+    }
   }
 
   void startFasterLoop() {
@@ -510,6 +558,14 @@ class RideAssist with ChangeNotifier {
         audioPlayer2.play(AssetSource(audioInfo));
       });
     }
+
+    if (positioning.lastPosition != null) {
+      testData.add(TestData(
+          inputType: InputType.fasterLoop,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition!.latitude,
+          lon: positioning.lastPosition!.longitude));
+    }
   }
 
   void playSlower() {
@@ -519,6 +575,14 @@ class RideAssist with ChangeNotifier {
       // Then start timer.
       audioPlayer1.play(AssetSource(audioIntervalSlower));
     }
+
+    if (positioning.lastPosition != null) {
+      testData.add(TestData(
+          inputType: InputType.slower,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition!.latitude,
+          lon: positioning.lastPosition!.longitude));
+    }
   }
 
   void playFaster() {
@@ -527,6 +591,14 @@ class RideAssist with ChangeNotifier {
     } else {
       // Then start timer.
       audioPlayer1.play(AssetSource(audioIntervalFaster));
+    }
+
+    if (positioning.lastPosition != null) {
+      testData.add(TestData(
+          inputType: InputType.faster,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition!.latitude,
+          lon: positioning.lastPosition!.longitude));
     }
   }
 
@@ -541,6 +613,13 @@ class RideAssist with ChangeNotifier {
         audioPlayer2.stop();
         timer = null;
       }
+    }
+    if (positioning.lastPosition != null) {
+      testData.add(TestData(
+          inputType: InputType.stop,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition!.latitude,
+          lon: positioning.lastPosition!.longitude));
     }
   }
 
@@ -577,6 +656,14 @@ class RideAssist with ChangeNotifier {
     } else {
       playPhoneAudioSuccess();
     }
+
+    if (positioning.lastPosition != null) {
+      testData.add(TestData(
+          inputType: InputType.success,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition!.latitude,
+          lon: positioning.lastPosition!.longitude));
+    }
   }
 
   /// Function which plays the info signal.
@@ -586,6 +673,14 @@ class RideAssist with ChangeNotifier {
       sendOutput("info");
     } else {
       playPhoneAudioInfo();
+    }
+
+    if (positioning.lastPosition != null) {
+      testData.add(TestData(
+          inputType: InputType.info,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition!.latitude,
+          lon: positioning.lastPosition!.longitude));
     }
   }
 
@@ -608,6 +703,20 @@ class RideAssist with ChangeNotifier {
 
   /// Reset the service.
   Future<void> reset() async {
+    inGreenPhase = null;
+    slowLoopRunning = false;
+    fastLoopRunning = false;
+    stopSignalLoop();
+    audioPlayer1.stop();
+    audioPlayer2.stop();
+    newPhaseCounter = 0;
+    messagesPlayedCounter = -1;
+    currentSG = null;
+    notifyListeners();
+  }
+
+  /// Reset the service.
+  Future<void> resetAll() async {
     inGreenPhase = null;
     slowLoopRunning = false;
     fastLoopRunning = false;
