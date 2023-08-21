@@ -236,9 +236,18 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         maxLat = node.lat;
       }
     }
+    // use int instead of double for mapbox api
+    final int screenWidth = MediaQuery.of(context).size.width.round();
+
     if (minLon != null || minLat != null || maxLon != null || maxLat != null) {
-      backgroundImage =
-          await getIt<BackgroundImage>().loadImage(minLat: minLat!, minLon: minLon!, maxLat: maxLat!, maxLon: maxLon!);
+      backgroundImage = await getIt<BackgroundImage>().loadImage(
+        sessionId: widget.track.sessionId,
+        minLat: minLat!,
+        minLon: minLon!,
+        maxLat: maxLat!,
+        maxLon: maxLon!,
+        screenWidth: screenWidth,
+      );
       setState(() {});
     }
   }
@@ -349,15 +358,21 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
                 },
                 blendMode: BlendMode.dstIn,
-                child: Transform.translate(
-                  offset: const Offset(-100, 100),
-                  child: Transform.scale(
-                    scale: 2.5,
-                    child: Image(
-                      image: backgroundImage ?? alternativeBackgroundImage,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+                //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
+                // sobald das Bild da ist. Das ist Mist.
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: backgroundImage == null
+                      ? Image(
+                          key: UniqueKey(),
+                          image: alternativeBackgroundImage,
+                          fit: BoxFit.contain,
+                        )
+                      : Image(
+                          key: UniqueKey(),
+                          image: backgroundImage!,
+                          fit: BoxFit.contain,
+                        ),
                 ),
               ),
             ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +17,35 @@ class BackgroundImage with ChangeNotifier {
   /// If the service has loaded the status.
   bool hasLoaded = false;
 
+  /// The cached images. The key is the sessionId of the route and the value is the backgroundimage of the map.
+  Map<String, ImageProvider>? cachedImages = {};
+
+  /// Loads the background image for the given route. Tries to load it from the cache first.
   Future<ImageProvider?> loadImage(
-      {required double minLon, required double minLat, required double maxLon, required double maxLat}) async {
-    //TODO: Check if image is cached, if not fetchImage
-    return await fetchImage(minLon: minLon, minLat: minLat, maxLon: maxLon, maxLat: maxLat);
+      {required String sessionId,
+      required double minLon,
+      required double minLat,
+      required double maxLon,
+      required double maxLat,
+      required int screenWidth}) async {
+    if (cachedImages == null) {
+      await loadAllImages();
+    }
+    if (cachedImages!.containsKey(sessionId)) {
+      return cachedImages![sessionId];
+    }
+    return await fetchImage(
+        sessionId: sessionId, minLon: minLon, minLat: minLat, maxLon: maxLon, maxLat: maxLat, screenWidth: screenWidth);
   }
 
+  /// Fetches the background image for the given route from the mapbox api.
   Future<MemoryImage?> fetchImage(
-      {required double minLon, required double minLat, required double maxLon, required double maxLat}) async {
+      {required String sessionId,
+      required double minLon,
+      required double minLat,
+      required double maxLon,
+      required double maxLat,
+      required int screenWidth}) async {
     hadError = false;
 
     if (isLoading) return null;
@@ -31,9 +54,11 @@ class BackgroundImage with ChangeNotifier {
 
     try {
       // For Styles see: https://docs.mapbox.com/api/maps/styles/
-      const String style = "satellite-v9";
+      // TODO: Style von Philipp nutzen
+      const String style = "navigation-night-v1";
+      // use screen size
       final String url =
-          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/1000x1000?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${screenWidth}x$screenWidth?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
@@ -46,6 +71,12 @@ class BackgroundImage with ChangeNotifier {
       isLoading = false;
       hadError = false;
       hasLoaded = true;
+
+      if (cachedImages == null) {
+        await loadAllImages();
+      }
+      await saveImage(sessionId, image);
+
       notifyListeners();
       return image;
     } catch (e) {
@@ -55,19 +86,38 @@ class BackgroundImage with ChangeNotifier {
       log.e("Error while fetching background-image-service: $e");
       return null;
     }
-
-    //TODO: safe to cache....vllt als Map mit SessionId als Key und dem Bild als Value
   }
 
-  saveImage() {
+  Future<void> saveImage(String sessionId, MemoryImage image) async {
+    cachedImages![sessionId] = image;
+
+    //TODO: save to local storage
+  }
+
+  Future<void> deleteImage() async {
     //TODO:
   }
 
-  deleteImage() {
-    //TODO:
+  Future<void> saveAllImages() async {
+    // TODO:
   }
 
-  clearAllImages() {
-    //TODO:
+  Future<void> loadAllImages() async {
+    if (cachedImages != null) return;
+    final Directory dir = await getApplicationDocumentsDirectory();
+    final String path = "${dir.path}/background-images";
+    final Directory imagesDir = Directory(path);
+    if (!await imagesDir.exists()) {
+      await imagesDir.create();
+    }
+    final List<FileSystemEntity> files = imagesDir.listSync();
+    cachedImages = {};
+    for (final file in files) {
+      final String sessionId = file.path.split("/").last;
+      // final bytes = await file.readAsBytes();
+      // final image = MemoryImage(bytes);
+      // cachedImages![sessionId] = image;
+      //TODO: finish
+    }
   }
 }
