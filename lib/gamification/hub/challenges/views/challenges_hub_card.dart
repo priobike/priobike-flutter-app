@@ -64,12 +64,16 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   /// It is used to create the pulsing animation for completed challenges.
   double iconShadowSpred = 12;
 
+  DateTime now = DateTime.now();
+
   ChallengeService get service => widget.service;
 
   Challenge? get challenge => service.currentChallenge;
 
   /// Time left till the challenge ends.
-  Duration get timeLeft => challenge?.end.difference(DateTime.now()) ?? Duration.zero;
+  Duration get timeLeft =>
+      challenge?.end.difference(now) ??
+      now.copyWith(hour: 0, minute: 0, second: 0).add(const Duration(days: 1)).difference(now);
 
   /// The progress of completion of the challenge as a percentage value between 0 and 100.
   double get progressPercentage => challenge == null ? 0 : challenge!.progress / challenge!.target;
@@ -129,14 +133,18 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          getTimeLeft(),
-          getProgressBar(),
-          getDescription(),
-        ],
+    return GestureDetector(
+      onTap: () => service.generateChallenge(),
+      onLongPress: () => service.deleteCurrentChallenge(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: [
+            getTimeLeft(),
+            getProgressBar(),
+            getDescription(),
+          ],
+        ),
       ),
     );
   }
@@ -216,7 +224,16 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                               Expanded(
                                 flex: isCompleted ? 0 : ((1 - progressPercentage) * 100).toInt(),
                                 child: Container(
-                                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+                                  decoration: BoxDecoration(
+                                    gradient: challenge == null
+                                        ? LinearGradient(
+                                            colors: [CI.blue.withOpacity(0.5), CI.blue.withOpacity(0.05)],
+                                          )
+                                        : null,
+                                    color: challenge == null
+                                        ? null
+                                        : Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+                                  ),
                                 ),
                               ),
                             ],
@@ -256,7 +273,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                 Center(
                   child: BoldSmall(
                     text: (challenge == null)
-                        ? 'Nächste Challenge in 04:22'
+                        ? 'Neue Challenge starten!'
                         : '${challenge!.progress} / ${challenge!.target} ${challenge!.valueLabel}',
                     context: context,
                     textAlign: TextAlign.center,

@@ -29,15 +29,18 @@ abstract class ChallengeService with ChangeNotifier {
   }
 
   void startChallengeStreams() {
-    _dao.streamChallengesInInterval(intervalStartDay, intervalLengthInDays).listen((update) {
-      if (update.isEmpty) {
-        if (!_loadedChallengeState) return;
-        _dao.createObject(generatedChallenge);
-      } else {
-        _currentChallenge = update.first;
+    _dao.streamChallengesInInterval(intervalStartDay, intervalLengthInDays).listen(
+      (update) {
+        if (update.isEmpty) {
+          if (!_loadedChallengeState) return;
+          _currentChallenge = null;
+          //_dao.createObject(generatedChallenge);
+        } else {
+          _currentChallenge = update.first;
+        }
         notifyListeners();
-      }
-    });
+      },
+    );
   }
 
   Future<void> loadCurrentState() async {
@@ -64,6 +67,15 @@ abstract class ChallengeService with ChangeNotifier {
   bool inTimeFrame(Challenge challenge) {
     var now = DateTime.now();
     return now.isAfter(challenge.start) && now.isBefore(challenge.end);
+  }
+
+  void generateChallenge() {
+    _dao.createObject(generatedChallenge);
+  }
+
+  void deleteCurrentChallenge() {
+    if (_currentChallenge == null) return;
+    _dao.deleteObject(currentChallenge!);
   }
 }
 
