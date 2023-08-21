@@ -389,12 +389,12 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   }
 }
 
-class $DistanceChallengesTable extends DistanceChallenges
-    with TableInfo<$DistanceChallengesTable, DistanceChallenge> {
+class $ChallengesTable extends Challenges
+    with TableInfo<$ChallengesTable, Challenge> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DistanceChallengesTable(this.attachedDatabase, [this._alias]);
+  $ChallengesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -421,21 +421,31 @@ class $DistanceChallengesTable extends DistanceChallenges
   late final GeneratedColumn<DateTime> intervalEnd = GeneratedColumn<DateTime>(
       'interval_end', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _targetDistanceMeta =
-      const VerificationMeta('targetDistance');
+  static const VerificationMeta _targetMeta = const VerificationMeta('target');
   @override
-  late final GeneratedColumn<double> targetDistance = GeneratedColumn<double>(
-      'target_distance', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
+  late final GeneratedColumn<int> target = GeneratedColumn<int>(
+      'target', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _progressMeta =
+      const VerificationMeta('progress');
+  @override
+  late final GeneratedColumn<int> progress = GeneratedColumn<int>(
+      'progress', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<int> type = GeneratedColumn<int>(
+      'type', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, xp, intervalStart, intervalEnd, targetDistance];
+      [id, xp, intervalStart, intervalEnd, target, progress, type];
   @override
-  String get aliasedName => _alias ?? 'distance_challenges';
+  String get aliasedName => _alias ?? 'challenges';
   @override
-  String get actualTableName => 'distance_challenges';
+  String get actualTableName => 'challenges';
   @override
-  VerificationContext validateIntegrity(Insertable<DistanceChallenge> instance,
+  VerificationContext validateIntegrity(Insertable<Challenge> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -463,13 +473,23 @@ class $DistanceChallengesTable extends DistanceChallenges
     } else if (isInserting) {
       context.missing(_intervalEndMeta);
     }
-    if (data.containsKey('target_distance')) {
-      context.handle(
-          _targetDistanceMeta,
-          targetDistance.isAcceptableOrUnknown(
-              data['target_distance']!, _targetDistanceMeta));
+    if (data.containsKey('target')) {
+      context.handle(_targetMeta,
+          target.isAcceptableOrUnknown(data['target']!, _targetMeta));
     } else if (isInserting) {
-      context.missing(_targetDistanceMeta);
+      context.missing(_targetMeta);
+    }
+    if (data.containsKey('progress')) {
+      context.handle(_progressMeta,
+          progress.isAcceptableOrUnknown(data['progress']!, _progressMeta));
+    } else if (isInserting) {
+      context.missing(_progressMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
     }
     return context;
   }
@@ -477,9 +497,9 @@ class $DistanceChallengesTable extends DistanceChallenges
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  DistanceChallenge map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Challenge map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DistanceChallenge(
+    return Challenge(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       xp: attachedDatabase.typeMapping
@@ -488,30 +508,37 @@ class $DistanceChallengesTable extends DistanceChallenges
           DriftSqlType.dateTime, data['${effectivePrefix}interval_start'])!,
       intervalEnd: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}interval_end'])!,
-      targetDistance: attachedDatabase.typeMapping.read(
-          DriftSqlType.double, data['${effectivePrefix}target_distance'])!,
+      target: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}target'])!,
+      progress: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
     );
   }
 
   @override
-  $DistanceChallengesTable createAlias(String alias) {
-    return $DistanceChallengesTable(attachedDatabase, alias);
+  $ChallengesTable createAlias(String alias) {
+    return $ChallengesTable(attachedDatabase, alias);
   }
 }
 
-class DistanceChallenge extends DataClass
-    implements Insertable<DistanceChallenge> {
+class Challenge extends DataClass implements Insertable<Challenge> {
   final int id;
   final int xp;
   final DateTime intervalStart;
   final DateTime intervalEnd;
-  final double targetDistance;
-  const DistanceChallenge(
+  final int target;
+  final int progress;
+  final int type;
+  const Challenge(
       {required this.id,
       required this.xp,
       required this.intervalStart,
       required this.intervalEnd,
-      required this.targetDistance});
+      required this.target,
+      required this.progress,
+      required this.type});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -519,29 +546,35 @@ class DistanceChallenge extends DataClass
     map['xp'] = Variable<int>(xp);
     map['interval_start'] = Variable<DateTime>(intervalStart);
     map['interval_end'] = Variable<DateTime>(intervalEnd);
-    map['target_distance'] = Variable<double>(targetDistance);
+    map['target'] = Variable<int>(target);
+    map['progress'] = Variable<int>(progress);
+    map['type'] = Variable<int>(type);
     return map;
   }
 
-  DistanceChallengesCompanion toCompanion(bool nullToAbsent) {
-    return DistanceChallengesCompanion(
+  ChallengesCompanion toCompanion(bool nullToAbsent) {
+    return ChallengesCompanion(
       id: Value(id),
       xp: Value(xp),
       intervalStart: Value(intervalStart),
       intervalEnd: Value(intervalEnd),
-      targetDistance: Value(targetDistance),
+      target: Value(target),
+      progress: Value(progress),
+      type: Value(type),
     );
   }
 
-  factory DistanceChallenge.fromJson(Map<String, dynamic> json,
+  factory Challenge.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DistanceChallenge(
+    return Challenge(
       id: serializer.fromJson<int>(json['id']),
       xp: serializer.fromJson<int>(json['xp']),
       intervalStart: serializer.fromJson<DateTime>(json['intervalStart']),
       intervalEnd: serializer.fromJson<DateTime>(json['intervalEnd']),
-      targetDistance: serializer.fromJson<double>(json['targetDistance']),
+      target: serializer.fromJson<int>(json['target']),
+      progress: serializer.fromJson<int>(json['progress']),
+      type: serializer.fromJson<int>(json['type']),
     );
   }
   @override
@@ -552,100 +585,126 @@ class DistanceChallenge extends DataClass
       'xp': serializer.toJson<int>(xp),
       'intervalStart': serializer.toJson<DateTime>(intervalStart),
       'intervalEnd': serializer.toJson<DateTime>(intervalEnd),
-      'targetDistance': serializer.toJson<double>(targetDistance),
+      'target': serializer.toJson<int>(target),
+      'progress': serializer.toJson<int>(progress),
+      'type': serializer.toJson<int>(type),
     };
   }
 
-  DistanceChallenge copyWith(
+  Challenge copyWith(
           {int? id,
           int? xp,
           DateTime? intervalStart,
           DateTime? intervalEnd,
-          double? targetDistance}) =>
-      DistanceChallenge(
+          int? target,
+          int? progress,
+          int? type}) =>
+      Challenge(
         id: id ?? this.id,
         xp: xp ?? this.xp,
         intervalStart: intervalStart ?? this.intervalStart,
         intervalEnd: intervalEnd ?? this.intervalEnd,
-        targetDistance: targetDistance ?? this.targetDistance,
+        target: target ?? this.target,
+        progress: progress ?? this.progress,
+        type: type ?? this.type,
       );
   @override
   String toString() {
-    return (StringBuffer('DistanceChallenge(')
+    return (StringBuffer('Challenge(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
           ..write('intervalStart: $intervalStart, ')
           ..write('intervalEnd: $intervalEnd, ')
-          ..write('targetDistance: $targetDistance')
+          ..write('target: $target, ')
+          ..write('progress: $progress, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, xp, intervalStart, intervalEnd, targetDistance);
+      Object.hash(id, xp, intervalStart, intervalEnd, target, progress, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is DistanceChallenge &&
+      (other is Challenge &&
           other.id == this.id &&
           other.xp == this.xp &&
           other.intervalStart == this.intervalStart &&
           other.intervalEnd == this.intervalEnd &&
-          other.targetDistance == this.targetDistance);
+          other.target == this.target &&
+          other.progress == this.progress &&
+          other.type == this.type);
 }
 
-class DistanceChallengesCompanion extends UpdateCompanion<DistanceChallenge> {
+class ChallengesCompanion extends UpdateCompanion<Challenge> {
   final Value<int> id;
   final Value<int> xp;
   final Value<DateTime> intervalStart;
   final Value<DateTime> intervalEnd;
-  final Value<double> targetDistance;
-  const DistanceChallengesCompanion({
+  final Value<int> target;
+  final Value<int> progress;
+  final Value<int> type;
+  const ChallengesCompanion({
     this.id = const Value.absent(),
     this.xp = const Value.absent(),
     this.intervalStart = const Value.absent(),
     this.intervalEnd = const Value.absent(),
-    this.targetDistance = const Value.absent(),
+    this.target = const Value.absent(),
+    this.progress = const Value.absent(),
+    this.type = const Value.absent(),
   });
-  DistanceChallengesCompanion.insert({
+  ChallengesCompanion.insert({
     this.id = const Value.absent(),
     required int xp,
     required DateTime intervalStart,
     required DateTime intervalEnd,
-    required double targetDistance,
+    required int target,
+    required int progress,
+    required int type,
   })  : xp = Value(xp),
         intervalStart = Value(intervalStart),
         intervalEnd = Value(intervalEnd),
-        targetDistance = Value(targetDistance);
-  static Insertable<DistanceChallenge> custom({
+        target = Value(target),
+        progress = Value(progress),
+        type = Value(type);
+  static Insertable<Challenge> custom({
     Expression<int>? id,
     Expression<int>? xp,
     Expression<DateTime>? intervalStart,
     Expression<DateTime>? intervalEnd,
-    Expression<double>? targetDistance,
+    Expression<int>? target,
+    Expression<int>? progress,
+    Expression<int>? type,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (xp != null) 'xp': xp,
       if (intervalStart != null) 'interval_start': intervalStart,
       if (intervalEnd != null) 'interval_end': intervalEnd,
-      if (targetDistance != null) 'target_distance': targetDistance,
+      if (target != null) 'target': target,
+      if (progress != null) 'progress': progress,
+      if (type != null) 'type': type,
     });
   }
 
-  DistanceChallengesCompanion copyWith(
+  ChallengesCompanion copyWith(
       {Value<int>? id,
       Value<int>? xp,
       Value<DateTime>? intervalStart,
       Value<DateTime>? intervalEnd,
-      Value<double>? targetDistance}) {
-    return DistanceChallengesCompanion(
+      Value<int>? target,
+      Value<int>? progress,
+      Value<int>? type}) {
+    return ChallengesCompanion(
       id: id ?? this.id,
       xp: xp ?? this.xp,
       intervalStart: intervalStart ?? this.intervalStart,
       intervalEnd: intervalEnd ?? this.intervalEnd,
-      targetDistance: targetDistance ?? this.targetDistance,
+      target: target ?? this.target,
+      progress: progress ?? this.progress,
+      type: type ?? this.type,
     );
   }
 
@@ -664,20 +723,28 @@ class DistanceChallengesCompanion extends UpdateCompanion<DistanceChallenge> {
     if (intervalEnd.present) {
       map['interval_end'] = Variable<DateTime>(intervalEnd.value);
     }
-    if (targetDistance.present) {
-      map['target_distance'] = Variable<double>(targetDistance.value);
+    if (target.present) {
+      map['target'] = Variable<int>(target.value);
+    }
+    if (progress.present) {
+      map['progress'] = Variable<int>(progress.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<int>(type.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('DistanceChallengesCompanion(')
+    return (StringBuffer('ChallengesCompanion(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
           ..write('intervalStart: $intervalStart, ')
           ..write('intervalEnd: $intervalEnd, ')
-          ..write('targetDistance: $targetDistance')
+          ..write('target: $target, ')
+          ..write('progress: $progress, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
@@ -686,8 +753,7 @@ class DistanceChallengesCompanion extends UpdateCompanion<DistanceChallenge> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RideSummariesTable rideSummaries = $RideSummariesTable(this);
-  late final $DistanceChallengesTable distanceChallenges =
-      $DistanceChallengesTable(this);
+  late final $ChallengesTable challenges = $ChallengesTable(this);
   late final RideSummaryDao rideSummaryDao =
       RideSummaryDao(this as AppDatabase);
   @override
@@ -695,5 +761,5 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [rideSummaries, distanceChallenges];
+      [rideSummaries, challenges];
 }

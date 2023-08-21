@@ -39,7 +39,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
   /// A map which maps the keys of possible gamification components to corresponding views.
   /// This map is needed to decide which views to display to the user.
   Map<String, Widget> get mappedHubElements => {
-        GameSettingsService.gameFeatureChallengesKey: GameChallengesCard(),
+        GameSettingsService.gameFeatureChallengesKey: const GameChallengesCard(),
         GameSettingsService.gameFeatureStatisticsKey: RideStatisticsCard(openView: openPage),
       };
 
@@ -91,9 +91,9 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
         .then(
           (value) => Future.delayed(
             const Duration(milliseconds: 300),
-          ).then(
-            (value) => _animationController.forward(),
-          ),
+          ).then((value) {
+            _animationController.forward();
+          }),
         );
   }
 
@@ -107,25 +107,26 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-              GameHubAnimationWrapper(
-                start: 0,
-                end: 0.4,
-                controller: _animationController,
-                child: const GameProfileCard(),
-              ),
-            ] +
-            // Create a hub element for each game feature the user has enabled.
-            _settingsService.enabledFeatures
-                .mapIndexed(
-                  (i, key) => GameHubAnimationWrapper(
-                    start: 0.2 + (i * 0.2),
-                    end: 0.6 + (i * 0.2),
-                    controller: _animationController,
-                    child: mappedHubElements[key]!,
-                  ),
-                )
-                .toList() +
-            [const SmallVSpace()],
+          GameHubAnimationWrapper(
+            key: GlobalKey(),
+            start: 0,
+            end: 0.4,
+            controller: _animationController,
+            child: const GameProfileCard(),
+          ),
+          // Create a hub element for each game feature the user has enabled.
+          ...mappedHubElements.entries
+              .mapIndexed((i, e) => (_settingsService.isFeatureEnabled(e.key)
+                  ? GameHubAnimationWrapper(
+                      start: 0.2 + (i * 0.2),
+                      end: 0.6 + (i * 0.2),
+                      controller: _animationController,
+                      child: e.value,
+                    )
+                  : const SizedBox.shrink()))
+              .toList(),
+          const SmallVSpace()
+        ],
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:priobike/game/view.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
+import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/main.dart';
@@ -24,6 +25,8 @@ class GameProfileCard extends StatefulWidget {
 class _GameProfileCardState extends State<GameProfileCard> {
   /// The service which manages and provides the user profile.
   late GameProfileService _profileService;
+
+  late GameSettingsService _settingsService;
 
   /// These are the levels that are possible to achieve by the user vie their xp.
   static List<Level> get _levels => const [
@@ -52,12 +55,15 @@ class _GameProfileCardState extends State<GameProfileCard> {
   void initState() {
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
+    _settingsService = getIt<GameSettingsService>();
+    _profileService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
     _profileService.removeListener(update);
+    _settingsService.removeListener(update);
     super.dispose();
   }
 
@@ -79,15 +85,15 @@ class _GameProfileCardState extends State<GameProfileCard> {
     return _levels[index + 1];
   }
 
-  /// Returns widget for displaying a trophy count for a trophy with a given icon color.
-  Widget getTrophyWidget(int number, Color iconColor) {
+  /// Returns widget for displaying a trophy count for a trophy with a given icon.
+  Widget getTrophyWidget(int number, IconData icon) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
-          Icons.emoji_events,
+          icon,
           size: 36,
-          color: iconColor.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
         ),
         BoldContent(
           text: 'x $number',
@@ -105,7 +111,7 @@ class _GameProfileCardState extends State<GameProfileCard> {
         Icon(
           icon,
           size: 24,
-          color: CI.blue.withOpacity(0.5),
+          color: CI.blue.withOpacity(0.25),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -126,6 +132,64 @@ class _GameProfileCardState extends State<GameProfileCard> {
     );
   }
 
+  Widget getGameHeader(var profile) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        GestureDetector(
+          onTap: animateRing,
+          child: AnimatedLevelRing(
+            levels: _levels,
+            value: profile.xp.toDouble(),
+            color: currentLevel?.color ?? CI.blue.withOpacity(0.25),
+            icon: Icons.pedal_bike,
+            ringSize: 96,
+            buildWithAnimation: animateLevelRing,
+          ),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BoldSubHeader(text: _profileService.profile!.username, context: context),
+                    Small(
+                        text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
+                        context: context),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  getTrophyWidget(profile.medals, Icons.military_tech),
+                  getTrophyWidget(profile.trophies, Icons.emoji_events),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getNoGameHeader(var profile) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Header(text: profile.username, context: context),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var profile = _profileService.profile!;
@@ -133,52 +197,10 @@ class _GameProfileCardState extends State<GameProfileCard> {
       content: Column(
         children: [
           const SmallVSpace(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              GestureDetector(
-                onTap: animateRing,
-                child: AnimatedLevelRing(
-                  levels: _levels,
-                  value: profile.xp.toDouble(),
-                  color: currentLevel?.color ?? CI.blue.withOpacity(0.25),
-                  icon: Icons.pedal_bike,
-                  ringSize: 96,
-                  buildWithAnimation: animateLevelRing,
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          BoldSubHeader(text: _profileService.profile!.username, context: context),
-                          Small(
-                              text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
-                              context: context),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        getTrophyWidget(profile.silverTrophies, Medals.silver),
-                        getTrophyWidget(profile.goldTrophies, Medals.gold),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const VSpace(),
+          (_settingsService.isFeatureEnabled(GameSettingsService.gameFeatureChallengesKey))
+              ? getGameHeader(profile)
+              : getNoGameHeader(profile),
+          const SmallVSpace(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,

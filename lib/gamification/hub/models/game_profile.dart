@@ -24,11 +24,11 @@ class GameProfile {
   /// The xp of the user.
   int xp;
 
-  /// The number of silver trophies the user has.
-  int silverTrophies;
+  /// The number of medals the user has.
+  int medals;
 
-  /// The number of gold trophies the user has.
-  int goldTrophies;
+  /// The number of trophies the user has.
+  int trophies;
 
   GameProfile({
     this.totalDistanceKilometres = 0,
@@ -36,8 +36,8 @@ class GameProfile {
     this.totalElevationGainMetres = 0,
     this.totalElevationLossMetres = 0,
     this.xp = 0,
-    this.silverTrophies = 0,
-    this.goldTrophies = 0,
+    this.medals = 0,
+    this.trophies = 0,
     required this.username,
     required this.joinDate,
   }) : averageSpeedKmh = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
@@ -48,8 +48,8 @@ class GameProfile {
         'totalElevationGainMetres': totalElevationGainMetres,
         'totalElevationLossMetres': totalElevationLossMetres,
         'xp': xp,
-        'silverTrophies': silverTrophies,
-        'goldTrophies': goldTrophies,
+        'medals': medals,
+        'trophies': trophies,
         'username': username,
         'joinDate': joinDate.toIso8601String(),
       };
@@ -60,8 +60,8 @@ class GameProfile {
         totalElevationGainMetres: json['totalElevationGainMetres'],
         totalElevationLossMetres: json['totalElevationLossMetres'],
         xp: json['xp'],
-        silverTrophies: json['silverTrophies'],
-        goldTrophies: json['goldTrophies'],
+        medals: json['medals'],
+        trophies: json['trophies'],
         username: json['username'],
         joinDate: DateTime.parse(json['joinDate']),
       );
