@@ -155,17 +155,21 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Icon(
-          Icons.timer,
-          size: 16,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-        ),
-        BoldSmall(
-          text: timeLeftStr,
-          context: context,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-        ),
-        const SizedBox(width: 16)
+        ...((challenge == null)
+            ? const [SizedBox(height: 16)]
+            : [
+                Icon(
+                  Icons.timer,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                ),
+                BoldSmall(
+                  text: timeLeftStr,
+                  context: context,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                ),
+                const SizedBox(width: 16),
+              ])
       ],
     );
   }

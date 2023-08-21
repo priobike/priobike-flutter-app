@@ -70,6 +70,7 @@ abstract class ChallengeService with ChangeNotifier {
   }
 
   void generateChallenge() {
+    if (_currentChallenge != null) return;
     _dao.createObject(generatedChallenge);
   }
 

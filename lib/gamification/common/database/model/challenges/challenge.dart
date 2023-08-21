@@ -4,10 +4,15 @@ import 'package:priobike/gamification/common/database/database_dao.dart';
 
 part 'challenge.g.dart';
 
-enum ChallengeType {
+enum DailyChallengeType {
   distance,
   duration,
+}
+
+enum WeeklyChallengeType {
+  distance,
   rides,
+  streak,
 }
 
 class Challenges extends Table {
