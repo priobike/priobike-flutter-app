@@ -238,6 +238,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     }
     // use int instead of double for mapbox api
     final int screenWidth = MediaQuery.of(context).size.width.round();
+    final Brightness brightness = Theme.of(context).colorScheme.brightness;
 
     if (minLon != null || minLat != null || maxLon != null || maxLat != null) {
       backgroundImage = await getIt<BackgroundImage>().loadImage(
@@ -247,6 +248,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         maxLat: maxLat!,
         maxLon: maxLon!,
         screenWidth: screenWidth,
+        brightness: brightness,
       );
       setState(() {});
     }

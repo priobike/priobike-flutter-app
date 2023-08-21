@@ -21,13 +21,15 @@ class BackgroundImage with ChangeNotifier {
   Map<String, ImageProvider>? cachedImages = {};
 
   /// Loads the background image for the given route. Tries to load it from the cache first.
-  Future<ImageProvider?> loadImage(
-      {required String sessionId,
-      required double minLon,
-      required double minLat,
-      required double maxLon,
-      required double maxLat,
-      required int screenWidth}) async {
+  Future<ImageProvider?> loadImage({
+    required String sessionId,
+    required double minLon,
+    required double minLat,
+    required double maxLon,
+    required double maxLat,
+    required int screenWidth,
+    required Brightness brightness,
+  }) async {
     if (cachedImages == null) {
       await loadAllImages();
     }
@@ -35,17 +37,26 @@ class BackgroundImage with ChangeNotifier {
       return cachedImages![sessionId];
     }
     return await fetchImage(
-        sessionId: sessionId, minLon: minLon, minLat: minLat, maxLon: maxLon, maxLat: maxLat, screenWidth: screenWidth);
+      sessionId: sessionId,
+      minLon: minLon,
+      minLat: minLat,
+      maxLon: maxLon,
+      maxLat: maxLat,
+      screenWidth: screenWidth,
+      brightness: brightness,
+    );
   }
 
   /// Fetches the background image for the given route from the mapbox api.
-  Future<MemoryImage?> fetchImage(
-      {required String sessionId,
-      required double minLon,
-      required double minLat,
-      required double maxLon,
-      required double maxLat,
-      required int screenWidth}) async {
+  Future<MemoryImage?> fetchImage({
+    required String sessionId,
+    required double minLon,
+    required double minLat,
+    required double maxLon,
+    required double maxLat,
+    required int screenWidth,
+    required Brightness brightness,
+  }) async {
     hadError = false;
 
     if (isLoading) return null;
@@ -55,7 +66,7 @@ class BackgroundImage with ChangeNotifier {
     try {
       // For Styles see: https://docs.mapbox.com/api/maps/styles/
       // TODO: Style von Philipp nutzen
-      const String style = "navigation-night-v1";
+      final String style = brightness == Brightness.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
       // use screen size
       final String url =
           "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${screenWidth}x$screenWidth?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
