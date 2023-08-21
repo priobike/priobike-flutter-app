@@ -96,7 +96,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   Summary? trackSummary;
 
   /// The background image of the map for the track.
-  late ImageProvider backgroundImage;
+  ImageProvider? backgroundImage;
 
   /// PageController.
   final PageController pageController = PageController(
@@ -213,34 +213,33 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the background image of the map for the track.
   Future<void> loadBackgroundImage() async {
-    double? minLng;
+    if (backgroundImage != null) {
+      return;
+    }
+    double? minLon;
     double? minLat;
-    double? maxLng;
+    double? maxLon;
     double? maxLat;
 
     // calculate the bounding box of the route
     for (final node in routeNodes) {
-      if (minLng == null || node.lon < minLng) {
-        minLng = node.lon;
+      if (minLon == null || node.lon < minLon) {
+        minLon = node.lon;
       }
       if (minLat == null || node.lat < minLat) {
         minLat = node.lat;
       }
-      if (maxLng == null || node.lon > maxLng) {
-        maxLng = node.lon;
+      if (maxLon == null || node.lon > maxLon) {
+        maxLon = node.lon;
       }
       if (maxLat == null || node.lat > maxLat) {
         maxLat = node.lat;
       }
     }
-    //TODO: use theme
-    if (minLng != null || minLat != null || maxLng != null || maxLat != null) {
-      backgroundImage = await getIt<BackgroundImage>()
-          .loadImage(minLat: minLat!, minLng: minLng!, maxLat: maxLat!, maxLng: maxLng!) as ImageProvider;
-    } else {
-      backgroundImage = Theme.of(context).colorScheme.brightness == Brightness.dark
-          ? const AssetImage('assets/images/map-dark.png')
-          : const AssetImage('assets/images/map-light.png');
+    if (minLon != null || minLat != null || maxLon != null || maxLat != null) {
+      backgroundImage =
+          await getIt<BackgroundImage>().loadImage(minLat: minLat!, minLon: minLon!, maxLat: maxLat!, maxLon: maxLon!);
+      setState(() {});
     }
   }
 
@@ -249,7 +248,11 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
     final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
 
+    // The background image of the map for the track.
     loadBackgroundImage();
+    final alternativeBackgroundImage = Theme.of(context).colorScheme.brightness == Brightness.dark
+        ? const AssetImage('assets/images/map-dark.png')
+        : const AssetImage('assets/images/map-light.png');
 
     final headerTextStyle = TextStyle(
       fontSize: 11,
@@ -351,8 +354,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   child: Transform.scale(
                     scale: 2.5,
                     child: Image(
-                      image: backgroundImage,
-                      fit: BoxFit.cover,
+                      image: backgroundImage ?? alternativeBackgroundImage,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),

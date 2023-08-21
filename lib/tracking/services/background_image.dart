@@ -15,14 +15,14 @@ class BackgroundImage with ChangeNotifier {
   /// If the service has loaded the status.
   bool hasLoaded = false;
 
-  Future<MemoryImage?> loadImage(
-      {required double minLng, required double minLat, required double maxLng, required double maxLat}) async {
+  Future<ImageProvider?> loadImage(
+      {required double minLon, required double minLat, required double maxLon, required double maxLat}) async {
     //TODO: Check if image is cached, if not fetchImage
-    return await fetchImage(minLng: minLng, minLat: minLat, maxLng: maxLng, maxLat: maxLat);
+    return await fetchImage(minLon: minLon, minLat: minLat, maxLon: maxLon, maxLat: maxLat);
   }
 
   Future<MemoryImage?> fetchImage(
-      {required double minLng, required double minLat, required double maxLng, required double maxLat}) async {
+      {required double minLon, required double minLat, required double maxLon, required double maxLat}) async {
     hadError = false;
 
     if (isLoading) return null;
@@ -30,9 +30,10 @@ class BackgroundImage with ChangeNotifier {
     hasLoaded = false;
 
     try {
+      // For Styles see: https://docs.mapbox.com/api/maps/styles/
       const String style = "satellite-v9";
       final String url =
-          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLng,$minLat,$maxLng,$maxLat]/1000x1000?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/1000x1000?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
@@ -55,7 +56,7 @@ class BackgroundImage with ChangeNotifier {
       return null;
     }
 
-    //TODO: safe to cache
+    //TODO: safe to cache....vllt als Map mit SessionId als Key und dem Bild als Value
   }
 
   saveImage() {
