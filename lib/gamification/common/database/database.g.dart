@@ -409,18 +409,22 @@ class $ChallengesTable extends Challenges
   late final GeneratedColumn<int> xp = GeneratedColumn<int>(
       'xp', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _intervalStartMeta =
-      const VerificationMeta('intervalStart');
+  static const VerificationMeta _startMeta = const VerificationMeta('start');
   @override
-  late final GeneratedColumn<DateTime> intervalStart =
-      GeneratedColumn<DateTime>('interval_start', aliasedName, false,
-          type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _intervalEndMeta =
-      const VerificationMeta('intervalEnd');
-  @override
-  late final GeneratedColumn<DateTime> intervalEnd = GeneratedColumn<DateTime>(
-      'interval_end', aliasedName, false,
+  late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
+      'start', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _endMeta = const VerificationMeta('end');
+  @override
+  late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
+      'end', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _targetMeta = const VerificationMeta('target');
   @override
   late final GeneratedColumn<int> target = GeneratedColumn<int>(
@@ -432,14 +436,42 @@ class $ChallengesTable extends Challenges
   late final GeneratedColumn<int> progress = GeneratedColumn<int>(
       'progress', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _isWeeklyMeta =
+      const VerificationMeta('isWeekly');
+  @override
+  late final GeneratedColumn<bool> isWeekly =
+      GeneratedColumn<bool>('is_weekly', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_weekly" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<int> type = GeneratedColumn<int>(
       'type', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _valueLabelMeta =
+      const VerificationMeta('valueLabel');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, xp, intervalStart, intervalEnd, target, progress, type];
+  late final GeneratedColumn<String> valueLabel = GeneratedColumn<String>(
+      'value_label', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        xp,
+        start,
+        end,
+        description,
+        target,
+        progress,
+        isWeekly,
+        type,
+        valueLabel
+      ];
   @override
   String get aliasedName => _alias ?? 'challenges';
   @override
@@ -457,21 +489,25 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_xpMeta);
     }
-    if (data.containsKey('interval_start')) {
+    if (data.containsKey('start')) {
       context.handle(
-          _intervalStartMeta,
-          intervalStart.isAcceptableOrUnknown(
-              data['interval_start']!, _intervalStartMeta));
+          _startMeta, start.isAcceptableOrUnknown(data['start']!, _startMeta));
     } else if (isInserting) {
-      context.missing(_intervalStartMeta);
+      context.missing(_startMeta);
     }
-    if (data.containsKey('interval_end')) {
+    if (data.containsKey('end')) {
       context.handle(
-          _intervalEndMeta,
-          intervalEnd.isAcceptableOrUnknown(
-              data['interval_end']!, _intervalEndMeta));
+          _endMeta, end.isAcceptableOrUnknown(data['end']!, _endMeta));
     } else if (isInserting) {
-      context.missing(_intervalEndMeta);
+      context.missing(_endMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
     }
     if (data.containsKey('target')) {
       context.handle(_targetMeta,
@@ -485,11 +521,25 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_progressMeta);
     }
+    if (data.containsKey('is_weekly')) {
+      context.handle(_isWeeklyMeta,
+          isWeekly.isAcceptableOrUnknown(data['is_weekly']!, _isWeeklyMeta));
+    } else if (isInserting) {
+      context.missing(_isWeeklyMeta);
+    }
     if (data.containsKey('type')) {
       context.handle(
           _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
+    }
+    if (data.containsKey('value_label')) {
+      context.handle(
+          _valueLabelMeta,
+          valueLabel.isAcceptableOrUnknown(
+              data['value_label']!, _valueLabelMeta));
+    } else if (isInserting) {
+      context.missing(_valueLabelMeta);
     }
     return context;
   }
@@ -504,16 +554,22 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       xp: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
-      intervalStart: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}interval_start'])!,
-      intervalEnd: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}interval_end'])!,
+      start: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start'])!,
+      end: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
       target: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}target'])!,
       progress: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}progress'])!,
+      isWeekly: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_weekly'])!,
       type: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
+      valueLabel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}value_label'])!,
     );
   }
 
@@ -526,29 +582,38 @@ class $ChallengesTable extends Challenges
 class Challenge extends DataClass implements Insertable<Challenge> {
   final int id;
   final int xp;
-  final DateTime intervalStart;
-  final DateTime intervalEnd;
+  final DateTime start;
+  final DateTime end;
+  final String description;
   final int target;
   final int progress;
+  final bool isWeekly;
   final int type;
+  final String valueLabel;
   const Challenge(
       {required this.id,
       required this.xp,
-      required this.intervalStart,
-      required this.intervalEnd,
+      required this.start,
+      required this.end,
+      required this.description,
       required this.target,
       required this.progress,
-      required this.type});
+      required this.isWeekly,
+      required this.type,
+      required this.valueLabel});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['xp'] = Variable<int>(xp);
-    map['interval_start'] = Variable<DateTime>(intervalStart);
-    map['interval_end'] = Variable<DateTime>(intervalEnd);
+    map['start'] = Variable<DateTime>(start);
+    map['end'] = Variable<DateTime>(end);
+    map['description'] = Variable<String>(description);
     map['target'] = Variable<int>(target);
     map['progress'] = Variable<int>(progress);
+    map['is_weekly'] = Variable<bool>(isWeekly);
     map['type'] = Variable<int>(type);
+    map['value_label'] = Variable<String>(valueLabel);
     return map;
   }
 
@@ -556,11 +621,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return ChallengesCompanion(
       id: Value(id),
       xp: Value(xp),
-      intervalStart: Value(intervalStart),
-      intervalEnd: Value(intervalEnd),
+      start: Value(start),
+      end: Value(end),
+      description: Value(description),
       target: Value(target),
       progress: Value(progress),
+      isWeekly: Value(isWeekly),
       type: Value(type),
+      valueLabel: Value(valueLabel),
     );
   }
 
@@ -570,11 +638,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return Challenge(
       id: serializer.fromJson<int>(json['id']),
       xp: serializer.fromJson<int>(json['xp']),
-      intervalStart: serializer.fromJson<DateTime>(json['intervalStart']),
-      intervalEnd: serializer.fromJson<DateTime>(json['intervalEnd']),
+      start: serializer.fromJson<DateTime>(json['start']),
+      end: serializer.fromJson<DateTime>(json['end']),
+      description: serializer.fromJson<String>(json['description']),
       target: serializer.fromJson<int>(json['target']),
       progress: serializer.fromJson<int>(json['progress']),
+      isWeekly: serializer.fromJson<bool>(json['isWeekly']),
       type: serializer.fromJson<int>(json['type']),
+      valueLabel: serializer.fromJson<String>(json['valueLabel']),
     );
   }
   @override
@@ -583,128 +654,167 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'xp': serializer.toJson<int>(xp),
-      'intervalStart': serializer.toJson<DateTime>(intervalStart),
-      'intervalEnd': serializer.toJson<DateTime>(intervalEnd),
+      'start': serializer.toJson<DateTime>(start),
+      'end': serializer.toJson<DateTime>(end),
+      'description': serializer.toJson<String>(description),
       'target': serializer.toJson<int>(target),
       'progress': serializer.toJson<int>(progress),
+      'isWeekly': serializer.toJson<bool>(isWeekly),
       'type': serializer.toJson<int>(type),
+      'valueLabel': serializer.toJson<String>(valueLabel),
     };
   }
 
   Challenge copyWith(
           {int? id,
           int? xp,
-          DateTime? intervalStart,
-          DateTime? intervalEnd,
+          DateTime? start,
+          DateTime? end,
+          String? description,
           int? target,
           int? progress,
-          int? type}) =>
+          bool? isWeekly,
+          int? type,
+          String? valueLabel}) =>
       Challenge(
         id: id ?? this.id,
         xp: xp ?? this.xp,
-        intervalStart: intervalStart ?? this.intervalStart,
-        intervalEnd: intervalEnd ?? this.intervalEnd,
+        start: start ?? this.start,
+        end: end ?? this.end,
+        description: description ?? this.description,
         target: target ?? this.target,
         progress: progress ?? this.progress,
+        isWeekly: isWeekly ?? this.isWeekly,
         type: type ?? this.type,
+        valueLabel: valueLabel ?? this.valueLabel,
       );
   @override
   String toString() {
     return (StringBuffer('Challenge(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
-          ..write('intervalStart: $intervalStart, ')
-          ..write('intervalEnd: $intervalEnd, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('description: $description, ')
           ..write('target: $target, ')
           ..write('progress: $progress, ')
-          ..write('type: $type')
+          ..write('isWeekly: $isWeekly, ')
+          ..write('type: $type, ')
+          ..write('valueLabel: $valueLabel')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, xp, intervalStart, intervalEnd, target, progress, type);
+  int get hashCode => Object.hash(id, xp, start, end, description, target,
+      progress, isWeekly, type, valueLabel);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Challenge &&
           other.id == this.id &&
           other.xp == this.xp &&
-          other.intervalStart == this.intervalStart &&
-          other.intervalEnd == this.intervalEnd &&
+          other.start == this.start &&
+          other.end == this.end &&
+          other.description == this.description &&
           other.target == this.target &&
           other.progress == this.progress &&
-          other.type == this.type);
+          other.isWeekly == this.isWeekly &&
+          other.type == this.type &&
+          other.valueLabel == this.valueLabel);
 }
 
 class ChallengesCompanion extends UpdateCompanion<Challenge> {
   final Value<int> id;
   final Value<int> xp;
-  final Value<DateTime> intervalStart;
-  final Value<DateTime> intervalEnd;
+  final Value<DateTime> start;
+  final Value<DateTime> end;
+  final Value<String> description;
   final Value<int> target;
   final Value<int> progress;
+  final Value<bool> isWeekly;
   final Value<int> type;
+  final Value<String> valueLabel;
   const ChallengesCompanion({
     this.id = const Value.absent(),
     this.xp = const Value.absent(),
-    this.intervalStart = const Value.absent(),
-    this.intervalEnd = const Value.absent(),
+    this.start = const Value.absent(),
+    this.end = const Value.absent(),
+    this.description = const Value.absent(),
     this.target = const Value.absent(),
     this.progress = const Value.absent(),
+    this.isWeekly = const Value.absent(),
     this.type = const Value.absent(),
+    this.valueLabel = const Value.absent(),
   });
   ChallengesCompanion.insert({
     this.id = const Value.absent(),
     required int xp,
-    required DateTime intervalStart,
-    required DateTime intervalEnd,
+    required DateTime start,
+    required DateTime end,
+    required String description,
     required int target,
     required int progress,
+    required bool isWeekly,
     required int type,
+    required String valueLabel,
   })  : xp = Value(xp),
-        intervalStart = Value(intervalStart),
-        intervalEnd = Value(intervalEnd),
+        start = Value(start),
+        end = Value(end),
+        description = Value(description),
         target = Value(target),
         progress = Value(progress),
-        type = Value(type);
+        isWeekly = Value(isWeekly),
+        type = Value(type),
+        valueLabel = Value(valueLabel);
   static Insertable<Challenge> custom({
     Expression<int>? id,
     Expression<int>? xp,
-    Expression<DateTime>? intervalStart,
-    Expression<DateTime>? intervalEnd,
+    Expression<DateTime>? start,
+    Expression<DateTime>? end,
+    Expression<String>? description,
     Expression<int>? target,
     Expression<int>? progress,
+    Expression<bool>? isWeekly,
     Expression<int>? type,
+    Expression<String>? valueLabel,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (xp != null) 'xp': xp,
-      if (intervalStart != null) 'interval_start': intervalStart,
-      if (intervalEnd != null) 'interval_end': intervalEnd,
+      if (start != null) 'start': start,
+      if (end != null) 'end': end,
+      if (description != null) 'description': description,
       if (target != null) 'target': target,
       if (progress != null) 'progress': progress,
+      if (isWeekly != null) 'is_weekly': isWeekly,
       if (type != null) 'type': type,
+      if (valueLabel != null) 'value_label': valueLabel,
     });
   }
 
   ChallengesCompanion copyWith(
       {Value<int>? id,
       Value<int>? xp,
-      Value<DateTime>? intervalStart,
-      Value<DateTime>? intervalEnd,
+      Value<DateTime>? start,
+      Value<DateTime>? end,
+      Value<String>? description,
       Value<int>? target,
       Value<int>? progress,
-      Value<int>? type}) {
+      Value<bool>? isWeekly,
+      Value<int>? type,
+      Value<String>? valueLabel}) {
     return ChallengesCompanion(
       id: id ?? this.id,
       xp: xp ?? this.xp,
-      intervalStart: intervalStart ?? this.intervalStart,
-      intervalEnd: intervalEnd ?? this.intervalEnd,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      description: description ?? this.description,
       target: target ?? this.target,
       progress: progress ?? this.progress,
+      isWeekly: isWeekly ?? this.isWeekly,
       type: type ?? this.type,
+      valueLabel: valueLabel ?? this.valueLabel,
     );
   }
 
@@ -717,11 +827,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (xp.present) {
       map['xp'] = Variable<int>(xp.value);
     }
-    if (intervalStart.present) {
-      map['interval_start'] = Variable<DateTime>(intervalStart.value);
+    if (start.present) {
+      map['start'] = Variable<DateTime>(start.value);
     }
-    if (intervalEnd.present) {
-      map['interval_end'] = Variable<DateTime>(intervalEnd.value);
+    if (end.present) {
+      map['end'] = Variable<DateTime>(end.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
     }
     if (target.present) {
       map['target'] = Variable<int>(target.value);
@@ -729,8 +842,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (progress.present) {
       map['progress'] = Variable<int>(progress.value);
     }
+    if (isWeekly.present) {
+      map['is_weekly'] = Variable<bool>(isWeekly.value);
+    }
     if (type.present) {
       map['type'] = Variable<int>(type.value);
+    }
+    if (valueLabel.present) {
+      map['value_label'] = Variable<String>(valueLabel.value);
     }
     return map;
   }
@@ -740,11 +859,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     return (StringBuffer('ChallengesCompanion(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
-          ..write('intervalStart: $intervalStart, ')
-          ..write('intervalEnd: $intervalEnd, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('description: $description, ')
           ..write('target: $target, ')
           ..write('progress: $progress, ')
-          ..write('type: $type')
+          ..write('isWeekly: $isWeekly, ')
+          ..write('type: $type, ')
+          ..write('valueLabel: $valueLabel')
           ..write(')'))
         .toString();
   }

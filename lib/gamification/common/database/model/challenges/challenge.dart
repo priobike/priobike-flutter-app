@@ -7,25 +7,20 @@ part 'challenge.g.dart';
 enum ChallengeType {
   distance,
   duration,
-  track,
-}
-
-class ChallengeTypeExtension {
-  static String getLabel(ChallengeType type) {
-    if (type == ChallengeType.distance) return 'm';
-    if (type == ChallengeType.duration) return 'min';
-    return '';
-  }
+  rides,
 }
 
 class Challenges extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get xp => integer()();
-  DateTimeColumn get intervalStart => dateTime()();
-  DateTimeColumn get intervalEnd => dateTime()();
+  DateTimeColumn get start => dateTime()();
+  DateTimeColumn get end => dateTime()();
+  TextColumn get description => text()();
   IntColumn get target => integer()();
   IntColumn get progress => integer()();
+  BoolColumn get isWeekly => boolean()();
   IntColumn get type => integer()();
+  TextColumn get valueLabel => text()();
 }
 
 @DriftAccessor(tables: [Challenges])

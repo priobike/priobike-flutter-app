@@ -78,9 +78,7 @@ class _GameFeatureElementState extends State<GameFeatureElement> {
   late GameSettingsService _settingsService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {

@@ -10,8 +10,8 @@ class GameSettingsService with ChangeNotifier {
 
   /// Map of the feature keys to describing labels.
   static Map<String, String> get gameFeaturesLabelMap => {
-        gameFeatureChallengesKey: 'Regelmäßige Challenges',
-        gameFeatureStatisticsKey: 'Fahrtstatistiken anzeigen',
+        gameFeatureChallengesKey: 'PrioBike Challenges',
+        gameFeatureStatisticsKey: 'Fahrtstatistiken',
       };
 
   /// Instance of the shared preferences.
