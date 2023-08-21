@@ -22,6 +22,7 @@ import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
+import 'package:priobike/tracking/services/background_image.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
 
 class TrackDetailsDialog extends StatelessWidget {
@@ -93,6 +94,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// The track summary.
   Summary? trackSummary;
+
+  /// The background image of the map for the track.
+  late ImageProvider backgroundImage;
 
   /// PageController.
   final PageController pageController = PageController(
@@ -207,10 +211,45 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     );
   }
 
+  /// Load the background image of the map for the track.
+  Future<void> loadBackgroundImage() async {
+    double? minLng;
+    double? minLat;
+    double? maxLng;
+    double? maxLat;
+
+    // calculate the bounding box of the route
+    for (final node in routeNodes) {
+      if (minLng == null || node.lon < minLng) {
+        minLng = node.lon;
+      }
+      if (minLat == null || node.lat < minLat) {
+        minLat = node.lat;
+      }
+      if (maxLng == null || node.lon > maxLng) {
+        maxLng = node.lon;
+      }
+      if (maxLat == null || node.lat > maxLat) {
+        maxLat = node.lat;
+      }
+    }
+    //TODO: use theme
+    if (minLng != null || minLat != null || maxLng != null || maxLat != null) {
+      backgroundImage = await getIt<BackgroundImage>()
+          .loadImage(minLat: minLat!, minLng: minLng!, maxLat: maxLat!, maxLng: maxLng!) as ImageProvider;
+    } else {
+      backgroundImage = Theme.of(context).colorScheme.brightness == Brightness.dark
+          ? const AssetImage('assets/images/map-dark.png')
+          : const AssetImage('assets/images/map-light.png');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
     final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
+
+    loadBackgroundImage();
 
     final headerTextStyle = TextStyle(
       fontSize: 11,
@@ -312,9 +351,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   child: Transform.scale(
                     scale: 2.5,
                     child: Image(
-                      image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                          ? const AssetImage('assets/images/map-dark.png')
-                          : const AssetImage('assets/images/map-light.png'),
+                      image: backgroundImage,
                       fit: BoxFit.cover,
                     ),
                   ),
