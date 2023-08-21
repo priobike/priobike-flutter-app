@@ -3,6 +3,6 @@
 part of 'challenge.dart';
 
 // ignore_for_file: type=lint
-mixin _$ChallengeDaoMixin on DatabaseAccessor<AppDatabase> {
+mixin _$ChallengesDaoMixin on DatabaseAccessor<AppDatabase> {
   $ChallengesTable get challenges => attachedDatabase.challenges;
 }

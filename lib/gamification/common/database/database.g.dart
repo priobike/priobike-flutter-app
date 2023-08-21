@@ -448,6 +448,29 @@ class $ChallengesTable extends Challenges
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
+  static const VerificationMeta _isOpenMeta = const VerificationMeta('isOpen');
+  @override
+  late final GeneratedColumn<bool> isOpen =
+      GeneratedColumn<bool>('is_open', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_open" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _hasBeenCompletedMeta =
+      const VerificationMeta('hasBeenCompleted');
+  @override
+  late final GeneratedColumn<bool> hasBeenCompleted =
+      GeneratedColumn<bool>('has_been_completed', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("has_been_completed" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<int> type = GeneratedColumn<int>(
@@ -469,6 +492,8 @@ class $ChallengesTable extends Challenges
         target,
         progress,
         isWeekly,
+        isOpen,
+        hasBeenCompleted,
         type,
         valueLabel
       ];
@@ -527,6 +552,20 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_isWeeklyMeta);
     }
+    if (data.containsKey('is_open')) {
+      context.handle(_isOpenMeta,
+          isOpen.isAcceptableOrUnknown(data['is_open']!, _isOpenMeta));
+    } else if (isInserting) {
+      context.missing(_isOpenMeta);
+    }
+    if (data.containsKey('has_been_completed')) {
+      context.handle(
+          _hasBeenCompletedMeta,
+          hasBeenCompleted.isAcceptableOrUnknown(
+              data['has_been_completed']!, _hasBeenCompletedMeta));
+    } else if (isInserting) {
+      context.missing(_hasBeenCompletedMeta);
+    }
     if (data.containsKey('type')) {
       context.handle(
           _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
@@ -566,6 +605,10 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.int, data['${effectivePrefix}progress'])!,
       isWeekly: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_weekly'])!,
+      isOpen: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_open'])!,
+      hasBeenCompleted: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}has_been_completed'])!,
       type: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
       valueLabel: attachedDatabase.typeMapping
@@ -588,6 +631,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
   final int target;
   final int progress;
   final bool isWeekly;
+  final bool isOpen;
+  final bool hasBeenCompleted;
   final int type;
   final String valueLabel;
   const Challenge(
@@ -599,6 +644,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       required this.target,
       required this.progress,
       required this.isWeekly,
+      required this.isOpen,
+      required this.hasBeenCompleted,
       required this.type,
       required this.valueLabel});
   @override
@@ -612,6 +659,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     map['target'] = Variable<int>(target);
     map['progress'] = Variable<int>(progress);
     map['is_weekly'] = Variable<bool>(isWeekly);
+    map['is_open'] = Variable<bool>(isOpen);
+    map['has_been_completed'] = Variable<bool>(hasBeenCompleted);
     map['type'] = Variable<int>(type);
     map['value_label'] = Variable<String>(valueLabel);
     return map;
@@ -627,6 +676,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       target: Value(target),
       progress: Value(progress),
       isWeekly: Value(isWeekly),
+      isOpen: Value(isOpen),
+      hasBeenCompleted: Value(hasBeenCompleted),
       type: Value(type),
       valueLabel: Value(valueLabel),
     );
@@ -644,6 +695,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       target: serializer.fromJson<int>(json['target']),
       progress: serializer.fromJson<int>(json['progress']),
       isWeekly: serializer.fromJson<bool>(json['isWeekly']),
+      isOpen: serializer.fromJson<bool>(json['isOpen']),
+      hasBeenCompleted: serializer.fromJson<bool>(json['hasBeenCompleted']),
       type: serializer.fromJson<int>(json['type']),
       valueLabel: serializer.fromJson<String>(json['valueLabel']),
     );
@@ -660,6 +713,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       'target': serializer.toJson<int>(target),
       'progress': serializer.toJson<int>(progress),
       'isWeekly': serializer.toJson<bool>(isWeekly),
+      'isOpen': serializer.toJson<bool>(isOpen),
+      'hasBeenCompleted': serializer.toJson<bool>(hasBeenCompleted),
       'type': serializer.toJson<int>(type),
       'valueLabel': serializer.toJson<String>(valueLabel),
     };
@@ -674,6 +729,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           int? target,
           int? progress,
           bool? isWeekly,
+          bool? isOpen,
+          bool? hasBeenCompleted,
           int? type,
           String? valueLabel}) =>
       Challenge(
@@ -685,6 +742,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
         target: target ?? this.target,
         progress: progress ?? this.progress,
         isWeekly: isWeekly ?? this.isWeekly,
+        isOpen: isOpen ?? this.isOpen,
+        hasBeenCompleted: hasBeenCompleted ?? this.hasBeenCompleted,
         type: type ?? this.type,
         valueLabel: valueLabel ?? this.valueLabel,
       );
@@ -699,6 +758,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           ..write('target: $target, ')
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
+          ..write('isOpen: $isOpen, ')
+          ..write('hasBeenCompleted: $hasBeenCompleted, ')
           ..write('type: $type, ')
           ..write('valueLabel: $valueLabel')
           ..write(')'))
@@ -707,7 +768,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
 
   @override
   int get hashCode => Object.hash(id, xp, start, end, description, target,
-      progress, isWeekly, type, valueLabel);
+      progress, isWeekly, isOpen, hasBeenCompleted, type, valueLabel);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -720,6 +781,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           other.target == this.target &&
           other.progress == this.progress &&
           other.isWeekly == this.isWeekly &&
+          other.isOpen == this.isOpen &&
+          other.hasBeenCompleted == this.hasBeenCompleted &&
           other.type == this.type &&
           other.valueLabel == this.valueLabel);
 }
@@ -733,6 +796,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
   final Value<int> target;
   final Value<int> progress;
   final Value<bool> isWeekly;
+  final Value<bool> isOpen;
+  final Value<bool> hasBeenCompleted;
   final Value<int> type;
   final Value<String> valueLabel;
   const ChallengesCompanion({
@@ -744,6 +809,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     this.target = const Value.absent(),
     this.progress = const Value.absent(),
     this.isWeekly = const Value.absent(),
+    this.isOpen = const Value.absent(),
+    this.hasBeenCompleted = const Value.absent(),
     this.type = const Value.absent(),
     this.valueLabel = const Value.absent(),
   });
@@ -756,6 +823,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     required int target,
     required int progress,
     required bool isWeekly,
+    required bool isOpen,
+    required bool hasBeenCompleted,
     required int type,
     required String valueLabel,
   })  : xp = Value(xp),
@@ -765,6 +834,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
         target = Value(target),
         progress = Value(progress),
         isWeekly = Value(isWeekly),
+        isOpen = Value(isOpen),
+        hasBeenCompleted = Value(hasBeenCompleted),
         type = Value(type),
         valueLabel = Value(valueLabel);
   static Insertable<Challenge> custom({
@@ -776,6 +847,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     Expression<int>? target,
     Expression<int>? progress,
     Expression<bool>? isWeekly,
+    Expression<bool>? isOpen,
+    Expression<bool>? hasBeenCompleted,
     Expression<int>? type,
     Expression<String>? valueLabel,
   }) {
@@ -788,6 +861,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       if (target != null) 'target': target,
       if (progress != null) 'progress': progress,
       if (isWeekly != null) 'is_weekly': isWeekly,
+      if (isOpen != null) 'is_open': isOpen,
+      if (hasBeenCompleted != null) 'has_been_completed': hasBeenCompleted,
       if (type != null) 'type': type,
       if (valueLabel != null) 'value_label': valueLabel,
     });
@@ -802,6 +877,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       Value<int>? target,
       Value<int>? progress,
       Value<bool>? isWeekly,
+      Value<bool>? isOpen,
+      Value<bool>? hasBeenCompleted,
       Value<int>? type,
       Value<String>? valueLabel}) {
     return ChallengesCompanion(
@@ -813,6 +890,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       target: target ?? this.target,
       progress: progress ?? this.progress,
       isWeekly: isWeekly ?? this.isWeekly,
+      isOpen: isOpen ?? this.isOpen,
+      hasBeenCompleted: hasBeenCompleted ?? this.hasBeenCompleted,
       type: type ?? this.type,
       valueLabel: valueLabel ?? this.valueLabel,
     );
@@ -845,6 +924,12 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (isWeekly.present) {
       map['is_weekly'] = Variable<bool>(isWeekly.value);
     }
+    if (isOpen.present) {
+      map['is_open'] = Variable<bool>(isOpen.value);
+    }
+    if (hasBeenCompleted.present) {
+      map['has_been_completed'] = Variable<bool>(hasBeenCompleted.value);
+    }
     if (type.present) {
       map['type'] = Variable<int>(type.value);
     }
@@ -865,6 +950,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
           ..write('target: $target, ')
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
+          ..write('isOpen: $isOpen, ')
+          ..write('hasBeenCompleted: $hasBeenCompleted, ')
           ..write('type: $type, ')
           ..write('valueLabel: $valueLabel')
           ..write(')'))
@@ -878,6 +965,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChallengesTable challenges = $ChallengesTable(this);
   late final RideSummaryDao rideSummaryDao =
       RideSummaryDao(this as AppDatabase);
+  late final ChallengesDao challengesDao = ChallengesDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();

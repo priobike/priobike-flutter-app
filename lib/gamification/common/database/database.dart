@@ -12,7 +12,7 @@ part 'database.g.dart';
 /// Class holding the database required for the gamification data structure. It can be accessed as a Singleton.
 @DriftDatabase(
   tables: [RideSummaries, Challenges],
-  daos: [RideSummaryDao, Challenges],
+  daos: [RideSummaryDao, ChallengesDao],
 )
 class AppDatabase extends _$AppDatabase {
   /// Static instance of the class to access it as a singleton.
