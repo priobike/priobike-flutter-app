@@ -99,7 +99,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   late BackgroundImage backgroundImageService;
 
   /// The background image of the map for the track.
-  ImageProvider? backgroundImage;
+  MemoryImage? backgroundImage;
 
   /// PageController.
   final PageController pageController = PageController(
@@ -253,7 +253,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       );
     }
     // only update if the image has changed
-    if (backgroundImage != null && backgroundImage != oldBackgroundImage) {
+    if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
       setState(() {});
     }
   }

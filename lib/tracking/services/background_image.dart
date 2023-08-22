@@ -25,7 +25,7 @@ class BackgroundImage with ChangeNotifier {
   Map<String, MemoryImage>? cachedImages = {};
 
   /// Loads the background image for the given route. Tries to load it from the cache first.
-  Future<ImageProvider?> loadImage({
+  Future<MemoryImage?> loadImage({
     required String sessionId,
     required double minLon,
     required double minLat,
@@ -83,7 +83,7 @@ class BackgroundImage with ChangeNotifier {
         final err = "Error while fetching background image status from Mapbox: ${response.statusCode}";
         throw Exception(err);
       }
-      final image = MemoryImage(response.bodyBytes);
+      final MemoryImage image = MemoryImage(response.bodyBytes);
 
       isLoading = false;
       hadError = false;
@@ -174,20 +174,6 @@ class BackgroundImage with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Calculates the total size in bytes of all images in the local storage.
-  Future<int> calculateStorageSize() async {
-    final String path = await _getPath();
-    final Directory imagesDir = Directory(path);
-    final List<FileSystemEntity> files = imagesDir.listSync();
-    int size = 0;
-    for (final file in files) {
-      if (file is File && file.path.endsWith(".png")) {
-        size += await file.length();
-      }
-    }
-    return size;
-  }
-
   /// Deletes all images from the cache and the local storage.
   Future<void> deleteAllImages() async {
     cachedImages = {};
@@ -201,5 +187,19 @@ class BackgroundImage with ChangeNotifier {
     }
     log.i("Deleted all images from local storage.");
     notifyListeners();
+  }
+
+  /// Calculates the total size in bytes of all images in the local storage.
+  Future<int> calculateStorageSize() async {
+    final String path = await _getPath();
+    final Directory imagesDir = Directory(path);
+    final List<FileSystemEntity> files = imagesDir.listSync(recursive: true);
+    int size = 0;
+    for (final file in files) {
+      if (file is File && file.path.endsWith(".png")) {
+        size += await file.length();
+      }
+    }
+    return size;
   }
 }
