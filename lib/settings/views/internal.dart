@@ -21,6 +21,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/tracking/services/background_image.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 
@@ -309,6 +310,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Umfrage zurücksetzen",
                     icon: Icons.recycling,
                     callback: () => getIt<Settings>().setDismissedSurvey(false),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Hintergrundbilder der Tracks löschen",
+                    icon: Icons.recycling,
+                    callback: () => getIt<BackgroundImage>().deleteAllImages(),
                   ),
                 ),
                 Padding(
