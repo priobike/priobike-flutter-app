@@ -201,14 +201,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              monthName,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                height: 1.2,
-                              ),
-                            ),
-                            Text(
-                              year.toString(),
+                              "$monthName\n${year.toString()}",
                               style: const TextStyle(
                                 fontSize: 11,
                                 height: 1.2,
