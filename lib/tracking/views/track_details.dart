@@ -95,6 +95,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   /// The track summary.
   Summary? trackSummary;
 
+  /// The background image service.
+  late BackgroundImage backgroundImageService;
+
   /// The background image of the map for the track.
   ImageProvider? backgroundImage;
 
@@ -111,6 +114,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   void initState() {
     super.initState();
     initializeDateFormatting();
+    backgroundImageService = getIt<BackgroundImage>();
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -213,9 +217,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the background image of the map for the track.
   Future<void> loadBackgroundImage() async {
-    if (backgroundImage != null) {
-      return;
-    }
+    final oldBackgroundImage = backgroundImage;
+
     double? minLon;
     double? minLat;
     double? maxLon;
@@ -241,7 +244,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     final Brightness brightness = Theme.of(context).colorScheme.brightness;
 
     if (minLon != null || minLat != null || maxLon != null || maxLat != null) {
-      backgroundImage = await getIt<BackgroundImage>().loadImage(
+      backgroundImage = await backgroundImageService.loadImage(
         sessionId: widget.track.sessionId,
         minLat: minLat!,
         minLon: minLon!,
@@ -250,6 +253,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         screenWidth: screenWidth,
         brightness: brightness,
       );
+    }
+    // only update if the image has changed
+    if (backgroundImage != null && backgroundImage != oldBackgroundImage) {
       setState(() {});
     }
   }

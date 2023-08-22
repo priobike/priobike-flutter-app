@@ -17,7 +17,8 @@ class BackgroundImage with ChangeNotifier {
   /// If the service has loaded the status.
   bool hasLoaded = false;
 
-  /// The cached images. The key is the sessionId of the route and the value is the backgroundimage of the map.
+  /// The cached images. The key is the sessionId of the route + light/dark mode
+  /// and the value is the backgroundimage of the map.
   Map<String, ImageProvider>? cachedImages = {};
 
   /// Loads the background image for the given route. Tries to load it from the cache first.
@@ -33,8 +34,8 @@ class BackgroundImage with ChangeNotifier {
     if (cachedImages == null) {
       await loadAllImages();
     }
-    if (cachedImages!.containsKey(sessionId)) {
-      return cachedImages![sessionId];
+    if (cachedImages!.containsKey(sessionId + brightness.toString())) {
+      return cachedImages![sessionId + brightness.toString()];
     }
     return await fetchImage(
       sessionId: sessionId,
@@ -86,7 +87,7 @@ class BackgroundImage with ChangeNotifier {
       if (cachedImages == null) {
         await loadAllImages();
       }
-      await saveImage(sessionId, image);
+      await saveImage(sessionId, brightness, image);
 
       notifyListeners();
       return image;
@@ -99,8 +100,8 @@ class BackgroundImage with ChangeNotifier {
     }
   }
 
-  Future<void> saveImage(String sessionId, MemoryImage image) async {
-    cachedImages![sessionId] = image;
+  Future<void> saveImage(String sessionId, Brightness brightness, MemoryImage image) async {
+    cachedImages![sessionId + brightness.toString()] = image;
 
     //TODO: save to local storage
   }
@@ -130,5 +131,11 @@ class BackgroundImage with ChangeNotifier {
       // cachedImages![sessionId] = image;
       //TODO: finish
     }
+  }
+
+  Future<void> deleteAllImages() async {
+    cachedImages = {};
+
+    // TODO: fisnish
   }
 }
