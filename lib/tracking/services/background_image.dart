@@ -33,11 +33,15 @@ class BackgroundImage with ChangeNotifier {
     required double maxLat,
     required int screenWidth,
   }) async {
-    if (cachedImages == null) await loadAllImages();
+    if (cachedImages == null || cachedImages!.isEmpty) await loadAllImages();
 
-    final ColorMode brightness = getIt<Settings>().colorMode;
-    if (cachedImages!.containsKey(sessionId + brightness.toString())) {
-      return cachedImages![sessionId + brightness.toString()];
+    final ColorMode colorMode = getIt<Settings>().colorMode;
+
+    // load from cache preferentially
+    log.i("Loading image $sessionId+${colorMode.toString()}.");
+    if (cachedImages!.containsKey("$sessionId+${colorMode.toString()}")) {
+      log.i("Found image $sessionId+${colorMode.toString()} in cache.");
+      return cachedImages!["$sessionId+${colorMode.toString()}"];
     }
     return await fetchImage(
       sessionId: sessionId,
@@ -84,9 +88,8 @@ class BackgroundImage with ChangeNotifier {
       isLoading = false;
       hadError = false;
       hasLoaded = true;
-
+      log.i("Fetched background image $sessionId from Mapbox.");
       await saveImage(sessionId, image);
-
       notifyListeners();
       return image;
     } catch (e) {
@@ -99,26 +102,24 @@ class BackgroundImage with ChangeNotifier {
   }
 
   /// Helper function to get the path to the local storage.
-  Future<String> getPath() async {
+  Future<String> _getPath() async {
     final Directory dir = await getApplicationDocumentsDirectory();
     final String path = "${dir.path}/background-images";
     final Directory imagesDir = Directory(path);
-    if (!await imagesDir.exists()) {
-      await imagesDir.create();
-    }
+    if (!await imagesDir.exists()) await imagesDir.create();
     return path;
   }
 
   /// Saves the given image to the cache and the local storage.
   Future<void> saveImage(String sessionId, MemoryImage image) async {
-    if (cachedImages == null) return;
-    if (cachedImages!.isEmpty) return;
+    if (cachedImages == null) await loadAllImages();
 
     final ColorMode colorMode = getIt<Settings>().colorMode;
-    cachedImages![sessionId + colorMode.toString()] = image;
-    final String path = await getPath();
-    final File file = File("$path/$sessionId+$colorMode.png");
+    cachedImages!["$sessionId+${colorMode.toString()}"] = image;
+    final String path = await _getPath();
+    final File file = File("$path/$sessionId+${colorMode.toString()}.png");
     await file.writeAsBytes(image.bytes);
+    log.i("Saved image $sessionId+${colorMode.toString()}.png to local storage.");
     notifyListeners();
   }
 
@@ -128,47 +129,54 @@ class BackgroundImage with ChangeNotifier {
     if (cachedImages!.isEmpty) return;
 
     final ColorMode colorMode = getIt<Settings>().colorMode;
-    cachedImages!.remove(sessionId + colorMode.toString());
-    final String path = await getPath();
-    final File file = File("$path/$sessionId+$colorMode.png");
+    cachedImages!.remove("$sessionId+${colorMode.toString()}");
+    final String path = await _getPath();
+    final File file = File("$path/$sessionId+${colorMode.toString()}.png");
     await file.delete();
+    log.i("Deleted image from $path/$sessionId+${colorMode.toString()}.png");
     notifyListeners();
   }
 
   /// Saves all images from the cache to the local storage.
   Future<void> saveAllImages() async {
     if (cachedImages == null) return;
-    if (cachedImages!.isEmpty) return;
 
     // SessionId already contains the colorMode
     for (final sessionId in cachedImages!.keys) {
       final MemoryImage image = cachedImages![sessionId]!;
-      final String path = await getPath();
+      final String path = await _getPath();
       final File file = File("$path/$sessionId.png");
       await file.writeAsBytes(image.bytes);
     }
+    log.i("Saved all images to local storage.");
+    notifyListeners();
   }
 
   /// Loads all images from the local storage to the cache.
   Future<void> loadAllImages() async {
-    final String path = await getPath();
+    final String path = await _getPath();
     final Directory imagesDir = Directory(path);
     final List<FileSystemEntity> files = imagesDir.listSync();
     cachedImages = {};
+    List<String> sessionIds = [];
     for (final file in files) {
       if (file is File && file.path.endsWith(".png")) {
         // turns "save/data/user/0/de.tudresden.priobike/app_flutter/background-images/[#13a7f]+ColorMode.light.png"
         // into "#13a7f+ColorMode.light"
-        final String sessionId = file.path.split("/").last.substring(0, file.path.split("/").last.length - 4);
+        final String fileName = file.path.split("/").last;
+        final String sessionId = fileName.substring(0, fileName.length - 4);
         final MemoryImage image = MemoryImage(await file.readAsBytes());
         cachedImages![sessionId] = image;
+        sessionIds.add(sessionId);
       }
     }
+    log.i("Loaded images from local storage: $sessionIds");
+    notifyListeners();
   }
 
   /// Calculates the total size in bytes of all images in the local storage.
   Future<int> calculateStorageSize() async {
-    final String path = await getPath();
+    final String path = await _getPath();
     final Directory imagesDir = Directory(path);
     final List<FileSystemEntity> files = imagesDir.listSync();
     int size = 0;
@@ -183,7 +191,7 @@ class BackgroundImage with ChangeNotifier {
   /// Deletes all images from the cache and the local storage.
   Future<void> deleteAllImages() async {
     cachedImages = {};
-    final String path = await getPath();
+    final String path = await _getPath();
     final Directory imagesDir = Directory(path);
     final List<FileSystemEntity> files = imagesDir.listSync();
     for (final file in files) {
@@ -191,5 +199,7 @@ class BackgroundImage with ChangeNotifier {
         await file.delete();
       }
     }
+    log.i("Deleted all images from local storage.");
+    notifyListeners();
   }
 }
