@@ -22,7 +22,6 @@ import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
-import 'package:priobike/tracking/services/background_image.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
 
 class TrackDetailsDialog extends StatelessWidget {
@@ -95,12 +94,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   /// The track summary.
   Summary? trackSummary;
 
-  /// The background image service.
-  late BackgroundImage backgroundImageService;
-
-  /// The background image of the map for the track.
-  MemoryImage? backgroundImage;
-
   /// PageController.
   final PageController pageController = PageController(
     viewportFraction: 0.9,
@@ -114,7 +107,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   void initState() {
     super.initState();
     initializeDateFormatting();
-    backgroundImageService = getIt<BackgroundImage>();
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -215,51 +207,10 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     );
   }
 
-  /// Load the background image of the map for the track.
-  Future<void> loadBackgroundImage() async {
-    final oldBackgroundImage = backgroundImage;
-
-    double? minLon;
-    double? minLat;
-    double? maxLon;
-    double? maxLat;
-
-    // calculate the bounding box of the route
-    for (final node in routeNodes) {
-      if (minLon == null || node.lon < minLon) minLon = node.lon;
-      if (minLat == null || node.lat < minLat) minLat = node.lat;
-      if (maxLon == null || node.lon > maxLon) maxLon = node.lon;
-      if (maxLat == null || node.lat > maxLat) maxLat = node.lat;
-    }
-    // use int instead of double for mapbox api
-    final int screenWidth = MediaQuery.of(context).size.width.round();
-
-    if (minLon != null || minLat != null || maxLon != null || maxLat != null) {
-      backgroundImage = await backgroundImageService.loadImage(
-        sessionId: widget.track.sessionId,
-        minLat: minLat!,
-        minLon: minLon!,
-        maxLat: maxLat!,
-        maxLon: maxLon!,
-        screenWidth: screenWidth,
-      );
-    }
-    // only update if the image has changed
-    if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
-      setState(() {});
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
     final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
-
-    // The background image of the map for the track.
-    loadBackgroundImage();
-    final alternativeBackgroundImage = Theme.of(context).colorScheme.brightness == Brightness.dark
-        ? const AssetImage('assets/images/map-dark.png')
-        : const AssetImage('assets/images/map-light.png');
 
     final headerTextStyle = TextStyle(
       fontSize: 11,
@@ -331,53 +282,13 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       rideDetails = [];
     }
 
+    final int boxHeight = MediaQuery.of(context).size.width.toInt() - 48;
+
     return Stack(
       alignment: Alignment.center,
       children: [
-        ClipRect(
-          child: SizedBox(
-            child: ShaderMask(
-              shaderCallback: (rect) {
-                return const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  stops: [0.0, 0.5, 0.9],
-                  colors: [Colors.transparent, Colors.black, Colors.transparent],
-                ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-              },
-              blendMode: BlendMode.dstIn,
-              child: ShaderMask(
-                shaderCallback: (rect) {
-                  return const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 0.5, 0.9],
-                    colors: [Colors.transparent, Colors.black, Colors.transparent],
-                  ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                },
-                blendMode: BlendMode.dstIn,
-                //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
-                // sobald das Bild da ist. Das ist Mist.
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: backgroundImage == null
-                      ? Image(
-                          key: UniqueKey(),
-                          image: alternativeBackgroundImage,
-                          fit: BoxFit.contain,
-                        )
-                      : Image(
-                          key: UniqueKey(),
-                          image: backgroundImage!,
-                          fit: BoxFit.contain,
-                        ),
-                ),
-              ),
-            ),
-          ),
-        ),
         Padding(
-          padding: const EdgeInsets.only(top: 32, left: 42, right: 42),
+          padding: const EdgeInsets.only(top: 32, left: 24, right: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -395,7 +306,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               ),
               const SmallVSpace(),
               SizedBox(
-                height: 264,
+                height: boxHeight.toDouble(),
                 child: PageView(
                   controller: pageController,
                   clipBehavior: Clip.none,
@@ -413,7 +324,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                         opacity: tabController?.index == 0 ? 1 : 0,
                         child: TrackPictogram(
                           key: UniqueKey(),
-                          track: positions,
+                          height: boxHeight,
+                          track: widget.track,
+                          tracks: positions,
                           minSpeedColor: CI.blue,
                           maxSpeedColor: CI.blueLight,
                           blurRadius: 2,

@@ -31,16 +31,14 @@ class BackgroundImage with ChangeNotifier {
     required double minLat,
     required double maxLon,
     required double maxLat,
-    required int screenWidth,
+    required int height,
   }) async {
     if (cachedImages == null || cachedImages!.isEmpty) await loadAllImages();
 
     final ColorMode colorMode = getIt<Settings>().colorMode;
 
     // load from cache preferentially
-    log.i("Loading image $sessionId+${colorMode.toString()}.");
     if (cachedImages!.containsKey("$sessionId+${colorMode.toString()}")) {
-      log.i("Found image $sessionId+${colorMode.toString()} in cache.");
       return cachedImages!["$sessionId+${colorMode.toString()}"];
     }
     return await fetchImage(
@@ -49,7 +47,7 @@ class BackgroundImage with ChangeNotifier {
       minLat: minLat,
       maxLon: maxLon,
       maxLat: maxLat,
-      screenWidth: screenWidth,
+      height: height,
     );
   }
 
@@ -60,7 +58,7 @@ class BackgroundImage with ChangeNotifier {
     required double minLat,
     required double maxLon,
     required double maxLat,
-    required int screenWidth,
+    required int height,
   }) async {
     hadError = false;
 
@@ -75,7 +73,7 @@ class BackgroundImage with ChangeNotifier {
       final String style = colorMode == ColorMode.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
       // use screen size
       final String url =
-          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${screenWidth}x$screenWidth?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${height}x$height?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
