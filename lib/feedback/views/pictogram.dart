@@ -2,18 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/tracking/models/track.dart';
+import 'package:priobike/tracking/services/background_image.dart';
 
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
-  final List<Position> track;
+  final List<Position> tracks;
   final Color minSpeedColor;
   final Color maxSpeedColor;
   final double blurRadius;
+  final int height;
+
+  /// The session id of the track, used for the background image.
+  final Track track;
 
   const TrackPictogram({
     Key? key,
-    required this.track,
+    required this.tracks,
     required this.blurRadius,
+    required this.track,
+    required this.height,
     this.minSpeedColor = Colors.green,
     this.maxSpeedColor = Colors.red,
   }) : super(key: key);
@@ -29,9 +38,16 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   double? maxSpeed;
   double minSpeed = 0.0;
 
+  /// The background image service.
+  late BackgroundImage backgroundImageService;
+
+  /// The background image of the map for the track.
+  MemoryImage? backgroundImage;
+
   @override
   void initState() {
     super.initState();
+    backgroundImageService = getIt<BackgroundImage>();
     controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     animation = Tween<double>(begin: 0, end: 1).animate(controller)
       ..addListener(() {
@@ -42,20 +58,97 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     controller.forward();
 
     // Find the min and max speed
-    for (var i = 0; i < widget.track.length; i++) {
-      final p = widget.track[i];
+    for (var i = 0; i < widget.tracks.length; i++) {
+      final p = widget.tracks[i];
       if (maxSpeed == null || p.speed > maxSpeed!) {
         maxSpeed = p.speed;
       }
     }
   }
 
+  /// Load the background image of the map for the track.
+  Future<void> loadBackgroundImage() async {
+    final oldBackgroundImage = backgroundImage;
+
+    double? minLon;
+    double? minLat;
+    double? maxLon;
+    double? maxLat;
+
+    // calculate the bounding box of the route
+    for (final position in widget.tracks) {
+      if (minLon == null || position.longitude < minLon) minLon = position.longitude;
+      if (minLat == null || position.latitude < minLat) minLat = position.latitude;
+      if (maxLon == null || position.longitude > maxLon) maxLon = position.longitude;
+      if (maxLat == null || position.latitude > maxLat) maxLat = position.latitude;
+    }
+
+    if (minLon != null || minLat != null || maxLon != null || maxLat != null) {
+      backgroundImage = await backgroundImageService.loadImage(
+        sessionId: widget.track.sessionId,
+        minLat: minLat!,
+        minLon: minLon!,
+        maxLat: maxLat!,
+        maxLon: maxLon!,
+        height: widget.height,
+      );
+    }
+    // only update if the image has changed
+    if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // The background image of the map for the track.
+    loadBackgroundImage();
+
     return Stack(
       fit: StackFit.expand,
       alignment: Alignment.center,
       children: [
+        // Background image
+        ClipRect(
+          child: SizedBox(
+            child: ShaderMask(
+              shaderCallback: (rect) {
+                return const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  stops: [0.05, 0.5, 0.95],
+                  colors: [Colors.transparent, Colors.black, Colors.transparent],
+                ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+              },
+              blendMode: BlendMode.dstIn,
+              child: ShaderMask(
+                shaderCallback: (rect) {
+                  return const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.05, 0.5, 0.95],
+                    colors: [Colors.transparent, Colors.black, Colors.transparent],
+                  ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                },
+                blendMode: BlendMode.dstIn,
+                //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
+                // sobald das Bild da ist. Das ist Mist.
+                child: AnimatedSwitcher(
+                  duration: const Duration(seconds: 1),
+                  child: backgroundImage == null
+                      ? Container()
+                      : Image(
+                          key: UniqueKey(),
+                          image: backgroundImage!,
+                          fit: BoxFit.contain,
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        //   ),
+        // ),
         // Glow
         Opacity(
           opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
@@ -67,7 +160,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               child: CustomPaint(
                 painter: TrackPainter(
                   fraction: fraction,
-                  track: widget.track,
+                  track: widget.tracks,
                   blurRadius: widget.blurRadius,
                   minSpeedColor: widget.minSpeedColor,
                   maxSpeedColor: widget.maxSpeedColor,
@@ -89,7 +182,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               child: CustomPaint(
                 painter: TrackPainter(
                   fraction: fraction,
-                  track: widget.track,
+                  track: widget.tracks,
                   blurRadius: widget.blurRadius / 2,
                   minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
                   maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
@@ -108,7 +201,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             child: CustomPaint(
               painter: TrackPainter(
                 fraction: fraction,
-                track: widget.track,
+                track: widget.tracks,
                 blurRadius: 0,
                 minSpeedColor: widget.minSpeedColor,
                 maxSpeedColor: widget.maxSpeedColor,
