@@ -168,7 +168,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 ),
               ),
               Positioned(
-                top: 10,
+                top: 13,
                 left: 10,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -177,7 +177,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     Text(
                       "$day.",
                       style: TextStyle(
-                        fontSize: 36,
+                        fontSize: widget.width * 0.17,
                         fontWeight: FontWeight.bold,
                         height: 0.9,
                         foreground: Paint()
@@ -192,18 +192,31 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                       ),
                     ),
                     const SmallHSpace(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "$monthName\n${year.toString()}",
-                          style: const TextStyle(
-                            fontSize: 11,
-                            height: 1.2,
-                          ),
+                    SizedBox(
+                      width: widget.width * 0.17,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              monthName,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                height: 1.2,
+                              ),
+                            ),
+                            Text(
+                              year.toString(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                height: 1.2,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -221,18 +234,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     ),
                   ),
                 ),
-              const Positioned(
-                bottom: 10,
-                right: 10,
-                child: Text(
-                  "Route",
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.2,
-                    color: CI.blue,
-                  ),
-                ),
-              ),
               if (routeNodes.isNotEmpty)
                 Positioned(
                   bottom: 10,
@@ -248,10 +249,23 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     ),
                   ),
                 ),
+              const Positioned(
+                bottom: 10,
+                right: 10,
+                child: Text(
+                  "Route",
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.2,
+                    color: CI.blue,
+                  ),
+                ),
+              ),
               Positioned(
                 right: 0,
                 top: 0,
                 child: IconButton(
+                  padding: const EdgeInsets.all(0),
                   onPressed: () => showDeleteDialog(),
                   icon: Icon(
                     Icons.delete_rounded,
