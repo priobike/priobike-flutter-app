@@ -226,18 +226,10 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
     // calculate the bounding box of the route
     for (final node in routeNodes) {
-      if (minLon == null || node.lon < minLon) {
-        minLon = node.lon;
-      }
-      if (minLat == null || node.lat < minLat) {
-        minLat = node.lat;
-      }
-      if (maxLon == null || node.lon > maxLon) {
-        maxLon = node.lon;
-      }
-      if (maxLat == null || node.lat > maxLat) {
-        maxLat = node.lat;
-      }
+      if (minLon == null || node.lon < minLon) minLon = node.lon;
+      if (minLat == null || node.lat < minLat) minLat = node.lat;
+      if (maxLon == null || node.lon > maxLon) maxLon = node.lon;
+      if (maxLat == null || node.lat > maxLat) maxLat = node.lat;
     }
     // use int instead of double for mapbox api
     final int screenWidth = MediaQuery.of(context).size.width.round();
