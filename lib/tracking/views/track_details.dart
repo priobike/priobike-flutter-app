@@ -47,7 +47,6 @@ class TrackDetailsDialog extends StatelessWidget {
       children: [
         Column(
           children: [
-            const VSpace(),
             TrackDetailsView(
               track: track,
               startImage: startImage,
