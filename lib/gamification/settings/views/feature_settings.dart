@@ -77,12 +77,15 @@ class _GameFeatureElementState extends State<GameFeatureElement> {
   /// The associated settings service, which is injected by the provider.
   late GameSettingsService _settingsService;
 
+  bool _selected = false;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  void update() => {if (mounted) setState(() => _selected = _settingsService.isFeatureEnabled(widget.featureKey))};
 
   @override
   void initState() {
     _settingsService = getIt<GameSettingsService>();
+    _selected = _settingsService.isFeatureEnabled(widget.featureKey);
     _settingsService.addListener(update);
     super.initState();
   }
@@ -96,16 +99,18 @@ class _GameFeatureElementState extends State<GameFeatureElement> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var selected = _settingsService.isFeatureEnabled(widget.featureKey);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Tile(
         showShadow: false,
         borderWidth: 3,
-        borderColor: selected ? theme.colorScheme.primary : Colors.grey.withOpacity(0.25),
+        borderColor: _selected ? theme.colorScheme.primary : Colors.grey.withOpacity(0.25),
         splash: Colors.grey.withOpacity(0.1),
         fill: theme.colorScheme.background,
-        onPressed: () => _settingsService.enableOrDisableFeature(widget.featureKey),
+        onPressed: () {
+          setState(() => _selected = !_selected);
+          _settingsService.enableOrDisableFeature(widget.featureKey);
+        },
         content: Center(
           child: SubHeader(
             text: widget.label,

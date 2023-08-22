@@ -53,6 +53,13 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _profileService.removeListener(update);
+    _animationController.dispose();
+    super.dispose();
+  }
+
   /// Open the view corresponding to a specific selected setting.
   void _openSettingsPage(Widget view, int index) {
     setState(() => selectedSetting = 0);

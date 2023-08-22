@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/hub/challenges/utils/challenge_goals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This services manages the game settings of the user.
@@ -8,6 +11,8 @@ class GameSettingsService with ChangeNotifier {
   static const gameFeatureStatisticsKey = 'priobike.game.features.statistics';
   static const gameFeatureChallengesKey = 'priobike.game.features.challenges';
 
+  static const challengeGoalsKey = 'priobike.game.challenges.goals';
+
   /// Map of the feature keys to describing labels.
   static Map<String, String> get gameFeaturesLabelMap => {
         gameFeatureChallengesKey: 'PrioBike Challenges',
@@ -16,6 +21,9 @@ class GameSettingsService with ChangeNotifier {
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
+
+  ChallengeGoals? _goals;
+  bool get challengeGoalsSet => _goals != null;
 
   /// List of the selected game preferences of the user as string keys.
   List<String> _enabledFeatures = [];
@@ -29,6 +37,9 @@ class GameSettingsService with ChangeNotifier {
   void _loadEnabledFeatures() async {
     _prefs ??= await SharedPreferences.getInstance();
     _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
+
+    var goalStr = _prefs!.getString(challengeGoalsKey);
+    _goals = goalStr == null ? null : ChallengeGoals.fromJson(jsonDecode(goalStr));
   }
 
   /// Returns true, if a given string key is inside of the list of selected game prefs.

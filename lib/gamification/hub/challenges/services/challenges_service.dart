@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/hub/challenges/services/challenge_generator.dart';
+import 'package:priobike/gamification/hub/challenges/utils/challenge_generator.dart';
 
 abstract class ChallengeService with ChangeNotifier {
   final ChallengesDao _dao = AppDatabase.instance.challengesDao;
+
+  final ChallengeGenerator _generator = ChallengeGenerator();
 
   bool _loadedChallengeState = false;
   bool get loadedChallengeState => _loadedChallengeState;
@@ -91,7 +93,7 @@ class DailyChallengeService extends ChallengeService {
   Future<List<Challenge>> get openChallenges => _dao.getOpenDailyChallenges();
 
   @override
-  ChallengesCompanion get generatedChallenge => ChallengeGenerator.generateDailyChallenge();
+  ChallengesCompanion get generatedChallenge => _generator.generateDailyChallenge();
 }
 
 class WeeklyChallengeService extends ChallengeService {
@@ -105,5 +107,5 @@ class WeeklyChallengeService extends ChallengeService {
   Future<List<Challenge>> get openChallenges => _dao.getOpenWeeklyChallenges();
 
   @override
-  ChallengesCompanion get generatedChallenge => ChallengeGenerator.generateWeeklyChallenge();
+  ChallengesCompanion get generatedChallenge => _generator.generateWeeklyChallenge();
 }

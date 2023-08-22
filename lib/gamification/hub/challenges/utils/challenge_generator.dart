@@ -1,3 +1,4 @@
+
 import 'dart:math';
 
 import 'package:priobike/gamification/common/database/database.dart';
@@ -12,20 +13,20 @@ class ValueRange {
 }
 
 class ChallengeGenerator {
-  static ValueRange getDailyChallengeValueRange(DailyChallengeType type) {
+  ValueRange getDailyChallengeValueRange(DailyChallengeType type) {
     if (type == DailyChallengeType.distance) return ValueRange(3, 10, 500, 25);
     if (type == DailyChallengeType.duration) return ValueRange(1, 6, 15, 25);
     return ValueRange(0, 0, 0, 0);
   }
 
-  static ValueRange getWeeklyChallengeValueRange(WeeklyChallengeType type) {
+  ValueRange getWeeklyChallengeValueRange(WeeklyChallengeType type) {
     if (type == WeeklyChallengeType.distance) return ValueRange(10, 20, 1, 50);
     if (type == WeeklyChallengeType.rides) return ValueRange(4, 6, 1, 100);
     if (type == WeeklyChallengeType.streak) return ValueRange(3, 5, 1, 150);
     return ValueRange(0, 0, 0, 0);
   }
 
-  static String getLabel(var type) {
+  String getLabel(var type) {
     if (type == DailyChallengeType.distance) return 'm';
     if (type == DailyChallengeType.duration) return 'min';
     if (type == WeeklyChallengeType.distance) return 'km';
@@ -34,7 +35,7 @@ class ChallengeGenerator {
     return '';
   }
 
-  static String buildDescriptionDaily(DailyChallengeType type, int value) {
+  String buildDescriptionDaily(DailyChallengeType type, int value) {
     if (type == DailyChallengeType.distance) {
       return 'Bringe Heute eine Strecke von ${value / 1000} Kilometern hinter Dich!';
     } else if (type == DailyChallengeType.duration) {
@@ -43,7 +44,7 @@ class ChallengeGenerator {
     return '';
   }
 
-  static String buildDescriptionWeekly(WeeklyChallengeType type, int value) {
+  String buildDescriptionWeekly(WeeklyChallengeType type, int value) {
     if (type == WeeklyChallengeType.distance) {
       return 'Bringe diese Woche eine Strecke von $value Kilometern hinter Dich!';
     } else if (type == WeeklyChallengeType.rides) {
@@ -54,7 +55,7 @@ class ChallengeGenerator {
     return '';
   }
 
-  static ChallengesCompanion generateDailyChallenge() {
+  ChallengesCompanion generateDailyChallenge() {
     var now = DateTime.now();
     var start = DateTime(now.year, now.month, now.day);
     var type = DailyChallengeType.values.elementAt(Random().nextInt(DailyChallengeType.values.length));
@@ -75,9 +76,9 @@ class ChallengeGenerator {
     );
   }
 
-  static ChallengesCompanion generateWeeklyChallenge() {
+  ChallengesCompanion generateWeeklyChallenge() {
     var now = DateTime.now();
-    var start = DateTime(now.year, now.month, now.day);
+    var start = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
     var type = WeeklyChallengeType.values.elementAt(Random().nextInt(WeeklyChallengeType.values.length));
     var range = getWeeklyChallengeValueRange(type);
     var randomValue = Random().nextInt(range.max - range.min) + range.min;

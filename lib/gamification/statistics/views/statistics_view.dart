@@ -38,6 +38,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   void dispose() {
     statService.removeListener(update);
     _headerAnimationController.dispose();
+    _listAnimationController.dispose();
     super.dispose();
   }
 

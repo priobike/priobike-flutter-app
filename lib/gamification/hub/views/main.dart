@@ -39,7 +39,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
   /// A map which maps the keys of possible gamification components to corresponding views.
   /// This map is needed to decide which views to display to the user.
   Map<String, Widget> get mappedHubElements => {
-        GameSettingsService.gameFeatureChallengesKey: const GameChallengesCard(),
+        GameSettingsService.gameFeatureChallengesKey: GameChallengesCard(openView: openPage),
         GameSettingsService.gameFeatureStatisticsKey: RideStatisticsCard(openView: openPage),
       };
 
