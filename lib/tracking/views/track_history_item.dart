@@ -118,6 +118,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
       child: Tile(
         onPressed: () => showAppSheet(
           context: context,
+          isScrollControlled: true,
           builder: (context) => TrackDetailsDialog(
               track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
         ),
