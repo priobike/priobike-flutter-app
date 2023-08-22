@@ -67,8 +67,8 @@ class BackgroundImage with ChangeNotifier {
     try {
       // For Styles see: https://docs.mapbox.com/api/maps/styles/
       // TODO: Style von Philipp nutzen
-      final ColorMode brightness = getIt<Settings>().colorMode;
-      final String style = brightness == ColorMode.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
+      final ColorMode colorMode = getIt<Settings>().colorMode;
+      final String style = colorMode == ColorMode.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
       // use screen size
       final String url =
           "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${screenWidth}x$screenWidth?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
@@ -85,9 +85,6 @@ class BackgroundImage with ChangeNotifier {
       hadError = false;
       hasLoaded = true;
 
-      if (cachedImages == null) {
-        await loadAllImages();
-      }
       await saveImage(sessionId, image);
 
       notifyListeners();
@@ -114,56 +111,85 @@ class BackgroundImage with ChangeNotifier {
 
   /// Saves the given image to the cache and the local storage.
   Future<void> saveImage(String sessionId, MemoryImage image) async {
-    final ColorMode brightness = getIt<Settings>().colorMode;
-    cachedImages![sessionId + brightness.toString()] = image;
+    if (cachedImages == null) return;
+    if (cachedImages!.isEmpty) return;
+
+    final ColorMode colorMode = getIt<Settings>().colorMode;
+    cachedImages![sessionId + colorMode.toString()] = image;
     final String path = await getPath();
-    final File file = File("$path/$sessionId+$brightness.png");
+    final File file = File("$path/$sessionId+$colorMode.png");
     await file.writeAsBytes(image.bytes);
     notifyListeners();
   }
 
   /// Deletes the given image from the cache and the local storage.
   Future<void> deleteImage(String sessionId) async {
-    final ColorMode brightness = getIt<Settings>().colorMode;
-    cachedImages!.remove(sessionId + brightness.toString());
+    if (cachedImages == null) return;
+    if (cachedImages!.isEmpty) return;
+
+    final ColorMode colorMode = getIt<Settings>().colorMode;
+    cachedImages!.remove(sessionId + colorMode.toString());
     final String path = await getPath();
-    final File file = File("$path/$sessionId+$brightness.png");
+    final File file = File("$path/$sessionId+$colorMode.png");
     await file.delete();
     notifyListeners();
   }
 
   /// Saves all images from the cache to the local storage.
   Future<void> saveAllImages() async {
-    cachedImages ??= {};
+    if (cachedImages == null) return;
     if (cachedImages!.isEmpty) return;
+
+    // SessionId already contains the colorMode
     for (final sessionId in cachedImages!.keys) {
-      // sessionId already contains the brightness
-      await saveImage(sessionId, cachedImages![sessionId]!);
+      final MemoryImage image = cachedImages![sessionId]!;
+      final String path = await getPath();
+      final File file = File("$path/$sessionId.png");
+      await file.writeAsBytes(image.bytes);
     }
   }
 
+  /// Loads all images from the local storage to the cache.
   Future<void> loadAllImages() async {
-    if (cachedImages != null) return;
-    final Directory dir = await getApplicationDocumentsDirectory();
-    final String path = "${dir.path}/background-images";
+    final String path = await getPath();
     final Directory imagesDir = Directory(path);
-    if (!await imagesDir.exists()) {
-      await imagesDir.create();
-    }
     final List<FileSystemEntity> files = imagesDir.listSync();
     cachedImages = {};
     for (final file in files) {
-      final String sessionId = file.path.split("/").last;
-      // final bytes = await file.readAsBytes();
-      // final image = MemoryImage(bytes);
-      // cachedImages![sessionId] = image;
-      //TODO: finish
+      if (file is File && file.path.endsWith(".png")) {
+        // turns "save/data/user/0/de.tudresden.priobike/app_flutter/background-images/[#13a7f]+ColorMode.light.png"
+        // into "#13a7f+ColorMode.light"
+        final String sessionId = file.path.split("/").last.substring(0, file.path.split("/").last.length - 4);
+        final MemoryImage image = MemoryImage(await file.readAsBytes());
+        cachedImages![sessionId] = image;
+      }
     }
   }
 
+  /// Calculates the total size in bytes of all images in the local storage.
+  Future<int> calculateStorageSize() async {
+    final String path = await getPath();
+    final Directory imagesDir = Directory(path);
+    final List<FileSystemEntity> files = imagesDir.listSync();
+    int size = 0;
+    for (final file in files) {
+      if (file is File && file.path.endsWith(".png")) {
+        size += await file.length();
+      }
+    }
+    return size;
+  }
+
+  /// Deletes all images from the cache and the local storage.
   Future<void> deleteAllImages() async {
     cachedImages = {};
-
-    // TODO: fisnish
+    final String path = await getPath();
+    final Directory imagesDir = Directory(path);
+    final List<FileSystemEntity> files = imagesDir.listSync();
+    for (final file in files) {
+      if (file is File && file.path.endsWith(".png")) {
+        await file.delete();
+      }
+    }
   }
 }
