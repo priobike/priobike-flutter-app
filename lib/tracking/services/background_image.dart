@@ -3,6 +3,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/color_mode.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 class BackgroundImage with ChangeNotifier {
   /// The logger for this service.
@@ -19,7 +22,7 @@ class BackgroundImage with ChangeNotifier {
 
   /// The cached images. The key is the sessionId of the route + light/dark mode
   /// and the value is the backgroundimage of the map.
-  Map<String, ImageProvider>? cachedImages = {};
+  Map<String, MemoryImage>? cachedImages = {};
 
   /// Loads the background image for the given route. Tries to load it from the cache first.
   Future<ImageProvider?> loadImage({
@@ -29,11 +32,10 @@ class BackgroundImage with ChangeNotifier {
     required double maxLon,
     required double maxLat,
     required int screenWidth,
-    required Brightness brightness,
   }) async {
-    if (cachedImages == null) {
-      await loadAllImages();
-    }
+    if (cachedImages == null) await loadAllImages();
+
+    final ColorMode brightness = getIt<Settings>().colorMode;
     if (cachedImages!.containsKey(sessionId + brightness.toString())) {
       return cachedImages![sessionId + brightness.toString()];
     }
@@ -44,7 +46,6 @@ class BackgroundImage with ChangeNotifier {
       maxLon: maxLon,
       maxLat: maxLat,
       screenWidth: screenWidth,
-      brightness: brightness,
     );
   }
 
@@ -56,7 +57,6 @@ class BackgroundImage with ChangeNotifier {
     required double maxLon,
     required double maxLat,
     required int screenWidth,
-    required Brightness brightness,
   }) async {
     hadError = false;
 
@@ -67,7 +67,8 @@ class BackgroundImage with ChangeNotifier {
     try {
       // For Styles see: https://docs.mapbox.com/api/maps/styles/
       // TODO: Style von Philipp nutzen
-      final String style = brightness == Brightness.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
+      final ColorMode brightness = getIt<Settings>().colorMode;
+      final String style = brightness == ColorMode.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
       // use screen size
       final String url =
           "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${screenWidth}x$screenWidth?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
@@ -87,7 +88,7 @@ class BackgroundImage with ChangeNotifier {
       if (cachedImages == null) {
         await loadAllImages();
       }
-      await saveImage(sessionId, brightness, image);
+      await saveImage(sessionId, image);
 
       notifyListeners();
       return image;
@@ -100,18 +101,45 @@ class BackgroundImage with ChangeNotifier {
     }
   }
 
-  Future<void> saveImage(String sessionId, Brightness brightness, MemoryImage image) async {
+  /// Helper function to get the path to the local storage.
+  Future<String> getPath() async {
+    final Directory dir = await getApplicationDocumentsDirectory();
+    final String path = "${dir.path}/background-images";
+    final Directory imagesDir = Directory(path);
+    if (!await imagesDir.exists()) {
+      await imagesDir.create();
+    }
+    return path;
+  }
+
+  /// Saves the given image to the cache and the local storage.
+  Future<void> saveImage(String sessionId, MemoryImage image) async {
+    final ColorMode brightness = getIt<Settings>().colorMode;
     cachedImages![sessionId + brightness.toString()] = image;
-
-    //TODO: save to local storage
+    final String path = await getPath();
+    final File file = File("$path/$sessionId+$brightness.png");
+    await file.writeAsBytes(image.bytes);
+    notifyListeners();
   }
 
-  Future<void> deleteImage() async {
-    //TODO:
+  /// Deletes the given image from the cache and the local storage.
+  Future<void> deleteImage(String sessionId) async {
+    final ColorMode brightness = getIt<Settings>().colorMode;
+    cachedImages!.remove(sessionId + brightness.toString());
+    final String path = await getPath();
+    final File file = File("$path/$sessionId+$brightness.png");
+    await file.delete();
+    notifyListeners();
   }
 
+  /// Saves all images from the cache to the local storage.
   Future<void> saveAllImages() async {
-    // TODO:
+    cachedImages ??= {};
+    if (cachedImages!.isEmpty) return;
+    for (final sessionId in cachedImages!.keys) {
+      // sessionId already contains the brightness
+      await saveImage(sessionId, cachedImages![sessionId]!);
+    }
   }
 
   Future<void> loadAllImages() async {

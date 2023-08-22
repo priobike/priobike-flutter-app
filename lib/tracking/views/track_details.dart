@@ -251,7 +251,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         maxLat: maxLat!,
         maxLon: maxLon!,
         screenWidth: screenWidth,
-        brightness: brightness,
       );
     }
     // only update if the image has changed
