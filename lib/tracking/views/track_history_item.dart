@@ -258,7 +258,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 right: 0,
                 top: 0,
                 child: IconButton(
-                  padding: const EdgeInsets.all(0),
                   onPressed: () => showDeleteDialog(),
                   icon: Icon(
                     Icons.delete_rounded,
