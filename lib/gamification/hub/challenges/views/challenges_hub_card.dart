@@ -46,9 +46,12 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   @override
   Widget build(BuildContext context) {
     return GameHubCard(
-      onTap: () {
+      onTap: () async {
         if (!_settingsService.challengeGoalsSet) {
           widget.openView(const ChallengeGoalsView());
+        } else {
+          await AppDatabase.instance.challengesDao.clearDatabase();
+          _settingsService.setChallengeGoals(null);
         }
       },
       content: Column(

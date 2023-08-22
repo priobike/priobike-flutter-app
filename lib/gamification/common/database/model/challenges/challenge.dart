@@ -69,4 +69,11 @@ class ChallengesDao extends DatabaseDao<Challenge> with _$ChallengesDaoMixin {
   Future<List<Challenge>> getOpenDailyChallenges() {
     return (select(challenges)..where((tbl) => tbl.isOpen & tbl.isWeekly.not())).get();
   }
+
+  Future<void> clearDatabase() async {
+    var allObjects = await getAllObjects();
+    for (var o in allObjects) {
+      await deleteObject(o);
+    }
+  }
 }

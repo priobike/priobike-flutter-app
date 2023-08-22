@@ -23,6 +23,7 @@ class GameSettingsService with ChangeNotifier {
   SharedPreferences? _prefs;
 
   ChallengeGoals? _goals;
+  ChallengeGoals? get goals => _goals;
   bool get challengeGoalsSet => _goals != null;
 
   /// List of the selected game preferences of the user as string keys.
@@ -31,6 +32,11 @@ class GameSettingsService with ChangeNotifier {
 
   GameSettingsService() {
     _loadEnabledFeatures();
+  }
+
+  void setChallengeGoals(ChallengeGoals? goals) {
+    _goals = goals;
+    notifyListeners();
   }
 
   /// Load settings from shared preferences and store in local variables.

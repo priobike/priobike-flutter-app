@@ -1,32 +1,35 @@
 import 'dart:convert';
 
-class TrackGoals {
-  final String trackId;
+class RouteGoals {
+  final String routeID;
   final String trackDescription;
+  final int perWeek;
 
-  TrackGoals(this.trackId, this.trackDescription);
+  RouteGoals(this.routeID, this.trackDescription, this.perWeek);
 
   Map<String, dynamic> toJson() => {
-        'trackId': trackId,
+        'routeID': routeID,
         'trackDescription': trackDescription,
+        'perWeek': perWeek,
       };
 
-  TrackGoals.fromJson(Map<String, dynamic> json)
-      : trackId = json['trackId'],
-        trackDescription = json['trackDescription'];
+  RouteGoals.fromJson(Map<String, dynamic> json)
+      : routeID = json['routeID'],
+        trackDescription = json['trackDescription'],
+        perWeek = json['perWeek'];
 }
 
 class ChallengeGoals {
   final double dailyDistanceGoalMetres;
   final double dailyDurationGoalMinutes;
-  final TrackGoals trackGoal;
+  final RouteGoals? trackGoal;
 
   ChallengeGoals(this.dailyDistanceGoalMetres, this.dailyDurationGoalMinutes, this.trackGoal);
 
   Map<String, dynamic> toJson() => {
         'dailyDistanceGoalMetres': dailyDistanceGoalMetres,
         'dailyDurationGoalMinutes': dailyDurationGoalMinutes,
-        'trackGoal': jsonEncode(trackGoal.toJson()),
+        'trackGoal': trackGoal == null ? null : jsonEncode(trackGoal!.toJson()),
       };
 
   ChallengeGoals.fromJson(Map<String, dynamic> json)

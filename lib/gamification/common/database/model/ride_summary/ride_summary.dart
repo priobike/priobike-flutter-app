@@ -85,7 +85,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
   /// Generate random mock rides for the last 6 months.
   void _createMocks() async {
     var today = DateTime.now();
-    for (int i = 1; i < 30 * 6; i++) {
+    for (int i = 1; i < 30 * 2; i++) {
       var day = today.subtract(Duration(days: i));
       var rides = 4 - sqrt(Random().nextInt(24)).floorToDouble();
       for (int e = 0; e < rides; e++) {
