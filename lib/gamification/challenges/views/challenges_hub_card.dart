@@ -11,8 +11,8 @@ import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/hub/challenges/services/challenges_service.dart';
-import 'package:priobike/gamification/hub/challenges/views/challenge_goals.dart';
+import 'package:priobike/gamification/challenges/services/challenges_service.dart';
+import 'package:priobike/gamification/challenges/views/challenge_goals.dart';
 import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/main.dart';
@@ -218,8 +218,8 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
         if (isCompleted) HapticFeedback.mediumImpact();
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
-        if (challenge == null && service.allowNew) {
-          service.generateChallenge();
+        if (challenge == null) {
+          if (service.allowNew) service.generateChallenge();
         } else if (challenge!.progress < challenge!.target) {
           service.finishChallenge();
         } else {

@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/hub/challenges/utils/challenge_goals.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_goals.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';

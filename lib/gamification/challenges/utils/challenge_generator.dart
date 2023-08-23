@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/hub/challenges/utils/challenge_goals.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_goals.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/main.dart';
 

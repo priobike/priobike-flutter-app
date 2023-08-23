@@ -6,7 +6,7 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/gamification/hub/challenges/services/challenges_service.dart';
+import 'package:priobike/gamification/challenges/services/challenges_service.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';

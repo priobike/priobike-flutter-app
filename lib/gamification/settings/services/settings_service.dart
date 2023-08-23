@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/hub/challenges/utils/challenge_goals.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_goals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This services manages the game settings of the user.

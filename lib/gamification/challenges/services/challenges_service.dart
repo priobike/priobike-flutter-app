@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/hub/challenges/utils/challenge_validator.dart';
-import 'package:priobike/gamification/hub/challenges/utils/challenge_generator.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_validator.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 
 abstract class ChallengeService with ChangeNotifier {
   final ChallengesDao _dao = AppDatabase.instance.challengesDao;
