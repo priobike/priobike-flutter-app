@@ -233,6 +233,15 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             ],
           ),
         ),
+        //Mapbox Attribution Logo
+        Positioned(
+          bottom: 30,
+          right: 0,
+          child: Image.asset(
+            'assets/images/mapbox-logo-transparent.png',
+            width: 80,
+          ),
+        ),
       ],
     );
   }
