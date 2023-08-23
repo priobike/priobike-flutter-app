@@ -64,7 +64,7 @@ class ChallengeGenerator {
 
   String buildDescriptionWeekly(ChallengeType type, int value, String? routeLabel) {
     if (type == ChallengeType.distance) {
-      return 'Bringe diese Woche eine Strecke von $value Kilometern hinter Dich!';
+      return 'Bringe diese Woche eine Strecke von ${value / 1000} Kilometern hinter Dich!';
     } else if (type == ChallengeType.rides) {
       return 'Fahre die Route $routeLabel diese Woche $value-mal mit dem Rad!';
     } else if (type == ChallengeType.streak) {

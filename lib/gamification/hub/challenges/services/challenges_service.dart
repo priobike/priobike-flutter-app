@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
@@ -25,37 +27,47 @@ abstract class ChallengeService with ChangeNotifier {
 
   ChallengesCompanion get generatedChallenge;
 
+  StreamSubscription? stream;
+
   ChallengeService() {
-    () async {
-      await progressOpenChallenges();
-      startChallengeStreams();
-    }();
+    loadOpenChallenges();
   }
 
-  void startChallengeStreams() {
-    _dao.streamChallengesInInterval(intervalStartDay, intervalLengthInDays).listen(
-      (update) {
-        if (_currentChallenge != null) return;
-        if (update.isEmpty) {
-          if (!_loadedChallengeState) return;
-          _currentChallenge = null;
-        } else {
-          _validator?.dispose();
-          _currentChallenge = update.first;
-          _validator = ChallengeValidator(challenge: _currentChallenge!);
-        }
-        notifyListeners();
-      },
-    );
+  void completeChallenge() {
+    if (_currentChallenge == null) return;
+    // Do nothing, if the challenge wasn't completed yet.
+    var notCompleted = _currentChallenge!.progress / _currentChallenge!.target < 1;
+    if (notCompleted) return;
+
+    stream?.cancel();
+    _validator?.dispose();
+    _dao.updateObject(_currentChallenge!.copyWith(isOpen: false));
+    _currentChallenge = null;
   }
 
-  Future<void> progressOpenChallenges() async {
+  void startChallengeStream() {
+    if (_currentChallenge == null) return;
+    stream?.cancel();
+    stream = _dao.streamObjectByPrimaryKey(_currentChallenge!.id).listen((update) {
+      _currentChallenge = update;
+      notifyListeners();
+      if (update == null) stream?.cancel();
+    });
+  }
+
+  Future<void> loadOpenChallenges() async {
     for (var challenge in (await openChallenges)) {
+      // If an open challenge was not completed, but the time did run out, close the challenge.
       var isCompleted = challenge.progress / challenge.target >= 1;
       if (!isCompleted && !inTimeFrame(challenge)) {
         await _dao.updateObject(challenge.copyWith(isOpen: false));
-      } else {
+      }
+
+      /// If a challenge has been completed, select it as the current challenge so the user can collect rewards.
+      else {
         _currentChallenge = challenge;
+        _validator = ChallengeValidator(challenge: _currentChallenge!);
+        startChallengeStream();
       }
     }
     _loadedChallengeState = true;
@@ -66,14 +78,27 @@ abstract class ChallengeService with ChangeNotifier {
     return now.isAfter(challenge.begin) && now.isBefore(challenge.end);
   }
 
-  void generateChallenge() {
+  void generateChallenge() async {
     if (_currentChallenge != null) return;
-    _dao.createObject(generatedChallenge);
+    _currentChallenge = await _dao.createObject(generatedChallenge);
+    if (_currentChallenge == null) throw Exception("Couldn't generate new challenge.");
+    _validator = ChallengeValidator(challenge: _currentChallenge!);
+    startChallengeStream();
   }
 
   void deleteCurrentChallenge() {
     if (_currentChallenge == null) return;
     _dao.deleteObject(currentChallenge!);
+  }
+
+  void finishChallenge() {
+    if (currentChallenge == null) return;
+    var modified = currentChallenge!.copyWith(
+      progress: (currentChallenge!.target * 1.25).toInt(),
+      end: currentChallenge!.begin,
+      begin: currentChallenge!.begin.subtract(Duration(days: intervalLengthInDays)),
+    );
+    _dao.updateObject(modified);
   }
 }
 

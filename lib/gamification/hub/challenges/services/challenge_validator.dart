@@ -10,29 +10,22 @@ class ChallengeValidator {
   late StreamSubscription streamSub;
 
   ChallengeValidator({required this.challenge}) {
-    var rideDao = AppDatabase.instance.rideSummaryDao;
-    Stream<List<RideSummary>> rideStream;
-    Future<List<RideSummary>> rideFuture;
-    var now = DateTime.now();
-    if (challenge.isWeekly) {
-      rideFuture = rideDao.getRidesInWeek(now);
-      rideStream = rideDao.streamRidesInWeek(now);
-    } else {
-      rideFuture = rideDao.getRidesOnDay(now);
-      rideStream = rideDao.streamRidesOnDay(DateTime.now());
-    }
-    rideFuture.then((rides) => handleUpdate(rides));
-    streamSub = rideStream.listen((rides) => handleUpdate(rides));
+    streamSub = AppDatabase.instance.rideSummaryDao
+        .streamRidesInInterval(challenge.begin, challenge.end)
+        .listen((rides) => handleUpdate(rides));
   }
 
   void dispose() => streamSub.cancel();
 
   void handleUpdate(List<RideSummary> rides) {
+    // Get all rides that started after the user started the challenge.
+    var relevantRides = rides.where((ride) => ride.startTime.isAfter(challenge.userStartTime)).toList();
+    // Handle rides according to the challenge type.
     var type = ChallengeType.values.elementAt(challenge.type);
-    if (type == ChallengeType.distance) handleDistanceChallenge(rides);
-    if (type == ChallengeType.duration) handleDurationChallenge(rides);
-    if (type == ChallengeType.rides) handleRidesChallenge(rides);
-    if (type == ChallengeType.streak) handleStreakChallenge(rides);
+    if (type == ChallengeType.distance) handleDistanceChallenge(relevantRides);
+    if (type == ChallengeType.duration) handleDurationChallenge(relevantRides);
+    if (type == ChallengeType.rides) handleRidesChallenge(relevantRides);
+    if (type == ChallengeType.streak) handleStreakChallenge(relevantRides);
   }
 
   void handleDistanceChallenge(List<RideSummary> rides) {

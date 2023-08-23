@@ -81,7 +81,7 @@ class _GameProfileCardState extends State<GameProfileCard> {
   Level? get nextLevel {
     if (currentLevel == null) return _levels[0];
     int index = _levels.indexOf(currentLevel!);
-    if (index == _levels.length) return null;
+    if (index == _levels.length - 1) return null;
     return _levels[index + 1];
   }
 

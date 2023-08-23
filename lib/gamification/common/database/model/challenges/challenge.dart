@@ -37,26 +37,6 @@ class ChallengesDao extends DatabaseDao<Challenge> with _$ChallengesDaoMixin {
     return (select(challenges)..where((tbl) => (tbl as $ChallengesTable).id.equals(value)));
   }
 
-  Stream<List<Challenge>> streamOpenDailyChallenges() {
-    return (select(challenges)..where((tbl) => tbl.isOpen & tbl.isWeekly.not())).watch();
-  }
-
-  Stream<List<Challenge>> streamOpenWeeklyChallenges() {
-    return (select(challenges)..where((tbl) => tbl.isOpen & tbl.isWeekly)).watch();
-  }
-
-  Stream<List<Challenge>> streamChallengesInInterval(DateTime startDay, int lengthInDays) {
-    var start = DateTime(startDay.year, startDay.month, startDay.day);
-    var end = start.add(Duration(days: lengthInDays));
-    return (select(challenges)..where((tbl) => tbl.begin.equals(start) & tbl.end.equals(end))).watch();
-  }
-
-  Future<List<Challenge>> getChallengesInInterval(DateTime startDay, int lengthInDays) {
-    var start = DateTime(startDay.year, startDay.month, startDay.day);
-    var end = start.add(Duration(days: lengthInDays));
-    return (select(challenges)..where((tbl) => tbl.begin.equals(start) & tbl.end.equals(end))).get();
-  }
-
   Future<List<Challenge>> getOpenWeeklyChallenges() {
     return (select(challenges)..where((tbl) => tbl.isOpen & tbl.isWeekly)).get();
   }
@@ -65,10 +45,7 @@ class ChallengesDao extends DatabaseDao<Challenge> with _$ChallengesDaoMixin {
     return (select(challenges)..where((tbl) => tbl.isOpen & tbl.isWeekly.not())).get();
   }
 
-  Future<void> clearDatabase() async {
-    var allObjects = await getAllObjects();
-    for (var o in allObjects) {
-      await deleteObject(o);
-    }
+  Stream<List<Challenge>> streamClosedCompletedChallenges() {
+    return (select(challenges)..where((tbl) => tbl.isOpen.not() & tbl.progress.isBiggerOrEqual(tbl.target))).watch();
   }
 }

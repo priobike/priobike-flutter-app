@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/hub/models/game_profile.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
@@ -16,8 +17,9 @@ class GameProfileService with ChangeNotifier {
   static const String userProfileKey = 'priobike.game.userProfile';
   static const String profileExistsKey = 'priobike.game.profileExists';
 
-  /// Ride DAO needed to access ride summaries when updating the profile values.
+  /// Ride DAOs to access rides and challenges.
   RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
+  ChallengesDao get challengeDao => AppDatabase.instance.challengesDao;
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
@@ -33,8 +35,23 @@ class GameProfileService with ChangeNotifier {
     _loadProfile();
   }
 
-  void startRideStream() {
-    rideDao.streamAllObjects().listen((update) => updateProfileData(update));
+  /// Start challenges and rides database streams to update user profile accordingly.
+  void startDatabaseStreams() {
+    rideDao.streamAllObjects().listen((update) => updateStatistics(update));
+    // Only challenges which are closed and completed, since open challenges are not regarded for the rewards yet.
+    challengeDao.streamClosedCompletedChallenges().listen((update) => updateRewards(update));
+  }
+
+  Future<void> updateRewards(List<Challenge> challenges) async {
+    // If for some reason there is no user profile, return.
+    if (_profile == null) return;
+
+    // Update rewards according to the completed challenges.
+    _profile!.xp = StatUtils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
+    _profile!.medals = challenges.where((c) => !c.isWeekly).length;
+    _profile!.trophies = challenges.where((c) => c.isWeekly).length;
+
+    updateProfile();
   }
 
   /// Create a user profile with a given username and save in shared prefs.
@@ -56,7 +73,7 @@ class GameProfileService with ChangeNotifier {
     if (!(await _prefs?.setBool(profileExistsKey, true) ?? false)) return false;
 
     /// Start the database stream of rides, to update the profile data accordingly.
-    startRideStream();
+    startDatabaseStreams();
 
     return true;
   }
@@ -74,22 +91,26 @@ class GameProfileService with ChangeNotifier {
     _profile = GameProfile.fromJson(jsonDecode(parsedProfile));
 
     /// If a profile was loaded, start the database stream of rides, to update the profile data accordingly.
-    startRideStream();
+    startDatabaseStreams();
   }
 
-  /// Update user profile data according to database and user prefs and save in shared pref.
-  Future<void> updateProfileData(List<RideSummary> rides) async {
+  /// Update user profile statistics according to database and user prefs and save in shared pref.
+  Future<void> updateStatistics(List<RideSummary> rides) async {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
 
-    /// Load rides from database and update profile data accordingly.
-    rides = await rideDao.getAllObjects();
+    /// Update profile statistics according to rides.
     _profile!.totalDistanceKilometres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.distance);
     _profile!.totalDurationMinutes = StatUtils.getOverallValueFromSummaries(rides, RideInfo.duration);
     _profile!.totalElevationGainMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationGain);
     _profile!.totalElevationLossMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationLoss);
     _profile!.averageSpeedKmh = StatUtils.getOverallValueFromSummaries(rides, RideInfo.averageSpeed);
 
+    updateProfile();
+  }
+
+  /// Update profile data stored in shared prefs and notify listeners.
+  Future<void> updateProfile() async {
     /// Update profile in shared preferences.
     _prefs ??= await SharedPreferences.getInstance();
     _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson()));

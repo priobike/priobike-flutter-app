@@ -49,18 +49,19 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   Widget build(BuildContext context) {
     return GameHubCard(
       onTap: () async {
+        /*TODO delete
         if (!_settingsService.challengeGoalsSet) {
           widget.openView(const ChallengeGoalsView());
         } else {
-          await AppDatabase.instance.challengesDao.clearDatabase();
+          await AppDatabase.instance.challengesDao.clearObjects();
           _settingsService.setChallengeGoals(null);
-        }
+        }*/
       },
       content: Column(
         children: _settingsService.challengeGoalsSet
-            ? [
-                ChallengeProgressBar(service: getIt<WeeklyChallengeService>(), title: 'Wochenchallenge:'),
-                ChallengeProgressBar(service: getIt<DailyChallengeService>(), title: 'Tageschallenge:'),
+            ? const [
+                ChallengeProgressBar(isWeekly: true),
+                ChallengeProgressBar(isWeekly: false),
               ]
             : [getNoGoalsWidget()],
       ),
@@ -96,14 +97,11 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
 /// A Widget which displays the progress of a given challenge and relevant info about the challenge.
 /// It also provides the option to provide the rewards, if the challenge was completed.
 class ChallengeProgressBar extends StatefulWidget {
-  final ChallengeService service;
-
-  final String title;
+  final bool isWeekly;
 
   const ChallengeProgressBar({
     Key? key,
-    required this.service,
-    required this.title,
+    required this.isWeekly,
   }) : super(key: key);
   @override
   State<ChallengeProgressBar> createState() => _ChallengeProgressBarState();
@@ -121,16 +119,21 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   /// It is used to create the pulsing animation for completed challenges.
   double iconShadowSpred = 12;
 
-  DateTime now = DateTime.now();
-
-  ChallengeService get service => widget.service;
+  ChallengeService get service => widget.isWeekly ? getIt<WeeklyChallengeService>() : getIt<DailyChallengeService>();
 
   Challenge? get challenge => service.currentChallenge;
 
   /// Time left till the challenge ends.
-  Duration get timeLeft =>
-      challenge?.end.difference(now) ??
-      now.copyWith(hour: 0, minute: 0, second: 0).add(const Duration(days: 1)).difference(now);
+  Duration getTimeLeft() {
+    var now = DateTime.now();
+    if (widget.isWeekly) {
+      var startOfNextWeek = now.add(Duration(days: 8 - now.weekday)).copyWith(hour: 0, minute: 0, second: 0);
+      return startOfNextWeek.difference(now);
+    } else {
+      var tomorrow = now.add(const Duration(days: 1)).copyWith(hour: 0, minute: 0, second: 0);
+      return tomorrow.difference(now);
+    }
+  }
 
   /// The progress of completion of the challenge as a percentage value between 0 and 100.
   double get progressPercentage => challenge == null ? 0 : challenge!.progress / challenge!.target;
@@ -141,6 +144,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   /// Returns a string describing how much time the user has left for a challenge.
   String get timeLeftStr {
     var result = '';
+    var timeLeft = getTimeLeft();
     if (timeLeft.inDays > 0) result += '${timeLeft.inDays} Tage ';
     var formatter = NumberFormat('00');
     result += '${formatter.format(timeLeft.inHours % 24)}:${formatter.format(timeLeft.inMinutes % 60)}h';
@@ -177,7 +181,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     } else {
       timer = Timer.periodic(
         const Duration(seconds: 10),
-        (timer) => setState(() => now = DateTime.now()),
+        (timer) => setState(() {}),
       );
     }
   }
@@ -199,23 +203,29 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
         HapticFeedback.lightImpact();
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
-        service.generateChallenge();
+        if (challenge == null) {
+          service.generateChallenge();
+        } else if (challenge!.progress < challenge!.target) {
+          service.finishChallenge();
+        } else {
+          service.completeChallenge();
+        }
       },
       onLongPress: () => service.deleteCurrentChallenge(),
       child: Padding(
         padding: const EdgeInsets.only(top: 8),
         child: Column(
           children: [
-            getTimeLeft(),
+            getTimeLeftWidget(),
             getProgressBar(),
-            getDescription(),
+            getDescriptionWidget(),
           ],
         ),
       ),
     );
   }
 
-  Widget getTimeLeft() {
+  Widget getTimeLeftWidget() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.max,
@@ -225,36 +235,32 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8, left: 16),
             child: BoldSmall(
-              text: widget.title,
+              text: widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
               context: context,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
             ),
           ),
         ),
-        ...((challenge == null)
-            ? const [SizedBox(height: 16)]
-            : [
-                BlendIn(
-                  child: Icon(
-                    Icons.timer,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-                  ),
-                ),
-                BlendIn(
-                  child: BoldSmall(
-                    text: timeLeftStr,
-                    context: context,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-                  ),
-                ),
-                const SizedBox(width: 16),
-              ])
+        BlendIn(
+          child: Icon(
+            Icons.timer,
+            size: 16,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+          ),
+        ),
+        BlendIn(
+          child: BoldSmall(
+            text: timeLeftStr,
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+          ),
+        ),
+        const SizedBox(width: 16),
       ],
     );
   }
 
-  Widget getDescription() {
+  Widget getDescriptionWidget() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       child: Row(
@@ -355,9 +361,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           ),
           Center(
             child: BoldSmall(
-              text: (challenge == null)
-                  ? 'Neue Challenge starten!'
-                  : '${challenge!.progress} / ${challenge!.target}',
+              text: (challenge == null) ? 'Neue Challenge starten!' : '${challenge!.progress} / ${challenge!.target}',
               context: context,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
             ),

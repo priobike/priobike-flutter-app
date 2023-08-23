@@ -35,5 +35,5 @@ class ChallengeGoals {
   ChallengeGoals.fromJson(Map<String, dynamic> json)
       : dailyDistanceGoalMetres = json['dailyDistanceGoalMetres'],
         dailyDurationGoalMinutes = json['dailyDurationGoalMinutes'],
-        trackGoal = jsonDecode(json['trackGoal']);
+        trackGoal = json['trackGoal'] == null ? null : jsonDecode(json['trackGoal']);
 }
