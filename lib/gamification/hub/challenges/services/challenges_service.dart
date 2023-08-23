@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/hub/challenges/services/challenge_validator.dart';
+import 'package:priobike/gamification/hub/challenges/utils/challenge_validator.dart';
 import 'package:priobike/gamification/hub/challenges/utils/challenge_generator.dart';
 
 abstract class ChallengeService with ChangeNotifier {
@@ -13,24 +13,31 @@ abstract class ChallengeService with ChangeNotifier {
 
   ChallengeValidator? _validator;
 
-  bool _loadedChallengeState = false;
-  bool get loadedChallengeState => _loadedChallengeState;
-
   Challenge? _currentChallenge;
   Challenge? get currentChallenge => _currentChallenge;
 
-  int get intervalLengthInDays;
+  bool _allowNew = false;
+  bool get allowNew => _allowNew;
 
-  DateTime get intervalStartDay;
+  int get _intervalLengthInDays;
 
-  Future<List<Challenge>> get openChallenges;
+  DateTime get _intervalStartDay;
 
-  ChallengesCompanion get generatedChallenge;
+  Future<List<Challenge>> get _openChallenges;
 
-  StreamSubscription? stream;
+  ChallengesCompanion get _generatedChallenge;
+
+  StreamSubscription? _stream;
 
   ChallengeService() {
     loadOpenChallenges();
+    startTimeWindowStream();
+  }
+
+  void startTimeWindowStream() {
+    _dao.streamChallengesInInterval(_intervalStartDay, _intervalLengthInDays).listen((update) {
+      _allowNew = update.isEmpty;
+    });
   }
 
   void completeChallenge() {
@@ -39,7 +46,7 @@ abstract class ChallengeService with ChangeNotifier {
     var notCompleted = _currentChallenge!.progress / _currentChallenge!.target < 1;
     if (notCompleted) return;
 
-    stream?.cancel();
+    _stream?.cancel();
     _validator?.dispose();
     _dao.updateObject(_currentChallenge!.copyWith(isOpen: false));
     _currentChallenge = null;
@@ -47,19 +54,19 @@ abstract class ChallengeService with ChangeNotifier {
 
   void startChallengeStream() {
     if (_currentChallenge == null) return;
-    stream?.cancel();
-    stream = _dao.streamObjectByPrimaryKey(_currentChallenge!.id).listen((update) {
+    _stream?.cancel();
+    _stream = _dao.streamObjectByPrimaryKey(_currentChallenge!.id).listen((update) {
       _currentChallenge = update;
       notifyListeners();
-      if (update == null) stream?.cancel();
+      if (update == null) _stream?.cancel();
     });
   }
 
   Future<void> loadOpenChallenges() async {
-    for (var challenge in (await openChallenges)) {
+    for (var challenge in (await _openChallenges)) {
       // If an open challenge was not completed, but the time did run out, close the challenge.
       var isCompleted = challenge.progress / challenge.target >= 1;
-      if (!isCompleted && !inTimeFrame(challenge)) {
+      if (!isCompleted && !currentlyActive(challenge)) {
         await _dao.updateObject(challenge.copyWith(isOpen: false));
       }
 
@@ -70,17 +77,16 @@ abstract class ChallengeService with ChangeNotifier {
         startChallengeStream();
       }
     }
-    _loadedChallengeState = true;
   }
 
-  bool inTimeFrame(Challenge challenge) {
+  bool currentlyActive(Challenge challenge) {
     var now = DateTime.now();
     return now.isAfter(challenge.begin) && now.isBefore(challenge.end);
   }
 
   void generateChallenge() async {
     if (_currentChallenge != null) return;
-    _currentChallenge = await _dao.createObject(generatedChallenge);
+    _currentChallenge = await _dao.createObject(_generatedChallenge);
     if (_currentChallenge == null) throw Exception("Couldn't generate new challenge.");
     _validator = ChallengeValidator(challenge: _currentChallenge!);
     startChallengeStream();
@@ -92,40 +98,36 @@ abstract class ChallengeService with ChangeNotifier {
   }
 
   void finishChallenge() {
-    if (currentChallenge == null) return;
-    var modified = currentChallenge!.copyWith(
-      progress: (currentChallenge!.target * 1.25).toInt(),
-      end: currentChallenge!.begin,
-      begin: currentChallenge!.begin.subtract(Duration(days: intervalLengthInDays)),
-    );
+    if (_currentChallenge == null) return;
+    var modified = _currentChallenge!.copyWith(progress: (_currentChallenge!.target * 1.25).toInt());
     _dao.updateObject(modified);
   }
 }
 
 class DailyChallengeService extends ChallengeService {
   @override
-  int get intervalLengthInDays => 1;
+  int get _intervalLengthInDays => 1;
 
   @override
-  DateTime get intervalStartDay => DateTime.now();
+  DateTime get _intervalStartDay => DateTime.now();
 
   @override
-  Future<List<Challenge>> get openChallenges => _dao.getOpenDailyChallenges();
+  Future<List<Challenge>> get _openChallenges => _dao.getOpenDailyChallenges();
 
   @override
-  ChallengesCompanion get generatedChallenge => _generator.generateDailyChallenge();
+  ChallengesCompanion get _generatedChallenge => _generator.generateDailyChallenge();
 }
 
 class WeeklyChallengeService extends ChallengeService {
   @override
-  int get intervalLengthInDays => DateTime.daysPerWeek;
+  int get _intervalLengthInDays => DateTime.daysPerWeek;
 
   @override
-  DateTime get intervalStartDay => DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1));
+  DateTime get _intervalStartDay => DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1));
 
   @override
-  Future<List<Challenge>> get openChallenges => _dao.getOpenWeeklyChallenges();
+  Future<List<Challenge>> get _openChallenges => _dao.getOpenWeeklyChallenges();
 
   @override
-  ChallengesCompanion get generatedChallenge => _generator.generateWeeklyChallenge();
+  ChallengesCompanion get _generatedChallenge => _generator.generateWeeklyChallenge();
 }

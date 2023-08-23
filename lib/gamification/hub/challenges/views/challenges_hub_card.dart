@@ -218,7 +218,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
         if (isCompleted) HapticFeedback.mediumImpact();
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
-        if (challenge == null) {
+        if (challenge == null && service.allowNew) {
           service.generateChallenge();
         } else if (challenge!.progress < challenge!.target) {
           service.finishChallenge();
@@ -251,27 +251,31 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8, left: 16),
             child: BoldSmall(
-              text: widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
+              text: widget.isWeekly ? 'Wochenchallenge:' : 'Tageschallenge:',
               context: context,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
             ),
           ),
         ),
-        BlendIn(
-          child: Icon(
-            Icons.timer,
-            size: 16,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-          ),
-        ),
-        BlendIn(
-          child: BoldSmall(
-            text: timeLeftStr,
-            context: context,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-          ),
-        ),
-        const SizedBox(width: 16),
+        ...(challenge != null && isCompleted)
+            ? []
+            : [
+                BlendIn(
+                  child: Icon(
+                    Icons.timer,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                  ),
+                ),
+                BlendIn(
+                  child: BoldSmall(
+                    text: timeLeftStr,
+                    context: context,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
       ],
     );
   }
@@ -379,7 +383,9 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           ),
           Center(
             child: BoldSmall(
-              text: (challenge == null) ? 'Neue Challenge starten!' : '${challenge!.progress} / ${challenge!.target}',
+              text: (challenge == null)
+                  ? (service.allowNew ? 'Neue Challenge starten!' : 'Morgen darfst Du wieder!')
+                  : '${challenge!.progress} / ${challenge!.target}',
               context: context,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
             ),

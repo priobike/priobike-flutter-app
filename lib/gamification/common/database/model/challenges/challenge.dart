@@ -48,4 +48,10 @@ class ChallengesDao extends DatabaseDao<Challenge> with _$ChallengesDaoMixin {
   Stream<List<Challenge>> streamClosedCompletedChallenges() {
     return (select(challenges)..where((tbl) => tbl.isOpen.not() & tbl.progress.isBiggerOrEqual(tbl.target))).watch();
   }
+
+  Stream<List<Challenge>> streamChallengesInInterval(DateTime startDay, int lengthInDays) {
+    var start = DateTime(startDay.year, startDay.month, startDay.day);
+    var end = start.add(Duration(days: lengthInDays));
+    return (select(challenges)..where((tbl) => tbl.begin.equals(start) & tbl.end.equals(end))).watch();
+  }
 }
