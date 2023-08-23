@@ -42,14 +42,23 @@ class GameProfileService with ChangeNotifier {
     challengeDao.streamClosedCompletedChallenges().listen((update) => updateRewards(update));
   }
 
+  bool medalsChanged = false;
+  bool trophiesChanged = false;
+
   Future<void> updateRewards(List<Challenge> challenges) async {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
+
+    var oldMedals = _profile!.medals;
+    var oldTrophies = _profile!.trophies;
 
     // Update rewards according to the completed challenges.
     _profile!.xp = StatUtils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
     _profile!.medals = challenges.where((c) => !c.isWeekly).length;
     _profile!.trophies = challenges.where((c) => c.isWeekly).length;
+
+    medalsChanged = oldMedals < _profile!.medals;
+    trophiesChanged = oldTrophies < _profile!.trophies;
 
     updateProfile();
   }

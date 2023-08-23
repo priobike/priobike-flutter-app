@@ -152,7 +152,10 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   }
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  void update() {
+    if (isCompleted) startUpdateTimer();
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
@@ -172,7 +175,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   /// start a timer that creates the pulsing animation by changing the icon shadow spread value periodically.
   void startUpdateTimer() {
     endTimer();
-    if (progressPercentage >= 1) {
+    if (isCompleted) {
       timer = Timer.periodic(
           ShortTransitionDuration(),
           (timer) => setState(() {
@@ -200,7 +203,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           isAnimating = true;
           isAnimatingRing = true;
         });
-        HapticFeedback.lightImpact();
+        HapticFeedback.mediumImpact();
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
         if (challenge == null) {
@@ -319,13 +322,15 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                             FractionallySizedBox(
                               widthFactor: isCompleted ? 1 : progressPercentage,
                               heightFactor: 1,
-                              child: Container(
+                              child: AnimatedContainer(
+                                duration: LongTransitionDuration(),
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(Radius.circular(32)),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: CI.blue.withOpacity(0.3),
+                                      color: CI.blue.withOpacity((isCompleted && isAnimatingRing) ? 1 : 0.3),
                                       blurRadius: 20,
+                                      spreadRadius: (isCompleted && isAnimatingRing) ? 5 : 0,
                                     ),
                                   ],
                                 ),
@@ -379,13 +384,15 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
       margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: CI.blue.withOpacity(0.3),
-            blurRadius: 12,
-            spreadRadius: isCompleted ? iconShadowSpred : iconShadowSpred * progressPercentage,
-          ),
-        ],
+        boxShadow: (isCompleted && isAnimatingRing)
+            ? []
+            : [
+                BoxShadow(
+                  color: CI.blue.withOpacity(0.3),
+                  blurRadius: 12,
+                  spreadRadius: isCompleted ? iconShadowSpred : iconShadowSpred * progressPercentage,
+                ),
+              ],
       ),
       child: AnimatedLevelRing(
         ringSize: 32,

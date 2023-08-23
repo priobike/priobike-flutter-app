@@ -22,11 +22,24 @@ class GameProfileCard extends StatefulWidget {
   State<GameProfileCard> createState() => _GameProfileCardState();
 }
 
-class _GameProfileCardState extends State<GameProfileCard> {
+class _GameProfileCardState extends State<GameProfileCard> with TickerProviderStateMixin {
   /// The service which manages and provides the user profile.
   late GameProfileService _profileService;
 
   late GameSettingsService _settingsService;
+
+  late final AnimationController _trophiesController = AnimationController(
+    duration: ShortTransitionDuration(),
+    vsync: this,
+  );
+
+  late final AnimationController _medalsController = AnimationController(
+    duration: ShortTransitionDuration(),
+    vsync: this,
+  );
+
+  Animation<double> getAnimation(var controller) =>
+      Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
 
   /// These are the levels that are possible to achieve by the user vie their xp.
   static List<Level> get _levels => const [
@@ -43,7 +56,18 @@ class _GameProfileCardState extends State<GameProfileCard> {
   bool animateLevelRing = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  void update() async {
+    if (mounted) setState(() {});
+    if (_profileService.medalsChanged) {
+      await _medalsController.reverse(from: 1);
+      _profileService.medalsChanged = false;
+      if (mounted) setState(() {});
+    } else if (_profileService.trophiesChanged) {
+      await _trophiesController.reverse(from: 1);
+      _profileService.trophiesChanged = false;
+      if (mounted) setState(() {});
+    }
+  }
 
   /// This function starts and ends the level ring animation.
   void animateRing() {
@@ -56,12 +80,14 @@ class _GameProfileCardState extends State<GameProfileCard> {
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
     _settingsService = getIt<GameSettingsService>();
-    _profileService.addListener(update);
+    _settingsService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
+    _medalsController.dispose();
+    _trophiesController.dispose();
     _profileService.removeListener(update);
     _settingsService.removeListener(update);
     super.dispose();
@@ -86,14 +112,29 @@ class _GameProfileCardState extends State<GameProfileCard> {
   }
 
   /// Returns widget for displaying a trophy count for a trophy with a given icon.
-  Widget getTrophyWidget(int number, IconData icon) {
+  Widget getTrophyWidget(int number, IconData icon, Animation<double> animation, bool animate) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(
-          icon,
-          size: 36,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+        ScaleTransition(
+          scale: animation,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: CI.blue.withOpacity(animate ? 0.25 : 0),
+                  blurRadius: 12,
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              size: 36,
+              color: animate ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+            ),
+          ),
         ),
         BoldContent(
           text: 'x $number',
@@ -169,8 +210,18 @@ class _GameProfileCardState extends State<GameProfileCard> {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  getTrophyWidget(profile.medals, Icons.military_tech),
-                  getTrophyWidget(profile.trophies, Icons.emoji_events),
+                  getTrophyWidget(
+                    profile.medals,
+                    Icons.military_tech,
+                    getAnimation(_medalsController),
+                    _profileService.medalsChanged,
+                  ),
+                  getTrophyWidget(
+                    profile.trophies,
+                    Icons.emoji_events,
+                    getAnimation(_trophiesController),
+                    _profileService.trophiesChanged,
+                  ),
                 ],
               ),
             ],
