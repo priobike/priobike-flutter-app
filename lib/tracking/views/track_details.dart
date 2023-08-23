@@ -282,13 +282,13 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       rideDetails = [];
     }
 
-    final int boxHeight = MediaQuery.of(context).size.width.toInt() - 48;
+    final int boxHeight = MediaQuery.of(context).size.width.toInt() - 128;
 
     return Stack(
       alignment: Alignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 32, left: 24, right: 24),
+          padding: const EdgeInsets.only(top: 16, left: 24, right: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
