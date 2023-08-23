@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -23,53 +25,37 @@ class FinishRideButton extends StatefulWidget {
 class FinishRideButtonState extends State<FinishRideButton> {
   final log = Logger("FinishButton");
 
-  Widget askForConfirmation(BuildContext context) {
-    return AlertDialog(
-      //contentPadding: const EdgeInsets.all(30),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-      title: SubHeader(
-        text: "Fahrt wirklich beenden?",
-        context: context,
-      ),
-      content: Content(
-        text: "Wenn du die Fahrt beendest, musst du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
-        context: context,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => onTap(),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
+  void showAskForConfirmationDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt wirklich beenden?',
+          text: "Wenn du die Fahrt beendest, musst du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
+          icon: Icons.question_mark_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          height: 300,
+          actions: [
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.flag_rounded,
+              label: "Ja",
+              onPressed: () => onTap(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-          ),
-          child: BoldSubHeader(
-            text: 'Ja',
-            context: context,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.close_rounded,
+              label: "Nein",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-          ),
-          child: BoldSubHeader(
-            text: 'Nein',
-            context: context,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -143,10 +129,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
           right: 0,
           child: SafeArea(
             child: Tile(
-              onPressed: () => showDialog(
-                context: context,
-                builder: (context) => askForConfirmation(context),
-              ),
+              onPressed: () => showAskForConfirmationDialog(context),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 bottomLeft: Radius.circular(24),

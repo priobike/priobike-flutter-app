@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -9,7 +9,6 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
-import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
@@ -21,50 +20,53 @@ import 'package:priobike/status/services/sg.dart';
 
 /// Show a sheet to edit the current shortcuts name.
 void showEditShortcutSheet(context, int idx) {
-  final shortcuts = GetIt.instance.get<Shortcuts>();
-  showDialog(
+  showGeneralDialog(
     context: context,
-    builder: (_) {
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withOpacity(0.4),
+    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
-      return AlertDialog(
-        title: BoldContent(
-          text: 'Bitte gib einen neuen Namen an, unter dem die Strecke gespeichert werden soll.',
-          context: context,
-        ),
-        content: SizedBox(
-          height: 78,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: nameController,
-                maxLength: 20,
-                decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
-              ),
-            ],
-          ),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
+      return DialogLayout(
+        title: 'Aktualisieren',
+        text: "Bitte gib einen neuen Namen ein.",
+        icon: Icons.update_rounded,
+        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
-          TextButton(
+          TextField(
+            autofocus: false,
+            controller: nameController,
+            maxLength: 20,
+            decoration: InputDecoration(
+              hintText: "Heimweg, Zur Arbeit, ...",
+              fillColor: Theme.of(context).colorScheme.surface,
+              filled: true,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: const Icon(Icons.bookmark),
+              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            ),
+          ),
+          BigButton(
+            iconColor: Colors.white,
+            icon: Icons.save_rounded,
+            label: "Speichern",
             onPressed: () async {
               final name = nameController.text;
               if (name.trim().isEmpty) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await shortcuts.updateShortcutName(name, idx);
+              await getIt<Shortcuts>().updateShortcutName(name, idx);
               ToastMessage.showSuccess("Name gespeichert!");
               Navigator.pop(context);
             },
-            child: BoldContent(
-              text: 'Speichern',
-              color: Theme.of(context).colorScheme.primary,
-              context: context,
-            ),
-          ),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+          )
         ],
+        height: 290,
       );
     },
   );
@@ -265,17 +267,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               final shortcutIsValid = shortcut.isValid();
 
               if (!shortcutIsValid) {
-                final backend = getIt<Settings>().backend;
-                final shortcuts = getIt<Shortcuts>();
-                showDialog(
-                  context: context,
-                  builder: (context) => InvalidShortCutDialog(
-                    backend: backend,
-                    shortcuts: shortcuts,
-                    shortcut: shortcut,
-                    context: context,
-                  ),
-                );
+                showInvalidShortcutSheet(context);
                 return;
               }
 

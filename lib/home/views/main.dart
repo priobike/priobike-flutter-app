@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -15,7 +16,6 @@ import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/restart_route_dialog.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
-import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
@@ -126,14 +126,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
         (_) {
           // Execute callback if page is mounted
           if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => RestartRouteDialog(
-                lastRouteID: ride.lastRouteID,
-                lastRoute: lastRoute,
-                context: context,
-              ),
-            );
+            showRestartRouteDialog(context, ride.lastRouteID, lastRoute);
           }
         },
       );
@@ -208,17 +201,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     final shortcutIsValid = shortcut.isValid();
 
     if (!shortcutIsValid) {
-      final backend = getIt<Settings>().backend;
-      final shortcuts = getIt<Shortcuts>();
-      showDialog(
-        context: context,
-        builder: (context) => InvalidShortCutDialog(
-          backend: backend,
-          shortcuts: shortcuts,
-          shortcut: shortcut,
-          context: context,
-        ),
-      );
+      showInvalidShortcutSheet(context);
       return;
     }
 

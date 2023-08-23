@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -129,42 +130,39 @@ class LoaderState extends State<Loader> {
     await preferences.clear();
   }
 
-  _showResetDialog(BuildContext context) {
-    showDialog(
+  void _showResetDialog(context) {
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-          title: BoldSubHeader(text: "Persönliche Daten zurücksetzen", context: context),
-          content: Content(
-              text:
-                  "Sind sie sich sicher, dass sie ihre persönlichen Daten zurücksetzen wollen? Nach dem Bestätigen werden ihre Daten unwiderruflich verworfen. Dazu gehören unter Anderem ihre erstellten Routen.",
-              context: context),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Persönliche Daten zurücksetzen',
+          text:
+              "Sind sie sich sicher, dass sie ihre persönlichen Daten zurücksetzen wollen? Nach dem Bestätigen werden ihre Daten unwiderruflich verworfen. Dazu gehören unter Anderem ihre erstellten Routen.",
+          icon: Icons.delete_forever_rounded,
+          iconColor: CI.red,
           actions: [
-            TextButton(
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_forever_rounded,
+              fillColor: CI.red,
+              label: "Zurücksetzen",
               onPressed: () async {
                 await _resetData();
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
                 if (mounted) Navigator.of(context).pop();
               },
-              child: Content(
-                text: "Zurücksetzen",
-                context: context,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-            TextButton(
+            BigButton(
+              label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              child: Content(
-                text: "Abbrechen",
-                context: context,
-              ),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             )
           ],
+          height: 390,
         );
       },
     );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/home/views/shortcuts/save_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/models/waypoint.dart';

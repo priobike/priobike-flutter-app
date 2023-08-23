@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -15,7 +16,6 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
@@ -404,7 +404,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     icon: Icons.save_rounded,
                     fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                     label: "Strecke speichern",
-                    onPressed: () => showSaveShortcutSheet(context),
+                    onPressed: () => showSaveShortcutSheet(context, null),
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
                   ),
                   const VSpace(),
