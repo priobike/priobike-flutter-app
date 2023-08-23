@@ -357,7 +357,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
             child: BoldSmall(
               text: (challenge == null)
                   ? 'Neue Challenge starten!'
-                  : '${challenge!.progress} / ${challenge!.target} ${challenge!.valueLabel}',
+                  : '${challenge!.progress} / ${challenge!.target}',
               context: context,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
             ),

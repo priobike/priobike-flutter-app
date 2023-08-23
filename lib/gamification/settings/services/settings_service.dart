@@ -7,10 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// This services manages the game settings of the user.
 class GameSettingsService with ChangeNotifier {
   static const enabledFeatureListKey = 'priobike.game.prefs.enabledFeatures';
-
   static const gameFeatureStatisticsKey = 'priobike.game.features.statistics';
   static const gameFeatureChallengesKey = 'priobike.game.features.challenges';
-
   static const challengeGoalsKey = 'priobike.game.challenges.goals';
 
   /// Map of the feature keys to describing labels.
@@ -22,30 +20,36 @@ class GameSettingsService with ChangeNotifier {
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
 
-  ChallengeGoals? _goals;
-  ChallengeGoals? get goals => _goals;
-  bool get challengeGoalsSet => _goals != null;
+  /// The user goals for the challenges
+  ChallengeGoals? _challengeGoals;
+  ChallengeGoals? get challengeGoals => _challengeGoals;
+  bool get challengeGoalsSet => _challengeGoals != null;
 
   /// List of the selected game preferences of the user as string keys.
   List<String> _enabledFeatures = [];
   List<String> get enabledFeatures => _enabledFeatures;
 
   GameSettingsService() {
-    _loadEnabledFeatures();
+    _loadSettings();
   }
 
   void setChallengeGoals(ChallengeGoals? goals) {
-    _goals = goals;
+    _challengeGoals = goals;
+    if (goals != null) {
+      _prefs!.setString(challengeGoalsKey, jsonEncode(goals.toJson()));
+    } else {
+      _prefs!.remove(challengeGoalsKey);
+    }
     notifyListeners();
   }
 
   /// Load settings from shared preferences and store in local variables.
-  void _loadEnabledFeatures() async {
+  void _loadSettings() async {
     _prefs ??= await SharedPreferences.getInstance();
     _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
 
     var goalStr = _prefs!.getString(challengeGoalsKey);
-    _goals = goalStr == null ? null : ChallengeGoals.fromJson(jsonDecode(goalStr));
+    _challengeGoals = goalStr == null ? null : ChallengeGoals.fromJson(jsonDecode(goalStr));
   }
 
   /// Returns true, if a given string key is inside of the list of selected game prefs.

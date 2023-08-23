@@ -106,7 +106,7 @@ class WeekGraphViewModel extends GraphViewModel {
   WeekGraphViewModel(this.startDay) {
     /// Intitalize yValues as a list of zeros and a stream for rides in the displayed week.
     _yValues = List.filled(7, 0);
-    _streams.add(rideDao.streamSummariesOfWeek(startDay.year, startDay.month, startDay.day));
+    _streams.add(rideDao.streamRidesInWeek(startDay));
   }
 
   @override
@@ -155,7 +155,7 @@ class MonthGraphViewModel extends GraphViewModel {
     /// Calculate number of days and intialize yValues as zeros and a stream of rides in the given month.
     numberOfDays = getNumberOfDays();
     _yValues = List.filled(numberOfDays, 0);
-    _streams.add(rideDao.streamSummariesOfMonth(year, month));
+    _streams.add(rideDao.streamRidesInMonth(year, month));
   }
 
   @override
@@ -214,7 +214,7 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
 
     /// Create database stream for each week.
     for (var key in _rideMap.keys) {
-      _streams.add(rideDao.streamSummariesOfWeek(key.year, key.month, key.day));
+      _streams.add(rideDao.streamRidesInWeek(key));
     }
   }
 

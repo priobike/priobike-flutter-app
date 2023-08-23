@@ -55,7 +55,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
   }
 
   /// Returns stream of rides which started in a given time intervall, ordered by the start time.
-  Stream<List<RideSummary>> streamSummariesInInterval(DateTime firstTimeStamp, DateTime lastTimeStamp) {
+  Stream<List<RideSummary>> streamRidesInInterval(DateTime firstTimeStamp, DateTime lastTimeStamp) {
     return (select(rideSummaries)
           ..where((tbl) {
             var startTime = tbl.startTime;
@@ -67,19 +67,61 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
         .watch();
   }
 
+  /// Returns stream of rides on a specific day.
+  Stream<List<RideSummary>> streamRidesOnDay(DateTime day) {
+    var firstDay = DateTime(day.year, day.month, day.day);
+    var lastDay = firstDay.add(const Duration(days: 1));
+    return streamRidesInInterval(firstDay, lastDay);
+  }
+
   /// Returns stream of rides started in a week starting from a given day.
-  Stream<List<RideSummary>> streamSummariesOfWeek(int year, int month, int day) {
-    var firstDay = DateTime(year, month, day);
+  Stream<List<RideSummary>> streamRidesInWeek(DateTime startDay) {
+    var firstDay = DateTime(startDay.year, startDay.month, startDay.day);
     var lastDay = firstDay.add(const Duration(days: 7));
-    return streamSummariesInInterval(firstDay, lastDay);
+    return streamRidesInInterval(firstDay, lastDay);
   }
 
   /// Returns stream of rides started in a given month.
-  Stream<List<RideSummary>> streamSummariesOfMonth(int year, int month) {
+  Stream<List<RideSummary>> streamRidesInMonth(int year, int month) {
     var isDecember = month == 12;
     var firstDay = DateTime(year, month, 1);
     var lastDay = DateTime(isDecember ? year + 1 : year, (isDecember ? 0 : month + 1), 0);
-    return streamSummariesInInterval(firstDay, lastDay);
+    return streamRidesInInterval(firstDay, lastDay);
+  }
+
+  /// Returns rides which started in a given time intervall, ordered by the start time.
+  Future<List<RideSummary>> getRidesInInterval(DateTime firstTimeStamp, DateTime lastTimeStamp) {
+    return (select(rideSummaries)
+          ..where((tbl) {
+            var startTime = tbl.startTime;
+            return startTime.isBetweenValues(firstTimeStamp, lastTimeStamp);
+          })
+          ..orderBy(
+            [(t) => OrderingTerm(expression: t.startTime)],
+          ))
+        .get();
+  }
+
+  /// Returns rides on a specific day.
+  Future<List<RideSummary>> getRidesOnDay(DateTime day) {
+    var firstDay = DateTime(day.year, day.month, day.day);
+    var lastDay = firstDay.add(const Duration(days: 1));
+    return getRidesInInterval(firstDay, lastDay);
+  }
+
+  /// Returns rides started in a week starting from a given day.
+  Future<List<RideSummary>> getRidesInWeek(DateTime startDay) {
+    var firstDay = DateTime(startDay.year, startDay.month, startDay.day);
+    var lastDay = firstDay.add(const Duration(days: 7));
+    return getRidesInInterval(firstDay, lastDay);
+  }
+
+  /// Returns rides started in a given month.
+  Future<List<RideSummary>> getRidesInMonth(int year, int month) {
+    var isDecember = month == 12;
+    var firstDay = DateTime(year, month, 1);
+    var lastDay = DateTime(isDecember ? year + 1 : year, (isDecember ? 0 : month + 1), 0);
+    return getRidesInInterval(firstDay, lastDay);
   }
 
   /// Generate random mock rides for the last 6 months.

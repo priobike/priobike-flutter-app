@@ -409,16 +409,22 @@ class $ChallengesTable extends Challenges
   late final GeneratedColumn<int> xp = GeneratedColumn<int>(
       'xp', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _startMeta = const VerificationMeta('start');
+  static const VerificationMeta _beginMeta = const VerificationMeta('begin');
   @override
-  late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
-      'start', aliasedName, false,
+  late final GeneratedColumn<DateTime> begin = GeneratedColumn<DateTime>(
+      'begin', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _endMeta = const VerificationMeta('end');
   @override
   late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
       'end', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _userStartTimeMeta =
+      const VerificationMeta('userStartTime');
+  @override
+  late final GeneratedColumn<DateTime> userStartTime =
+      GeneratedColumn<DateTime>('user_start_time', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
@@ -459,43 +465,24 @@ class $ChallengesTable extends Challenges
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
-  static const VerificationMeta _hasBeenCompletedMeta =
-      const VerificationMeta('hasBeenCompleted');
-  @override
-  late final GeneratedColumn<bool> hasBeenCompleted =
-      GeneratedColumn<bool>('has_been_completed', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("has_been_completed" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<int> type = GeneratedColumn<int>(
       'type', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _valueLabelMeta =
-      const VerificationMeta('valueLabel');
-  @override
-  late final GeneratedColumn<String> valueLabel = GeneratedColumn<String>(
-      'value_label', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
         xp,
-        start,
+        begin,
         end,
+        userStartTime,
         description,
         target,
         progress,
         isWeekly,
         isOpen,
-        hasBeenCompleted,
-        type,
-        valueLabel
+        type
       ];
   @override
   String get aliasedName => _alias ?? 'challenges';
@@ -514,17 +501,25 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_xpMeta);
     }
-    if (data.containsKey('start')) {
+    if (data.containsKey('begin')) {
       context.handle(
-          _startMeta, start.isAcceptableOrUnknown(data['start']!, _startMeta));
+          _beginMeta, begin.isAcceptableOrUnknown(data['begin']!, _beginMeta));
     } else if (isInserting) {
-      context.missing(_startMeta);
+      context.missing(_beginMeta);
     }
     if (data.containsKey('end')) {
       context.handle(
           _endMeta, end.isAcceptableOrUnknown(data['end']!, _endMeta));
     } else if (isInserting) {
       context.missing(_endMeta);
+    }
+    if (data.containsKey('user_start_time')) {
+      context.handle(
+          _userStartTimeMeta,
+          userStartTime.isAcceptableOrUnknown(
+              data['user_start_time']!, _userStartTimeMeta));
+    } else if (isInserting) {
+      context.missing(_userStartTimeMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -558,27 +553,11 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_isOpenMeta);
     }
-    if (data.containsKey('has_been_completed')) {
-      context.handle(
-          _hasBeenCompletedMeta,
-          hasBeenCompleted.isAcceptableOrUnknown(
-              data['has_been_completed']!, _hasBeenCompletedMeta));
-    } else if (isInserting) {
-      context.missing(_hasBeenCompletedMeta);
-    }
     if (data.containsKey('type')) {
       context.handle(
           _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
-    }
-    if (data.containsKey('value_label')) {
-      context.handle(
-          _valueLabelMeta,
-          valueLabel.isAcceptableOrUnknown(
-              data['value_label']!, _valueLabelMeta));
-    } else if (isInserting) {
-      context.missing(_valueLabelMeta);
     }
     return context;
   }
@@ -593,10 +572,12 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       xp: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
-      start: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}start'])!,
+      begin: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}begin'])!,
       end: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}end'])!,
+      userStartTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}user_start_time'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
       target: attachedDatabase.typeMapping
@@ -607,12 +588,8 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.bool, data['${effectivePrefix}is_weekly'])!,
       isOpen: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_open'])!,
-      hasBeenCompleted: attachedDatabase.typeMapping.read(
-          DriftSqlType.bool, data['${effectivePrefix}has_been_completed'])!,
       type: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
-      valueLabel: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}value_label'])!,
     );
   }
 
@@ -625,44 +602,41 @@ class $ChallengesTable extends Challenges
 class Challenge extends DataClass implements Insertable<Challenge> {
   final int id;
   final int xp;
-  final DateTime start;
+  final DateTime begin;
   final DateTime end;
+  final DateTime userStartTime;
   final String description;
   final int target;
   final int progress;
   final bool isWeekly;
   final bool isOpen;
-  final bool hasBeenCompleted;
   final int type;
-  final String valueLabel;
   const Challenge(
       {required this.id,
       required this.xp,
-      required this.start,
+      required this.begin,
       required this.end,
+      required this.userStartTime,
       required this.description,
       required this.target,
       required this.progress,
       required this.isWeekly,
       required this.isOpen,
-      required this.hasBeenCompleted,
-      required this.type,
-      required this.valueLabel});
+      required this.type});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['xp'] = Variable<int>(xp);
-    map['start'] = Variable<DateTime>(start);
+    map['begin'] = Variable<DateTime>(begin);
     map['end'] = Variable<DateTime>(end);
+    map['user_start_time'] = Variable<DateTime>(userStartTime);
     map['description'] = Variable<String>(description);
     map['target'] = Variable<int>(target);
     map['progress'] = Variable<int>(progress);
     map['is_weekly'] = Variable<bool>(isWeekly);
     map['is_open'] = Variable<bool>(isOpen);
-    map['has_been_completed'] = Variable<bool>(hasBeenCompleted);
     map['type'] = Variable<int>(type);
-    map['value_label'] = Variable<String>(valueLabel);
     return map;
   }
 
@@ -670,16 +644,15 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return ChallengesCompanion(
       id: Value(id),
       xp: Value(xp),
-      start: Value(start),
+      begin: Value(begin),
       end: Value(end),
+      userStartTime: Value(userStartTime),
       description: Value(description),
       target: Value(target),
       progress: Value(progress),
       isWeekly: Value(isWeekly),
       isOpen: Value(isOpen),
-      hasBeenCompleted: Value(hasBeenCompleted),
       type: Value(type),
-      valueLabel: Value(valueLabel),
     );
   }
 
@@ -689,16 +662,15 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return Challenge(
       id: serializer.fromJson<int>(json['id']),
       xp: serializer.fromJson<int>(json['xp']),
-      start: serializer.fromJson<DateTime>(json['start']),
+      begin: serializer.fromJson<DateTime>(json['begin']),
       end: serializer.fromJson<DateTime>(json['end']),
+      userStartTime: serializer.fromJson<DateTime>(json['userStartTime']),
       description: serializer.fromJson<String>(json['description']),
       target: serializer.fromJson<int>(json['target']),
       progress: serializer.fromJson<int>(json['progress']),
       isWeekly: serializer.fromJson<bool>(json['isWeekly']),
       isOpen: serializer.fromJson<bool>(json['isOpen']),
-      hasBeenCompleted: serializer.fromJson<bool>(json['hasBeenCompleted']),
       type: serializer.fromJson<int>(json['type']),
-      valueLabel: serializer.fromJson<String>(json['valueLabel']),
     );
   }
   @override
@@ -707,193 +679,180 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'xp': serializer.toJson<int>(xp),
-      'start': serializer.toJson<DateTime>(start),
+      'begin': serializer.toJson<DateTime>(begin),
       'end': serializer.toJson<DateTime>(end),
+      'userStartTime': serializer.toJson<DateTime>(userStartTime),
       'description': serializer.toJson<String>(description),
       'target': serializer.toJson<int>(target),
       'progress': serializer.toJson<int>(progress),
       'isWeekly': serializer.toJson<bool>(isWeekly),
       'isOpen': serializer.toJson<bool>(isOpen),
-      'hasBeenCompleted': serializer.toJson<bool>(hasBeenCompleted),
       'type': serializer.toJson<int>(type),
-      'valueLabel': serializer.toJson<String>(valueLabel),
     };
   }
 
   Challenge copyWith(
           {int? id,
           int? xp,
-          DateTime? start,
+          DateTime? begin,
           DateTime? end,
+          DateTime? userStartTime,
           String? description,
           int? target,
           int? progress,
           bool? isWeekly,
           bool? isOpen,
-          bool? hasBeenCompleted,
-          int? type,
-          String? valueLabel}) =>
+          int? type}) =>
       Challenge(
         id: id ?? this.id,
         xp: xp ?? this.xp,
-        start: start ?? this.start,
+        begin: begin ?? this.begin,
         end: end ?? this.end,
+        userStartTime: userStartTime ?? this.userStartTime,
         description: description ?? this.description,
         target: target ?? this.target,
         progress: progress ?? this.progress,
         isWeekly: isWeekly ?? this.isWeekly,
         isOpen: isOpen ?? this.isOpen,
-        hasBeenCompleted: hasBeenCompleted ?? this.hasBeenCompleted,
         type: type ?? this.type,
-        valueLabel: valueLabel ?? this.valueLabel,
       );
   @override
   String toString() {
     return (StringBuffer('Challenge(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
-          ..write('start: $start, ')
+          ..write('begin: $begin, ')
           ..write('end: $end, ')
+          ..write('userStartTime: $userStartTime, ')
           ..write('description: $description, ')
           ..write('target: $target, ')
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
           ..write('isOpen: $isOpen, ')
-          ..write('hasBeenCompleted: $hasBeenCompleted, ')
-          ..write('type: $type, ')
-          ..write('valueLabel: $valueLabel')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, xp, start, end, description, target,
-      progress, isWeekly, isOpen, hasBeenCompleted, type, valueLabel);
+  int get hashCode => Object.hash(id, xp, begin, end, userStartTime,
+      description, target, progress, isWeekly, isOpen, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Challenge &&
           other.id == this.id &&
           other.xp == this.xp &&
-          other.start == this.start &&
+          other.begin == this.begin &&
           other.end == this.end &&
+          other.userStartTime == this.userStartTime &&
           other.description == this.description &&
           other.target == this.target &&
           other.progress == this.progress &&
           other.isWeekly == this.isWeekly &&
           other.isOpen == this.isOpen &&
-          other.hasBeenCompleted == this.hasBeenCompleted &&
-          other.type == this.type &&
-          other.valueLabel == this.valueLabel);
+          other.type == this.type);
 }
 
 class ChallengesCompanion extends UpdateCompanion<Challenge> {
   final Value<int> id;
   final Value<int> xp;
-  final Value<DateTime> start;
+  final Value<DateTime> begin;
   final Value<DateTime> end;
+  final Value<DateTime> userStartTime;
   final Value<String> description;
   final Value<int> target;
   final Value<int> progress;
   final Value<bool> isWeekly;
   final Value<bool> isOpen;
-  final Value<bool> hasBeenCompleted;
   final Value<int> type;
-  final Value<String> valueLabel;
   const ChallengesCompanion({
     this.id = const Value.absent(),
     this.xp = const Value.absent(),
-    this.start = const Value.absent(),
+    this.begin = const Value.absent(),
     this.end = const Value.absent(),
+    this.userStartTime = const Value.absent(),
     this.description = const Value.absent(),
     this.target = const Value.absent(),
     this.progress = const Value.absent(),
     this.isWeekly = const Value.absent(),
     this.isOpen = const Value.absent(),
-    this.hasBeenCompleted = const Value.absent(),
     this.type = const Value.absent(),
-    this.valueLabel = const Value.absent(),
   });
   ChallengesCompanion.insert({
     this.id = const Value.absent(),
     required int xp,
-    required DateTime start,
+    required DateTime begin,
     required DateTime end,
+    required DateTime userStartTime,
     required String description,
     required int target,
     required int progress,
     required bool isWeekly,
     required bool isOpen,
-    required bool hasBeenCompleted,
     required int type,
-    required String valueLabel,
   })  : xp = Value(xp),
-        start = Value(start),
+        begin = Value(begin),
         end = Value(end),
+        userStartTime = Value(userStartTime),
         description = Value(description),
         target = Value(target),
         progress = Value(progress),
         isWeekly = Value(isWeekly),
         isOpen = Value(isOpen),
-        hasBeenCompleted = Value(hasBeenCompleted),
-        type = Value(type),
-        valueLabel = Value(valueLabel);
+        type = Value(type);
   static Insertable<Challenge> custom({
     Expression<int>? id,
     Expression<int>? xp,
-    Expression<DateTime>? start,
+    Expression<DateTime>? begin,
     Expression<DateTime>? end,
+    Expression<DateTime>? userStartTime,
     Expression<String>? description,
     Expression<int>? target,
     Expression<int>? progress,
     Expression<bool>? isWeekly,
     Expression<bool>? isOpen,
-    Expression<bool>? hasBeenCompleted,
     Expression<int>? type,
-    Expression<String>? valueLabel,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (xp != null) 'xp': xp,
-      if (start != null) 'start': start,
+      if (begin != null) 'begin': begin,
       if (end != null) 'end': end,
+      if (userStartTime != null) 'user_start_time': userStartTime,
       if (description != null) 'description': description,
       if (target != null) 'target': target,
       if (progress != null) 'progress': progress,
       if (isWeekly != null) 'is_weekly': isWeekly,
       if (isOpen != null) 'is_open': isOpen,
-      if (hasBeenCompleted != null) 'has_been_completed': hasBeenCompleted,
       if (type != null) 'type': type,
-      if (valueLabel != null) 'value_label': valueLabel,
     });
   }
 
   ChallengesCompanion copyWith(
       {Value<int>? id,
       Value<int>? xp,
-      Value<DateTime>? start,
+      Value<DateTime>? begin,
       Value<DateTime>? end,
+      Value<DateTime>? userStartTime,
       Value<String>? description,
       Value<int>? target,
       Value<int>? progress,
       Value<bool>? isWeekly,
       Value<bool>? isOpen,
-      Value<bool>? hasBeenCompleted,
-      Value<int>? type,
-      Value<String>? valueLabel}) {
+      Value<int>? type}) {
     return ChallengesCompanion(
       id: id ?? this.id,
       xp: xp ?? this.xp,
-      start: start ?? this.start,
+      begin: begin ?? this.begin,
       end: end ?? this.end,
+      userStartTime: userStartTime ?? this.userStartTime,
       description: description ?? this.description,
       target: target ?? this.target,
       progress: progress ?? this.progress,
       isWeekly: isWeekly ?? this.isWeekly,
       isOpen: isOpen ?? this.isOpen,
-      hasBeenCompleted: hasBeenCompleted ?? this.hasBeenCompleted,
       type: type ?? this.type,
-      valueLabel: valueLabel ?? this.valueLabel,
     );
   }
 
@@ -906,11 +865,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (xp.present) {
       map['xp'] = Variable<int>(xp.value);
     }
-    if (start.present) {
-      map['start'] = Variable<DateTime>(start.value);
+    if (begin.present) {
+      map['begin'] = Variable<DateTime>(begin.value);
     }
     if (end.present) {
       map['end'] = Variable<DateTime>(end.value);
+    }
+    if (userStartTime.present) {
+      map['user_start_time'] = Variable<DateTime>(userStartTime.value);
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
@@ -927,14 +889,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (isOpen.present) {
       map['is_open'] = Variable<bool>(isOpen.value);
     }
-    if (hasBeenCompleted.present) {
-      map['has_been_completed'] = Variable<bool>(hasBeenCompleted.value);
-    }
     if (type.present) {
       map['type'] = Variable<int>(type.value);
-    }
-    if (valueLabel.present) {
-      map['value_label'] = Variable<String>(valueLabel.value);
     }
     return map;
   }
@@ -944,16 +900,15 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     return (StringBuffer('ChallengesCompanion(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
-          ..write('start: $start, ')
+          ..write('begin: $begin, ')
           ..write('end: $end, ')
+          ..write('userStartTime: $userStartTime, ')
           ..write('description: $description, ')
           ..write('target: $target, ')
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
           ..write('isOpen: $isOpen, ')
-          ..write('hasBeenCompleted: $hasBeenCompleted, ')
-          ..write('type: $type, ')
-          ..write('valueLabel: $valueLabel')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }

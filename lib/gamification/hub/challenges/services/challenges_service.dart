@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
+import 'package:priobike/gamification/hub/challenges/services/challenge_validator.dart';
 import 'package:priobike/gamification/hub/challenges/utils/challenge_generator.dart';
 
 abstract class ChallengeService with ChangeNotifier {
   final ChallengesDao _dao = AppDatabase.instance.challengesDao;
 
   final ChallengeGenerator _generator = ChallengeGenerator();
+
+  ChallengeValidator? _validator;
 
   bool _loadedChallengeState = false;
   bool get loadedChallengeState => _loadedChallengeState;
@@ -25,7 +28,6 @@ abstract class ChallengeService with ChangeNotifier {
   ChallengeService() {
     () async {
       await progressOpenChallenges();
-      await loadCurrentState();
       startChallengeStreams();
     }();
   }
@@ -33,42 +35,35 @@ abstract class ChallengeService with ChangeNotifier {
   void startChallengeStreams() {
     _dao.streamChallengesInInterval(intervalStartDay, intervalLengthInDays).listen(
       (update) {
+        if (_currentChallenge != null) return;
         if (update.isEmpty) {
           if (!_loadedChallengeState) return;
           _currentChallenge = null;
-          //_dao.createObject(generatedChallenge);
         } else {
+          _validator?.dispose();
           _currentChallenge = update.first;
+          _validator = ChallengeValidator(challenge: _currentChallenge!);
         }
         notifyListeners();
       },
     );
   }
 
-  Future<void> loadCurrentState() async {
-    var challengesOnDay = await _dao.getChallengesInInterval(intervalStartDay, 1);
-    if (challengesOnDay.isNotEmpty) {
-      _currentChallenge = challengesOnDay.first;
-    }
-
-    _loadedChallengeState = true;
-  }
-
   Future<void> progressOpenChallenges() async {
     for (var challenge in (await openChallenges)) {
-      var modifiedChallenge = challenge;
-
       var isCompleted = challenge.progress / challenge.target >= 1;
-
-      if (!inTimeFrame(challenge) || isCompleted) {
-        await _dao.updateObject(modifiedChallenge.copyWith(isOpen: true, hasBeenCompleted: true));
+      if (!isCompleted && !inTimeFrame(challenge)) {
+        await _dao.updateObject(challenge.copyWith(isOpen: false));
+      } else {
+        _currentChallenge = challenge;
       }
     }
+    _loadedChallengeState = true;
   }
 
   bool inTimeFrame(Challenge challenge) {
     var now = DateTime.now();
-    return now.isAfter(challenge.start) && now.isBefore(challenge.end);
+    return now.isAfter(challenge.begin) && now.isBefore(challenge.end);
   }
 
   void generateChallenge() {
