@@ -143,7 +143,7 @@ class _GameProfileCardState extends State<GameProfileCard> {
             levels: _levels,
             value: profile.xp.toDouble(),
             color: currentLevel?.color ?? CI.blue.withOpacity(0.25),
-            icon: Icons.pedal_bike,
+            icon: Icons.directions_bike,
             ringSize: 96,
             buildWithAnimation: animateLevelRing,
           ),

@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/models.dart';
@@ -112,7 +114,8 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   Timer? timer;
 
   /// This bool determines wether the displayed level ring should be animated currently.
-  bool animateLevelRing = false;
+  bool isAnimating = false;
+  bool isAnimatingRing = false;
 
   /// This value determines the shadow spread of the challenge icon.
   /// It is used to create the pulsing animation for completed challenges.
@@ -188,7 +191,16 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => service.generateChallenge(),
+      onTap: () async {
+        setState(() {
+          isAnimating = true;
+          isAnimatingRing = true;
+        });
+        HapticFeedback.lightImpact();
+        await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
+        await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
+        service.generateChallenge();
+      },
       onLongPress: () => service.deleteCurrentChallenge(),
       child: Padding(
         padding: const EdgeInsets.only(top: 8),
@@ -215,22 +227,26 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
             child: BoldSmall(
               text: widget.title,
               context: context,
-              color: Colors.white.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
             ),
           ),
         ),
         ...((challenge == null)
             ? const [SizedBox(height: 16)]
             : [
-                Icon(
-                  Icons.timer,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                BlendIn(
+                  child: Icon(
+                    Icons.timer,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                  ),
                 ),
-                BoldSmall(
-                  text: timeLeftStr,
-                  context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                BlendIn(
+                  child: BoldSmall(
+                    text: timeLeftStr,
+                    context: context,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
+                  ),
                 ),
                 const SizedBox(width: 16),
               ])
@@ -244,16 +260,20 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         children: [
-          Expanded(
-            child: Small(
-              text: challenge?.description ?? '',
-              context: context,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.start,
-              maxLines: 3,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+          const SizedBox(height: 30),
+          if (challenge != null)
+            Expanded(
+              child: BlendIn(
+                child: Small(
+                  text: challenge!.description,
+                  context: context,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.start,
+                  maxLines: 2,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -261,94 +281,85 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
 
   Widget getProgressBar() {
     return SizedBox.fromSize(
-      size: const Size.fromHeight(48),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
+      size: const Size.fromHeight(44),
+      child: Stack(
         children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Center(
-                  child: SizedBox.fromSize(
-                    size: const Size.fromHeight(48),
-                    child: Stack(
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(32)),
-                          ),
-                          clipBehavior: Clip.hardEdge,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Expanded(
-                                flex: (progressPercentage * 100).toInt(),
-                                child: Container(
-                                  color: CI.blue,
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(32)),
+                    border: Border.all(width: 2, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.075)),
+                  ),
+                  child: Stack(
+                    children: (challenge != null)
+                        ? [
+                            FractionallySizedBox(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(Radius.circular(32)),
+                                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+                                ),
+                                clipBehavior: Clip.hardEdge,
+                                alignment: Alignment.centerLeft,
+                                child: FractionallySizedBox(
+                                  widthFactor: isCompleted ? 1 : progressPercentage,
+                                  child: Container(color: CI.blue),
                                 ),
                               ),
-                              Expanded(
-                                flex: isCompleted ? 0 : ((1 - progressPercentage) * 100).toInt(),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: challenge == null
-                                        ? LinearGradient(
-                                            colors: [CI.blue.withOpacity(0.5), CI.blue.withOpacity(0.05)],
-                                          )
-                                        : null,
-                                    color: challenge == null
-                                        ? null
-                                        : Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        FractionallySizedBox(
-                          widthFactor: isCompleted ? 1 : progressPercentage,
-                          heightFactor: 1,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(32)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: CI.blue.withOpacity(0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(4, 4),
-                                ),
-                              ],
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
+                            FractionallySizedBox(
+                              widthFactor: isCompleted ? 1 : progressPercentage,
+                              heightFactor: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(Radius.circular(32)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: CI.blue.withOpacity(0.3),
+                                      blurRadius: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ]
+                        : [
+                            AnimatedContainer(
+                              duration: ShortTransitionDuration(),
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.all(Radius.circular(32)),
+                                boxShadow: [
+                                  BoxShadow(color: CI.blue.withOpacity(isAnimating ? 0.2 : 0), blurRadius: 20),
+                                ],
+                                gradient: LinearGradient(
+                                  colors: [
+                                    CI.blue.withOpacity(isAnimating ? 0.8 : 0.5),
+                                    CI.blue.withOpacity(isAnimating ? 0.2 : 0.05),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(child: Container()),
-                        getIconRing(),
-                        Expanded(child: Container()),
-                      ],
-                    ),
-                  ],
-                ),
-                Center(
-                  child: BoldSmall(
-                    text: (challenge == null)
-                        ? 'Neue Challenge starten!'
-                        : '${challenge!.progress} / ${challenge!.target} ${challenge!.valueLabel}',
-                    context: context,
-                    textAlign: TextAlign.center,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [getIconRing()],
+          ),
+          Center(
+            child: BoldSmall(
+              text: (challenge == null)
+                  ? 'Neue Challenge starten!'
+                  : '${challenge!.progress} / ${challenge!.target} ${challenge!.valueLabel}',
+              context: context,
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
             ),
           ),
         ],
@@ -361,7 +372,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     var level = Level(value: 0, title: '', color: color);
     return AnimatedContainer(
       duration: ShortTransitionDuration(),
-      margin: const EdgeInsets.only(left: 2),
+      margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         boxShadow: [
@@ -372,23 +383,15 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           ),
         ],
       ),
-      child: GestureDetector(
-        onTap: () {
-          if (animateLevelRing) return;
-          setState(() => animateLevelRing = true);
-          Future.delayed(LongTransitionDuration()).then((_) => setState(() => animateLevelRing = false));
-        },
-        child: AnimatedLevelRing(
-          levels: [level, level, level, level, level, level, level],
-          value: 0,
-          color: color,
-          icon: (challenge == null)
-              ? Icons.question_mark
-              : challenge!.isWeekly
-                  ? Icons.emoji_events
-                  : Icons.military_tech,
-          buildWithAnimation: animateLevelRing,
-        ),
+      child: AnimatedLevelRing(
+        ringSize: 32,
+        levels: [level, level, level, level, level, level, level],
+        value: 0,
+        color: color,
+        icon: (challenge == null)
+            ? Icons.question_mark
+            : (challenge!.isWeekly ? Icons.emoji_events : Icons.military_tech),
+        buildWithAnimation: isAnimatingRing,
       ),
     );
   }
