@@ -23,34 +23,36 @@ class GameProfileCard extends StatefulWidget {
 }
 
 class _GameProfileCardState extends State<GameProfileCard> with TickerProviderStateMixin {
+  static const Color bronzeColor = Color.fromRGBO(169, 113, 66, 1);
+  static const Color silverColor = Color.fromRGBO(165, 169, 180, 1);
+  static const Color goldColor = Color.fromRGBO(212, 175, 55, 1);
+
+  /// These are the levels that are possible to achieve by the user vie their xp.
+  static List<Level> levels = [
+    Level(value: 500, title: '', color: bronzeColor.withOpacity(0.5)),
+    const Level(value: 1000, title: '', color: bronzeColor),
+    Level(value: 1500, title: '', color: silverColor.withOpacity(0.5)),
+    const Level(value: 2000, title: '', color: silverColor),
+    Level(value: 2500, title: '', color: goldColor.withOpacity(0.5)),
+    const Level(value: 3000, title: '', color: goldColor),
+    const Level(value: 3500, title: '', color: Medals.priobike),
+  ];
+
   /// The service which manages and provides the user profile.
   late GameProfileService _profileService;
 
+  /// The service which provides the users game settings to modify the card according to the enabled features.
   late GameSettingsService _settingsService;
 
-  late final AnimationController _trophiesController = AnimationController(
-    duration: ShortTransitionDuration(),
-    vsync: this,
-  );
+  /// Controller to animate the trophy icon when a new trophy is gained.
+  late final AnimationController _trophiesController;
 
-  late final AnimationController _medalsController = AnimationController(
-    duration: ShortTransitionDuration(),
-    vsync: this,
-  );
+  /// Controller to animate the medal icon when a new medal is gained.
+  late final AnimationController _medalsController;
 
+  /// Bounce animation for the trophy or medal icon.
   Animation<double> getAnimation(var controller) =>
       Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
-
-  /// These are the levels that are possible to achieve by the user vie their xp.
-  static List<Level> get _levels => const [
-        Level(value: 100, title: 'Laie', color: Medals.bronze),
-        Level(value: 250, title: 'Beginner', color: Medals.bronze),
-        Level(value: 500, title: "Ganz oke bro", color: Medals.silver),
-        Level(value: 1000, title: "Kranke Sau Du!", color: Medals.silver),
-        Level(value: 2500, title: "So gut ALDA!", color: Medals.gold),
-        Level(value: 5000, title: "Fahrradsau", color: Medals.gold),
-        Level(value: 10000, title: "Gottheit", color: Medals.priobike),
-      ];
 
   /// This bool determines wether the displayed level ring should be animated currently.
   bool animateLevelRing = false;
@@ -77,6 +79,8 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
 
   @override
   void initState() {
+    _trophiesController = AnimationController(duration: ShortTransitionDuration(), vsync: this);
+    _medalsController = AnimationController(duration: ShortTransitionDuration(), vsync: this);
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
     _settingsService = getIt<GameSettingsService>();
@@ -93,10 +97,29 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     super.dispose();
   }
 
+  /// Create level rings, such that the ring indicators fit to the current users xp and the levels.
+  List<Level> getRingLevels() {
+    var next = nextLevel;
+    if (next == null) {
+      var endLevel = levels.last;
+      return levels.map((e) => endLevel).toList();
+    } else {
+      List<Level> result = [];
+      var prevValue = currentLevel?.value ?? 0;
+      var valueDiff = next.value - prevValue;
+      for (int i = 0; i < 7; i++) {
+        var subValue = prevValue + (i + 1) * (valueDiff ~/ 7);
+        var level = Level(value: subValue, title: '', color: next.color);
+        result.add(level);
+      }
+      return result;
+    }
+  }
+
   /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
   Level? get currentLevel {
     Level? prevLvl;
-    for (var level in _levels) {
+    for (var level in levels) {
       if (_profileService.profile!.xp < level.value) break;
       prevLvl = level;
     }
@@ -105,10 +128,10 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
 
   /// Return the next level the user needs to achieve. Returns null, if the user has reached the max level.
   Level? get nextLevel {
-    if (currentLevel == null) return _levels[0];
-    int index = _levels.indexOf(currentLevel!);
-    if (index == _levels.length - 1) return null;
-    return _levels[index + 1];
+    if (currentLevel == null) return levels[0];
+    int index = levels.indexOf(currentLevel!);
+    if (index == levels.length - 1) return null;
+    return levels[index + 1];
   }
 
   /// Returns widget for displaying a trophy count for a trophy with a given icon.
@@ -173,7 +196,8 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     );
   }
 
-  Widget getGameHeader(var profile) {
+  /// Get card header which displays the users game state in form of the received rewards.
+  Widget getRewardsHeader(var profile) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -181,9 +205,11 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
         GestureDetector(
           onTap: animateRing,
           child: AnimatedLevelRing(
-            levels: _levels,
+            levels: getRingLevels(),
             value: profile.xp.toDouble(),
-            color: currentLevel?.color ?? CI.blue.withOpacity(0.25),
+            color: (currentLevel == null)
+                ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
+                : currentLevel!.color,
             icon: Icons.directions_bike,
             ringSize: 96,
             buildWithAnimation: animateLevelRing,
@@ -200,8 +226,9 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
                   children: [
                     BoldSubHeader(text: _profileService.profile!.username, context: context),
                     Small(
-                        text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
-                        context: context),
+                      text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
+                      context: context,
+                    ),
                     const SizedBox(height: 16),
                   ],
                 ),
@@ -231,59 +258,112 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     );
   }
 
-  Widget getNoGameHeader(var profile) {
+  /// Get card header without a game state.
+  Widget getNoRewardsHeader(var profile) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Header(text: profile.username, context: context),
+        Icon(
+          Icons.person,
+          size: 32,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+        ),
+        const SmallHSpace(),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: BoldSubHeader(
+            text: profile.username,
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+          ),
+        ),
+        const HSpace(),
       ],
+    );
+  }
+
+  /// Widget which displays the total statisics for the user.
+  Widget getStatisticFooter(var profile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallVSpace(),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            getInfoWidget(
+              Icons.directions_bike,
+              StatUtils.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
+              'km',
+            ),
+            getInfoWidget(
+              Icons.timer,
+              StatUtils.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
+              'min',
+            ),
+            getInfoWidget(
+              Icons.speed,
+              'ø ${StatUtils.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
+              'km/h',
+            ),
+            getInfoWidget(
+              Icons.arrow_upward,
+              StatUtils.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
+              'm',
+            ),
+            getInfoWidget(
+              Icons.arrow_downward,
+              StatUtils.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
+              'm',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Get seperator between header and footer of the card.
+  Widget getSeperator() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 8, left: 8, right: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: Container(
+              height: 2,
+              decoration: BoxDecoration(
+                  color: CI.blue.withOpacity(0.025),
+                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: CI.blue.withOpacity(0.025),
+                      blurRadius: 5,
+                    )
+                  ]),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     var profile = _profileService.profile!;
+    var rewardsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureChallengesKey);
+    var statsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureStatisticsKey);
     return GameHubCard(
       content: Column(
         children: [
           const SmallVSpace(),
-          (_settingsService.isFeatureEnabled(GameSettingsService.gameFeatureChallengesKey))
-              ? getGameHeader(profile)
-              : getNoGameHeader(profile),
-          const SmallVSpace(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              getInfoWidget(
-                Icons.directions_bike,
-                StatUtils.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
-                'km',
-              ),
-              getInfoWidget(
-                Icons.timer,
-                StatUtils.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
-                'min',
-              ),
-              getInfoWidget(
-                Icons.speed,
-                'ø ${StatUtils.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
-                'km/h',
-              ),
-              getInfoWidget(
-                Icons.arrow_upward,
-                StatUtils.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
-                'm',
-              ),
-              getInfoWidget(
-                Icons.arrow_downward,
-                StatUtils.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
-                'm',
-              ),
-            ],
-          ),
+          rewardsEnabled ? getRewardsHeader(profile) : getNoRewardsHeader(profile),
+          if (statsEnabled & !rewardsEnabled) getSeperator(),
+          if (statsEnabled) getStatisticFooter(profile),
           const SmallVSpace(),
         ],
       ),

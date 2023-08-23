@@ -49,21 +49,32 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   Widget build(BuildContext context) {
     return GameHubCard(
       onTap: () async {
-        /*TODO delete
         if (!_settingsService.challengeGoalsSet) {
           widget.openView(const ChallengeGoalsView());
-        } else {
-          await AppDatabase.instance.challengesDao.clearObjects();
-          _settingsService.setChallengeGoals(null);
-        }*/
+        }
       },
       content: Column(
         children: _settingsService.challengeGoalsSet
-            ? const [
-                ChallengeProgressBar(isWeekly: true),
-                ChallengeProgressBar(isWeekly: false),
+            ? [
+                const ChallengeProgressBar(isWeekly: true),
+                const ChallengeProgressBar(isWeekly: false),
+                GestureDetector(
+                  onTap: () => widget.openView(const ChallengeGoalsView()),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      BoldSmall(text: 'Ziele ändern', context: context),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.redo, size: 16),
+                    ],
+                  ),
+                ),
               ]
-            : [getNoGoalsWidget()],
+            : [
+                getNoGoalsWidget(),
+              ],
       ),
     );
   }
@@ -203,7 +214,8 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           isAnimating = true;
           isAnimatingRing = true;
         });
-        HapticFeedback.mediumImpact();
+
+        if (isCompleted) HapticFeedback.mediumImpact();
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
         await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
         if (challenge == null) {
@@ -211,6 +223,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
         } else if (challenge!.progress < challenge!.target) {
           service.finishChallenge();
         } else {
+          HapticFeedback.mediumImpact();
           service.completeChallenge();
         }
       },

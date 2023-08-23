@@ -43,7 +43,7 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
 
   double routeGoal = 4;
 
-  Shortcut? selectedShortcut;
+  String? selectedTrack;
 
   @override
   void initState() {
@@ -53,6 +53,13 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
     _shortcutsService.addListener(update);
     _animationController = AnimationController(vsync: this, duration: LongTransitionDuration());
     _animationController.forward();
+    var prevGoals = _settingsService.challengeGoals;
+    if (prevGoals != null) {
+      var trackGoals = prevGoals.trackGoal;
+      distanceGoal = prevGoals.dailyDistanceGoalMetres / 1000;
+      durationGoal = prevGoals.dailyDurationGoalMinutes;
+      selectedTrack = trackGoals?.trackDescription;
+    }
     super.initState();
   }
 
@@ -111,9 +118,8 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
           BigButton(
             label: 'Challenges Starten',
             onPressed: () {
-              var routeGoals = selectedShortcut == null
-                  ? null
-                  : RouteGoals(selectedShortcut!.name, selectedShortcut!.name, routeGoal.toInt());
+              var routeGoals =
+                  selectedTrack == null ? null : RouteGoals(selectedTrack!, selectedTrack!, routeGoal.toInt());
               var goals = ChallengeGoals(distanceGoal * 1000, durationGoal, routeGoals);
               getIt<GameSettingsService>().setChallengeGoals(goals);
               Navigator.pop(context);
@@ -206,7 +212,7 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
                 ],
               ),
             ),
-            ...(selectedShortcut != null)
+            ...(selectedTrack != null)
                 ? [
                     const SmallVSpace(),
                     Padding(
@@ -217,7 +223,7 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
                         children: [
                           BoldContent(text: 'Route:', context: context),
                           const SmallHSpace(),
-                          Content(text: selectedShortcut!.name, context: context)
+                          Content(text: selectedTrack!, context: context)
                         ],
                       ),
                     ),
@@ -251,10 +257,10 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
                   children: _shortcutsService.shortcuts
                           ?.map((shortcut) => ShortcutView(
                                 onPressed: () => setState(() {
-                                  if (shortcut == selectedShortcut) {
-                                    selectedShortcut = null;
+                                  if (shortcut.name == selectedTrack) {
+                                    selectedTrack = null;
                                   } else {
-                                    selectedShortcut = shortcut;
+                                    selectedTrack = shortcut.name;
                                   }
                                 }),
                                 shortcut: shortcut,

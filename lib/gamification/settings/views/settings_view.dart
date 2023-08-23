@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
@@ -91,9 +92,15 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
         children: [
           getAnimatedSettingsElement(
             index: 0,
-            view: const GameFeaturesSettingsView(),
+            onTap: () => _openSettingsPage(const GameFeaturesSettingsView(), 0),
             title: 'Aktivierte Spiel-Elemente',
             icon: Icons.list,
+          ),
+          getAnimatedSettingsElement(
+            index: 1,
+            onTap: () => AppDatabase.instance.challengesDao.clearObjects(),
+            title: 'Challenges zurücksetzen',
+            icon: Icons.recycling,
           ),
         ],
       ),
@@ -102,7 +109,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
 
   /// Returns a settings element that is wrapped in an animation for when the elements appear and disappear.
   Widget getAnimatedSettingsElement(
-      {required int index, required Widget view, required String title, required IconData icon}) {
+      {required int index, required Function() onTap, required String title, required IconData icon}) {
     if (selectedSetting == index) {
       return FadeTransition(
         opacity: _fadeAnimation,
@@ -120,7 +127,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
         position: getSettingsElementAnimation(0.2, 0.6),
         child: Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: SettingsElement(title: title, icon: icon, callback: () => _openSettingsPage(view, index)),
+          child: SettingsElement(title: title, icon: icon, callback: onTap),
         ),
       );
     }
