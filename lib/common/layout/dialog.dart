@@ -208,14 +208,14 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
       curve: Curves.linear,
       child: Center(
         child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
+          borderRadius: const BorderRadius.all(Radius.circular(32)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Material(
               color: Colors.transparent,
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.8,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(24)),
                   color: Theme.of(context).colorScheme.background.withOpacity(0.6),
