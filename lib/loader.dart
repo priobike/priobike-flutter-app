@@ -162,7 +162,6 @@ class LoaderState extends State<Loader> {
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             )
           ],
-          height: 390,
         );
       },
     );

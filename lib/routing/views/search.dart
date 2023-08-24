@@ -32,7 +32,6 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
         text: "Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.",
         icon: Icons.location_on_rounded,
         iconColor: Theme.of(context).colorScheme.primary,
-        height: 310,
         actions: [
           TextField(
             autofocus: MediaQuery.of(dialogContext).viewInsets.bottom > 0,
@@ -388,7 +387,6 @@ class RouteSearchState extends State<RouteSearch> {
           text: 'Möchtest du den Suchverlauf wirklich löschen?',
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
-          height: 300,
           actions: [
             BigButton(
               iconColor: Colors.white,

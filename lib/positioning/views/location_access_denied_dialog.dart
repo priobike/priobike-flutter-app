@@ -23,7 +23,6 @@ void showLocationAccessDeniedDialog(BuildContext context, PositionSource? positi
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           ),
         ],
-        height: 260,
       );
     },
   );

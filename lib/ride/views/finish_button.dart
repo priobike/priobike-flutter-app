@@ -37,7 +37,6 @@ class FinishRideButtonState extends State<FinishRideButton> {
           text: "Wenn du die Fahrt beendest, musst du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
           icon: Icons.question_mark_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
-          height: 300,
           actions: [
             BigButton(
               iconColor: Colors.white,

@@ -75,7 +75,6 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           )
         ],
-        height: 375,
       );
     },
   );

@@ -66,7 +66,6 @@ void showEditShortcutSheet(context, int idx) {
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           )
         ],
-        height: 290,
       );
     },
   );

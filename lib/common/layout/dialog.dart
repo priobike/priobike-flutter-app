@@ -35,7 +35,6 @@ void showInvalidShortcutSheet(context) {
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           ),
         ],
-        height: 300,
       );
     },
   );
@@ -97,7 +96,6 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           )
         ],
-        height: 290,
       );
     },
   );
@@ -120,15 +118,11 @@ class DialogLayout extends StatefulWidget {
   /// The action widgets of the dialog (such as buttons and text input fields).
   final List<Widget>? actions;
 
-  /// The height of the dialog.
-  final double height;
-
   const DialogLayout({
     Key? key,
     required this.title,
     required this.text,
     required this.actions,
-    required this.height,
     this.icon,
     this.iconColor,
   }) : super(key: key);
@@ -220,7 +214,6 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: widget.height,
                 width: MediaQuery.of(context).size.width * 0.8,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 decoration: BoxDecoration(
@@ -228,6 +221,7 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
                   color: Theme.of(context).colorScheme.background.withOpacity(0.6),
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (widget.icon != null)

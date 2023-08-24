@@ -54,7 +54,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           icon: Icons.update_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: const [],
-          height: 320,
         );
       },
     );

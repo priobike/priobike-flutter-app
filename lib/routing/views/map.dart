@@ -727,7 +727,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 'Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe deinen Wegpunkt an.',
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
-            height: 280,
             actions: [
               BigButton(
                 iconColor: Colors.white,

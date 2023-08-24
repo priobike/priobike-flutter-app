@@ -155,7 +155,6 @@ class RoutingViewState extends State<RoutingView> {
                 'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
-            height: 265,
             actions: [
               BigButton(
                 iconColor: Colors.white,
@@ -291,7 +290,6 @@ class RoutingViewState extends State<RoutingView> {
               'Deine GPS-Position scheint ungenau zu sein. Solltest du während der Fahrt Probleme mit der Ortung feststellen, prüfe deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
           icon: Icons.info_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
-          height: 300,
           actions: [
             BigButton(
               iconColor: Colors.white,

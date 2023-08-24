@@ -103,7 +103,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
           ],
-          height: 280,
         );
       },
     );
