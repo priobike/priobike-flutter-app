@@ -271,6 +271,9 @@ class FeedbackViewState extends State<FeedbackView> {
 
     if (tracking.previousTracks == null) return Container();
 
+    // the size for the track pictogram
+    final double boxSize = (MediaQuery.of(context).size.width - 24);
+
     return Scaffold(
       body: Container(
         color: Theme.of(context).colorScheme.surface,
@@ -307,21 +310,17 @@ class FeedbackViewState extends State<FeedbackView> {
               const VSpace(),
               BlendIn(
                 child: SizedBox(
-                  // must be a square
-                  height: MediaQuery.of(context).size.width - 24,
-                  width: MediaQuery.of(context).size.width - 24,
-                  child: LayoutBuilder(
-                    builder: (BuildContext context, BoxConstraints constraints) {
-                      return TrackPictogram(
-                        key: UniqueKey(),
-                        height: (MediaQuery.of(context).size.width - 12).round(),
-                        track: tracking.previousTracks!.last,
-                        tracks: getIt<Positioning>().positions,
-                        minSpeedColor: CI.blue,
-                        maxSpeedColor: CI.blueLight,
-                        blurRadius: 10,
-                      );
-                    },
+                  // must be a square, therefore height = width
+                  height: boxSize,
+                  width: boxSize,
+                  child: TrackPictogram(
+                    key: UniqueKey(),
+                    height: boxSize.round(),
+                    track: tracking.previousTracks!.last,
+                    tracks: getIt<Positioning>().positions,
+                    minSpeedColor: CI.blue,
+                    maxSpeedColor: CI.blueLight,
+                    blurRadius: 10,
                   ),
                 ),
               ),
