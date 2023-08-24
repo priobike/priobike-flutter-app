@@ -210,21 +210,22 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        setState(() {
-          isAnimating = true;
-          isAnimatingRing = true;
-        });
-
-        if (isCompleted) HapticFeedback.mediumImpact();
-        await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
-        await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
-        if (challenge == null) {
-          if (service.allowNew) service.generateChallenge();
-        } else if (challenge!.progress < challenge!.target) {
-          service.finishChallenge();
-        } else {
-          HapticFeedback.mediumImpact();
-          service.completeChallenge();
+        if (!(challenge == null && !service.allowNew)) {
+          if (isCompleted) HapticFeedback.mediumImpact();
+          setState(() {
+            isAnimating = true;
+            isAnimatingRing = true;
+          });
+          await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
+          await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
+          if (challenge == null) {
+            if (service.allowNew) service.generateChallenge();
+          } else if (challenge!.progress < challenge!.target) {
+            service.finishChallenge();
+          } else {
+            HapticFeedback.mediumImpact();
+            service.completeChallenge();
+          }
         }
       },
       onLongPress: () => service.deleteCurrentChallenge(),
@@ -257,7 +258,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
             ),
           ),
         ),
-        ...(challenge != null && isCompleted)
+        ...((challenge != null && isCompleted) || (challenge == null && !service.allowNew))
             ? []
             : [
                 BlendIn(
@@ -364,8 +365,10 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                                 ],
                                 gradient: LinearGradient(
                                   colors: [
-                                    CI.blue.withOpacity(isAnimating ? 0.8 : 0.5),
-                                    CI.blue.withOpacity(isAnimating ? 0.2 : 0.05),
+                                    CI.blue.withOpacity(
+                                        (challenge == null && !service.allowNew) ? 0.2 : (isAnimating ? 0.8 : 0.5)),
+                                    CI.blue.withOpacity(
+                                        (challenge == null && !service.allowNew) ? 0.01 : (isAnimating ? 0.2 : 0.05)),
                                   ],
                                 ),
                               ),
@@ -384,7 +387,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
           Center(
             child: BoldSmall(
               text: (challenge == null)
-                  ? (service.allowNew ? 'Neue Challenge starten!' : 'Morgen darfst Du wieder!')
+                  ? (service.allowNew ? 'Neue Challenge starten!' : timeLeftStr)
                   : '${challenge!.progress} / ${challenge!.target}',
               context: context,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
@@ -403,7 +406,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
       margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: (isCompleted && isAnimatingRing)
+        boxShadow: ((isCompleted && isAnimatingRing) || (challenge == null && !service.allowNew))
             ? []
             : [
                 BoxShadow(

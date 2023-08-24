@@ -16,6 +16,8 @@ class ShortcutView extends StatelessWidget {
   final double width;
   final double height;
   final double rightPad;
+  final bool selected;
+  final bool showSplash;
 
   const ShortcutView({
     Key? key,
@@ -24,6 +26,8 @@ class ShortcutView extends StatelessWidget {
     required this.width,
     required this.height,
     required this.rightPad,
+    this.selected = false,
+    this.showSplash = true,
   }) : super(key: key);
 
   @override
@@ -105,8 +109,9 @@ class ShortcutView extends StatelessWidget {
             ),
           ),
         ]),
-        fill: shortcut == null ? CI.blue : Theme.of(context).colorScheme.background,
-        splash: shortcut == null ? Colors.white : Theme.of(context).colorScheme.primary,
+        fill: shortcut == null || selected ? CI.blue : Theme.of(context).colorScheme.background,
+        splash:
+            showSplash ? (shortcut == null ? Colors.white : Theme.of(context).colorScheme.primary) : Colors.transparent,
       ),
     );
   }

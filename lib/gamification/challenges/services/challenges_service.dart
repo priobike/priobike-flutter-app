@@ -30,14 +30,12 @@ abstract class ChallengeService with ChangeNotifier {
   StreamSubscription? _stream;
 
   ChallengeService() {
-    loadOpenChallenges();
-    startTimeWindowStream();
-  }
-
-  void startTimeWindowStream() {
-    _dao.streamChallengesInInterval(_intervalStartDay, _intervalLengthInDays).listen((update) {
-      _allowNew = update.isEmpty;
-    });
+    () async {
+      await loadOpenChallenges();
+      _dao.streamChallengesInInterval(_intervalStartDay, _intervalLengthInDays).listen((update) {
+        _allowNew = update.isEmpty;
+      });
+    }();
   }
 
   void completeChallenge() {

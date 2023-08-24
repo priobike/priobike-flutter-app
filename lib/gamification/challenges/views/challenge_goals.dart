@@ -10,9 +10,11 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_goals.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 
 class ChallengeGoalsView extends StatefulWidget {
@@ -43,7 +45,19 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
 
   double routeGoal = 4;
 
-  String? selectedTrack;
+  double locationGoal = 4;
+
+  String? selectedRoute;
+
+  String? selectedLocation;
+
+  bool showRouteSelection = false;
+
+  bool showLocationSelection = false;
+
+  List<ShortcutRoute> get routes => _shortcutsService.shortcuts?.whereType<ShortcutRoute>().toList() ?? [];
+
+  List<ShortcutLocation> get locations => _shortcutsService.shortcuts?.whereType<ShortcutLocation>().toList() ?? [];
 
   @override
   void initState() {
@@ -58,7 +72,7 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
       var trackGoals = prevGoals.trackGoal;
       distanceGoal = prevGoals.dailyDistanceGoalMetres / 1000;
       durationGoal = prevGoals.dailyDurationGoalMinutes;
-      selectedTrack = trackGoals?.trackDescription;
+      selectedRoute = trackGoals?.trackDescription;
     }
     super.initState();
   }
@@ -75,51 +89,72 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
   Widget build(BuildContext context) {
     return GameHubPage(
       animationController: _animationController,
-      title: 'PrioBike Challenge',
+      title: 'Deine Ziele',
       content: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: BoldSmall(
-                      text:
-                          'Bevor Du mit den Challenges startest, setze Dir eigene Ziele. Die Challenges und ihre Schwierigkeit orientieren sich dann an diesen Zielen.',
-                      context: context),
-                ),
-              ],
-            ),
-          ),
-          const VSpace(),
+          const SmallVSpace(),
           getGoalSlider(
-            'Welche Distanz würdest Du im Durchschnitt gerne täglich mit dem Fahrrad zurücklegen?',
-            distanceGoal,
-            0.5,
-            10,
-            0.5,
-            'km',
-            (value) => setState(() => distanceGoal = value),
+            title: 'Distanz-Ziel pro Tag',
+            value: distanceGoal,
+            min: 0.5,
+            max: 10,
+            stepSize: 0.5,
+            valueLabel: 'km',
+            onChanged: (value) => setState(() => distanceGoal = value),
+            valueAsInt: false,
           ),
           const SmallVSpace(),
           getGoalSlider(
-            'Wie lange würdest Du im Durchschnitt am Tag gerne Fahrradfahren?',
-            durationGoal,
-            10,
-            90,
-            10,
-            'min',
-            (value) => setState(() => durationGoal = value),
+            title: 'Zeit-Ziel pro Tag',
+            value: durationGoal,
+            min: 10,
+            max: 90,
+            stepSize: 10,
+            valueLabel: 'min',
+            onChanged: (value) => setState(() => durationGoal = value),
           ),
           const SmallVSpace(),
-          getRouteSelection(),
+          getSelectionWithSlider(
+            shortcutLabel: 'Routen',
+            showSelection: showRouteSelection,
+            infoText: 'Möchtest du dir vornehmen, eine deiner gespeicherten Strecken regelmäßig zu fahren?',
+            sliderValue: routeGoal,
+            selectedShortcut: selectedRoute,
+            updateSlider: (value) => routeGoal = value,
+            shortcuts: routes,
+            enableSelection: () => showRouteSelection = true,
+            updateSelectedShortcut: (name) {
+              if (name == selectedRoute) {
+                selectedRoute = null;
+              } else {
+                selectedRoute = name;
+              }
+            },
+          ),
+          const SmallVSpace(),
+          getSelectionWithSlider(
+            shortcutLabel: 'Orte',
+            showSelection: showLocationSelection,
+            infoText: 'Möchtest du dir vornehmen regelmäßig Fahrten zu einem deiner gespeicherten Orte zu unternehmen?',
+            sliderValue: locationGoal,
+            selectedShortcut: selectedLocation,
+            updateSlider: (value) => locationGoal = value,
+            shortcuts: locations,
+            enableSelection: () => showLocationSelection = true,
+            updateSelectedShortcut: (name) {
+              if (name == selectedLocation) {
+                selectedLocation = null;
+              } else {
+                selectedLocation = name;
+              }
+            },
+          ),
           const VSpace(),
           BigButton(
             label: 'Challenges Starten',
             onPressed: () {
               var routeGoals =
-                  selectedTrack == null ? null : RouteGoals(selectedTrack!, selectedTrack!, routeGoal.toInt());
+                  selectedRoute == null ? null : RouteGoals(selectedRoute!, selectedRoute!, routeGoal.toInt());
               var goals = ChallengeGoals(distanceGoal * 1000, durationGoal, routeGoals);
               getIt<GameSettingsService>().setChallengeGoals(goals);
               Navigator.pop(context);
@@ -131,15 +166,17 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
     );
   }
 
-  Widget getGoalSlider(
-    String title,
-    double value,
-    double min,
-    double max,
-    double stepSize,
-    String valueLabel,
-    Function(double) onChanged,
-  ) {
+  Widget getGoalSlider({
+    required String title,
+    required double value,
+    required double min,
+    required double max,
+    required double stepSize,
+    required String valueLabel,
+    required Function(double)? onChanged,
+    bool valueAsInt = true,
+    Widget? bottomView,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(left: 12),
       child: Tile(
@@ -154,13 +191,13 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Expanded(
-                    child: Content(text: title, context: context),
+                    child: SubHeader(text: title, context: context),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       const SizedBox(width: 48),
-                      BoldSubHeader(text: value.toString(), context: context),
+                      BoldSubHeader(text: (valueAsInt ? value.toInt() : value).toString(), context: context),
                       BoldContent(
                         text: valueLabel,
                         context: context,
@@ -180,100 +217,112 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
               inactiveColor: CI.blue.withOpacity(0.15),
               activeColor: CI.blue,
             ),
+            if (bottomView != null) bottomView,
           ],
         ),
       ),
     );
   }
 
-  Widget getRouteSelection() {
+  Widget getSelectionWithSlider({
+    required String infoText,
+    required double sliderValue,
+    required String? selectedShortcut,
+    required Function(double) updateSlider,
+    required List<Shortcut> shortcuts,
+    required Function(String) updateSelectedShortcut,
+    required Function() enableSelection,
+    required bool showSelection,
+    required String shortcutLabel,
+  }) {
     const double shortcutRightPad = 16;
-    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad - 12;
+    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
     final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
-    return Padding(
-      padding: const EdgeInsets.only(left: 12),
-      child: Tile(
-        padding: const EdgeInsets.fromLTRB(0, 16, 8, 0),
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-        fill: Theme.of(context).colorScheme.background,
-        content: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
+    return Column(
+      children: [
+        const SmallVSpace(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: BoldSmall(
+            text: infoText,
+            context: context,
+            textAlign: TextAlign.center,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+          ),
+        ),
+        const SmallVSpace(),
+        if (showSelection)
+          getGoalSlider(
+            title: 'Fahrten pro Woche',
+            value: sliderValue,
+            min: 1,
+            max: 7,
+            stepSize: 1,
+            valueLabel: 'mal',
+            onChanged: selectedShortcut == null ? null : (value) => setState(() => updateSlider(value)),
+            bottomView: Padding(
+              padding: const EdgeInsets.only(top: 8, left: 20),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                    children: shortcuts
+                        .map((shortcut) => ShortcutView(
+                              onPressed: () => setState(() => updateSelectedShortcut(shortcut.name)),
+                              shortcut: shortcut,
+                              width: shortcutWidth,
+                              height: shortcutHeight,
+                              rightPad: shortcutRightPad,
+                              selected: shortcut.name == selectedShortcut,
+                              showSplash: false,
+                            ))
+                        .toList()),
+              ),
+            ),
+          ),
+        if (!showSelection)
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Tile(
+              onPressed: (shortcuts.isEmpty) ? null : () => setState(enableSelection),
+              padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+              fill: Theme.of(context).colorScheme.background,
+              content: Column(
                 children: [
-                  Expanded(
-                    child: Content(
-                        text:
-                            'Möchtest Du Dir vornehmen eine deiner Routen öfter mit dem Fahrrad zu fahren, zum Beispiel deinen Arbeitsweg?',
-                        context: context),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: (shortcuts.isNotEmpty)
+                          ? [
+                              Expanded(
+                                child: SubHeader(text: 'Ziele setzen', context: context),
+                              ),
+                              const Icon(Icons.redo, size: 24),
+                            ]
+                          : [
+                              Expanded(
+                                child: BoldContent(
+                                    text:
+                                        'Du hast noch keine eigenen $shortcutLabel gespeichert. Du kannst dieses Ziel aber auch nachträglich noch setzen.',
+                                    context: context,
+                                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25)),
+                              ),
+                              const SmallHSpace(),
+                              Icon(
+                                Icons.not_interested,
+                                size: 48,
+                                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                              ),
+                            ],
+                    ),
                   ),
                 ],
               ),
             ),
-            ...(selectedTrack != null)
-                ? [
-                    const SmallVSpace(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          BoldContent(text: 'Route:', context: context),
-                          const SmallHSpace(),
-                          Content(text: selectedTrack!, context: context)
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          BoldContent(text: 'Fahrten pro Woche:', context: context),
-                          const SmallHSpace(),
-                          Content(text: routeGoal.toInt().toString(), context: context)
-                        ],
-                      ),
-                    ),
-                    Slider(
-                      min: 1,
-                      max: 7,
-                      divisions: 6,
-                      value: routeGoal,
-                      onChanged: (value) => setState(() => routeGoal = value),
-                      inactiveColor: CI.blue.withOpacity(0.15),
-                      activeColor: CI.blue,
-                    ),
-                  ]
-                : [const SmallVSpace()],
-            SingleChildScrollView(
-              controller: scrollController,
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                  children: _shortcutsService.shortcuts
-                          ?.map((shortcut) => ShortcutView(
-                                onPressed: () => setState(() {
-                                  if (shortcut.name == selectedTrack) {
-                                    selectedTrack = null;
-                                  } else {
-                                    selectedTrack = shortcut.name;
-                                  }
-                                }),
-                                shortcut: shortcut,
-                                width: shortcutWidth,
-                                height: shortcutHeight,
-                                rightPad: shortcutRightPad,
-                              ))
-                          .toList() ??
-                      []),
-            ),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 }
