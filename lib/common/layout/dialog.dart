@@ -42,7 +42,7 @@ void showInvalidShortcutSheet(context) {
 }
 
 /// Show a sheet to save a shortcut. If the shortcut is null the current route (at the routing service will be saved).
-void showSaveShortcutSheet(context, Shortcut? shortcut) {
+void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -127,10 +127,10 @@ class DialogLayout extends StatefulWidget {
     Key? key,
     required this.title,
     required this.text,
-    required this.icon,
-    required this.iconColor,
     required this.actions,
     required this.height,
+    this.icon,
+    this.iconColor,
   }) : super(key: key);
 
   @override

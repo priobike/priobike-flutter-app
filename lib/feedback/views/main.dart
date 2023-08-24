@@ -404,7 +404,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     icon: Icons.save_rounded,
                     fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                     label: "Strecke speichern",
-                    onPressed: () => showSaveShortcutSheet(context, null),
+                    onPressed: () => showSaveShortcutSheet(context),
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
                   ),
                   const VSpace(),

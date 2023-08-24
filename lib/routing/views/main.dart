@@ -378,7 +378,7 @@ class RoutingViewState extends State<RoutingView> {
 
               RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
-                onSelectSaveButton: () => showSaveShortcutSheet(context, null),
+                onSelectSaveButton: () => showSaveShortcutSheet(context),
               ),
             ],
           ),
