@@ -282,7 +282,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       rideDetails = [];
     }
 
-    final int boxHeight = MediaQuery.of(context).size.width.toInt() - 128;
+    final int boxHeight = MediaQuery.of(context).size.width.toInt() - 48;
 
     return Stack(
       alignment: Alignment.center,
@@ -299,7 +299,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   Content(
                     text: lastTrackDateFormatted,
                     context: context,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
                     textAlign: TextAlign.center,
                   ),
                 ],
