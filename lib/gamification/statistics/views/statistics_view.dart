@@ -28,9 +28,9 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
     statService = getIt<StatisticService>();
     statService.addListener(update);
     // Init the animation controllers and start the header animation.
-    _headerAnimationController = AnimationController(vsync: this, duration: ShortTransitionDuration());
+    _headerAnimationController = AnimationController(vsync: this, duration: ShortAnimationDuration());
     Future.delayed(const Duration(milliseconds: 0)).then((value) => _headerAnimationController.forward());
-    _listAnimationController = AnimationController(vsync: this, duration: ShortTransitionDuration());
+    _listAnimationController = AnimationController(vsync: this, duration: ShortAnimationDuration());
     super.initState();
   }
 
@@ -79,20 +79,20 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
       animationController: _headerAnimationController,
       title: getTitleFromStatInterval(statService.statInterval),
       backButtonCallback: () async {
-        _headerAnimationController.duration = ShortTransitionDuration();
+        _headerAnimationController.duration = ShortAnimationDuration();
         _headerAnimationController.reverse();
-        _listAnimationController.duration = ShortTransitionDuration();
+        _listAnimationController.duration = ShortAnimationDuration();
         _listAnimationController.reverse();
         if (!mounted) return;
-        Future.delayed(ShortTransitionDuration()).then((_) => Navigator.of(context).pop());
+        Future.delayed(ShortAnimationDuration()).then((_) => Navigator.of(context).pop());
       },
       featureButtonIcon: Icons.sync_alt,
       featureButtonCallback: () async {
-        _headerAnimationController.duration = ShortTransitionDuration();
+        _headerAnimationController.duration = ShortAnimationDuration();
         _headerAnimationController.reverse();
-        _listAnimationController.duration = ShortTransitionDuration();
+        _listAnimationController.duration = ShortAnimationDuration();
         _listAnimationController.reverse();
-        Future.delayed(ShortTransitionDuration()).then((_) {
+        Future.delayed(ShortAnimationDuration()).then((_) {
           getIt<StatisticService>().changeStatInterval();
           _headerAnimationController.forward();
         });

@@ -24,7 +24,7 @@ class _GameFeaturesSettingsViewState extends State<GameFeaturesSettingsView> wit
 
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: ShortTransitionDuration());
+    _animationController = AnimationController(vsync: this, duration: ShortAnimationDuration());
     _animationController.forward();
     super.initState();
   }
@@ -59,8 +59,10 @@ class _GameFeaturesSettingsViewState extends State<GameFeaturesSettingsView> wit
 
 /// This widget displays a game feature which the user can enable or disable by tapping on it.
 class GameFeatureElement extends StatefulWidget {
+  /// A label for the displayed feature.
   final String label;
 
+  /// The shared prefs key of the displayed feature.
   final String featureKey;
 
   const GameFeatureElement({
@@ -77,15 +79,16 @@ class _GameFeatureElementState extends State<GameFeatureElement> {
   /// The associated settings service, which is injected by the provider.
   late GameSettingsService _settingsService;
 
-  bool _selected = false;
+  /// Bool which is true, if the displayed feature is currently enabled.
+  bool _enabled = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() => _selected = _settingsService.isFeatureEnabled(widget.featureKey))};
+  void update() => {if (mounted) setState(() => _enabled = _settingsService.isFeatureEnabled(widget.featureKey))};
 
   @override
   void initState() {
     _settingsService = getIt<GameSettingsService>();
-    _selected = _settingsService.isFeatureEnabled(widget.featureKey);
+    _enabled = _settingsService.isFeatureEnabled(widget.featureKey);
     _settingsService.addListener(update);
     super.initState();
   }
@@ -104,11 +107,11 @@ class _GameFeatureElementState extends State<GameFeatureElement> {
       child: Tile(
         showShadow: false,
         borderWidth: 3,
-        borderColor: _selected ? theme.colorScheme.primary : Colors.grey.withOpacity(0.25),
+        borderColor: _enabled ? theme.colorScheme.primary : Colors.grey.withOpacity(0.25),
         splash: Colors.grey.withOpacity(0.1),
         fill: theme.colorScheme.background,
         onPressed: () {
-          setState(() => _selected = !_selected);
+          setState(() => _enabled = !_enabled);
           _settingsService.enableOrDisableFeature(widget.featureKey);
         },
         content: Center(

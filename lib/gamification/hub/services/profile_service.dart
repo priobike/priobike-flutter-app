@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/hub/models/game_profile.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,7 +19,7 @@ class GameProfileService with ChangeNotifier {
 
   /// Ride DAOs to access rides and challenges.
   RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
-  ChallengesDao get challengeDao => AppDatabase.instance.challengesDao;
+  ChallengeDao get challengeDao => AppDatabase.instance.challengesDao;
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
@@ -30,6 +30,12 @@ class GameProfileService with ChangeNotifier {
 
   /// Returns true, if there is a valid user profile.
   bool get hasProfile => _profile != null;
+
+  /// This bool describes, whether the profiles medal value has been changed.
+  bool medalsChanged = false;
+
+  /// This bool describes, whether the profiles trophy value has been changed.
+  bool trophiesChanged = false;
 
   GameProfileService() {
     _loadProfile();
@@ -42,21 +48,21 @@ class GameProfileService with ChangeNotifier {
     challengeDao.streamClosedCompletedChallenges().listen((update) => updateRewards(update));
   }
 
-  bool medalsChanged = false;
-  bool trophiesChanged = false;
-
+  /// This function updates the profiles rewards according to a given list of completed challenges.
   Future<void> updateRewards(List<Challenge> challenges) async {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
 
+    // Save the old state of the trophies and medals to determine if they change.
     var oldMedals = _profile!.medals;
     var oldTrophies = _profile!.trophies;
 
     // Update rewards according to the completed challenges.
-    _profile!.xp = StatUtils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
+    _profile!.xp = Utils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
     _profile!.medals = challenges.where((c) => !c.isWeekly).length;
     _profile!.trophies = challenges.where((c) => c.isWeekly).length;
 
+    // If the medals or trophies changed, update the bools accordingly.
     medalsChanged = oldMedals < _profile!.medals;
     trophiesChanged = oldTrophies < _profile!.trophies;
 
@@ -109,11 +115,11 @@ class GameProfileService with ChangeNotifier {
     if (_profile == null) return;
 
     /// Update profile statistics according to rides.
-    _profile!.totalDistanceKilometres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.distance);
-    _profile!.totalDurationMinutes = StatUtils.getOverallValueFromSummaries(rides, RideInfo.duration);
-    _profile!.totalElevationGainMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationGain);
-    _profile!.totalElevationLossMetres = StatUtils.getOverallValueFromSummaries(rides, RideInfo.elevationLoss);
-    _profile!.averageSpeedKmh = StatUtils.getOverallValueFromSummaries(rides, RideInfo.averageSpeed);
+    _profile!.totalDistanceKilometres = Utils.getOverallValueFromSummaries(rides, RideInfo.distance);
+    _profile!.totalDurationMinutes = Utils.getOverallValueFromSummaries(rides, RideInfo.duration);
+    _profile!.totalElevationGainMetres = Utils.getOverallValueFromSummaries(rides, RideInfo.elevationGain);
+    _profile!.totalElevationLossMetres = Utils.getOverallValueFromSummaries(rides, RideInfo.elevationLoss);
+    _profile!.averageSpeedKmh = Utils.getOverallValueFromSummaries(rides, RideInfo.averageSpeed);
 
     updateProfile();
   }

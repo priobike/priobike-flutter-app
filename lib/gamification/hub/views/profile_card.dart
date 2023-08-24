@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/game/colors.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
-import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
+import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/main.dart';
 
-/// This view displays the basic info about the users game profile. This contains their achieved game awards and
-/// their overall statistics of all registered rides.
+/// This view displays the basic info about the users game profile. This can contain their achieved game rewards and
+/// their overall statistics of all registered rides. But what exactly is displayed depends on the users'
+/// enabled gamification features.
 class GameProfileCard extends StatefulWidget {
   const GameProfileCard({Key? key}) : super(key: key);
 
@@ -23,19 +22,21 @@ class GameProfileCard extends StatefulWidget {
 }
 
 class _GameProfileCardState extends State<GameProfileCard> with TickerProviderStateMixin {
-  static const Color bronzeColor = Color.fromRGBO(169, 113, 66, 1);
-  static const Color silverColor = Color.fromRGBO(165, 169, 180, 1);
-  static const Color goldColor = Color.fromRGBO(212, 175, 55, 1);
+  /// The medal colors, which are distributed to the different levels.
+  static Color bronzeColor = const Color.fromRGBO(169, 113, 66, 1);
+  static Color silverColor = const Color.fromRGBO(165, 169, 180, 1);
+  static Color goldColor = const Color.fromRGBO(212, 175, 55, 1);
+  static Color diamondColor = CI.blue;
 
   /// These are the levels that are possible to achieve by the user vie their xp.
   static List<Level> levels = [
     Level(value: 500, title: '', color: bronzeColor.withOpacity(0.5)),
-    const Level(value: 1000, title: '', color: bronzeColor),
+    Level(value: 1000, title: '', color: bronzeColor),
     Level(value: 1500, title: '', color: silverColor.withOpacity(0.5)),
-    const Level(value: 2000, title: '', color: silverColor),
+    Level(value: 2000, title: '', color: silverColor),
     Level(value: 2500, title: '', color: goldColor.withOpacity(0.5)),
-    const Level(value: 3000, title: '', color: goldColor),
-    const Level(value: 3500, title: '', color: Medals.priobike),
+    Level(value: 3000, title: '', color: goldColor),
+    Level(value: 3500, title: '', color: diamondColor),
   ];
 
   /// The service which manages and provides the user profile.
@@ -59,12 +60,16 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() async {
+    // First, rebuild the widget.
     if (mounted) setState(() {});
+    // If the medals have changed, animate the medal icon.
     if (_profileService.medalsChanged) {
       await _medalsController.reverse(from: 1);
       _profileService.medalsChanged = false;
       if (mounted) setState(() {});
-    } else if (_profileService.trophiesChanged) {
+    }
+    // If the trophies have changed, animate the trophy icon.
+    else if (_profileService.trophiesChanged) {
       await _trophiesController.reverse(from: 1);
       _profileService.trophiesChanged = false;
       if (mounted) setState(() {});
@@ -74,13 +79,13 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
   /// This function starts and ends the level ring animation.
   void animateRing() {
     setState(() => animateLevelRing = true);
-    Future.delayed(LongTransitionDuration()).then((_) => setState(() => animateLevelRing = false));
+    Future.delayed(LongAnimationDuration()).then((_) => setState(() => animateLevelRing = false));
   }
 
   @override
   void initState() {
-    _trophiesController = AnimationController(duration: ShortTransitionDuration(), vsync: this);
-    _medalsController = AnimationController(duration: ShortTransitionDuration(), vsync: this);
+    _trophiesController = AnimationController(duration: ShortAnimationDuration(), vsync: this);
+    _medalsController = AnimationController(duration: ShortAnimationDuration(), vsync: this);
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
     _settingsService = getIt<GameSettingsService>();
@@ -97,13 +102,16 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     super.dispose();
   }
 
-  /// Create level rings, such that the ring indicators fit to the current users xp and the levels.
+  /// Create level rings, such that the ring indicators match the current users xp and level.
   List<Level> getRingLevels() {
     var next = nextLevel;
+    // If the max level has been reached, the whole ring is displayed in blue.
     if (next == null) {
       var endLevel = levels.last;
       return levels.map((e) => endLevel).toList();
-    } else {
+    }
+    // Else, the ring color depends on the next levels color and the current xp progress.
+    else {
       List<Level> result = [];
       var prevValue = currentLevel?.value ?? 0;
       var valueDiff = next.value - prevValue;
@@ -297,27 +305,27 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
           children: [
             getInfoWidget(
               Icons.directions_bike,
-              StatUtils.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
+              StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
               'km',
             ),
             getInfoWidget(
               Icons.timer,
-              StatUtils.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
+              StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
               'min',
             ),
             getInfoWidget(
               Icons.speed,
-              'ø ${StatUtils.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
+              'ø ${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
               'km/h',
             ),
             getInfoWidget(
               Icons.arrow_upward,
-              StatUtils.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
+              StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
               'm',
             ),
             getInfoWidget(
               Icons.arrow_downward,
-              StatUtils.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
+              StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
               'm',
             ),
           ],
@@ -326,7 +334,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     );
   }
 
-  /// Get seperator between header and footer of the card.
+  /// Get seperator to seperate header and footer of the card, if necessary.
   Widget getSeperator() {
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 8, left: 8, right: 8),

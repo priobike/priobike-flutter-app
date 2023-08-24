@@ -1,6 +1,6 @@
+
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
+import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/statistics/views/graphs/compact_labled_graph.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';

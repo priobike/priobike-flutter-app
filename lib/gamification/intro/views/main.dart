@@ -39,7 +39,7 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
   @override
   void initState() {
     _animationController = AnimationController(
-      duration: ShortTransitionDuration(),
+      duration: ShortAnimationDuration(),
       vsync: this,
     );
     // Add listener to game intro service, which manages the whole intro process.

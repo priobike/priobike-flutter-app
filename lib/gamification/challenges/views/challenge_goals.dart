@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/challenges/utils/challenge_goals.dart';
+import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -25,9 +25,14 @@ class ChallengeGoalsView extends StatefulWidget {
 }
 
 class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTickerProviderStateMixin {
+  static const double distanceGoalDefault = 2.5;
+  static const double durationGoalDefault = 30;
+  static const double perWeekGoalDefault = 3;
+
   /// Controller which controls the animation when opening this view.
   late AnimationController _animationController;
 
+  /// The game settings service to get the current user goals and to update the user goals if needed.
   late GameSettingsService _settingsService;
 
   /// The associated shortcuts service
@@ -36,28 +41,38 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
   /// The scroll controller.
   ScrollController scrollController = ScrollController();
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  /// The ride distance per day user goal.
+  double distanceGoal = distanceGoalDefault;
 
-  double distanceGoal = 2.5;
+  /// The ride duration per day user goal.
+  double durationGoal = durationGoalDefault;
 
-  double durationGoal = 30;
+  /// The rides per week route goal.
+  double routeGoal = perWeekGoalDefault;
 
-  double routeGoal = 4;
+  /// The rides per week location goal.
+  double locationGoal = perWeekGoalDefault;
 
-  double locationGoal = 4;
-
+  /// The id of the currently selected route.
   String? selectedRoute;
 
+  /// The id of the currently selected location.
   String? selectedLocation;
 
+  /// Whether to show the route selection to the user. Fals at the beginning to avoid overwhelming the user.
   bool showRouteSelection = false;
 
+  /// Whether to show the location selection to the user. Fals at the beginning to avoid overwhelming the user.
   bool showLocationSelection = false;
 
+  /// List of saved routes of the user from the shortcut service.
   List<ShortcutRoute> get routes => _shortcutsService.shortcuts?.whereType<ShortcutRoute>().toList() ?? [];
 
+  /// List of saved locations of the user from the shortcut service.
   List<ShortcutLocation> get locations => _shortcutsService.shortcuts?.whereType<ShortcutLocation>().toList() ?? [];
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
@@ -65,15 +80,18 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
     _settingsService.addListener(update);
     _shortcutsService = getIt<Shortcuts>();
     _shortcutsService.addListener(update);
-    _animationController = AnimationController(vsync: this, duration: LongTransitionDuration());
+    _animationController = AnimationController(vsync: this, duration: LongAnimationDuration());
     _animationController.forward();
+
+    // Update default values to previous goals, if previous goals exist.
     var prevGoals = _settingsService.challengeGoals;
     if (prevGoals != null) {
-      var trackGoals = prevGoals.trackGoal;
+      var trackGoals = prevGoals.routeGoal;
       distanceGoal = prevGoals.dailyDistanceGoalMetres / 1000;
       durationGoal = prevGoals.dailyDurationGoalMinutes;
-      selectedRoute = trackGoals?.trackDescription;
+      selectedRoute = trackGoals?.trackName;
     }
+
     super.initState();
   }
 
@@ -166,6 +184,7 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
     );
   }
 
+  /// This widget includes a slider connected to a given value, which can be used to change the value.
   Widget getGoalSlider({
     required String title,
     required double value,
@@ -224,6 +243,7 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
     );
   }
 
+  /// This widget displays a selection slider connected to a list of route or location shortcuts.
   Widget getSelectionWithSlider({
     required String infoText,
     required double sliderValue,

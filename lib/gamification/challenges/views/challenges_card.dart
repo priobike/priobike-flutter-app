@@ -13,13 +13,17 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/challenges/services/challenges_service.dart';
 import 'package:priobike/gamification/challenges/views/challenge_goals.dart';
-import 'package:priobike/gamification/hub/views/cards/hub_card.dart';
+import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/main.dart';
 
+/// This card displays the current challenge state of the user or encourages them to set their challenge goals.
+/// If no goals are set, the goal setting view can be opened by tapping the card. otherwise it can be opened by
+/// tapping a button at the bottom.
 class GameChallengesCard extends StatefulWidget {
   /// Open view function from parent widget is required, to animate the hub cards away when opening the stats view.
   final Future Function(Widget view) openView;
+
   const GameChallengesCard({Key? key, required this.openView}) : super(key: key);
 
   @override
@@ -27,6 +31,7 @@ class GameChallengesCard extends StatefulWidget {
 }
 
 class _GameChallengesCardState extends State<GameChallengesCard> {
+  /// Game settings service required to check whether the user has set their challenge goals.
   late GameSettingsService _settingsService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -49,12 +54,13 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   Widget build(BuildContext context) {
     return GameHubCard(
       onTap: () async {
-        if (!_settingsService.challengeGoalsSet) {
-          widget.openView(const ChallengeGoalsView());
-        }
+        // Open view to set goals., if the user hasn't set their goals yet.
+        if (!_settingsService.challengeGoalsSet) widget.openView(const ChallengeGoalsView());
       },
       content: Column(
         children: _settingsService.challengeGoalsSet
+            // If the user has set their challenge goals, show progress bars for daily and weekly challenges and a
+            // small button to update the goals.
             ? [
                 const ChallengeProgressBar(isWeekly: true),
                 const ChallengeProgressBar(isWeekly: false),
@@ -72,6 +78,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
                   ),
                 ),
               ]
+            // If the user hasn't set their goals, show info widget.
             : [
                 getNoGoalsWidget(),
               ],
@@ -79,6 +86,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
     );
   }
 
+  /// Info widget which encourages the user to set their goals.
   Widget getNoGoalsWidget() {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -106,8 +114,9 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
 }
 
 /// A Widget which displays the progress of a given challenge and relevant info about the challenge.
-/// It also provides the option to provide the rewards, if the challenge was completed.
+/// It also provides the option to get the rewards, if the challenge was completed.
 class ChallengeProgressBar extends StatefulWidget {
+  /// Determine whether to build the progress bar for weekly or for daily challenges.
   final bool isWeekly;
 
   const ChallengeProgressBar({
@@ -122,29 +131,21 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   /// A timer that is used to update the displayed time left, or to create the pulsing animation when completed.
   Timer? timer;
 
-  /// This bool determines wether the displayed level ring should be animated currently.
+  /// This bool determines whether the progress bar should be animated currently.
   bool isAnimating = false;
+
+  /// This bool determines wether the displayed level ring should be animated currently.
   bool isAnimatingRing = false;
 
   /// This value determines the shadow spread of the challenge icon.
   /// It is used to create the pulsing animation for completed challenges.
   double iconShadowSpred = 12;
 
+  /// Get the weekly or daily challenge service, according to the isWeekly variable.
   ChallengeService get service => widget.isWeekly ? getIt<WeeklyChallengeService>() : getIt<DailyChallengeService>();
 
+  /// Get the challenge currently connected to the progress bar, or null if there is none.
   Challenge? get challenge => service.currentChallenge;
-
-  /// Time left till the challenge ends.
-  Duration getTimeLeft() {
-    var now = DateTime.now();
-    if (widget.isWeekly) {
-      var startOfNextWeek = now.add(Duration(days: 8 - now.weekday)).copyWith(hour: 0, minute: 0, second: 0);
-      return startOfNextWeek.difference(now);
-    } else {
-      var tomorrow = now.add(const Duration(days: 1)).copyWith(hour: 0, minute: 0, second: 0);
-      return tomorrow.difference(now);
-    }
-  }
 
   /// The progress of completion of the challenge as a percentage value between 0 and 100.
   double get progressPercentage => challenge == null ? 0 : challenge!.progress / challenge!.target;
@@ -162,7 +163,19 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     return result;
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
+  /// Time left till the challenge ends.
+  Duration getTimeLeft() {
+    var now = DateTime.now();
+    if (widget.isWeekly) {
+      var startOfNextWeek = now.add(Duration(days: 8 - now.weekday)).copyWith(hour: 0, minute: 0, second: 0);
+      return startOfNextWeek.difference(now);
+    } else {
+      var tomorrow = now.add(const Duration(days: 1)).copyWith(hour: 0, minute: 0, second: 0);
+      return tomorrow.difference(now);
+    }
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired. It restards the update timer and rebuilds the widget.
   void update() {
     if (isCompleted) startUpdateTimer();
     if (mounted) setState(() {});
@@ -188,7 +201,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     endTimer();
     if (isCompleted) {
       timer = Timer.periodic(
-          ShortTransitionDuration(),
+          ShortAnimationDuration(),
           (timer) => setState(() {
                 iconShadowSpred = (iconShadowSpred == 0) ? 20 : 0;
               }));
@@ -206,28 +219,43 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     timer = null;
   }
 
+  /// Handle a tap on the progress bar.
+  void handleTap() async {
+    // If the challenge is null and the service doesn't allow to generate a new one, do nothing on tap.
+    if (challenge == null && !service.allowNew) return;
+
+    /// If the challenge has been completed and the user taps, to collect their rewards, give haptic feedback on tap.
+    if (isCompleted) HapticFeedback.mediumImpact();
+
+    /// Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
+    setState(() {
+      isAnimating = true;
+      isAnimatingRing = true;
+    });
+    await Future.delayed(ShortAnimationDuration()).then((_) => setState(() => isAnimating = false));
+    await Future.delayed(ShortAnimationDuration()).then((_) => setState(() => isAnimatingRing = false));
+
+    /// If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
+    if (isCompleted) {
+      service.completeChallenge();
+      HapticFeedback.mediumImpact();
+    }
+
+    /// If there is no challenge, but the service allows a new one, generate a new one.
+    else if (challenge == null && service.allowNew) {
+      service.generateChallenge();
+    }
+
+    /// If there is a challenge, but it hasn't been completed yet, finish it TODO just for tests.
+    else if (challenge != null && !isCompleted) {
+      service.finishChallenge();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        if (!(challenge == null && !service.allowNew)) {
-          if (isCompleted) HapticFeedback.mediumImpact();
-          setState(() {
-            isAnimating = true;
-            isAnimatingRing = true;
-          });
-          await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimating = false));
-          await Future.delayed(ShortTransitionDuration()).then((_) => setState(() => isAnimatingRing = false));
-          if (challenge == null) {
-            if (service.allowNew) service.generateChallenge();
-          } else if (challenge!.progress < challenge!.target) {
-            service.finishChallenge();
-          } else {
-            HapticFeedback.mediumImpact();
-            service.completeChallenge();
-          }
-        }
-      },
+      onTap: handleTap,
       onLongPress: () => service.deleteCurrentChallenge(),
       child: Padding(
         padding: const EdgeInsets.only(top: 8),
@@ -242,6 +270,9 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     );
   }
 
+  /// Returns a widget which displays the time the user has left for the challenge. It also displays a title, which
+  /// depends on whether if the challenge is a daily or a weekly challenge. Additionally, the time left is only shown,
+  /// if there is a displayed challenge, or if the user is allowed to create a new one.
   Widget getTimeLeftWidget() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -281,6 +312,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     );
   }
 
+  /// This widget displays the description of the displayed challenge.
   Widget getDescriptionWidget() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -306,6 +338,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     );
   }
 
+  /// This widget returns the progress bar corresponding to the challenge state.
   Widget getProgressBar() {
     return SizedBox.fromSize(
       size: const Size.fromHeight(44),
@@ -341,7 +374,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                               widthFactor: isCompleted ? 1 : progressPercentage,
                               heightFactor: 1,
                               child: AnimatedContainer(
-                                duration: LongTransitionDuration(),
+                                duration: LongAnimationDuration(),
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(Radius.circular(32)),
                                   boxShadow: [
@@ -357,7 +390,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                           ]
                         : [
                             AnimatedContainer(
-                              duration: ShortTransitionDuration(),
+                              duration: ShortAnimationDuration(),
                               decoration: BoxDecoration(
                                 borderRadius: const BorderRadius.all(Radius.circular(32)),
                                 boxShadow: [
@@ -398,11 +431,12 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     );
   }
 
+  /// Widget returns a small icon ring to be displayed inside of the progress bar.
   Widget getIconRing() {
     var color = CI.blue.withOpacity(isCompleted ? 1 : math.max(progressPercentage, 0.25));
     var level = Level(value: 0, title: '', color: color);
     return AnimatedContainer(
-      duration: ShortTransitionDuration(),
+      duration: ShortAnimationDuration(),
       margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,

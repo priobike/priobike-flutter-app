@@ -5,9 +5,9 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
-import 'package:priobike/gamification/challenges/views/challenges_hub_card.dart';
-import 'package:priobike/gamification/statistics/views/stats_hub_card.dart';
-import 'package:priobike/gamification/hub/views/cards/profile_card.dart';
+import 'package:priobike/gamification/challenges/views/challenges_card.dart';
+import 'package:priobike/gamification/statistics/views/stats_card.dart';
+import 'package:priobike/gamification/hub/views/profile_card.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/settings/views/settings_view.dart';
@@ -54,9 +54,9 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
     // Init animation controller and start the animation after a short delay, to let the view load first.
     _animationController = AnimationController(
       vsync: this,
-      duration: LongTransitionDuration(),
+      duration: LongAnimationDuration(),
     );
-    Future.delayed(ShortTransitionDuration()).then(
+    Future.delayed(ShortAnimationDuration()).then(
       (value) => _animationController.forward(),
     );
     // Listen to ride data and update local list accordingly.
@@ -76,7 +76,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
   /// This function navigates to a new page by pushing it on top of the hub view. It also handles the transition
   /// animation of the hub view, both when opening the page and when returning to the hub.
   Future openPage(Widget view) {
-    _animationController.duration = ShortTransitionDuration();
+    _animationController.duration = ShortAnimationDuration();
     return _animationController
         .reverse()
         .then(

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/challenges/utils/challenge_goals.dart';
+import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This services manages the game settings of the user.
@@ -23,6 +23,8 @@ class GameSettingsService with ChangeNotifier {
   /// The user goals for the challenges
   ChallengeGoals? _challengeGoals;
   ChallengeGoals? get challengeGoals => _challengeGoals;
+
+  /// Check, if the user has set challenge goals already.
   bool get challengeGoalsSet => _challengeGoals != null;
 
   /// List of the selected game preferences of the user as string keys.
@@ -33,6 +35,7 @@ class GameSettingsService with ChangeNotifier {
     _loadSettings();
   }
 
+  /// Update the users' challenge goals and notify listeners.
   void setChallengeGoals(ChallengeGoals? goals) {
     _challengeGoals = goals;
     if (goals != null) {

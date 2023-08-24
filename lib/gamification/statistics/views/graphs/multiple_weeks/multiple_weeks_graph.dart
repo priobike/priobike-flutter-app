@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
 
 /// Displayes ride statistics for a single week. The data is obtained from a given [MultipleWeeksGraphViewModel].
@@ -26,7 +26,7 @@ class MultipleWeeksStatsGraph extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            StatUtils.getDateStr(viewModel.rideMap.keys.elementAt(value.toInt())),
+            StringFormatter.getDateStr(viewModel.rideMap.keys.elementAt(value.toInt())),
             style: todayInWeek ? style.copyWith(fontWeight: FontWeight.bold) : style,
           ),
           !todayInWeek

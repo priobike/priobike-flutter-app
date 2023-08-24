@@ -49,7 +49,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   void initState() {
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
-    _animationController = AnimationController(vsync: this, duration: LongTransitionDuration());
+    _animationController = AnimationController(vsync: this, duration: LongAnimationDuration());
     _animationController.forward();
     super.initState();
   }
@@ -64,7 +64,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   /// Open the view corresponding to a specific selected setting.
   void _openSettingsPage(Widget view, int index) {
     setState(() => selectedSetting = 0);
-    _animationController.duration = ShortTransitionDuration();
+    _animationController.duration = ShortAnimationDuration();
     _animationController.reverse().then(
           (_) => Navigator.of(context)
               .push(
@@ -90,12 +90,14 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
       title: 'Einstellungen',
       content: Column(
         children: [
+          // Settings element to open a seperate view to enable or disable features.
           getAnimatedSettingsElement(
             index: 0,
             onTap: () => _openSettingsPage(const GameFeaturesSettingsView(), 0),
             title: 'Aktivierte Spiel-Elemente',
             icon: Icons.list,
           ),
+          // Settings element to delete all challenge data.
           getAnimatedSettingsElement(
             index: 1,
             onTap: () => AppDatabase.instance.challengesDao.clearObjects(),

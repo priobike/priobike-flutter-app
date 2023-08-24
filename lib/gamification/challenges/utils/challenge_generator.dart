@@ -2,10 +2,11 @@ import 'dart:math' as math;
 
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/challenges/utils/challenge_goals.dart';
+import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/main.dart';
 
+/// Helper object which describes a possible range of values for a challenge target.
 class ValueRange {
   final int min;
   final int max;
@@ -14,10 +15,17 @@ class ValueRange {
   ValueRange(this.min, this.max, this.stepsize, this.xpFactor);
 }
 
-class ChallengeGenerator {
-  static const List<ChallengeType> weeklyTypes = [ChallengeType.distance, ChallengeType.rides, ChallengeType.streak];
+/// A class that implements this class can be used, to generate a new challenge according to the user goals.
+abstract class ChallengeGenerator {
+  ChallengesCompanion generate();
+}
+
+/// This class can be used to generate new daily challenges.
+class DailyChallengeGenerator extends ChallengeGenerator {
+  /// The challenge types, which a daily challenge can be.
   static const List<ChallengeType> dailyTypes = [ChallengeType.distance, ChallengeType.duration];
 
+  /// This function returns a fitting value range for a given challenge type and user goals.
   ValueRange getDailyChallengeValueRange(ChallengeType type, ChallengeGoals goals) {
     //TODO
     if (type == ChallengeType.distance) {
@@ -33,26 +41,7 @@ class ChallengeGenerator {
     return ValueRange(0, 0, 0, 0);
   }
 
-  ValueRange getWeeklyChallengeValueRange(ChallengeType type, ChallengeGoals goals) {
-    //TODO
-    if (type == ChallengeType.distance) {
-      var max = goals.dailyDistanceGoalMetres ~/ 500 * 3;
-      var min = max ~/ 2;
-      return ValueRange(math.max(min, 1), max, 500, 50);
-    }
-    if (type == ChallengeType.rides) {
-      var max = goals.trackGoal!.perWeek;
-      var min = max ~/ 2;
-      return ValueRange(math.max(min, 1), max, 1, 100);
-    }
-    if (type == ChallengeType.streak) {
-      var max = goals.trackGoal!.perWeek;
-      var min = max ~/ 2;
-      return ValueRange(math.max(min, 1), max, 1, 150);
-    }
-    return ValueRange(0, 0, 0, 0);
-  }
-
+  /// This function returns a fitting challenge description for a given challenge type and the target value.
   String buildDescriptionDaily(ChallengeType type, int value) {
     if (type == ChallengeType.distance) {
       return 'Bringe Heute eine Strecke von ${value / 1000} Kilometern hinter Dich!';
@@ -62,18 +51,8 @@ class ChallengeGenerator {
     return '';
   }
 
-  String buildDescriptionWeekly(ChallengeType type, int value, String? routeLabel) {
-    if (type == ChallengeType.distance) {
-      return 'Bringe diese Woche eine Strecke von ${value / 1000} Kilometern hinter Dich!';
-    } else if (type == ChallengeType.rides) {
-      return 'Fahre die Route $routeLabel diese Woche $value-mal mit dem Rad!';
-    } else if (type == ChallengeType.streak) {
-      return 'Fahre diese Woche an $value Tagen hintereinander die Route $routeLabel!';
-    }
-    return '';
-  }
-
-  ChallengesCompanion generateDailyChallenge() {
+  @override
+  ChallengesCompanion generate() {
     var goals = getIt<GameSettingsService>().challengeGoals!;
     var now = DateTime.now();
     var begin = DateTime(now.year, now.month, now.day);
@@ -93,12 +72,51 @@ class ChallengeGenerator {
       userStartTime: now,
     );
   }
+}
 
-  ChallengesCompanion generateWeeklyChallenge() {
+class WeeklyChallengeGenerator extends ChallengeGenerator {
+  /// The challenge types, which a weekly challenge can be.
+  static const List<ChallengeType> weeklyTypes = [ChallengeType.distance, ChallengeType.rides, ChallengeType.streak];
+
+  /// This function returns a fitting value range for a given challenge type and user goals.
+  ValueRange getWeeklyChallengeValueRange(ChallengeType type, ChallengeGoals goals) {
+    //TODO
+    if (type == ChallengeType.distance) {
+      var max = goals.dailyDistanceGoalMetres ~/ 500 * 3;
+      var min = max ~/ 2;
+      return ValueRange(math.max(min, 1), max, 500, 50);
+    }
+    if (type == ChallengeType.rides) {
+      var max = goals.routeGoal!.perWeek;
+      var min = max ~/ 2;
+      return ValueRange(math.max(min, 1), max, 1, 100);
+    }
+    if (type == ChallengeType.streak) {
+      var max = goals.routeGoal!.perWeek;
+      var min = max ~/ 2;
+      return ValueRange(math.max(min, 1), max, 1, 150);
+    }
+    return ValueRange(0, 0, 0, 0);
+  }
+
+  /// This function returns a fitting challenge description for a given challenge type and the target value.
+  String buildDescriptionWeekly(ChallengeType type, int value, String? routeLabel) {
+    if (type == ChallengeType.distance) {
+      return 'Bringe diese Woche eine Strecke von ${value / 1000} Kilometern hinter Dich!';
+    } else if (type == ChallengeType.rides) {
+      return 'Fahre die Route $routeLabel diese Woche $value-mal mit dem Rad!';
+    } else if (type == ChallengeType.streak) {
+      return 'Fahre diese Woche an $value Tagen hintereinander die Route $routeLabel!';
+    }
+    return '';
+  }
+
+  @override
+  ChallengesCompanion generate() {
     var goals = getIt<GameSettingsService>().challengeGoals!;
     var now = DateTime.now();
     var begin = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
-    var type = (goals.trackGoal == null)
+    var type = (goals.routeGoal == null)
         ? ChallengeType.distance
         : weeklyTypes.elementAt(math.Random().nextInt(weeklyTypes.length));
     var range = getWeeklyChallengeValueRange(type, goals);
@@ -107,7 +125,7 @@ class ChallengeGenerator {
       xp: randomValue * range.xpFactor,
       begin: begin,
       end: begin.add(const Duration(days: DateTime.daysPerWeek)),
-      description: buildDescriptionWeekly(type, randomValue * range.stepsize, goals.trackGoal?.trackDescription),
+      description: buildDescriptionWeekly(type, randomValue * range.stepsize, goals.routeGoal?.trackName),
       target: randomValue * range.stepsize,
       progress: 0,
       isWeekly: true,

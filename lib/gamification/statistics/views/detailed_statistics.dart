@@ -8,7 +8,6 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/views/utils.dart';
 import 'package:priobike/main.dart';
 
 /// This widget displayes detailed statistics for a number of given graphs. It also provides the user with functionality
@@ -85,7 +84,7 @@ class DetailedStatistics extends StatelessWidget {
           future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
           builder: (context, snapshot) {
             if (!(snapshot.data ?? false)) return const SizedBox.shrink();
-            rideListController.duration = ShortTransitionDuration();
+            rideListController.duration = ShortAnimationDuration();
             rideListController.forward();
             return getRideList(context);
           },
@@ -191,7 +190,7 @@ class DetailedStatistics extends StatelessWidget {
         /// Animate to next page if button is pressed.
         pageController.animateToPage(
           pageController.page!.toInt() + direction,
-          duration: ShortTransitionDuration(),
+          duration: ShortAnimationDuration(),
           curve: Curves.easeIn,
         );
       },
@@ -244,7 +243,7 @@ class DetailedStatistics extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    StatUtils.getDateStr(day),
+                    StringFormatter.getDateStr(day),
                     style: Theme.of(context).textTheme.labelSmall,
                     textAlign: TextAlign.center,
                   ),
@@ -274,17 +273,17 @@ class DetailedStatistics extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               getRideInfoValue(
-                StatUtils.getTimeStr(ride.startTime),
+                StringFormatter.getTimeStr(ride.startTime),
                 'Uhr',
                 context,
               ),
               getRideInfoValue(
-                StatUtils.getRoundedStrByRideType(ride.distanceMetres / 1000, RideInfo.distance),
+                StringFormatter.getRoundedStrByRideType(ride.distanceMetres / 1000, RideInfo.distance),
                 'km',
                 context,
               ),
               getRideInfoValue(
-                StatUtils.getRoundedStrByRideType(ride.durationSeconds / 60, RideInfo.duration),
+                StringFormatter.getRoundedStrByRideType(ride.durationSeconds / 60, RideInfo.duration),
                 'min',
                 context,
               ),
@@ -305,17 +304,17 @@ class DetailedStatistics extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   getRideInfoValue(
-                    StatUtils.getRoundedStrByRideType(ride.averageSpeedKmh, RideInfo.averageSpeed),
+                    StringFormatter.getRoundedStrByRideType(ride.averageSpeedKmh, RideInfo.averageSpeed),
                     'ø km/h',
                     context,
                   ),
                   getRideInfoValue(
-                    StatUtils.getRoundedStrByRideType(ride.elevationGainMetres, RideInfo.elevationGain),
+                    StringFormatter.getRoundedStrByRideType(ride.elevationGainMetres, RideInfo.elevationGain),
                     '↑ m',
                     context,
                   ),
                   getRideInfoValue(
-                    StatUtils.getRoundedStrByRideType(ride.elevationLossMetres, RideInfo.elevationLoss),
+                    StringFormatter.getRoundedStrByRideType(ride.elevationLossMetres, RideInfo.elevationLoss),
                     '↓ m',
                     context,
                   ),
