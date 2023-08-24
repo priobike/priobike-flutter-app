@@ -68,7 +68,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
 
   /// Load the background image of the map for the track.
   Future<void> loadBackgroundImage() async {
-    final oldBackgroundImage = backgroundImage;
+    // final oldBackgroundImage = backgroundImage;
 
     double? minLon;
     double? minLat;
@@ -83,20 +83,22 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
       if (maxLat == null || position.latitude > maxLat) maxLat = position.latitude;
     }
 
-    if (minLon != null || minLat != null || maxLon != null || maxLat != null) {
-      backgroundImage = await backgroundImageService.loadImage(
-        sessionId: widget.track.sessionId,
-        minLat: minLat!,
-        minLon: minLon!,
-        maxLat: maxLat!,
-        maxLon: maxLon!,
-        height: widget.height,
-      );
-    }
+    if (minLon == null || minLat == null || maxLon == null || maxLat == null) return;
+
+    backgroundImage = await backgroundImageService.loadImage(
+      sessionId: widget.track.sessionId,
+      minLat: minLat,
+      minLon: minLon,
+      maxLat: maxLat,
+      maxLon: maxLon,
+      height: widget.height,
+    );
+
     // only update if the image has changed
-    if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
-      setState(() {});
-    }
+    // if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
+    //   setState(() {});
+    // }
+    //TODO: readd???
   }
 
   @override
@@ -104,56 +106,54 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     // The background image of the map for the track.
     loadBackgroundImage();
 
-    return Stack(
-      fit: StackFit.expand,
-      alignment: Alignment.center,
-      children: [
-        // Background image
-        ClipRect(
-          child: SizedBox(
-            child: ShaderMask(
-              shaderCallback: (rect) {
-                return const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  stops: [0.05, 0.5, 0.95],
-                  colors: [Colors.transparent, Colors.black, Colors.transparent],
-                ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-              },
-              blendMode: BlendMode.dstIn,
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          // Background image
+          ClipRect(
+            child: SizedBox(
               child: ShaderMask(
                 shaderCallback: (rect) {
-                  return const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.05, 0.5, 0.95],
-                    colors: [Colors.transparent, Colors.black, Colors.transparent],
+                  return LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    stops: const [0.02, 0.5, 0.98],
+                    colors: [Colors.transparent, Colors.grey.shade200, Colors.transparent],
                   ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
                 },
                 blendMode: BlendMode.dstIn,
-                //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
-                // sobald das Bild da ist. Das ist Mist.
-                child: AnimatedSwitcher(
-                  duration: const Duration(seconds: 1),
-                  child: backgroundImage == null
-                      ? Container()
-                      : Image(
-                          key: UniqueKey(),
-                          image: backgroundImage!,
-                          fit: BoxFit.contain,
-                        ),
+                child: ShaderMask(
+                  shaderCallback: (rect) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.02, 0.5, 0.98],
+                      colors: [Colors.transparent, Colors.grey.shade200, Colors.transparent],
+                    ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                  },
+                  blendMode: BlendMode.dstIn,
+                  //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
+                  // sobald das Bild da ist. Das ist Mist.
+                  child: AnimatedSwitcher(
+                    duration: const Duration(seconds: 1),
+                    child: backgroundImage == null
+                        ? Container()
+                        : Image(
+                            key: UniqueKey(),
+                            image: backgroundImage!,
+                            fit: BoxFit.contain,
+                          ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        //   ),
-        // ),
-        // Glow
-        Opacity(
-          opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
-          child: AspectRatio(
-            aspectRatio: 1,
+          // Glow
+          Opacity(
+            opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
             child: Padding(
               // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
               padding: const EdgeInsets.all(30.0),
@@ -170,12 +170,9 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               ),
             ),
           ),
-        ),
-        // Shadow
-        Opacity(
-          opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
-          child: AspectRatio(
-            aspectRatio: 1,
+          // Shadow
+          Opacity(
+            opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
             child: Padding(
               // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
               padding: const EdgeInsets.all(30.0),
@@ -192,10 +189,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               ),
             ),
           ),
-        ),
-        AspectRatio(
-          aspectRatio: 1,
-          child: Padding(
+          Padding(
             // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
             padding: const EdgeInsets.all(30.0),
             child: CustomPaint(
@@ -210,39 +204,39 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               ),
             ),
           ),
-        ),
-        // Legend
-        Positioned(
-          bottom: 0,
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 8,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [widget.minSpeedColor, widget.maxSpeedColor],
+          // Legend
+          Positioned(
+            bottom: 0,
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [widget.minSpeedColor, widget.maxSpeedColor],
+                    ),
                   ),
                 ),
-              ),
-              const SmallHSpace(),
-              Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
-            ],
+                const SmallHSpace(),
+                Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
+              ],
+            ),
           ),
-        ),
-        //Mapbox Attribution Logo
-        Positioned(
-          bottom: 30,
-          right: 0,
-          child: Image.asset(
-            'assets/images/mapbox-logo-transparent.png',
-            width: 80,
+          //Mapbox Attribution Logo
+          Positioned(
+            bottom: 30,
+            right: 0,
+            child: Image.asset(
+              'assets/images/mapbox-logo-transparent.png',
+              width: 80,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -332,19 +326,6 @@ class TrackPainter extends CustomPainter {
     }
     if (maxLat == minLat || maxLon == minLon) {
       return;
-    }
-
-    // If dLat > dLon, pad the longitude, otherwise pad the latitude to ensure that the aspect ratio is 1.
-    final dLat = maxLat - minLat;
-    final dLon = maxLon - minLon;
-    if (dLat > dLon) {
-      final d = (dLat - dLon) / 2;
-      minLon -= d;
-      maxLon += d;
-    } else {
-      final d = (dLon - dLat) / 2;
-      minLat -= d;
-      maxLat += d;
     }
 
     // Draw the lines between the coordinates
