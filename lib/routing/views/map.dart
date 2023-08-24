@@ -7,6 +7,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
+import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
@@ -713,20 +715,29 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!pointIsInBoundary) {
       if (!mounted) return;
       final backend = getIt<Settings>().backend;
-      await showDialog(
+      await showGeneralDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("Wegpunkt außerhalb des Stadtgebiets"),
-          content: Text(
-            "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe Deinen Wegpunkt an.",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("OK"),
-            ),
-          ],
-        ),
+        barrierDismissible: true,
+        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierColor: Colors.black.withOpacity(0.4),
+        pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+          return DialogLayout(
+            title: 'Wegpunkt außerhalb des Stadtgebiets',
+            text:
+                'Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe deinen Wegpunkt an.',
+            icon: Icons.info_rounded,
+            iconColor: Theme.of(context).colorScheme.primary,
+            actions: [
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.check_rounded,
+                label: "Ok",
+                onPressed: () => Navigator.of(context).pop(),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              )
+            ],
+          );
+        },
       );
       return;
     }

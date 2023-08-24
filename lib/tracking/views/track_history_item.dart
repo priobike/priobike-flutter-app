@@ -5,7 +5,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -70,26 +72,35 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
-  void showDeleteDialog() {
-    showDialog(
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Fahrt löschen"),
-          content: const Text("Bitte bestätige, dass du diese Fahrt löschen möchtest."),
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt löschen',
+          text: "Bitte bestätige, dass du diese Fahrt löschen möchtest.",
+          icon: Icons.delete_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            TextButton(
-              child: const Text("Abbrechen"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Löschen"),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_forever_rounded,
+              fillColor: CI.red,
+              label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
                 Navigator.of(context).pop();
               },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+            BigButton(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
           ],
         );
@@ -258,7 +269,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 right: 0,
                 top: 0,
                 child: IconButton(
-                  onPressed: () => showDeleteDialog(),
+                  onPressed: () => showDeleteDialog(context),
                   icon: Icon(
                     Icons.delete_rounded,
                     size: 22,

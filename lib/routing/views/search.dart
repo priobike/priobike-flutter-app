@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -18,54 +18,54 @@ import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 
+/// Shows a dialog for saving a shortcut location.
 void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
-  final shortcuts = GetIt.instance.get<Shortcuts>();
-  final geosearch = GetIt.instance.get<Geosearch>();
-  showDialog(
+  showGeneralDialog(
     context: context,
-    builder: (_) {
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withOpacity(0.4),
+    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
-      return AlertDialog(
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-        insetPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40.0),
-        title: BoldContent(
-          text: 'Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.',
-          context: context,
-        ),
-        content: SizedBox(
-          height: 78,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: nameController,
-                maxLength: 20,
-                decoration: const InputDecoration(hintText: 'Zuhause, Arbeit, ...'),
-              ),
-            ],
-          ),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
+      return DialogLayout(
+        title: 'Ort speichern',
+        text: "Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.",
+        icon: Icons.location_on_rounded,
+        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
-          TextButton(
+          TextField(
+            autofocus: MediaQuery.of(dialogContext).viewInsets.bottom > 0,
+            controller: nameController,
+            maxLength: 20,
+            decoration: InputDecoration(
+              hintText: "Zuhause, Arbeit, ...",
+              fillColor: Theme.of(context).colorScheme.surface,
+              filled: true,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: const Icon(Icons.bookmark),
+              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            ),
+          ),
+          BigButton(
+            iconColor: Colors.white,
+            icon: Icons.save_rounded,
+            label: "Speichern",
             onPressed: () async {
               final name = nameController.text;
               if (name.trim().isEmpty) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await shortcuts.saveNewShortcutLocation(name, waypoint);
-              await geosearch.addToSearchHistory(waypoint);
+              await getIt<Shortcuts>().saveNewShortcutLocation(name, waypoint);
+              await getIt<Geosearch>().addToSearchHistory(waypoint);
               ToastMessage.showSuccess("Ort gespeichert!");
               Navigator.pop(context);
             },
-            child: BoldContent(
-              text: 'Speichern',
-              color: Theme.of(context).colorScheme.primary,
-              context: context,
-            ),
-          ),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+          )
         ],
       );
     },
@@ -376,26 +376,34 @@ class RouteSearchState extends State<RouteSearch> {
 
   /// Ask the user for confirmation if he wants to delete all waypoints from the search history.
   Future<void> deleteWholeSearchHistoryDialog() async {
-    await showDialog(
+    await showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Gesamten Suchverlauf löschen"),
-          content: const Text("Möchtest du den Suchverlauf wirklich löschen?"),
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Gesamten Suchverlauf löschen',
+          text: 'Möchtest du den Suchverlauf wirklich löschen?',
+          icon: Icons.delete_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Abbrechen"),
-            ),
-            TextButton(
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_rounded,
+              fillColor: CI.red,
+              label: "Löschen",
               onPressed: () {
                 geosearch.deleteSearchHistory();
                 Navigator.of(context).pop();
               },
-              child: const Text("Löschen"),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
+            BigButton(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            )
           ],
         );
       },
