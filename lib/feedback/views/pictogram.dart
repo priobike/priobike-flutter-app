@@ -68,7 +68,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
 
   /// Load the background image of the map for the track.
   Future<void> loadBackgroundImage() async {
-    // final oldBackgroundImage = backgroundImage;
+    final MemoryImage? oldBackgroundImage = backgroundImage;
 
     double? minLon;
     double? minLat;
@@ -95,10 +95,9 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     );
 
     // only update if the image has changed
-    // if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
-    //   setState(() {});
-    // }
-    //TODO: readd???
+    if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
+      setState(() {});
+    }
   }
 
   @override
@@ -117,21 +116,21 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             child: SizedBox(
               child: ShaderMask(
                 shaderCallback: (rect) {
-                  return LinearGradient(
+                  return const LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    stops: const [0.02, 0.5, 0.98],
-                    colors: [Colors.transparent, Colors.grey.shade200, Colors.transparent],
+                    stops: [0.05, 0.5, 0.95],
+                    colors: [Colors.transparent, Colors.black, Colors.transparent],
                   ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
                 },
                 blendMode: BlendMode.dstIn,
                 child: ShaderMask(
                   shaderCallback: (rect) {
-                    return LinearGradient(
+                    return const LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      stops: const [0.02, 0.5, 0.98],
-                      colors: [Colors.transparent, Colors.grey.shade200, Colors.transparent],
+                      stops: [0.05, 0.5, 0.95],
+                      colors: [Colors.transparent, Colors.black, Colors.transparent],
                     ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
                   },
                   blendMode: BlendMode.dstIn,
@@ -228,7 +227,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
           ),
           //Mapbox Attribution Logo
           Positioned(
-            bottom: 30,
+            bottom: 0,
             right: 0,
             child: Image.asset(
               'assets/images/mapbox-logo-transparent.png',
