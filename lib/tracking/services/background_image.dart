@@ -71,9 +71,11 @@ class BackgroundImage with ChangeNotifier {
       // TODO: Style von Philipp nutzen
       final ColorMode colorMode = getIt<Settings>().colorMode;
       final String style = colorMode == ColorMode.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
-      // use screen size
+      // Padding needs to be 30, because the TrackPainter also uses 30
+      const int padding = 30;
+
       final String url =
-          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${height}x$height?padding=0&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${height}x$height?padding=$padding&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
@@ -99,7 +101,7 @@ class BackgroundImage with ChangeNotifier {
     }
   }
 
-  /// Helper function to get the path to the local storage.
+  /// Helper function to get the path to the background images on local storage.
   Future<String> _getPath() async {
     final Directory dir = await getApplicationDocumentsDirectory();
     final String path = "${dir.path}/background-images";
@@ -156,7 +158,6 @@ class BackgroundImage with ChangeNotifier {
     final Directory imagesDir = Directory(path);
     final List<FileSystemEntity> files = imagesDir.listSync();
     cachedImages = {};
-    List<String> sessionIds = [];
     for (final file in files) {
       if (file is File && file.path.endsWith(".png")) {
         // turns "save/data/user/0/de.tudresden.priobike/app_flutter/background-images/[#13a7f]+ColorMode.light.png"
@@ -165,10 +166,8 @@ class BackgroundImage with ChangeNotifier {
         final String sessionId = fileName.substring(0, fileName.length - 4);
         final MemoryImage image = MemoryImage(await file.readAsBytes());
         cachedImages![sessionId] = image;
-        sessionIds.add(sessionId);
       }
     }
-    log.i("Loaded images from local storage: $sessionIds");
     notifyListeners();
   }
 
