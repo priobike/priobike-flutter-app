@@ -319,23 +319,20 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   },
                   children: [
                     if (positions.isNotEmpty)
-                      AnimatedOpacity(
-                        duration: const Duration(milliseconds: 300),
-                        opacity: tabController?.index == 0 ? 1 : 0,
-                        child: TrackPictogram(
-                          key: UniqueKey(),
-                          height: boxHeight,
-                          track: widget.track,
-                          tracks: positions,
-                          minSpeedColor: CI.blue,
-                          maxSpeedColor: CI.blueLight,
-                          blurRadius: 2,
-                        ),
+                      TrackPictogram(
+                        key: UniqueKey(),
+                        height: boxHeight,
+                        track: widget.track,
+                        tracks: positions,
+                        minSpeedColor: CI.blue,
+                        maxSpeedColor: CI.blueLight,
+                        blurRadius: 2,
                       ),
                     if (routeNodes.isNotEmpty)
                       Stack(
                         alignment: Alignment.bottomCenter,
                         children: [
+                          // TODO: AnimatedOpacity rausnehmen und RoutePictogram wie TrackPictogram machen
                           AnimatedOpacity(
                             duration: const Duration(milliseconds: 300),
                             opacity: (tabController?.index ?? 1) == 1 ? 1 : 0,
