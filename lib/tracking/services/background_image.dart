@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
@@ -70,16 +71,18 @@ class BackgroundImage with ChangeNotifier {
       // See: https://docs.mapbox.com/api/maps/static-images/
       const String accessToken =
           "access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
-      const String username = "snrmtths";
       final ColorMode colorMode = getIt<Settings>().colorMode;
-      final String styleId = colorMode == ColorMode.dark ? "cle4gkymg001t01nwazajfyod" : "cle4gkymg001t01nwazajfyod";
+      final String styleId = colorMode == ColorMode.dark
+          // remove prefix "mapbox://styles/" from the styles
+          ? getIt<MapDesigns>().mapDesign.darkStyle.substring(16)
+          : getIt<MapDesigns>().mapDesign.lightStyle.substring(16);
       final String bbox = "[$minLon,$minLat,$maxLon,$maxLat]";
       final int width = height; // square
       // we display the logo and attribution, so we can hide it in the image
       const String hideAttribution = "attribution=false";
       const String hideLogo = "logo=false";
       final String url =
-          "https://api.mapbox.com/styles/v1/$username/$styleId/static/$bbox/${width}x$height/?$hideAttribution&$hideLogo&$accessToken";
+          "https://api.mapbox.com/styles/v1/$styleId/static/$bbox/${width}x$height/?$hideAttribution&$hideLogo&$accessToken";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
