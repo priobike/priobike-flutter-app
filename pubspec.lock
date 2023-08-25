@@ -515,12 +515,11 @@ packages:
   mapbox_maps_flutter:
     dependency: "direct main"
     description:
-      path: "."
-      ref: yds-fix-memory-leaks
-      resolved-ref: ae8c9d2f56184bf72ba5ddbc1ebeedfb39ed9dc9
-      url: "https://github.com/mapbox/mapbox-maps-flutter"
-    source: git
-    version: "0.4.2"
+      name: mapbox_maps_flutter
+      sha256: "7b60bb473d9a962d20690f71456520abd3bd2003d5728cd2347f3326139b3ca0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.4"
   matcher:
     dependency: transitive
     description:
