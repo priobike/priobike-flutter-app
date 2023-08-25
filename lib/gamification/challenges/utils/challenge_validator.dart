@@ -59,7 +59,7 @@ class ChallengeValidator {
   /// Update the progress value of a challenge and store in database.
   Future<void> _updateChallenge(int newProgress) async {
     if (challenge.progress != newProgress) {
-      await AppDatabase.instance.challengesDao.updateObject(
+      await AppDatabase.instance.challengeDao.updateObject(
         challenge.copyWith(progress: newProgress),
       );
     }

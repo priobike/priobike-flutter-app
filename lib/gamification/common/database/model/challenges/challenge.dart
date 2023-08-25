@@ -29,7 +29,7 @@ class Challenges extends Table {
 }
 
 @DriftAccessor(tables: [Challenges])
-class ChallengeDao extends DatabaseDao<Challenge> with _$ChallengesDaoMixin {
+class ChallengeDao extends DatabaseDao<Challenge> with _$ChallengeDaoMixin {
   ChallengeDao(AppDatabase attachedDatabase) : super(attachedDatabase);
 
   @override

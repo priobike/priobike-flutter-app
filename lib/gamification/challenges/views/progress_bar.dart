@@ -125,9 +125,6 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     // If the challenge is null and the service doesn't allow to generate a new one, do nothing on tap.
     if (challenge == null && !service.allowNew) return;
 
-    /// If the challenge has been completed and the user taps, to collect their rewards, give haptic feedback on tap.
-    if (isCompleted) HapticFeedback.mediumImpact();
-
     /// Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
     setState(() {
       isAnimating = true;
@@ -139,7 +136,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     /// If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
     if (isCompleted) {
       service.completeChallenge();
-      HapticFeedback.mediumImpact();
+      HapticFeedback.heavyImpact();
     }
 
     /// If there is no challenge, but the service allows a new one, generate a new one.
@@ -155,18 +152,14 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: handleTap,
-      onLongPress: () => service.deleteCurrentChallenge(),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Column(
-          children: [
-            getTimeLeftWidget(),
-            getProgressBar(),
-            getDescriptionWidget(),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        children: [
+          getTimeLeftWidget(),
+          getProgressBar(),
+          getDescriptionWidget(),
+        ],
       ),
     );
   }
@@ -190,7 +183,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
             ),
           ),
         ),
-        ...((challenge != null && isCompleted) || (challenge == null && !service.allowNew))
+        ...(challenge != null && isCompleted)
             ? []
             : [
                 BlendIn(
@@ -241,95 +234,100 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
 
   /// This widget returns the progress bar corresponding to the challenge state.
   Widget getProgressBar() {
-    return SizedBox.fromSize(
-      size: const Size.fromHeight(44),
-      child: Stack(
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(32)),
-                    border: Border.all(width: 2, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.075)),
-                  ),
-                  child: Stack(
-                    children: (challenge != null)
-                        ? [
-                            FractionallySizedBox(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(32)),
-                                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-                                ),
-                                clipBehavior: Clip.hardEdge,
-                                alignment: Alignment.centerLeft,
-                                child: FractionallySizedBox(
-                                  widthFactor: isCompleted ? 1 : progressPercentage,
-                                  child: Container(color: CI.blue),
+    return GestureDetector(
+      onTap: handleTap,
+      onLongPress: () => service.deleteCurrentChallenge(),
+      child: SizedBox.fromSize(
+        size: const Size.fromHeight(44),
+        child: Stack(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(32)),
+                      border:
+                          Border.all(width: 2, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.075)),
+                    ),
+                    child: Stack(
+                      children: (challenge != null)
+                          ? [
+                              FractionallySizedBox(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(Radius.circular(32)),
+                                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+                                  ),
+                                  clipBehavior: Clip.hardEdge,
+                                  alignment: Alignment.centerLeft,
+                                  child: FractionallySizedBox(
+                                    widthFactor: isCompleted ? 1 : progressPercentage,
+                                    child: Container(color: CI.blue),
+                                  ),
                                 ),
                               ),
-                            ),
-                            FractionallySizedBox(
-                              widthFactor: isCompleted ? 1 : progressPercentage,
-                              heightFactor: 1,
-                              child: AnimatedContainer(
-                                duration: LongAnimationDuration(),
+                              FractionallySizedBox(
+                                widthFactor: isCompleted ? 1 : progressPercentage,
+                                heightFactor: 1,
+                                child: AnimatedContainer(
+                                  duration: LongAnimationDuration(),
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(Radius.circular(32)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: CI.blue.withOpacity((isCompleted && isAnimatingRing) ? 1 : 0.3),
+                                        blurRadius: 20,
+                                        spreadRadius: (isCompleted && isAnimatingRing) ? 5 : 0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ]
+                          : [
+                              AnimatedContainer(
+                                duration: ShortAnimationDuration(),
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(Radius.circular(32)),
                                   boxShadow: [
-                                    BoxShadow(
-                                      color: CI.blue.withOpacity((isCompleted && isAnimatingRing) ? 1 : 0.3),
-                                      blurRadius: 20,
-                                      spreadRadius: (isCompleted && isAnimatingRing) ? 5 : 0,
-                                    ),
+                                    BoxShadow(color: CI.blue.withOpacity(isAnimating ? 0.2 : 0), blurRadius: 20),
                                   ],
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      CI.blue.withOpacity(
+                                          (challenge == null && !service.allowNew) ? 0.2 : (isAnimating ? 0.8 : 0.5)),
+                                      CI.blue.withOpacity(
+                                          (challenge == null && !service.allowNew) ? 0.01 : (isAnimating ? 0.2 : 0.05)),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ]
-                        : [
-                            AnimatedContainer(
-                              duration: ShortAnimationDuration(),
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(Radius.circular(32)),
-                                boxShadow: [
-                                  BoxShadow(color: CI.blue.withOpacity(isAnimating ? 0.2 : 0), blurRadius: 20),
-                                ],
-                                gradient: LinearGradient(
-                                  colors: [
-                                    CI.blue.withOpacity(
-                                        (challenge == null && !service.allowNew) ? 0.2 : (isAnimating ? 0.8 : 0.5)),
-                                    CI.blue.withOpacity(
-                                        (challenge == null && !service.allowNew) ? 0.01 : (isAnimating ? 0.2 : 0.05)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [getIconRing()],
-          ),
-          Center(
-            child: BoldSmall(
-              text: (challenge == null)
-                  ? (service.allowNew ? 'Neue Challenge starten!' : timeLeftStr)
-                  : (isCompleted)
-                      ? 'Belohnung einsammeln'
-                      : '${challenge!.progress} / ${challenge!.target}',
-              context: context,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              ],
             ),
-          ),
-        ],
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [getIconRing()],
+            ),
+            Center(
+              child: BoldSmall(
+                text: (challenge == null)
+                    ? (service.allowNew ? 'Neue Challenge starten!' : 'Challenge abgeschlossen')
+                    : (isCompleted)
+                        ? 'Belohnung einsammeln'
+                        : '${challenge!.progress} / ${challenge!.target}',
+                context: context,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -3,90 +3,135 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $RideSummariesTable extends RideSummaries with TableInfo<$RideSummariesTable, RideSummary> {
+class $RideSummariesTable extends RideSummaries
+    with TableInfo<$RideSummariesTable, RideSummary> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $RideSummariesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>('id', aliasedName, false,
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _distanceMetresMeta = const VerificationMeta('distanceMetres');
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _shortcutIdMeta =
+      const VerificationMeta('shortcutId');
   @override
-  late final GeneratedColumn<double> distanceMetres = GeneratedColumn<double>('distance_metres', aliasedName, false,
+  late final GeneratedColumn<String> shortcutId = GeneratedColumn<String>(
+      'shortcut_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _distanceMetresMeta =
+      const VerificationMeta('distanceMetres');
+  @override
+  late final GeneratedColumn<double> distanceMetres = GeneratedColumn<double>(
+      'distance_metres', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _durationSecondsMeta = const VerificationMeta('durationSeconds');
+  static const VerificationMeta _durationSecondsMeta =
+      const VerificationMeta('durationSeconds');
   @override
-  late final GeneratedColumn<double> durationSeconds = GeneratedColumn<double>('duration_seconds', aliasedName, false,
+  late final GeneratedColumn<double> durationSeconds = GeneratedColumn<double>(
+      'duration_seconds', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _elevationGainMetresMeta = const VerificationMeta('elevationGainMetres');
+  static const VerificationMeta _elevationGainMetresMeta =
+      const VerificationMeta('elevationGainMetres');
   @override
-  late final GeneratedColumn<double> elevationGainMetres = GeneratedColumn<double>(
-      'elevation_gain_metres', aliasedName, false,
+  late final GeneratedColumn<double> elevationGainMetres =
+      GeneratedColumn<double>('elevation_gain_metres', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _elevationLossMetresMeta =
+      const VerificationMeta('elevationLossMetres');
+  @override
+  late final GeneratedColumn<double> elevationLossMetres =
+      GeneratedColumn<double>('elevation_loss_metres', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _averageSpeedKmhMeta =
+      const VerificationMeta('averageSpeedKmh');
+  @override
+  late final GeneratedColumn<double> averageSpeedKmh = GeneratedColumn<double>(
+      'average_speed_kmh', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _elevationLossMetresMeta = const VerificationMeta('elevationLossMetres');
+  static const VerificationMeta _startTimeMeta =
+      const VerificationMeta('startTime');
   @override
-  late final GeneratedColumn<double> elevationLossMetres = GeneratedColumn<double>(
-      'elevation_loss_metres', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _averageSpeedKmhMeta = const VerificationMeta('averageSpeedKmh');
-  @override
-  late final GeneratedColumn<double> averageSpeedKmh = GeneratedColumn<double>('average_speed_kmh', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _startTimeMeta = const VerificationMeta('startTime');
-  @override
-  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>('start_time', aliasedName, false,
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+      'start_time', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, distanceMetres, durationSeconds, elevationGainMetres, elevationLossMetres, averageSpeedKmh, startTime];
+  List<GeneratedColumn> get $columns => [
+        id,
+        shortcutId,
+        distanceMetres,
+        durationSeconds,
+        elevationGainMetres,
+        elevationLossMetres,
+        averageSpeedKmh,
+        startTime
+      ];
   @override
   String get aliasedName => _alias ?? 'ride_summaries';
   @override
   String get actualTableName => 'ride_summaries';
   @override
-  VerificationContext validateIntegrity(Insertable<RideSummary> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(Insertable<RideSummary> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
+    if (data.containsKey('shortcut_id')) {
+      context.handle(
+          _shortcutIdMeta,
+          shortcutId.isAcceptableOrUnknown(
+              data['shortcut_id']!, _shortcutIdMeta));
+    }
     if (data.containsKey('distance_metres')) {
       context.handle(
-          _distanceMetresMeta, distanceMetres.isAcceptableOrUnknown(data['distance_metres']!, _distanceMetresMeta));
+          _distanceMetresMeta,
+          distanceMetres.isAcceptableOrUnknown(
+              data['distance_metres']!, _distanceMetresMeta));
     } else if (isInserting) {
       context.missing(_distanceMetresMeta);
     }
     if (data.containsKey('duration_seconds')) {
       context.handle(
-          _durationSecondsMeta, durationSeconds.isAcceptableOrUnknown(data['duration_seconds']!, _durationSecondsMeta));
+          _durationSecondsMeta,
+          durationSeconds.isAcceptableOrUnknown(
+              data['duration_seconds']!, _durationSecondsMeta));
     } else if (isInserting) {
       context.missing(_durationSecondsMeta);
     }
     if (data.containsKey('elevation_gain_metres')) {
-      context.handle(_elevationGainMetresMeta,
-          elevationGainMetres.isAcceptableOrUnknown(data['elevation_gain_metres']!, _elevationGainMetresMeta));
+      context.handle(
+          _elevationGainMetresMeta,
+          elevationGainMetres.isAcceptableOrUnknown(
+              data['elevation_gain_metres']!, _elevationGainMetresMeta));
     } else if (isInserting) {
       context.missing(_elevationGainMetresMeta);
     }
     if (data.containsKey('elevation_loss_metres')) {
-      context.handle(_elevationLossMetresMeta,
-          elevationLossMetres.isAcceptableOrUnknown(data['elevation_loss_metres']!, _elevationLossMetresMeta));
+      context.handle(
+          _elevationLossMetresMeta,
+          elevationLossMetres.isAcceptableOrUnknown(
+              data['elevation_loss_metres']!, _elevationLossMetresMeta));
     } else if (isInserting) {
       context.missing(_elevationLossMetresMeta);
     }
     if (data.containsKey('average_speed_kmh')) {
-      context.handle(_averageSpeedKmhMeta,
-          averageSpeedKmh.isAcceptableOrUnknown(data['average_speed_kmh']!, _averageSpeedKmhMeta));
+      context.handle(
+          _averageSpeedKmhMeta,
+          averageSpeedKmh.isAcceptableOrUnknown(
+              data['average_speed_kmh']!, _averageSpeedKmhMeta));
     } else if (isInserting) {
       context.missing(_averageSpeedKmhMeta);
     }
     if (data.containsKey('start_time')) {
-      context.handle(_startTimeMeta, startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
+      context.handle(_startTimeMeta,
+          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
     } else if (isInserting) {
       context.missing(_startTimeMeta);
     }
@@ -99,18 +144,24 @@ class $RideSummariesTable extends RideSummaries with TableInfo<$RideSummariesTab
   RideSummary map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RideSummary(
-      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      distanceMetres:
-          attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}distance_metres'])!,
-      durationSeconds:
-          attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}duration_seconds'])!,
-      elevationGainMetres:
-          attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}elevation_gain_metres'])!,
-      elevationLossMetres:
-          attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}elevation_loss_metres'])!,
-      averageSpeedKmh:
-          attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}average_speed_kmh'])!,
-      startTime: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      shortcutId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}shortcut_id']),
+      distanceMetres: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}distance_metres'])!,
+      durationSeconds: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}duration_seconds'])!,
+      elevationGainMetres: attachedDatabase.typeMapping.read(
+          DriftSqlType.double,
+          data['${effectivePrefix}elevation_gain_metres'])!,
+      elevationLossMetres: attachedDatabase.typeMapping.read(
+          DriftSqlType.double,
+          data['${effectivePrefix}elevation_loss_metres'])!,
+      averageSpeedKmh: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}average_speed_kmh'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
     );
   }
 
@@ -122,6 +173,7 @@ class $RideSummariesTable extends RideSummaries with TableInfo<$RideSummariesTab
 
 class RideSummary extends DataClass implements Insertable<RideSummary> {
   final int id;
+  final String? shortcutId;
   final double distanceMetres;
   final double durationSeconds;
   final double elevationGainMetres;
@@ -130,6 +182,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
   final DateTime startTime;
   const RideSummary(
       {required this.id,
+      this.shortcutId,
       required this.distanceMetres,
       required this.durationSeconds,
       required this.elevationGainMetres,
@@ -140,6 +193,9 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || shortcutId != null) {
+      map['shortcut_id'] = Variable<String>(shortcutId);
+    }
     map['distance_metres'] = Variable<double>(distanceMetres);
     map['duration_seconds'] = Variable<double>(durationSeconds);
     map['elevation_gain_metres'] = Variable<double>(elevationGainMetres);
@@ -152,6 +208,9 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
   RideSummariesCompanion toCompanion(bool nullToAbsent) {
     return RideSummariesCompanion(
       id: Value(id),
+      shortcutId: shortcutId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shortcutId),
       distanceMetres: Value(distanceMetres),
       durationSeconds: Value(durationSeconds),
       elevationGainMetres: Value(elevationGainMetres),
@@ -161,14 +220,18 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
     );
   }
 
-  factory RideSummary.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory RideSummary.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RideSummary(
       id: serializer.fromJson<int>(json['id']),
+      shortcutId: serializer.fromJson<String?>(json['shortcutId']),
       distanceMetres: serializer.fromJson<double>(json['distanceMetres']),
       durationSeconds: serializer.fromJson<double>(json['durationSeconds']),
-      elevationGainMetres: serializer.fromJson<double>(json['elevationGainMetres']),
-      elevationLossMetres: serializer.fromJson<double>(json['elevationLossMetres']),
+      elevationGainMetres:
+          serializer.fromJson<double>(json['elevationGainMetres']),
+      elevationLossMetres:
+          serializer.fromJson<double>(json['elevationLossMetres']),
       averageSpeedKmh: serializer.fromJson<double>(json['averageSpeedKmh']),
       startTime: serializer.fromJson<DateTime>(json['startTime']),
     );
@@ -178,6 +241,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'shortcutId': serializer.toJson<String?>(shortcutId),
       'distanceMetres': serializer.toJson<double>(distanceMetres),
       'durationSeconds': serializer.toJson<double>(durationSeconds),
       'elevationGainMetres': serializer.toJson<double>(elevationGainMetres),
@@ -189,6 +253,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
 
   RideSummary copyWith(
           {int? id,
+          Value<String?> shortcutId = const Value.absent(),
           double? distanceMetres,
           double? durationSeconds,
           double? elevationGainMetres,
@@ -197,6 +262,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
           DateTime? startTime}) =>
       RideSummary(
         id: id ?? this.id,
+        shortcutId: shortcutId.present ? shortcutId.value : this.shortcutId,
         distanceMetres: distanceMetres ?? this.distanceMetres,
         durationSeconds: durationSeconds ?? this.durationSeconds,
         elevationGainMetres: elevationGainMetres ?? this.elevationGainMetres,
@@ -208,6 +274,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
   String toString() {
     return (StringBuffer('RideSummary(')
           ..write('id: $id, ')
+          ..write('shortcutId: $shortcutId, ')
           ..write('distanceMetres: $distanceMetres, ')
           ..write('durationSeconds: $durationSeconds, ')
           ..write('elevationGainMetres: $elevationGainMetres, ')
@@ -220,12 +287,20 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
 
   @override
   int get hashCode => Object.hash(
-      id, distanceMetres, durationSeconds, elevationGainMetres, elevationLossMetres, averageSpeedKmh, startTime);
+      id,
+      shortcutId,
+      distanceMetres,
+      durationSeconds,
+      elevationGainMetres,
+      elevationLossMetres,
+      averageSpeedKmh,
+      startTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RideSummary &&
           other.id == this.id &&
+          other.shortcutId == this.shortcutId &&
           other.distanceMetres == this.distanceMetres &&
           other.durationSeconds == this.durationSeconds &&
           other.elevationGainMetres == this.elevationGainMetres &&
@@ -236,6 +311,7 @@ class RideSummary extends DataClass implements Insertable<RideSummary> {
 
 class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   final Value<int> id;
+  final Value<String?> shortcutId;
   final Value<double> distanceMetres;
   final Value<double> durationSeconds;
   final Value<double> elevationGainMetres;
@@ -244,6 +320,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   final Value<DateTime> startTime;
   const RideSummariesCompanion({
     this.id = const Value.absent(),
+    this.shortcutId = const Value.absent(),
     this.distanceMetres = const Value.absent(),
     this.durationSeconds = const Value.absent(),
     this.elevationGainMetres = const Value.absent(),
@@ -253,6 +330,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   });
   RideSummariesCompanion.insert({
     this.id = const Value.absent(),
+    this.shortcutId = const Value.absent(),
     required double distanceMetres,
     required double durationSeconds,
     required double elevationGainMetres,
@@ -267,6 +345,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
         startTime = Value(startTime);
   static Insertable<RideSummary> custom({
     Expression<int>? id,
+    Expression<String>? shortcutId,
     Expression<double>? distanceMetres,
     Expression<double>? durationSeconds,
     Expression<double>? elevationGainMetres,
@@ -276,10 +355,13 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (shortcutId != null) 'shortcut_id': shortcutId,
       if (distanceMetres != null) 'distance_metres': distanceMetres,
       if (durationSeconds != null) 'duration_seconds': durationSeconds,
-      if (elevationGainMetres != null) 'elevation_gain_metres': elevationGainMetres,
-      if (elevationLossMetres != null) 'elevation_loss_metres': elevationLossMetres,
+      if (elevationGainMetres != null)
+        'elevation_gain_metres': elevationGainMetres,
+      if (elevationLossMetres != null)
+        'elevation_loss_metres': elevationLossMetres,
       if (averageSpeedKmh != null) 'average_speed_kmh': averageSpeedKmh,
       if (startTime != null) 'start_time': startTime,
     });
@@ -287,6 +369,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
 
   RideSummariesCompanion copyWith(
       {Value<int>? id,
+      Value<String?>? shortcutId,
       Value<double>? distanceMetres,
       Value<double>? durationSeconds,
       Value<double>? elevationGainMetres,
@@ -295,6 +378,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
       Value<DateTime>? startTime}) {
     return RideSummariesCompanion(
       id: id ?? this.id,
+      shortcutId: shortcutId ?? this.shortcutId,
       distanceMetres: distanceMetres ?? this.distanceMetres,
       durationSeconds: durationSeconds ?? this.durationSeconds,
       elevationGainMetres: elevationGainMetres ?? this.elevationGainMetres,
@@ -310,6 +394,9 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (shortcutId.present) {
+      map['shortcut_id'] = Variable<String>(shortcutId.value);
+    }
     if (distanceMetres.present) {
       map['distance_metres'] = Variable<double>(distanceMetres.value);
     }
@@ -317,10 +404,12 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
       map['duration_seconds'] = Variable<double>(durationSeconds.value);
     }
     if (elevationGainMetres.present) {
-      map['elevation_gain_metres'] = Variable<double>(elevationGainMetres.value);
+      map['elevation_gain_metres'] =
+          Variable<double>(elevationGainMetres.value);
     }
     if (elevationLossMetres.present) {
-      map['elevation_loss_metres'] = Variable<double>(elevationLossMetres.value);
+      map['elevation_loss_metres'] =
+          Variable<double>(elevationLossMetres.value);
     }
     if (averageSpeedKmh.present) {
       map['average_speed_kmh'] = Variable<double>(averageSpeedKmh.value);
@@ -335,6 +424,7 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   String toString() {
     return (StringBuffer('RideSummariesCompanion(')
           ..write('id: $id, ')
+          ..write('shortcutId: $shortcutId, ')
           ..write('distanceMetres: $distanceMetres, ')
           ..write('durationSeconds: $durationSeconds, ')
           ..write('elevationGainMetres: $elevationGainMetres, ')
@@ -346,79 +436,108 @@ class RideSummariesCompanion extends UpdateCompanion<RideSummary> {
   }
 }
 
-class $ChallengesTable extends Challenges with TableInfo<$ChallengesTable, Challenge> {
+class $ChallengesTable extends Challenges
+    with TableInfo<$ChallengesTable, Challenge> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ChallengesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>('id', aliasedName, false,
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _xpMeta = const VerificationMeta('xp');
   @override
-  late final GeneratedColumn<int> xp =
-      GeneratedColumn<int>('xp', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  late final GeneratedColumn<int> xp = GeneratedColumn<int>(
+      'xp', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _beginMeta = const VerificationMeta('begin');
   @override
-  late final GeneratedColumn<DateTime> begin =
-      GeneratedColumn<DateTime>('begin', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  late final GeneratedColumn<DateTime> begin = GeneratedColumn<DateTime>(
+      'begin', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _endMeta = const VerificationMeta('end');
   @override
-  late final GeneratedColumn<DateTime> end =
-      GeneratedColumn<DateTime>('end', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _userStartTimeMeta = const VerificationMeta('userStartTime');
-  @override
-  late final GeneratedColumn<DateTime> userStartTime = GeneratedColumn<DateTime>('user_start_time', aliasedName, false,
+  late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
+      'end', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _descriptionMeta = const VerificationMeta('description');
+  static const VerificationMeta _userStartTimeMeta =
+      const VerificationMeta('userStartTime');
   @override
-  late final GeneratedColumn<String> description =
-      GeneratedColumn<String>('description', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<DateTime> userStartTime =
+      GeneratedColumn<DateTime>('user_start_time', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _targetMeta = const VerificationMeta('target');
   @override
-  late final GeneratedColumn<int> target =
-      GeneratedColumn<int>('target', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _progressMeta = const VerificationMeta('progress');
+  late final GeneratedColumn<int> target = GeneratedColumn<int>(
+      'target', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _progressMeta =
+      const VerificationMeta('progress');
   @override
-  late final GeneratedColumn<int> progress =
-      GeneratedColumn<int>('progress', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _isWeeklyMeta = const VerificationMeta('isWeekly');
+  late final GeneratedColumn<int> progress = GeneratedColumn<int>(
+      'progress', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _isWeeklyMeta =
+      const VerificationMeta('isWeekly');
   @override
-  late final GeneratedColumn<bool> isWeekly = GeneratedColumn<bool>('is_weekly', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("is_weekly" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+  late final GeneratedColumn<bool> isWeekly =
+      GeneratedColumn<bool>('is_weekly', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_weekly" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _isOpenMeta = const VerificationMeta('isOpen');
   @override
-  late final GeneratedColumn<bool> isOpen = GeneratedColumn<bool>('is_open', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("is_open" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+  late final GeneratedColumn<bool> isOpen =
+      GeneratedColumn<bool>('is_open', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_open" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
-  late final GeneratedColumn<int> type =
-      GeneratedColumn<int>('type', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  late final GeneratedColumn<int> type = GeneratedColumn<int>(
+      'type', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, xp, begin, end, userStartTime, description, target, progress, isWeekly, isOpen, type];
+  List<GeneratedColumn> get $columns => [
+        id,
+        xp,
+        begin,
+        end,
+        userStartTime,
+        description,
+        target,
+        progress,
+        isWeekly,
+        isOpen,
+        type
+      ];
   @override
   String get aliasedName => _alias ?? 'challenges';
   @override
   String get actualTableName => 'challenges';
   @override
-  VerificationContext validateIntegrity(Insertable<Challenge> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(Insertable<Challenge> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -430,48 +549,60 @@ class $ChallengesTable extends Challenges with TableInfo<$ChallengesTable, Chall
       context.missing(_xpMeta);
     }
     if (data.containsKey('begin')) {
-      context.handle(_beginMeta, begin.isAcceptableOrUnknown(data['begin']!, _beginMeta));
+      context.handle(
+          _beginMeta, begin.isAcceptableOrUnknown(data['begin']!, _beginMeta));
     } else if (isInserting) {
       context.missing(_beginMeta);
     }
     if (data.containsKey('end')) {
-      context.handle(_endMeta, end.isAcceptableOrUnknown(data['end']!, _endMeta));
+      context.handle(
+          _endMeta, end.isAcceptableOrUnknown(data['end']!, _endMeta));
     } else if (isInserting) {
       context.missing(_endMeta);
     }
     if (data.containsKey('user_start_time')) {
       context.handle(
-          _userStartTimeMeta, userStartTime.isAcceptableOrUnknown(data['user_start_time']!, _userStartTimeMeta));
+          _userStartTimeMeta,
+          userStartTime.isAcceptableOrUnknown(
+              data['user_start_time']!, _userStartTimeMeta));
     } else if (isInserting) {
       context.missing(_userStartTimeMeta);
     }
     if (data.containsKey('description')) {
-      context.handle(_descriptionMeta, description.isAcceptableOrUnknown(data['description']!, _descriptionMeta));
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
     } else if (isInserting) {
       context.missing(_descriptionMeta);
     }
     if (data.containsKey('target')) {
-      context.handle(_targetMeta, target.isAcceptableOrUnknown(data['target']!, _targetMeta));
+      context.handle(_targetMeta,
+          target.isAcceptableOrUnknown(data['target']!, _targetMeta));
     } else if (isInserting) {
       context.missing(_targetMeta);
     }
     if (data.containsKey('progress')) {
-      context.handle(_progressMeta, progress.isAcceptableOrUnknown(data['progress']!, _progressMeta));
+      context.handle(_progressMeta,
+          progress.isAcceptableOrUnknown(data['progress']!, _progressMeta));
     } else if (isInserting) {
       context.missing(_progressMeta);
     }
     if (data.containsKey('is_weekly')) {
-      context.handle(_isWeeklyMeta, isWeekly.isAcceptableOrUnknown(data['is_weekly']!, _isWeeklyMeta));
+      context.handle(_isWeeklyMeta,
+          isWeekly.isAcceptableOrUnknown(data['is_weekly']!, _isWeeklyMeta));
     } else if (isInserting) {
       context.missing(_isWeeklyMeta);
     }
     if (data.containsKey('is_open')) {
-      context.handle(_isOpenMeta, isOpen.isAcceptableOrUnknown(data['is_open']!, _isOpenMeta));
+      context.handle(_isOpenMeta,
+          isOpen.isAcceptableOrUnknown(data['is_open']!, _isOpenMeta));
     } else if (isInserting) {
       context.missing(_isOpenMeta);
     }
     if (data.containsKey('type')) {
-      context.handle(_typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
@@ -484,18 +615,28 @@ class $ChallengesTable extends Challenges with TableInfo<$ChallengesTable, Chall
   Challenge map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Challenge(
-      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      xp: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
-      begin: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}begin'])!,
-      end: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}end'])!,
-      userStartTime:
-          attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}user_start_time'])!,
-      description: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}description'])!,
-      target: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}target'])!,
-      progress: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}progress'])!,
-      isWeekly: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}is_weekly'])!,
-      isOpen: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}is_open'])!,
-      type: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}type'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      xp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
+      begin: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}begin'])!,
+      end: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end'])!,
+      userStartTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}user_start_time'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      target: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}target'])!,
+      progress: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress'])!,
+      isWeekly: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_weekly'])!,
+      isOpen: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_open'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
     );
   }
 
@@ -562,7 +703,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     );
   }
 
-  factory Challenge.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory Challenge.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Challenge(
       id: serializer.fromJson<int>(json['id']),
@@ -640,8 +782,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, xp, begin, end, userStartTime, description, target, progress, isWeekly, isOpen, type);
+  int get hashCode => Object.hash(id, xp, begin, end, userStartTime,
+      description, target, progress, isWeekly, isOpen, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -823,10 +965,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RideSummariesTable rideSummaries = $RideSummariesTable(this);
   late final $ChallengesTable challenges = $ChallengesTable(this);
-  late final RideSummaryDao rideSummaryDao = RideSummaryDao(this as AppDatabase);
-  late final ChallengeDao challengesDao = ChallengeDao(this as AppDatabase);
+  late final RideSummaryDao rideSummaryDao =
+      RideSummaryDao(this as AppDatabase);
+  late final ChallengeDao challengeDao = ChallengeDao(this as AppDatabase);
   @override
-  Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  Iterable<TableInfo<Table, Object?>> get allTables =>
+      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [rideSummaries, challenges];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [rideSummaries, challenges];
 }

@@ -100,7 +100,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
           // Settings element to delete all challenge data.
           getAnimatedSettingsElement(
             index: 1,
-            onTap: () => AppDatabase.instance.challengesDao.clearObjects(),
+            onTap: () => AppDatabase.instance.challengeDao.clearObjects(),
             title: 'Challenges zurücksetzen',
             icon: Icons.recycling,
           ),

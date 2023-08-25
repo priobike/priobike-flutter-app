@@ -80,26 +80,27 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   /// Info widget which encourages the user to set their goals.
   Widget getNoGoalsWidget() {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            BoldSubHeader(text: 'PrioBike Challenges', context: context),
-            Small(
-              text: 'Bestreite tägliche und wöchentliche Challenges, steige Level auf uns sammel Abzeichen und Orden.',
-              context: context,
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                BoldSmall(text: 'Challenges Starten', context: context),
-                const SizedBox(width: 4),
-                const Icon(Icons.redo, size: 16),
-              ],
-            ),
-          ],
-        ));
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BoldSubHeader(text: 'PrioBike Challenges', context: context),
+          Small(
+            text: 'Bestreite tägliche und wöchentliche Challenges, steige Level auf uns sammel Abzeichen und Orden.',
+            context: context,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              BoldSmall(text: 'Challenges Starten', context: context),
+              const SizedBox(width: 4),
+              const Icon(Icons.redo, size: 16),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

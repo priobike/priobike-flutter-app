@@ -19,7 +19,7 @@ class GameProfileService with ChangeNotifier {
 
   /// Ride DAOs to access rides and challenges.
   RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
-  ChallengeDao get challengeDao => AppDatabase.instance.challengesDao;
+  ChallengeDao get challengeDao => AppDatabase.instance.challengeDao;
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;

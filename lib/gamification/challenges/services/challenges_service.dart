@@ -10,7 +10,7 @@ import 'package:priobike/gamification/challenges/utils/challenge_generator.dart'
 /// weekly or daily challenges.
 abstract class ChallengeService with ChangeNotifier {
   /// DAO to access the challenges in the database.
-  final ChallengeDao _dao = AppDatabase.instance.challengesDao;
+  final ChallengeDao _dao = AppDatabase.instance.challengeDao;
 
   /// Generator to generate new challenges according to the user goals.
   ChallengeGenerator get _generator;
