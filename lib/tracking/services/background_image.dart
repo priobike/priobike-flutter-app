@@ -67,15 +67,19 @@ class BackgroundImage with ChangeNotifier {
     hasLoaded = false;
 
     try {
-      // For Styles see: https://docs.mapbox.com/api/maps/styles/
-      // TODO: Style von Philipp nutzen
+      // See: https://docs.mapbox.com/api/maps/static-images/
+      const String accessToken =
+          "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+      const String username = "snrmtths";
       final ColorMode colorMode = getIt<Settings>().colorMode;
-      final String style = colorMode == ColorMode.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
-      // Padding needs to be 30, because the TrackPainter also uses 30
-      const int padding = 0;
-
+      final String styleId = colorMode == ColorMode.dark ? "cle4gkymg001t01nwazajfyod" : "cle4gkymg001t01nwazajfyod";
+      final String bbox = "[$minLon,$minLat,$maxLon,$maxLat]";
+      final int width = height; // square
+      // we display the logo and attribution, so we can hide it in the image
+      const String hideAttribution = "attribution=false";
+      const String hideLogo = "logo=false";
       final String url =
-          "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${height}x$height?padding=$padding&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+          "https://api.mapbox.com/styles/v1/${username}/${styleId}/static/${bbox}/${width}x${height}/?$hideAttribution&$hideLogo&access_token=$accessToken";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
