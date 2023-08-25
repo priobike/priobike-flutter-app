@@ -148,7 +148,7 @@ class ProfileViewState extends State<ProfileView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return HPad(
+    return const HPad(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,7 +158,7 @@ class ProfileViewState extends State<ProfileView> {
                 height: 86,
                 width: 86,
                 child: Column(
-                  children: const [
+                  children: [
                     CircularProgressIndicator(),
                   ],
                 ),

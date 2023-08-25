@@ -345,7 +345,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     child: ProfileView(),
                   ),
                   if (settings.enableGamification)
-                    Column(children: const [
+                    const Column(children: [
                       SizedBox(height: 48),
                       BlendIn(
                         delay: Duration(milliseconds: 1000),

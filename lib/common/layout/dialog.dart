@@ -182,7 +182,7 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
 
   @override
   void didChangeMetrics() {
-    final newPadding = WidgetsBinding.instance.window.viewInsets;
+    final newPadding = View.of(context).viewInsets;
     delayPaddingUpdate(newPadding.bottom);
   }
 

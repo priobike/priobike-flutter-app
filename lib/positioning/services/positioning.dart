@@ -130,13 +130,13 @@ class Positioning with ChangeNotifier {
       positionSource = RecordedMockPositionSource.mockHamburg;
       log.i("Using mocked positioning source for Hamburg.");
     } else if (settings.positioningMode == PositioningMode.hamburgStatic1) {
-      positionSource = StaticMockPositionSource(LatLng(53.5529283, 10.004511), 270);
+      positionSource = StaticMockPositionSource(const LatLng(53.5529283, 10.004511), 270);
       log.i("Using mocked position source for Hamburg main station.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
-      positionSource = StaticMockPositionSource(LatLng(51.030077, 13.729404), 270);
+      positionSource = StaticMockPositionSource(const LatLng(51.030077, 13.729404), 270);
       log.i("Using mocked position source for traffic light 1 in Dresden.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
-      positionSource = StaticMockPositionSource(LatLng(51.030241, 13.728205), 1);
+      positionSource = StaticMockPositionSource(const LatLng(51.030241, 13.728205), 1);
       log.i("Using mocked position source for traffic light 2 in Dresden.");
     } else {
       throw Exception("Unknown position source.");

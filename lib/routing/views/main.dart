@@ -358,8 +358,8 @@ class RoutingViewState extends State<RoutingView> {
               SafeArea(
                 child: Padding(
                   padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
-                  child: Column(
-                    children: const [CenterButton(), SmallVSpace(), CompassButton()],
+                  child: const Column(
+                    children: [CenterButton(), SmallVSpace(), CompassButton()],
                   ),
                 ),
               ),

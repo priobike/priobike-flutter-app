@@ -86,6 +86,8 @@ Future<void> main() async {
   getIt.registerSingleton<POI>(POI());
 
   runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
     runApp(const App());
   }, (error, stack) async {
     // Log the error to the console.

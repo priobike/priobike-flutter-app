@@ -55,9 +55,9 @@ class Snapper {
     // Draw snapping lines to all route segments.
     var shortestDistance = double.infinity;
     var shortestDistanceIndex = 0;
-    var shortestDistanceP1 = LatLng(0, 0);
-    var shortestDistanceP2 = LatLng(0, 0);
-    var shortestDistancePSnapped = LatLng(0, 0);
+    var shortestDistanceP1 = const LatLng(0, 0);
+    var shortestDistanceP2 = const LatLng(0, 0);
+    var shortestDistancePSnapped = const LatLng(0, 0);
     for (int i = 0; i < nodes.length - 1; i++) {
       final n1 = nodes[i], n2 = nodes[i + 1];
       final p1 = LatLng(n1.lat, n1.lon), p2 = LatLng(n2.lat, n2.lon);
