@@ -13,12 +13,12 @@ concurrency:
 jobs:
   test:
     runs-on: self-hosted
-    container: cirrusci/flutter:3.7.3
+    container: cirrusci/flutter:3.13.0
     steps:
       - uses: actions/checkout@v2
       - name: Run unit tests and check for styling errors
         run: |
           flutter pub get
-          flutter format --line-length 120 --set-exit-if-changed .
+          dart format --line-length 120 --set-exit-if-changed .
           flutter analyze .
           flutter test
