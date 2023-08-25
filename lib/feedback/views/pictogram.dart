@@ -108,101 +108,101 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Stack(
-        fit: StackFit.expand,
         alignment: Alignment.center,
         children: [
           // Background image
-          ClipRect(
-            child: SizedBox(
-              child: ShaderMask(
-                shaderCallback: (rect) {
-                  return const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    stops: [0.05, 0.5, 0.95],
-                    colors: [Colors.transparent, Colors.black, Colors.transparent],
-                  ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                },
-                blendMode: BlendMode.dstIn,
-                child: ShaderMask(
+          SizedBox(
+            // necessary to avoid overlapping with the legend at the bottom
+            width: widget.height.toDouble() - 60,
+            height: widget.height.toDouble() - 60,
+
+            //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
+            // sobald das Bild da ist. Das ist Mist.
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ShaderMask(
                   shaderCallback: (rect) {
                     return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                       stops: [0.05, 0.5, 0.95],
                       colors: [Colors.transparent, Colors.black, Colors.transparent],
                     ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
                   },
                   blendMode: BlendMode.dstIn,
-                  //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
-                  // sobald das Bild da ist. Das ist Mist.
-                  child: AnimatedSwitcher(
-                    duration: const Duration(seconds: 1),
-                    child: backgroundImage == null
-                        ? Container()
-                        : Image(
-                            key: UniqueKey(),
-                            image: backgroundImage!,
-                            fit: BoxFit.contain,
-                          ),
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: [0.05, 0.5, 0.95],
+                        colors: [Colors.transparent, Colors.black, Colors.transparent],
+                      ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(seconds: 1),
+                      child: backgroundImage == null
+                          ? Container()
+                          : Image(
+                              key: UniqueKey(),
+                              image: backgroundImage!,
+                              fit: BoxFit.contain,
+                            ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          // Glow
-          Opacity(
-            opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
-            child: Padding(
-              // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
-              padding: const EdgeInsets.all(30.0),
-              child: CustomPaint(
-                painter: TrackPainter(
-                  fraction: fraction,
-                  track: widget.tracks,
-                  blurRadius: widget.blurRadius,
-                  minSpeedColor: widget.minSpeedColor,
-                  maxSpeedColor: widget.maxSpeedColor,
-                  maxSpeed: maxSpeed,
-                  minSpeed: minSpeed,
+                // Glow
+                Opacity(
+                  opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
+                  // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
+                  child: CustomPaint(
+                    painter: TrackPainter(
+                      fraction: fraction,
+                      track: widget.tracks,
+                      blurRadius: widget.blurRadius,
+                      minSpeedColor: widget.minSpeedColor,
+                      maxSpeedColor: widget.maxSpeedColor,
+                      maxSpeed: maxSpeed,
+                      minSpeed: minSpeed,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          // Shadow
-          Opacity(
-            opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
-            child: Padding(
-              // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
-              padding: const EdgeInsets.all(30.0),
-              child: CustomPaint(
-                painter: TrackPainter(
-                  fraction: fraction,
-                  track: widget.tracks,
-                  blurRadius: widget.blurRadius / 2,
-                  minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
-                  maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
-                  maxSpeed: maxSpeed,
-                  minSpeed: minSpeed,
+                // Shadow
+                Opacity(
+                  opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
+                  child:
+                      // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
+                      CustomPaint(
+                    painter: TrackPainter(
+                      fraction: fraction,
+                      track: widget.tracks,
+                      blurRadius: widget.blurRadius / 2,
+                      minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
+                      maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
+                      maxSpeed: maxSpeed,
+                      minSpeed: minSpeed,
+                    ),
+                  ),
                 ),
-              ),
+
+                // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
+                CustomPaint(
+                  painter: TrackPainter(
+                    fraction: fraction,
+                    track: widget.tracks,
+                    blurRadius: 0,
+                    minSpeedColor: widget.minSpeedColor,
+                    maxSpeedColor: widget.maxSpeedColor,
+                    maxSpeed: maxSpeed,
+                    minSpeed: minSpeed,
+                  ),
+                ),
+              ],
             ),
           ),
-          Padding(
-            // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
-            padding: const EdgeInsets.all(30.0),
-            child: CustomPaint(
-              painter: TrackPainter(
-                fraction: fraction,
-                track: widget.tracks,
-                blurRadius: 0,
-                minSpeedColor: widget.minSpeedColor,
-                maxSpeedColor: widget.maxSpeedColor,
-                maxSpeed: maxSpeed,
-                minSpeed: minSpeed,
-              ),
-            ),
-          ),
+
           // Legend
           Positioned(
             bottom: 0,
@@ -307,24 +307,25 @@ class TrackPainter extends CustomPainter {
     // Find the bounding box of the waypoints
     for (var i = 0; i < trackCount; i++) {
       final p = trackToDraw[i];
-      if (maxLat == null || p.latitude > maxLat) {
-        maxLat = p.latitude;
-      }
-      if (minLat == null || p.latitude < minLat) {
-        minLat = p.latitude;
-      }
-      if (maxLon == null || p.longitude > maxLon) {
-        maxLon = p.longitude;
-      }
-      if (minLon == null || p.longitude < minLon) {
-        minLon = p.longitude;
-      }
+      if (maxLat == null || p.latitude > maxLat) maxLat = p.latitude;
+      if (minLat == null || p.latitude < minLat) minLat = p.latitude;
+      if (maxLon == null || p.longitude > maxLon) maxLon = p.longitude;
+      if (minLon == null || p.longitude < minLon) minLon = p.longitude;
     }
-    if (maxLat == null || minLat == null || maxLon == null || minLon == null) {
-      return;
-    }
-    if (maxLat == minLat || maxLon == minLon) {
-      return;
+    if (maxLat == null || minLat == null || maxLon == null || minLon == null) return;
+    if (maxLat == minLat || maxLon == minLon) return;
+
+    // If dLat > dLon, pad the longitude, otherwise pad the latitude to ensure that the aspect ratio is 1.
+    final dLat = maxLat - minLat;
+    final dLon = maxLon - minLon;
+    if (dLat > dLon) {
+      final d = (dLat - dLon) * 1.5;
+      minLon -= d;
+      maxLon += d;
+    } else {
+      final d = (dLon - dLat) / 10;
+      minLat -= d;
+      maxLat += d;
     }
 
     // Draw the lines between the coordinates
