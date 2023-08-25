@@ -69,7 +69,7 @@ class BackgroundImage with ChangeNotifier {
     try {
       // See: https://docs.mapbox.com/api/maps/static-images/
       const String accessToken =
-          "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+          "access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
       const String username = "snrmtths";
       final ColorMode colorMode = getIt<Settings>().colorMode;
       final String styleId = colorMode == ColorMode.dark ? "cle4gkymg001t01nwazajfyod" : "cle4gkymg001t01nwazajfyod";
@@ -79,7 +79,7 @@ class BackgroundImage with ChangeNotifier {
       const String hideAttribution = "attribution=false";
       const String hideLogo = "logo=false";
       final String url =
-          "https://api.mapbox.com/styles/v1/${username}/${styleId}/static/${bbox}/${width}x${height}/?$hideAttribution&$hideLogo&access_token=$accessToken";
+          "https://api.mapbox.com/styles/v1/$username/$styleId/static/$bbox/${width}x$height/?$hideAttribution&$hideLogo&$accessToken";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
