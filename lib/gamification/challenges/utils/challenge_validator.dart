@@ -19,7 +19,7 @@ class ChallengeValidator {
     if (startStream) {
       // Listen to rides in the challenge interval and call validate if needed.
       streamSub = AppDatabase.instance.rideSummaryDao
-          .streamRidesInInterval(challenge.begin, challenge.end)
+          .streamRidesInInterval(challenge.startTime, challenge.closingTime)
           .listen((rides) => validate(rides));
     }
   }
@@ -29,32 +29,61 @@ class ChallengeValidator {
 
   /// Updates the progress of the validators challenge according to a given list of rides.
   Future<void> validate(List<RideSummary> rides) async {
-    // Get all rides that started after the user started the challenge.
-    var relevantRides = rides.where((ride) => ride.startTime.isAfter(challenge.userStartTime)).toList();
     // Handle rides according to the challenge type.
     var type = ChallengeType.values.elementAt(challenge.type);
-    if (type == ChallengeType.distance) await _handleDistanceChallenge(relevantRides);
-    if (type == ChallengeType.duration) await _handleDurationChallenge(relevantRides);
-    if (type == ChallengeType.rides) await _handleRidesChallenge(relevantRides);
-    if (type == ChallengeType.streak) await _handleStreakChallenge(relevantRides);
+    if (type == ChallengeType.overallDistance) await _handleDistanceChallenge(rides);
+    if (type == ChallengeType.overallDuration) await _handleDurationChallenge(rides);
+    if (type == ChallengeType.routeRidesPerWeek) await _handleRidesChallenge(rides);
+    if (type == ChallengeType.routeStreakInWeek) await _handleStreakChallenge(rides);
   }
 
-  /// Update challenge progress according to the ride distances.
+  /// Update challenge progress according to the overall ride distances.
   Future<void> _handleDistanceChallenge(List<RideSummary> rides) async {
     var totalDistance = Utils.getListSum(rides.map((ride) => ride.distanceMetres).toList()).toInt();
     return _updateChallenge(totalDistance);
   }
 
-  /// Update challenge progress according to the ride durations.
+  /// Update challenge progress according to the overall ride durations.
   Future<void> _handleDurationChallenge(List<RideSummary> rides) async {
     var totalDuration = Utils.getListSum(rides.map((ride) => ride.durationSeconds).toList());
     var totalDurationMinutes = totalDuration ~/ 60;
     return _updateChallenge(totalDurationMinutes);
   }
 
-  Future<void> _handleRidesChallenge(List<RideSummary> rides) async {}
+  /// Update challenge progress according to the number of rides on the challenge route.
+  Future<void> _handleRidesChallenge(List<RideSummary> rides) async {
+    if (challenge.shortcutId == null) return;
+    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.shortcutId);
+    _updateChallenge(ridesWithShortcut.length);
+  }
 
-  Future<void> _handleStreakChallenge(List<RideSummary> rides) async {}
+  /// Update the challenge progress according to the number of rides on the challenge route on days in a row.
+  Future<void> _handleStreakChallenge(List<RideSummary> rides) async {
+    if (challenge.shortcutId == null) return;
+    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.shortcutId);
+
+    // Get start and endtime of the first day of the challenge interval.
+    var start = DateTime(challenge.startTime.year, challenge.startTime.month, challenge.startTime.day);
+    var end = start.add(const Duration(days: 1));
+
+    // Iterate through all the days of the challenge interval, till the end of the interval or the current time
+    // and increase the streak value accordingly.
+    var streak = 0;
+    while (!(end.isAfter(challenge.closingTime) || start.isAfter(DateTime.now()))) {
+      var ridesInInterval = ridesWithShortcut.where(
+        (ride) => ride.startTime.isAfter(start) && ride.startTime.isBefore(end),
+      );
+      if (ridesInInterval.isEmpty) {
+        streak = 0;
+      } else {
+        streak++;
+      }
+      start = start.add(const Duration(days: 1));
+      end = end.add(const Duration(days: 1));
+    }
+
+    _updateChallenge(streak);
+  }
 
   /// Update the progress value of a challenge and store in database.
   Future<void> _updateChallenge(int newProgress) async {

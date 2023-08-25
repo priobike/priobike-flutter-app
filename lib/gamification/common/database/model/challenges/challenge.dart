@@ -6,10 +6,10 @@ part 'challenge.g.dart';
 
 /// This enum describes the different kind of challenges a user can do.
 enum ChallengeType {
-  distance,
-  duration,
-  rides,
-  streak,
+  overallDistance,
+  overallDuration,
+  routeRidesPerWeek,
+  routeStreakInWeek,
 }
 
 /// This table which holds objects, which represent the challenges a user can do in the game. The objects hold
@@ -17,14 +17,14 @@ enum ChallengeType {
 class Challenges extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get xp => integer()();
-  DateTimeColumn get begin => dateTime()();
-  DateTimeColumn get end => dateTime()();
-  DateTimeColumn get userStartTime => dateTime()();
+  DateTimeColumn get startTime => dateTime()();
+  DateTimeColumn get closingTime => dateTime()();
   TextColumn get description => text()();
   IntColumn get target => integer()();
   IntColumn get progress => integer()();
   BoolColumn get isWeekly => boolean()();
   BoolColumn get isOpen => boolean()();
+  TextColumn get shortcutId => text().nullable()();
   IntColumn get type => integer()();
 }
 
@@ -60,6 +60,10 @@ class ChallengeDao extends DatabaseDao<Challenge> with _$ChallengeDaoMixin {
   Stream<List<Challenge>> streamChallengesInInterval(DateTime startDay, int lengthInDays) {
     var start = DateTime(startDay.year, startDay.month, startDay.day);
     var end = start.add(Duration(days: lengthInDays));
-    return (select(challenges)..where((tbl) => tbl.begin.equals(start) & tbl.end.equals(end))).watch();
+    return (select(challenges)
+          ..where(
+            (tbl) => tbl.startTime.isBetweenValues(start, end) & tbl.closingTime.isBetweenValues(start, end),
+          ))
+        .watch();
   }
 }

@@ -456,22 +456,18 @@ class $ChallengesTable extends Challenges
   late final GeneratedColumn<int> xp = GeneratedColumn<int>(
       'xp', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _beginMeta = const VerificationMeta('begin');
+  static const VerificationMeta _startTimeMeta =
+      const VerificationMeta('startTime');
   @override
-  late final GeneratedColumn<DateTime> begin = GeneratedColumn<DateTime>(
-      'begin', aliasedName, false,
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+      'start_time', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _endMeta = const VerificationMeta('end');
+  static const VerificationMeta _closingTimeMeta =
+      const VerificationMeta('closingTime');
   @override
-  late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
-      'end', aliasedName, false,
+  late final GeneratedColumn<DateTime> closingTime = GeneratedColumn<DateTime>(
+      'closing_time', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _userStartTimeMeta =
-      const VerificationMeta('userStartTime');
-  @override
-  late final GeneratedColumn<DateTime> userStartTime =
-      GeneratedColumn<DateTime>('user_start_time', aliasedName, false,
-          type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
@@ -512,6 +508,12 @@ class $ChallengesTable extends Challenges
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
+  static const VerificationMeta _shortcutIdMeta =
+      const VerificationMeta('shortcutId');
+  @override
+  late final GeneratedColumn<String> shortcutId = GeneratedColumn<String>(
+      'shortcut_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<int> type = GeneratedColumn<int>(
@@ -521,14 +523,14 @@ class $ChallengesTable extends Challenges
   List<GeneratedColumn> get $columns => [
         id,
         xp,
-        begin,
-        end,
-        userStartTime,
+        startTime,
+        closingTime,
         description,
         target,
         progress,
         isWeekly,
         isOpen,
+        shortcutId,
         type
       ];
   @override
@@ -548,25 +550,19 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_xpMeta);
     }
-    if (data.containsKey('begin')) {
-      context.handle(
-          _beginMeta, begin.isAcceptableOrUnknown(data['begin']!, _beginMeta));
+    if (data.containsKey('start_time')) {
+      context.handle(_startTimeMeta,
+          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
     } else if (isInserting) {
-      context.missing(_beginMeta);
+      context.missing(_startTimeMeta);
     }
-    if (data.containsKey('end')) {
+    if (data.containsKey('closing_time')) {
       context.handle(
-          _endMeta, end.isAcceptableOrUnknown(data['end']!, _endMeta));
+          _closingTimeMeta,
+          closingTime.isAcceptableOrUnknown(
+              data['closing_time']!, _closingTimeMeta));
     } else if (isInserting) {
-      context.missing(_endMeta);
-    }
-    if (data.containsKey('user_start_time')) {
-      context.handle(
-          _userStartTimeMeta,
-          userStartTime.isAcceptableOrUnknown(
-              data['user_start_time']!, _userStartTimeMeta));
-    } else if (isInserting) {
-      context.missing(_userStartTimeMeta);
+      context.missing(_closingTimeMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -600,6 +596,12 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_isOpenMeta);
     }
+    if (data.containsKey('shortcut_id')) {
+      context.handle(
+          _shortcutIdMeta,
+          shortcutId.isAcceptableOrUnknown(
+              data['shortcut_id']!, _shortcutIdMeta));
+    }
     if (data.containsKey('type')) {
       context.handle(
           _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
@@ -619,12 +621,10 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       xp: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
-      begin: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}begin'])!,
-      end: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}end'])!,
-      userStartTime: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}user_start_time'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
+      closingTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}closing_time'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
       target: attachedDatabase.typeMapping
@@ -635,6 +635,8 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.bool, data['${effectivePrefix}is_weekly'])!,
       isOpen: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_open'])!,
+      shortcutId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}shortcut_id']),
       type: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
     );
@@ -649,40 +651,42 @@ class $ChallengesTable extends Challenges
 class Challenge extends DataClass implements Insertable<Challenge> {
   final int id;
   final int xp;
-  final DateTime begin;
-  final DateTime end;
-  final DateTime userStartTime;
+  final DateTime startTime;
+  final DateTime closingTime;
   final String description;
   final int target;
   final int progress;
   final bool isWeekly;
   final bool isOpen;
+  final String? shortcutId;
   final int type;
   const Challenge(
       {required this.id,
       required this.xp,
-      required this.begin,
-      required this.end,
-      required this.userStartTime,
+      required this.startTime,
+      required this.closingTime,
       required this.description,
       required this.target,
       required this.progress,
       required this.isWeekly,
       required this.isOpen,
+      this.shortcutId,
       required this.type});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['xp'] = Variable<int>(xp);
-    map['begin'] = Variable<DateTime>(begin);
-    map['end'] = Variable<DateTime>(end);
-    map['user_start_time'] = Variable<DateTime>(userStartTime);
+    map['start_time'] = Variable<DateTime>(startTime);
+    map['closing_time'] = Variable<DateTime>(closingTime);
     map['description'] = Variable<String>(description);
     map['target'] = Variable<int>(target);
     map['progress'] = Variable<int>(progress);
     map['is_weekly'] = Variable<bool>(isWeekly);
     map['is_open'] = Variable<bool>(isOpen);
+    if (!nullToAbsent || shortcutId != null) {
+      map['shortcut_id'] = Variable<String>(shortcutId);
+    }
     map['type'] = Variable<int>(type);
     return map;
   }
@@ -691,14 +695,16 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return ChallengesCompanion(
       id: Value(id),
       xp: Value(xp),
-      begin: Value(begin),
-      end: Value(end),
-      userStartTime: Value(userStartTime),
+      startTime: Value(startTime),
+      closingTime: Value(closingTime),
       description: Value(description),
       target: Value(target),
       progress: Value(progress),
       isWeekly: Value(isWeekly),
       isOpen: Value(isOpen),
+      shortcutId: shortcutId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shortcutId),
       type: Value(type),
     );
   }
@@ -709,14 +715,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return Challenge(
       id: serializer.fromJson<int>(json['id']),
       xp: serializer.fromJson<int>(json['xp']),
-      begin: serializer.fromJson<DateTime>(json['begin']),
-      end: serializer.fromJson<DateTime>(json['end']),
-      userStartTime: serializer.fromJson<DateTime>(json['userStartTime']),
+      startTime: serializer.fromJson<DateTime>(json['startTime']),
+      closingTime: serializer.fromJson<DateTime>(json['closingTime']),
       description: serializer.fromJson<String>(json['description']),
       target: serializer.fromJson<int>(json['target']),
       progress: serializer.fromJson<int>(json['progress']),
       isWeekly: serializer.fromJson<bool>(json['isWeekly']),
       isOpen: serializer.fromJson<bool>(json['isOpen']),
+      shortcutId: serializer.fromJson<String?>(json['shortcutId']),
       type: serializer.fromJson<int>(json['type']),
     );
   }
@@ -726,14 +732,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'xp': serializer.toJson<int>(xp),
-      'begin': serializer.toJson<DateTime>(begin),
-      'end': serializer.toJson<DateTime>(end),
-      'userStartTime': serializer.toJson<DateTime>(userStartTime),
+      'startTime': serializer.toJson<DateTime>(startTime),
+      'closingTime': serializer.toJson<DateTime>(closingTime),
       'description': serializer.toJson<String>(description),
       'target': serializer.toJson<int>(target),
       'progress': serializer.toJson<int>(progress),
       'isWeekly': serializer.toJson<bool>(isWeekly),
       'isOpen': serializer.toJson<bool>(isOpen),
+      'shortcutId': serializer.toJson<String?>(shortcutId),
       'type': serializer.toJson<int>(type),
     };
   }
@@ -741,26 +747,26 @@ class Challenge extends DataClass implements Insertable<Challenge> {
   Challenge copyWith(
           {int? id,
           int? xp,
-          DateTime? begin,
-          DateTime? end,
-          DateTime? userStartTime,
+          DateTime? startTime,
+          DateTime? closingTime,
           String? description,
           int? target,
           int? progress,
           bool? isWeekly,
           bool? isOpen,
+          Value<String?> shortcutId = const Value.absent(),
           int? type}) =>
       Challenge(
         id: id ?? this.id,
         xp: xp ?? this.xp,
-        begin: begin ?? this.begin,
-        end: end ?? this.end,
-        userStartTime: userStartTime ?? this.userStartTime,
+        startTime: startTime ?? this.startTime,
+        closingTime: closingTime ?? this.closingTime,
         description: description ?? this.description,
         target: target ?? this.target,
         progress: progress ?? this.progress,
         isWeekly: isWeekly ?? this.isWeekly,
         isOpen: isOpen ?? this.isOpen,
+        shortcutId: shortcutId.present ? shortcutId.value : this.shortcutId,
         type: type ?? this.type,
       );
   @override
@@ -768,80 +774,79 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     return (StringBuffer('Challenge(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
-          ..write('begin: $begin, ')
-          ..write('end: $end, ')
-          ..write('userStartTime: $userStartTime, ')
+          ..write('startTime: $startTime, ')
+          ..write('closingTime: $closingTime, ')
           ..write('description: $description, ')
           ..write('target: $target, ')
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
           ..write('isOpen: $isOpen, ')
+          ..write('shortcutId: $shortcutId, ')
           ..write('type: $type')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, xp, begin, end, userStartTime,
-      description, target, progress, isWeekly, isOpen, type);
+  int get hashCode => Object.hash(id, xp, startTime, closingTime, description,
+      target, progress, isWeekly, isOpen, shortcutId, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Challenge &&
           other.id == this.id &&
           other.xp == this.xp &&
-          other.begin == this.begin &&
-          other.end == this.end &&
-          other.userStartTime == this.userStartTime &&
+          other.startTime == this.startTime &&
+          other.closingTime == this.closingTime &&
           other.description == this.description &&
           other.target == this.target &&
           other.progress == this.progress &&
           other.isWeekly == this.isWeekly &&
           other.isOpen == this.isOpen &&
+          other.shortcutId == this.shortcutId &&
           other.type == this.type);
 }
 
 class ChallengesCompanion extends UpdateCompanion<Challenge> {
   final Value<int> id;
   final Value<int> xp;
-  final Value<DateTime> begin;
-  final Value<DateTime> end;
-  final Value<DateTime> userStartTime;
+  final Value<DateTime> startTime;
+  final Value<DateTime> closingTime;
   final Value<String> description;
   final Value<int> target;
   final Value<int> progress;
   final Value<bool> isWeekly;
   final Value<bool> isOpen;
+  final Value<String?> shortcutId;
   final Value<int> type;
   const ChallengesCompanion({
     this.id = const Value.absent(),
     this.xp = const Value.absent(),
-    this.begin = const Value.absent(),
-    this.end = const Value.absent(),
-    this.userStartTime = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.closingTime = const Value.absent(),
     this.description = const Value.absent(),
     this.target = const Value.absent(),
     this.progress = const Value.absent(),
     this.isWeekly = const Value.absent(),
     this.isOpen = const Value.absent(),
+    this.shortcutId = const Value.absent(),
     this.type = const Value.absent(),
   });
   ChallengesCompanion.insert({
     this.id = const Value.absent(),
     required int xp,
-    required DateTime begin,
-    required DateTime end,
-    required DateTime userStartTime,
+    required DateTime startTime,
+    required DateTime closingTime,
     required String description,
     required int target,
     required int progress,
     required bool isWeekly,
     required bool isOpen,
+    this.shortcutId = const Value.absent(),
     required int type,
   })  : xp = Value(xp),
-        begin = Value(begin),
-        end = Value(end),
-        userStartTime = Value(userStartTime),
+        startTime = Value(startTime),
+        closingTime = Value(closingTime),
         description = Value(description),
         target = Value(target),
         progress = Value(progress),
@@ -851,27 +856,27 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
   static Insertable<Challenge> custom({
     Expression<int>? id,
     Expression<int>? xp,
-    Expression<DateTime>? begin,
-    Expression<DateTime>? end,
-    Expression<DateTime>? userStartTime,
+    Expression<DateTime>? startTime,
+    Expression<DateTime>? closingTime,
     Expression<String>? description,
     Expression<int>? target,
     Expression<int>? progress,
     Expression<bool>? isWeekly,
     Expression<bool>? isOpen,
+    Expression<String>? shortcutId,
     Expression<int>? type,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (xp != null) 'xp': xp,
-      if (begin != null) 'begin': begin,
-      if (end != null) 'end': end,
-      if (userStartTime != null) 'user_start_time': userStartTime,
+      if (startTime != null) 'start_time': startTime,
+      if (closingTime != null) 'closing_time': closingTime,
       if (description != null) 'description': description,
       if (target != null) 'target': target,
       if (progress != null) 'progress': progress,
       if (isWeekly != null) 'is_weekly': isWeekly,
       if (isOpen != null) 'is_open': isOpen,
+      if (shortcutId != null) 'shortcut_id': shortcutId,
       if (type != null) 'type': type,
     });
   }
@@ -879,26 +884,26 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
   ChallengesCompanion copyWith(
       {Value<int>? id,
       Value<int>? xp,
-      Value<DateTime>? begin,
-      Value<DateTime>? end,
-      Value<DateTime>? userStartTime,
+      Value<DateTime>? startTime,
+      Value<DateTime>? closingTime,
       Value<String>? description,
       Value<int>? target,
       Value<int>? progress,
       Value<bool>? isWeekly,
       Value<bool>? isOpen,
+      Value<String?>? shortcutId,
       Value<int>? type}) {
     return ChallengesCompanion(
       id: id ?? this.id,
       xp: xp ?? this.xp,
-      begin: begin ?? this.begin,
-      end: end ?? this.end,
-      userStartTime: userStartTime ?? this.userStartTime,
+      startTime: startTime ?? this.startTime,
+      closingTime: closingTime ?? this.closingTime,
       description: description ?? this.description,
       target: target ?? this.target,
       progress: progress ?? this.progress,
       isWeekly: isWeekly ?? this.isWeekly,
       isOpen: isOpen ?? this.isOpen,
+      shortcutId: shortcutId ?? this.shortcutId,
       type: type ?? this.type,
     );
   }
@@ -912,14 +917,11 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (xp.present) {
       map['xp'] = Variable<int>(xp.value);
     }
-    if (begin.present) {
-      map['begin'] = Variable<DateTime>(begin.value);
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
     }
-    if (end.present) {
-      map['end'] = Variable<DateTime>(end.value);
-    }
-    if (userStartTime.present) {
-      map['user_start_time'] = Variable<DateTime>(userStartTime.value);
+    if (closingTime.present) {
+      map['closing_time'] = Variable<DateTime>(closingTime.value);
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
@@ -936,6 +938,9 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (isOpen.present) {
       map['is_open'] = Variable<bool>(isOpen.value);
     }
+    if (shortcutId.present) {
+      map['shortcut_id'] = Variable<String>(shortcutId.value);
+    }
     if (type.present) {
       map['type'] = Variable<int>(type.value);
     }
@@ -947,14 +952,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     return (StringBuffer('ChallengesCompanion(')
           ..write('id: $id, ')
           ..write('xp: $xp, ')
-          ..write('begin: $begin, ')
-          ..write('end: $end, ')
-          ..write('userStartTime: $userStartTime, ')
+          ..write('startTime: $startTime, ')
+          ..write('closingTime: $closingTime, ')
           ..write('description: $description, ')
           ..write('target: $target, ')
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
           ..write('isOpen: $isOpen, ')
+          ..write('shortcutId: $shortcutId, ')
           ..write('type: $type')
           ..write(')'))
         .toString();

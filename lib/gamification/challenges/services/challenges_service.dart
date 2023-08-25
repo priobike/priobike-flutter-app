@@ -85,7 +85,10 @@ abstract class ChallengeService with ChangeNotifier {
     if (openChallenges.isEmpty) return;
     // If a challenge is open, validate its progress with the current rides and determine whether it has been completed.
     var challenge = openChallenges.first;
-    var rides = await AppDatabase.instance.rideSummaryDao.getRidesInInterval(challenge.begin, challenge.end);
+    var rides = await AppDatabase.instance.rideSummaryDao.getRidesInInterval(
+      challenge.startTime,
+      challenge.closingTime,
+    );
     await ChallengeValidator(challenge: challenge, startStream: false).validate(rides);
     var isCompleted = challenge.progress / challenge.target >= 1;
 
@@ -104,7 +107,7 @@ abstract class ChallengeService with ChangeNotifier {
   /// Check, if a challenge is still active, which means the current timepoint is in the challenge interval.
   bool currentlyActive(Challenge challenge) {
     var now = DateTime.now();
-    return now.isAfter(challenge.begin) && now.isBefore(challenge.end);
+    return now.isBefore(challenge.closingTime);
   }
 
   /// If the current challenge is null, generate a new challenge.
