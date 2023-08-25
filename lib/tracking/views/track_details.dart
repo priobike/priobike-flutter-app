@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -10,19 +9,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/statistics/models/summary.dart';
-import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
-import 'package:priobike/tracking/views/route_pictrogram.dart';
 
 class TrackDetailsDialog extends StatelessWidget {
   /// The track to display.
@@ -94,15 +86,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   /// The track summary.
   Summary? trackSummary;
 
-  /// PageController.
-  final PageController pageController = PageController(
-    viewportFraction: 0.9,
-    initialPage: 0,
-  );
-
-  /// TabController.
-  TabController? tabController;
-
   @override
   void initState() {
     super.initState();
@@ -119,13 +102,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   void didUpdateWidget(TrackDetailsView oldWidget) {
     loadTrack();
     super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void dispose() {
-    pageController.dispose();
-    tabController?.dispose();
-    super.dispose();
   }
 
   /// Load the track.
@@ -161,9 +137,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       }
 
       await loadTrackSummary();
-
-      // Only create the tab controller if we have route and GPS.
-      tabController = TabController(length: 2, vsync: this);
     } catch (e) {
       log.w('Could not parse GPS file of last track: $e');
     }
@@ -282,20 +255,18 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       rideDetails = [];
     }
 
-    final int boxHeight = MediaQuery.of(context).size.width.toInt() - 48;
-
     return Stack(
       alignment: Alignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 16, left: 24, right: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BoldContent(text: "Letzte Fahrt", context: context),
+                  BoldContent(text: "Deine Fahrt vom", context: context),
                   Content(
                     text: lastTrackDateFormatted,
                     context: context,
@@ -304,109 +275,39 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   ),
                 ],
               ),
-              const SmallVSpace(),
-              SizedBox(
-                height: boxHeight.toDouble(),
-                child: PageView(
-                  controller: pageController,
-                  clipBehavior: Clip.none,
-                  onPageChanged: (int index) {
-                    if (tabController != null) {
-                      setState(() {
-                        tabController!.index = index;
-                      });
-                    }
-                  },
-                  children: [
-                    if (positions.isNotEmpty)
-                      TrackPictogram(
-                        key: UniqueKey(),
-                        height: boxHeight,
-                        track: widget.track,
-                        tracks: positions,
-                        minSpeedColor: CI.blue,
-                        maxSpeedColor: CI.blueLight,
-                        blurRadius: 2,
-                      ),
-                    if (routeNodes.isNotEmpty)
-                      Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          // TODO: AnimatedOpacity rausnehmen und RoutePictogram wie TrackPictogram machen
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: (tabController?.index ?? 1) == 1 ? 1 : 0,
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: RoutePictogram(
-                                key: UniqueKey(),
-                                route: routeNodes,
-                                startImage: widget.startImage,
-                                destinationImage: widget.destinationImage,
-                                lineWidth: 6,
-                                iconSize: 20,
-                              ),
-                            ),
-                          ),
-                          Tile(
-                            fill: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                            padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-                            onPressed: () {
-                              HapticFeedback.mediumImpact();
-
-                              List<Waypoint> waypoints = convertNodesToWaypoints(routeNodes, vincenty);
-
-                              getIt<Routing>().selectWaypoints(waypoints);
-
-                              // Pushes the routing view.
-                              // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
-                              // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
-                              if (context.mounted) {
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                                  (comingNotFromRoutingView) {
-                                    if (comingNotFromRoutingView == null) {
-                                      getIt<Routing>().reset();
-                                      getIt<Discomforts>().reset();
-                                      getIt<PredictionSGStatus>().reset();
-                                    }
-                                  },
-                                );
-                              }
-                            },
-                            content: BoldContent(text: "Route erneut fahren", context: context),
-                          )
-                        ],
-                      ),
-                  ],
+            ),
+            const SmallVSpace(),
+            Container(
+              height: MediaQuery.of(context).size.width,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(24),
+              child: positions.isNotEmpty
+                  ? TrackPictogram(
+                      key: UniqueKey(),
+                      track: positions,
+                      sessionId: widget.track.sessionId,
+                      minSpeedColor: CI.blue,
+                      maxSpeedColor: CI.blueLight,
+                      blurRadius: 2,
+                    )
+                  : Center(
+                      child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
+                    ),
+            ),
+            if (rideDetails.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  direction: Axis.horizontal,
+                  alignment: WrapAlignment.center,
+                  runAlignment: WrapAlignment.center,
+                  children: rideDetails,
                 ),
               ),
-              if (tabController != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: TabPageSelector(
-                    controller: tabController!,
-                    selectedColor: Theme.of(context).colorScheme.onBackground,
-                    indicatorSize: 6,
-                    borderStyle: BorderStyle.none,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
-                    key: GlobalKey(),
-                  ),
-                ),
-              if (rideDetails.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 6,
-                    direction: Axis.horizontal,
-                    alignment: WrapAlignment.center,
-                    runAlignment: WrapAlignment.center,
-                    children: rideDetails,
-                  ),
-                ),
-            ],
-          ),
-        )
+          ],
+        ),
       ],
     );
   }

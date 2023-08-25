@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/main.dart';
-import 'package:priobike/tracking/models/track.dart';
-import 'package:priobike/tracking/services/background_image.dart';
+import 'package:priobike/tracking/services/image_cache.dart';
+import 'package:proj4dart/proj4dart.dart';
 
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
-  final List<Position> tracks;
+  final List<Position> track;
   final Color minSpeedColor;
   final Color maxSpeedColor;
   final double blurRadius;
-  final int height;
-
-  /// The session id of the track, used for the background image.
-  final Track track;
+  final String sessionId;
 
   const TrackPictogram({
     Key? key,
-    required this.tracks,
-    required this.blurRadius,
     required this.track,
-    required this.height,
+    required this.blurRadius,
+    required this.sessionId,
     this.minSpeedColor = Colors.green,
     this.maxSpeedColor = Colors.red,
   }) : super(key: key);
@@ -38,16 +34,12 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   double? maxSpeed;
   double minSpeed = 0.0;
 
-  /// The background image service.
-  late BackgroundImage backgroundImageService;
-
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
   @override
   void initState() {
     super.initState();
-    backgroundImageService = getIt<BackgroundImage>();
     controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     animation = Tween<double>(begin: 0, end: 1).animate(controller)
       ..addListener(() {
@@ -58,184 +50,92 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     controller.forward();
 
     // Find the min and max speed
-    for (var i = 0; i < widget.tracks.length; i++) {
-      final p = widget.tracks[i];
+    for (var i = 0; i < widget.track.length; i++) {
+      final p = widget.track[i];
       if (maxSpeed == null || p.speed > maxSpeed!) {
         maxSpeed = p.speed;
       }
     }
-  }
 
-  /// Load the background image of the map for the track.
-  Future<void> loadBackgroundImage() async {
-    final MemoryImage? oldBackgroundImage = backgroundImage;
-
-    double? minLon;
-    double? minLat;
-    double? maxLon;
-    double? maxLat;
-
-    // calculate the bounding box of the route
-    for (final position in widget.tracks) {
-      if (minLon == null || position.longitude < minLon) minLon = position.longitude;
-      if (minLat == null || position.latitude < minLat) minLat = position.latitude;
-      if (maxLon == null || position.longitude > maxLon) maxLon = position.longitude;
-      if (maxLat == null || position.latitude > maxLat) maxLat = position.latitude;
-    }
-
-    if (minLon == null || minLat == null || maxLon == null || maxLat == null) return;
-
-    backgroundImage = await backgroundImageService.loadImage(
-      sessionId: widget.track.sessionId,
-      minLat: minLat,
-      minLon: minLon,
-      maxLat: maxLat,
-      maxLon: maxLon,
-      height: widget.height,
-    );
-
-    // only update if the image has changed
-    if (backgroundImage != null && (backgroundImage != oldBackgroundImage)) {
-      setState(() {});
-    }
+    // Load the background image
+    TrackPictogramImageCache.fetchImage(
+      sessionId: widget.sessionId,
+      positions: widget.track,
+    ).then((value) {
+      setState(() {
+        backgroundImage = value;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // The background image of the map for the track.
-    loadBackgroundImage();
+    return Stack(
+      alignment: Alignment.center,
+      fit: StackFit.expand,
+      children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 1000),
+          child: backgroundImage != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image(
+                    image: backgroundImage!,
+                    fit: BoxFit.contain,
+                    key: ValueKey(widget.sessionId),
+                  ),
+                )
+              : Container(),
+        ),
 
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background image
-          SizedBox(
-            // necessary to avoid overlapping with the legend at the bottom
-            width: widget.height.toDouble() - 60,
-            height: widget.height.toDouble() - 60,
-
-            //TODO: Es gibt noch das Problem, dass die Animation des Tracks neugeladen wird,
-            // sobald das Bild da ist. Das ist Mist.
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ShaderMask(
-                  shaderCallback: (rect) {
-                    return const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      stops: [0.05, 0.5, 0.95],
-                      colors: [Colors.transparent, Colors.black, Colors.transparent],
-                    ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: ShaderMask(
-                    shaderCallback: (rect) {
-                      return const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [0.05, 0.5, 0.95],
-                        colors: [Colors.transparent, Colors.black, Colors.transparent],
-                      ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(seconds: 1),
-                      child: backgroundImage == null
-                          ? Container()
-                          : Image(
-                              key: UniqueKey(),
-                              image: backgroundImage!,
-                              fit: BoxFit.contain,
-                            ),
-                    ),
-                  ),
-                ),
-                // Glow
-                Opacity(
-                  opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
-                  // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
-                  child: CustomPaint(
-                    painter: TrackPainter(
-                      fraction: fraction,
-                      track: widget.tracks,
-                      blurRadius: widget.blurRadius,
-                      minSpeedColor: widget.minSpeedColor,
-                      maxSpeedColor: widget.maxSpeedColor,
-                      maxSpeed: maxSpeed,
-                      minSpeed: minSpeed,
-                    ),
-                  ),
-                ),
-                // Shadow
-                Opacity(
-                  opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
-                  child:
-                      // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
-                      CustomPaint(
-                    painter: TrackPainter(
-                      fraction: fraction,
-                      track: widget.tracks,
-                      blurRadius: widget.blurRadius / 2,
-                      minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
-                      maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
-                      maxSpeed: maxSpeed,
-                      minSpeed: minSpeed,
-                    ),
-                  ),
-                ),
-
-                // Necessary to avoid overlapping with the legend at the bottom. Padding needs to be added to all sides to keep the aspect ratio.
-                CustomPaint(
-                  painter: TrackPainter(
-                    fraction: fraction,
-                    track: widget.tracks,
-                    blurRadius: 0,
-                    minSpeedColor: widget.minSpeedColor,
-                    maxSpeedColor: widget.maxSpeedColor,
-                    maxSpeed: maxSpeed,
-                    minSpeed: minSpeed,
-                  ),
-                ),
-              ],
-            ),
+        CustomPaint(
+          painter: TrackPainter(
+            fraction: fraction,
+            track: widget.track,
+            blurRadius: 0,
+            minSpeedColor: widget.minSpeedColor,
+            maxSpeedColor: widget.maxSpeedColor,
+            maxSpeed: maxSpeed,
+            minSpeed: minSpeed,
           ),
+        ),
 
-          // Legend
-          Positioned(
-            bottom: 0,
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [widget.minSpeedColor, widget.maxSpeedColor],
-                    ),
+        // Legend
+        Positioned(
+          bottom: 8,
+          left: 12,
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 8,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [widget.minSpeedColor, widget.maxSpeedColor],
                   ),
                 ),
-                const SmallHSpace(),
-                Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
-              ],
-            ),
+              ),
+              const SmallHSpace(),
+              Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
+            ],
           ),
-          //Mapbox Attribution Logo
-          Positioned(
-            bottom: 0,
-            right: 0,
+        ),
+        //Mapbox Attribution Logo
+        Positioned(
+          top: 12,
+          right: 8,
+          child: Opacity(
+            opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0.2,
             child: Image.asset(
               'assets/images/mapbox-logo-transparent.png',
-              width: 80,
+              width: 64,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -265,6 +165,20 @@ class TrackPainter extends CustomPainter {
     this.maxSpeed,
     this.minSpeed,
   });
+
+  static var projMercator = Projection.get('EPSG:3857')!;
+  static var projWGS84 = Projection.get('EPSG:4326')!;
+
+  /// Convert lat and lon to Mercator coordinates (absolute, not in relation to screen).
+  static Point convertLatLonToMercator(double lat, double lon) {
+    return projWGS84.transform(projMercator, Point(x: lon, y: lat));
+  }
+
+  /// Convert Mercator coordinates to lat and lon.
+  static LatLng convertMercatorToLatLon(double x, double y) {
+    final point = projMercator.transform(projWGS84, Point(x: x, y: y));
+    return LatLng(point.y, point.x);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -315,18 +229,34 @@ class TrackPainter extends CustomPainter {
     if (maxLat == null || minLat == null || maxLon == null || minLon == null) return;
     if (maxLat == minLat || maxLon == minLon) return;
 
-    // If dLat > dLon, pad the longitude, otherwise pad the latitude to ensure that the aspect ratio is 1.
-    final dLat = maxLat - minLat;
-    final dLon = maxLon - minLon;
-    if (dLat > dLon) {
-      final d = (dLat - dLon) * 1.5;
-      minLon -= d;
-      maxLon += d;
+    final minM = convertLatLonToMercator(minLat, minLon);
+    final maxM = convertLatLonToMercator(maxLat, maxLon);
+
+    double minMx = minM.x;
+    double minMy = minM.y;
+    double maxMx = maxM.x;
+    double maxMy = maxM.y;
+
+    final dBeta = maxMx - minMx;
+    final dAlpha = maxMy - minMy;
+    if (dAlpha > dBeta) {
+      final d = (dAlpha - dBeta) / 2;
+      minMx -= d;
+      maxMx += d;
     } else {
-      final d = (dLon - dLat) / 10;
-      minLat -= d;
-      maxLat += d;
+      final d = (dBeta - dAlpha) / 2;
+      minMy -= d;
+      maxMy += d;
     }
+
+    // Convert back to lat/lon.
+    final paddedMin = convertMercatorToLatLon(minMx, minMy);
+    final paddedMax = convertMercatorToLatLon(maxMx, maxMy);
+
+    minLat = paddedMin.latitude;
+    minLon = paddedMin.longitude;
+    maxLat = paddedMax.latitude;
+    maxLon = paddedMax.longitude;
 
     // Draw the lines between the coordinates
     for (var i = 0; i < trackCountFraction - 1; i++) {

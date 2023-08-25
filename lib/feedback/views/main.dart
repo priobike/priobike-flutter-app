@@ -271,9 +271,6 @@ class FeedbackViewState extends State<FeedbackView> {
 
     if (tracking.previousTracks == null) return Container();
 
-    // the size for the track pictogram
-    final double boxSize = (MediaQuery.of(context).size.width - 24);
-
     return Scaffold(
       body: Container(
         color: Theme.of(context).colorScheme.surface,
@@ -309,15 +306,14 @@ class FeedbackViewState extends State<FeedbackView> {
               ),
               const VSpace(),
               BlendIn(
-                child: SizedBox(
-                  // must be a square, therefore height = width
-                  height: boxSize,
-                  width: boxSize,
+                child: Container(
+                  height: MediaQuery.of(context).size.width - 32,
+                  width: MediaQuery.of(context).size.width - 32,
+                  padding: const EdgeInsets.all(24),
                   child: TrackPictogram(
                     key: UniqueKey(),
-                    height: boxSize.round(),
-                    track: tracking.previousTracks!.last,
-                    tracks: getIt<Positioning>().positions,
+                    track: getIt<Positioning>().positions,
+                    sessionId: tracking.previousTracks!.last.sessionId, // TODO: May break if no previous track exists?
                     minSpeedColor: CI.blue,
                     maxSpeedColor: CI.blueLight,
                     blurRadius: 10,

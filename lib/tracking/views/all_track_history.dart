@@ -14,7 +14,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
-import 'package:priobike/tracking/services/background_image.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -118,8 +117,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       }
     }
 
-    // Add the bytes of the images on the disk.
-    bytes += await getIt<BackgroundImage>().calculateStorageSize();
+    // TODO: Add the bytes of the images.
 
     // Format the bytes.
     if (bytes < 1000) {
