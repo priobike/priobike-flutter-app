@@ -72,7 +72,7 @@ class BackgroundImage with ChangeNotifier {
       final ColorMode colorMode = getIt<Settings>().colorMode;
       final String style = colorMode == ColorMode.dark ? "navigation-night-v1" : "navigation-preview-day-v1";
       // Padding needs to be 30, because the TrackPainter also uses 30
-      const int padding = 30;
+      const int padding = 0;
 
       final String url =
           "https://api.mapbox.com/styles/v1/mapbox/$style/static/[$minLon,$minLat,$maxLon,$maxLat]/${height}x$height?padding=$padding&@2x&access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
@@ -126,14 +126,18 @@ class BackgroundImage with ChangeNotifier {
   /// Deletes the given image from the cache and the local storage.
   Future<void> deleteImage(String sessionId) async {
     if (cachedImages == null) return;
-    if (cachedImages!.isEmpty) return;
+    if (cachedImages!.isEmpty || !cachedImages!.containsKey(sessionId)) return;
 
     final ColorMode colorMode = getIt<Settings>().colorMode;
     cachedImages!.remove("$sessionId+${colorMode.toString()}");
     final String path = await _getPath();
     final File file = File("$path/$sessionId+${colorMode.toString()}.png");
-    await file.delete();
-    log.i("Deleted image from $path/$sessionId+${colorMode.toString()}.png");
+    try {
+      await file.delete();
+      log.i("Deleted image from $path/$sessionId+${colorMode.toString()}.png");
+    } catch (e) {
+      log.e("Error while deleting image from $path/$sessionId+${colorMode.toString()}.png: $e");
+    }
     notifyListeners();
   }
 

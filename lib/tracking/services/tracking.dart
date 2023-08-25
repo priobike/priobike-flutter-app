@@ -24,6 +24,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/models/track.dart';
+import 'package:priobike/tracking/services/background_image.dart';
 import 'package:priobike/user.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -537,6 +538,10 @@ class Tracking with ChangeNotifier {
     }
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
     await savePreviousTracks();
+
+    // Delete the associated background image, if it exists.
+    await getIt<BackgroundImage>().deleteImage(track.sessionId);
+
     notifyListeners();
   }
 

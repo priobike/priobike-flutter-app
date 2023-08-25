@@ -15,7 +15,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
-import 'package:priobike/tracking/services/background_image.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
 import 'package:priobike/tracking/views/track_details.dart';
@@ -94,7 +93,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
-                getIt<BackgroundImage>().deleteImage(widget.track.sessionId);
                 Navigator.of(context).pop();
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
