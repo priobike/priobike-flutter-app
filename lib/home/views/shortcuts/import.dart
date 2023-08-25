@@ -40,7 +40,13 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
         waypoints.add(Waypoint(coordinates[i]![0], coordinates[i]![1], address: "Wegpunkt ${i + 1}"));
       }
       if (mounted) {
-        showSaveShortcutSheet(context, ShortcutRoute(name: "Strecke von Google Maps", waypoints: waypoints));
+        showSaveShortcutSheet(
+            context,
+            ShortcutRoute(
+              id: UniqueKey().toString(),
+              name: "Strecke von Google Maps",
+              waypoints: waypoints,
+            ));
       }
       return;
     }

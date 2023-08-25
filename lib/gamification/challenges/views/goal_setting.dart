@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -17,14 +18,14 @@ import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 
-class ChallengeGoalsView extends StatefulWidget {
-  const ChallengeGoalsView({Key? key}) : super(key: key);
+class ChallengeGoalSetting extends StatefulWidget {
+  const ChallengeGoalSetting({Key? key}) : super(key: key);
 
   @override
-  State<ChallengeGoalsView> createState() => _ChallengeGoalsViewState();
+  State<ChallengeGoalSetting> createState() => _ChallengeGoalSettingState();
 }
 
-class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTickerProviderStateMixin {
+class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with SingleTickerProviderStateMixin {
   static const double distanceGoalDefault = 2.5;
   static const double durationGoalDefault = 30;
   static const double perWeekGoalDefault = 3;
@@ -86,10 +87,11 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
     // Update default values to previous goals, if previous goals exist.
     var prevGoals = _settingsService.challengeGoals;
     if (prevGoals != null) {
-      var trackGoals = prevGoals.routeGoal;
+      var routeGoals = prevGoals.routeGoal;
+      showRouteSelection = routeGoals != null;
       distanceGoal = prevGoals.dailyDistanceGoalMetres / 1000;
       durationGoal = prevGoals.dailyDurationGoalMinutes;
-      selectedRoute = trackGoals?.trackName;
+      selectedRoute = routeGoals?.routeID;
     }
 
     super.initState();
@@ -141,11 +143,11 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
             updateSlider: (value) => routeGoal = value,
             shortcuts: routes,
             enableSelection: () => showRouteSelection = true,
-            updateSelectedShortcut: (name) {
-              if (name == selectedRoute) {
+            updateSelectedShortcut: (id) {
+              if (id == selectedRoute) {
                 selectedRoute = null;
               } else {
-                selectedRoute = name;
+                selectedRoute = id;
               }
             },
           ),
@@ -159,20 +161,20 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
             updateSlider: (value) => locationGoal = value,
             shortcuts: locations,
             enableSelection: () => showLocationSelection = true,
-            updateSelectedShortcut: (name) {
-              if (name == selectedLocation) {
+            updateSelectedShortcut: (id) {
+              if (id == selectedLocation) {
                 selectedLocation = null;
               } else {
-                selectedLocation = name;
+                selectedLocation = id;
               }
             },
           ),
           const VSpace(),
           BigButton(
-            label: 'Challenges Starten',
+            label: 'Ziele Speichern',
             onPressed: () {
-              var routeGoals =
-                  selectedRoute == null ? null : RouteGoals(selectedRoute!, selectedRoute!, routeGoal.toInt());
+              var route = _shortcutsService.shortcuts?.where((s) => s.id == selectedRoute).firstOrNull;
+              var routeGoals = route == null ? null : RouteGoals(route.id, route.name, routeGoal.toInt());
               var goals = ChallengeGoals(distanceGoal * 1000, durationGoal, routeGoals);
               getIt<GameSettingsService>().setChallengeGoals(goals);
               Navigator.pop(context);
@@ -288,12 +290,12 @@ class _ChallengeGoalsViewState extends State<ChallengeGoalsView> with SingleTick
                 child: Row(
                     children: shortcuts
                         .map((shortcut) => ShortcutView(
-                              onPressed: () => setState(() => updateSelectedShortcut(shortcut.name)),
+                              onPressed: () => setState(() => updateSelectedShortcut(shortcut.id)),
                               shortcut: shortcut,
                               width: shortcutWidth,
                               height: shortcutHeight,
                               rightPad: shortcutRightPad,
-                              selected: shortcut.name == selectedShortcut,
+                              selected: shortcut.id == selectedShortcut,
                               showSplash: false,
                             ))
                         .toList()),

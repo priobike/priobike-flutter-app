@@ -42,7 +42,11 @@ class Shortcuts with ChangeNotifier {
       }
     }
 
-    final newShortcut = ShortcutRoute(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
+    final newShortcut = ShortcutRoute(
+      id: UniqueKey().toString(),
+      name: name,
+      waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList(),
+    );
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
@@ -53,7 +57,7 @@ class Shortcuts with ChangeNotifier {
 
   /// Save a new location shortcut.
   Future<void> saveNewShortcutLocation(String name, Waypoint waypoint) async {
-    final newShortcut = ShortcutLocation(name: name, waypoint: waypoint);
+    final newShortcut = ShortcutLocation(id: UniqueKey().toString(), name: name, waypoint: waypoint);
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
@@ -121,6 +125,7 @@ class Shortcuts with ChangeNotifier {
 
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
+      await storeShortcuts();
     } else {
       // Init shortcuts.
       shortcuts = [];

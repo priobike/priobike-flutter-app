@@ -22,7 +22,7 @@ class ChallengeGoals {
   ChallengeGoals.fromJson(Map<String, dynamic> json)
       : dailyDistanceGoalMetres = json['dailyDistanceGoalMetres'],
         dailyDurationGoalMinutes = json['dailyDurationGoalMinutes'],
-        routeGoal = json['routeGoal'] == null ? null : jsonDecode(json['routeGoal']);
+        routeGoal = json['routeGoal'] == null ? null : RouteGoals.fromJson(jsonDecode(json['routeGoal']));
 }
 
 /// This object describes user goals for a specific route.

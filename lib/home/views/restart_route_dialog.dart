@@ -62,7 +62,7 @@ class RestartRouteDialog extends AlertDialog {
             TextButton(
               child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
               onPressed: () {
-                ShortcutRoute shortcutRoute = ShortcutRoute(name: "", waypoints: lastRoute);
+                ShortcutRoute shortcutRoute = ShortcutRoute(id: UniqueKey().toString(), name: "", waypoints: lastRoute);
                 // Set waypoints and load ride view.
                 Navigator.pop(context);
                 showSaveShortcutSheet(context, shortcutRoute);
