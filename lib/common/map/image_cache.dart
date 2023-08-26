@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:priobike/common/map/map_design.dart';

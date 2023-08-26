@@ -1,12 +1,13 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
@@ -30,60 +31,46 @@ class ShortcutView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.centerLeft,
-      constraints: BoxConstraints(minWidth: width, maxWidth: width),
       padding: EdgeInsets.only(right: rightPad, bottom: 24),
       child: Tile(
         onPressed: onPressed,
         shadow: shortcut == null ? CI.blue : const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: shortcut == null ? 0.3 : 0.08,
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(0),
         content: Stack(children: [
-          if (shortcut != null)
-            Positioned.fill(
-              child: Container(
-                foregroundDecoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                        ? [
-                            Theme.of(context).colorScheme.background,
-                            Theme.of(context).colorScheme.background,
-                            Theme.of(context).colorScheme.background.withOpacity(0.9),
-                            Theme.of(context).colorScheme.background.withOpacity(0.8),
-                            Theme.of(context).colorScheme.background.withOpacity(0.7),
-                          ]
-                        : [
-                            Theme.of(context).colorScheme.background,
-                            Theme.of(context).colorScheme.background,
-                            Theme.of(context).colorScheme.background.withOpacity(0.6),
-                            Theme.of(context).colorScheme.background.withOpacity(0.5),
-                            Theme.of(context).colorScheme.background.withOpacity(0.3),
-                          ],
-                  ),
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20.0),
-                  child: Image(
-                    image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                        ? const AssetImage('assets/images/map-dark.png')
-                        : const AssetImage('assets/images/map-light.png'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+          if (shortcut == null)
+            const Padding(
+              padding: EdgeInsets.all(8),
+              child: Icon(Icons.map_rounded, size: 64, color: Colors.white),
+            )
+          else if (shortcut is ShortcutRoute)
+            Container(
+              padding: const EdgeInsets.all(6),
+              child: ShortcutRoutePictogram(
+                shortcut: shortcut as ShortcutRoute,
+                height: height - 12,
+                width: width - 12,
+                color: CI.blue,
+              ),
+            )
+          else if (shortcut is ShortcutLocation)
+            Container(
+              padding: const EdgeInsets.all(6),
+              child: ShortcutLocationPictogram(
+                shortcut: shortcut as ShortcutLocation,
+                height: height - 12,
+                width: width - 12,
+                color: CI.blue,
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: SizedBox(
-              height: height,
+          SizedBox(
+            height: height,
+            width: width,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  shortcut == null
-                      ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
-                      : shortcut!.getRepresentation(),
                   Expanded(child: Container()),
                   FittedBox(
                     // Scale the text to fit the width.
@@ -93,7 +80,7 @@ class ShortcutView extends StatelessWidget {
                       color: shortcut == null
                           ? Colors.white
                           : Theme.of(context).colorScheme.brightness == Brightness.dark
-                              ? Colors.grey
+                              ? Colors.white
                               : Colors.black,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
@@ -186,8 +173,8 @@ class ShortcutsViewState extends State<ShortcutsView> {
   @override
   Widget build(BuildContext context) {
     const double shortcutRightPad = 16;
-    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
-    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+    final shortcutHeight = shortcutWidth; // Must be square for the pictograms to work.
 
     List<Widget> views = [
       AnimatedContainer(

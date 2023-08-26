@@ -139,45 +139,20 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         fill: Theme.of(context).colorScheme.background,
         splash: Theme.of(context).colorScheme.primary,
         content: SizedBox(
-          height: 160,
+          height: 148,
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              Positioned.fill(
-                child: Container(
-                  foregroundDecoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                          ? [
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background.withOpacity(0.9),
-                              Theme.of(context).colorScheme.background.withOpacity(0.8),
-                              Theme.of(context).colorScheme.background.withOpacity(0.7),
-                            ]
-                          : [
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background.withOpacity(0.6),
-                              Theme.of(context).colorScheme.background.withOpacity(0.5),
-                              Theme.of(context).colorScheme.background.withOpacity(0.3),
-                            ],
-                    ),
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20.0),
-                    child: Image(
-                      image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                          ? const AssetImage('assets/images/map-dark.png')
-                          : const AssetImage('assets/images/map-light.png'),
-                      fit: BoxFit.cover,
-                    ),
+              if (routeNodes.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: RoutePictogram(
+                    key: UniqueKey(),
+                    route: routeNodes,
+                    startImage: widget.startImage,
+                    destinationImage: widget.destinationImage,
                   ),
                 ),
-              ),
               Positioned(
                 top: 13,
                 left: 10,
@@ -235,21 +210,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                       fontSize: 11,
                       height: 1.2,
                       color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                    ),
-                  ),
-                ),
-              if (routeNodes.isNotEmpty)
-                Positioned(
-                  bottom: 10,
-                  right: 20,
-                  child: SizedBox(
-                    height: widget.width * 0.3,
-                    width: widget.width * 0.3,
-                    child: RoutePictogram(
-                      key: UniqueKey(),
-                      route: routeNodes,
-                      startImage: widget.startImage,
-                      destinationImage: widget.destinationImage,
                     ),
                   ),
                 ),

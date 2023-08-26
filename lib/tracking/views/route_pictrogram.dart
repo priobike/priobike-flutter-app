@@ -75,50 +75,13 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
           duration: const Duration(milliseconds: 1000),
           child: backgroundImage != null
               ? ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   child: material.Image(
                     image: backgroundImage!,
                     fit: BoxFit.contain,
                     key: ValueKey(widget.route.hashCode),
                   ))
               : Container(),
-        ),
-
-        // Glow
-        Opacity(
-          opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: CustomPaint(
-              painter: RoutePainter(
-                fraction: fraction,
-                route: widget.route,
-                blurRadius: 2,
-                startImage: widget.startImage,
-                destinationImage: widget.destinationImage,
-                lineWidth: widget.lineWidth,
-                iconSize: widget.iconSize,
-              ),
-            ),
-          ),
-        ),
-        // Shadow
-        Opacity(
-          opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: CustomPaint(
-              painter: RoutePainter(
-                fraction: fraction,
-                route: widget.route,
-                blurRadius: 2,
-                startImage: widget.startImage,
-                destinationImage: widget.destinationImage,
-                lineWidth: widget.lineWidth,
-                iconSize: widget.iconSize,
-              ),
-            ),
-          ),
         ),
         AspectRatio(
           aspectRatio: 1,
