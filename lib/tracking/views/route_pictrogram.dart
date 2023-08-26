@@ -1,7 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/material.dart' as material show Image;
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/routing/models/navigation.dart';
 
 /// A pictogram of a route.
@@ -39,6 +42,9 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
   late Animation<double> animation;
   late AnimationController controller;
 
+  /// The background image of the map for the track.
+  MemoryImage? backgroundImage;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +56,13 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
         });
       });
     controller.forward();
+
+    // Load the background image
+    MapboxTileImageCache.fetchTile(coords: widget.route.map((e) => LatLng(e.lat, e.lon)).toList()).then((value) {
+      setState(() {
+        backgroundImage = value;
+      });
+    });
   }
 
   @override
@@ -58,6 +71,19 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
       fit: StackFit.expand,
       alignment: Alignment.center,
       children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 1000),
+          child: backgroundImage != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: material.Image(
+                    image: backgroundImage!,
+                    fit: BoxFit.contain,
+                    key: ValueKey(widget.route.hashCode),
+                  ))
+              : Container(),
+        ),
+
         // Glow
         Opacity(
           opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,

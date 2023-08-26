@@ -5,7 +5,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/map/image_cache.dart';
-import 'package:proj4dart/proj4dart.dart';
 
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
@@ -164,20 +163,6 @@ class TrackPainter extends CustomPainter {
     this.maxSpeed,
     this.minSpeed,
   });
-
-  static var projMercator = Projection.get('EPSG:3857')!;
-  static var projWGS84 = Projection.get('EPSG:4326')!;
-
-  /// Convert lat and lon to Mercator coordinates (absolute, not in relation to screen).
-  static Point convertLatLonToMercator(double lat, double lon) {
-    return projWGS84.transform(projMercator, Point(x: lon, y: lat));
-  }
-
-  /// Convert Mercator coordinates to lat and lon.
-  static LatLng convertMercatorToLatLon(double x, double y) {
-    final point = projMercator.transform(projWGS84, Point(x: x, y: y));
-    return LatLng(point.y, point.x);
-  }
 
   @override
   void paint(Canvas canvas, Size size) {
