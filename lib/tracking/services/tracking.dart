@@ -7,6 +7,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -24,7 +25,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/models/track.dart';
-import 'package:priobike/tracking/services/image_cache.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/user.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -538,10 +539,6 @@ class Tracking with ChangeNotifier {
     }
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
     await savePreviousTracks();
-
-    // Delete the associated background image, if it exists.
-    await TrackPictogramImageCache.deleteImage(track.sessionId);
-
     notifyListeners();
   }
 

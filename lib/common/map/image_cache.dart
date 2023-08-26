@@ -12,30 +12,27 @@ import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-class TrackPictogramImageCache {
+class MapboxTileImageCache {
   /// The logger for this service.
-  static final log = Logger("TrackPictogramImageCache");
+  static final log = Logger("MapboxTileImageCache");
+
+  // TODO: Make a loop that periodically checks how frequently each
+  // image was used and deletes the least used ones. This loop is then
+  // executed when the app is launched.
 
   /// Fetches the background image for the given route from the mapbox api.
-  static Future<MemoryImage?> fetchImage({
-    required String sessionId,
-    required List<Position> positions, // The GPS positions of the track
-  }) async {
-    final bbox =
-        MapboxMapProjection.mercatorBoundingBox(positions.map((p) => LatLng(p.latitude, p.longitude)).toList());
+  static Future<MemoryImage?> fetchTile({required List<LatLng> coords}) async {
+    final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
     if (bbox == null) {
-      log.e("Could not calculate bounding box for track $sessionId");
       return null;
     }
 
     // Check if the image exists, and if so, return it.
-    final path = await _getImagePath(sessionId: sessionId);
+    final path = await _getImagePath(bbox);
     if (await File(path).exists()) {
-      log.i("Fetched background image $sessionId from local storage.");
       return MemoryImage(await File(path).readAsBytes());
     }
 
-    log.i("Fetching background image $sessionId from Mapbox.");
     try {
       // See: https://docs.mapbox.com/api/maps/static-images/
       const String accessToken =
@@ -49,7 +46,7 @@ class TrackPictogramImageCache {
       // we display the logo and attribution, so we can hide it in the image
       final String url =
           "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessToken";
-      log.i("Fetching background image $sessionId from Mapbox: $url");
+      log.i("Fetching background image from Mapbox: $url");
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
@@ -58,8 +55,8 @@ class TrackPictogramImageCache {
       }
       final MemoryImage image = MemoryImage(response.bodyBytes);
 
-      log.i("Fetched background image $sessionId from Mapbox.");
-      await saveImage(sessionId, image);
+      log.i("Fetched background image from Mapbox.");
+      await saveImage(bbox, image);
       return image;
     } catch (e) {
       log.e("Error while fetching background-image-service: $e");
@@ -73,25 +70,25 @@ class TrackPictogramImageCache {
   }
 
   /// Helper function to get the path to the background images on local storage.
-  static Future<String> _getImagePath({required String sessionId}) async {
+  static Future<String> _getImagePath(MapboxMapProjectionBoundingBox bbox) async {
     final colorMode = getIt<Settings>().colorMode;
     final dirPath = await _getImageDir();
     final imagesDir = Directory(dirPath);
     if (!await imagesDir.exists()) await imagesDir.create();
-    return "$dirPath/$sessionId+${colorMode.toString()}.png";
+    return "$dirPath/${bbox.minLat}_${bbox.minLon}_${bbox.maxLat}_${bbox.maxLon}+${colorMode.toString()}.png";
   }
 
   /// Saves the given image to the cache and the local storage.
-  static Future<void> saveImage(String sessionId, MemoryImage image) async {
-    final path = await _getImagePath(sessionId: sessionId);
+  static Future<void> saveImage(MapboxMapProjectionBoundingBox bbox, MemoryImage image) async {
+    final path = await _getImagePath(bbox);
     final file = File(path);
     await file.writeAsBytes(image.bytes);
     log.i("Saved image $path to local storage.");
   }
 
   /// Deletes the given image from the cache and the local storage.
-  static Future<void> deleteImage(String sessionId) async {
-    final path = await _getImagePath(sessionId: sessionId);
+  static Future<void> deleteImage(MapboxMapProjectionBoundingBox bbox) async {
+    final path = await _getImagePath(bbox);
     final file = File(path);
     try {
       await file.delete();

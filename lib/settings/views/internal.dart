@@ -21,7 +21,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/tracking/services/image_cache.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 
@@ -317,7 +317,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Hintergrundbilder der Tracks löschen",
                     icon: Icons.recycling,
-                    callback: () => TrackPictogramImageCache.deleteAllImages(),
+                    callback: () => MapboxTileImageCache.deleteAllImages(),
                   ),
                 ),
                 Padding(

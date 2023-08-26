@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/map_projection.dart';
-import 'package:priobike/tracking/services/image_cache.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:proj4dart/proj4dart.dart';
 
 /// A pictogram of a track.
@@ -59,10 +59,8 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     }
 
     // Load the background image
-    TrackPictogramImageCache.fetchImage(
-      sessionId: widget.sessionId,
-      positions: widget.track,
-    ).then((value) {
+    MapboxTileImageCache.fetchTile(coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList())
+        .then((value) {
       setState(() {
         backgroundImage = value;
       });
