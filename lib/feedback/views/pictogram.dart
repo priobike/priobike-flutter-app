@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/tracking/services/image_cache.dart';
 import 'package:proj4dart/proj4dart.dart';
 
@@ -213,60 +214,19 @@ class TrackPainter extends CustomPainter {
     final trackCount = trackToDraw.length;
     final trackCountFraction = trackCount * fraction;
 
-    double? maxLat;
-    double? minLat;
-    double? maxLon;
-    double? minLon;
-
-    // Find the bounding box of the waypoints
-    for (var i = 0; i < trackCount; i++) {
-      final p = trackToDraw[i];
-      if (maxLat == null || p.latitude > maxLat) maxLat = p.latitude;
-      if (minLat == null || p.latitude < minLat) minLat = p.latitude;
-      if (maxLon == null || p.longitude > maxLon) maxLon = p.longitude;
-      if (minLon == null || p.longitude < minLon) minLon = p.longitude;
-    }
-    if (maxLat == null || minLat == null || maxLon == null || minLon == null) return;
-    if (maxLat == minLat || maxLon == minLon) return;
-
-    final minM = convertLatLonToMercator(minLat, minLon);
-    final maxM = convertLatLonToMercator(maxLat, maxLon);
-
-    double minMx = minM.x;
-    double minMy = minM.y;
-    double maxMx = maxM.x;
-    double maxMy = maxM.y;
-
-    final dBeta = maxMx - minMx;
-    final dAlpha = maxMy - minMy;
-    if (dAlpha > dBeta) {
-      final d = (dAlpha - dBeta) / 2;
-      minMx -= d;
-      maxMx += d;
-    } else {
-      final d = (dBeta - dAlpha) / 2;
-      minMy -= d;
-      maxMy += d;
-    }
-
-    // Convert back to lat/lon.
-    final paddedMin = convertMercatorToLatLon(minMx, minMy);
-    final paddedMax = convertMercatorToLatLon(maxMx, maxMy);
-
-    minLat = paddedMin.latitude;
-    minLon = paddedMin.longitude;
-    maxLat = paddedMax.latitude;
-    maxLon = paddedMax.longitude;
+    final bbox =
+        MapboxMapProjection.mercatorBoundingBox(trackToDraw.map((p) => LatLng(p.latitude, p.longitude)).toList());
+    if (bbox == null) return;
 
     // Draw the lines between the coordinates
     for (var i = 0; i < trackCountFraction - 1; i++) {
       final p1 = trackToDraw[i];
       final p2 = trackToDraw[i + 1];
 
-      final x1 = (p1.longitude - minLon) / (maxLon - minLon) * size.width;
-      final y1 = (p1.latitude - maxLat) / (minLat - maxLat) * size.height;
-      final x2 = (p2.longitude - minLon) / (maxLon - minLon) * size.width;
-      final y2 = (p2.latitude - maxLat) / (minLat - maxLat) * size.height;
+      final x1 = (p1.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
+      final y1 = (p1.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+      final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
+      final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
       var color = minSpeedColor;
       if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
@@ -280,10 +240,10 @@ class TrackPainter extends CustomPainter {
       final p1 = trackToDraw[trackCountFraction.toInt()];
       final p2 = trackToDraw[trackCountFraction.toInt() + 1];
       final pct = trackCountFraction - trackCountFraction.toInt();
-      final x1 = (p1.longitude - minLon) / (maxLon - minLon) * size.width;
-      final y1 = (p1.latitude - maxLat) / (minLat - maxLat) * size.height;
-      final x2 = (p2.longitude - minLon) / (maxLon - minLon) * size.width;
-      final y2 = (p2.latitude - maxLat) / (minLat - maxLat) * size.height;
+      final x1 = (p1.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
+      final y1 = (p1.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+      final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
+      final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
       final x2i = x1 + (x2 - x1) * pct;
       final y2i = y1 + (y2 - y1) * pct;
 
@@ -296,8 +256,8 @@ class TrackPainter extends CustomPainter {
 
     // Draw the circles at the start and end point.
     final pFirst = trackToDraw.first;
-    final xFirst = (pFirst.longitude - minLon) / (maxLon - minLon) * size.width;
-    final yFirst = (pFirst.latitude - maxLat) / (minLat - maxLat) * size.height;
+    final xFirst = (pFirst.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
+    final yFirst = (pFirst.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
     var color = minSpeedColor;
     if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
@@ -305,8 +265,8 @@ class TrackPainter extends CustomPainter {
     }
     canvas.drawCircle(Offset(xFirst, yFirst), 4, paint..color = color);
     final pLast = trackToDraw.last;
-    final xLast = (pLast.longitude - minLon) / (maxLon - minLon) * size.width;
-    final yLast = (pLast.latitude - maxLat) / (minLat - maxLat) * size.height;
+    final xLast = (pLast.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
+    final yLast = (pLast.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
     if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
       color = Color.lerp(minSpeedColor, maxSpeedColor, (pLast.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
     }

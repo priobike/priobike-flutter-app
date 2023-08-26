@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
@@ -10,70 +11,22 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:proj4dart/proj4dart.dart';
 
 class TrackPictogramImageCache {
   /// The logger for this service.
   static final log = Logger("TrackPictogramImageCache");
-
-  static var projMercator = Projection.get('EPSG:3857')!;
-  static var projWGS84 = Projection.get('EPSG:4326')!;
-
-  /// Convert lat and lon to Mercator coordinates (absolute, not in relation to screen).
-  static Point convertLatLonToMercator(double lat, double lon) {
-    return projWGS84.transform(projMercator, Point(x: lon, y: lat));
-  }
-
-  /// Convert Mercator coordinates to lat and lon.
-  static LatLng convertMercatorToLatLon(double x, double y) {
-    final point = projMercator.transform(projWGS84, Point(x: x, y: y));
-    return LatLng(point.y, point.x);
-  }
 
   /// Fetches the background image for the given route from the mapbox api.
   static Future<MemoryImage?> fetchImage({
     required String sessionId,
     required List<Position> positions, // The GPS positions of the track
   }) async {
-    double? minLon;
-    double? minLat;
-    double? maxLon;
-    double? maxLat;
-
-    // calculate the bounding box of the route
-    for (final position in positions) {
-      if (minLon == null || position.longitude < minLon) minLon = position.longitude;
-      if (minLat == null || position.latitude < minLat) minLat = position.latitude;
-      if (maxLon == null || position.longitude > maxLon) maxLon = position.longitude;
-      if (maxLat == null || position.latitude > maxLat) maxLat = position.latitude;
+    final bbox =
+        MapboxMapProjection.mercatorBoundingBox(positions.map((p) => LatLng(p.latitude, p.longitude)).toList());
+    if (bbox == null) {
+      log.e("Could not calculate bounding box for track $sessionId");
+      return null;
     }
-
-    if (minLon == null || minLat == null || maxLon == null || maxLat == null) return null;
-    if (minLon == maxLon || minLat == maxLat) return null;
-
-    final minM = convertLatLonToMercator(minLat, minLon);
-    final maxM = convertLatLonToMercator(maxLat, maxLon);
-
-    double minMx = minM.x;
-    double minMy = minM.y;
-    double maxMx = maxM.x;
-    double maxMy = maxM.y;
-
-    final dBeta = maxMx - minMx;
-    final dAlpha = maxMy - minMy;
-    if (dAlpha > dBeta) {
-      final d = (dAlpha - dBeta) / 2;
-      minMx -= d;
-      maxMx += d;
-    } else {
-      final d = (dBeta - dAlpha) / 2;
-      minMy -= d;
-      maxMy += d;
-    }
-
-    // Convert back to lat/lon.
-    final paddedMin = convertMercatorToLatLon(minMx, minMy);
-    final paddedMax = convertMercatorToLatLon(maxMx, maxMy);
 
     // Check if the image exists, and if so, return it.
     final path = await _getImagePath(sessionId: sessionId);
@@ -92,10 +45,10 @@ class TrackPictogramImageCache {
           // remove prefix "mapbox://styles/" from the styles
           ? getIt<MapDesigns>().mapDesign.darkStyle.replaceFirst("mapbox://styles/", "")
           : getIt<MapDesigns>().mapDesign.lightStyle.replaceFirst("mapbox://styles/", "");
-      final String bbox = "[${paddedMin.longitude},${paddedMin.latitude},${paddedMax.longitude},${paddedMax.latitude}]";
+      final String bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
       // we display the logo and attribution, so we can hide it in the image
       final String url =
-          "https://api.mapbox.com/styles/v1/$styleId/static/$bbox/500x500/?attribution=false&logo=false&$accessToken";
+          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessToken";
       log.i("Fetching background image $sessionId from Mapbox: $url");
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
