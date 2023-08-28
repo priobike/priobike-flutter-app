@@ -50,6 +50,12 @@ class MapboxMapProjection {
     if (minLon == null || minLat == null || maxLon == null || maxLat == null) return null;
     if (minLon == maxLon || minLat == maxLat) return null;
 
+    const double mapPadding = 0.0025;
+    minLon -= mapPadding;
+    minLat -= mapPadding;
+    maxLon += mapPadding;
+    maxLat += mapPadding;
+
     // Make the bounding box square.
     // This has to happen in the Mercator projection system.
     final minM = convertLatLonToMercator(minLat, minLon);

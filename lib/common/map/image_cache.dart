@@ -16,29 +16,6 @@ class MapboxTileImageCache {
   /// The logger for this service.
   static final log = Logger("MapboxTileImageCache");
 
-  /// Prunes all images that were not used in the last 7 days. Gets called during app launch.
-  static Future<void> pruneUnusedImages() async {
-    final prefs = await SharedPreferences.getInstance();
-    final int? lastFetch = prefs.getInt("priobike.backgroundimage.lastfetch");
-    if (lastFetch == null) return;
-
-    final int now = DateTime.now().millisecondsSinceEpoch;
-    final dirPath = await _getImageDir();
-    final imagesDir = Directory(dirPath);
-    if (!await imagesDir.exists()) return;
-
-    final files = await imagesDir.list().toList();
-    for (final FileSystemEntity file in files) {
-      final path = file.path;
-      final stat = await file.stat();
-      final lastAccessed = stat.accessed.millisecondsSinceEpoch;
-      if (now - lastAccessed > 7 * 24 * 60 * 60 * 1000) {
-        await file.delete();
-        log.i("Deleted unused image from $path");
-      }
-    }
-  }
-
   /// Fetches the background image for the given route from the mapbox api.
   static Future<MemoryImage?> fetchTile({required List<LatLng> coords}) async {
     final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
@@ -46,9 +23,7 @@ class MapboxTileImageCache {
 
     // Check if the image exists, and if so, return it.
     final path = await _getImagePath(bbox);
-    if (await File(path).exists()) {
-      return MemoryImage(await File(path).readAsBytes());
-    }
+    if (await File(path).exists()) return MemoryImage(await File(path).readAsBytes());
 
     try {
       // See: https://docs.mapbox.com/api/maps/static-images/
@@ -128,6 +103,29 @@ class MapboxTileImageCache {
     await imagesDir.delete(recursive: true);
     log.i("Deleted all images from $dirPath");
     ToastMessage.showSuccess("Alle Hintergrundbilder gelöscht");
+  }
+
+  /// Prunes all images that were not used in the last 7 days. Gets called during app launch.
+  static Future<void> pruneUnusedImages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? lastFetch = prefs.getInt("priobike.backgroundimage.lastfetch");
+    if (lastFetch == null) return;
+
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    final dirPath = await _getImageDir();
+    final imagesDir = Directory(dirPath);
+    if (!await imagesDir.exists()) return;
+
+    final files = await imagesDir.list().toList();
+    for (final FileSystemEntity file in files) {
+      final path = file.path;
+      final stat = await file.stat();
+      final lastAccessed = stat.accessed.millisecondsSinceEpoch;
+      if (now - lastAccessed > 7 * 24 * 60 * 60 * 1000) {
+        await file.delete();
+        log.i("Deleted unused image from $path");
+      }
+    }
   }
 
   /// Returns the size in bytes of all images in the local storage.
