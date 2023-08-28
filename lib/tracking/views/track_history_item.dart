@@ -162,22 +162,13 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "$day.",
-                      style: TextStyle(
-                        fontSize: widget.width * 0.17,
-                        fontWeight: FontWeight.bold,
-                        height: 0.9,
-                        foreground: Paint()
-                          ..shader = const LinearGradient(
-                            colors: [
-                              CI.blue,
-                              CI.blueLight,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ).createShader(const Rect.fromLTWH(0.0, 0.0, 90.0, 90.0)),
-                      ),
+                    ShadowedText(
+                      text: "$day.",
+                      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                      fontSize: widget.width * 0.17,
+                      height: 0.9,
+                      textColor: CI.blue,
+                      fontWeight: FontWeight.bold,
                     ),
                     const SmallHSpace(),
                     SizedBox(
@@ -189,7 +180,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                           fontSize: 11,
                           height: 1.2,
                           textColor: Theme.of(context).colorScheme.onBackground,
-                          backgroundColor: Theme.of(context).colorScheme.background,
+                          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
                         ),
                       ),
                     ),
@@ -205,19 +196,18 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     fontSize: 11,
                     height: 1.2,
                     textColor: Theme.of(context).colorScheme.onBackground,
-                    backgroundColor: Theme.of(context).colorScheme.background,
+                    backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
                   ),
                 ),
-              const Positioned(
+              Positioned(
                 bottom: 10,
                 right: 10,
-                child: Text(
-                  "Route",
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.2,
-                    color: CI.blue,
-                  ),
+                child: ShadowedText(
+                  text: "Route",
+                  backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                  textColor: CI.blue,
+                  fontSize: 11,
+                  height: 1.2,
                 ),
               ),
               Positioned(

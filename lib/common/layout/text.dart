@@ -160,28 +160,36 @@ class ShadowedText extends StatelessWidget {
   /// The font size.
   final double fontSize;
 
-  /// The height of the text.
-  final double height;
-
-  /// The text color.
-  final Color textColor;
-
   /// The background color.
   final Color backgroundColor;
 
   /// The stroke width.
-  final double strokeWidth = 3;
+  final double strokeWidth = 2.5;
 
   /// The blur radius of the shadow.
-  final double blurRadius = 1;
+  final double blurRadius = 0.5;
+
+  /// The height of the text.
+  final double? height;
+
+  /// The text color.
+  final Color? textColor;
+
+  /// The shader.
+  final Shader? shader;
+
+  /// Font weight.
+  final FontWeight? fontWeight;
 
   const ShadowedText({
     Key? key,
     required this.text,
-    required this.textColor,
     required this.backgroundColor,
     required this.fontSize,
-    required this.height,
+    this.height,
+    this.textColor,
+    this.shader,
+    this.fontWeight,
   }) : super(key: key);
 
   @override
@@ -193,11 +201,13 @@ class ShadowedText extends StatelessWidget {
           style: TextStyle(
             fontSize: fontSize,
             height: height,
+            fontWeight: fontWeight,
             foreground: Paint()
               ..style = PaintingStyle.stroke
               ..strokeJoin = StrokeJoin.round
               ..strokeWidth = strokeWidth
               ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius)
+              ..shader = shader
               ..color = backgroundColor,
           ),
         ),
@@ -207,6 +217,7 @@ class ShadowedText extends StatelessWidget {
             fontSize: fontSize,
             height: height,
             color: textColor,
+            fontWeight: fontWeight,
           ),
         ),
       ],
