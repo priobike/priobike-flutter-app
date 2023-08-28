@@ -315,7 +315,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Hintergrundbilder der Tracks löschen",
+                    title: "Hintergrundbilder löschen",
                     icon: Icons.recycling,
                     callback: () => MapboxTileImageCache.deleteAllImages(),
                   ),

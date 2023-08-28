@@ -11,6 +11,7 @@ import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
@@ -117,7 +118,8 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       }
     }
 
-    // TODO: Add the bytes of the images.
+    // Add the size of alle saved background images.
+    bytes += await MapboxTileImageCache.calculateTotalSize();
 
     // Format the bytes.
     if (bytes < 1000) {

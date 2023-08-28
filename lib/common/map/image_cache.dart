@@ -129,4 +129,21 @@ class MapboxTileImageCache {
     log.i("Deleted all images from $dirPath");
     ToastMessage.showSuccess("Alle Hintergrundbilder gelöscht");
   }
+
+  /// Returns the size in bytes of all images in the local storage.
+  static Future<int> calculateTotalSize() async {
+    final dirPath = await _getImageDir();
+    final imagesDir = Directory(dirPath);
+    if (!await imagesDir.exists()) return 0;
+
+    final files = await imagesDir.list().toList();
+    int size = 0;
+    for (final FileSystemEntity file in files) {
+      if (file is File && file.path.endsWith(".png")) {
+        final stat = await file.stat();
+        size += stat.size;
+      }
+    }
+    return size;
+  }
 }
