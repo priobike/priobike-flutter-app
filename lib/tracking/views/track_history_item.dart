@@ -140,6 +140,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         splash: Theme.of(context).colorScheme.primary,
         content: SizedBox(
           height: 148,
+          width: 148,
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -156,7 +157,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               Positioned(
                 top: 13,
                 left: 10,
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -191,6 +192,13 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                               style: const TextStyle(
                                 fontSize: 11,
                                 height: 1.2,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black,
+                                    offset: Offset(0, 0),
+                                    blurRadius: 2,
+                                  ),
+                                ],
                               ),
                             ),
                           ],
