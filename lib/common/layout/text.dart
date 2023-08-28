@@ -151,3 +151,65 @@ class BoldSmall extends Text {
               ),
         );
 }
+
+/// A text with a shadow behind it.
+class ShadowedText extends StatelessWidget {
+  /// The text to display.
+  final String text;
+
+  /// The font size.
+  final double fontSize;
+
+  /// The height of the text.
+  final double height;
+
+  /// The text color.
+  final Color textColor;
+
+  /// The background color.
+  final Color backgroundColor;
+
+  /// The stroke width.
+  final double strokeWidth = 3;
+
+  /// The blur radius of the shadow.
+  final double blurRadius = 1;
+
+  const ShadowedText({
+    Key? key,
+    required this.text,
+    required this.textColor,
+    required this.backgroundColor,
+    required this.fontSize,
+    required this.height,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            height: height,
+            foreground: Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeJoin = StrokeJoin.round
+              ..strokeWidth = strokeWidth
+              ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius)
+              ..color = backgroundColor,
+          ),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            height: height,
+            color: textColor,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
@@ -183,25 +184,12 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                       width: widget.width * 0.17,
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "$monthName\n${year.toString()}",
-                              style: const TextStyle(
-                                fontSize: 11,
-                                height: 1.2,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black,
-                                    offset: Offset(0, 0),
-                                    blurRadius: 2,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                        child: ShadowedText(
+                          text: "$monthName\n${year.toString()}",
+                          fontSize: 11,
+                          height: 1.2,
+                          textColor: Theme.of(context).colorScheme.onBackground,
+                          backgroundColor: Theme.of(context).colorScheme.background,
                         ),
                       ),
                     ),
@@ -212,13 +200,12 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 Positioned(
                   bottom: 10,
                   left: 10,
-                  child: Text(
-                    trackDurationFormatted,
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.2,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                    ),
+                  child: ShadowedText(
+                    text: trackDurationFormatted,
+                    fontSize: 11,
+                    height: 1.2,
+                    textColor: Theme.of(context).colorScheme.onBackground,
+                    backgroundColor: Theme.of(context).colorScheme.background,
                   ),
                 ),
               const Positioned(
