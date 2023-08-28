@@ -1,23 +1,20 @@
 import 'dart:io';
-import 'dart:math';
-
 import 'package:flutter/material.dart' hide Feedback;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:priobike/tracking/views/track_details.dart';
+import 'dart:ui' as ui;
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -44,6 +41,12 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
+
+  /// The image of the route start icon.
+  ui.Image? startImage;
+
+  /// The image of the route destination icon.
+  ui.Image? destinationImage;
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -88,6 +91,20 @@ class FeedbackViewState extends State<FeedbackView> {
     feedback.addListener(update);
     statistics = getIt<Statistics>();
     statistics.addListener(update);
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) async {
+        ByteData startBd = await rootBundle.load("assets/images/start.drawio.png");
+        final Uint8List startBytes = Uint8List.view(startBd.buffer);
+        final ui.Codec startCodec = await ui.instantiateImageCodec(startBytes);
+        startImage = (await startCodec.getNextFrame()).image;
+
+        ByteData destinationBd = await rootBundle.load("assets/images/destination.drawio.png");
+        final Uint8List destinationBytes = Uint8List.view(destinationBd.buffer);
+        final ui.Codec destinationCodec = await ui.instantiateImageCodec(destinationBytes);
+        destinationImage = (await destinationCodec.getNextFrame()).image;
+      },
+    );
   }
 
   @override
@@ -132,16 +149,6 @@ class FeedbackViewState extends State<FeedbackView> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-            spreadRadius: 0,
-            blurRadius: 24,
-          ),
-        ],
-      ),
       child: Table(
         columnWidths: const {
           0: FlexColumnWidth(1),
@@ -265,94 +272,94 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override
   Widget build(BuildContext context) {
-    if (feedback.isSendingFeedback) {
-      return renderLoadingIndicator();
-    }
-
+    if (feedback.isSendingFeedback) return renderLoadingIndicator();
     if (tracking.previousTracks == null) return Container();
 
+    // get street names
+    final start = routing.selectedWaypoints?.first.address!.split(",")[0] ?? "";
+    final end = routing.selectedWaypoints?.last.address!.split(",")[0] ?? "";
+
+    const double bottomSheetHeight = 228;
+
     return Scaffold(
-      body: Container(
-        color: Theme.of(context).colorScheme.surface,
+      bottomSheet: Container(
+        width: MediaQuery.of(context).size.width,
+        height: bottomSheetHeight,
+        color: Theme.of(context).colorScheme.primary,
+        child: Column(
+          children: [
+            const VSpace(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: StarRatingView(text: "Dein Feedback zur App"),
+            ),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.check,
+              fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+              label: "Fertig",
+              onPressed: () => submit(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+            ),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.save_rounded,
+              fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+              label: "Strecke speichern",
+              onPressed: () => showSaveShortcutSheet(context),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+            ),
+            const VSpace(),
+          ],
+        ),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height - bottomSheetHeight,
         child: SingleChildScrollView(
           key: UniqueKey(),
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.fromLTRB(12, MediaQuery.of(context).padding.top + 48, 12, 12),
-                child: BoldContent(
-                  text: () {
-                    final start = routing.selectedWaypoints?.first;
-                    final end = routing.selectedWaypoints?.last;
-                    if (start == null || end == null) {
-                      return "Fahrt";
-                    }
-                    var startStr = start.address?.substring(0, min(12, start.address?.length ?? 0));
-                    startStr = startStr ?? "Start";
-                    var endStr = end.address?.substring(0, min(12, end.address?.length ?? 0));
-                    endStr = endStr ?? "Ziel";
-                    return "$startStr... nach $endStr...";
-                  }(),
-                  context: context,
-                  textAlign: TextAlign.center,
-                ),
+                padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 48, 24, 0),
+                child: () {
+                  if (start == "" || end == "") {
+                    return BoldContent(
+                      text: "Fahrt",
+                      context: context,
+                      textAlign: TextAlign.center,
+                    );
+                  } else {
+                    return Wrap(
+                      alignment: WrapAlignment.center,
+                      runAlignment: WrapAlignment.center,
+                      direction: Axis.horizontal,
+                      runSpacing: 8,
+                      children: [
+                        Content(
+                          text: "Von ",
+                          context: context,
+                        ),
+                        Content(
+                          text: start,
+                          context: context,
+                        ),
+                        Content(
+                          text: " nach ",
+                          context: context,
+                        ),
+                        Content(
+                          text: end,
+                          context: context,
+                        )
+                      ],
+                    );
+                  }
+                }(),
               ),
-              const VSpace(),
-              BlendIn(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: renderSummary(),
-                ),
-              ),
-              const VSpace(),
-              BlendIn(
-                child: Container(
-                  height: MediaQuery.of(context).size.width - 32,
-                  width: MediaQuery.of(context).size.width - 32,
-                  padding: const EdgeInsets.all(24),
-                  child: TrackPictogram(
-                    key: UniqueKey(),
-                    track: getIt<Positioning>().positions,
-                    sessionId: tracking.previousTracks!.last.sessionId, // TODO: May break if no previous track exists?
-                    minSpeedColor: CI.blue,
-                    maxSpeedColor: CI.blueLight,
-                    blurRadius: 10,
-                  ),
-                ),
-              ),
-              const VSpace(),
-              Container(
-                color: Theme.of(context).colorScheme.primary,
-                child: Container(
-                  padding: const EdgeInsets.only(top: 16, bottom: 16),
-                  child: Column(
-                    children: [
-                      const SmallVSpace(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32),
-                        child: StarRatingView(text: "Dein Feedback zur App"),
-                      ),
-                      BigButton(
-                        iconColor: Colors.white,
-                        icon: Icons.check,
-                        fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                        label: "Fertig",
-                        onPressed: () => submit(),
-                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-                      ),
-                      BigButton(
-                        iconColor: Colors.white,
-                        icon: Icons.save_rounded,
-                        fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                        label: "Strecke speichern",
-                        onPressed: () => showSaveShortcutSheet(context),
-                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-                      ),
-                      const VSpace(),
-                    ],
-                  ),
-                ),
-              ),
+              if (startImage != null && destinationImage != null)
+                TrackDetailsView(
+                    track: tracking.previousTracks!.last, startImage: startImage!, destinationImage: destinationImage!),
             ],
           ),
         ),
