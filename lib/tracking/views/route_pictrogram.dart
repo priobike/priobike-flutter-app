@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' as material show Image;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/image_cache.dart';
+import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/routing/models/navigation.dart';
 
 /// A pictogram of a route.
@@ -161,46 +162,13 @@ class RoutePainter extends CustomPainter {
     final routeCount = routeToDraw.length;
     final routeCountFraction = routeCount * fraction;
 
-    double? maxLat;
-    double? minLat;
-    double? maxLon;
-    double? minLon;
+    final bbox = MapboxMapProjection.mercatorBoundingBox(routeToDraw.map((e) => LatLng(e.lat, e.lon)).toList());
+    if (bbox == null) return;
 
-    // Find the bounding box of the waypoints
-    for (var i = 0; i < routeCount; i++) {
-      final p = routeToDraw[i];
-      if (maxLat == null || p.lat > maxLat) {
-        maxLat = p.lat;
-      }
-      if (minLat == null || p.lat < minLat) {
-        minLat = p.lat;
-      }
-      if (maxLon == null || p.lon > maxLon) {
-        maxLon = p.lon;
-      }
-      if (minLon == null || p.lon < minLon) {
-        minLon = p.lon;
-      }
-    }
-    if (maxLat == null || minLat == null || maxLon == null || minLon == null) {
-      return;
-    }
-    if (maxLat == minLat || maxLon == minLon) {
-      return;
-    }
-
-    // If dLat > dLon, pad the longitude, otherwise pad the latitude to ensure that the aspect ratio is 1.
-    final dLat = maxLat - minLat;
-    final dLon = maxLon - minLon;
-    if (dLat > dLon) {
-      final d = (dLat - dLon) / 2;
-      minLon -= d;
-      maxLon += d;
-    } else {
-      final d = (dLon - dLat) / 2;
-      minLat -= d;
-      maxLat += d;
-    }
+    final double maxLat = bbox.maxLat;
+    final double minLat = bbox.minLat;
+    final double maxLon = bbox.maxLon;
+    final double minLon = bbox.minLon;
 
     // Draw the lines between the coordinates
     for (var i = 0; i < routeCountFraction - 1; i++) {
