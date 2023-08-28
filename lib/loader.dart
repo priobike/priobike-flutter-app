@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -86,6 +87,7 @@ class LoaderState extends State<Loader> {
       await weather.fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
+      await MapboxTileImageCache.pruneUnusedImages();
       settings.incrementUseCounter();
     } catch (e) {
       HapticFeedback.heavyImpact();

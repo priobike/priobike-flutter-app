@@ -10,21 +10,39 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MapboxTileImageCache {
   /// The logger for this service.
   static final log = Logger("MapboxTileImageCache");
 
-  // TODO: Make a loop that periodically checks how frequently each
-  // image was used and deletes the least used ones. This loop is then
-  // executed when the app is launched.
+  /// Prunes all images that were not used in the last 7 days. Gets called during app launch.
+  static Future<void> pruneUnusedImages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? lastFetch = prefs.getInt("priobike.backgroundimage.lastfetch");
+    if (lastFetch == null) return;
+
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    final dirPath = await _getImageDir();
+    final imagesDir = Directory(dirPath);
+    if (!await imagesDir.exists()) return;
+
+    final files = await imagesDir.list().toList();
+    for (final FileSystemEntity file in files) {
+      final path = file.path;
+      final stat = await file.stat();
+      final lastAccessed = stat.accessed.millisecondsSinceEpoch;
+      if (now - lastAccessed > 7 * 24 * 60 * 60 * 1000) {
+        await file.delete();
+        log.i("Deleted unused image from $path");
+      }
+    }
+  }
 
   /// Fetches the background image for the given route from the mapbox api.
   static Future<MemoryImage?> fetchTile({required List<LatLng> coords}) async {
     final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
-    if (bbox == null) {
-      return null;
-    }
+    if (bbox == null) return null;
 
     // Check if the image exists, and if so, return it.
     final path = await _getImagePath(bbox);
@@ -56,6 +74,11 @@ class MapboxTileImageCache {
 
       log.i("Fetched background image from Mapbox.");
       await saveImage(bbox, image);
+
+      // save timestamp of last fetch to shared preferences, used in pruning of old images
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt("priobike.backgroundimage.lastfetch", DateTime.now().millisecondsSinceEpoch);
+
       return image;
     } catch (e) {
       log.e("Error while fetching background-image-service: $e");
