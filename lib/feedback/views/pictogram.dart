@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/map/image_cache.dart';
+import 'package:priobike/tracking/views/track_history_item.dart';
 
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
@@ -125,14 +126,21 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
         Positioned(
           top: 12,
           right: 8,
-          child: Opacity(
-            opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0.2,
-            child: Image.asset(
-              'assets/images/mapbox-logo-transparent.png',
-              width: 64,
-            ),
+          child: Image.asset(
+            'assets/images/mapbox-logo-transparent.png',
+            width: 64,
           ),
         ),
+        Positioned(
+          bottom: 8,
+          right: 12,
+          child: ShadowedText(
+            text: "© Mapbox, © OpenStreetMap",
+            backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
+            textColor: Theme.of(context).colorScheme.onBackground,
+            fontSize: 10,
+          ),
+        )
       ],
     );
   }
