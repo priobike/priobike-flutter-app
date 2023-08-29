@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/map/image_cache.dart';
+import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 
 /// A pictogram of a track.
@@ -126,21 +127,27 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
         Positioned(
           top: 12,
           right: 8,
-          child: Image.asset(
-            'assets/images/mapbox-logo-transparent.png',
-            width: 64,
+          child: InkWell(
+            child: Image.asset(
+              'assets/images/mapbox-logo-transparent.png',
+              width: 64,
+            ),
+            onTap: () => MapboxAttribution.showAttribution(context),
           ),
         ),
         Positioned(
           bottom: 8,
           right: 12,
-          child: ShadowedText(
-            text: "© Mapbox, © OpenStreetMap",
-            backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
-            textColor: Theme.of(context).colorScheme.onBackground,
-            fontSize: 10,
+          child: InkWell(
+            child: ShadowedText(
+              text: "©Mapbox, ©OpenStreetMap",
+              backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
+              textColor: Theme.of(context).colorScheme.onBackground,
+              fontSize: 10,
+            ),
+            onTap: () => MapboxAttribution.showAttribution(context),
           ),
-        )
+        ),
       ],
     );
   }

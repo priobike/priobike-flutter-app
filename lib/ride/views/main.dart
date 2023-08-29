@@ -23,6 +23,69 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock/wakelock.dart';
 
+class MapboxAttribution {
+  /// Used to show the attribution dialog.
+  /// (Only if the battery saving mode is used because otherwise the Mapbox native dialog is used.)
+  /// (In the battery saving mode the Mapbox native dialog can't be used because it is outside of the visible display area.)
+  static showAttribution(BuildContext context) {
+    final bool satelliteAttributionRequired = getIt<MapDesigns>().mapDesign.name == 'Satellit';
+    final List<Map<String, dynamic>> attributionEntries = [
+      {
+        'title': 'Mapbox',
+        'url': Uri.parse('https://www.mapbox.com/about/maps/'),
+      },
+      {
+        'title': 'OpenStreetMap',
+        'url': Uri.parse('https://www.openstreetmap.org/copyright'),
+      },
+      {
+        'title': 'Improve this map',
+        'url': Uri.parse('https://www.mapbox.com/map-feedback/'),
+      },
+      if (satelliteAttributionRequired)
+        {
+          'title': 'Maxar',
+          'url': Uri.parse('https://www.maxar.com/'),
+        },
+    ];
+    const title = "Powered by Mapbox Maps";
+
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              BoldContent(
+                text: title,
+                context: context,
+              ),
+              for (final entry in attributionEntries)
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
+                  },
+                  child: Text(entry['title']!),
+                ),
+              const SizedBox(height: 15),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class RideView extends StatefulWidget {
   const RideView({Key? key}) : super(key: key);
 
@@ -134,67 +197,6 @@ class RideViewState extends State<RideView> {
     );
   }
 
-  /// Used to show the attribution dialog.
-  /// (Only if the battery saving mode is used because otherwise the Mapbox native dialog is used.)
-  /// (In the battery saving mode the Mapbox native dialog can't be used because it is outside of the visible display area.)
-  void showAttribution() {
-    final bool satelliteAttributionRequired = getIt<MapDesigns>().mapDesign.name == 'Satellit';
-    final List<Map<String, dynamic>> attributionEntries = [
-      {
-        'title': 'Mapbox',
-        'url': Uri.parse('https://www.mapbox.com/about/maps/'),
-      },
-      {
-        'title': 'OpenStreetMap',
-        'url': Uri.parse('https://www.openstreetmap.org/copyright'),
-      },
-      {
-        'title': 'Improve this map',
-        'url': Uri.parse('https://www.mapbox.com/map-feedback/'),
-      },
-      if (satelliteAttributionRequired)
-        {
-          'title': 'Maxar',
-          'url': Uri.parse('https://www.maxar.com/'),
-        },
-    ];
-    const title = "Powered by Mapbox Maps";
-
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              BoldContent(
-                text: title,
-                context: context,
-              ),
-              for (final entry in attributionEntries)
-                TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
-                  },
-                  child: Text(entry['title']!),
-                ),
-              const SizedBox(height: 15),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Called when the user moves the map.
   Future<void> onMapMoved() async {
     if (cameraFollowsUserLocation) {
@@ -245,7 +247,7 @@ class RideViewState extends State<RideView> {
                   top: MediaQuery.of(context).size.height * 0.05,
                   right: 10,
                   child: IconButton(
-                    onPressed: showAttribution,
+                    onPressed: MapboxAttribution.showAttribution(context),
                     icon: const Icon(
                       Icons.info_outline_rounded,
                       size: 25,
