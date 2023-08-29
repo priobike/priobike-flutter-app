@@ -60,6 +60,7 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
 
     return Container(
       height: 130,
+      width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Tile(
         fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
@@ -68,14 +69,21 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             BoldContent(
                 text: "Datenverfügbarkeit - ${widget.time.name()}",
                 context: context,
                 color: isProblem || isDark ? Colors.white : Colors.black),
             const SizedBox(height: 4),
-            if (statusHistory.isLoading) Small(text: "Lade Daten...", context: context),
+            if (statusHistory.isLoading)
+              Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+              ),
             if (!statusHistory.isLoading)
               Expanded(
                 child: StatusHistoryChart(time: widget.time, isProblem: isProblem),
