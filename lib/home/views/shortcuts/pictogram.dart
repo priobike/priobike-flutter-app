@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
+import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 
@@ -74,7 +75,11 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
                 painter: ShortcutRoutePainter(shortcut: widget.shortcut, color: widget.color),
               ),
             ),
-          )
+          ),
+          const MapboxAttribution(
+            top: 8,
+            right: 8,
+          ),
         ],
       ),
     );
@@ -212,6 +217,10 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
               color: widget.color,
               size: 64,
             ),
+          ),
+          const MapboxAttribution(
+            top: 8,
+            right: 8,
           )
         ],
       ),

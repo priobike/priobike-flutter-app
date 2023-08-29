@@ -10,8 +10,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
@@ -200,17 +200,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                   ),
                 ),
               Positioned(
-                bottom: 10,
-                right: 10,
-                child: ShadowedText(
-                  text: "Route",
-                  backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                  textColor: CI.blue,
-                  fontSize: 11,
-                  height: 1.2,
-                ),
-              ),
-              Positioned(
                 right: 0,
                 top: 0,
                 child: IconButton(
@@ -221,6 +210,10 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                   ),
                 ),
+              ),
+              const MapboxAttribution(
+                bottom: 10,
+                right: 8,
               ),
             ],
           ),
