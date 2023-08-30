@@ -121,13 +121,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
     final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
 
-    if (startImage == null || destinationImage == null) {
-      return Container();
-    }
-
-    if (newestTracks.isEmpty) {
-      return Container();
-    }
+    if (startImage == null || destinationImage == null) return Container();
+    if (newestTracks.isEmpty) return Container();
 
     List<Widget> views = [
       AnimatedContainer(

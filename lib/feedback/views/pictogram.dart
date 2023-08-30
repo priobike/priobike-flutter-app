@@ -178,7 +178,7 @@ class TrackPainter extends CustomPainter {
     // - If n_points < 1500, we keep every third point
     // ...
     // Note: 1000 points is roughly 1000 seconds, which is 16 minutes of GPS.
-    final trackToDraw = [];
+    final List<Position> trackToDraw = [];
     const threshold = 500;
     if (track.length > threshold) {
       final step = track.length ~/ threshold;
@@ -192,8 +192,8 @@ class TrackPainter extends CustomPainter {
     final trackCount = trackToDraw.length;
     final trackCountFraction = trackCount * fraction;
 
-    final bbox =
-        MapboxMapProjection.mercatorBoundingBox(trackToDraw.map((p) => LatLng(p.latitude, p.longitude)).toList());
+    final bbox = MapboxMapProjection.mercatorBoundingBox(
+        trackToDraw.map((Position p) => LatLng(p.latitude, p.longitude)).toList());
     if (bbox == null) return;
 
     // Draw the lines between the coordinates

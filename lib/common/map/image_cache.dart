@@ -32,8 +32,8 @@ class MapboxTileImageCache {
       final ColorMode colorMode = getIt<Settings>().colorMode;
       final String styleId = colorMode == ColorMode.dark
           // remove prefix "mapbox://styles/" from the styles
-          ? getIt<MapDesigns>().mapDesign.darkStyle.replaceFirst("mapbox://styles/", "")
-          : getIt<MapDesigns>().mapDesign.lightStyle.replaceFirst("mapbox://styles/", "");
+          ? getIt<MapDesigns>().mapDesign.darkStyleNoText.replaceFirst("mapbox://styles/", "")
+          : getIt<MapDesigns>().mapDesign.lightStyleNoText.replaceFirst("mapbox://styles/", "");
       final String bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
       // we display the logo and attribution, so we can hide it in the image
       final String url =

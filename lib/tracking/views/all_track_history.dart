@@ -125,11 +125,11 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     if (bytes < 1000) {
       usedDiskSpace = "${bytes.toStringAsFixed(0)} Byte";
     } else if (bytes < 1000000) {
-      usedDiskSpace = "${(bytes / 1000).toStringAsFixed(0)} KB";
+      usedDiskSpace = "${(bytes / 1000).toStringAsFixed(2)} KB";
     } else if (bytes < 1000000000) {
-      usedDiskSpace = "${(bytes / 1000000).toStringAsFixed(0)} MB";
+      usedDiskSpace = "${(bytes / 1000000).toStringAsFixed(2)} MB";
     } else {
-      usedDiskSpace = "${(bytes / 1000000000).toStringAsFixed(0)} GB";
+      usedDiskSpace = "${(bytes / 1000000000).toStringAsFixed(2)} GB";
     }
   }
 
