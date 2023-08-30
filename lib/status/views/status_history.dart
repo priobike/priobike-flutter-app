@@ -69,7 +69,7 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             BoldContent(
                 text: "Datenverfügbarkeit - ${widget.time.name()}",
