@@ -84,18 +84,15 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
                   ))
               : Container(),
         ),
-        AspectRatio(
-          aspectRatio: 1,
-          child: CustomPaint(
-            painter: RoutePainter(
-              fraction: fraction,
-              route: widget.route,
-              blurRadius: 0,
-              startImage: widget.startImage,
-              destinationImage: widget.destinationImage,
-              lineWidth: widget.lineWidth,
-              iconSize: widget.iconSize,
-            ),
+        CustomPaint(
+          painter: RoutePainter(
+            fraction: fraction,
+            route: widget.route,
+            blurRadius: 0,
+            startImage: widget.startImage,
+            destinationImage: widget.destinationImage,
+            lineWidth: widget.lineWidth,
+            iconSize: widget.iconSize,
           ),
         ),
       ],
