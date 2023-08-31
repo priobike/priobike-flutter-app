@@ -40,12 +40,16 @@ abstract class ChallengeService with ChangeNotifier {
   /// Returns a list of challenges corresponding to the timeframe of this service, which are still open.
   Future<List<Challenge>> get _openChallenges;
 
+  /// Whether only weekly challenges should be taken into consideration.
+  bool get _isWeekly;
+
   ChallengeService() {
     () async {
       await loadOpenChallenges();
 
       /// Set the allowNew variable to false, if there already is a challenge in the current timeframe.
       _dao.streamChallengesInInterval(_intervalStartDay, _intervalLengthInDays).listen((update) {
+        update = update.where((challenge) => challenge.isWeekly == _isWeekly).toList();
         _allowNew = update.isEmpty;
       });
     }();
@@ -111,11 +115,15 @@ abstract class ChallengeService with ChangeNotifier {
   }
 
   /// If the current challenge is null, generate a new challenge.
-  void generateChallenge() async {
-    if (_currentChallenge != null) return;
+  Future<Challenge?> generateChallenge() async {
+    if (_currentChallenge != null) return null;
     _currentChallenge = await _dao.createObject(_generator.generate());
     if (_currentChallenge == null) throw Exception("Couldn't generate new challenge.");
     _validator = ChallengeValidator(challenge: _currentChallenge!);
+    return _currentChallenge;
+  }
+
+  void startChallenge() {
     startChallengeStream();
   }
 
@@ -146,6 +154,9 @@ class DailyChallengeService extends ChallengeService {
 
   @override
   ChallengeGenerator get _generator => DailyChallengeGenerator();
+
+  @override
+  bool get _isWeekly => false;
 }
 
 /// This service implements the challenge service and manages weekly challenges.
@@ -161,4 +172,7 @@ class WeeklyChallengeService extends ChallengeService {
 
   @override
   ChallengeGenerator get _generator => WeeklyChallengeGenerator();
+
+  @override
+  bool get _isWeekly => true;
 }

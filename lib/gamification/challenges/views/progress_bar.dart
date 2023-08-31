@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
 import 'package:priobike/gamification/challenges/services/challenges_service.dart';
+import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/main.dart';
@@ -141,13 +142,27 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
 
     /// If there is no challenge, but the service allows a new one, generate a new one.
     else if (challenge == null && service.allowNew) {
-      service.generateChallenge();
+      var result = await service.generateChallenge();
+      if (result != null) {
+        await _showMyDialog(result);
+        service.startChallenge();
+      }
     }
 
     /// If there is a challenge, but it hasn't been completed yet, finish it TODO just for tests.
     else if (challenge != null && !isCompleted) {
       service.finishChallenge();
     }
+  }
+
+  Future<void> _showMyDialog(Challenge challenge) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return NewChallengeDialog(challenge: challenge);
+      },
+    );
   }
 
   @override
