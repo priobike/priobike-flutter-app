@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +16,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_details.dart';
-import 'dart:ui' as ui;
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -103,6 +104,8 @@ class FeedbackViewState extends State<FeedbackView> {
         final Uint8List destinationBytes = Uint8List.view(destinationBd.buffer);
         final ui.Codec destinationCodec = await ui.instantiateImageCodec(destinationBytes);
         destinationImage = (await destinationCodec.getNextFrame()).image;
+
+        setState(() {});
       },
     );
   }
@@ -140,132 +143,6 @@ class FeedbackViewState extends State<FeedbackView> {
             )
           ],
         ),
-      ),
-    );
-  }
-
-  Widget renderSummary() {
-    const paddingText = 4.0;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Table(
-        columnWidths: const {
-          0: FlexColumnWidth(1),
-          1: FlexColumnWidth(1),
-        },
-        children: [
-          TableRow(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.025),
-                  width: 2,
-                ),
-              ),
-            ),
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
-                  textAlign: TextAlign.left,
-                  text: "Fahrtzeit",
-                  context: context,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: BoldContent(
-                  textAlign: TextAlign.right,
-                  text: (statistics.currentSummary?.durationSeconds ?? 0.0) >= 60
-                      ? "${((statistics.currentSummary?.durationSeconds ?? 0) / 60).toStringAsFixed(2)} min"
-                      : "${(statistics.currentSummary?.durationSeconds ?? 0).toStringAsFixed(0)} s",
-                  context: context,
-                ),
-              ),
-            ],
-          ),
-          TableRow(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.025),
-                  width: 2,
-                ),
-              ),
-            ),
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
-                  textAlign: TextAlign.left,
-                  text: "Distanz",
-                  context: context,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: BoldContent(
-                  textAlign: TextAlign.right,
-                  text: (statistics.currentSummary?.distanceMeters ?? 0.0) >= 1000
-                      ? "${((statistics.currentSummary?.distanceMeters ?? 0.0) / 1000).toStringAsFixed(2)} km"
-                      : "${(statistics.currentSummary?.distanceMeters ?? 0.0).toStringAsFixed(0)} m",
-                  context: context,
-                ),
-              ),
-            ],
-          ),
-          TableRow(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.025),
-                  width: 2,
-                ),
-              ),
-            ),
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
-                  textAlign: TextAlign.left,
-                  text: "Geschwindigkeit",
-                  context: context,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: BoldContent(
-                  textAlign: TextAlign.right,
-                  text: "Ø ${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
-                  context: context,
-                ),
-              ),
-            ],
-          ),
-          TableRow(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
-                  textAlign: TextAlign.left,
-                  text: "CO2 gespart",
-                  context: context,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: BoldContent(
-                  textAlign: TextAlign.right,
-                  text: (statistics.currentSummary?.savedCo2inG ?? 0.0) >= 1000
-                      ? "${((statistics.currentSummary?.savedCo2inG ?? 0.0) / 1000).toStringAsFixed(2)} kg"
-                      : "${(statistics.currentSummary?.savedCo2inG ?? 0.0).toStringAsFixed(2)} g",
-                  context: context,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -359,7 +236,10 @@ class FeedbackViewState extends State<FeedbackView> {
               ),
               if (startImage != null && destinationImage != null)
                 TrackDetailsView(
-                    track: tracking.previousTracks!.last, startImage: startImage!, destinationImage: destinationImage!),
+                  track: tracking.previousTracks!.last,
+                  startImage: startImage!,
+                  destinationImage: destinationImage!,
+                ),
             ],
           ),
         ),

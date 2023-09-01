@@ -66,6 +66,9 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The future of the background image.
+  Future? backgroundImageFuture;
+
   @override
   void initState() {
     super.initState();
@@ -87,12 +90,21 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     }
 
     // Load the background image
-    MapboxTileImageCache.fetchTile(coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList())
-        .then((value) {
+    backgroundImageFuture =
+        MapboxTileImageCache.requestTile(coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList())
+            .then((value) {
       setState(() {
         backgroundImage = value;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    backgroundImageFuture?.ignore();
+    controller.stop();
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -164,13 +176,6 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    controller.stop();
-    controller.dispose();
-    super.dispose();
   }
 }
 

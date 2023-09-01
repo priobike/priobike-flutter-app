@@ -39,7 +39,7 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() =>
-      MapboxTileImageCache.fetchTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
+      MapboxTileImageCache.requestTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
           .then((value) {
         setState(() {
           backgroundImage = value;
@@ -54,7 +54,7 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
     settings.addListener(update);
 
     // Load the background image
-    MapboxTileImageCache.fetchTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
+    MapboxTileImageCache.requestTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
         .then((value) {
       setState(() {
         backgroundImage = value;
@@ -199,7 +199,7 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
     super.initState();
 
     // Load the background image
-    MapboxTileImageCache.fetchTile(coords: [
+    MapboxTileImageCache.requestTile(coords: [
       LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
       LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
     ]).then((value) {

@@ -1,11 +1,12 @@
 import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:flutter/material.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/color_mode.dart';
@@ -16,11 +17,30 @@ class MapboxTileImageCache {
   /// The logger for this service.
   static final log = Logger("MapboxTileImageCache");
 
-  /// Fetches the background image for the given route from the mapbox api.
-  static Future<MemoryImage?> fetchTile({required List<LatLng> coords}) async {
+  /// Current ongoing fetches of tiles, keys are the bounding boxes as strings.
+  static Map<String, Future<MemoryImage?>> ongoingFetches = {};
+
+  /// Requests the tile.
+  static Future<MemoryImage?> requestTile({required List<LatLng> coords}) async {
     final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
     if (bbox == null) return null;
+    final String bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
 
+    // Check if we are currently already fetching the image.
+    if (MapboxTileImageCache.ongoingFetches.containsKey(bboxStr)) {
+      return MapboxTileImageCache.ongoingFetches[bboxStr];
+    } else {
+      // Fetch the image.
+      final fetch = MapboxTileImageCache._fetchTile(bbox: bbox);
+      MapboxTileImageCache.ongoingFetches[bboxStr] = fetch;
+      final image = await fetch;
+      MapboxTileImageCache.ongoingFetches.remove(bboxStr);
+      return image;
+    }
+  }
+
+  /// Fetches the background image for the given route from the mapbox api (or if available loads it from the cache).
+  static Future<MemoryImage?> _fetchTile({required MapboxMapProjectionBoundingBox bbox}) async {
     // Check if the image exists, and if so, return it.
     final path = await _getImagePath(bbox);
     if (await File(path).exists()) return MemoryImage(await File(path).readAsBytes());

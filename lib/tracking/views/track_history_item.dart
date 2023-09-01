@@ -5,7 +5,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -13,8 +12,6 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
@@ -23,9 +20,6 @@ import 'package:priobike/tracking/views/track_details.dart';
 class TrackHistoryItemView extends StatefulWidget {
   /// The track to display.
   final Track track;
-
-  /// The distance model.
-  final Distance vincenty;
 
   /// The width of the view.
   final double width;
@@ -39,7 +33,6 @@ class TrackHistoryItemView extends StatefulWidget {
   const TrackHistoryItemView(
       {Key? key,
       required this.track,
-      required this.vincenty,
       required this.width,
       required this.startImage,
       required this.destinationImage})
@@ -50,9 +43,6 @@ class TrackHistoryItemView extends StatefulWidget {
 }
 
 class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
-  /// The navigation nodes of the driven route.
-  List<NavigationNode> routeNodes = [];
-
   /// The GPS positions of the driven route.
   List<Position> positions = [];
 
@@ -70,7 +60,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
 
   /// Load the track.
   Future<void> loadTrack() async {
-    routeNodes = getPassedNodes(widget.track.routes.values.toList(), widget.vincenty);
     positions.clear();
 
     // Try to load the GPS file.

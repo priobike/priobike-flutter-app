@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -23,9 +22,6 @@ class TrackHistoryView extends StatefulWidget {
 }
 
 class TrackHistoryViewState extends State<TrackHistoryView> {
-  /// The distance model.
-  final vincenty = const Distance(roundResult: false);
-
   /// The left padding.
   double leftPad = 24;
 
@@ -135,7 +131,6 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
             key: UniqueKey(),
             track: track,
             width: shortcutWidth,
-            vincenty: vincenty,
             startImage: startImage!,
             destinationImage: destinationImage!,
           ),

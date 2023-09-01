@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -26,9 +25,6 @@ class AllTracksHistoryView extends StatefulWidget {
 }
 
 class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
-  /// The distance model.
-  final vincenty = const Distance(roundResult: false);
-
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
@@ -177,7 +173,6 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                                   key: UniqueKey(),
                                   track: track.value,
                                   width: shortcutWidth,
-                                  vincenty: vincenty,
                                   startImage: startImage!,
                                   destinationImage: destinationImage!,
                                 ),

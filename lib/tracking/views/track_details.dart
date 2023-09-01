@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,7 +11,6 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
@@ -80,9 +80,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   /// The GPS positions of the track.
   List<Position> positions = [];
 
-  /// The navigation nodes of the driven route.
-  List<NavigationNode> routeNodes = [];
-
   /// The track summary.
   Summary? trackSummary;
 
@@ -106,7 +103,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the track.
   Future<void> loadTrack() async {
-    routeNodes = getPassedNodes(widget.track.routes.values.toList(), vincenty);
+    final oldPositions = List.from(positions);
+
     positions.clear();
 
     // Try to load the GPS file.
@@ -141,6 +139,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       log.w('Could not parse GPS file of last track: $e');
     }
 
+    final eq = const ListEquality().equals;
     setState(() {});
   }
 
