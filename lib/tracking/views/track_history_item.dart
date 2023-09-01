@@ -234,7 +234,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 ),
               Positioned(
                 right: 0,
-                top: 0,
+                bottom: 0,
                 child: IconButton(
                   onPressed: () => showDeleteDialog(context),
                   icon: Icon(
@@ -243,10 +243,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                   ),
                 ),
-              ),
-              const MapboxAttribution(
-                bottom: 10,
-                right: 8,
               ),
             ],
           ),
