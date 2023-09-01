@@ -44,6 +44,8 @@ final getIt = GetIt.instance;
 
 Future<void> main() async {
   runZonedGuarded(() async {
+    // Ensure that the widgets binding is initialized.
+    // This is required by some plugins and functions.
     WidgetsFlutterBinding.ensureInitialized();
 
     // The feature service needs to load first, as it sets the backend which is used by other services.
