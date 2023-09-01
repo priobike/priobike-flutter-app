@@ -43,50 +43,46 @@ final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRout
 final getIt = GetIt.instance;
 
 Future<void> main() async {
-  // Ensure that the widgets binding is initialized.
-  // This is required by some plugins and functions.
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // The feature service needs to load first, as it sets the backend which is used by other services.
-  getIt.registerSingleton<Feature>(Feature());
-  final feature = getIt<Feature>();
-  await feature.load();
-  getIt.registerSingleton<Settings>(Settings(feature.defaultBackend));
-  final settings = getIt<Settings>();
-  await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
-
-  // Setup the push notifications. We cannot do this in the
-  // widget tree down further, as a restriction of Android.
-  await FCM.load(settings.backend);
-
-  // Register the services.
-  getIt.registerSingleton<Weather>(Weather());
-  getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
-  getIt.registerSingleton<Tutorial>(Tutorial());
-  getIt.registerSingleton<PredictionStatusSummary>(PredictionStatusSummary());
-  getIt.registerSingleton<PredictionSGStatus>(PredictionSGStatus());
-  getIt.registerSingleton<Profile>(Profile());
-  getIt.registerSingleton<News>(News());
-  getIt.registerSingleton<Shortcuts>(Shortcuts());
-  getIt.registerSingleton<Discomforts>(Discomforts());
-  getIt.registerSingleton<Geocoding>(Geocoding());
-  getIt.registerSingleton<Geosearch>(Geosearch());
-  getIt.registerSingleton<Routing>(Routing());
-  getIt.registerSingleton<Layers>(Layers());
-  getIt.registerSingleton<MapDesigns>(MapDesigns());
-  getIt.registerSingleton<Positioning>(Positioning());
-  getIt.registerSingleton<Datastream>(Datastream());
-  getIt.registerSingleton<Tracking>(Tracking());
-  getIt.registerSingleton<Statistics>(Statistics());
-  getIt.registerSingleton<Feedback>(Feedback());
-  getIt.registerSingleton<Ride>(Ride());
-  getIt.registerSingleton<Traffic>(Traffic());
-  getIt.registerSingleton<Boundary>(Boundary());
-  getIt.registerSingleton<StatusHistory>(StatusHistory());
-  getIt.registerSingleton<POI>(POI());
-
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // The feature service needs to load first, as it sets the backend which is used by other services.
+    getIt.registerSingleton<Feature>(Feature());
+    final feature = getIt<Feature>();
+    await feature.load();
+    getIt.registerSingleton<Settings>(Settings(feature.defaultBackend));
+    final settings = getIt<Settings>();
+    await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
+
+    // Setup the push notifications. We cannot do this in the
+    // widget tree down further, as a restriction of Android.
+    await FCM.load(settings.backend);
+
+    // Register the services.
+    getIt.registerSingleton<Weather>(Weather());
+    getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
+    getIt.registerSingleton<Tutorial>(Tutorial());
+    getIt.registerSingleton<PredictionStatusSummary>(PredictionStatusSummary());
+    getIt.registerSingleton<PredictionSGStatus>(PredictionSGStatus());
+    getIt.registerSingleton<Profile>(Profile());
+    getIt.registerSingleton<News>(News());
+    getIt.registerSingleton<Shortcuts>(Shortcuts());
+    getIt.registerSingleton<Discomforts>(Discomforts());
+    getIt.registerSingleton<Geocoding>(Geocoding());
+    getIt.registerSingleton<Geosearch>(Geosearch());
+    getIt.registerSingleton<Routing>(Routing());
+    getIt.registerSingleton<Layers>(Layers());
+    getIt.registerSingleton<MapDesigns>(MapDesigns());
+    getIt.registerSingleton<Positioning>(Positioning());
+    getIt.registerSingleton<Datastream>(Datastream());
+    getIt.registerSingleton<Tracking>(Tracking());
+    getIt.registerSingleton<Statistics>(Statistics());
+    getIt.registerSingleton<Feedback>(Feedback());
+    getIt.registerSingleton<Ride>(Ride());
+    getIt.registerSingleton<Traffic>(Traffic());
+    getIt.registerSingleton<Boundary>(Boundary());
+    getIt.registerSingleton<StatusHistory>(StatusHistory());
+    getIt.registerSingleton<POI>(POI());
 
     runApp(const App());
   }, (error, stack) async {
