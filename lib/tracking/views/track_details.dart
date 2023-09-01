@@ -9,12 +9,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
+import 'package:priobike/tracking/views/pictogram.dart';
 
 class TrackDetailsDialog extends StatelessWidget {
   /// The track to display.
@@ -285,10 +285,13 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   ? TrackPictogram(
                       key: UniqueKey(),
                       track: positions,
-                      sessionId: widget.track.sessionId,
                       minSpeedColor: CI.blue,
                       maxSpeedColor: CI.blueLight,
                       blurRadius: 2,
+                      startImage: widget.startImage,
+                      destinationImage: widget.destinationImage,
+                      iconSize: 16,
+                      lineWidth: 6,
                     )
                   : Center(
                       child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),

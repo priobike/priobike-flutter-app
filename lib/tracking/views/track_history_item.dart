@@ -2,13 +2,13 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -18,7 +18,7 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/views/route_pictrogram.dart';
+import 'package:priobike/tracking/views/pictogram.dart';
 import 'package:priobike/tracking/views/track_details.dart';
 
 class TrackHistoryItemView extends StatefulWidget {
@@ -188,11 +188,13 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               if (positions.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.all(2),
-                  child: RoutePictogram(
+                  child: TrackPictogram(
                     key: UniqueKey(),
-                    route: positions,
+                    track: positions,
                     startImage: widget.startImage,
                     destinationImage: widget.destinationImage,
+                    blurRadius: 0,
+                    showSpeed: false,
                   ),
                 ),
               Positioned(

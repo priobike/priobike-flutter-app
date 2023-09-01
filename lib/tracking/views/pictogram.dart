@@ -1,10 +1,13 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/map/image_cache.dart';
+import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 
 /// A pictogram of a track.
@@ -21,16 +24,32 @@ class TrackPictogram extends StatefulWidget {
   /// The blur radius of the line.
   final double blurRadius;
 
-  /// The session id of the track.
-  final String sessionId;
+  /// The image for the start node.
+  final ui.Image? startImage;
+
+  /// The image for the destination node.
+  final ui.Image? destinationImage;
+
+  /// The width of the route line.
+  final double lineWidth;
+
+  /// The size of the icons.
+  final double iconSize;
+
+  /// If the speed should be displayed.
+  final bool showSpeed;
 
   const TrackPictogram({
     Key? key,
     required this.track,
     required this.blurRadius,
-    required this.sessionId,
     this.minSpeedColor = Colors.green,
     this.maxSpeedColor = Colors.red,
+    this.startImage,
+    this.destinationImage,
+    this.lineWidth = 3.0,
+    this.iconSize = 10,
+    this.showSpeed = true,
   }) : super(key: key);
 
   @override
@@ -90,7 +109,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                   child: Image(
                     image: backgroundImage!,
                     fit: BoxFit.contain,
-                    key: ValueKey(widget.sessionId),
+                    key: UniqueKey(),
                   ),
                 )
               : Container(),
@@ -105,32 +124,38 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             maxSpeedColor: widget.maxSpeedColor,
             maxSpeed: maxSpeed,
             minSpeed: minSpeed,
+            startImage: widget.startImage,
+            destinationImage: widget.destinationImage,
+            lineWidth: widget.lineWidth,
+            iconSize: widget.iconSize,
+            showSpeed: widget.showSpeed,
           ),
         ),
 
         // Legend
-        Positioned(
-          bottom: 8,
-          left: 12,
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 8,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [widget.minSpeedColor, widget.maxSpeedColor],
+        if (widget.showSpeed)
+          Positioned(
+            bottom: 8,
+            left: 12,
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [widget.minSpeedColor, widget.maxSpeedColor],
+                    ),
                   ),
                 ),
-              ),
-              const SmallHSpace(),
-              Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
-            ],
+                const SmallHSpace(),
+                Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
+              ],
+            ),
           ),
-        ),
         //Mapbox Attribution Logo
         const MapboxAttribution(
           top: 10,
@@ -157,6 +182,11 @@ class TrackPainter extends CustomPainter {
   final Color maxSpeedColor;
   double? maxSpeed;
   double? minSpeed;
+  final ui.Image? startImage;
+  final ui.Image? destinationImage;
+  final double lineWidth;
+  final double iconSize;
+  final bool showSpeed;
 
   TrackPainter({
     required this.fraction,
@@ -164,14 +194,19 @@ class TrackPainter extends CustomPainter {
     required this.track,
     required this.minSpeedColor,
     required this.maxSpeedColor,
+    required this.lineWidth,
+    required this.iconSize,
+    required this.showSpeed,
     this.maxSpeed,
     this.minSpeed,
+    this.startImage,
+    this.destinationImage,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..strokeWidth = 6
+      ..strokeWidth = lineWidth
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
     if (blurRadius > 0) {
@@ -215,8 +250,8 @@ class TrackPainter extends CustomPainter {
       final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
       final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
-      var color = minSpeedColor;
-      if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
+      var color = CI.blue;
+      if (showSpeed && minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
         color = Color.lerp(minSpeedColor, maxSpeedColor, (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
       }
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint..color = color);
@@ -234,8 +269,8 @@ class TrackPainter extends CustomPainter {
       final x2i = x1 + (x2 - x1) * pct;
       final y2i = y1 + (y2 - y1) * pct;
 
-      var color = minSpeedColor;
-      if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
+      var color = CI.blue;
+      if (showSpeed && minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
         color = Color.lerp(minSpeedColor, maxSpeedColor, (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
       }
       canvas.drawLine(Offset(x1, y1), Offset(x2i, y2i), paint..color = color);
@@ -246,18 +281,22 @@ class TrackPainter extends CustomPainter {
     final xFirst = (pFirst.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
     final yFirst = (pFirst.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
-    var color = minSpeedColor;
-    if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
-      color = Color.lerp(minSpeedColor, maxSpeedColor, (pFirst.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
+    if (startImage != null) {
+      paintImage(
+          canvas: canvas,
+          rect: Rect.fromCenter(center: Offset(xFirst, yFirst), width: iconSize, height: iconSize),
+          image: startImage!);
     }
-    canvas.drawCircle(Offset(xFirst, yFirst), 4, paint..color = color);
     final pLast = trackToDraw.last;
     final xLast = (pLast.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
     final yLast = (pLast.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
-    if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
-      color = Color.lerp(minSpeedColor, maxSpeedColor, (pLast.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
+
+    if (destinationImage != null) {
+      paintImage(
+          canvas: canvas,
+          rect: Rect.fromCenter(center: Offset(xLast, yLast), width: iconSize, height: iconSize),
+          image: destinationImage!);
     }
-    canvas.drawCircle(Offset(xLast, yLast), 8, paint..color = color);
   }
 
   @override
