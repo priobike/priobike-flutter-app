@@ -194,7 +194,7 @@ class FeedbackViewState extends State<FeedbackView> {
       body: SizedBox(
         height: MediaQuery.of(context).size.height - bottomSheetHeight,
         child: SingleChildScrollView(
-          key: UniqueKey(),
+          key: const ValueKey("feedback_scroll_view"),
           child: Column(
             children: [
               Container(

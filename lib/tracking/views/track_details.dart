@@ -103,8 +103,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the track.
   Future<void> loadTrack() async {
-    final oldPositions = List.from(positions);
-
     positions.clear();
 
     // Try to load the GPS file.
@@ -139,7 +137,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       log.w('Could not parse GPS file of last track: $e');
     }
 
-    final eq = const ListEquality().equals;
     setState(() {});
   }
 
@@ -282,7 +279,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               padding: const EdgeInsets.all(24),
               child: positions.isNotEmpty
                   ? TrackPictogram(
-                      key: UniqueKey(),
+                      key: ValueKey(widget.track.sessionId),
                       track: positions,
                       minSpeedColor: CI.blue,
                       maxSpeedColor: CI.blueLight,

@@ -170,7 +170,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                                 curve: Curves.easeInOutCubic,
                                 delay: Duration(milliseconds: 200 * track.key),
                                 child: TrackHistoryItemView(
-                                  key: UniqueKey(),
+                                  key: ValueKey(track.value.sessionId),
                                   track: track.value,
                                   width: shortcutWidth,
                                   startImage: startImage!,

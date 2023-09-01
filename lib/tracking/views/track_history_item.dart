@@ -166,7 +166,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               Padding(
                 padding: const EdgeInsets.all(2),
                 child: TrackPictogram(
-                  key: UniqueKey(),
+                  key: ValueKey(widget.track.sessionId),
                   track: positions,
                   startImage: widget.startImage,
                   destinationImage: widget.destinationImage,
