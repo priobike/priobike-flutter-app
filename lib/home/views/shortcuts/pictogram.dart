@@ -212,8 +212,9 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      // width = height, because the map is a square
       width: widget.width,
-      height: widget.height,
+      height: widget.width,
       child: Stack(
         alignment: Alignment.center,
         fit: StackFit.expand,

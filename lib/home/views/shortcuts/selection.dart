@@ -51,6 +51,7 @@ class ShortcutView extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(4),
               child: ShortcutRoutePictogram(
+                key: UniqueKey(),
                 shortcut: shortcut as ShortcutRoute,
                 height: height - 4,
                 width: width - 4,
@@ -65,6 +66,7 @@ class ShortcutView extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(4),
               child: ShortcutLocationPictogram(
+                key: UniqueKey(),
                 shortcut: shortcut as ShortcutLocation,
                 height: height - 4,
                 width: width - 4,
