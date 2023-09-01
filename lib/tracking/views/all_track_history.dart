@@ -166,7 +166,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                     HPad(
                       child: GridView.count(
                         shrinkWrap: true,
-                        crossAxisSpacing: 8,
+                        crossAxisSpacing: 26,
                         padding: EdgeInsets.zero,
                         mainAxisSpacing: 0,
                         crossAxisCount: 2,

@@ -180,8 +180,8 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         fill: Theme.of(context).colorScheme.background,
         splash: Theme.of(context).colorScheme.primary,
         content: SizedBox(
-          height: 148,
-          width: 148,
+          height: widget.height,
+          width: widget.width,
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
