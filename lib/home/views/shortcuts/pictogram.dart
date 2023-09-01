@@ -5,6 +5,8 @@ import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 /// A pictogram of a shortcut.
 /// The pictogram contains circles where the waypoints are located,
@@ -32,9 +34,24 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() =>
+      MapboxTileImageCache.fetchTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
+          .then((value) {
+        setState(() {
+          backgroundImage = value;
+        });
+      });
+
   @override
   void initState() {
     super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     // Load the background image
     MapboxTileImageCache.fetchTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
@@ -43,6 +60,12 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
         backgroundImage = value;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   @override
@@ -69,11 +92,8 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
           ),
           Padding(
             padding: const EdgeInsets.all(16),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: CustomPaint(
-                painter: ShortcutRoutePainter(shortcut: widget.shortcut, color: widget.color),
-              ),
+            child: CustomPaint(
+              painter: ShortcutRoutePainter(shortcut: widget.shortcut, color: widget.color),
             ),
           ),
           const MapboxAttribution(
