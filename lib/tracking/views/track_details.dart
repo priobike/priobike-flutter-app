@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
