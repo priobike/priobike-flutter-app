@@ -9,10 +9,19 @@ import 'package:priobike/common/mapbox_attribution.dart';
 
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
+  /// The Positions of the track.
   final List<Position> track;
+
+  /// The color of the line for the minimum speed.
   final Color minSpeedColor;
+
+  /// The color of the line for the maximum speed.
   final Color maxSpeedColor;
+
+  /// The blur radius of the line.
   final double blurRadius;
+
+  /// The session id of the track.
   final String sessionId;
 
   const TrackPictogram({

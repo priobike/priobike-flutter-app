@@ -2,16 +2,16 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/material.dart' as material show Image;
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
-import 'package:priobike/routing/models/navigation.dart';
 
 /// A pictogram of a route.
 class RoutePictogram extends StatefulWidget {
   /// The route consisting of navigation nodes.
-  final List<NavigationNode> route;
+  final List<Position> route;
 
   /// The image for the start node.
   final Image? startImage;
@@ -59,7 +59,8 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
     controller.forward();
 
     // Load the background image
-    MapboxTileImageCache.fetchTile(coords: widget.route.map((e) => LatLng(e.lat, e.lon)).toList()).then((value) {
+    MapboxTileImageCache.fetchTile(coords: widget.route.map((e) => LatLng(e.latitude, e.longitude)).toList())
+        .then((value) {
       setState(() {
         backgroundImage = value;
       });
@@ -110,7 +111,7 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
 class RoutePainter extends CustomPainter {
   final double fraction;
   final double blurRadius;
-  final List<NavigationNode> route;
+  final List<Position> route;
   final Image? startImage;
   final Image? destinationImage;
 
@@ -139,16 +140,17 @@ class RoutePainter extends CustomPainter {
 
     // If the route is too long, it will slow down the app.
     // Therefore, we need to reduce the number of points.
-    // If the number of points is > 1000, we reduce it to 1000.
+    // If the number of points is > 500, we reduce it to 500.
     // We do this by applying the following pattern:
-    // - If n_points ~ or < 1000, we keep all points
-    // - If n_points < 2000, we keep every second point
-    // - If n_points < 3000, we keep every third point
+    // - If n_points ~ or < 500, we keep all points
+    // - If n_points < 1000, we keep every second point
+    // - If n_points < 1500, we keep every third point
     // ...
     // Note: 1000 points is roughly 1000 seconds, which is 16 minutes of GPS.
-    final List<NavigationNode> routeToDraw = [];
-    if (route.length > 1000) {
-      final step = route.length ~/ 1000;
+    final List<Position> routeToDraw = [];
+    const threshold = 500;
+    if (route.length > threshold) {
+      final step = route.length ~/ threshold;
       for (var i = 0; i < route.length; i += step) {
         routeToDraw.add(route[i]);
       }
@@ -159,7 +161,8 @@ class RoutePainter extends CustomPainter {
     final routeCount = routeToDraw.length;
     final routeCountFraction = routeCount * fraction;
 
-    final bbox = MapboxMapProjection.mercatorBoundingBox(routeToDraw.map((e) => LatLng(e.lat, e.lon)).toList());
+    final bbox = MapboxMapProjection.mercatorBoundingBox(
+        routeToDraw.map((Position e) => LatLng(e.latitude, e.longitude)).toList());
     if (bbox == null) return;
 
     final double maxLat = bbox.maxLat;
@@ -172,10 +175,10 @@ class RoutePainter extends CustomPainter {
       final p1 = routeToDraw[i];
       final p2 = routeToDraw[i + 1];
 
-      final x1 = (p1.lon - minLon) / (maxLon - minLon) * size.width;
-      final y1 = (p1.lat - maxLat) / (minLat - maxLat) * size.height;
-      final x2 = (p2.lon - minLon) / (maxLon - minLon) * size.width;
-      final y2 = (p2.lat - maxLat) / (minLat - maxLat) * size.height;
+      final x1 = (p1.longitude - minLon) / (maxLon - minLon) * size.width;
+      final y1 = (p1.latitude - maxLat) / (minLat - maxLat) * size.height;
+      final x2 = (p2.longitude - minLon) / (maxLon - minLon) * size.width;
+      final y2 = (p2.latitude - maxLat) / (minLat - maxLat) * size.height;
 
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint..color = CI.blue);
     }
@@ -185,10 +188,10 @@ class RoutePainter extends CustomPainter {
       final p1 = routeToDraw[routeCountFraction.toInt()];
       final p2 = routeToDraw[routeCountFraction.toInt() + 1];
       final pct = routeCountFraction - routeCountFraction.toInt();
-      final x1 = (p1.lon - minLon) / (maxLon - minLon) * size.width;
-      final y1 = (p1.lat - maxLat) / (minLat - maxLat) * size.height;
-      final x2 = (p2.lon - minLon) / (maxLon - minLon) * size.width;
-      final y2 = (p2.lat - maxLat) / (minLat - maxLat) * size.height;
+      final x1 = (p1.longitude - minLon) / (maxLon - minLon) * size.width;
+      final y1 = (p1.latitude - maxLat) / (minLat - maxLat) * size.height;
+      final x2 = (p2.longitude - minLon) / (maxLon - minLon) * size.width;
+      final y2 = (p2.latitude - maxLat) / (minLat - maxLat) * size.height;
       final x2i = x1 + (x2 - x1) * pct;
       final y2i = y1 + (y2 - y1) * pct;
 
@@ -197,8 +200,8 @@ class RoutePainter extends CustomPainter {
 
     // Draw the circles at the start and end point.
     final pFirst = routeToDraw.first;
-    final xFirst = (pFirst.lon - minLon) / (maxLon - minLon) * size.width;
-    final yFirst = (pFirst.lat - maxLat) / (minLat - maxLat) * size.height;
+    final xFirst = (pFirst.longitude - minLon) / (maxLon - minLon) * size.width;
+    final yFirst = (pFirst.latitude - maxLat) / (minLat - maxLat) * size.height;
 
     if (startImage != null) {
       paintImage(
@@ -207,8 +210,8 @@ class RoutePainter extends CustomPainter {
           image: startImage!);
     }
     final pLast = routeToDraw.last;
-    final xLast = (pLast.lon - minLon) / (maxLon - minLon) * size.width;
-    final yLast = (pLast.lat - maxLat) / (minLat - maxLat) * size.height;
+    final xLast = (pLast.longitude - minLon) / (maxLon - minLon) * size.width;
+    final yLast = (pLast.latitude - maxLat) / (minLat - maxLat) * size.height;
 
     if (destinationImage != null) {
       paintImage(

@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -61,16 +62,55 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   /// The navigation nodes of the driven route.
   List<NavigationNode> routeNodes = [];
 
+  /// The GPS positions of the driven route.
+  List<Position> positions = [];
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        routeNodes = getPassedNodes(widget.track.routes.values.toList(), widget.vincenty);
+        await loadTrack();
         setState(() {});
       },
     );
+  }
+
+  /// Load the track.
+  Future<void> loadTrack() async {
+    routeNodes = getPassedNodes(widget.track.routes.values.toList(), widget.vincenty);
+    positions.clear();
+
+    // Try to load the GPS file.
+    // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
+    try {
+      final gpsFile = await widget.track.gpsCSVFile;
+      final gpsFileLines = await gpsFile.readAsLines();
+      // Skip the first line, which is the header.
+      for (var i = 1; i < gpsFileLines.length; i++) {
+        final lineContents = gpsFileLines[i].split(',');
+        final time = int.parse(lineContents[0]);
+        final lon = double.parse(lineContents[1]);
+        final lat = double.parse(lineContents[2]);
+        final speed = double.parse(lineContents[3]);
+        final accuracy = double.parse(lineContents[4]);
+        positions.add(
+          Position(
+            timestamp: DateTime.fromMillisecondsSinceEpoch(time),
+            latitude: lat,
+            longitude: lon,
+            speed: speed,
+            accuracy: accuracy,
+            altitude: 0,
+            heading: 0,
+            speedAccuracy: 0,
+          ),
+        );
+      }
+    } catch (e) {
+      log.w('Could not parse GPS file of last track: $e');
+    }
   }
 
   /// Show a dialog that asks if the track really shoud be deleted.
@@ -145,12 +185,12 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              if (routeNodes.isNotEmpty)
+              if (positions.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.all(2),
                   child: RoutePictogram(
                     key: UniqueKey(),
-                    route: routeNodes,
+                    route: positions,
                     startImage: widget.startImage,
                     destinationImage: widget.destinationImage,
                   ),
