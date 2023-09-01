@@ -105,7 +105,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
           duration: const Duration(milliseconds: 1000),
           child: backgroundImage != null
               ? ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(20),
                   child: Image(
                     image: backgroundImage!,
                     fit: BoxFit.contain,

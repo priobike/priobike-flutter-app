@@ -45,21 +45,29 @@ class ShortcutView extends StatelessWidget {
             )
           else if (shortcut is ShortcutRoute)
             Container(
-              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                color: Theme.of(context).colorScheme.background,
+              ),
+              padding: const EdgeInsets.all(4),
               child: ShortcutRoutePictogram(
                 shortcut: shortcut as ShortcutRoute,
-                height: height - 12,
-                width: width - 12,
+                height: height - 4,
+                width: width - 4,
                 color: CI.blue,
               ),
             )
           else if (shortcut is ShortcutLocation)
             Container(
-              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                color: Theme.of(context).colorScheme.background,
+              ),
+              padding: const EdgeInsets.all(4),
               child: ShortcutLocationPictogram(
                 shortcut: shortcut as ShortcutLocation,
-                height: height - 12,
-                width: width - 12,
+                height: height - 4,
+                width: width - 4,
                 color: CI.blue,
               ),
             ),

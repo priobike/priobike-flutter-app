@@ -12,7 +12,6 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
@@ -159,6 +158,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
       width: widget.width,
       height: widget.width,
       child: Tile(
+        borderRadius: BorderRadius.circular(24),
         onPressed: () => showAppSheet(
           context: context,
           isScrollControlled: true,
@@ -167,85 +167,81 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: 0.08,
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(1),
         fill: Theme.of(context).colorScheme.background,
         splash: Theme.of(context).colorScheme.primary,
-        content: SizedBox(
-          height: widget.width,
-          width: widget.width,
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              if (positions.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: TrackPictogram(
-                    key: UniqueKey(),
-                    track: positions,
-                    startImage: widget.startImage,
-                    destinationImage: widget.destinationImage,
-                    blurRadius: 0,
-                    showSpeed: false,
-                  ),
+        content: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            if (positions.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(2),
+                child: TrackPictogram(
+                  key: UniqueKey(),
+                  track: positions,
+                  startImage: widget.startImage,
+                  destinationImage: widget.destinationImage,
+                  blurRadius: 0,
+                  showSpeed: false,
                 ),
-              Positioned(
-                top: 13,
-                left: 10,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ShadowedText(
-                      text: "$day.",
-                      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                      fontSize: widget.width * 0.17,
-                      height: 0.9,
-                      textColor: CI.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    const SmallHSpace(),
-                    SizedBox(
-                      width: widget.width * 0.17,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: ShadowedText(
-                          text: "$monthName\n${year.toString()}",
-                          fontSize: 11,
-                          height: 1.2,
-                          textColor: Theme.of(context).colorScheme.onBackground,
-                          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                        ),
+              ),
+            Positioned(
+              top: 13,
+              left: 10,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShadowedText(
+                    text: "$day.",
+                    backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                    fontSize: widget.width * 0.17,
+                    height: 0.9,
+                    textColor: CI.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  const SmallHSpace(),
+                  SizedBox(
+                    width: widget.width * 0.17,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: ShadowedText(
+                        text: "$monthName\n${year.toString()}",
+                        fontSize: 11,
+                        height: 1.2,
+                        textColor: Theme.of(context).colorScheme.onBackground,
+                        backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              if (trackDurationFormatted != null)
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  child: ShadowedText(
-                    text: trackDurationFormatted,
-                    fontSize: 11,
-                    height: 1.2,
-                    textColor: Theme.of(context).colorScheme.onBackground,
-                    backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
                   ),
-                ),
+                ],
+              ),
+            ),
+            if (trackDurationFormatted != null)
               Positioned(
-                right: 0,
-                bottom: 0,
-                child: IconButton(
-                  onPressed: () => showDeleteDialog(context),
-                  icon: Icon(
-                    Icons.delete_rounded,
-                    size: 22,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                  ),
+                bottom: 10,
+                left: 10,
+                child: ShadowedText(
+                  text: trackDurationFormatted,
+                  fontSize: 11,
+                  height: 1.2,
+                  textColor: Theme.of(context).colorScheme.onBackground,
+                  backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
                 ),
               ),
-            ],
-          ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: IconButton(
+                onPressed: () => showDeleteDialog(context),
+                icon: Icon(
+                  Icons.delete_rounded,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
