@@ -182,7 +182,7 @@ class RideViewState extends State<RideView> {
                   top: MediaQuery.of(context).size.height * 0.05,
                   right: 10,
                   child: IconButton(
-                    onPressed: MapboxAttribution.showAttribution(context),
+                    onPressed: () => MapboxAttribution.showAttribution(context),
                     icon: const Icon(
                       Icons.info_outline_rounded,
                       size: 25,
