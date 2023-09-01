@@ -31,12 +31,6 @@ class TrackHistoryItemView extends StatefulWidget {
   /// The width of the view.
   final double width;
 
-  /// The height of the view.
-  final double height;
-
-  /// The right padding of the view.
-  final double rightPad;
-
   /// The image of the route start icon.
   final ui.Image startImage;
 
@@ -48,8 +42,6 @@ class TrackHistoryItemView extends StatefulWidget {
       required this.track,
       required this.vincenty,
       required this.width,
-      required this.height,
-      required this.rightPad,
       required this.startImage,
       required this.destinationImage})
       : super(key: key);
@@ -163,10 +155,9 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
-    return Container(
-      alignment: Alignment.centerLeft,
+    return SizedBox(
       width: widget.width,
-      padding: EdgeInsets.only(right: widget.rightPad, bottom: 24),
+      height: widget.width,
       child: Tile(
         onPressed: () => showAppSheet(
           context: context,
@@ -180,7 +171,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         fill: Theme.of(context).colorScheme.background,
         splash: Theme.of(context).colorScheme.primary,
         content: SizedBox(
-          height: widget.height,
+          height: widget.width,
           width: widget.width,
           child: Stack(
             alignment: Alignment.bottomCenter,

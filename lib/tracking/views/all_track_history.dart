@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Shortcuts;
@@ -141,8 +140,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    final shortcutWidth = MediaQuery.of(context).size.width / 2;
-    final shortcutHeight = max(shortcutWidth, 128.0);
+    final shortcutWidth = MediaQuery.of(context).size.width / 2.4;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -164,14 +162,9 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                   if ((tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) &&
                       (startImage != null && destinationImage != null))
                     HPad(
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        crossAxisSpacing: 26,
-                        padding: EdgeInsets.zero,
-                        mainAxisSpacing: 0,
-                        crossAxisCount: 2,
-                        physics: const NeverScrollableScrollPhysics(),
-                        childAspectRatio: 0.85,
+                      child: Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
                         children: previousTracks
                             .asMap()
                             .entries
@@ -184,8 +177,6 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                                   key: UniqueKey(),
                                   track: track.value,
                                   width: shortcutWidth,
-                                  height: shortcutHeight,
-                                  rightPad: 0,
                                   vincenty: vincenty,
                                   startImage: startImage!,
                                   destinationImage: destinationImage!,

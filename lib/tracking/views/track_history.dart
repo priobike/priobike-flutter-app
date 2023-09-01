@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Shortcuts;
@@ -117,9 +116,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
-    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
-    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+    final shortcutWidth = (MediaQuery.of(context).size.width / 2.4);
 
     if (startImage == null || destinationImage == null) return Container();
     if (newestTracks.isEmpty) return Container();
@@ -138,8 +135,6 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
             key: UniqueKey(),
             track: track,
             width: shortcutWidth,
-            height: shortcutHeight,
-            rightPad: shortcutRightPad,
             vincenty: vincenty,
             startImage: startImage!,
             destinationImage: destinationImage!,
@@ -169,11 +164,14 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         .asMap()
         .entries
         .map(
-          (e) => BlendIn(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOutCubic,
-            delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
-            child: e.value,
+          (e) => Padding(
+            padding: const EdgeInsets.only(right: 12.0),
+            child: BlendIn(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
+              delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
+              child: e.value,
+            ),
           ),
         )
         .toList();
