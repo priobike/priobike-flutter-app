@@ -200,6 +200,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         ),
         const VSpace(),
         SingleChildScrollView(
+          // Padding is nessessary for Shadow in LightMode
+          padding: const EdgeInsets.only(bottom: 18),
           scrollDirection: Axis.horizontal,
           child: Row(children: animatedViews),
         ),

@@ -30,13 +30,13 @@ class TrackHistoryItemView extends StatefulWidget {
   /// The image of the route destination icon.
   final ui.Image destinationImage;
 
-  const TrackHistoryItemView(
-      {Key? key,
-      required this.track,
-      required this.width,
-      required this.startImage,
-      required this.destinationImage})
-      : super(key: key);
+  const TrackHistoryItemView({
+    Key? key,
+    required this.track,
+    required this.width,
+    required this.startImage,
+    required this.destinationImage,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemViewState();
