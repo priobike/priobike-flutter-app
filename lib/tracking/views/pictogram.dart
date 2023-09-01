@@ -72,6 +72,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   @override
   void initState() {
     super.initState();
+
     controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     animation = Tween<double>(begin: 0, end: 1).animate(controller)
       ..addListener(() {

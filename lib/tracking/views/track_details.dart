@@ -102,7 +102,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the track.
   Future<void> loadTrack() async {
-    positions.clear();
+    if (positions.isNotEmpty) {
+      return;
+    }
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
@@ -132,11 +134,11 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       }
 
       await loadTrackSummary();
+
+      setState(() {});
     } catch (e) {
       log.w('Could not parse GPS file of last track: $e');
     }
-
-    setState(() {});
   }
 
   Future<void> loadTrackSummary() async {
