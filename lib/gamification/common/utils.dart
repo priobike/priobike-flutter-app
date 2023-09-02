@@ -76,6 +76,17 @@ class StringFormatter {
   /// Get string for a time interval between to dates.
   static String getFromToDateStr(DateTime first, DateTime last) => '${getDateStr(first)} - ${getDateStr(last)}';
 
+  /// Returns a string describing how much time the user has left for a challenge.
+  static String getTimeLeftStr(DateTime date) {
+    var timeLeft = date.difference(DateTime.now());
+    var result = '';
+    var daysLeft = timeLeft.inDays;
+    if (daysLeft > 0) result += '$daysLeft ${daysLeft > 1 ? 'Tage' : 'Tag'} ';
+    var formatter = NumberFormat('00');
+    result += '${formatter.format(timeLeft.inHours % 24)}:${formatter.format(timeLeft.inMinutes % 60)}h';
+    return result;
+  }
+
   /// Get formatted string for a given double by rounding it and giving it
   /// a fitting label, all according to a given ride info type.
   static String getFormattedStrByRideType(double value, RideInfo type) {

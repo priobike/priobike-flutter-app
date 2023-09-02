@@ -55,25 +55,13 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   /// Returns true, if the user completed the challenge.
   bool get isCompleted => progressPercentage >= 1;
 
-  /// Returns a string describing how much time the user has left for a challenge.
-  String get timeLeftStr {
-    var result = '';
-    var timeLeft = getTimeLeft();
-    if (timeLeft.inDays > 0) result += '${timeLeft.inDays} Tage ';
-    var formatter = NumberFormat('00');
-    result += '${formatter.format(timeLeft.inHours % 24)}:${formatter.format(timeLeft.inMinutes % 60)}h';
-    return result;
-  }
-
-  /// Time left till the challenge ends.
-  Duration getTimeLeft() {
+  /// Time where the challenge ends.
+  DateTime get endTime {
     var now = DateTime.now();
     if (widget.isWeekly) {
-      var startOfNextWeek = now.add(Duration(days: 8 - now.weekday)).copyWith(hour: 0, minute: 0, second: 0);
-      return startOfNextWeek.difference(now);
+      return now.add(Duration(days: 8 - now.weekday)).copyWith(hour: 0, minute: 0, second: 0);
     } else {
-      var tomorrow = now.add(const Duration(days: 1)).copyWith(hour: 0, minute: 0, second: 0);
-      return tomorrow.difference(now);
+      return now.add(const Duration(days: 1)).copyWith(hour: 0, minute: 0, second: 0);
     }
   }
 
@@ -160,7 +148,10 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return NewChallengeDialog(challenge: challenge);
+        return NewChallengeDialog(
+          challenges: [challenge],
+          isWeekly: widget.isWeekly,
+        );
       },
     );
   }
@@ -210,7 +201,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                 ),
                 BlendIn(
                   child: BoldSmall(
-                    text: timeLeftStr,
+                    text: StringFormatter.getTimeLeftStr(endTime),
                     context: context,
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
                   ),
