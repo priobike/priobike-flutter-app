@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/game/models.dart';
-import 'package:priobike/game/view.dart';
 import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/level_ring.dart';
 
-class NewChallengeDialog extends StatelessWidget {
+/// Dialog widget to pop up after one or multiple challenges were generated.
+class NewChallengeDialog extends StatefulWidget {
   final List<Challenge> challenges;
   final bool isWeekly;
 
@@ -17,62 +18,85 @@ class NewChallengeDialog extends StatelessWidget {
     required this.challenges,
     required this.isWeekly,
   }) : super(key: key);
+  @override
+  State<NewChallengeDialog> createState() => _NewChallengeDialogState();
+}
+
+class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTickerProviderStateMixin {
+  /// Animation controller to animate the dialog appearing.
+  late final AnimationController _animationController;
+
+  /// Animation to
+  Animation<double> get animation => Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastLinearToSlowEaseIn,
+      ));
+
+  @override
+  void initState() {
+    _animationController = AnimationController(vsync: this, duration: ShortAnimationDuration());
+    _animationController.forward();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     var lightmode = Theme.of(context).brightness == Brightness.light;
-    var titlePrefix = challenges.length > 1 ? 'Wähle eine ' : 'Neue ';
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 32),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.white.withOpacity(lightmode ? 1 : 0.25),
-              spreadRadius: 0,
-              blurRadius: 50,
-            ),
-          ],
-        ),
+    var titlePrefix = widget.challenges.length > 1 ? 'Wähle eine ' : 'Neue ';
+    return ScaleTransition(
+      scale: animation,
+      child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 4),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SmallHSpace(),
-                  Expanded(
-                    child: BoldContent(
-                      text: titlePrefix + (isWeekly ? 'Wochenchallenge' : 'Tageschallenge'),
-                      context: context,
-                      textAlign: TextAlign.center,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                    ),
-                  ),
-                  const SmallHSpace(),
-                ],
+          margin: const EdgeInsets.symmetric(horizontal: 32),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.white.withOpacity(lightmode ? 1 : 0.25),
+                spreadRadius: 0,
+                blurRadius: 50,
               ),
-              ...challenges.map((challenge) => ChallengeWidget(challenge: challenge)),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  BoldSmall(
-                    text: 'Verbleibende Zeit: ${StringFormatter.getTimeLeftStr(challenges.first.closingTime)}',
-                    context: context,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
-                  )
-                ],
-              )
             ],
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SmallHSpace(),
+                    Expanded(
+                      child: BoldContent(
+                        text: titlePrefix + (widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge'),
+                        context: context,
+                        textAlign: TextAlign.center,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                      ),
+                    ),
+                    const SmallHSpace(),
+                  ],
+                ),
+                ...widget.challenges.map((challenge) => ChallengeWidget(challenge: challenge)),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    BoldSmall(
+                      text: 'Verbleibende Zeit: ${StringFormatter.getTimeLeftStr(widget.challenges.first.closingTime)}',
+                      context: context,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -99,8 +123,6 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
   @override
   Widget build(BuildContext context) {
     var color = CI.blue.withOpacity(1);
-    var level = Level(value: 0, title: '', color: color);
-
     return GestureDetector(
       onTapDown: (_) {
         HapticFeedback.mediumImpact();
@@ -134,9 +156,8 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 LevelRing(
-                  levels: [level, level, level, level, level, level, level],
-                  value: 0,
-                  color: color,
+                  ringColor: color,
+                  iconColor: color,
                   icon: widget.challenge.isWeekly ? Icons.emoji_events : Icons.military_tech,
                   ringSize: 64,
                 ),

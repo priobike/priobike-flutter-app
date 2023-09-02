@@ -3,16 +3,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/game/models.dart';
-import 'package:priobike/game/view.dart';
 import 'package:priobike/gamification/challenges/services/challenges_service.dart';
 import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart';
 import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/main.dart';
 
 /// A Widget which displays the progress of a given challenge and relevant info about the challenge.
@@ -29,7 +28,7 @@ class ChallengeProgressBar extends StatefulWidget {
   State<ChallengeProgressBar> createState() => _ChallengeProgressBarState();
 }
 
-class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
+class _ChallengeProgressBarState extends State<ChallengeProgressBar> with SingleTickerProviderStateMixin {
   /// A timer that is used to update the displayed time left, or to create the pulsing animation when completed.
   Timer? timer;
 
@@ -38,6 +37,9 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
 
   /// This bool determines wether the displayed level ring should be animated currently.
   bool isAnimatingRing = false;
+
+  /// Animation Controller to controll the ring animation.
+  late final AnimationController _ringController;
 
   /// This value determines the shadow spread of the challenge icon.
   /// It is used to create the pulsing animation for completed challenges.
@@ -73,6 +75,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
 
   @override
   void initState() {
+    _ringController = AnimationController(vsync: this, duration: ShortAnimationDuration(), value: 1);
     startUpdateTimer();
     service.addListener(update);
     super.initState();
@@ -115,12 +118,16 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
     if (challenge == null && !service.allowNew) return;
 
     /// Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
+    _ringController.reverse();
     setState(() {
       isAnimating = true;
       isAnimatingRing = true;
     });
     await Future.delayed(ShortAnimationDuration()).then((_) => setState(() => isAnimating = false));
-    await Future.delayed(ShortAnimationDuration()).then((_) => setState(() => isAnimatingRing = false));
+    await Future.delayed(ShortAnimationDuration()).then((_) {
+      _ringController.forward();
+      setState(() => isAnimatingRing = false);
+    });
 
     /// If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
     if (isCompleted) {
@@ -341,7 +348,6 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
   /// Widget returns a small icon ring to be displayed inside of the progress bar.
   Widget getIconRing() {
     var color = CI.blue.withOpacity(isCompleted ? 1 : math.max(progressPercentage, 0.25));
-    var level = Level(value: 0, title: '', color: color);
     return AnimatedContainer(
       duration: ShortAnimationDuration(),
       margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
@@ -357,15 +363,14 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> {
                 ),
               ],
       ),
-      child: AnimatedLevelRing(
+      child: LevelRing(
         ringSize: 32,
-        levels: [level, level, level, level, level, level, level],
-        value: 0,
-        color: color,
+        iconColor: color,
         icon: (challenge == null)
             ? Icons.question_mark
             : (challenge!.isWeekly ? Icons.emoji_events : Icons.military_tech),
-        buildWithAnimation: isAnimatingRing,
+        animationController: _ringController,
+        ringColor: color,
       ),
     );
   }

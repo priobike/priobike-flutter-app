@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/game/models.dart';
-import 'package:priobike/game/view.dart';
+import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/hub/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
@@ -22,23 +22,6 @@ class GameProfileCard extends StatefulWidget {
 }
 
 class _GameProfileCardState extends State<GameProfileCard> with TickerProviderStateMixin {
-  /// The medal colors, which are distributed to the different levels.
-  static Color bronzeColor = const Color.fromRGBO(169, 113, 66, 1);
-  static Color silverColor = const Color.fromRGBO(165, 169, 180, 1);
-  static Color goldColor = const Color.fromRGBO(212, 175, 55, 1);
-  static Color diamondColor = CI.blue;
-
-  /// These are the levels that are possible to achieve by the user vie their xp.
-  static List<Level> levels = [
-    Level(value: 500, title: '', color: bronzeColor.withOpacity(0.5)),
-    Level(value: 1000, title: '', color: bronzeColor),
-    Level(value: 1500, title: '', color: silverColor.withOpacity(0.5)),
-    Level(value: 2000, title: '', color: silverColor),
-    Level(value: 2500, title: '', color: goldColor.withOpacity(0.5)),
-    Level(value: 3000, title: '', color: goldColor),
-    Level(value: 3500, title: '', color: diamondColor),
-  ];
-
   /// The service which manages and provides the user profile.
   late GameProfileService _profileService;
 
@@ -51,12 +34,12 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
   /// Controller to animate the medal icon when a new medal is gained.
   late final AnimationController _medalsController;
 
+  /// Animation Controller to controll the ring animation.
+  late final AnimationController _ringController;
+
   /// Bounce animation for the trophy or medal icon.
   Animation<double> getAnimation(var controller) =>
       Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
-
-  /// This bool determines wether the displayed level ring should be animated currently.
-  bool animateLevelRing = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() async {
@@ -77,15 +60,16 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
   }
 
   /// This function starts and ends the level ring animation.
-  void animateRing() {
-    setState(() => animateLevelRing = true);
-    Future.delayed(LongAnimationDuration()).then((_) => setState(() => animateLevelRing = false));
+  void animateRing() async {
+    await _ringController.reverse();
+    await _ringController.forward();
   }
 
   @override
   void initState() {
     _trophiesController = AnimationController(duration: ShortAnimationDuration(), vsync: this);
     _medalsController = AnimationController(duration: ShortAnimationDuration(), vsync: this);
+    _ringController = AnimationController(vsync: this, duration: ShortAnimationDuration(), value: 1);
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
     _settingsService = getIt<GameSettingsService>();
@@ -212,15 +196,17 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
       children: [
         GestureDetector(
           onTap: animateRing,
-          child: AnimatedLevelRing(
-            levels: getRingLevels(),
-            value: profile.xp.toDouble(),
-            color: (currentLevel == null)
+          child: LevelRing(
+            minValue: currentLevel?.value.toDouble() ?? 0,
+            maxValue: nextLevel?.value.toDouble() ?? profile.xp.toDouble(),
+            curValue: profile.xp.toDouble(),
+            iconColor: (currentLevel == null)
                 ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
                 : currentLevel!.color,
             icon: Icons.directions_bike,
             ringSize: 96,
-            buildWithAnimation: animateLevelRing,
+            animationController: _ringController,
+            ringColor: nextLevel?.color ?? currentLevel!.color,
           ),
         ),
         Expanded(
