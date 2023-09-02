@@ -5,7 +5,7 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/hub/models/game_profile.dart';
+import 'package:priobike/gamification/common/models/game_profile.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';

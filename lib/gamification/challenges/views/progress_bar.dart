@@ -32,11 +32,11 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   /// A timer that is used to update the displayed time left, or to create the pulsing animation when completed.
   Timer? timer;
 
-  /// This bool determines whether the progress bar should be animated currently.
-  bool isAnimating = false;
+  /// This bool is true, if the progress bar has been tapped and needs to be animated.
+  bool onTapAnimation = false;
 
-  /// This bool determines wether the displayed level ring should be animated currently.
-  bool isAnimatingRing = false;
+  /// This bool is true, if the progress bar has been tapped to collect a reward and the reward animation is shown.
+  bool completedAnimation = false;
 
   /// Animation Controller to controll the ring animation.
   late final AnimationController _ringController;
@@ -56,6 +56,10 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   /// Returns true, if the user completed the challenge.
   bool get isCompleted => progressPercentage >= 1;
+
+  /// If there is no active challenge, and there are no available challenge choices, and the service does not allow
+  /// the generation of a new challenge, this bar ist true and indicates, that a tap on the bar should do nothing.
+  bool get deactivateTap => challenge == null && !service.allowNew && service.challengeChoices.isEmpty;
 
   /// Time where the challenge ends.
   DateTime get endTime {
@@ -115,22 +119,24 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   /// Handle a tap on the progress bar.
   void handleTap() async {
     // If the challenge is null and the service doesn't allow to generate a new one, do nothing on tap.
-    if (challenge == null && !service.allowNew) return;
+    if (deactivateTap) return;
 
     /// Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
     _ringController.reverse();
-    setState(() {
-      isAnimating = true;
-      isAnimatingRing = true;
-    });
-    await Future.delayed(ShortAnimationDuration()).then((_) => setState(() => isAnimating = false));
-    await Future.delayed(ShortAnimationDuration()).then((_) {
-      _ringController.forward();
-      setState(() => isAnimatingRing = false);
-    });
+    setState(() => onTapAnimation = true);
+    if (isCompleted) setState(() => completedAnimation = true);
+    await Future.delayed(ShortAnimationDuration()).then((_) => setState(() => onTapAnimation = false));
+
+    /// If there are a number of challenges, of which the user can chose from, open the challenge selection dialog.
+    if (service.challengeChoices.isNotEmpty) {
+      await _showChallengeSelection(service.challengeChoices);
+    }
 
     /// If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
-    if (isCompleted) {
+    else if (isCompleted) {
+      await Future.delayed(ShortAnimationDuration()).then((_) {
+        setState(() => completedAnimation = false);
+      });
       service.completeChallenge();
       HapticFeedback.heavyImpact();
     }
@@ -139,8 +145,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     else if (challenge == null && service.allowNew) {
       var result = await service.generateChallenge();
       if (result != null) {
-        await _showMyDialog(result);
-        service.startChallenge();
+        await _showChallengeSelection(result);
       }
     }
 
@@ -148,19 +153,32 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     else if (challenge != null && !isCompleted) {
       service.finishChallenge();
     }
+
+    _ringController.forward();
   }
 
-  Future<void> _showMyDialog(Challenge challenge) async {
-    return showDialog<void>(
+  /// This function opens a dialog, where the user is shown their generated challenge, or is given a choice between
+  /// a number of challenges, if multiple were generated.
+  Future<void> _showChallengeSelection(List<Challenge> challenges) async {
+    // The dialog returns an index of the selected challenge or null, if no selection was made.
+    var result = await showDialog<int?>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: challenges.length == 1,
       builder: (BuildContext context) {
         return NewChallengeDialog(
-          challenges: [challenge],
+          challenges: challenges,
           isWeekly: widget.isWeekly,
         );
       },
     );
+    // If there is only one challenge to chose from, select that challenge.
+    if (challenges.length == 1) {
+      service.selectAndStartChallenge(0);
+    }
+    // If there are multiple challenges to chose from, select a challenge according to the users choice.
+    else if (result != null) {
+      service.selectAndStartChallenge(result);
+    }
   }
 
   @override
@@ -290,9 +308,9 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                     borderRadius: const BorderRadius.all(Radius.circular(32)),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: CI.blue.withOpacity((isCompleted && isAnimatingRing) ? 1 : 0.3),
+                                        color: CI.blue.withOpacity((isCompleted && completedAnimation) ? 1 : 0.3),
                                         blurRadius: 20,
-                                        spreadRadius: (isCompleted && isAnimatingRing) ? 5 : 0,
+                                        spreadRadius: (isCompleted && completedAnimation) ? 5 : 0,
                                       ),
                                     ],
                                   ),
@@ -305,14 +323,12 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(Radius.circular(32)),
                                   boxShadow: [
-                                    BoxShadow(color: CI.blue.withOpacity(isAnimating ? 0.2 : 0), blurRadius: 20),
+                                    BoxShadow(color: CI.blue.withOpacity(onTapAnimation ? 0.2 : 0), blurRadius: 20),
                                   ],
                                   gradient: LinearGradient(
                                     colors: [
-                                      CI.blue.withOpacity(
-                                          (challenge == null && !service.allowNew) ? 0.2 : (isAnimating ? 0.8 : 0.5)),
-                                      CI.blue.withOpacity(
-                                          (challenge == null && !service.allowNew) ? 0.01 : (isAnimating ? 0.2 : 0.05)),
+                                      CI.blue.withOpacity(deactivateTap ? 0.2 : (onTapAnimation ? 0.8 : 0.5)),
+                                      CI.blue.withOpacity(deactivateTap ? 0.01 : (onTapAnimation ? 0.2 : 0.05)),
                                     ],
                                   ),
                                 ),
@@ -331,7 +347,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
             Center(
               child: BoldSmall(
                 text: (challenge == null)
-                    ? (service.allowNew ? 'Neue Challenge starten!' : 'Challenge abgeschlossen')
+                    ? (deactivateTap ? 'Challenge abgeschlossen' : 'Neue Challenge starten!')
                     : (isCompleted)
                         ? 'Belohnung einsammeln'
                         : '${challenge!.progress} / ${challenge!.target}',
@@ -353,7 +369,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
       margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: ((isCompleted && isAnimatingRing) || (challenge == null && !service.allowNew))
+        boxShadow: ((isCompleted && completedAnimation) || deactivateTap)
             ? []
             : [
                 BoxShadow(

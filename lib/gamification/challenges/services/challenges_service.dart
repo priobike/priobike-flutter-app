@@ -5,6 +5,8 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_validator.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/main.dart';
 
 /// This class is to be extended by a service, which manages only challenges in a certain timeframe, such as
 /// weekly or daily challenges.
@@ -42,6 +44,11 @@ abstract class ChallengeService with ChangeNotifier {
 
   /// Whether only weekly challenges should be taken into consideration.
   bool get _isWeekly;
+
+  List<Challenge> _challengeChoices = [];
+  List<Challenge> get challengeChoices => _challengeChoices;
+
+  int get _numberOfChoices;
 
   ChallengeService() {
     () async {
@@ -87,7 +94,15 @@ abstract class ChallengeService with ChangeNotifier {
     var openChallenges = await _openChallenges;
     // If no challenges are open, do nothing.
     if (openChallenges.isEmpty) return;
-    // If a challenge is open, validate its progress with the current rides and determine whether it has been completed.
+
+    // If multiple challenges are open, those are already generated challenge choices for the user.
+    if (openChallenges.length > 1) {
+      _challengeChoices = openChallenges;
+      notifyListeners();
+      return;
+    }
+
+    // If only one challenge is open, validate its progress with the current rides and determine whether it has been completed.
     var challenge = openChallenges.first;
     var rides = await AppDatabase.instance.rideSummaryDao.getRidesInInterval(
       challenge.startTime,
@@ -115,15 +130,32 @@ abstract class ChallengeService with ChangeNotifier {
   }
 
   /// If the current challenge is null, generate a new challenge.
-  Future<Challenge?> generateChallenge() async {
+  Future<List<Challenge>?> generateChallenge() async {
     if (_currentChallenge != null) return null;
-    _currentChallenge = await _dao.createObject(_generator.generate());
-    if (_currentChallenge == null) throw Exception("Couldn't generate new challenge.");
-    _validator = ChallengeValidator(challenge: _currentChallenge!);
-    return _currentChallenge;
+    _challengeChoices.clear();
+    // Generate as many challenges, as choices are allowed for the user.
+    for (int i = 0; i < _numberOfChoices; i++) {
+      var newChallenge = await _dao.createObject(_generator.generate());
+      if (newChallenge != null) _challengeChoices.add(newChallenge);
+    }
+    if (_challengeChoices.length != _numberOfChoices) throw Exception("Couldn't generate new challenge.");
+    // Return challenge choices to user.
+    return _challengeChoices;
   }
 
-  void startChallenge() {
+  /// Select a challenge out of the available choices and start it. Delete the other choices.
+  void selectAndStartChallenge(int choiceIndex) {
+    if (_currentChallenge != null) return;
+    // Save selected challenge as current challenge.
+    _currentChallenge = _challengeChoices.elementAt(choiceIndex);
+    _challengeChoices.remove(_currentChallenge);
+    // Delete other open challenge choices.
+    for (var challenge in _challengeChoices) {
+      _dao.deleteObject(challenge);
+    }
+    _challengeChoices.clear();
+    // Start the validator and observe changes in the challenge.
+    _validator = ChallengeValidator(challenge: _currentChallenge!);
     startChallengeStream();
   }
 
@@ -157,6 +189,9 @@ class DailyChallengeService extends ChallengeService {
 
   @override
   bool get _isWeekly => false;
+
+  @override
+  int get _numberOfChoices => getIt<GameProfileService>().profile!.dailyChallengeChoices;
 }
 
 /// This service implements the challenge service and manages weekly challenges.
@@ -175,4 +210,7 @@ class WeeklyChallengeService extends ChallengeService {
 
   @override
   bool get _isWeekly => true;
+
+  @override
+  int get _numberOfChoices => getIt<GameProfileService>().profile!.weeklyChallengeChoices;
 }

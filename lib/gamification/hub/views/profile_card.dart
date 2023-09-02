@@ -5,7 +5,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
-import 'package:priobike/gamification/hub/services/profile_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -62,6 +62,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
   /// This function starts and ends the level ring animation.
   void animateRing() async {
     await _ringController.reverse();
+    await Future.delayed(const Duration(milliseconds: 250));
     await _ringController.forward();
   }
 

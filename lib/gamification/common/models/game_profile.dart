@@ -30,6 +30,12 @@ class GameProfile {
   /// The number of trophies the user has.
   int trophies;
 
+  /// The number of challenges the user can chose for their daily challenge.
+  int dailyChallengeChoices;
+
+  /// The number of challenges the user can chose for their weekly challenge.
+  int weeklyChallengeChoices;
+
   GameProfile({
     this.totalDistanceKilometres = 0,
     this.totalDurationMinutes = 0,
@@ -38,6 +44,8 @@ class GameProfile {
     this.xp = 0,
     this.medals = 0,
     this.trophies = 0,
+    this.dailyChallengeChoices = 1,
+    this.weeklyChallengeChoices = 1,
     required this.username,
     required this.joinDate,
   }) : averageSpeedKmh = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
@@ -50,6 +58,8 @@ class GameProfile {
         'xp': xp,
         'medals': medals,
         'trophies': trophies,
+        'dailyChallengeChoices': dailyChallengeChoices,
+        'weeklyChallengeChoices': weeklyChallengeChoices,
         'username': username,
         'joinDate': joinDate.toIso8601String(),
       };
@@ -62,6 +72,8 @@ class GameProfile {
         xp: json['xp'],
         medals: json['medals'],
         trophies: json['trophies'],
+        dailyChallengeChoices: json['dailyChallengeChoices'],
+        weeklyChallengeChoices: json['weeklyChallengeChoices'],
         username: json['username'],
         joinDate: DateTime.parse(json['joinDate']),
       );

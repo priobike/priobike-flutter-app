@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -83,7 +84,12 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
                     const SmallHSpace(),
                   ],
                 ),
-                ...widget.challenges.map((challenge) => ChallengeWidget(challenge: challenge)),
+                ...widget.challenges.mapIndexed((i, challenge) => ChallengeWidget(
+                      challenge: challenge,
+                      onTap: () {
+                        Navigator.of(context).pop(i);
+                      },
+                    )),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -105,10 +111,12 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
 }
 
 class ChallengeWidget extends StatefulWidget {
+  final Function onTap;
   final Challenge challenge;
   const ChallengeWidget({
     Key? key,
     required this.challenge,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -116,8 +124,6 @@ class ChallengeWidget extends StatefulWidget {
 }
 
 class _ChallengeWidgetState extends State<ChallengeWidget> {
-  void onTap() {}
-
   bool tapDown = false;
 
   @override
@@ -130,7 +136,7 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
       },
       onTapUp: (_) {
         setState(() => tapDown = false);
-        Navigator.of(context).pop();
+        widget.onTap();
       },
       onTapCancel: () => setState(() => tapDown = false),
       child: Container(
