@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/models/level.dart';
+import 'package:priobike/gamification/profile/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/level_ring.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/common/level_ring.dart';
+import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -128,7 +129,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
   }
 
   /// Returns widget for displaying a trophy count for a trophy with a given icon.
-  Widget getTrophyWidget(int number, IconData icon, Animation<double> animation, bool animate) {
+  Widget getTrophyWidget(int number, String imgPath, Animation<double> animation, bool animate) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -145,10 +146,12 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
                 ),
               ],
             ),
-            child: Icon(
-              icon,
-              size: 36,
-              color: animate ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+            child: SvgPicture.asset(
+              imgPath,
+              colorFilter: ColorFilter.mode(
+                  animate ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.5), BlendMode.srcIn),
+              width: 36,
+              height: 36,
             ),
           ),
         ),
@@ -234,13 +237,13 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
                 children: [
                   getTrophyWidget(
                     profile.medals,
-                    Icons.military_tech,
+                    'assets/images/gamification/medal_clean.svg',
                     getAnimation(_medalsController),
                     _profileService.medalsChanged,
                   ),
                   getTrophyWidget(
                     profile.trophies,
-                    Icons.emoji_events,
+                    'assets/images/gamification/trophy.svg',
                     getAnimation(_trophiesController),
                     _profileService.trophiesChanged,
                   ),

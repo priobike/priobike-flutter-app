@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -175,7 +175,7 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
             onPressed: () {
               var route = _shortcutsService.shortcuts?.where((s) => s.id == selectedRoute).firstOrNull;
               var routeGoals = route == null ? null : RouteGoals(route.id, route.name, routeGoal.toInt());
-              var goals = ChallengeGoals(distanceGoal * 1000, durationGoal, routeGoals);
+              var goals = UserGoals(distanceGoal * 1000, durationGoal, routeGoals);
               getIt<GameSettingsService>().setChallengeGoals(goals);
               Navigator.pop(context);
             },

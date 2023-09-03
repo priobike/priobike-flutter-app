@@ -21,8 +21,8 @@ class GameSettingsService with ChangeNotifier {
   SharedPreferences? _prefs;
 
   /// The user goals for the challenges
-  ChallengeGoals? _challengeGoals;
-  ChallengeGoals? get challengeGoals => _challengeGoals;
+  UserGoals? _challengeGoals;
+  UserGoals? get challengeGoals => _challengeGoals;
 
   /// Check, if the user has set challenge goals already.
   bool get challengeGoalsSet => _challengeGoals != null;
@@ -36,7 +36,7 @@ class GameSettingsService with ChangeNotifier {
   }
 
   /// Update the users' challenge goals and notify listeners.
-  void setChallengeGoals(ChallengeGoals? goals) {
+  void setChallengeGoals(UserGoals? goals) {
     _challengeGoals = goals;
     if (goals != null) {
       _prefs!.setString(challengeGoalsKey, jsonEncode(goals.toJson()));
@@ -52,7 +52,7 @@ class GameSettingsService with ChangeNotifier {
     _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
 
     var goalStr = _prefs!.getString(challengeGoalsKey);
-    _challengeGoals = goalStr == null ? null : ChallengeGoals.fromJson(jsonDecode(goalStr));
+    _challengeGoals = goalStr == null ? null : UserGoals.fromJson(jsonDecode(goalStr));
   }
 
   /// Returns true, if a given string key is inside of the list of selected game prefs.

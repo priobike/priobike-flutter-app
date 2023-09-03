@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';

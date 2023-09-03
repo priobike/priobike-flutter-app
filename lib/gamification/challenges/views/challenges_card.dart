@@ -41,63 +41,74 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
     super.dispose();
   }
 
+  bool get _challengesActivated =>
+      _settingsService.enabledFeatures.contains(GameSettingsService.gameFeatureChallengesKey);
+
   @override
   Widget build(BuildContext context) {
+    // If the user has activated the challenges, show widget containing all the challenge information and functions.
+    if (_challengesActivated) return getChallengeWidget();
+
+    // If the user hasn't activated the challenges, show info widget.
+    return getChallegnesDeactivedWidget();
+  }
+
+  Widget getChallengeWidget() {
     return GameHubCard(
-      onTap: () async {
-        // Open view to set goals., if the user hasn't set their goals yet.
-        if (!_settingsService.challengeGoalsSet) widget.openView(const ChallengeGoalSetting());
-      },
       content: Column(
-        children: _settingsService.challengeGoalsSet
-            // If the user has set their challenge goals, show progress bars for daily and weekly challenges and a
-            // small button to update the goals.
-            ? [
-                const ChallengeProgressBar(isWeekly: true),
-                const ChallengeProgressBar(isWeekly: false),
-                GestureDetector(
-                  onTap: () => widget.openView(const ChallengeGoalSetting()),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      BoldSmall(text: 'Ziele ändern', context: context),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.redo, size: 16),
-                    ],
-                  ),
-                ),
-              ]
-            // If the user hasn't set their goals, show info widget.
-            : [
-                getNoGoalsWidget(),
+        children: [
+          const ChallengeProgressBar(isWeekly: true),
+          const ChallengeProgressBar(isWeekly: false),
+          GestureDetector(
+            onTap: () => widget.openView(const ChallengeGoalSetting()),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                BoldSmall(text: 'Ziele ändern', context: context),
+                const SizedBox(width: 4),
+                const Icon(Icons.redo, size: 16),
               ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  /// Info widget which encourages the user to set their goals.
-  Widget getNoGoalsWidget() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+  /// Info widget which encourages the user to participate in the challenges.
+  Widget getChallegnesDeactivedWidget() {
+    return GameHubCard(
+      onTap: () async {
+        // Open view to set goals.
+        widget.openView(const ChallengeGoalSetting());
+      },
+      content: Column(
         children: [
-          BoldSubHeader(text: 'PrioBike Challenges', context: context),
-          Small(
-            text: 'Bestreite tägliche und wöchentliche Challenges, steige Level auf uns sammel Abzeichen und Orden.',
-            context: context,
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              BoldSmall(text: 'Challenges Starten', context: context),
-              const SizedBox(width: 4),
-              const Icon(Icons.redo, size: 16),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                BoldSubHeader(text: 'PrioBike Challenges', context: context),
+                Small(
+                  text:
+                      'Bestreite tägliche und wöchentliche Challenges, steige Level auf uns sammel Abzeichen und Orden.',
+                  context: context,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    BoldSmall(text: 'Challenges Starten', context: context),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.redo, size: 16),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

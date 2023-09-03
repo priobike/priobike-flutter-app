@@ -5,9 +5,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/level_ring.dart';
+import 'package:priobike/gamification/common/level_ring.dart';
 
 /// Dialog widget to pop up after one or multiple challenges were generated.
 class NewChallengeDialog extends StatefulWidget {
@@ -164,7 +163,9 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
                 LevelRing(
                   ringColor: color,
                   iconColor: color,
-                  icon: widget.challenge.isWeekly ? Icons.emoji_events : Icons.military_tech,
+                  svgPath: widget.challenge.isWeekly
+                      ? 'assets/images/gamification/trophy.svg'
+                      : 'assets/images/gamification/medal_clean.svg',
                   ringSize: 64,
                 ),
                 const SmallHSpace(),

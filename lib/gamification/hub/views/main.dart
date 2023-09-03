@@ -7,7 +7,7 @@ import 'package:priobike/gamification/common/database/model/ride_summary/ride_su
 import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
-import 'package:priobike/gamification/hub/views/profile_card.dart';
+import 'package:priobike/gamification/profile/views/profile_card.dart';
 import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/settings/views/settings_view.dart';
@@ -36,12 +36,11 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
   /// Controller which controls the animation when opening this view.
   late AnimationController _animationController;
 
-  /// A map which maps the keys of possible gamification components to corresponding views.
-  /// This map is needed to decide which views to display to the user.
-  Map<String, Widget> get mappedHubElements => {
-        GameSettingsService.gameFeatureChallengesKey: GameChallengesCard(openView: openPage),
-        GameSettingsService.gameFeatureStatisticsKey: RideStatisticsCard(openView: openPage),
-      };
+  List<Widget> get _hubCards => [
+        const GameProfileCard(),
+        GameChallengesCard(openView: openPage),
+        RideStatisticsCard(openView: openPage),
+      ];
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
@@ -54,7 +53,7 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
     // Init animation controller and start the animation after a short delay, to let the view load first.
     _animationController = AnimationController(
       vsync: this,
-      duration: LongAnimationDuration(),
+      duration: ShortAnimationDuration(),
     );
     Future.delayed(ShortAnimationDuration()).then(
       (value) => _animationController.forward(),
@@ -76,7 +75,6 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
   /// This function navigates to a new page by pushing it on top of the hub view. It also handles the transition
   /// animation of the hub view, both when opening the page and when returning to the hub.
   Future openPage(Widget view) {
-    _animationController.duration = ShortAnimationDuration();
     return _animationController
         .reverse()
         .then(
@@ -107,23 +105,14 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          GameHubAnimationWrapper(
-            key: GlobalKey(),
-            start: 0,
-            end: 0.4,
-            controller: _animationController,
-            child: const GameProfileCard(),
-          ),
           // Create a hub element for each game feature the user has enabled.
-          ...mappedHubElements.entries
-              .mapIndexed((i, e) => (_settingsService.isFeatureEnabled(e.key)
-                  ? GameHubAnimationWrapper(
-                      start: 0.2 + (i * 0.2),
-                      end: 0.6 + (i * 0.2),
-                      controller: _animationController,
-                      child: e.value,
-                    )
-                  : const SizedBox.shrink()))
+          ..._hubCards
+              .mapIndexed((i, widget) => GameHubAnimationWrapper(
+                    start: 0 + (i * 0.2),
+                    end: 0.4 + (i * 0.2),
+                    controller: _animationController,
+                    child: widget,
+                  ))
               .toList(),
           const SmallVSpace()
         ],

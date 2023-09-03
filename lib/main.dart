@@ -10,7 +10,7 @@ import 'package:priobike/gamification/challenges/services/challenges_service.dar
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';

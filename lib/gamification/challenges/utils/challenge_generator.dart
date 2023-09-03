@@ -27,7 +27,7 @@ class DailyChallengeGenerator extends ChallengeGenerator {
   static const List<ChallengeType> dailyTypes = [ChallengeType.overallDistance, ChallengeType.overallDuration];
 
   /// This function returns a fitting value range for a given challenge type and user goals.
-  ValueRange getDailyChallengeValueRange(ChallengeType type, ChallengeGoals goals) {
+  ValueRange getDailyChallengeValueRange(ChallengeType type, UserGoals goals) {
     //TODO
     if (type == ChallengeType.overallDistance) {
       var max = goals.dailyDistanceGoalMetres ~/ 500;
@@ -82,7 +82,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
   ];
 
   /// This function returns a fitting value range for a given challenge type and user goals.
-  ValueRange getWeeklyChallengeValueRange(ChallengeType type, ChallengeGoals goals) {
+  ValueRange getWeeklyChallengeValueRange(ChallengeType type, UserGoals goals) {
     //TODO
     if (type == ChallengeType.overallDistance) {
       var max = goals.dailyDistanceGoalMetres ~/ 500 * 3;

@@ -5,7 +5,7 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_validator.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
 /// This class is to be extended by a service, which manages only challenges in a certain timeframe, such as

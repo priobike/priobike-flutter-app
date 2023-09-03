@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// A ring with n_levels segments and a space inbetween.
 class LevelRing extends StatefulWidget {
@@ -18,10 +19,12 @@ class LevelRing extends StatefulWidget {
   final Color ringColor;
 
   /// The icon to be displayed.
-  final IconData icon;
+  final IconData? icon;
 
   /// The size of the ring. The icon size also depends on this value.
   final double ringSize;
+
+  final String? svgPath;
 
   final AnimationController? animationController;
 
@@ -29,7 +32,8 @@ class LevelRing extends StatefulWidget {
     Key? key,
     required this.ringColor,
     required this.iconColor,
-    required this.icon,
+    this.icon,
+    this.svgPath,
     required this.ringSize,
     this.minValue = 0,
     this.maxValue = 0,
@@ -53,6 +57,21 @@ class LevelRingState extends State<LevelRing> {
         parent: widget.animationController!,
         curve: Curves.easeIn,
       ));
+
+  Widget getRingContent() {
+    var iconSize = widget.ringSize * 0.5;
+    if (widget.icon != null) {
+      return Icon(widget.icon, size: iconSize, color: widget.iconColor);
+    } else if (widget.svgPath != null) {
+      return SvgPicture.asset(
+        widget.svgPath!,
+        colorFilter: ColorFilter.mode(widget.iconColor, BlendMode.srcIn),
+        width: iconSize,
+        height: iconSize,
+      );
+    }
+    return Container();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +110,9 @@ class LevelRingState extends State<LevelRing> {
           SizedBox(
             width: widget.ringSize,
             height: widget.ringSize,
-            child: Icon(widget.icon, size: 0.5 * widget.ringSize, color: widget.iconColor),
+            child: Center(
+              child: getRingContent(),
+            ),
           ),
         ]),
       ]),
