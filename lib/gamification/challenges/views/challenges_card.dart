@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/progress_bar.dart';
 import 'package:priobike/gamification/challenges/views/goal_setting.dart';
+import 'package:priobike/gamification/common/colors.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/main.dart';
@@ -92,19 +96,68 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 BoldSubHeader(text: 'PrioBike Challenges', context: context),
-                Small(
-                  text:
-                      'Bestreite tägliche und wöchentliche Challenges, steige Level auf uns sammel Abzeichen und Orden.',
-                  context: context,
-                ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    BoldSmall(text: 'Challenges Starten', context: context),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.redo, size: 16),
+                    Expanded(
+                      child: Small(
+                        text:
+                            'Bestreite tägliche und wöchentliche Challenges, steige Level auf uns sammel Abzeichen und Orden.',
+                        context: context,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 96,
+                      height: 80,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 0,
+                              height: 0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: CI.blue.withOpacity(0.1),
+                                    blurRadius: 32,
+                                    spreadRadius: 32,
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.white.withOpacity(0.1),
+                                    blurRadius: 32,
+                                    spreadRadius: 32,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Transform.rotate(
+                              angle: pi / 8,
+                              child: const Icon(
+                                CustomGameIcons.blankTrophy,
+                                size: 64,
+                                color: Medals.gold,
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Transform.rotate(
+                              angle: -pi / 8,
+                              child: const Icon(
+                                CustomGameIcons.medal,
+                                size: 64,
+                                color: CI.blue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ],

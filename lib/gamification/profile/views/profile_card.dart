@@ -205,7 +205,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
             iconColor: (currentLevel == null)
                 ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
                 : currentLevel!.color,
-            icon: Icons.directions_bike,
+            icon: Icons.pedal_bike,
             ringSize: 96,
             animationController: _ringController,
             ringColor: nextLevel?.color ?? currentLevel!.color,
