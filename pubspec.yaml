@@ -74,7 +74,6 @@ dependencies:
   path: ^1.8.2 # Used to determine the database file location
   fl_chart: ^0.62.0 # Used to display the ride statistics in the gamification views
   expandable: ^5.0.1 # Used for custom expandable widgets
-  flutter_svg: ^2.0.0 # Used to display custom icons 
 
 dev_dependencies:
   flutter_launcher_icons: ^0.11.0 # Generate app icons
@@ -120,6 +119,9 @@ flutter:
         - asset: assets/fonts/HamburgSans-BoldItalic.ttf
           weight: 700
           style: italic
+    - family:  CustomGameIcons
+      fonts:
+        - asset: assets/fonts/CustomGameIcons.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -159,6 +161,3 @@ flutter:
 
     # wiki images
     - assets/images/wiki/
-
-    # Gamification images
-    - assets/images/gamification/

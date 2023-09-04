@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/services/challenges_service.dart';
 import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/level_ring.dart';
@@ -381,12 +382,11 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
       child: LevelRing(
         ringSize: 32,
         iconColor: color,
-        icon: (challenge == null) ? Icons.question_mark : null,
-        svgPath: (challenge == null)
-            ? null
+        icon: (challenge == null)
+            ? Icons.question_mark
             : widget.isWeekly
-                ? 'assets/images/gamification/trophy.svg'
-                : 'assets/images/gamification/medal_clean.svg',
+                ? CustomGameIcons.trophy
+                : CustomGameIcons.medal,
         animationController: _ringController,
         ringColor: color,
       ),

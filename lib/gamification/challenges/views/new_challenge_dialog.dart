@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/level_ring.dart';
@@ -163,9 +164,7 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
                 LevelRing(
                   ringColor: color,
                   iconColor: color,
-                  svgPath: widget.challenge.isWeekly
-                      ? 'assets/images/gamification/trophy.svg'
-                      : 'assets/images/gamification/medal_clean.svg',
+                  icon: widget.challenge.isWeekly ? CustomGameIcons.trophy : CustomGameIcons.medal,
                   ringSize: 64,
                 ),
                 const SmallHSpace(),
