@@ -62,16 +62,8 @@ class _GameViewState extends State<GameView> {
         ),
         if (!_profileService.hasProfile) const GameIntroCard(),
         if (_profileService.hasProfile) ...[
-          GameChallengesCard(
-            openView: (view) => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => view),
-            ),
-          ),
-          RideStatisticsCard(
-            openView: (view) => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => view),
-            ),
-          ),
+          const GameChallengesCard(),
+          const RideStatisticsCard(),
         ],
       ],
     );

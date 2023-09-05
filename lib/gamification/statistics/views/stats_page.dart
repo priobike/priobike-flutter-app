@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/custom_page.dart';
@@ -6,6 +5,7 @@ import 'package:priobike/gamification/statistics/views/graphs/month/month_stats.
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_stats.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_stats.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/main.dart';
 
 /// This view provides the user with detailed statistics about their ride history.
@@ -17,7 +17,6 @@ class StatisticsView extends StatefulWidget {
 }
 
 class _StatisticsViewState extends State<StatisticsView> with TickerProviderStateMixin {
-  late AnimationController _headerAnimationController;
   late AnimationController _listAnimationController;
   late StatisticService statService;
 
@@ -28,9 +27,6 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   void initState() {
     statService = getIt<StatisticService>();
     statService.addListener(update);
-    // Init the animation controllers and start the header animation.
-    _headerAnimationController = AnimationController(vsync: this, duration: ShortDuration());
-    Future.delayed(const Duration(milliseconds: 0)).then((value) => _headerAnimationController.forward());
     _listAnimationController = AnimationController(vsync: this, duration: ShortDuration());
     super.initState();
   }
@@ -38,7 +34,6 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   @override
   void dispose() {
     statService.removeListener(update);
-    _headerAnimationController.dispose();
     _listAnimationController.dispose();
     super.dispose();
   }
@@ -54,22 +49,13 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   /// Get ride statistic view according to stat interval.
   Widget getStatsViewFromInterval(StatInterval interval) {
     if (statService.statInterval == StatInterval.weeks) {
-      return DetailedWeekStats(
-        headerAnimationController: _headerAnimationController,
-        rideListController: _listAnimationController,
-      );
+      return DetailedWeekStats(rideListController: _listAnimationController);
     }
     if (statService.statInterval == StatInterval.months) {
-      return DetailedMonthStats(
-        headerAnimationController: _headerAnimationController,
-        rideListController: _listAnimationController,
-      );
+      return DetailedMonthStats(rideListController: _listAnimationController);
     }
     if (statService.statInterval == StatInterval.multipleWeeks) {
-      return DetailedMultipleWeekStats(
-        headerAnimationController: _headerAnimationController,
-        rideListController: _listAnimationController,
-      );
+      return DetailedMultipleWeekStats(rideListController: _listAnimationController);
     }
     return const SizedBox.shrink();
   }
@@ -77,11 +63,8 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     return CustomPage(
-      animationController: _headerAnimationController,
-      title: getTitleFromStatInterval(statService.statInterval),
+      title: 'Deine Fahrtstatistiken',
       backButtonCallback: () async {
-        _headerAnimationController.duration = ShortDuration();
-        _headerAnimationController.reverse();
         _listAnimationController.duration = ShortDuration();
         _listAnimationController.reverse();
         if (!mounted) return;
@@ -89,16 +72,21 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
       },
       featureButtonIcon: Icons.sync_alt,
       featureButtonCallback: () async {
-        _headerAnimationController.duration = ShortDuration();
-        _headerAnimationController.reverse();
         _listAnimationController.duration = ShortDuration();
         _listAnimationController.reverse();
         Future.delayed(ShortDuration()).then((_) {
           getIt<StatisticService>().changeStatInterval();
-          _headerAnimationController.forward();
         });
       },
-      content: getStatsViewFromInterval(statService.statInterval),
+      content: Column(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.background,
+            child: const OverallStatistics(),
+          ),
+          getStatsViewFromInterval(statService.statInterval),
+        ],
+      ),
     );
   }
 }

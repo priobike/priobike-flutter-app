@@ -36,16 +36,15 @@ class _GameIntroCardState extends State<GameIntroCard> {
   @override
   Widget build(BuildContext context) {
     return GamificationCard(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GameIntro())),
+      directionView: const GameIntro(),
       content: Container(
         alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(top: 16, bottom: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BoldContent(text: "PrioBike Plus", context: context),
+            BoldSubHeader(text: "Dein PrioBike", context: context),
             const SizedBox(height: 4),
-            Small(text: "Klingt irgendwie, als würd das was kosten.", context: context),
+            Small(text: "Entdecke eine Vielzahl an neuen Funktionen!", context: context),
           ],
         ),
       ),

@@ -13,7 +13,6 @@ import 'package:priobike/main.dart';
 /// This widget displayes detailed statistics for a number of given graphs. It also provides the user with functionality
 /// to change the displayed information and time intervals.
 class DetailedStatistics extends StatelessWidget {
-  final AnimationController headerAnimationController;
   final AnimationController rideListController;
   final PageController pageController;
 
@@ -37,7 +36,6 @@ class DetailedStatistics extends StatelessWidget {
     required this.graphs,
     required this.pageController,
     required this.currentViewModel,
-    required this.headerAnimationController,
     required this.rideListController,
   }) : super(key: key);
 
@@ -47,33 +45,35 @@ class DetailedStatistics extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         /// This widget contains the graphs in a page view and further information for the displayed graph.
-        CustomFadeTransition(
-          controller: headerAnimationController,
-          interval: const Interval(0, 0.4, curve: Curves.easeIn),
-          child: GestureDetector(
-            onTap: () => currentViewModel.setSelectedIndex(null),
-            child: Container(
+        GestureDetector(
+          onTap: () => currentViewModel.setSelectedIndex(null),
+          child: Container(
+            decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
-              child: Column(
-                children: [
-                  getGraphHeader(context),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 224,
-                      child: PageView(
-                        onPageChanged: (_) => rideListController.reset(),
-                        controller: pageController,
-                        clipBehavior: Clip.hardEdge,
-                        children: graphs,
-                      ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
+              ),
+            ),
+            child: Column(
+              children: [
+                getGraphHeader(context),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 224,
+                    child: PageView(
+                      onPageChanged: (_) => rideListController.reset(),
+                      controller: pageController,
+                      clipBehavior: Clip.hardEdge,
+                      children: graphs,
                     ),
                   ),
-                  getGraphFooter(context),
-                  getButtonRow(context),
-                ],
-              ),
+                ),
+                getGraphFooter(context),
+                getButtonRow(context),
+              ],
             ),
           ),
         ),

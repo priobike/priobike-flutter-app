@@ -106,10 +106,20 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
   @override
   Widget build(BuildContext context) {
     return CustomPage(
-      animationController: _animationController,
       title: 'Deine Ziele',
       content: Column(
         children: [
+          Container(
+            width: double.infinity,
+            height: 16,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
+              ),
+            ),
+          ),
           const SmallVSpace(),
           getGoalSlider(
             title: 'Distanz-Ziel pro Tag',
@@ -170,12 +180,13 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
           const VSpace(),
           BigButton(
             label: 'Ziele Speichern',
-            onPressed: () {
+            onPressed: () async {
               var route = _shortcutsService.shortcuts?.where((s) => s.id == selectedRoute).firstOrNull;
               var routeGoals = route == null ? null : RouteGoals(route.id, route.name, routeGoal.toInt());
               var goals = UserGoals(distanceGoal * 1000, durationGoal, routeGoals);
               getIt<GameProfileService>().setChallengeGoals(goals);
-              Navigator.pop(context);
+              await _animationController.reverse();
+              if (mounted) Navigator.pop(context);
             },
           ),
           const VSpace(),

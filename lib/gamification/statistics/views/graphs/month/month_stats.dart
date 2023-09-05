@@ -7,13 +7,10 @@ import 'package:priobike/main.dart';
 
 /// This widget shows detailed statistics for the last 6 months, using the [DetailedStatistics] widget.
 class DetailedMonthStats extends StatefulWidget {
-  final AnimationController headerAnimationController;
-
   final AnimationController rideListController;
 
   const DetailedMonthStats({
     Key? key,
-    required this.headerAnimationController,
     required this.rideListController,
   }) : super(key: key);
 
@@ -92,7 +89,6 @@ class _DetailedMonthStatsState extends State<DetailedMonthStats> {
               ))
           .toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
-      headerAnimationController: widget.headerAnimationController,
       rideListController: widget.rideListController,
     );
   }

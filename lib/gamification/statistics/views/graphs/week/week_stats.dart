@@ -7,12 +7,9 @@ import 'package:priobike/main.dart';
 
 /// This widget shows detailed statistics for the last 10 weeks, using the [DetailedStatistics] widget.
 class DetailedWeekStats extends StatefulWidget {
-  final AnimationController headerAnimationController;
-
   final AnimationController rideListController;
 
-  const DetailedWeekStats({Key? key, required this.headerAnimationController, required this.rideListController})
-      : super(key: key);
+  const DetailedWeekStats({Key? key, required this.rideListController}) : super(key: key);
 
   @override
   State<DetailedWeekStats> createState() => _DetailedWeekStatsState();
@@ -84,7 +81,6 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
               ))
           .toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
-      headerAnimationController: widget.headerAnimationController,
       rideListController: widget.rideListController,
     );
   }

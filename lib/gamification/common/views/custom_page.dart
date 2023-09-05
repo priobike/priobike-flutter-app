@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -10,9 +8,6 @@ import 'package:priobike/gamification/common/utils.dart';
 /// This view can be used for pages that are accessed from the game hub. It gives them a matching layout, containing
 /// a back button and a header with a title and possibly a feature button.
 class CustomPage extends StatelessWidget {
-  /// Animation controller to animate the page header with a fade transition.
-  final AnimationController animationController;
-
   /// Title of the page, displayed in the header.
   final String title;
 
@@ -30,7 +25,6 @@ class CustomPage extends StatelessWidget {
 
   const CustomPage({
     Key? key,
-    required this.animationController,
     required this.title,
     this.backButtonCallback,
     this.featureButtonIcon,
@@ -43,6 +37,10 @@ class CustomPage extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: Theme.of(context).colorScheme.background, // Status bar color
+        ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Stack(
@@ -52,40 +50,44 @@ class CustomPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SmallVSpace(),
-                    // Header and feature button.
-                    CustomFadeTransition(
-                      controller: animationController,
-                      interval: const Interval(0, 0.4, curve: Curves.easeIn),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
+                    Container(
+                      color: Theme.of(context).colorScheme.background,
+                      child: Column(
                         children: [
-                          const SizedBox(width: 72, height: 64),
-                          Expanded(
-                            child: SubHeader(
-                              text: title,
-                              context: context,
-                              textAlign: TextAlign.center,
-                            ),
+                          const SmallVSpace(),
+                          // Header and feature button.
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const SizedBox(width: 72, height: 64),
+                              Expanded(
+                                child: SubHeader(
+                                  text: title,
+                                  context: context,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+
+                              /// Small optional feature button with custom icon.
+                              (featureButtonIcon == null || featureButtonCallback == null)
+                                  ? const SizedBox(width: 64, height: 0)
+                                  : Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: SmallIconButton(
+                                        icon: featureButtonIcon!,
+                                        onPressed: featureButtonCallback!,
+                                        fill: Theme.of(context).colorScheme.background,
+                                        splash: Theme.of(context).colorScheme.surface,
+                                      ),
+                                    ),
+                            ],
                           ),
 
-                          /// Small optional feature button with custom icon.
-                          (featureButtonIcon == null || featureButtonCallback == null)
-                              ? const SizedBox(width: 64, height: 0)
-                              : Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: SmallIconButton(
-                                    icon: featureButtonIcon!,
-                                    onPressed: featureButtonCallback!,
-                                    fill: Theme.of(context).colorScheme.background,
-                                    splash: Theme.of(context).colorScheme.surface,
-                                  ),
-                                ),
+                          const SmallVSpace(),
                         ],
                       ),
                     ),
-                    const SmallVSpace(),
                     content
                   ],
                 ),
@@ -97,12 +99,21 @@ class CustomPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    AppBackButton(
-                        onPressed: backButtonCallback ??
-                            (() {
-                              animationController.duration = ShortDuration();
-                              animationController.reverse().then((value) => Navigator.pop(context));
-                            })),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 0.5,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(24),
+                          bottomRight: Radius.circular(24),
+                        ),
+                      ),
+                      child: AppBackButton(
+                        onPressed: backButtonCallback ?? () => Navigator.pop(context),
+                      ),
+                    ),
                   ],
                 ),
               ),

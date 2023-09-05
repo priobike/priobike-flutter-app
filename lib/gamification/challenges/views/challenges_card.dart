@@ -19,10 +19,7 @@ import 'package:priobike/gamification/common/services/profile_service.dart';
 /// If no goals are set, the goal setting view can be opened by tapping the card. otherwise it can be opened by
 /// tapping a button at the bottom.
 class GameChallengesCard extends StatefulWidget {
-  /// Open view function from parent widget is required, to animate the hub cards away when opening the stats view.
-  final Future Function(Widget view) openView;
-
-  const GameChallengesCard({Key? key, required this.openView}) : super(key: key);
+  const GameChallengesCard({Key? key}) : super(key: key);
 
   @override
   State<GameChallengesCard> createState() => _GameChallengesCardState();
@@ -39,28 +36,23 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   }
 
   Widget get challengesEnabledWidget => GamificationCard(
+        directionView: const ChallengeGoalSetting(),
         content: Column(
           children: [
             const GameProfileView(),
-            BoldContent(
-              text: 'Deine Challenges',
-              context: context,
-              textAlign: TextAlign.left,
-            ),
+            const SmallVSpace(),
             const ChallengeProgressBar(isWeekly: true),
             const ChallengeProgressBar(isWeekly: false),
-            GestureDetector(
-              onTap: () => widget.openView(const ChallengeGoalSetting()),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  BoldSmall(text: 'Ziele ändern', context: context),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.redo, size: 16),
-                ],
-              ),
+            const SmallVSpace(),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                BoldSmall(text: 'Ziele ändern', context: context),
+                const SizedBox(width: 4),
+                const Icon(Icons.redo, size: 16),
+              ],
             ),
           ],
         ),
@@ -68,7 +60,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
 
   /// Info widget which encourages the user to participate in the challenges.
   Widget get challengesDisabledWidget => GamificationCard(
-        onTap: () => widget.openView(const ChallengesTutorial()),
+        directionView: const ChallengesTutorial(),
         content: Column(
           children: [
             Padding(

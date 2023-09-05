@@ -7,12 +7,10 @@ import 'package:priobike/main.dart';
 
 /// This widget shows detailed statistics for the last 5  5-week intervals, using the [DetailedStatistics] widget.
 class DetailedMultipleWeekStats extends StatefulWidget {
-  final AnimationController headerAnimationController;
-
   final AnimationController rideListController;
+
   const DetailedMultipleWeekStats({
     Key? key,
-    required this.headerAnimationController,
     required this.rideListController,
   }) : super(key: key);
 
@@ -86,7 +84,6 @@ class _DetailedMultipleWeekStatsState extends State<DetailedMultipleWeekStats> {
               ))
           .toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
-      headerAnimationController: widget.headerAnimationController,
       rideListController: widget.rideListController,
     );
   }

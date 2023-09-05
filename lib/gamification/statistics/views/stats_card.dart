@@ -3,6 +3,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
+import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/custom_route.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
@@ -18,27 +20,21 @@ import 'package:priobike/gamification/statistics/views/stats_page.dart';
 import 'package:priobike/main.dart';
 
 class RideStatisticsCard extends StatelessWidget {
-  /// Open view function from parent widget is required, to animate the hub cards away when opening the stats view.
-  final Future Function(Widget view) openView;
-
-  const RideStatisticsCard({Key? key, required this.openView}) : super(key: key);
+  const RideStatisticsCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FeatureCard(
+    return const FeatureCard(
       featureKey: GameProfileService.gameFeatureStatisticsKey,
-      featureEnabledWidget: StatisticsEnabeldCard(openView: openView),
-      featureDisabledWidget: StatisticsDisabledCard(openView: openView),
+      featureEnabledWidget: StatisticsEnabeldCard(),
+      featureDisabledWidget: StatisticsDisabledCard(),
     );
   }
 }
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
 class StatisticsEnabeldCard extends StatefulWidget {
-  /// Open view function from parent widget is required, to animate the hub cards away when opening the stats view.
-  final Future Function(Widget view) openView;
-
-  const StatisticsEnabeldCard({Key? key, required this.openView}) : super(key: key);
+  const StatisticsEnabeldCard({Key? key}) : super(key: key);
 
   @override
   State<StatisticsEnabeldCard> createState() => _StatisticsEnabeldCardState();
@@ -55,16 +51,32 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
   final List<GraphViewModel> graphViewModels = [];
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  void update() {
+    var newIndex = getIt<StatisticService>().statInterval.index;
+    if (pageController.hasClients && (newIndex - (pageController.page ?? newIndex)).abs() >= 1) {
+      pageController.animateToPage(
+        newIndex,
+        duration: TinyDuration(),
+        curve: Curves.ease,
+      );
+      return;
+    }
+    if (mounted) setState(() {});
+  }
+
+  late StatisticService _statsService;
 
   @override
   void initState() {
+    _statsService = getIt<StatisticService>();
+    _statsService.addListener(update);
     initGraphViewModels();
     super.initState();
   }
 
   @override
   void dispose() {
+    _statsService.removeListener(update);
     tabController.dispose();
     pageController.dispose();
     for (var viewModel in graphViewModels) {
@@ -90,20 +102,15 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
   }
 
   /// Handles a tap on the card which is not recognized as an interaction with the graphs.
-  Future<void> onTap() async {
-    await widget.openView(const StatisticsView());
-    var newIndex = getIt<StatisticService>().statInterval.index;
-    if (pageController.hasClients) pageController.jumpToPage(newIndex);
-  }
+  Future<void> onTap() async => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StatisticsView()));
 
   @override
   Widget build(BuildContext context) {
     return GamificationCard(
-      onTap: onTap,
+      directionView: const StatisticsView(),
       content: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          const OverallStatistics(),
           SizedBox(
             width: MediaQuery.of(context).size.width,
             height: 224,
@@ -146,6 +153,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
               key: GlobalKey(),
             ),
           ),
+          const OverallStatistics(),
         ],
       ),
     );
@@ -154,16 +162,12 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
 
 /// Info widget which is shown, if the user hasn't enabled the statistics.
 class StatisticsDisabledCard extends StatelessWidget {
-  final Future Function(Widget view) openView;
-
-  const StatisticsDisabledCard({Key? key, required this.openView}) : super(key: key);
+  const StatisticsDisabledCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GamificationCard(
-      onTap: () async {
-        openView(const StatisticsTutorial());
-      },
+      directionView: const StatisticsTutorial(),
       content: Column(
         children: [
           Padding(
