@@ -6,6 +6,8 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/hub/views/hub_card.dart';
+import 'package:priobike/gamification/intro/views/home_card.dart';
 import 'package:priobike/gamification/intro/views/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -356,42 +358,15 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     child: ProfileView(),
                   ),
                   if (settings.enableGamification)
-                    Column(children: [
-                      const VSpace(),
-                      BlendIn(
-                        delay: const Duration(milliseconds: 1000),
-                        child: GestureDetector(
-                          onTap: () =>
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const GameView())),
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 24),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background,
-                              borderRadius: const BorderRadius.all(Radius.circular(24)),
-                            ),
-                            child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                                width: MediaQuery.of(context).size.width,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      padding: const EdgeInsets.only(top: 16, bottom: 16),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          BoldContent(text: "PrioBike Challenge", context: context),
-                                          const SizedBox(height: 4),
-                                          Small(text: "Dein aktueller Fortschritt", context: context),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                          ),
+                    Column(
+                      children: const [
+                        VSpace(),
+                        BlendIn(
+                          delay: Duration(milliseconds: 1000),
+                          child: GameHomeCard(),
                         ),
-                      ),
-                    ]),
+                      ],
+                    ),
                   const VSpace(),
                   const LastTrackView(),
                   const VSpace(),

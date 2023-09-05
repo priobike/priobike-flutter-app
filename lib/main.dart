@@ -11,7 +11,6 @@ import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
-import 'package:priobike/gamification/intro/services/intro_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
@@ -88,7 +87,6 @@ Future<void> main() async {
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<StatusHistory>(StatusHistory());
-  getIt.registerSingleton<GameIntroService>(GameIntroService());
   getIt.registerSingleton<GameProfileService>(GameProfileService());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<StatisticService>(StatisticService());
