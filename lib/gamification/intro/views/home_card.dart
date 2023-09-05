@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/hub/views/main.dart';
 import 'package:priobike/gamification/intro/views/game_intro.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
+import 'package:priobike/gamification/profile/views/profile_card.dart';
 import 'package:priobike/main.dart';
 
 class GameHomeCard extends StatefulWidget {
@@ -36,7 +37,7 @@ class _GameHomeCardState extends State<GameHomeCard> {
   @override
   Widget build(BuildContext context) {
     if (_profileService.hasProfile) {
-      return profileCard;
+      return const GameProfileCard();
     } else {
       return infoCard;
     }
@@ -73,32 +74,35 @@ class _GameHomeCardState extends State<GameHomeCard> {
         ),
       );
 
-  Widget get infoCard => GestureDetector(
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GameIntro())),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
-            borderRadius: const BorderRadius.all(Radius.circular(24)),
-          ),
+  Widget get infoCard => Padding(
+        padding: const EdgeInsets.only(top: 24),
+        child: GestureDetector(
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GameIntro())),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            width: MediaQuery.of(context).size.width,
-            child: Row(
-              children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(top: 16, bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      BoldContent(text: "PrioBike Plus", context: context),
-                      const SizedBox(height: 4),
-                      Small(text: "Klingt irgendwie, als würd das was kosten.", context: context),
-                    ],
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              borderRadius: const BorderRadius.all(Radius.circular(24)),
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(top: 16, bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        BoldContent(text: "PrioBike Plus", context: context),
+                        const SizedBox(height: 4),
+                        Small(text: "Klingt irgendwie, als würd das was kosten.", context: context),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

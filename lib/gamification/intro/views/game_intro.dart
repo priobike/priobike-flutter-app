@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/tutorial_page.dart';
-import 'package:priobike/gamification/hub/views/main.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
@@ -16,13 +14,7 @@ class GameIntro extends StatelessWidget {
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () {
         getIt<GameProfileService>().createProfile('');
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            transitionDuration: TinyDuration(),
-            reverseTransitionDuration: TinyDuration(),
-            pageBuilder: (context, animation, secondaryAnimation) => const GameHubView(),
-          ),
-        );
+        Navigator.of(context).pop();
       },
       contentList: [
         const SizedBox(height: 64 + 16),

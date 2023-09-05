@@ -69,4 +69,9 @@ class GameSettingsService with ChangeNotifier {
     _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
     notifyListeners();
   }
+
+  void reset() {
+    _enabledFeatures.clear();
+    notifyListeners();
+  }
 }

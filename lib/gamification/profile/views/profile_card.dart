@@ -112,7 +112,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
 
   /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
   Level? get currentLevel {
-    Level? prevLvl;
+    Level? prevLvl = levels[0];
     for (var level in levels) {
       if (_profileService.profile!.xp < level.value) break;
       prevLvl = level;
@@ -202,7 +202,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
             minValue: currentLevel?.value.toDouble() ?? 0,
             maxValue: nextLevel?.value.toDouble() ?? profile.xp.toDouble(),
             curValue: profile.xp.toDouble(),
-            iconColor: (currentLevel == null)
+            iconColor: (currentLevel == levels[0])
                 ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
                 : currentLevel!.color,
             icon: Icons.pedal_bike,
@@ -220,7 +220,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BoldSubHeader(text: _profileService.profile!.username, context: context),
+                    BoldSubHeader(text: currentLevel!.title, context: context),
                     Small(
                       text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
                       context: context,

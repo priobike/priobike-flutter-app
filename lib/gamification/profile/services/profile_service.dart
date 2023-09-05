@@ -8,6 +8,7 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/profile/models/game_profile.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages and provides the values of the gamification user profile.
@@ -138,6 +139,7 @@ class GameProfileService with ChangeNotifier {
     prefs.remove(userProfileKey);
     prefs.remove(profileExistsKey);
     prefs.remove(GameSettingsService.enabledFeatureListKey);
+    getIt<GameSettingsService>().reset();
     notifyListeners();
   }
 }
