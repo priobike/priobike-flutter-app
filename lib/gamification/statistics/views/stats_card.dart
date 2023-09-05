@@ -5,7 +5,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/views/game_card.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/statistics/views/graphs/compact_labled_graph.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';
@@ -26,7 +26,7 @@ class RideStatisticsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FeatureCard(
-      featureKey: GameSettingsService.gameFeatureStatisticsKey,
+      featureKey: GameProfileService.gameFeatureStatisticsKey,
       featureEnabledWidget: StatisticsEnabeldCard(openView: openView),
       featureDisabledWidget: StatisticsDisabledCard(openView: openView),
     );

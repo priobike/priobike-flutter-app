@@ -4,7 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/goal_setting.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/tutorial_page.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
 class ChallengesTutorial extends StatelessWidget {
@@ -15,7 +15,7 @@ class ChallengesTutorial extends StatelessWidget {
     return GameTutorialPage(
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () {
-        getIt<GameSettingsService>().enableOrDisableFeature(GameSettingsService.gameFeatureChallengesKey);
+        getIt<GameProfileService>().enableOrDisableFeature(GameProfileService.gameFeatureChallengesKey);
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             transitionDuration: TinyDuration(),

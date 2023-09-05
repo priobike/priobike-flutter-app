@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/intro/game_intro.dart';
-import 'package:priobike/gamification/profile/services/profile_service.dart';
-import 'package:priobike/gamification/challenges/views/profile_view.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
 class GameIntroCard extends StatefulWidget {

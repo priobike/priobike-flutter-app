@@ -7,10 +7,9 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/gamification/challenges/services/challenges_service.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';
-import 'package:priobike/gamification/profile/services/profile_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
@@ -90,7 +89,6 @@ Future<void> main() async {
   getIt.registerSingleton<GameProfileService>(GameProfileService());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<StatisticService>(StatisticService());
-  getIt.registerSingleton<GameSettingsService>(GameSettingsService());
   getIt.registerSingleton<DailyChallengeService>(DailyChallengeService());
   getIt.registerSingleton<WeeklyChallengeService>(WeeklyChallengeService());
 

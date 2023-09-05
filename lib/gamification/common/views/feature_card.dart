@@ -1,7 +1,5 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
 class FeatureCard extends StatefulWidget {
@@ -24,23 +22,23 @@ class FeatureCard extends StatefulWidget {
 
 class _FeatureCardState extends State<FeatureCard> {
   /// Game settings service required to check whether the user has set their challenge goals.
-  late GameSettingsService _settingsService;
+  late GameProfileService _profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
-  bool get featureEnabled => _settingsService.enabledFeatures.contains(widget.featureKey);
+  bool get featureEnabled => _profileService.enabledFeatures.contains(widget.featureKey);
 
   @override
   void initState() {
-    _settingsService = getIt<GameSettingsService>();
-    _settingsService.addListener(update);
+    _profileService = getIt<GameProfileService>();
+    _profileService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
-    _settingsService.removeListener(update);
+    _profileService.removeListener(update);
     super.dispose();
   }
 

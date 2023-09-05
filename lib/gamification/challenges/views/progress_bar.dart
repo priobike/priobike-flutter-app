@@ -189,7 +189,6 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
         children: [
           getTimeLeftWidget(),
           getProgressBar(),
-          getDescriptionWidget(),
         ],
       ),
     );
@@ -234,32 +233,6 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                 const SizedBox(width: 16),
               ],
       ],
-    );
-  }
-
-  /// This widget displays the description of the displayed challenge.
-  Widget getDescriptionWidget() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          const SizedBox(height: 30),
-          if (challenge != null)
-            Expanded(
-              child: BlendIn(
-                child: Small(
-                  text: challenge!.description,
-                  context: context,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.start,
-                  maxLines: 2,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 
@@ -352,7 +325,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                         ? 'Belohnung einsammeln'
                         : '${challenge!.progress} / ${challenge!.target}',
                 context: context,
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                color: isCompleted ? Colors.white : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
               ),
             ),
           ],

@@ -1,27 +1,41 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/profile/models/game_profile.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/common/models/game_profile.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Service which manages and provides the values of the gamification user profile.
+/// Service which manages and provides the values of the gamification user profile, including the users' settings.
 class GameProfileService with ChangeNotifier {
-  static const String userProfileKey = 'priobike.game.userProfile';
-  static const String profileExistsKey = 'priobike.game.profileExists';
+  static const userProfileKey = 'priobike.game.userProfile';
+  static const profileExistsKey = 'priobike.game.profileExists';
+  static const enabledFeatureListKey = 'priobike.game.prefs.enabledFeatures';
+  static const gameFeatureStatisticsKey = 'priobike.game.features.statistics';
+  static const gameFeatureChallengesKey = 'priobike.game.features.challenges';
+  static const challengeGoalsKey = 'priobike.game.challenges.goals';
+
+  /// Instance of the shared preferences.
+  SharedPreferences? _prefs;
+
+  /// The user goals for the challenges
+  UserGoals? _challengeGoals;
+  UserGoals get challengeGoals => _challengeGoals ?? UserGoals.def;
+
+  /// Check, if the user has set challenge goals already.
+  bool get challengeGoalsSet => _challengeGoals != null;
+
+  /// List of the selected game preferences of the user as string keys.
+  List<String> _enabledFeatures = [];
+  List<String> get enabledFeatures => _enabledFeatures;
 
   /// Ride DAOs to access rides and challenges.
   RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
   ChallengeDao get challengeDao => AppDatabase.instance.challengeDao;
-
-  /// Instance of the shared preferences.
-  SharedPreferences? _prefs;
 
   /// Object which holds all the user profile values. If it is null, there is no user profile yet.
   GameProfile? _profile;
@@ -104,6 +118,12 @@ class GameProfileService with ChangeNotifier {
     if (parsedProfile == null) return;
     _profile = GameProfile.fromJson(jsonDecode(parsedProfile));
 
+    _prefs ??= await SharedPreferences.getInstance();
+    _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
+
+    var goalStr = _prefs!.getString(challengeGoalsKey);
+    if (goalStr != null) _challengeGoals = UserGoals.fromJson(jsonDecode(goalStr));
+
     /// If a profile was loaded, start the database stream of rides, to update the profile data accordingly.
     startDatabaseStreams();
   }
@@ -132,14 +152,40 @@ class GameProfileService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update the users' challenge goals and notify listeners.
+  void setChallengeGoals(UserGoals? goals) {
+    _challengeGoals = goals;
+    if (goals != null) {
+      _prefs!.setString(challengeGoalsKey, jsonEncode(goals.toJson()));
+    } else {
+      _prefs!.remove(challengeGoalsKey);
+    }
+    notifyListeners();
+  }
+
+  /// Returns true, if a given string key is inside of the list of selected game prefs.
+  bool isFeatureEnabled(String key) => _enabledFeatures.contains(key);
+
+  /// Removes a key out of the enabled feature, if the key is inside the lits. Otherwise adds it to the list.
+  void enableOrDisableFeature(String key) async {
+    if (_enabledFeatures.contains(key)) {
+      _enabledFeatures.remove(key);
+    } else {
+      _enabledFeatures.add(key);
+    }
+    _prefs ??= await SharedPreferences.getInstance();
+    _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
+    notifyListeners();
+  }
+
   /// Helper function which removes a created user profile. Just for tests currently.
   void resetUserProfile() async {
     var prefs = await SharedPreferences.getInstance();
     _profile = null;
     prefs.remove(userProfileKey);
     prefs.remove(profileExistsKey);
-    prefs.remove(GameSettingsService.enabledFeatureListKey);
-    getIt<GameSettingsService>().reset();
+    prefs.remove(enabledFeatureListKey);
+    _enabledFeatures.clear();
     AppDatabase.instance.challengeDao.clearObjects();
     notifyListeners();
   }

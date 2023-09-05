@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/tutorial_page.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
 class StatisticsTutorial extends StatelessWidget {
@@ -13,7 +13,7 @@ class StatisticsTutorial extends StatelessWidget {
     return GameTutorialPage(
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () {
-        getIt<GameSettingsService>().enableOrDisableFeature(GameSettingsService.gameFeatureStatisticsKey);
+        getIt<GameProfileService>().enableOrDisableFeature(GameProfileService.gameFeatureStatisticsKey);
         Navigator.of(context).pop();
       },
       contentList: [

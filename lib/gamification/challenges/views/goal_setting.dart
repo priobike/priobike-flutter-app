@@ -10,7 +10,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/common/views/custom_page.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -34,7 +34,7 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
   late AnimationController _animationController;
 
   /// The game settings service to get the current user goals and to update the user goals if needed.
-  late GameSettingsService _settingsService;
+  late GameProfileService _profileService;
 
   /// The associated shortcuts service
   late Shortcuts _shortcutsService;
@@ -77,15 +77,15 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
 
   @override
   void initState() {
-    _settingsService = getIt<GameSettingsService>();
-    _settingsService.addListener(update);
+    _profileService = getIt<GameProfileService>();
+    _profileService.addListener(update);
     _shortcutsService = getIt<Shortcuts>();
     _shortcutsService.addListener(update);
     _animationController = AnimationController(vsync: this, duration: LongDuration());
     _animationController.forward();
 
     // Update default values to previous goals, if previous goals exist.
-    var goals = _settingsService.challengeGoals;
+    var goals = _profileService.challengeGoals;
     var routeGoals = goals.routeGoal;
     showRouteSelection = routeGoals != null;
     distanceGoal = goals.dailyDistanceGoalMetres / 1000;
@@ -97,7 +97,7 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
 
   @override
   void dispose() {
-    _settingsService.removeListener(update);
+    _profileService.removeListener(update);
     _shortcutsService.removeListener(update);
     _animationController.dispose();
     super.dispose();
@@ -174,7 +174,7 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
               var route = _shortcutsService.shortcuts?.where((s) => s.id == selectedRoute).firstOrNull;
               var routeGoals = route == null ? null : RouteGoals(route.id, route.name, routeGoal.toInt());
               var goals = UserGoals(distanceGoal * 1000, durationGoal, routeGoals);
-              getIt<GameSettingsService>().setChallengeGoals(goals);
+              getIt<GameProfileService>().setChallengeGoals(goals);
               Navigator.pop(context);
             },
           ),

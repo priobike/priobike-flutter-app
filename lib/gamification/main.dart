@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
-import 'package:priobike/gamification/profile/services/profile_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
 import 'package:priobike/main.dart';
 

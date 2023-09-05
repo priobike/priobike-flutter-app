@@ -3,10 +3,9 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
-import 'package:priobike/gamification/profile/models/level.dart';
+import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/profile/services/profile_service.dart';
-import 'package:priobike/gamification/settings/services/settings_service.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
 /// This view displays the basic info about the users game profile. This can contain their achieved game rewards and
@@ -24,7 +23,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   late GameProfileService _profileService;
 
   /// The service which provides the users game settings to modify the card according to the enabled features.
-  late GameSettingsService _settingsService;
+  late GameProfileService _settingsService;
 
   /// Controller to animate the trophy icon when a new trophy is gained.
   late final AnimationController _trophiesController;
@@ -71,7 +70,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
-    _settingsService = getIt<GameSettingsService>();
+    _settingsService = getIt<GameProfileService>();
     _settingsService.addListener(update);
     super.initState();
   }
