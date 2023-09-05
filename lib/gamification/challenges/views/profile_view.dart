@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/profile/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
-import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/main.dart';
 
 /// This view displays the basic info about the users game profile. This can contain their achieved game rewards and
 /// their overall statistics of all registered rides. But what exactly is displayed depends on the users'
 /// enabled gamification features.
-class GameProfileCard extends StatefulWidget {
-  const GameProfileCard({Key? key}) : super(key: key);
+class GameProfileView extends StatefulWidget {
+  const GameProfileView({Key? key}) : super(key: key);
 
   @override
-  State<GameProfileCard> createState() => _GameProfileCardState();
+  State<GameProfileView> createState() => _GameProfileViewState();
 }
 
-class _GameProfileCardState extends State<GameProfileCard> with TickerProviderStateMixin {
+class _GameProfileViewState extends State<GameProfileView> with TickerProviderStateMixin {
   /// The service which manages and provides the user profile.
   late GameProfileService _profileService;
 
@@ -161,37 +158,25 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     );
   }
 
-  /// Returns an info widget for a given value with a given label and icon.
-  Widget getInfoWidget(IconData icon, String value, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+  /// Get card header without a game state.
+  Widget getNoRewardsHeader(var profile) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          icon,
-          size: 24,
-          color: CI.blue.withOpacity(0.25),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            BoldSmall(
-              text: value,
-              context: context,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-            ),
-            BoldSmall(
-              text: label,
-              context: context,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
-            ),
-          ],
+        BoldSubHeader(
+          text: 'Deine Gesamtstatistiken',
+          context: context,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
         ),
       ],
     );
   }
 
-  /// Get card header which displays the users game state in form of the received rewards.
-  Widget getRewardsHeader(var profile) {
+  @override
+  Widget build(BuildContext context) {
+    var profile = _profileService.profile!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -251,82 +236,6 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
           ),
         ),
       ],
-    );
-  }
-
-  /// Get card header without a game state.
-  Widget getNoRewardsHeader(var profile) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        BoldSubHeader(
-          text: 'Deine Gesamtstatistiken',
-          context: context,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-        ),
-      ],
-    );
-  }
-
-  /// Widget which displays the total statisics for the user.
-  Widget getStatisticFooter(var profile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SmallVSpace(),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            getInfoWidget(
-              Icons.directions_bike,
-              StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
-              'km',
-            ),
-            getInfoWidget(
-              Icons.timer,
-              StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
-              'min',
-            ),
-            getInfoWidget(
-              Icons.speed,
-              'ø ${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
-              'km/h',
-            ),
-            getInfoWidget(
-              Icons.arrow_upward,
-              StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
-              'm',
-            ),
-            getInfoWidget(
-              Icons.arrow_downward,
-              StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
-              'm',
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_settingsService.enabledFeatures.isEmpty) return const SizedBox.shrink();
-    var profile = _profileService.profile!;
-    var rewardsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureChallengesKey);
-    var statsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureStatisticsKey);
-    return GamificationCard(
-      content: Column(
-        children: [
-          const SmallVSpace(),
-          rewardsEnabled ? getRewardsHeader(profile) : getNoRewardsHeader(profile),
-          if (statsEnabled) getStatisticFooter(profile),
-          const SmallVSpace(),
-        ],
-      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_tutorial.dart';
+import 'package:priobike/gamification/challenges/views/profile_view.dart';
 import 'package:priobike/gamification/challenges/views/progress_bar.dart';
 import 'package:priobike/gamification/challenges/views/goal_setting.dart';
 import 'package:priobike/gamification/common/colors.dart';
@@ -40,6 +41,12 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   Widget get challengesEnabledWidget => GamificationCard(
         content: Column(
           children: [
+            const GameProfileView(),
+            BoldContent(
+              text: 'Deine Challenges',
+              context: context,
+              textAlign: TextAlign.left,
+            ),
             const ChallengeProgressBar(isWeekly: true),
             const ChallengeProgressBar(isWeekly: false),
             GestureDetector(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/views/detailed_statistics.dart';
+import 'package:priobike/gamification/statistics/views/detailed_stats.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';

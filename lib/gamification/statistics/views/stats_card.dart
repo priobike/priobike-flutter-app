@@ -12,8 +12,9 @@ import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/views/statistics_tutorial.dart';
-import 'package:priobike/gamification/statistics/views/statistics_view.dart';
+import 'package:priobike/gamification/statistics/views/overall_stats.dart';
+import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
+import 'package:priobike/gamification/statistics/views/stats_page.dart';
 import 'package:priobike/main.dart';
 
 class RideStatisticsCard extends StatelessWidget {
@@ -102,6 +103,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
       content: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
+          const OverallStatistics(),
           SizedBox(
             width: MediaQuery.of(context).size.width,
             height: 224,
