@@ -5,13 +5,17 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 
 /// Fixed duration for long animation.
-class LongAnimationDuration extends Duration {
-  LongAnimationDuration() : super(milliseconds: 1000);
+class LongDuration extends Duration {
+  LongDuration() : super(milliseconds: 1000);
 }
 
 /// Fixed duration for a short animation.
-class ShortAnimationDuration extends Duration {
-  ShortAnimationDuration() : super(milliseconds: 500);
+class ShortDuration extends Duration {
+  ShortDuration() : super(milliseconds: 500);
+}
+
+class TinyDuration extends Duration {
+  TinyDuration() : super(milliseconds: 250);
 }
 
 /// Simple fade tranistion to let widgets appear smooth.

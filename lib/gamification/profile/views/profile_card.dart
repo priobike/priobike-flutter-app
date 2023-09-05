@@ -3,9 +3,9 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
+import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/profile/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/level_ring.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/gamification/hub/views/hub_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
@@ -69,9 +69,9 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
 
   @override
   void initState() {
-    _trophiesController = AnimationController(duration: ShortAnimationDuration(), vsync: this);
-    _medalsController = AnimationController(duration: ShortAnimationDuration(), vsync: this);
-    _ringController = AnimationController(vsync: this, duration: ShortAnimationDuration(), value: 1);
+    _trophiesController = AnimationController(duration: ShortDuration(), vsync: this);
+    _medalsController = AnimationController(duration: ShortDuration(), vsync: this);
+    _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
     _settingsService = getIt<GameSettingsService>();
@@ -261,21 +261,11 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.person,
-          size: 32,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+        BoldSubHeader(
+          text: 'Deine Gesamtstatistiken',
+          context: context,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
         ),
-        const SmallHSpace(),
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: BoldSubHeader(
-            text: profile.username,
-            context: context,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-          ),
-        ),
-        const HSpace(),
       ],
     );
   }
@@ -322,34 +312,9 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     );
   }
 
-  /// Get seperator to seperate header and footer of the card, if necessary.
-  Widget getSeperator() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 8, left: 8, right: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: Container(
-              height: 2,
-              decoration: BoxDecoration(
-                  color: CI.blue.withOpacity(0.025),
-                  borderRadius: const BorderRadius.all(Radius.circular(4)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: CI.blue.withOpacity(0.025),
-                      blurRadius: 5,
-                    )
-                  ]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (_settingsService.enabledFeatures.isEmpty) return const SizedBox.shrink();
     var profile = _profileService.profile!;
     var rewardsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureChallengesKey);
     var statsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureStatisticsKey);
@@ -358,7 +323,6 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
         children: [
           const SmallVSpace(),
           rewardsEnabled ? getRewardsHeader(profile) : getNoRewardsHeader(profile),
-          if (statsEnabled & !rewardsEnabled) getSeperator(),
           if (statsEnabled) getStatisticFooter(profile),
           const SmallVSpace(),
         ],

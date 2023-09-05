@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
+import 'package:priobike/gamification/hub/views/hub_page.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_stats.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_stats.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_stats.dart';
@@ -28,9 +28,9 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
     statService = getIt<StatisticService>();
     statService.addListener(update);
     // Init the animation controllers and start the header animation.
-    _headerAnimationController = AnimationController(vsync: this, duration: ShortAnimationDuration());
+    _headerAnimationController = AnimationController(vsync: this, duration: ShortDuration());
     Future.delayed(const Duration(milliseconds: 0)).then((value) => _headerAnimationController.forward());
-    _listAnimationController = AnimationController(vsync: this, duration: ShortAnimationDuration());
+    _listAnimationController = AnimationController(vsync: this, duration: ShortDuration());
     super.initState();
   }
 
@@ -79,20 +79,20 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
       animationController: _headerAnimationController,
       title: getTitleFromStatInterval(statService.statInterval),
       backButtonCallback: () async {
-        _headerAnimationController.duration = ShortAnimationDuration();
+        _headerAnimationController.duration = ShortDuration();
         _headerAnimationController.reverse();
-        _listAnimationController.duration = ShortAnimationDuration();
+        _listAnimationController.duration = ShortDuration();
         _listAnimationController.reverse();
         if (!mounted) return;
-        Future.delayed(ShortAnimationDuration()).then((_) => Navigator.of(context).pop());
+        Future.delayed(ShortDuration()).then((_) => Navigator.of(context).pop());
       },
       featureButtonIcon: Icons.sync_alt,
       featureButtonCallback: () async {
-        _headerAnimationController.duration = ShortAnimationDuration();
+        _headerAnimationController.duration = ShortDuration();
         _headerAnimationController.reverse();
-        _listAnimationController.duration = ShortAnimationDuration();
+        _listAnimationController.duration = ShortDuration();
         _listAnimationController.reverse();
-        Future.delayed(ShortAnimationDuration()).then((_) {
+        Future.delayed(ShortDuration()).then((_) {
           getIt<StatisticService>().changeStatInterval();
           _headerAnimationController.forward();
         });

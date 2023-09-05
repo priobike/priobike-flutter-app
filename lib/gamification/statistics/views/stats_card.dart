@@ -1,27 +1,53 @@
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/colors.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
+import 'package:priobike/gamification/common/views/tutorial_page.dart';
+import 'package:priobike/gamification/hub/views/feature_card.dart';
 import 'package:priobike/gamification/hub/views/hub_card.dart';
+import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/views/graphs/compact_labled_graph.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/views/statistics_tutorial.dart';
 import 'package:priobike/gamification/statistics/views/statistics_view.dart';
 import 'package:priobike/main.dart';
 
-/// A gamification hub card which displays graphs containing statistics of the users' rides.
-class RideStatisticsCard extends StatefulWidget {
+class RideStatisticsCard extends StatelessWidget {
   /// Open view function from parent widget is required, to animate the hub cards away when opening the stats view.
   final Future Function(Widget view) openView;
 
   const RideStatisticsCard({Key? key, required this.openView}) : super(key: key);
 
   @override
-  State<RideStatisticsCard> createState() => _RideStatisticsCardState();
+  Widget build(BuildContext context) {
+    return FeatureCard(
+      featureKey: GameSettingsService.gameFeatureStatisticsKey,
+      featureEnabledWidget: StatisticsEnabeldCard(openView: openView),
+      featureDisabledWidget: StatisticsDisabledCard(openView: openView),
+    );
+  }
 }
 
-class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTickerProviderStateMixin {
+/// A gamification hub card which displays graphs containing statistics of the users' rides.
+class StatisticsEnabeldCard extends StatefulWidget {
+  /// Open view function from parent widget is required, to animate the hub cards away when opening the stats view.
+  final Future Function(Widget view) openView;
+
+  const StatisticsEnabeldCard({Key? key, required this.openView}) : super(key: key);
+
+  @override
+  State<StatisticsEnabeldCard> createState() => _StatisticsEnabeldCardState();
+}
+
+class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with SingleTickerProviderStateMixin {
   // Controller for the page view displaying the different statistics.
   final PageController pageController = PageController();
 
@@ -120,6 +146,78 @@ class _RideStatisticsCardState extends State<RideStatisticsCard> with SingleTick
               borderStyle: BorderStyle.none,
               color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
               key: GlobalKey(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Info widget which is shown, if the user hasn't enabled the statistics.
+class StatisticsDisabledCard extends StatelessWidget {
+  final Future Function(Widget view) openView;
+
+  const StatisticsDisabledCard({Key? key, required this.openView}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GameHubCard(
+      onTap: () async {
+        openView(const StatisticsTutorial());
+      },
+      content: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: BoldSubHeader(
+                        text: 'Deine Fahrtstatistiken',
+                        context: context,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    SizedBox(
+                      width: 96,
+                      height: 80,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Transform.rotate(
+                              angle: 0,
+                              child: const Icon(
+                                Icons.query_stats,
+                                size: 64,
+                                color: Medals.silver,
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Transform.rotate(
+                              angle: 0,
+                              child: const Icon(
+                                Icons.bar_chart,
+                                size: 64,
+                                color: CI.blue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

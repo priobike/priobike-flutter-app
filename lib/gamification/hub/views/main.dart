@@ -8,7 +8,7 @@ import 'package:priobike/gamification/hub/views/animation_wrapper.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
 import 'package:priobike/gamification/profile/views/profile_card.dart';
-import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
+import 'package:priobike/gamification/hub/views/hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/settings/views/settings_view.dart';
 import 'package:priobike/main.dart';
@@ -53,9 +53,9 @@ class GameHubViewState extends State<GameHubView> with SingleTickerProviderState
     // Init animation controller and start the animation after a short delay, to let the view load first.
     _animationController = AnimationController(
       vsync: this,
-      duration: ShortAnimationDuration(),
+      duration: ShortDuration(),
     );
-    Future.delayed(ShortAnimationDuration()).then(
+    Future.delayed(ShortDuration()).then(
       (value) => _animationController.forward(),
     );
     // Listen to ride data and update local list accordingly.

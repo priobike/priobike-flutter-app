@@ -9,7 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
-import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
+import 'package:priobike/gamification/hub/views/hub_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
@@ -81,7 +81,7 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
     _settingsService.addListener(update);
     _shortcutsService = getIt<Shortcuts>();
     _shortcutsService.addListener(update);
-    _animationController = AnimationController(vsync: this, duration: LongAnimationDuration());
+    _animationController = AnimationController(vsync: this, duration: LongDuration());
     _animationController.forward();
 
     // Update default values to previous goals, if previous goals exist.

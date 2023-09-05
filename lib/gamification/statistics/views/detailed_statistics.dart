@@ -84,7 +84,7 @@ class DetailedStatistics extends StatelessWidget {
           future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
           builder: (context, snapshot) {
             if (!(snapshot.data ?? false)) return const SizedBox.shrink();
-            rideListController.duration = ShortAnimationDuration();
+            rideListController.duration = ShortDuration();
             rideListController.forward();
             return getRideList(context);
           },
@@ -190,7 +190,7 @@ class DetailedStatistics extends StatelessWidget {
         /// Animate to next page if button is pressed.
         pageController.animateToPage(
           pageController.page!.toInt() + direction,
-          duration: ShortAnimationDuration(),
+          duration: ShortDuration(),
           curve: Curves.easeIn,
         );
       },

@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/level_ring.dart';
+import 'package:priobike/gamification/common/views/level_ring.dart';
 
 /// Dialog widget to pop up after one or multiple challenges were generated.
 class NewChallengeDialog extends StatefulWidget {
@@ -35,7 +35,7 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
 
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: ShortAnimationDuration());
+    _animationController = AnimationController(vsync: this, duration: ShortDuration());
     _animationController.forward();
     super.initState();
   }

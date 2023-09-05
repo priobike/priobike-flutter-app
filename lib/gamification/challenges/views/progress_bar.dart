@@ -11,7 +11,7 @@ import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/level_ring.dart';
+import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/main.dart';
 
 /// A Widget which displays the progress of a given challenge and relevant info about the challenge.
@@ -79,7 +79,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   @override
   void initState() {
-    _ringController = AnimationController(vsync: this, duration: ShortAnimationDuration(), value: 1);
+    _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
     startUpdateTimer();
     service.addListener(update);
     super.initState();
@@ -98,7 +98,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     endTimer();
     if (isCompleted) {
       timer = Timer.periodic(
-          ShortAnimationDuration(),
+          ShortDuration(),
           (timer) => setState(() {
                 iconShadowSpred = (iconShadowSpred == 0) ? 20 : 0;
               }));
@@ -125,7 +125,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     _ringController.reverse();
     setState(() => onTapAnimation = true);
     if (isCompleted) setState(() => completedAnimation = true);
-    await Future.delayed(ShortAnimationDuration()).then((_) => setState(() => onTapAnimation = false));
+    await Future.delayed(ShortDuration()).then((_) => setState(() => onTapAnimation = false));
 
     /// If there are a number of challenges, of which the user can chose from, open the challenge selection dialog.
     if (service.challengeChoices.isNotEmpty) {
@@ -134,7 +134,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
     /// If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
     else if (isCompleted) {
-      await Future.delayed(ShortAnimationDuration()).then((_) {
+      await Future.delayed(ShortDuration()).then((_) {
         setState(() => completedAnimation = false);
       });
       service.completeChallenge();
@@ -303,7 +303,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                 widthFactor: isCompleted ? 1 : progressPercentage,
                                 heightFactor: 1,
                                 child: AnimatedContainer(
-                                  duration: LongAnimationDuration(),
+                                  duration: LongDuration(),
                                   decoration: BoxDecoration(
                                     borderRadius: const BorderRadius.all(Radius.circular(32)),
                                     boxShadow: [
@@ -319,7 +319,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                             ]
                           : [
                               AnimatedContainer(
-                                duration: ShortAnimationDuration(),
+                                duration: ShortDuration(),
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(Radius.circular(32)),
                                   boxShadow: [
@@ -365,7 +365,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   Widget getIconRing() {
     var color = CI.blue.withOpacity(isCompleted ? 1 : math.max(progressPercentage, 0.25));
     return AnimatedContainer(
-      duration: ShortAnimationDuration(),
+      duration: ShortDuration(),
       margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,

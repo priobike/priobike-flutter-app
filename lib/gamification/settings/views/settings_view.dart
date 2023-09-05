@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
-import 'package:priobike/gamification/hub/views/custom_hub_page.dart';
+import 'package:priobike/gamification/hub/views/hub_page.dart';
 import 'package:priobike/gamification/settings/views/feature_settings.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/views/main.dart';
@@ -49,7 +49,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   void initState() {
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(update);
-    _animationController = AnimationController(vsync: this, duration: LongAnimationDuration());
+    _animationController = AnimationController(vsync: this, duration: LongDuration());
     _animationController.forward();
     super.initState();
   }
@@ -64,7 +64,7 @@ class _GameSettingsViewState extends State<GameSettingsView> with SingleTickerPr
   /// Open the view corresponding to a specific selected setting.
   void _openSettingsPage(Widget view, int index) {
     setState(() => selectedSetting = 0);
-    _animationController.duration = ShortAnimationDuration();
+    _animationController.duration = ShortDuration();
     _animationController.reverse().then(
           (_) => Navigator.of(context)
               .push(
