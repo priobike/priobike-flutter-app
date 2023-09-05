@@ -140,6 +140,7 @@ class GameProfileService with ChangeNotifier {
     prefs.remove(profileExistsKey);
     prefs.remove(GameSettingsService.enabledFeatureListKey);
     getIt<GameSettingsService>().reset();
+    AppDatabase.instance.challengeDao.clearObjects();
     notifyListeners();
   }
 }

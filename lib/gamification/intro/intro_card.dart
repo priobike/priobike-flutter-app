@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/hub/views/main.dart';
-import 'package:priobike/gamification/intro/views/game_intro.dart';
+import 'package:priobike/gamification/common/views/game_card.dart';
+import 'package:priobike/gamification/intro/game_intro.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/gamification/profile/views/profile_card.dart';
 import 'package:priobike/main.dart';
 
-class GameHomeCard extends StatefulWidget {
-  const GameHomeCard({Key? key}) : super(key: key);
+class GameIntroCard extends StatefulWidget {
+  const GameIntroCard({Key? key}) : super(key: key);
 
   @override
-  State<GameHomeCard> createState() => _GameHomeCardState();
+  State<GameIntroCard> createState() => _GameIntroCardState();
 }
 
-class _GameHomeCardState extends State<GameHomeCard> {
+class _GameIntroCardState extends State<GameIntroCard> {
   /// The associated intro service, which is injected by the provider.
   late GameProfileService _profileService;
 
@@ -36,43 +36,22 @@ class _GameHomeCardState extends State<GameHomeCard> {
 
   @override
   Widget build(BuildContext context) {
-    if (_profileService.hasProfile) {
-      return const GameProfileCard();
-    } else {
-      return infoCard;
-    }
-  }
-
-  Widget get profileCard => GestureDetector(
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GameHubView())),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
-            borderRadius: const BorderRadius.all(Radius.circular(24)),
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            width: MediaQuery.of(context).size.width,
-            child: Row(
-              children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(top: 16, bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      BoldContent(text: "PrioBike Challenge", context: context),
-                      const SizedBox(height: 4),
-                      Small(text: "Dein aktueller Fortschritt", context: context),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return GamificationCard(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GameIntro())),
+      content: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(top: 16, bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BoldContent(text: "PrioBike Plus", context: context),
+            const SizedBox(height: 4),
+            Small(text: "Klingt irgendwie, als würd das was kosten.", context: context),
+          ],
         ),
-      );
+      ),
+    );
+  }
 
   Widget get infoCard => Padding(
         padding: const EdgeInsets.only(top: 24),
@@ -81,7 +60,7 @@ class _GameHomeCardState extends State<GameHomeCard> {
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 24),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: const BorderRadius.all(Radius.circular(24)),
             ),
             child: Container(

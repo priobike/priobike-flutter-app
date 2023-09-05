@@ -7,7 +7,7 @@ import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/profile/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
-import 'package:priobike/gamification/hub/views/hub_card.dart';
+import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/main.dart';
@@ -318,7 +318,7 @@ class _GameProfileCardState extends State<GameProfileCard> with TickerProviderSt
     var profile = _profileService.profile!;
     var rewardsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureChallengesKey);
     var statsEnabled = _settingsService.isFeatureEnabled(GameSettingsService.gameFeatureStatisticsKey);
-    return GameHubCard(
+    return GamificationCard(
       content: Column(
         children: [
           const SmallVSpace(),

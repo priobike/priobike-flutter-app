@@ -7,7 +7,8 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
-import 'package:priobike/gamification/intro/views/home_card.dart';
+import 'package:priobike/gamification/intro/intro_card.dart';
+import 'package:priobike/gamification/main.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -358,27 +359,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     delay: Duration(milliseconds: 750),
                     child: ProfileView(),
                   ),
-                  if (settings.enableGamification)
-                    Column(
-                      children: [
-                        const BlendIn(
-                          delay: Duration(milliseconds: 1000),
-                          child: GameHomeCard(),
-                        ),
-                        if (getIt<GameProfileService>().hasProfile) ...[
-                          GameChallengesCard(
-                            openView: (view) => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => view),
-                            ),
-                          ),
-                          RideStatisticsCard(
-                            openView: (view) => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => view),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
                   const VSpace(),
                   const LastTrackView(),
                   const VSpace(),
@@ -403,6 +383,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     ),
                     child: Column(
                       children: [
+                        if (settings.enableGamification)
+                          const BlendIn(
+                            duration: Duration(milliseconds: 1250),
+                            child: GameView(),
+                          ),
                         const BlendIn(
                           delay: Duration(milliseconds: 1250),
                           child: WikiView(),

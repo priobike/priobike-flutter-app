@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/hub/views/hub_page.dart';
+import 'package:priobike/gamification/common/views/custom_page.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_stats.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_stats.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_stats.dart';
@@ -75,7 +75,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return GameHubPage(
+    return CustomPage(
       animationController: _headerAnimationController,
       title: getTitleFromStatInterval(statService.statInterval),
       backButtonCallback: () async {

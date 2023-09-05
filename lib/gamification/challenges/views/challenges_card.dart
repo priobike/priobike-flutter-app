@@ -10,8 +10,8 @@ import 'package:priobike/gamification/challenges/views/progress_bar.dart';
 import 'package:priobike/gamification/challenges/views/goal_setting.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
-import 'package:priobike/gamification/hub/views/feature_card.dart';
-import 'package:priobike/gamification/hub/views/hub_card.dart';
+import 'package:priobike/gamification/common/views/feature_card.dart';
+import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 
 /// This card displays the current challenge state of the user or encourages them to set their challenge goals.
@@ -37,7 +37,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
     );
   }
 
-  Widget get challengesEnabledWidget => GameHubCard(
+  Widget get challengesEnabledWidget => GamificationCard(
         content: Column(
           children: [
             const ChallengeProgressBar(isWeekly: true),
@@ -60,7 +60,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
       );
 
   /// Info widget which encourages the user to participate in the challenges.
-  Widget get challengesDisabledWidget => GameHubCard(
+  Widget get challengesDisabledWidget => GamificationCard(
         onTap: () => widget.openView(const ChallengesTutorial()),
         content: Column(
           children: [

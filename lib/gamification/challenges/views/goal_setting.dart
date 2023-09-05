@@ -9,7 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
-import 'package:priobike/gamification/hub/views/hub_page.dart';
+import 'package:priobike/gamification/common/views/custom_page.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
@@ -105,7 +105,7 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
 
   @override
   Widget build(BuildContext context) {
-    return GameHubPage(
+    return CustomPage(
       animationController: _animationController,
       title: 'Deine Ziele',
       content: Column(

@@ -3,8 +3,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
-import 'package:priobike/gamification/hub/views/feature_card.dart';
-import 'package:priobike/gamification/hub/views/hub_card.dart';
+import 'package:priobike/gamification/common/views/feature_card.dart';
+import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/settings/services/settings_service.dart';
 import 'package:priobike/gamification/statistics/views/graphs/compact_labled_graph.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
@@ -97,7 +97,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
 
   @override
   Widget build(BuildContext context) {
-    return GameHubCard(
+    return GamificationCard(
       onTap: onTap,
       content: Column(
         mainAxisSize: MainAxisSize.max,
@@ -158,7 +158,7 @@ class StatisticsDisabledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GameHubCard(
+    return GamificationCard(
       onTap: () async {
         openView(const StatisticsTutorial());
       },

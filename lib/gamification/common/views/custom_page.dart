@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -7,7 +9,7 @@ import 'package:priobike/gamification/common/utils.dart';
 
 /// This view can be used for pages that are accessed from the game hub. It gives them a matching layout, containing
 /// a back button and a header with a title and possibly a feature button.
-class GameHubPage extends StatelessWidget {
+class CustomPage extends StatelessWidget {
   /// Animation controller to animate the page header with a fade transition.
   final AnimationController animationController;
 
@@ -26,7 +28,7 @@ class GameHubPage extends StatelessWidget {
   /// This function is called when the feature button is pressed. If this var is null, there will be no feature button.
   final Function()? featureButtonCallback;
 
-  const GameHubPage({
+  const CustomPage({
     Key? key,
     required this.animationController,
     required this.title,

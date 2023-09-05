@@ -40,7 +40,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
     return Column(children: [
       Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
+        padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
