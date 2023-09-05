@@ -85,14 +85,12 @@ class _ChallengeGoalSettingState extends State<ChallengeGoalSetting> with Single
     _animationController.forward();
 
     // Update default values to previous goals, if previous goals exist.
-    var prevGoals = _settingsService.challengeGoals;
-    if (prevGoals != null) {
-      var routeGoals = prevGoals.routeGoal;
-      showRouteSelection = routeGoals != null;
-      distanceGoal = prevGoals.dailyDistanceGoalMetres / 1000;
-      durationGoal = prevGoals.dailyDurationGoalMinutes;
-      selectedRoute = routeGoals?.routeID;
-    }
+    var goals = _settingsService.challengeGoals;
+    var routeGoals = goals.routeGoal;
+    showRouteSelection = routeGoals != null;
+    distanceGoal = goals.dailyDistanceGoalMetres / 1000;
+    durationGoal = goals.dailyDurationGoalMinutes;
+    selectedRoute = routeGoals?.routeID;
 
     super.initState();
   }

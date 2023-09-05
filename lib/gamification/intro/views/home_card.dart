@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/hub/views/main.dart';
 import 'package:priobike/gamification/intro/views/game_intro.dart';
-import 'package:priobike/gamification/intro/views/main.dart';
 import 'package:priobike/gamification/profile/services/profile_service.dart';
 import 'package:priobike/main.dart';
 
@@ -93,9 +92,9 @@ class _GameHomeCardState extends State<GameHomeCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BoldContent(text: "PrioBike Challenge", context: context),
+                      BoldContent(text: "PrioBike Plus", context: context),
                       const SizedBox(height: 4),
-                      Small(text: "Starte die PrioBike Challenge", context: context),
+                      Small(text: "Klingt irgendwie, als würd das was kosten.", context: context),
                     ],
                   ),
                 ),

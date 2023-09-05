@@ -26,9 +26,9 @@ class ChallengesTutorial extends StatelessWidget {
       },
       contentList: [
         const SizedBox(height: 64 + 16),
-        Header(text: "Fahrtstatistiken", context: context),
+        Header(text: "PrioBike Challenges", context: context),
         const SmallVSpace(),
-        SubHeader(text: "Verschaffe dir einen Überblick über deine aufgezeichneten Fahrtdaten.", context: context),
+        SubHeader(text: "Absolviere tägliche und wöchentliche Challenges.", context: context),
         const SizedBox(height: 82),
       ],
     );

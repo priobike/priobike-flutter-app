@@ -22,7 +22,7 @@ class GameSettingsService with ChangeNotifier {
 
   /// The user goals for the challenges
   UserGoals? _challengeGoals;
-  UserGoals? get challengeGoals => _challengeGoals;
+  UserGoals get challengeGoals => _challengeGoals ?? UserGoals.def;
 
   /// Check, if the user has set challenge goals already.
   bool get challengeGoalsSet => _challengeGoals != null;
@@ -52,7 +52,7 @@ class GameSettingsService with ChangeNotifier {
     _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
 
     var goalStr = _prefs!.getString(challengeGoalsKey);
-    _challengeGoals = goalStr == null ? null : UserGoals.fromJson(jsonDecode(goalStr));
+    if (goalStr != null) _challengeGoals = UserGoals.fromJson(jsonDecode(goalStr));
   }
 
   /// Returns true, if a given string key is inside of the list of selected game prefs.

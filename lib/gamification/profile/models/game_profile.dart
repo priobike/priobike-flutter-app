@@ -44,8 +44,8 @@ class GameProfile {
     this.xp = 0,
     this.medals = 0,
     this.trophies = 0,
-    this.dailyChallengeChoices = 1,
-    this.weeklyChallengeChoices = 1,
+    this.dailyChallengeChoices = 3,
+    this.weeklyChallengeChoices = 3,
     required this.username,
     required this.joinDate,
   }) : averageSpeedKmh = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
