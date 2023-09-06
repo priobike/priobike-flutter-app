@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -38,22 +37,12 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   Widget get challengesEnabledWidget => GamificationCard(
         directionView: const ChallengeGoalSetting(),
         content: Column(
-          children: [
-            const GameProfileView(),
-            const SmallVSpace(),
-            const ChallengeProgressBar(isWeekly: true),
-            const ChallengeProgressBar(isWeekly: false),
-            const SmallVSpace(),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                BoldSmall(text: 'Ziele ändern', context: context),
-                const SizedBox(width: 4),
-                const Icon(Icons.redo, size: 16),
-              ],
-            ),
+          children: const [
+            GameProfileView(),
+            SmallVSpace(),
+            ChallengeProgressBar(isWeekly: true),
+            ChallengeProgressBar(isWeekly: false),
+            SmallVSpace(),
           ],
         ),
       );
