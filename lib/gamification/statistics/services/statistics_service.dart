@@ -26,13 +26,6 @@ class StatisticService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Change stat interval by iterating to the next one.
-  void changeStatInterval() {
-    if (statInterval == StatInterval.weeks) return setStatInterval(StatInterval.months);
-    if (statInterval == StatInterval.months) return setStatInterval(StatInterval.multipleWeeks);
-    if (statInterval == StatInterval.multipleWeeks) return setStatInterval(StatInterval.weeks);
-  }
-
   /// The ride info which shall be displayed.
   RideInfo _rideInfo = RideInfo.distance;
   RideInfo get rideInfo => _rideInfo;

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/database/database.dart';
@@ -57,7 +58,9 @@ class DetailedStatistics extends StatelessWidget {
             ),
             child: Column(
               children: [
-                getGraphHeader(context),
+                const SmallVSpace(),
+                getGraphFooter(context),
+                const SmallVSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
                   child: SizedBox(
@@ -71,7 +74,6 @@ class DetailedStatistics extends StatelessWidget {
                     ),
                   ),
                 ),
-                getGraphFooter(context),
                 getButtonRow(context),
               ],
             ),
@@ -79,7 +81,7 @@ class DetailedStatistics extends StatelessWidget {
         ),
 
         /// The rides below the graphs are animated into the view after a short delay, to improve performance.
-        FutureBuilder<bool>(
+        /*FutureBuilder<bool>(
           key: GlobalKey(),
           future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
           builder: (context, snapshot) {
@@ -88,7 +90,7 @@ class DetailedStatistics extends StatelessWidget {
             rideListController.forward();
             return getRideList(context);
           },
-        )
+        )*/
       ],
     );
   }
