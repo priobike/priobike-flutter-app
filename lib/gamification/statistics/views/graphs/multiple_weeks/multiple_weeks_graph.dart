@@ -26,7 +26,7 @@ class MultipleWeeksStatsGraph extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            StringFormatter.getDateStr(viewModel.rideMap.keys.elementAt(value.toInt())),
+            StringFormatter.getShortDateStr(viewModel.rideMap.keys.elementAt(value.toInt())),
             style: todayInWeek ? style.copyWith(fontWeight: FontWeight.bold) : style,
           ),
           !todayInWeek

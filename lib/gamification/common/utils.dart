@@ -72,13 +72,21 @@ class Utils {
 /// A bunch of methods to format different information into strings.
 class StringFormatter {
   /// Get date string as day and month from given date.
-  static String getDateStr(DateTime date) => DateFormat("dd.MM").format(date);
+  static String getDateStr(DateTime date) => '${DateFormat("dd").format(date)} ${getMonthStr(date.month)} ${date.year}';
+
+  static String getShortDateStr(DateTime date) => DateFormat("dd.MM").format(date);
 
   /// Get time string as hour and monuts from given date.
   static String getTimeStr(DateTime date) => DateFormat('hh.mm').format(date);
 
   /// Get string for a time interval between to dates.
-  static String getFromToDateStr(DateTime first, DateTime last) => '${getDateStr(first)} - ${getDateStr(last)}';
+  static String getFromToDateStr(DateTime first, DateTime last) {
+    if (first.month == last.month) {
+      return '${DateFormat("dd").format(first)}. - ${DateFormat("dd").format(last)}. ${getMonthStr(first.month)} ${first.year}';
+    } else {
+      return '${DateFormat("dd").format(first)}. ${getMonthStr(first.month)} - ${DateFormat("dd").format(last)}. ${getMonthStr(last.month)} ${first.year}';
+    }
+  }
 
   /// Returns a string describing how much time the user has left for a challenge.
   static String getTimeLeftStr(DateTime date) {
@@ -111,20 +119,24 @@ class StringFormatter {
     }
   }
 
+  static String getMonthAndYearStr(int month, int year) {
+    return '${getMonthStr(month)} $year';
+  }
+
   /// Convert month index to its name.
   static String getMonthStr(int i) {
-    if (i == 1) return 'Januar';
-    if (i == 2) return 'Februar';
+    if (i == 1) return 'Jan.';
+    if (i == 2) return 'Feb.';
     if (i == 3) return 'März';
     if (i == 4) return 'April';
     if (i == 5) return 'Mai';
     if (i == 6) return 'Juni';
     if (i == 7) return 'Juli';
-    if (i == 8) return 'August';
-    if (i == 9) return 'September';
-    if (i == 10) return 'Oktober';
-    if (i == 11) return 'November';
-    return 'Dezember';
+    if (i == 8) return 'Aug.';
+    if (i == 9) return 'Sept.';
+    if (i == 10) return 'Okt.';
+    if (i == 11) return 'Nov.';
+    return 'Dez.';
   }
 
   /// Convert weekday index to simple string.

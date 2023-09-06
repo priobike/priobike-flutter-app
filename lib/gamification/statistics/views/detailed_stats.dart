@@ -59,7 +59,7 @@ class DetailedStatistics extends StatelessWidget {
             child: Column(
               children: [
                 const SmallVSpace(),
-                getGraphFooter(context),
+                getGraphHeader(context),
                 const SmallVSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8, left: 16, right: 16),

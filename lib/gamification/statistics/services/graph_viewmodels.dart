@@ -177,7 +177,7 @@ class MonthGraphViewModel extends GraphViewModel {
 
   @override
   String get rangeOrSelectedDateStr {
-    return (selectedIndex == null ? '' : '$selectedIndex. ') + StringFormatter.getMonthStr(month);
+    return (selectedIndex == null ? '' : '$selectedIndex. ') + StringFormatter.getMonthAndYearStr(month, year);
   }
 
   @override
