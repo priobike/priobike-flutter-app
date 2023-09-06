@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
 import 'package:priobike/gamification/challenges/views/goal_setting.dart';
@@ -85,43 +86,51 @@ class UserGoalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GamificationCard(
-      content: Column(
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Tile(
+          content: Column(
             children: [
-              const Icon(Icons.sports_score, size: 48),
-              Column(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  BoldSubHeader(
-                      text: '${(goals.dailyDistanceGoalMetres / 1000).toStringAsFixed(1)} km', context: context),
-                  Small(text: 'Tägliche Distanz', context: context),
-                ],
-              ),
-              Column(
-                children: [
-                  BoldSubHeader(text: '${goals.dailyDurationGoalMinutes.toStringAsFixed(0)} min', context: context),
-                  Small(text: 'Tägliche Fahrzeit', context: context),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      BoldSubHeader(text: 'Tagesziele', context: context),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 4, right: 4),
+                            child: Icon(Icons.directions_bike, size: 20),
+                          ),
+                          Content(
+                            text: '${(goals.dailyDistanceGoalMetres / 1000).toStringAsFixed(1)} km',
+                            context: context,
+                          ),
+                          const SmallHSpace(),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 4, right: 4),
+                            child: Icon(Icons.timer, size: 20),
+                          ),
+                          Content(
+                            text: '${goals.dailyDurationGoalMinutes.toStringAsFixed(0)} min',
+                            context: context,
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
                 ],
               ),
             ],
           ),
-          const SmallVSpace(),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              BoldSmall(text: 'Ändern', context: context),
-              const SizedBox(width: 4),
-              const Icon(Icons.redo, size: 16),
-            ],
-          ),
-        ],
-      ),
-      directionView: const ChallengeGoalSetting(),
+        ),
+      ],
     );
   }
 }
