@@ -111,6 +111,8 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
       content: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
+          const OverallStatistics(),
+          const SmallVSpace(),
           SizedBox(
             width: MediaQuery.of(context).size.width,
             height: 224,
@@ -153,8 +155,6 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
               key: GlobalKey(),
             ),
           ),
-          const SmallVSpace(),
-          const OverallStatistics(),
         ],
       ),
     );

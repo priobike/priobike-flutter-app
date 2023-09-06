@@ -142,7 +142,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
 
   /// Generate random mock on a given day.
   Future _createMock(DateTime day) async {
-    var duration = Random().nextDouble() * 3600;
+    var duration = Random().nextDouble() * 1800;
     var distance = duration * 5 * (1 + 0.3 * Random().nextDouble());
     var gain = Random().nextDouble() * 400;
     var loss = Random().nextDouble() * 400;

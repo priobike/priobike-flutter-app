@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/common/database/database.dart';
@@ -19,6 +20,11 @@ class GameProfileService with ChangeNotifier {
   static const gameFeatureChallengesKey = 'priobike.game.features.challenges';
   static const challengeGoalsKey = 'priobike.game.challenges.goals';
 
+  static const gamificationFeatures = [
+    gameFeatureChallengesKey,
+    gameFeatureStatisticsKey,
+  ];
+
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
 
@@ -32,6 +38,9 @@ class GameProfileService with ChangeNotifier {
   /// List of the selected game preferences of the user as string keys.
   List<String> _enabledFeatures = [];
   List<String> get enabledFeatures => _enabledFeatures;
+
+  List<String> get disabledFeatures =>
+      gamificationFeatures.whereNot((feature) => enabledFeatures.contains(feature)).toList();
 
   /// Ride DAOs to access rides and challenges.
   RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;

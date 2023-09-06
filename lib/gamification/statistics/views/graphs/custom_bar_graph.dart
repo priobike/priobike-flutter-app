@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,8 @@ class CustomBarGraph extends StatelessWidget {
 
   /// The displayed y values of the bars.
   final List<double> yValues;
+
+  final double? goalValue;
 
   /// The preffered width of the bars.
   final double barWidth;
@@ -28,47 +32,48 @@ class CustomBarGraph extends StatelessWidget {
     required this.onTap,
     required this.yValues,
     required this.barWidth,
-    this.selectedBar,
     required this.barColor,
+    this.selectedBar,
+    this.goalValue,
   }) : super(key: key);
 
-  /// Create bar from x and y value.
-  BarChartGroupData createBar({required int x, bool? selected, required double y, double width = 20}) {
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: y,
-          color: (selected ?? true) ? barColor : barColor.withOpacity(0.25),
-          width: width,
-        ),
-      ],
-    );
-  }
-
   /// Get list of bars according to the given values.
-  List<BarChartGroupData> getBars() {
-    return yValues
-        .mapIndexed((i, d) => BarChartGroupData(
-              x: i,
-              barRods: [
-                BarChartRodData(
-                  toY: d,
-                  color: ((selectedBar == null ? null : (selectedBar == i)) ?? true)
-                      ? barColor
-                      : barColor.withOpacity(0.25),
-                  width: barWidth,
-                ),
-              ],
-            ))
-        .toList();
+  List<BarChartGroupData> getBars(Color onBackground) {
+    return yValues.mapIndexed((i, y) {
+      var barColorOpacity = 1.0;
+      var selected = selectedBar != null && selectedBar == i;
+      var goalReached = goalValue == null ? true : y >= goalValue!;
+      if (selectedBar != null) {
+        barColorOpacity = selected ? 1 : 0.2;
+      } else {
+        barColorOpacity = goalReached ? 1 : 0.4;
+      }
+      return BarChartGroupData(
+        x: i,
+        barRods: [
+          BarChartRodData(
+            toY: y,
+            color: barColor.withOpacity(barColorOpacity),
+            width: barWidth,
+            borderSide: selected ? BorderSide(color: onBackground, width: 1) : null,
+            backDrawRodData: goalReached
+                ? null
+                : BackgroundBarChartRodData(
+                    show: true,
+                    toY: goalValue,
+                    color: onBackground.withOpacity(0.05),
+                  ),
+          ),
+        ],
+      );
+    }).toList();
   }
 
   /// Get fitting max value for a given list of values.
-  static double getFittingMax(List<double> values) {
-    if (values.isEmpty) return 0;
-    var num = values.max;
-    if (num == 0) return 1;
+  double getFittingMax(List<double> values) {
+    if (values.isEmpty) return goalValue ?? 0;
+    var num = max(values.max, goalValue ?? 0);
+    if (num == 0) return goalValue ?? 0;
     if (num <= 5) return num;
     if (num <= 10) return num.ceilToDouble();
     if (num <= 50) return roundUpToInterval(num, 5);
@@ -123,7 +128,7 @@ class CustomBarGraph extends StatelessWidget {
           ),
           maxY: getFittingMax(yValues),
           gridData: FlGridData(drawVerticalLine: false),
-          barGroups: getBars(),
+          barGroups: getBars(Theme.of(context).colorScheme.onBackground),
         ),
         swapAnimationDuration: Duration.zero,
       ),

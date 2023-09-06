@@ -157,8 +157,8 @@ class DetailedStatistics extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       getRideInfoButton(RideInfo.distance, context),
-                      getRideInfoButton(RideInfo.averageSpeed, context),
                       getRideInfoButton(RideInfo.duration, context),
+                      getRideInfoButton(RideInfo.averageSpeed, context),
                     ],
                   ),
                 ),
