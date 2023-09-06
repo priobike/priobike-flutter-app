@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
 import 'package:priobike/gamification/challenges/views/goal_setting.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
@@ -86,51 +87,78 @@ class UserGoalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Tile(
-          content: Column(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          BoldSubHeader(text: 'Tagesziel', context: context),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      BoldSubHeader(text: 'Tagesziele', context: context),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 4, right: 4),
-                            child: Icon(Icons.directions_bike, size: 20),
-                          ),
-                          Content(
-                            text: '${(goals.dailyDistanceGoalMetres / 1000).toStringAsFixed(1)} km',
-                            context: context,
-                          ),
-                          const SmallHSpace(),
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 4, right: 4),
-                            child: Icon(Icons.timer, size: 20),
-                          ),
-                          Content(
-                            text: '${goals.dailyDurationGoalMinutes.toStringAsFixed(0)} min',
-                            context: context,
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ],
+              const Padding(
+                padding: EdgeInsets.only(bottom: 4, right: 4),
+                child: Icon(Icons.directions_bike, size: 20),
+              ),
+              Content(
+                text: '${(goals.dailyDistanceGoalMetres / 1000).toStringAsFixed(1)} km',
+                context: context,
+              ),
+              const SmallHSpace(),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 4, right: 4),
+                child: Icon(Icons.timer, size: 20),
+              ),
+              Content(
+                text: '${goals.dailyDurationGoalMinutes.toStringAsFixed(0)} min',
+                context: context,
               ),
             ],
           ),
-        ),
-      ],
+          const SmallVSpace(),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                child: Tile(
+                  padding: const EdgeInsets.all(8),
+                  borderRadius: BorderRadius.circular(24),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ChallengeGoalSetting(),
+                    ),
+                  ),
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(CustomGameIcons.goals, size: 24),
+                      const SmallHSpace(),
+                      BoldContent(text: 'Ziele ändern', context: context),
+                    ],
+                  ),
+                ),
+              ),
+              const SmallHSpace(),
+              Expanded(
+                child: Tile(
+                  padding: const EdgeInsets.all(8),
+                  borderRadius: BorderRadius.circular(24),
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.settings, size: 24),
+                      const SmallHSpace(),
+                      BoldContent(text: 'Einstellungen', context: context),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

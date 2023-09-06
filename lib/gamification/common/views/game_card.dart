@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/common/views/custom_route.dart';
 
 /// Wrapper class for the cards shown in the gamification hub view. Provides a uniformly styled card,
 /// in which a custom content can be inserted.
@@ -16,7 +15,7 @@ class GamificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       child: Tile(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => directionView)),
         splash: Colors.transparent,
