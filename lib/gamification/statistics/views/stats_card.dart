@@ -153,6 +153,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
               key: GlobalKey(),
             ),
           ),
+          const SmallVSpace(),
           const OverallStatistics(),
         ],
       ),

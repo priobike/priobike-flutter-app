@@ -75,7 +75,9 @@ abstract class GraphViewModel with ChangeNotifier {
 
   /// Returns average of the yValues as a formatted string according to the ride info type.
   String get valuesAverage {
-    return StringFormatter.getFormattedStrByRideType(yValues.average, _rideInfoType);
+    var valuesToBeAveraged = _rideInfoType == RideInfo.averageSpeed ? yValues.where((val) => val > 0) : yValues;
+    var average = valuesToBeAveraged.isEmpty ? 0.0 : valuesToBeAveraged.average;
+    return StringFormatter.getFormattedStrByRideType(average, _rideInfoType);
   }
 
   /// Returns either all rides or, if the selected index is not null, only the ones corresponding to the selected index.
@@ -88,7 +90,13 @@ abstract class GraphViewModel with ChangeNotifier {
   List<RideSummary> get selectedRides;
 
   /// Return string describing the time intervall of all displayed rides, or only the rides of the selected bar.
-  String get rangeOrSelectedDateStr;
+  String get rangeOrSelectedDateStr => (_selectedIndex == null) ? rangeStr : selectedDateStr;
+
+  /// Return string describing the time intervall of all displayed rides.
+  String get rangeStr;
+
+  /// Return string describing the time intervall of only the rides of the selected bar.
+  String get selectedDateStr;
 
   /// Update yValues according to a given list of rides and an index of the stream from which the update came.
   void updateValues({List<RideSummary>? update, int? index});
@@ -122,19 +130,16 @@ class WeekGraphViewModel extends GraphViewModel {
   }
 
   @override
-  String get rangeOrSelectedDateStr {
-    if (selectedIndex == null) {
-      return StringFormatter.getFromToDateStr(startDay, startDay.add(const Duration(days: 6)));
-    } else {
-      return StringFormatter.getDateStr(startDay.add(Duration(days: selectedIndex!)));
-    }
-  }
-
-  @override
   List<RideSummary> get allRides => _rides;
 
   @override
   List<RideSummary> get selectedRides => _rides.where((ride) => ride.startTime.weekday == _selectedIndex! + 1).toList();
+
+  @override
+  String get rangeStr => StringFormatter.getFromToDateStr(startDay, startDay.add(const Duration(days: 6)));
+
+  @override
+  String get selectedDateStr => StringFormatter.getDateStr(startDay.add(Duration(days: selectedIndex!)));
 }
 
 /// View model for a graph of a single month.
@@ -176,15 +181,16 @@ class MonthGraphViewModel extends GraphViewModel {
   }
 
   @override
-  String get rangeOrSelectedDateStr {
-    return (selectedIndex == null ? '' : '$selectedIndex. ') + StringFormatter.getMonthAndYearStr(month, year);
-  }
-
-  @override
   List<RideSummary> get allRides => _rides;
 
   @override
   List<RideSummary> get selectedRides => _rides.where((ride) => ride.startTime.day == _selectedIndex).toList();
+
+  @override
+  String get rangeStr => StringFormatter.getMonthAndYearStr(month, year);
+
+  @override
+  String get selectedDateStr => '$selectedIndex. ${StringFormatter.getMonthAndYearStr(month, year)}';
 }
 
 /// View model for a graph of multiple weeks.
@@ -228,18 +234,21 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
   }
 
   @override
-  String get rangeOrSelectedDateStr {
-    if (rideMap.keys.isEmpty) return '';
-    if (selectedIndex == null) {
-      return StringFormatter.getFromToDateStr(rideMap.keys.first, rideMap.keys.last.add(const Duration(days: 6)));
-    }
-    var currentWeekFirstDay = rideMap.keys.elementAt(selectedIndex!);
-    return StringFormatter.getFromToDateStr(currentWeekFirstDay, currentWeekFirstDay.add(const Duration(days: 6)));
-  }
-
-  @override
   List<RideSummary> get allRides => _rideMap.values.expand((rides) => rides).toList();
 
   @override
   List<RideSummary> get selectedRides => _rideMap.values.elementAt(_selectedIndex!);
+
+  @override
+  String get rangeStr {
+    if (rideMap.keys.isEmpty) return '';
+    return StringFormatter.getFromToDateStr(rideMap.keys.first, rideMap.keys.last.add(const Duration(days: 6)));
+  }
+
+  @override
+  String get selectedDateStr {
+    if (rideMap.keys.isEmpty) return '';
+    var currentWeekFirstDay = rideMap.keys.elementAt(selectedIndex!);
+    return StringFormatter.getFromToDateStr(currentWeekFirstDay, currentWeekFirstDay.add(const Duration(days: 6)));
+  }
 }

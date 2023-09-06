@@ -72,7 +72,8 @@ class Utils {
 /// A bunch of methods to format different information into strings.
 class StringFormatter {
   /// Get date string as day and month from given date.
-  static String getDateStr(DateTime date) => '${DateFormat("dd").format(date)} ${getMonthStr(date.month)} ${date.year}';
+  static String getDateStr(DateTime date) =>
+      '${DateFormat("dd").format(date)}. ${getMonthStr(date.month)} ${date.year}';
 
   static String getShortDateStr(DateTime date) => DateFormat("dd.MM").format(date);
 

@@ -108,7 +108,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     return CustomPage(
-      title: 'Deine Fahrtstatistiken',
+      title: 'Fahrtstatistiken',
       backButtonCallback: () async {
         _listAnimationController.duration = ShortDuration();
         _listAnimationController.reverse();

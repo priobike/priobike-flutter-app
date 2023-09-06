@@ -84,7 +84,7 @@ class CustomBarGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.only(top: 8),
       child: BarChart(
         BarChartData(
           barTouchData: BarTouchData(

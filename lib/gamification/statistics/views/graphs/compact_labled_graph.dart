@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 
@@ -22,7 +23,7 @@ class CompactGraph extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,6 +50,7 @@ class CompactGraph extends StatelessWidget {
             ],
           ),
         ),
+        const SmallVSpace(),
         Expanded(
           child: graph,
         ),

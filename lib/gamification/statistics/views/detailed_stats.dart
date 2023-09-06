@@ -40,103 +40,6 @@ class DetailedStatistics extends StatelessWidget {
     required this.rideListController,
   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        /// This widget contains the graphs in a page view and further information for the displayed graph.
-        GestureDetector(
-          onTap: () => currentViewModel.setSelectedIndex(null),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(32),
-                bottomRight: Radius.circular(32),
-              ),
-            ),
-            child: Column(
-              children: [
-                const SmallVSpace(),
-                getGraphHeader(context),
-                const SmallVSpace(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 224,
-                    child: PageView(
-                      onPageChanged: (_) => rideListController.reset(),
-                      controller: pageController,
-                      clipBehavior: Clip.hardEdge,
-                      children: graphs,
-                    ),
-                  ),
-                ),
-                getButtonRow(context),
-              ],
-            ),
-          ),
-        ),
-
-        /// The rides below the graphs are animated into the view after a short delay, to improve performance.
-        /*FutureBuilder<bool>(
-          key: GlobalKey(),
-          future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
-          builder: (context, snapshot) {
-            if (!(snapshot.data ?? false)) return const SizedBox.shrink();
-            rideListController.duration = ShortDuration();
-            rideListController.forward();
-            return getRideList(context);
-          },
-        )*/
-      ],
-    );
-  }
-
-  /// Returns simple graph header, which displays values according to the displayed graph or the selected content.
-  Widget getGraphHeader(BuildContext context) {
-    var isAvg = currentViewModel.rideInfoType == RideInfo.averageSpeed;
-    var noSelectedBar = currentViewModel.selectedIndex == null;
-    return Padding(
-      padding: const EdgeInsets.only(top: 16, left: 48, right: 32),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          BoldSubHeader(
-            text: (isAvg && noSelectedBar) ? ' ' : currentViewModel.selectedOrOverallValueStr,
-            context: context,
-          ),
-          BoldContent(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-            text: 'ø ${currentViewModel.valuesAverage}',
-            context: context,
-          )
-        ],
-      ),
-    );
-  }
-
-  /// Returns a row of buttons which enable the user to change the displayed ride information.
-  Widget getButtonRow(var context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16, left: 48, right: 48),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          getRideInfoButton(RideInfo.distance, context),
-          getRideInfoButton(RideInfo.averageSpeed, context),
-          getRideInfoButton(RideInfo.duration, context),
-        ],
-      ),
-    );
-  }
-
   /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
   Widget getRideInfoButton(RideInfo rideInfoType, var context) {
     double value = getIt<StatisticService>().isTypeSelected(rideInfoType) ? 1 : 0;
@@ -165,41 +68,118 @@ class DetailedStatistics extends StatelessWidget {
     );
   }
 
-  /// Returns footer for graph which contains the displayed or selected time interval and buttons to change the page.
-  Widget getGraphFooter(var context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.center,
+  @override
+  Widget build(BuildContext context) {
+    var isSpeed = currentViewModel.rideInfoType == RideInfo.averageSpeed;
+    var barSelected = currentViewModel.selectedIndex != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        getNavigationButton(Icons.arrow_back_ios, -1),
-        Expanded(
-          child: SubHeader(
-            text: currentViewModel.rangeOrSelectedDateStr,
-            context: context,
-            textAlign: TextAlign.center,
+        /// This widget contains the graphs in a page view and further information for the displayed graph.
+        GestureDetector(
+          onTap: () => currentViewModel.setSelectedIndex(null),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
+              ),
+            ),
+            child: Column(
+              children: [
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          BoldSmall(
+                            text: (!isSpeed && barSelected) ? 'GESAMT' : 'DURCHSCHNITT',
+                            context: context,
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                          ),
+                          BoldSubHeader(
+                            text: barSelected
+                                ? currentViewModel.selectedOrOverallValueStr
+                                : currentViewModel.valuesAverage,
+                            context: context,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: (barSelected || isSpeed)
+                            ? []
+                            : [
+                                BoldSmall(
+                                  text: 'GESAMT',
+                                  context: context,
+                                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                                ),
+                                BoldSubHeader(
+                                  text: currentViewModel.selectedOrOverallValueStr,
+                                  context: context,
+                                ),
+                              ],
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 224,
+                    child: PageView(
+                      onPageChanged: (_) => rideListController.reset(),
+                      controller: pageController,
+                      clipBehavior: Clip.hardEdge,
+                      children: graphs,
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [SubHeader(text: currentViewModel.rangeOrSelectedDateStr, context: context)],
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      getRideInfoButton(RideInfo.distance, context),
+                      getRideInfoButton(RideInfo.averageSpeed, context),
+                      getRideInfoButton(RideInfo.duration, context),
+                    ],
+                  ),
+                ),
+                const VSpace(),
+              ],
+            ),
           ),
         ),
-        getNavigationButton(Icons.arrow_forward_ios, 1),
-      ],
-    );
-  }
 
-  /// Return button to navigate between pages.
-  Widget getNavigationButton(IconData icon, int direction) {
-    return GestureDetector(
-      onTap: () {
-        /// Animate to next page if button is pressed.
-        pageController.animateToPage(
-          pageController.page!.toInt() + direction,
-          duration: ShortDuration(),
-          curve: Curves.easeIn,
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Icon(icon),
-      ),
+        /// The rides below the graphs are animated into the view after a short delay, to improve performance.
+        /*FutureBuilder<bool>(
+          key: GlobalKey(),
+          future: Future.delayed(const Duration(milliseconds: 200)).then((value) => true),
+          builder: (context, snapshot) {
+            if (!(snapshot.data ?? false)) return const SizedBox.shrink();
+            rideListController.duration = ShortDuration();
+            rideListController.forward();
+            return getRideList(context);
+          },
+        )*/
+      ],
     );
   }
 

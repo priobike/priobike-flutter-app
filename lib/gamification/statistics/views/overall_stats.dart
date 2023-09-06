@@ -42,7 +42,7 @@ class _OverallStatisticsState extends State<OverallStatistics> {
         Icon(
           icon,
           size: 24,
-          color: CI.blue.withOpacity(0.25),
+          color: CI.blue.withOpacity(1),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -66,43 +66,51 @@ class _OverallStatisticsState extends State<OverallStatistics> {
   @override
   Widget build(BuildContext context) {
     var profile = _profileService.profile!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SmallVSpace(),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            getInfoWidget(
-              Icons.directions_bike,
-              StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
-              'km',
-            ),
-            getInfoWidget(
-              Icons.timer,
-              StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
-              'min',
-            ),
-            getInfoWidget(
-              Icons.speed,
-              'ø ${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
-              'km/h',
-            ),
-            getInfoWidget(
-              Icons.arrow_upward,
-              StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
-              'm',
-            ),
-            getInfoWidget(
-              Icons.arrow_downward,
-              StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
-              'm',
-            ),
-          ],
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BoldContent(
+            text: '${StringFormatter.getDateStr(getIt<GameProfileService>().profile!.joinDate)} - Heute',
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+          const SmallVSpace(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              getInfoWidget(
+                Icons.directions_bike,
+                StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
+                'km',
+              ),
+              getInfoWidget(
+                Icons.timer,
+                StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
+                'min',
+              ),
+              getInfoWidget(
+                Icons.speed,
+                'ø ${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
+                'km/h',
+              ),
+              getInfoWidget(
+                Icons.arrow_upward,
+                StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
+                'm',
+              ),
+              getInfoWidget(
+                Icons.arrow_downward,
+                StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
+                'm',
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
