@@ -45,8 +45,8 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
     return Column(
       children: [
         const VSpace(),
-        GoalSettingSlider(
-          title: 'Distanz-Ziel pro Tag',
+        GoalSettingWidget(
+          title: 'Distanz',
           value: distanceGoal,
           min: 0.5,
           max: 10,
@@ -59,8 +59,8 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           valueAsInt: false,
         ),
         const VSpace(),
-        GoalSettingSlider(
-          title: 'Zeit-Ziel pro Tag',
+        GoalSettingWidget(
+          title: 'Fahrtzeit',
           value: durationGoal,
           min: 10,
           max: 90,

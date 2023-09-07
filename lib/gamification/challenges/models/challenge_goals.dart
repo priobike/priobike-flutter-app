@@ -30,13 +30,13 @@ class UserGoals {
 /// This object describes user goals for a specific route.
 class RouteGoals {
   /// The unique id of the route to identify it.
-  final String routeID;
+  String routeID;
 
   /// The name of the route.
-  final String trackName;
+  String trackName;
 
   /// The number of times, the user wants to drive this route.
-  final int perWeek;
+  int perWeek;
 
   RouteGoals(this.routeID, this.trackName, this.perWeek);
 
