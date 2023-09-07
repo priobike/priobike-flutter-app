@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
+import 'package:priobike/gamification/goals/models/user_goals.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
@@ -29,11 +29,11 @@ class GameProfileService with ChangeNotifier {
   SharedPreferences? _prefs;
 
   /// The user goals for the challenges
-  UserGoals? _challengeGoals;
-  UserGoals get challengeGoals => _challengeGoals ?? UserGoals.def;
+  UserGoals? userGoals;
+  UserGoals get challengeGoals => userGoals ?? UserGoals.defaultGoals;
 
   /// Check, if the user has set challenge goals already.
-  bool get challengeGoalsSet => _challengeGoals != null;
+  bool get challengeGoalsSet => userGoals != null;
 
   /// List of the selected game preferences of the user as string keys.
   List<String> _enabledFeatures = [];
@@ -135,7 +135,7 @@ class GameProfileService with ChangeNotifier {
     _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
 
     var goalStr = _prefs!.getString(challengeGoalsKey);
-    if (goalStr != null) _challengeGoals = UserGoals.fromJson(jsonDecode(goalStr));
+    if (goalStr != null) userGoals = UserGoals.fromJson(jsonDecode(goalStr));
 
     /// If a profile was loaded, start the database stream of rides, to update the profile data accordingly.
     startDatabaseStreams();
@@ -166,8 +166,8 @@ class GameProfileService with ChangeNotifier {
   }
 
   /// Update the users' challenge goals and notify listeners.
-  void setChallengeGoals(UserGoals? goals) {
-    _challengeGoals = goals;
+  void updateUserGoals(UserGoals? goals) {
+    userGoals = goals;
     if (goals != null) {
       _prefs!.setString(challengeGoalsKey, jsonEncode(goals.toJson()));
     } else {

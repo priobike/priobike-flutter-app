@@ -1,8 +1,9 @@
+
 import 'dart:convert';
 
 /// This object holds information about the users challenge goals.
 class UserGoals {
-  static UserGoals def = UserGoals(3000, 30, null);
+  static UserGoals defaultGoals = UserGoals(3000, 30, null);
 
   /// The users daily distance goals.
   double dailyDistanceGoalMetres;

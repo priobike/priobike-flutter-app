@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 
-class GoalSettingWidget extends StatelessWidget {
+class EditGoalWidget extends StatelessWidget {
   final String title;
   final double value;
   final double min;
@@ -13,7 +12,7 @@ class GoalSettingWidget extends StatelessWidget {
   final Function(double)? onChanged;
   final bool valueAsInt;
 
-  const GoalSettingWidget({
+  const EditGoalWidget({
     Key? key,
     required this.title,
     required this.value,
@@ -28,15 +27,14 @@ class GoalSettingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.025),
+        borderRadius: BorderRadius.circular(32),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         children: [
-          const SmallHSpace(),
           EditButton(
             icon: Icons.remove,
             onPressed: (onChanged == null || value <= min) ? null : () => onChanged!(value - stepSize),
@@ -50,18 +48,20 @@ class GoalSettingWidget extends StatelessWidget {
                     BoldSubHeader(
                       text: (valueAsInt ? value.toInt() : value).toString(),
                       context: context,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(onChanged == null ? 0.5 : 1),
                     ),
                     const SizedBox(width: 4),
                     BoldContent(
                       text: valueLabel,
                       context: context,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(onChanged == null ? 0.5 : 1),
                     ),
                   ],
                 ),
                 BoldSmall(
                   text: title,
                   context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(onChanged == null ? 0.1 : 0.2),
                 )
               ],
             ),
@@ -70,7 +70,6 @@ class GoalSettingWidget extends StatelessWidget {
             icon: Icons.add,
             onPressed: (onChanged == null || value >= max) ? null : () => onChanged!(value + stepSize),
           ),
-          const SmallHSpace(),
         ],
       ),
     );
@@ -89,30 +88,34 @@ class EditButton extends StatefulWidget {
 }
 
 class _EditButtonState extends State<EditButton> with SingleTickerProviderStateMixin {
-  bool isPressed = false;
+  bool get disable => widget.onPressed == null;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTapDown: (_) {
-        if (widget.onPressed == null) return;
-        setState(() => isPressed = true);
-        HapticFeedback.lightImpact();
-      },
-      onTapUp: (_) {
-        if (widget.onPressed == null) return;
-        setState(() => isPressed = false);
-        widget.onPressed!();
-      },
-      onTapCancel: () => setState(() => isPressed = false),
-      child: SizedBox.fromSize(
-        size: const Size.square(48),
-        child: Center(
-          child: Icon(
-            widget.icon,
-            size: 48,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(isPressed ? 0.25 : 1),
+    return Material(
+      shape: const CircleBorder(),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        splashColor: disable ? Colors.transparent : Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+        onTapDown: (_) => HapticFeedback.lightImpact(),
+        onTap: disable
+            ? null
+            : () {
+                if (widget.onPressed != null) widget.onPressed!();
+              },
+        child: Container(
+          height: 40,
+          width: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.05 : 0.1),
+          ),
+          child: Center(
+            child: Icon(
+              widget.icon,
+              size: 32,
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.25 : 1),
+            ),
           ),
         ),
       ),

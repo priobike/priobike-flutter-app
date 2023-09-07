@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
+import 'package:priobike/gamification/goals/models/user_goals.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
-import 'package:priobike/gamification/goals/views/goal_slider.dart';
+import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
 import 'package:priobike/main.dart';
 
 class EditDailyGoalsView extends StatefulWidget {
@@ -45,7 +45,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
     return Column(
       children: [
         const VSpace(),
-        GoalSettingWidget(
+        EditGoalWidget(
           title: 'Distanz',
           value: distanceGoal,
           min: 0.5,
@@ -54,12 +54,12 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           valueLabel: 'km',
           onChanged: (value) {
             goals.dailyDistanceGoalMetres = value * 1000;
-            _profileService.setChallengeGoals(goals);
+            _profileService.updateUserGoals(goals);
           },
           valueAsInt: false,
         ),
         const VSpace(),
-        GoalSettingWidget(
+        EditGoalWidget(
           title: 'Fahrtzeit',
           value: durationGoal,
           min: 10,
@@ -68,7 +68,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           valueLabel: 'min',
           onChanged: (value) {
             goals.dailyDurationGoalMinutes = value;
-            _profileService.setChallengeGoals(goals);
+            _profileService.updateUserGoals(goals);
           },
         ),
         const VSpace(),

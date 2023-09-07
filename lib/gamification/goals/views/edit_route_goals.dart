@@ -1,15 +1,20 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
+import 'package:priobike/gamification/goals/models/user_goals.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
-import 'package:priobike/gamification/goals/views/goal_slider.dart';
+import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/status/services/sg.dart';
 
 class EditRouteGoalsView extends StatefulWidget {
   const EditRouteGoalsView({Key? key}) : super(key: key);
@@ -54,87 +59,117 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
     super.dispose();
   }
 
+  Widget createRouteWidget() {
+    return Column(
+      children: [
+        const VSpace(),
+        Material(
+          borderRadius: BorderRadius.circular(32),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            splashColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            onTap: () {
+              if (getIt<Routing>().isFetchingRoute) return;
+              HapticFeedback.mediumImpact();
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+                (comingNotFromRoutingView) {
+                  if (comingNotFromRoutingView == null) {
+                    getIt<Routing>().reset();
+                    getIt<Discomforts>().reset();
+                    getIt<PredictionSGStatus>().reset();
+                  }
+                },
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.025),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  const SmallHSpace(),
+                  Expanded(
+                    child: BoldSmall(
+                      text:
+                          'Du kannst dir eigene Routenziele setzen, sobald du deine erste eigene Route erstellt hast.',
+                      context: context,
+                      textAlign: TextAlign.center,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                    ),
+                  ),
+                  const SmallHSpace(),
+                  Icon(
+                    Icons.arrow_forward,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const VSpace(),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (routes.isEmpty) {
-      return Column(
-        children: [
-          const VSpace(),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: BoldSmall(
-                    text: 'Hey Bruder, setz Dir doch einfach mal Routen. Das geht echt gar nicht klar!',
-                    context: context,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const VSpace(),
-        ],
-      );
-    } else {
-      const double shortcutRightPad = 16;
-      final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
-      final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
-      return Column(
-        children: [
-          const VSpace(),
-          GoalSettingWidget(
-            title: 'Fahrten pro Woche',
-            value: goalValue.toDouble(),
-            min: 1,
-            max: 7,
-            stepSize: 1,
-            valueLabel: 'mal',
-            onChanged: routeGoal == null
-                ? null
-                : (value) {
-                    setState(() => routeGoal?.perWeek = value.toInt());
-                    var newGoals = goals;
-                    newGoals.routeGoal = routeGoal;
-                    _profileService.setChallengeGoals(newGoals);
-                  },
-          ),
-          SingleChildScrollView(
-            controller: ScrollController(),
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: routes
-                  .map(
-                    (shortcut) => ShortcutView(
-                      onPressed: () {
-                        if (routeGoal?.routeID == shortcut.id) {
-                          goals.routeGoal = null;
-                          _profileService.setChallengeGoals(goals);
-                        } else {
-                          RouteGoals newRouteGoals = RouteGoals(shortcut.id, shortcut.name, goalValue);
-                          var newGoals = goals;
-                          newGoals.routeGoal = newRouteGoals;
-                          _profileService.setChallengeGoals(newGoals);
-                        }
+    const double shortcutRightPad = 16;
+    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
+    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+    return Column(
+      children: routes.isEmpty
+          ? [createRouteWidget()]
+          : [
+              const VSpace(),
+              EditGoalWidget(
+                title: 'Fahrten pro Woche',
+                value: goalValue.toDouble(),
+                min: 1,
+                max: 7,
+                stepSize: 1,
+                valueLabel: 'mal',
+                onChanged: routeGoal == null
+                    ? null
+                    : (value) {
+                        setState(() => routeGoal?.perWeek = value.toInt());
+                        var newGoals = goals;
+                        newGoals.routeGoal = routeGoal;
+                        _profileService.updateUserGoals(newGoals);
                       },
-                      shortcut: shortcut,
-                      width: shortcutWidth,
-                      height: shortcutHeight,
-                      rightPad: shortcutRightPad,
-                      selected: routeGoal?.routeID == shortcut.id,
-                      showSplash: false,
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ],
-      );
-    }
+              ),
+              const VSpace(),
+              SingleChildScrollView(
+                controller: ScrollController(),
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: routes
+                      .map(
+                        (shortcut) => ShortcutView(
+                          onPressed: () {
+                            if (routeGoal?.routeID == shortcut.id) {
+                              goals.routeGoal = null;
+                              _profileService.updateUserGoals(goals);
+                            } else {
+                              RouteGoals newRouteGoals = RouteGoals(shortcut.id, shortcut.name, goalValue);
+                              var newGoals = goals;
+                              newGoals.routeGoal = newRouteGoals;
+                              _profileService.updateUserGoals(newGoals);
+                            }
+                          },
+                          shortcut: shortcut,
+                          width: shortcutWidth,
+                          height: shortcutHeight,
+                          rightPad: shortcutRightPad,
+                          selected: routeGoal?.routeID == shortcut.id,
+                          showSplash: false,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
+    );
   }
 }

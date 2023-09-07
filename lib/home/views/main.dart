@@ -359,7 +359,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   const LastTrackView(),
                   const VSpace(),
                   const TrackHistoryView(),
-                  const VSpace(),
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(

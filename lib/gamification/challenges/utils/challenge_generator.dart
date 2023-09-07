@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
+import 'package:priobike/gamification/goals/models/user_goals.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/main.dart';
 

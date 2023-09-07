@@ -77,6 +77,14 @@ class _GameViewState extends State<GameView> {
               const GameIntroCard(),
             ]
           : [
+              Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: BoldContent(
+                  text: "Dein PrioBike",
+                  context: context,
+                  textAlign: TextAlign.center,
+                ),
+              ),
               if (_profileService.showGoals) const GoalsView(),
               ..._enabledFeatureCards,
               ..._disabledFeatureCards,
