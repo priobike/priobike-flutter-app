@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/goals/models/user_goals.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
@@ -189,6 +191,11 @@ class GameProfileService with ChangeNotifier {
     _prefs ??= await SharedPreferences.getInstance();
     _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
     notifyListeners();
+  }
+
+  void levelUp() {
+    _profile!.level = min(_profile!.level + 1, levels.length - 1);
+    updateProfile();
   }
 
   /// Helper function which removes a created user profile. Just for tests currently.

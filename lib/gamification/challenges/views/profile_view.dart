@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/challenges/views/level_up_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/common/models/level.dart';
@@ -42,9 +43,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   Animation<double> getAnimation(var controller) =>
       Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
 
-  void update() {
-    if (mounted) setState(() {});
-  }
+  void update() => {if (mounted) setState(() {})};
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void updateProfile() async {
@@ -107,6 +106,19 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     return levels[level + 1];
   }
 
+  Future<void> _showLevelUpDialog() async {
+    // The dialog returns an index of the selected challenge or null, if no selection was made.
+    var result = await showDialog<int?>(
+      context: context,
+      builder: (BuildContext context) {
+        return const LevelUpDialog();
+      },
+    );
+    _ringController.stop();
+    canLevelUp = false;
+    _profileService.levelUp();
+  }
+
   /// Returns widget for displaying a trophy count for a trophy with a given icon.
   Widget getTrophyWidget(int number, IconData icon, Animation<double> animation, bool animate) {
     return Row(
@@ -140,22 +152,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     );
   }
 
-  /// Get card header without a game state.
-  Widget getNoRewardsHeader(var profile) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        BoldSubHeader(
-          text: 'Deine Gesamtstatistiken',
-          context: context,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     var profile = _profileService.profile!;
@@ -165,7 +161,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       mainAxisSize: MainAxisSize.max,
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: _showLevelUpDialog,
           child: Stack(
             alignment: Alignment.center,
             children: [

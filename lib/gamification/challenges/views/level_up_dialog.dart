@@ -1,28 +1,20 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
-import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 
 /// Dialog widget to pop up after one or multiple challenges were generated.
-class NewChallengeDialog extends StatefulWidget {
-  final List<Challenge> challenges;
-  final bool isWeekly;
-
-  const NewChallengeDialog({
+class LevelUpDialog extends StatefulWidget {
+  const LevelUpDialog({
     Key? key,
-    required this.challenges,
-    required this.isWeekly,
   }) : super(key: key);
   @override
-  State<NewChallengeDialog> createState() => _NewChallengeDialogState();
+  State<LevelUpDialog> createState() => _LevelUpDialogState();
 }
 
-class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTickerProviderStateMixin {
+class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProviderStateMixin {
   /// Animation controller to animate the dialog appearing.
   late final AnimationController _animationController;
 
@@ -48,7 +40,6 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
   @override
   Widget build(BuildContext context) {
     var lightmode = Theme.of(context).brightness == Brightness.light;
-    var titlePrefix = widget.challenges.length > 1 ? 'Wähle eine ' : 'Neue ';
     return ScaleTransition(
       scale: animation,
       child: Center(
@@ -80,7 +71,7 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
                     const SmallHSpace(),
                     Expanded(
                       child: BoldContent(
-                        text: titlePrefix + (widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge'),
+                        text: 'Ich weiß ja nicht',
                         context: context,
                         textAlign: TextAlign.center,
                         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
@@ -89,23 +80,14 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
                     const SmallHSpace(),
                   ],
                 ),
-                ...widget.challenges.mapIndexed((i, challenge) => ChallengeWidget(
-                      challenge: challenge,
-                      onTap: () {
-                        Navigator.of(context).pop(i);
-                      },
-                    )),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    BoldSmall(
-                      text: 'Verbleibende Zeit: ${StringFormatter.getTimeLeftStr(widget.challenges.first.closingTime)}',
-                      context: context,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
-                    )
-                  ],
-                )
+                UpgradeWidget(
+                  description: 'Wir müssen das halt alle irgendwann lernen, ganz erhlich, würd ich mal sagen',
+                  onTap: () {},
+                ),
+                UpgradeWidget(
+                  description: 'Upgrades sind nicht alles in diesem Lebel',
+                  onTap: () {},
+                ),
               ],
             ),
           ),
@@ -115,25 +97,24 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
   }
 }
 
-class ChallengeWidget extends StatefulWidget {
+class UpgradeWidget extends StatefulWidget {
   final Function onTap;
-  final Challenge challenge;
-  const ChallengeWidget({
+  final String description;
+  const UpgradeWidget({
     Key? key,
-    required this.challenge,
+    required this.description,
     required this.onTap,
   }) : super(key: key);
 
   @override
-  State<ChallengeWidget> createState() => _ChallengeWidgetState();
+  State<UpgradeWidget> createState() => _UpgradeWidgetState();
 }
 
-class _ChallengeWidgetState extends State<ChallengeWidget> {
+class _UpgradeWidgetState extends State<UpgradeWidget> {
   bool tapDown = false;
 
   @override
   Widget build(BuildContext context) {
-    var color = CI.blue.withOpacity(1);
     return GestureDetector(
       onTapDown: (_) {
         HapticFeedback.mediumImpact();
@@ -162,33 +143,7 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
           ],
         ),
         child: Row(
-          children: [
-            Icon(
-              ChallengeGenerator.getChallengeIcon(widget.challenge),
-              size: 64,
-              color: CI.blue,
-            ),
-            const SmallHSpace(),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Small(
-                    text: widget.challenge.description,
-                    context: context,
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      BoldSmall(text: '+${widget.challenge.xp}XP', context: context),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SmallHSpace(),
-          ],
+          children: [Expanded(child: Content(text: widget.description, context: context))],
         ),
       ),
     );
