@@ -3,13 +3,10 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/views/edit_daily_goals.dart';
 import 'package:priobike/gamification/goals/views/edit_route_goals.dart';
-import 'package:priobike/main.dart';
 
 class GoalsView extends StatefulWidget {
   const GoalsView({Key? key}) : super(key: key);

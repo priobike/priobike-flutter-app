@@ -49,7 +49,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           title: 'Distanz',
           value: distanceGoal,
           min: 0.5,
-          max: 10,
+          max: 40,
           stepSize: 0.5,
           valueLabel: 'km',
           onChanged: (value) {
@@ -63,7 +63,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           title: 'Fahrtzeit',
           value: durationGoal,
           min: 10,
-          max: 90,
+          max: 600,
           stepSize: 10,
           valueLabel: 'min',
           onChanged: (value) {
@@ -71,6 +71,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
             _profileService.setChallengeGoals(goals);
           },
         ),
+        const VSpace(),
       ],
     );
   }

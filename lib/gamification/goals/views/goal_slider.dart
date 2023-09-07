@@ -39,7 +39,7 @@ class GoalSettingWidget extends StatelessWidget {
           const SmallHSpace(),
           EditButton(
             icon: Icons.remove,
-            onPressed: onChanged == null ? null : () => onChanged!(value - stepSize),
+            onPressed: (onChanged == null || value <= min) ? null : () => onChanged!(value - stepSize),
           ),
           Expanded(
             child: Column(
@@ -68,7 +68,7 @@ class GoalSettingWidget extends StatelessWidget {
           ),
           EditButton(
             icon: Icons.add,
-            onPressed: onChanged == null ? null : () => onChanged!(value + stepSize),
+            onPressed: (onChanged == null || value >= max) ? null : () => onChanged!(value + stepSize),
           ),
           const SmallHSpace(),
         ],

@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -57,58 +56,85 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
-    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
-    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
-    return Column(
-      children: [
-        const VSpace(),
-        GoalSettingWidget(
-          title: 'Fahrten pro Woche',
-          value: goalValue.toDouble(),
-          min: 1,
-          max: 7,
-          stepSize: 1,
-          valueLabel: 'mal',
-          onChanged: routeGoal == null
-              ? null
-              : (value) {
-                  setState(() => routeGoal?.perWeek = value.toInt());
-                  var newGoals = goals;
-                  newGoals.routeGoal = routeGoal;
-                  _profileService.setChallengeGoals(newGoals);
-                },
-        ),
-        SingleChildScrollView(
-          controller: ScrollController(),
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: routes
-                .map(
-                  (shortcut) => ShortcutView(
-                    onPressed: () {
-                      if (routeGoal?.routeID == shortcut.id) {
-                        goals.routeGoal = null;
-                        _profileService.setChallengeGoals(goals);
-                      } else {
-                        RouteGoals newRouteGoals = RouteGoals(shortcut.id, shortcut.name, goalValue);
-                        var newGoals = goals;
-                        newGoals.routeGoal = newRouteGoals;
-                        _profileService.setChallengeGoals(newGoals);
-                      }
-                    },
-                    shortcut: shortcut,
-                    width: shortcutWidth,
-                    height: shortcutHeight,
-                    rightPad: shortcutRightPad,
-                    selected: routeGoal?.routeID == shortcut.id,
-                    showSplash: false,
+    if (routes.isEmpty) {
+      return Column(
+        children: [
+          const VSpace(),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  child: BoldSmall(
+                    text: 'Hey Bruder, setz Dir doch einfach mal Routen. Das geht echt gar nicht klar!',
+                    context: context,
                   ),
-                )
-                .toList(),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+          const VSpace(),
+        ],
+      );
+    } else {
+      const double shortcutRightPad = 16;
+      final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
+      final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+      return Column(
+        children: [
+          const VSpace(),
+          GoalSettingWidget(
+            title: 'Fahrten pro Woche',
+            value: goalValue.toDouble(),
+            min: 1,
+            max: 7,
+            stepSize: 1,
+            valueLabel: 'mal',
+            onChanged: routeGoal == null
+                ? null
+                : (value) {
+                    setState(() => routeGoal?.perWeek = value.toInt());
+                    var newGoals = goals;
+                    newGoals.routeGoal = routeGoal;
+                    _profileService.setChallengeGoals(newGoals);
+                  },
+          ),
+          SingleChildScrollView(
+            controller: ScrollController(),
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: routes
+                  .map(
+                    (shortcut) => ShortcutView(
+                      onPressed: () {
+                        if (routeGoal?.routeID == shortcut.id) {
+                          goals.routeGoal = null;
+                          _profileService.setChallengeGoals(goals);
+                        } else {
+                          RouteGoals newRouteGoals = RouteGoals(shortcut.id, shortcut.name, goalValue);
+                          var newGoals = goals;
+                          newGoals.routeGoal = newRouteGoals;
+                          _profileService.setChallengeGoals(newGoals);
+                        }
+                      },
+                      shortcut: shortcut,
+                      width: shortcutWidth,
+                      height: shortcutHeight,
+                      rightPad: shortcutRightPad,
+                      selected: routeGoal?.routeID == shortcut.id,
+                      showSplash: false,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
+      );
+    }
   }
 }
