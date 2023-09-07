@@ -7,6 +7,7 @@ import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/services/challenges_service.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
@@ -356,10 +357,8 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
         ringSize: 32,
         iconColor: color,
         icon: (challenge == null)
-            ? Icons.question_mark
-            : widget.isWeekly
-                ? CustomGameIcons.trophy
-                : CustomGameIcons.medal,
+            ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
+            : ChallengeGenerator.getChallengeIcon(challenge!),
         animationController: _ringController,
         ringColor: color,
       ),

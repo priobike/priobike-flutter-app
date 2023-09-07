@@ -4,10 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/custom_game_icons.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/level_ring.dart';
 
 /// Dialog widget to pop up after one or multiple challenges were generated.
 class NewChallengeDialog extends StatefulWidget {
@@ -140,7 +139,7 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
       },
       onTapCancel: () => setState(() => tapDown = false),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.background,
@@ -156,34 +155,33 @@ class _ChallengeWidgetState extends State<ChallengeWidget> {
             )
           ],
         ),
-        child: Column(
+        child: Row(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                LevelRing(
-                  ringColor: color,
-                  iconColor: color,
-                  icon: widget.challenge.isWeekly ? CustomGameIcons.trophy : CustomGameIcons.medal,
-                  ringSize: 64,
-                ),
-                const SmallHSpace(),
-                Expanded(
-                  child: Small(
+            Icon(
+              ChallengeGenerator.getChallengeIcon(widget.challenge),
+              size: 64,
+              color: CI.blue,
+            ),
+            const SmallHSpace(),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Small(
                     text: widget.challenge.description,
                     context: context,
                   ),
-                ),
-              ],
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      BoldSmall(text: '+${widget.challenge.xp}XP', context: context),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                BoldSmall(text: '+${widget.challenge.xp}XP', context: context),
-                const SmallHSpace(),
-              ],
-            ),
+            const SmallHSpace(),
           ],
         ),
       ),

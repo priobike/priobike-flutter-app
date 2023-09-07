@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/challenges/models/challenge_goals.dart';
@@ -18,6 +20,20 @@ class ValueRange {
 
 /// A class that implements this class can be used, to generate a new challenge according to the user goals.
 abstract class ChallengeGenerator {
+  static IconData getChallengeIcon(Challenge challenge) {
+    if (challenge.isWeekly) {
+      var type = WeeklyChallengeGenerator.weeklyTypes.elementAt(challenge.type);
+      if (type == ChallengeType.overallDistance) return CustomGameIcons.distance_trophy;
+      if (type == ChallengeType.overallDuration) return CustomGameIcons.duration_trophy;
+      return CustomGameIcons.blank_trophy;
+    } else {
+      var type = DailyChallengeGenerator.dailyTypes.elementAt(challenge.type);
+      if (type == ChallengeType.overallDistance) return CustomGameIcons.distance_medal;
+      if (type == ChallengeType.overallDuration) return CustomGameIcons.duration_medal;
+      return CustomGameIcons.blank_medal;
+    }
+  }
+
   ChallengesCompanion generate();
 }
 

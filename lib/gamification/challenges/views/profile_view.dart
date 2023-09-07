@@ -219,13 +219,13 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 children: [
                   getTrophyWidget(
                     profile.medals,
-                    CustomGameIcons.medal,
+                    CustomGameIcons.blank_medal,
                     getAnimation(_medalsController),
                     _profileService.medalsChanged,
                   ),
                   getTrophyWidget(
                     profile.trophies,
-                    CustomGameIcons.trophy,
+                    CustomGameIcons.blank_trophy,
                     getAnimation(_trophiesController),
                     _profileService.trophiesChanged,
                   ),

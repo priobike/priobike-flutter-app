@@ -100,7 +100,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
                               child: Transform.rotate(
                                 angle: pi / 8,
                                 child: const Icon(
-                                  CustomGameIcons.blankTrophy,
+                                  CustomGameIcons.elevation_trophy,
                                   size: 64,
                                   color: Medals.gold,
                                 ),
@@ -111,7 +111,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
                               child: Transform.rotate(
                                 angle: -pi / 8,
                                 child: const Icon(
-                                  CustomGameIcons.medal,
+                                  CustomGameIcons.distance_medal,
                                   size: 64,
                                   color: CI.blue,
                                 ),

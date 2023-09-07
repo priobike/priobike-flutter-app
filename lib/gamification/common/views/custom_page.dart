@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/utils.dart';
 
 /// This view can be used for pages that are accessed from the game hub. It gives them a matching layout, containing
 /// a back button and a header with a title and possibly a feature button.
