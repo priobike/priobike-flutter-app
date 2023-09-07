@@ -59,6 +59,10 @@ class GameProfileService with ChangeNotifier {
   /// This bool describes, whether the profiles trophy value has been changed.
   bool trophiesChanged = false;
 
+  bool get showGoals =>
+      isFeatureEnabled(GameProfileService.gameFeatureChallengesKey) ||
+      isFeatureEnabled(GameProfileService.gameFeatureStatisticsKey);
+
   GameProfileService() {
     _loadProfile();
   }

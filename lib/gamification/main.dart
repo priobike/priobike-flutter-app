@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
-import 'package:priobike/gamification/challenges/views/goal_setting.dart';
-import 'package:priobike/gamification/common/custom_game_icons.dart';
+import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
@@ -37,89 +34,6 @@ class _GameViewState extends State<GameView> {
   void dispose() {
     _profileService.removeListener(update);
     super.dispose();
-  }
-
-  Widget get hasProfileHeader {
-    var goals = _profileService.challengeGoals;
-    var showGoals = _profileService.isFeatureEnabled(GameProfileService.gameFeatureChallengesKey) ||
-        _profileService.isFeatureEnabled(GameProfileService.gameFeatureStatisticsKey);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (showGoals) ...[
-            BoldSubHeader(text: 'Tagesziel', context: context),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4, right: 4),
-                  child: Icon(Icons.directions_bike, size: 20),
-                ),
-                Content(
-                  text: '${(goals.dailyDistanceGoalMetres / 1000).toStringAsFixed(1)} km',
-                  context: context,
-                ),
-                const SmallHSpace(),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4, right: 4),
-                  child: Icon(Icons.timer, size: 20),
-                ),
-                Content(
-                  text: '${goals.dailyDurationGoalMinutes.toStringAsFixed(0)} min',
-                  context: context,
-                ),
-              ],
-            ),
-            const SmallVSpace(),
-          ],
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              if (showGoals)
-                Expanded(
-                  child: Tile(
-                    padding: const EdgeInsets.all(8),
-                    borderRadius: BorderRadius.circular(24),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const ChallengeGoalSetting(),
-                      ),
-                    ),
-                    content: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(CustomGameIcons.goals, size: 24),
-                        const SmallHSpace(),
-                        BoldContent(text: 'Ziele ändern', context: context),
-                      ],
-                    ),
-                  ),
-                ),
-              if (!showGoals) Expanded(child: Container()),
-              const SmallHSpace(),
-              Expanded(
-                child: Tile(
-                  padding: const EdgeInsets.all(8),
-                  borderRadius: BorderRadius.circular(24),
-                  content: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.settings, size: 24),
-                      const SmallHSpace(),
-                      BoldContent(text: 'Einstellungen', context: context),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 
   Widget get noProfileHeader => Container(
@@ -163,7 +77,7 @@ class _GameViewState extends State<GameView> {
               const GameIntroCard(),
             ]
           : [
-              hasProfileHeader,
+              if (_profileService.showGoals) const GoalsView(),
               ..._enabledFeatureCards,
               ..._disabledFeatureCards,
             ],

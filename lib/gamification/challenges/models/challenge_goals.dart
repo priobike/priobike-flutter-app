@@ -5,13 +5,13 @@ class UserGoals {
   static UserGoals def = UserGoals(3000, 30, null);
 
   /// The users daily distance goals.
-  final double dailyDistanceGoalMetres;
+  double dailyDistanceGoalMetres;
 
   /// The users daily duration goals.
-  final double dailyDurationGoalMinutes;
+  double dailyDurationGoalMinutes;
 
   /// Goals for a specific route of the user.
-  final RouteGoals? routeGoal;
+  RouteGoals? routeGoal;
 
   UserGoals(this.dailyDistanceGoalMetres, this.dailyDurationGoalMinutes, this.routeGoal);
 
