@@ -10,20 +10,45 @@ class GamificationCard extends StatelessWidget {
   /// View to open when the card is tapped.
   final Widget? directionView;
 
-  const GamificationCard({Key? key, required this.content, this.directionView}) : super(key: key);
+  final Color? splashColor;
+
+  const GamificationCard({
+    Key? key,
+    required this.content,
+    this.directionView,
+    this.splashColor,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-      child: Tile(
-        onPressed: directionView == null
-            ? null
-            : () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => directionView!)),
-        splash: Colors.transparent,
-        fill: Theme.of(context).colorScheme.background,
-        content: content,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          width: 1,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
+        ),
       ),
+      child: directionView == null
+          ? Padding(padding: const EdgeInsets.all(16), child: content)
+          : Material(
+              borderRadius: BorderRadius.circular(24),
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24),
+                splashColor: splashColor ?? Theme.of(context).colorScheme.background,
+                highlightColor: splashColor ?? Theme.of(context).colorScheme.background,
+                onTap: () async {
+                  await Future.delayed(const Duration(milliseconds: 250));
+                  if (context.mounted) {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => directionView!));
+                  }
+                },
+                child: Padding(padding: const EdgeInsets.all(16), child: content),
+              ),
+            ),
     );
   }
 }

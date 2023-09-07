@@ -47,6 +47,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
 
   /// Info widget which encourages the user to participate in the challenges.
   Widget get challengesDisabledWidget => GamificationCard(
+        splashColor: CI.blue,
         directionView: const ChallengesTutorial(),
         content: Column(
           children: [

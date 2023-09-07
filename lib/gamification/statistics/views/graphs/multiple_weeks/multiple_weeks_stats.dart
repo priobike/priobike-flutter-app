@@ -77,12 +77,7 @@ class _DetailedMultipleWeekStatsState extends State<DetailedMultipleWeekStats> {
     }
     return DetailedStatistics(
       pageController: pageController,
-      graphs: viewModels
-          .map((vm) => MultipleWeeksStatsGraph(
-                tabHandler: () {},
-                viewModel: vm,
-              ))
-          .toList(),
+      graphs: viewModels.map((vm) => MultipleWeeksStatsGraph(viewModel: vm)).toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
       rideListController: widget.rideListController,
     );

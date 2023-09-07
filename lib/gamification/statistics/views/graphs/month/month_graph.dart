@@ -8,13 +8,11 @@ import 'package:priobike/main.dart';
 
 /// Displayes ride statistics for a single month. The data is obtained from a given [MonthGraphViewModel].
 class MonthStatsGraph extends StatefulWidget {
-  final Function() tabHandler;
 
   final MonthGraphViewModel viewModel;
 
   const MonthStatsGraph({
     Key? key,
-    required this.tabHandler,
     required this.viewModel,
   }) : super(key: key);
   @override
@@ -85,8 +83,7 @@ class _MonthStatsGraphState extends State<MonthStatsGraph> {
       yValues: widget.viewModel.yValues,
       goalValue: goalValue,
       getTitlesX: (value, meta) => getTitlesX(value, meta, context, Theme.of(context).textTheme.labelMedium!),
-      onTap: (int? index) async {
-        if (widget.viewModel.selectedIndex == null && index == null) await widget.tabHandler();
+      onTap: (int? index) {
         widget.viewModel.setSelectedIndex(index);
       },
     );

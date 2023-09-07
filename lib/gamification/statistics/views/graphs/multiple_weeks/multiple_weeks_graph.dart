@@ -6,13 +6,10 @@ import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.d
 
 /// Displayes ride statistics for a single week. The data is obtained from a given [MultipleWeeksGraphViewModel].
 class MultipleWeeksStatsGraph extends StatelessWidget {
-  final Function() tabHandler;
-
   final MultipleWeeksGraphViewModel viewModel;
 
   const MultipleWeeksStatsGraph({
     Key? key,
-    required this.tabHandler,
     required this.viewModel,
   }) : super(key: key);
 
@@ -53,10 +50,7 @@ class MultipleWeeksStatsGraph extends StatelessWidget {
       barWidth: 30,
       selectedBar: viewModel.selectedIndex,
       getTitlesX: (value, meta) => getTitlesX(value, meta, context, Theme.of(context).textTheme.labelSmall!),
-      onTap: (int? index) async {
-        if (viewModel.selectedIndex == null && index == null) await tabHandler();
-        viewModel.setSelectedIndex(index);
-      },
+      onTap: (int? index) => viewModel.setSelectedIndex(index),
     );
   }
 }

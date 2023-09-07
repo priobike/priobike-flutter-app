@@ -36,30 +36,27 @@ class _OverallStatisticsState extends State<OverallStatistics> {
 
   /// Returns an info widget for a given value with a given label and icon.
   Widget getInfoWidget(IconData icon, String value, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: 24,
-          color: CI.blue.withOpacity(1),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            BoldSmall(
-              text: value,
-              context: context,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-            ),
-            BoldSmall(
-              text: label,
-              context: context,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
-            ),
-          ],
-        ),
-      ],
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 24,
+            color: CI.blue.withOpacity(1),
+          ),
+          BoldSmall(
+            text: value,
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+          ),
+          BoldSmall(
+            text: label,
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+          ),
+        ],
+      ),
     );
   }
 
@@ -67,20 +64,15 @@ class _OverallStatisticsState extends State<OverallStatistics> {
   Widget build(BuildContext context) {
     var profile = _profileService.profile!;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          BoldContent(
-            text: '${StringFormatter.getDateStr(getIt<GameProfileService>().profile!.joinDate)} - Heute',
-            context: context,
-            color: Theme.of(context).colorScheme.onBackground,
-          ),
-          const SmallVSpace(),
+          const VSpace(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               getInfoWidget(
                 Icons.directions_bike,

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
 import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
 import 'package:priobike/main.dart';
 
@@ -22,6 +24,17 @@ class _GameViewState extends State<GameView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
+
+  final Map<String, Widget> _featureCards = {
+    GameProfileService.gameFeatureChallengesKey: const GameChallengesCard(),
+    GameProfileService.gameFeatureStatisticsKey: const RideStatisticsCard(),
+  };
+
+  List<Widget> get _enabledFeatureCards =>
+      _profileService.enabledFeatures.map((key) => _featureCards[key] as Widget).toList();
+
+  List<Widget> get _disabledFeatureCards =>
+      _profileService.disabledFeatures.map((key) => _featureCards[key] as Widget).toList();
 
   @override
   void initState() {
@@ -57,17 +70,6 @@ class _GameViewState extends State<GameView> {
         ),
       );
 
-  final Map<String, Widget> _featureCards = {
-    GameProfileService.gameFeatureChallengesKey: const GameChallengesCard(),
-    GameProfileService.gameFeatureStatisticsKey: const RideStatisticsCard(),
-  };
-
-  List<Widget> get _enabledFeatureCards =>
-      _profileService.enabledFeatures.map((key) => _featureCards[key] as Widget).toList();
-
-  List<Widget> get _disabledFeatureCards =>
-      _profileService.disabledFeatures.map((key) => _featureCards[key] as Widget).toList();
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -77,15 +79,9 @@ class _GameViewState extends State<GameView> {
               const GameIntroCard(),
             ]
           : [
-              Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: BoldContent(
-                  text: "Dein PrioBike",
-                  context: context,
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              OverallStatistics(),
               if (_profileService.showGoals) const GoalsView(),
+              const SmallVSpace(),
               ..._enabledFeatureCards,
               ..._disabledFeatureCards,
             ],

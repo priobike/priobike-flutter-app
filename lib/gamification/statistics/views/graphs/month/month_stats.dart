@@ -82,12 +82,7 @@ class _DetailedMonthStatsState extends State<DetailedMonthStats> {
     }
     return DetailedStatistics(
       pageController: pageController,
-      graphs: viewModels
-          .map((vm) => MonthStatsGraph(
-                tabHandler: () {},
-                viewModel: vm,
-              ))
-          .toList(),
+      graphs: viewModels.map((vm) => MonthStatsGraph(viewModel: vm)).toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
       rideListController: widget.rideListController,
     );

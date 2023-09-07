@@ -7,13 +7,11 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
-import 'package:priobike/gamification/statistics/views/graphs/compact_labled_graph.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/gamification/statistics/views/stats_page.dart';
 import 'package:priobike/main.dart';
@@ -100,58 +98,77 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
     }
   }
 
-  /// Handles a tap on the card which is not recognized as an interaction with the graphs.
-  Future<void> onTap() async => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StatisticsView()));
+  String getTitle(int index) {
+    if (index == 0) return 'Diese Woche';
+    if (index == 1) return 'Dieser Monat';
+    if (index == 2) return '5 Wochen Rückblick';
+    return '';
+  }
 
   @override
   Widget build(BuildContext context) {
     return GamificationCard(
-      directionView: const StatisticsView(),
       content: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          const OverallStatistics(),
-          const SmallVSpace(),
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: 224,
-            child: PageView(
-              controller: pageController,
-              clipBehavior: Clip.hardEdge,
-              onPageChanged: (int index) => setState(() {
-                // Update tab controller index to update the indicator.
-                tabController.index = index;
-                getIt<StatisticService>().setStatInterval(StatInterval.values[index]);
-              }),
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const StatisticsView())),
+            child: Column(
               children: [
-                CompactGraph(
-                  viewModel: graphViewModels[0],
-                  title: 'Diese Woche',
-                  graph: WeekStatsGraph(tabHandler: onTap, viewModel: graphViewModels[0] as WeekGraphViewModel),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const SmallHSpace(),
+                    BoldSubHeader(
+                      text: getTitle(tabController.index),
+                      context: context,
+                      textAlign: TextAlign.start,
+                    ),
+                    Expanded(child: Container()),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: const Icon(Icons.more_vert),
+                      ),
+                    ),
+                  ],
                 ),
-                CompactGraph(
-                  viewModel: graphViewModels[1],
-                  title: 'Dieser Monat',
-                  graph: MonthStatsGraph(tabHandler: onTap, viewModel: graphViewModels[1] as MonthGraphViewModel),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 200,
+                  child: PageView(
+                      controller: pageController,
+                      clipBehavior: Clip.hardEdge,
+                      onPageChanged: (int index) => setState(() {
+                            // Update tab controller index to update the indicator.
+                            tabController.index = index;
+                            getIt<StatisticService>().setStatInterval(StatInterval.values[index]);
+                          }),
+                      children: [
+                        IgnorePointer(
+                          child: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
+                        ),
+                        IgnorePointer(
+                          child: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
+                        ),
+                        IgnorePointer(
+                          child: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                        ),
+                      ]),
                 ),
-                CompactGraph(
-                  viewModel: graphViewModels[2],
-                  title: '5 Wochen Rückblick',
-                  graph: MultipleWeeksStatsGraph(
-                      tabHandler: onTap, viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: TabPageSelector(
+                    controller: tabController,
+                    selectedColor: Theme.of(context).colorScheme.primary,
+                    indicatorSize: 6,
+                    borderStyle: BorderStyle.none,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+                    key: GlobalKey(),
+                  ),
                 ),
               ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: TabPageSelector(
-              controller: tabController,
-              selectedColor: Theme.of(context).colorScheme.primary,
-              indicatorSize: 6,
-              borderStyle: BorderStyle.none,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
-              key: GlobalKey(),
             ),
           ),
         ],
