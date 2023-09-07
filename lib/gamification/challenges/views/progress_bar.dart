@@ -361,6 +361,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
             : ChallengeGenerator.getChallengeIcon(challenge!),
         animationController: _ringController,
         ringColor: color,
+        background: Theme.of(context).colorScheme.background,
       ),
     );
   }

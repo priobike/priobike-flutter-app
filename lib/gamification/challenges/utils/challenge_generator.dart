@@ -84,7 +84,7 @@ class DailyChallengeGenerator extends ChallengeGenerator {
       progress: 0,
       isWeekly: false,
       isOpen: true,
-      type: type.index,
+      type: dailyTypes.indexOf(type),
     );
   }
 }
@@ -149,7 +149,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
       progress: 0,
       isWeekly: true,
       isOpen: true,
-      type: type.index,
+      type: weeklyTypes.indexOf(type),
       shortcutId: Value(goals.routeGoal == null ? null : goals.routeGoal!.routeID),
     );
   }

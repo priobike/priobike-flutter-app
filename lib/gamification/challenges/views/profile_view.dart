@@ -6,6 +6,8 @@ import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/home/models/profile.dart';
+import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/main.dart';
 
 /// This view displays the basic info about the users game profile. This can contain their achieved game rewards and
@@ -22,8 +24,8 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   /// The service which manages and provides the user profile.
   late GameProfileService _profileService;
 
-  /// The service which provides the users game settings to modify the card according to the enabled features.
-  late GameProfileService _settingsService;
+  /// The associated profile service, which is injected by the provider.
+  late Profile _routingProfileService;
 
   /// Controller to animate the trophy icon when a new trophy is gained.
   late final AnimationController _trophiesController;
@@ -34,12 +36,18 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   /// Animation Controller to controll the ring animation.
   late final AnimationController _ringController;
 
+  bool canLevelUp = false;
+
   /// Bounce animation for the trophy or medal icon.
   Animation<double> getAnimation(var controller) =>
       Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
 
+  void update() {
+    if (mounted) setState(() {});
+  }
+
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() async {
+  void updateProfile() async {
     // First, rebuild the widget.
     if (mounted) setState(() {});
     // If the medals have changed, animate the medal icon.
@@ -54,13 +62,11 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       _profileService.trophiesChanged = false;
       if (mounted) setState(() {});
     }
-  }
-
-  /// This function starts and ends the level ring animation.
-  void animateRing() async {
-    await _ringController.reverse();
-    await Future.delayed(const Duration(milliseconds: 250));
-    await _ringController.forward();
+    // If the user has collected enough xp for the next level, set level up to true and start animation.
+    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
+      _ringController.repeat(reverse: true);
+      setState(() => canLevelUp = true);
+    }
   }
 
   @override
@@ -69,9 +75,15 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _medalsController = AnimationController(duration: ShortDuration(), vsync: this);
     _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
     _profileService = getIt<GameProfileService>();
-    _profileService.addListener(update);
-    _settingsService = getIt<GameProfileService>();
-    _settingsService.addListener(update);
+    _profileService.addListener(updateProfile);
+    _routingProfileService = getIt<Profile>();
+    _routingProfileService.addListener(update);
+    _ringController.addListener(update);
+    // If the user has collected enough xp for the next level, set level up to true and start animation.
+    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
+      _ringController.repeat(reverse: true);
+      canLevelUp = true;
+    }
     super.initState();
   }
 
@@ -79,49 +91,20 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   void dispose() {
     _medalsController.dispose();
     _trophiesController.dispose();
-    _profileService.removeListener(update);
-    _settingsService.removeListener(update);
+    _profileService.removeListener(updateProfile);
+    _routingProfileService.removeListener(update);
+    _ringController.removeListener(update);
     super.dispose();
   }
 
-  /// Create level rings, such that the ring indicators match the current users xp and level.
-  List<Level> getRingLevels() {
-    var next = nextLevel;
-    // If the max level has been reached, the whole ring is displayed in blue.
-    if (next == null) {
-      var endLevel = levels.last;
-      return levels.map((e) => endLevel).toList();
-    }
-    // Else, the ring color depends on the next levels color and the current xp progress.
-    else {
-      List<Level> result = [];
-      var prevValue = currentLevel?.value ?? 0;
-      var valueDiff = next.value - prevValue;
-      for (int i = 0; i < 7; i++) {
-        var subValue = prevValue + (i + 1) * (valueDiff ~/ 7);
-        var level = Level(value: subValue, title: '', color: next.color);
-        result.add(level);
-      }
-      return result;
-    }
-  }
-
   /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
-  Level? get currentLevel {
-    Level? prevLvl = levels[0];
-    for (var level in levels) {
-      if (_profileService.profile!.xp < level.value) break;
-      prevLvl = level;
-    }
-    return prevLvl;
-  }
+  Level get currentLevel => levels.elementAt(_profileService.profile!.level);
 
   /// Return the next level the user needs to achieve. Returns null, if the user has reached the max level.
   Level? get nextLevel {
-    if (currentLevel == null) return levels[0];
-    int index = levels.indexOf(currentLevel!);
-    if (index == levels.length - 1) return null;
-    return levels[index + 1];
+    int level = _profileService.profile!.level;
+    if (level == levels.length - 1) return null;
+    return levels[level + 1];
   }
 
   /// Returns widget for displaying a trophy count for a trophy with a given icon.
@@ -176,23 +159,61 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     var profile = _profileService.profile!;
+    var lightMode = Theme.of(context).brightness == Brightness.light;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
       children: [
         GestureDetector(
-          onTap: animateRing,
-          child: LevelRing(
-            minValue: currentLevel?.value.toDouble() ?? 0,
-            maxValue: nextLevel?.value.toDouble() ?? profile.xp.toDouble(),
-            curValue: profile.xp.toDouble(),
-            iconColor: (currentLevel == levels[0])
-                ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
-                : currentLevel!.color,
-            icon: Icons.pedal_bike,
-            ringSize: 96,
-            animationController: _ringController,
-            ringColor: nextLevel?.color ?? currentLevel!.color,
+          onTap: () {},
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (canLevelUp)
+                Container(
+                  height: 0,
+                  width: 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: CI.blue.withOpacity(lightMode ? 0.4 : 0.25),
+                        blurRadius: 10,
+                        spreadRadius: 50 + _ringController.value * 10,
+                      ),
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.1),
+                        blurRadius: 10,
+                        spreadRadius: 50 + _ringController.value * 10,
+                      ),
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.background,
+                        blurRadius: 15,
+                        spreadRadius: 35 + _ringController.value * 5,
+                      ),
+                    ],
+                  ),
+                ),
+              LevelRing(
+                showBorder: false,
+                minValue: currentLevel.value.toDouble(),
+                maxValue: nextLevel?.value.toDouble() ?? profile.xp.toDouble(),
+                value: profile.xp.toDouble(),
+                iconColor: (currentLevel == levels[0])
+                    ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
+                    : currentLevel.color,
+                icon: canLevelUp ? null : _routingProfileService.bikeType?.icon() ?? Icons.pedal_bike,
+                ringSize: 96,
+                ringColor: canLevelUp ? CI.blue : nextLevel?.color ?? currentLevel.color,
+              ),
+              if (canLevelUp)
+                Column(
+                  children: [
+                    BoldContent(text: 'Level', context: context, color: CI.blue),
+                    BoldContent(text: 'Up', context: context, color: CI.blue),
+                  ],
+                )
+            ],
           ),
         ),
         Expanded(
@@ -204,7 +225,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BoldSubHeader(text: currentLevel!.title, context: context),
+                    BoldSubHeader(text: currentLevel.title, context: context),
                     Small(
                       text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
                       context: context,

@@ -24,6 +24,9 @@ class GameProfile {
   /// The xp of the user.
   int xp;
 
+  /// The level of the user.
+  int level;
+
   /// The number of medals the user has.
   int medals;
 
@@ -42,6 +45,7 @@ class GameProfile {
     this.totalElevationGainMetres = 0,
     this.totalElevationLossMetres = 0,
     this.xp = 0,
+    this.level = 0,
     this.medals = 0,
     this.trophies = 0,
     this.dailyChallengeChoices = 3,
@@ -56,6 +60,7 @@ class GameProfile {
         'totalElevationGainMetres': totalElevationGainMetres,
         'totalElevationLossMetres': totalElevationLossMetres,
         'xp': xp,
+        'level': level,
         'medals': medals,
         'trophies': trophies,
         'dailyChallengeChoices': dailyChallengeChoices,
@@ -70,6 +75,7 @@ class GameProfile {
         totalElevationGainMetres: json['totalElevationGainMetres'],
         totalElevationLossMetres: json['totalElevationLossMetres'],
         xp: json['xp'],
+        level: json['level'],
         medals: json['medals'],
         trophies: json['trophies'],
         dailyChallengeChoices: json['dailyChallengeChoices'],

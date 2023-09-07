@@ -8,7 +8,7 @@ class LevelRing extends StatefulWidget {
 
   final double maxValue;
 
-  final double curValue;
+  final double value;
 
   final int ringSeperators;
 
@@ -23,6 +23,10 @@ class LevelRing extends StatefulWidget {
   /// The size of the ring. The icon size also depends on this value.
   final double ringSize;
 
+  final bool showBorder;
+
+  final Color background;
+
   final AnimationController? animationController;
 
   const LevelRing({
@@ -33,9 +37,11 @@ class LevelRing extends StatefulWidget {
     required this.ringSize,
     this.minValue = 0,
     this.maxValue = 0,
-    this.curValue = 0,
+    this.value = 0,
     this.ringSeperators = 7,
     this.animationController,
+    this.showBorder = true,
+    this.background = Colors.transparent,
   }) : super(key: key);
 
   @override
@@ -56,14 +62,10 @@ class LevelRingState extends State<LevelRing> {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).colorScheme.background,
-          width: 2,
-        ),
-        color: Theme.of(context).colorScheme.background,
+        border: widget.showBorder ? Border.all(color: widget.background, width: 2) : null,
+        color: widget.background,
         borderRadius: const BorderRadius.all(Radius.circular(48)),
       ),
       child: Column(children: [
@@ -78,9 +80,9 @@ class LevelRingState extends State<LevelRing> {
               child: CustomPaint(
                 painter: RingPainter(
                   color: widget.ringColor,
-                  brightness: brightness,
+                  brightness: Theme.of(context).brightness,
                   threshold: widget.animationController == null ? 1 : ringAnimation.value,
-                  curValue: widget.curValue,
+                  curValue: widget.value,
                   minValue: widget.minValue,
                   maxValue: widget.maxValue,
                   seperators: widget.ringSeperators,

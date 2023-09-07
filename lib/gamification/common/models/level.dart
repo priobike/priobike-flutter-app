@@ -21,8 +21,8 @@ class Level {
 /// These are the levels that are possible to achieve by the user vie their xp.
 List<Level> levels = const [
   Level(value: 0, title: 'Neuling', color: Colors.transparent),
-  Level(value: 500, title: 'Beginner', color: Medals.mattBronze),
-  Level(value: 1000, title: 'Radler', color: Medals.bronze),
+  Level(value: 25, title: 'Beginner', color: Medals.mattBronze),
+  Level(value: 100, title: 'Radler', color: Medals.bronze),
   Level(value: 1500, title: '', color: Medals.mattSilver),
   Level(value: 2000, title: '', color: Medals.silver),
   Level(value: 2500, title: '', color: Medals.mattGold),
