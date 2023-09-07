@@ -47,8 +47,11 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void updateProfile() async {
-    // First, rebuild the widget.
-    if (mounted) setState(() {});
+    // If the user has collected enough xp for the next level, set level up to true and start animation.
+    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
+      _ringController.repeat(reverse: true);
+      setState(() => canLevelUp = true);
+    }
     // If the medals have changed, animate the medal icon.
     if (_profileService.medalsChanged) {
       await _medalsController.reverse(from: 1);
@@ -61,10 +64,9 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       _profileService.trophiesChanged = false;
       if (mounted) setState(() {});
     }
-    // If the user has collected enough xp for the next level, set level up to true and start animation.
-    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
-      _ringController.repeat(reverse: true);
-      setState(() => canLevelUp = true);
+    // Otherwise, just rebuilt the widget.
+    else {
+      if (mounted) setState(() {});
     }
   }
 
@@ -114,6 +116,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
         return const LevelUpDialog();
       },
     );
+    return;
     _ringController.stop();
     canLevelUp = false;
     _profileService.levelUp();
