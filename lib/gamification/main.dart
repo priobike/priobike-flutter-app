@@ -36,6 +36,10 @@ class _GameViewState extends State<GameView> {
   List<Widget> get _disabledFeatureCards =>
       _profileService.disabledFeatures.map((key) => _featureCards[key] as Widget).toList();
 
+  bool get showGoals =>
+      _profileService.isFeatureEnabled(GamificationUserService.gameFeatureChallengesKey) ||
+      _profileService.isFeatureEnabled(GamificationUserService.gameFeatureStatisticsKey);
+
   @override
   void initState() {
     _profileService = getIt<GamificationUserService>();
@@ -49,38 +53,36 @@ class _GameViewState extends State<GameView> {
     super.dispose();
   }
 
-  Widget get noProfileHeader => Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.only(top: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            BoldContent(
-              text: "Da geht doch noch mehr!",
-              context: context,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Small(
-              text: "Probiere neue Funktionen aus.",
-              context: context,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: (!_profileService.hasProfile)
           ? [
-              noProfileHeader,
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.only(top: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    BoldContent(
+                      text: "Da geht doch noch mehr!",
+                      context: context,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Small(
+                      text: "Probiere neue Funktionen aus.",
+                      context: context,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
               const GameIntroCard(),
             ]
           : [
               const OverallStatistics(),
-              if (_profileService.showGoals) const GoalsView(),
+              if (showGoals) const GoalsView(),
               const SmallVSpace(),
               ..._enabledFeatureCards,
               ..._disabledFeatureCards,

@@ -47,32 +47,27 @@ class ChallengeProfileService with ChangeNotifier {
 
   Future<void> _loadData() async {
     _prefs ??= await SharedPreferences.getInstance();
-
-    /// Try to load profile string from prefs and parse to user profile if possible.
+    // Try to load profile string from prefs and parse to user profile if possible.
     var parsedProfile = _prefs?.getString(profileKey);
     if (parsedProfile == null) return;
     _profile = ChallengesProfile.fromJson(jsonDecode(parsedProfile));
-
     var activatedUpgrades = _prefs!.getStringList(activatedUpgradesKey) ?? [];
     _activatedProfileUpgrades = activatedUpgrades.map((e) => ProfileUpgrade.fromJson(jsonDecode(e))).toList();
-
-    /// If a profile was loaded, start the database stream of rides, to update the profile according to the challenges.
+    // If a profile was loaded, start the database stream of rides, to update the profile according to the challenges.
     startDatabaseStreams();
   }
 
   /// Create a user profile with a given username and save in shared prefs.
   Future<bool> createProfile() async {
-    /// Create profile and set join date to now.
+    if (_profile != null) return false;
+    // Create profile and set join date to now.
     _profile = ChallengesProfile();
-
-    /// Try to save profile in shared prefs and return false if not successful.
+    // Try to save profile in shared prefs and return false if not successful.
     if (!(await _prefs?.setString(profileKey, jsonEncode(_profile!.toJson().toString())) ?? false)) {
       return false;
     }
-
-    /// Start the database stream of rides, to update the profile data accordingly.
+    // Start the database stream of rides, to update the profile data accordingly.
     startDatabaseStreams();
-
     return true;
   }
 
@@ -95,20 +90,16 @@ class ChallengeProfileService with ChangeNotifier {
   Future<void> updateRewards(List<Challenge> challenges) async {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
-
     // Save the old state of the trophies and medals to determine if they change.
     var oldMedals = _profile!.medals;
     var oldTrophies = _profile!.trophies;
-
     // Update rewards according to the completed challenges.
     _profile!.xp = 100000 + Utils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
     _profile!.medals = challenges.where((c) => !c.isWeekly).length;
     _profile!.trophies = challenges.where((c) => c.isWeekly).length;
-
     // If the medals or trophies changed, update the bools accordingly.
     medalsChanged = oldMedals < _profile!.medals;
     trophiesChanged = oldTrophies < _profile!.trophies;
-
     storeProfile();
   }
 

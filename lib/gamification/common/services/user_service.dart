@@ -27,24 +27,22 @@ class GamificationUserService with ChangeNotifier {
 
   /// List of the selected game preferences of the user as string keys.
   List<String> _enabledFeatures = [];
+
+  /// Object which holds all the user profile values. If it is null, there is no user profile yet.
+  UserProfile? _profile;
+
+  /// Ride DAOs to access rides.
+  RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
+
+  UserProfile? get profile => _profile;
+
   List<String> get enabledFeatures => _enabledFeatures;
 
   List<String> get disabledFeatures =>
       gamificationFeatures.whereNot((feature) => enabledFeatures.contains(feature)).toList();
 
-  /// Ride DAOs to access rides.
-  RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
-
-  /// Object which holds all the user profile values. If it is null, there is no user profile yet.
-  UserProfile? _profile;
-  UserProfile? get profile => _profile;
-
   /// Returns true, if there is a valid user profile.
   bool get hasProfile => _profile != null;
-
-  bool get showGoals =>
-      isFeatureEnabled(GamificationUserService.gameFeatureChallengesKey) ||
-      isFeatureEnabled(GamificationUserService.gameFeatureStatisticsKey);
 
   GamificationUserService() {
     _loadData();
@@ -58,41 +56,32 @@ class GamificationUserService with ChangeNotifier {
   /// Create a user profile with a given username and save in shared prefs.
   Future<bool> createProfile() async {
     _prefs ??= await SharedPreferences.getInstance();
-
-    /// Create profile and set join date to now.
+    // Create profile and set join date to now.
     _profile = UserProfile(
       joinDate: DateTime.now(),
     );
-
-    /// Try to save profile in shared prefs and return false if not successful.
+    // Try to save profile in shared prefs and return false if not successful.
     if (!(await _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson().toString())) ?? false)) {
       return false;
     }
-
-    /// Try to set profile exists string and return false if not successful
+    // Try to set profile exists string and return false if not successful
     if (!(await _prefs?.setBool(profileExistsKey, true) ?? false)) return false;
-
-    /// Start the database stream of rides, to update the profile data accordingly.
+    // Start the database stream of rides, to update the profile data accordingly.
     startDatabaseStream();
-
     return true;
   }
 
   /// Load the profile from shared prefs, if there is one.
   Future<void> _loadData() async {
     _prefs ??= await SharedPreferences.getInstance();
-
-    /// Return, if the profile exists value is not true or set;
+    // Return, if the profile exists value is not true or set;
     if (!(_prefs?.getBool(profileExistsKey) ?? false)) return;
-
-    /// Try to load profile string from prefs and parse to user profile if possible.
+    // Try to load profile string from prefs and parse to user profile if possible.
     var parsedProfile = _prefs?.getString(userProfileKey);
     if (parsedProfile == null) return;
     _profile = UserProfile.fromJson(jsonDecode(parsedProfile));
-
     _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
-
-    /// If a profile was loaded, start the database stream of rides, to update the profile data accordingly.
+    // If a profile was loaded, start the database stream of rides, to update the profile data accordingly.
     startDatabaseStream();
   }
 
@@ -100,23 +89,20 @@ class GamificationUserService with ChangeNotifier {
   Future<void> updateOverallStats(List<RideSummary> rides) async {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
-
-    /// Update profile statistics according to rides.
+    // Update profile statistics according to rides.
     _profile!.totalDistanceKilometres = Utils.getOverallValueFromSummaries(rides, RideInfo.distance);
     _profile!.totalDurationMinutes = Utils.getOverallValueFromSummaries(rides, RideInfo.duration);
     _profile!.totalElevationGainMetres = Utils.getOverallValueFromSummaries(rides, RideInfo.elevationGain);
     _profile!.totalElevationLossMetres = Utils.getOverallValueFromSummaries(rides, RideInfo.elevationLoss);
     _profile!.averageSpeedKmh = Utils.getOverallValueFromSummaries(rides, RideInfo.averageSpeed);
-
     updateProfile();
   }
 
   /// Update profile data stored in shared prefs and notify listeners.
   Future<void> updateProfile() async {
-    /// Update profile in shared preferences.
+    // Update profile in shared preferences.
     _prefs ??= await SharedPreferences.getInstance();
     _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson()));
-
     notifyListeners();
   }
 
@@ -132,6 +118,22 @@ class GamificationUserService with ChangeNotifier {
     }
     _prefs ??= await SharedPreferences.getInstance();
     _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
+    notifyListeners();
+  }
+
+  void moveFeatureUp(String key) {
+    if (_enabledFeatures.firstOrNull == key) return;
+    int index = _enabledFeatures.indexOf(key);
+    _enabledFeatures.remove(key);
+    _enabledFeatures.insert(index - 1, key);
+    notifyListeners();
+  }
+
+  void moveFeatureDown(String key) {
+    if (_enabledFeatures.lastOrNull == key) return;
+    int index = _enabledFeatures.indexOf(key);
+    _enabledFeatures.remove(key);
+    _enabledFeatures.insert(index + 1, key);
     notifyListeners();
   }
 

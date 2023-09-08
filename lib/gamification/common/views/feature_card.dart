@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
@@ -72,11 +74,11 @@ class EnabledFeatureCard extends StatefulWidget {
 class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   bool showMenu = false;
 
-  List<String> get enabledFeatures => getIt<GamificationUserService>().enabledFeatures;
+  GamificationUserService get userService => getIt<GamificationUserService>();
 
-  bool get showMoveUpButton => enabledFeatures.firstOrNull != widget.featureKey;
+  bool get showMoveUpButton => userService.enabledFeatures.firstOrNull != widget.featureKey;
 
-  bool get showMoveDownButton => enabledFeatures.lastOrNull != widget.featureKey;
+  bool get showMoveDownButton => userService.enabledFeatures.lastOrNull != widget.featureKey;
 
   Widget getMenuItem({required IconData icon, Function()? onPressed}) {
     return AnimatedButton(
@@ -87,6 +89,93 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
         child: Icon(icon, size: 32),
       ),
     );
+  }
+
+  Widget getCustomButton({
+    required Color color,
+    required IconData icon,
+    required String label,
+    required Function() onPressed,
+  }) {
+    return AnimatedButton(
+      onPressed: onPressed,
+      child: Tile(
+        fill: color,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        borderRadius: BorderRadius.circular(24),
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: Colors.white,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 4),
+              child: BoldContent(
+                text: label,
+                context: context,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showDisableFeatureDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 32),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: const BorderRadius.all(Radius.circular(24)),
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    BoldSubHeader(
+                      text: 'Möchtest du dieses Feature wirklich deaktivieren?',
+                      context: context,
+                      textAlign: TextAlign.center,
+                    ),
+                    const VSpace(),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        getCustomButton(
+                          label: 'Abbrechen',
+                          icon: Icons.close_rounded,
+                          onPressed: () => Navigator.of(context).pop(),
+                          color: CI.blue,
+                        ),
+                        getCustomButton(
+                          label: 'Deaktivieren',
+                          icon: Icons.not_interested,
+                          onPressed: () {
+                            userService.enableOrDisableFeature(widget.featureKey!);
+                            Navigator.of(context).pop();
+                          },
+                          color: CI.red,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -146,9 +235,21 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox.fromSize(size: const Size.square(32 + 8)),
-                      getMenuItem(icon: Icons.delete),
-                      if (showMoveUpButton) getMenuItem(icon: Icons.keyboard_arrow_up),
-                      if (showMoveDownButton) getMenuItem(icon: Icons.keyboard_arrow_down),
+                      getMenuItem(
+                        icon: Icons.not_interested,
+                        onPressed: showDisableFeatureDialog,
+                      ),
+                      if (showMoveUpButton)
+                        getMenuItem(
+                          icon: Icons.keyboard_arrow_up,
+                          onPressed: () => userService.moveFeatureUp(widget.featureKey!),
+                        ),
+                      if (showMoveDownButton)
+                        getMenuItem(
+                          icon: Icons.keyboard_arrow_down,
+                          onPressed: () => userService.moveFeatureDown(widget.featureKey!),
+                        ),
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
