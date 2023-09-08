@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:confetti/confetti.dart';
+import 'package:priobike/gamification/common/views/animated_button.dart';
 
 /// Dialog widget to pop up after one or multiple challenges were generated.
 class LevelUpDialog extends StatefulWidget {
@@ -24,6 +26,8 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
   late final AnimationController _animationController;
 
   late final ConfettiController _confettiController;
+
+  int? selectedUpgrade;
 
   /// Animation to
   Animation<double> get animation => Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
@@ -44,6 +48,12 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  void selectUpgrade(int index) async {
+    setState(() => selectedUpgrade = index);
+    await Future.delayed(TinyDuration());
+    if (mounted) Navigator.of(context).pop(selectedUpgrade);
   }
 
   @override
@@ -98,12 +108,48 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
                     ),
                     const SmallVSpace(),
                     UpgradeWidget(
-                      description: 'Wir müssen das halt alle irgendwann lernen, ganz erhlich, würd ich mal sagen',
-                      onTap: () {},
+                      visible: selectedUpgrade == null || selectedUpgrade == 0,
+                      onTap: () => selectUpgrade(0),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          BoldSmall(text: 'Eine Wochenchallenge mehr', context: context),
+                          const SmallVSpace(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(CustomGameIcons.blank_trophy, size: 32),
+                              SmallVSpace(),
+                              Icon(Icons.arrow_forward, size: 32),
+                              SmallVSpace(),
+                              Icon(CustomGameIcons.blank_trophy, size: 32),
+                              Icon(CustomGameIcons.blank_trophy, size: 32),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     UpgradeWidget(
-                      description: 'Upgrades sind nicht alles in diesem Lebel',
-                      onTap: () {},
+                      visible: selectedUpgrade == null || selectedUpgrade == 1,
+                      onTap: () => selectUpgrade(1),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          BoldSmall(text: 'Eine Tageschallenge mehr', context: context),
+                          const SmallVSpace(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(CustomGameIcons.blank_medal, size: 32),
+                              SmallVSpace(),
+                              Icon(Icons.arrow_forward, size: 32),
+                              SmallVSpace(),
+                              Icon(CustomGameIcons.blank_medal, size: 32),
+                              Icon(CustomGameIcons.blank_medal, size: 32),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -117,12 +163,14 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
 }
 
 class UpgradeWidget extends StatefulWidget {
-  final Function onTap;
-  final String description;
+  final Function() onTap;
+  final Widget content;
+  final bool visible;
   const UpgradeWidget({
     Key? key,
-    required this.description,
     required this.onTap,
+    required this.content,
+    required this.visible,
   }) : super(key: key);
 
   @override
@@ -130,39 +178,33 @@ class UpgradeWidget extends StatefulWidget {
 }
 
 class _UpgradeWidgetState extends State<UpgradeWidget> {
-  bool tapDown = false;
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        HapticFeedback.mediumImpact();
-        setState(() => tapDown = true);
-      },
-      onTapUp: (_) {
-        setState(() => tapDown = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => tapDown = false),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          border: Border.all(
-            width: 0.5,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+    return Visibility(
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      visible: widget.visible,
+      child: AnimatedButton(
+        onPressed: !widget.visible ? null : widget.onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+            border: Border.all(
+              width: 0.5,
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                blurRadius: 4,
+              )
+            ],
           ),
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: tapDown ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-              blurRadius: tapDown ? 8 : 4,
-            )
-          ],
-        ),
-        child: Row(
-          children: [Expanded(child: Content(text: widget.description, context: context))],
+          child: widget.content,
         ),
       ),
     );

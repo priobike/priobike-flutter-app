@@ -49,10 +49,18 @@ class LevelRing extends StatefulWidget {
 }
 
 class LevelRingState extends State<LevelRing> {
+  void update() => {if (mounted) setState(() {})};
+
   @override
   void initState() {
-    widget.animationController?.addListener(() => setState(() {}));
+    widget.animationController?.addListener(update);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.animationController?.removeListener(update);
+    super.dispose();
   }
 
   Animation<double> get ringAnimation => Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(

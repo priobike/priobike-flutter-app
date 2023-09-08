@@ -12,6 +12,7 @@ import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/main.dart';
 
@@ -119,9 +120,6 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   /// Handle a tap on the progress bar.
   void handleTap() async {
-    // If the challenge is null and the service doesn't allow to generate a new one, do nothing on tap.
-    if (deactivateTap) return;
-
     /// Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
     _ringController.reverse();
     setState(() => onTapAnimation = true);
@@ -239,9 +237,10 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   /// This widget returns the progress bar corresponding to the challenge state.
   Widget getProgressBar() {
-    return GestureDetector(
-      onTap: handleTap,
-      onLongPress: () => service.deleteCurrentChallenge(),
+    return AnimatedButton(
+      scaleFactor: 0.95,
+      onPressed: (deactivateTap) ? null : handleTap,
+      //onLongPress: () => service.deleteCurrentChallenge(),
       child: SizedBox.fromSize(
         size: const Size.fromHeight(44),
         child: Stack(

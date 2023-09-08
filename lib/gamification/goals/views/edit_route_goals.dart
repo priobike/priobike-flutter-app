@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/goals/models/user_goals.dart';
 import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
@@ -63,48 +64,45 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
     return Column(
       children: [
         const VSpace(),
-        Material(
-          borderRadius: BorderRadius.circular(32),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            splashColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-            onTap: () {
-              if (getIt<Routing>().isFetchingRoute) return;
-              HapticFeedback.mediumImpact();
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                (comingNotFromRoutingView) {
-                  if (comingNotFromRoutingView == null) {
-                    getIt<Routing>().reset();
-                    getIt<Discomforts>().reset();
-                    getIt<PredictionSGStatus>().reset();
-                  }
-                },
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16),
+        AnimatedButton(
+          onPressed: () {
+            if (getIt<Routing>().isFetchingRoute) return;
+            HapticFeedback.mediumImpact();
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+              (comingNotFromRoutingView) {
+                if (comingNotFromRoutingView == null) {
+                  getIt<Routing>().reset();
+                  getIt<Discomforts>().reset();
+                  getIt<PredictionSGStatus>().reset();
+                }
+              },
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.025),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  const SmallHSpace(),
-                  Expanded(
-                    child: BoldSmall(
-                      text:
-                          'Du kannst dir eigene Routenziele setzen, sobald du deine erste eigene Route erstellt hast.',
-                      context: context,
-                      textAlign: TextAlign.center,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                    ),
-                  ),
-                  const SmallHSpace(),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 48,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                const SmallHSpace(),
+                Expanded(
+                  child: BoldSmall(
+                    text: 'Du kannst dir eigene Routenziele setzen, sobald du deine erste eigene Route erstellt hast.',
+                    context: context,
+                    textAlign: TextAlign.center,
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                   ),
-                ],
-              ),
+                ),
+                const SmallHSpace(),
+                Icon(
+                  Icons.arrow_forward,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                ),
+              ],
             ),
           ),
         ),

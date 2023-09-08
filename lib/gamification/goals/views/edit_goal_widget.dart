@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/views/animated_button.dart';
 
 class EditGoalWidget extends StatelessWidget {
   final String title;
@@ -92,30 +93,22 @@ class _EditButtonState extends State<EditButton> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      shape: const CircleBorder(),
-      clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        splashColor: disable ? Colors.transparent : Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-        onTapDown: (_) => HapticFeedback.lightImpact(),
-        onTap: disable
-            ? null
-            : () {
-                if (widget.onPressed != null) widget.onPressed!();
-              },
-        child: Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.05 : 0.1),
-          ),
-          child: Center(
-            child: Icon(
-              widget.icon,
-              size: 32,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.25 : 1),
-            ),
+    return AnimatedButton(
+      scaleFactor: 0.85,
+      blockFastClicking: false,
+      onPressed: widget.onPressed,
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.05 : 0.1),
+        ),
+        child: Center(
+          child: Icon(
+            widget.icon,
+            size: 32,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.25 : 1),
           ),
         ),
       ),

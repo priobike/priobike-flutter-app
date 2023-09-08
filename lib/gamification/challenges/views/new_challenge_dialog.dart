@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/animated_button.dart';
 
 /// Dialog widget to pop up after one or multiple challenges were generated.
 class NewChallengeDialog extends StatefulWidget {
@@ -26,6 +27,8 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
   /// Animation controller to animate the dialog appearing.
   late final AnimationController _animationController;
 
+  int? selectedChallenge;
+
   /// Animation to
   Animation<double> get animation => Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
         parent: _animationController,
@@ -43,6 +46,12 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  void selectChallenge(int index) async {
+    setState(() => selectedChallenge = index);
+    await Future.delayed(TinyDuration());
+    if (mounted) Navigator.of(context).pop(selectedChallenge);
   }
 
   @override
@@ -91,9 +100,8 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
                 ),
                 ...widget.challenges.mapIndexed((i, challenge) => ChallengeWidget(
                       challenge: challenge,
-                      onTap: () {
-                        Navigator.of(context).pop(i);
-                      },
+                      onTap: () => selectChallenge(i),
+                      visible: selectedChallenge == null || selectedChallenge == i,
                     )),
                 Row(
                   mainAxisSize: MainAxisSize.max,
@@ -115,80 +123,73 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
   }
 }
 
-class ChallengeWidget extends StatefulWidget {
-  final Function onTap;
+class ChallengeWidget extends StatelessWidget {
+  final bool visible;
+
+  final Function() onTap;
   final Challenge challenge;
   const ChallengeWidget({
     Key? key,
     required this.challenge,
     required this.onTap,
+    required this.visible,
   }) : super(key: key);
 
   @override
-  State<ChallengeWidget> createState() => _ChallengeWidgetState();
-}
-
-class _ChallengeWidgetState extends State<ChallengeWidget> {
-  bool tapDown = false;
-
-  @override
   Widget build(BuildContext context) {
-    var color = CI.blue.withOpacity(1);
-    return GestureDetector(
-      onTapDown: (_) {
-        HapticFeedback.mediumImpact();
-        setState(() => tapDown = true);
-      },
-      onTapUp: (_) {
-        setState(() => tapDown = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => tapDown = false),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          border: Border.all(
-            width: 0.5,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+    return Visibility(
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      visible: visible,
+      child: AnimatedButton(
+        onPressed: visible ? onTap : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+            border: Border.all(
+              width: 0.5,
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                blurRadius: 4,
+              )
+            ],
           ),
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: tapDown ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-              blurRadius: tapDown ? 8 : 4,
-            )
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(
-              ChallengeGenerator.getChallengeIcon(widget.challenge),
-              size: 64,
-              color: CI.blue,
-            ),
-            const SmallHSpace(),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Small(
-                    text: widget.challenge.description,
-                    context: context,
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      BoldSmall(text: '+${widget.challenge.xp}XP', context: context),
-                    ],
-                  ),
-                ],
+          child: Row(
+            children: [
+              Icon(
+                ChallengeGenerator.getChallengeIcon(challenge),
+                size: 64,
+                color: CI.blue,
               ),
-            ),
-            const SmallHSpace(),
-          ],
+              const SmallHSpace(),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Small(
+                      text: challenge.description,
+                      context: context,
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        BoldSmall(text: '+${challenge.xp}XP', context: context),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SmallHSpace(),
+            ],
+          ),
         ),
       ),
     );
