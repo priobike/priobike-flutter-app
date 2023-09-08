@@ -112,7 +112,7 @@ class WeekGraphViewModel extends GraphViewModel {
   List<RideSummary> get rides => _rides;
 
   WeekGraphViewModel(this.startDay) {
-    /// Intitalize yValues as a list of zeros and a stream for rides in the displayed week.
+    // Intitalize yValues as a list of zeros and a stream for rides in the displayed week.
     _yValues = List.filled(7, 0);
     _streams.add(rideDao.streamRidesInWeek(startDay));
   }
@@ -120,8 +120,7 @@ class WeekGraphViewModel extends GraphViewModel {
   @override
   void updateValues({List<RideSummary>? update, int? index}) {
     if (update != null) _rides = update;
-
-    /// For each day of the week, save sum of current ride info values in yValues.
+    // For each day of the week, save sum of current ride info values in yValues.
     for (int i = 0; i < 7; i++) {
       var weekDay = startDay.add(Duration(days: i)).day;
       var ridesOnDay = rides.where((ride) => ride.startTime.day == weekDay);
@@ -157,7 +156,7 @@ class MonthGraphViewModel extends GraphViewModel {
   int numberOfDays = 0;
 
   MonthGraphViewModel(this.year, this.month) : firstDay = DateTime(year, month) {
-    /// Calculate number of days and intialize yValues as zeros and a stream of rides in the given month.
+    // Calculate number of days and intialize yValues as zeros and a stream of rides in the given month.
     numberOfDays = getNumberOfDays();
     _yValues = List.filled(numberOfDays, 0);
     _streams.add(rideDao.streamRidesInMonth(year, month));
@@ -166,8 +165,7 @@ class MonthGraphViewModel extends GraphViewModel {
   @override
   void updateValues({List<RideSummary>? update, int? index}) {
     if (update != null) _rides = update;
-
-    /// For each day in the month, save sum of ride info values on that day.
+    // For each day in the month, save sum of ride info values on that day.
     for (int i = 0; i < numberOfDays; i++) {
       _yValues[i] = Utils.getOverallValueFromSummaries(rides.where((r) => r.startTime.day == i).toList(), rideInfoType);
     }
@@ -207,8 +205,7 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
 
   MultipleWeeksGraphViewModel(this.lastWeekStartDay, this.numOfWeeks) {
     _yValues = [];
-
-    /// Create map containing all the start days of the weeks to be displayed.
+    // Create map containing all the start days of the weeks to be displayed.
     var tmpStartDay = lastWeekStartDay;
     tmpStartDay = tmpStartDay.subtract(Duration(days: 7 * (numOfWeeks - 1)));
     for (int i = 0; i < numOfWeeks; i++) {
@@ -216,8 +213,7 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
       _rideMap[tmpStartDay] = [];
       tmpStartDay = tmpStartDay.add(const Duration(days: 7));
     }
-
-    /// Create database stream for each week.
+    // Create database stream for each week.
     for (var key in _rideMap.keys) {
       _streams.add(rideDao.streamRidesInWeek(key));
     }
@@ -225,10 +221,9 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
 
   @override
   void updateValues({List<RideSummary>? update, int? index}) {
-    /// Update rides in map according to given stream index.
+    // Update rides in map according to given stream index.
     if (update != null && index != null) _rideMap[_rideMap.keys.elementAt(index)] = update;
-
-    /// Update yValues as sum of ride info values for each week in the ride map.
+    // Update yValues as sum of ride info values for each week in the ride map.
     _rideMap.values
         .forEachIndexed((i, ridesInWeek) => yValues[i] = Utils.getOverallValueFromSummaries(ridesInWeek, rideInfoType));
   }

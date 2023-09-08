@@ -8,7 +8,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/services/challenge_service.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
-import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart';
+import 'package:priobike/gamification/challenges/views/challenge_choice_dialog.dart';
+import 'package:priobike/gamification/challenges/views/single_challenge_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
@@ -119,18 +120,25 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   /// Handle a tap on the progress bar.
   void handleTap() async {
-    /// Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
+    /// If there is a challenge, but it hasn't been completed yet, finish it TODO just for tests.
+    if (challenge != null && !isCompleted) {
+      //service.finishChallenge();
+      return showDialog(
+        context: context,
+        builder: (context) => SingleChallengeDialog(challenge: challenge!, isWeekly: challenge!.isWeekly),
+      );
+    }
+
+    // Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
     _ringController.reverse();
     setState(() => onTapAnimation = true);
     if (isCompleted) setState(() => completedAnimation = true);
     await Future.delayed(ShortDuration()).then((_) => setState(() => onTapAnimation = false));
-
-    /// If there are a number of challenges, of which the user can chose from, open the challenge selection dialog.
+    // If there are a number of challenges, of which the user can chose from, open the challenge selection dialog.
     if (service.challengeChoices.isNotEmpty) {
       await _showChallengeSelection(service.challengeChoices);
     }
-
-    /// If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
+    // If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
     else if (isCompleted) {
       await Future.delayed(ShortDuration()).then((_) {
         setState(() => completedAnimation = false);
@@ -138,20 +146,13 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
       service.completeChallenge();
       HapticFeedback.heavyImpact();
     }
-
-    /// If there is no challenge, but the service allows a new one, generate a new one.
+    // If there is no challenge, but the service allows a new one, generate a new one.
     else if (challenge == null && service.allowNew) {
       var result = await service.generateChallenge();
       if (result != null) {
         await _showChallengeSelection(result);
       }
     }
-
-    /// If there is a challenge, but it hasn't been completed yet, finish it TODO just for tests.
-    else if (challenge != null && !isCompleted) {
-      service.finishChallenge();
-    }
-
     _ringController.forward();
   }
 
@@ -163,10 +164,17 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
       context: context,
       barrierDismissible: challenges.length == 1,
       builder: (BuildContext context) {
-        return NewChallengeDialog(
-          challenges: challenges,
-          isWeekly: widget.isWeekly,
-        );
+        if (challenges.length == 1) {
+          return SingleChallengeDialog(
+            challenge: challenges.first,
+            isWeekly: widget.isWeekly,
+          );
+        } else {
+          return ChallengeChoiceDialog(
+            challenges: challenges,
+            isWeekly: widget.isWeekly,
+          );
+        }
       },
     );
     // If there is only one challenge to chose from, select that challenge.

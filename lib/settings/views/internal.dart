@@ -5,8 +5,10 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
@@ -326,7 +328,11 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Game-Profil zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => getIt<GamificationUserService>().resetUserProfile(),
+                    callback: () async {
+                      await getIt<GamificationUserService>().reset();
+                      await getIt<ChallengeProfileService>().reset();
+                      await getIt<UserGoalsService>().reset();
+                    },
                   ),
                 ),
                 Padding(

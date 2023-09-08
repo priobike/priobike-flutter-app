@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -8,6 +7,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/custom_dialog.dart';
 import 'package:priobike/main.dart';
 
 class DisabledFeatureCard extends StatelessWidget {
@@ -128,54 +128,48 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
 
   void showDisableFeatureDialog() {
     showDialog(
-        context: context,
-        builder: (context) {
-          return Center(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 32),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
-                borderRadius: const BorderRadius.all(Radius.circular(24)),
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
+      context: context,
+      builder: (context) {
+        return CustomDialog(
+          content: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                BoldSubHeader(
+                  text: 'Möchtest du dieses Feature wirklich deaktivieren?',
+                  context: context,
+                  textAlign: TextAlign.center,
+                ),
+                const VSpace(),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    BoldSubHeader(
-                      text: 'Möchtest du dieses Feature wirklich deaktivieren?',
-                      context: context,
-                      textAlign: TextAlign.center,
+                    getCustomButton(
+                      label: 'Abbrechen',
+                      icon: Icons.close_rounded,
+                      onPressed: () => Navigator.of(context).pop(),
+                      color: CI.blue,
                     ),
-                    const VSpace(),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        getCustomButton(
-                          label: 'Abbrechen',
-                          icon: Icons.close_rounded,
-                          onPressed: () => Navigator.of(context).pop(),
-                          color: CI.blue,
-                        ),
-                        getCustomButton(
-                          label: 'Deaktivieren',
-                          icon: Icons.not_interested,
-                          onPressed: () {
-                            userService.enableOrDisableFeature(widget.featureKey!);
-                            Navigator.of(context).pop();
-                          },
-                          color: CI.red,
-                        ),
-                      ],
+                    getCustomButton(
+                      label: 'Deaktivieren',
+                      icon: Icons.not_interested,
+                      onPressed: () {
+                        userService.disableFeature(widget.featureKey!);
+                        Navigator.of(context).pop();
+                      },
+                      color: CI.red,
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -193,11 +187,16 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
           alignment: Alignment.topRight,
           children: [
             GestureDetector(
+              behavior: showMenu ? HitTestBehavior.opaque : null,
               onTap: showMenu ? () => setState(() => showMenu = false) : null,
               child: Container(
                 padding: const EdgeInsets.all(16),
-                foregroundDecoration:
-                    showMenu ? BoxDecoration(color: Theme.of(context).colorScheme.background.withOpacity(0.75)) : null,
+                foregroundDecoration: showMenu
+                    ? BoxDecoration(
+                        color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+                        borderRadius: BorderRadius.circular(24),
+                      )
+                    : null,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.background,
                   borderRadius: BorderRadius.circular(24),
@@ -206,7 +205,10 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
                   ),
                 ),
-                child: widget.content,
+                child: IgnorePointer(
+                  ignoring: showMenu,
+                  child: widget.content,
+                ),
               ),
             ),
             AnimatedOpacity(

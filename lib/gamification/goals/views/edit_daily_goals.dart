@@ -25,7 +25,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
   /// The ride duration per day user goal.
   double get durationGoal => goals.dailyDurationGoalMinutes;
 
-  UserGoals get goals => _goalsService.challengeGoals;
+  UserGoals get goals => _goalsService.userGoals;
 
   @override
   void initState() {

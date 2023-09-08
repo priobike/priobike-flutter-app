@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
 import 'package:priobike/gamification/challenges/views/level_up_dialog.dart';
@@ -41,12 +42,18 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   bool canLevelUp = false;
 
+  ChallengesProfile? get _profile => _profileService.profile;
+
   /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
-  Level get currentLevel => levels.elementAt(_profileService.profile!.level);
+  Level get currentLevel {
+    if (_profile == null) return levels.first;
+    return levels.elementAt(_profile!.level);
+  }
 
   /// Return the next level the user needs to achieve. Returns null, if the user has reached the max level.
   Level? get nextLevel {
-    int level = _profileService.profile!.level;
+    if (_profile == null) return null;
+    int level = _profile!.level;
     if (level == levels.length - 1) return null;
     return levels[level + 1];
   }
@@ -117,6 +124,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
         return LevelUpDialog(newLevel: nextLevel!);
       },
     );
+    return;
     _ringController.stop();
     canLevelUp = false;
     _profileService.levelUp(result);
@@ -157,7 +165,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    var profile = _profileService.profile!;
+    if (_profile == null) return Container();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -191,8 +199,8 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
               LevelRing(
                 showBorder: false,
                 minValue: currentLevel.value.toDouble(),
-                maxValue: nextLevel?.value.toDouble() ?? profile.xp.toDouble(),
-                value: profile.xp.toDouble(),
+                maxValue: nextLevel?.value.toDouble() ?? _profile!.xp.toDouble(),
+                value: _profile!.xp.toDouble(),
                 iconColor: (currentLevel == levels[0])
                     ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
                     : currentLevel.color,
@@ -221,7 +229,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                   children: [
                     BoldSubHeader(text: currentLevel.title, context: context),
                     Small(
-                      text: (nextLevel == null) ? '${profile.xp} XP' : '${profile.xp} / ${nextLevel!.value} XP',
+                      text: (nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${nextLevel!.value} XP',
                       context: context,
                     ),
                     const SizedBox(height: 16),
@@ -233,13 +241,13 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   getTrophyWidget(
-                    profile.medals,
+                    _profile!.medals,
                     CustomGameIcons.blank_medal,
                     getAnimation(_medalsController),
                     _profileService.medalsChanged,
                   ),
                   getTrophyWidget(
-                    profile.trophies,
+                    _profile!.trophies,
                     CustomGameIcons.blank_trophy,
                     getAnimation(_trophiesController),
                     _profileService.trophiesChanged,

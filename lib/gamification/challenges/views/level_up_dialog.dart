@@ -59,7 +59,7 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
 
   void selectUpgrade(int index) async {
     setState(() => selectedUpgrade = index);
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future.delayed(ShortDuration());
     if (mounted) Navigator.of(context).pop(allowedUpgrades.elementAt(selectedUpgrade!));
   }
 
@@ -211,7 +211,7 @@ class FixedUpgradeWidget extends StatelessWidget {
   }
 }
 
-class UpgradeSelectionWidget extends StatefulWidget {
+class UpgradeSelectionWidget extends StatelessWidget {
   final Function() onTap;
   final Widget content;
   final bool visible;
@@ -223,19 +223,12 @@ class UpgradeSelectionWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<UpgradeSelectionWidget> createState() => _UpgradeSelectionWidgetState();
-}
-
-class _UpgradeSelectionWidgetState extends State<UpgradeSelectionWidget> {
-  @override
   Widget build(BuildContext context) {
-    return Visibility(
-      maintainSize: true,
-      maintainAnimation: true,
-      maintainState: true,
-      visible: widget.visible,
+    return AnimatedOpacity(
+      opacity: visible ? 1 : 0,
+      duration: TinyDuration(),
       child: AnimatedButton(
-        onPressed: !widget.visible ? null : widget.onTap,
+        onPressed: visible ? onTap : null,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -253,7 +246,7 @@ class _UpgradeSelectionWidgetState extends State<UpgradeSelectionWidget> {
               )
             ],
           ),
-          child: widget.content,
+          child: content,
         ),
       ),
     );

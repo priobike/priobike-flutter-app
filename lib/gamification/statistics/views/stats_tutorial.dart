@@ -13,7 +13,7 @@ class StatisticsTutorial extends StatelessWidget {
     return GameTutorialPage(
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () {
-        getIt<GamificationUserService>().enableOrDisableFeature(GamificationUserService.gameFeatureStatisticsKey);
+        getIt<GamificationUserService>().enableFeature(GamificationUserService.gameFeatureStatisticsKey);
         Navigator.of(context).pop();
       },
       contentList: [

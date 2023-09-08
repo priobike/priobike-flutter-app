@@ -26,8 +26,8 @@ class ChallengeProfileService with ChangeNotifier {
   /// This bool describes, whether the profiles trophy value has been changed.
   bool trophiesChanged = false;
 
-  /// List of the activated profile upgrades regarding the challenges feature.
-  List<ProfileUpgrade> _activatedProfileUpgrades = [];
+  /// List of the activated profile upgrades.
+  List<ProfileUpgrade> _activatedUpgrades = [];
 
   ChallengeDao get challengeDao => AppDatabase.instance.challengeDao;
 
@@ -36,8 +36,7 @@ class ChallengeProfileService with ChangeNotifier {
   List<ProfileUpgrade> get allowedUpgrades => ProfileUpgrade.upgrades
       .where(
         (upgrade) =>
-            upgrade.levelToActivate <= profile!.level + 1 &&
-            !_activatedProfileUpgrades.map((u) => u.id).contains(upgrade.id),
+            upgrade.levelToActivate <= profile!.level + 1 && !_activatedUpgrades.map((u) => u.id).contains(upgrade.id),
       )
       .toList();
 
@@ -52,7 +51,7 @@ class ChallengeProfileService with ChangeNotifier {
     if (parsedProfile == null) return;
     _profile = ChallengesProfile.fromJson(jsonDecode(parsedProfile));
     var activatedUpgrades = _prefs!.getStringList(activatedUpgradesKey) ?? [];
-    _activatedProfileUpgrades = activatedUpgrades.map((e) => ProfileUpgrade.fromJson(jsonDecode(e))).toList();
+    _activatedUpgrades = activatedUpgrades.map((e) => ProfileUpgrade.fromJson(jsonDecode(e))).toList();
     // If a profile was loaded, start the database stream of rides, to update the profile according to the challenges.
     startDatabaseStreams();
   }
@@ -112,7 +111,7 @@ class ChallengeProfileService with ChangeNotifier {
       } else if (newUpgrade.type == ProfileUpgradeType.addWeeklyChoice) {
         profile!.weeklyChallengeChoices += 1;
       }
-      _activatedProfileUpgrades.add(newUpgrade);
+      _activatedUpgrades.add(newUpgrade);
       updateUpgrades();
     }
     storeProfile();
@@ -121,7 +120,7 @@ class ChallengeProfileService with ChangeNotifier {
   void updateUpgrades() {
     _prefs!.setStringList(
       activatedUpgradesKey,
-      _activatedProfileUpgrades
+      _activatedUpgrades
           .map(
             (upgrade) => jsonEncode(
               upgrade.toJson(),
@@ -129,5 +128,15 @@ class ChallengeProfileService with ChangeNotifier {
           )
           .toList(),
     );
+  }
+
+  Future<void> reset() async {
+    var prefs = await SharedPreferences.getInstance();
+    _profile = null;
+    _activatedUpgrades.clear();
+    prefs.remove(activatedUpgradesKey);
+    prefs.remove(profileKey);
+    challengeDao.clearObjects();
+    notifyListeners();
   }
 }

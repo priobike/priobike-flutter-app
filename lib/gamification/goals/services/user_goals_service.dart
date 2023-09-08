@@ -11,9 +11,9 @@ class UserGoalsService with ChangeNotifier {
   SharedPreferences? _prefs;
 
   /// The user goals for the challenges
-  UserGoals? userGoals;
+  UserGoals? _userGoals;
 
-  UserGoals get challengeGoals => userGoals ?? UserGoals.defaultGoals;
+  UserGoals get userGoals => _userGoals ?? UserGoals.defaultGoals;
 
   UserGoalsService() {
     _loadData();
@@ -24,17 +24,24 @@ class UserGoalsService with ChangeNotifier {
     _prefs ??= await SharedPreferences.getInstance();
 
     var goalStr = _prefs!.getString(userGoalsKey);
-    if (goalStr != null) userGoals = UserGoals.fromJson(jsonDecode(goalStr));
+    if (goalStr != null) _userGoals = UserGoals.fromJson(jsonDecode(goalStr));
   }
 
   /// Update the users' challenge goals and notify listeners.
   void updateUserGoals(UserGoals? goals) {
-    userGoals = goals;
+    _userGoals = goals;
     if (goals != null) {
       _prefs!.setString(userGoalsKey, jsonEncode(goals.toJson()));
     } else {
       _prefs!.remove(userGoalsKey);
     }
+    notifyListeners();
+  }
+
+  Future<void> reset() async {
+    var prefs = await SharedPreferences.getInstance();
+    _userGoals = null;
+    prefs.remove(userGoalsKey);
     notifyListeners();
   }
 }

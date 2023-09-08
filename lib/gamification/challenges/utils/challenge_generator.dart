@@ -70,7 +70,7 @@ class DailyChallengeGenerator extends ChallengeGenerator {
 
   @override
   ChallengesCompanion generate() {
-    var goals = getIt<UserGoalsService>().challengeGoals;
+    var goals = getIt<UserGoalsService>().userGoals;
     var now = DateTime.now();
     var type = dailyTypes.elementAt(math.Random().nextInt(dailyTypes.length));
     var range = getDailyChallengeValueRange(type, goals);
@@ -132,7 +132,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
 
   @override
   ChallengesCompanion generate() {
-    var goals = getIt<UserGoalsService>().challengeGoals;
+    var goals = getIt<UserGoalsService>().userGoals;
     var now = DateTime.now();
     var end = DateTime(now.year, now.month, now.day).add(Duration(days: 8 - now.weekday));
     var type = (goals.routeGoal == null)

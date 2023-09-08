@@ -39,7 +39,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
   /// List of saved routes of the user from the shortcut service.
   List<Shortcut> get routes => _shortcutsService.shortcuts?.toList() ?? [];
 
-  UserGoals get goals => _goalsService.challengeGoals;
+  UserGoals get goals => _goalsService.userGoals;
 
   RouteGoals? get routeGoal => goals.routeGoal;
 

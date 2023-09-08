@@ -109,13 +109,17 @@ class GamificationUserService with ChangeNotifier {
   /// Returns true, if a given string key is inside of the list of selected game prefs.
   bool isFeatureEnabled(String key) => _enabledFeatures.contains(key);
 
-  /// Removes a key out of the enabled feature, if the key is inside the lits. Otherwise adds it to the list.
-  void enableOrDisableFeature(String key) async {
-    if (_enabledFeatures.contains(key)) {
-      _enabledFeatures.remove(key);
-    } else {
-      _enabledFeatures.add(key);
-    }
+  Future<void> enableFeature(String key) async {
+    if (_enabledFeatures.contains(key)) return;
+    _enabledFeatures.add(key);
+    _prefs ??= await SharedPreferences.getInstance();
+    _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
+    notifyListeners();
+  }
+
+  void disableFeature(String key) async {
+    if (!_enabledFeatures.contains(key)) return;
+    _enabledFeatures.remove(key);
     _prefs ??= await SharedPreferences.getInstance();
     _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
     notifyListeners();
@@ -137,15 +141,13 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Helper function which removes a created user profile. Just for tests currently.
-  void resetUserProfile() async {
+  Future<void> reset() async {
     var prefs = await SharedPreferences.getInstance();
     _profile = null;
+    _enabledFeatures.clear();
     prefs.remove(userProfileKey);
     prefs.remove(profileExistsKey);
     prefs.remove(enabledFeatureListKey);
-    _enabledFeatures.clear();
-    AppDatabase.instance.challengeDao.clearObjects();
     notifyListeners();
   }
 }
