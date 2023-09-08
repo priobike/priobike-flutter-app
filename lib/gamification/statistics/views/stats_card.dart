@@ -184,6 +184,7 @@ class StatisticsDisabledCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GamificationCard(
+      splashColor: CI.blue,
       directionView: const StatisticsTutorial(),
       content: Column(
         children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/level_up_dialog.dart';
@@ -36,6 +37,8 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   /// Animation Controller to controll the ring animation.
   late final AnimationController _ringController;
+
+  late final AnimationController _pressController;
 
   bool canLevelUp = false;
 
@@ -75,6 +78,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _trophiesController = AnimationController(duration: ShortDuration(), vsync: this);
     _medalsController = AnimationController(duration: ShortDuration(), vsync: this);
     _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
+    _pressController = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
     _profileService = getIt<GameProfileService>();
     _profileService.addListener(updateProfile);
     _routingProfileService = getIt<Profile>();
@@ -113,9 +117,10 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     var result = await showDialog<int?>(
       context: context,
       builder: (BuildContext context) {
-        return const LevelUpDialog();
+        return LevelUpDialog(newLevel: nextLevel!);
       },
     );
+    _ringController.repeat(reverse: true);
     return;
     _ringController.stop();
     canLevelUp = false;
@@ -164,55 +169,72 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       mainAxisSize: MainAxisSize.max,
       children: [
         GestureDetector(
-          onTap: _showLevelUpDialog,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (canLevelUp)
-                Container(
-                  height: 0,
-                  width: 0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: CI.blue.withOpacity(lightMode ? 0.4 : 0.25),
-                        blurRadius: 10,
-                        spreadRadius: 50 + _ringController.value * 10,
-                      ),
-                      BoxShadow(
-                        color: Colors.white.withOpacity(0.1),
-                        blurRadius: 10,
-                        spreadRadius: 50 + _ringController.value * 10,
-                      ),
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.background,
-                        blurRadius: 15,
-                        spreadRadius: 35 + _ringController.value * 5,
-                      ),
+          onTapDown: (_) {
+            if (_pressController.value != 0) return;
+            HapticFeedback.heavyImpact();
+            _pressController.forward();
+          },
+          onTapUp: (_) async {
+            if (_pressController.value < 1) {
+              await _pressController.forward();
+            }
+            await _pressController.reverse();
+            _showLevelUpDialog();
+          },
+          onTapCancel: () => _pressController.reverse(),
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 1, end: 0.9)
+                .animate(CurvedAnimation(parent: _pressController, curve: Curves.bounceInOut)),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox.fromSize(size: const Size.square(96)),
+                if (canLevelUp)
+                  Container(
+                    height: 0,
+                    width: 0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: CI.blue.withOpacity(lightMode ? 0.4 : 0.25),
+                          blurRadius: 10,
+                          spreadRadius: 50 + _ringController.value * 10,
+                        ),
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.1),
+                          blurRadius: 10,
+                          spreadRadius: 50 + _ringController.value * 10,
+                        ),
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.background,
+                          blurRadius: 15,
+                          spreadRadius: 40,
+                        ),
+                      ],
+                    ),
+                  ),
+                LevelRing(
+                  showBorder: false,
+                  minValue: currentLevel.value.toDouble(),
+                  maxValue: nextLevel?.value.toDouble() ?? profile.xp.toDouble(),
+                  value: profile.xp.toDouble(),
+                  iconColor: (currentLevel == levels[0])
+                      ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
+                      : currentLevel.color,
+                  icon: canLevelUp ? null : _routingProfileService.bikeType?.icon() ?? Icons.pedal_bike,
+                  ringSize: 96,
+                  ringColor: canLevelUp ? CI.blue : nextLevel?.color ?? currentLevel.color,
+                ),
+                if (canLevelUp)
+                  Column(
+                    children: [
+                      BoldContent(text: 'Level', context: context, color: CI.blue),
+                      BoldContent(text: 'Up', context: context, color: CI.blue),
                     ],
                   ),
-                ),
-              LevelRing(
-                showBorder: false,
-                minValue: currentLevel.value.toDouble(),
-                maxValue: nextLevel?.value.toDouble() ?? profile.xp.toDouble(),
-                value: profile.xp.toDouble(),
-                iconColor: (currentLevel == levels[0])
-                    ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
-                    : currentLevel.color,
-                icon: canLevelUp ? null : _routingProfileService.bikeType?.icon() ?? Icons.pedal_bike,
-                ringSize: 96,
-                ringColor: canLevelUp ? CI.blue : nextLevel?.color ?? currentLevel.color,
-              ),
-              if (canLevelUp)
-                Column(
-                  children: [
-                    BoldContent(text: 'Level', context: context, color: CI.blue),
-                    BoldContent(text: 'Up', context: context, color: CI.blue),
-                  ],
-                )
-            ],
+              ],
+            ),
           ),
         ),
         Expanded(
