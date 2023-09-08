@@ -6,7 +6,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/goals/models/user_goals.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
@@ -26,7 +26,7 @@ class EditRouteGoalsView extends StatefulWidget {
 
 class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
   /// The associated profile service.
-  late GameProfileService _profileService;
+  late UserGoalsService _goalsService;
 
   /// The associated shortcuts service
   late Shortcuts _shortcutsService;
@@ -39,14 +39,14 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
   /// List of saved routes of the user from the shortcut service.
   List<Shortcut> get routes => _shortcutsService.shortcuts?.toList() ?? [];
 
-  UserGoals get goals => _profileService.challengeGoals;
+  UserGoals get goals => _goalsService.challengeGoals;
 
   RouteGoals? get routeGoal => goals.routeGoal;
 
   @override
   void initState() {
-    _profileService = getIt<GameProfileService>();
-    _profileService.addListener(update);
+    _goalsService = getIt<UserGoalsService>();
+    _goalsService.addListener(update);
     _shortcutsService = getIt<Shortcuts>();
     _shortcutsService.addListener(update);
     super.initState();
@@ -54,7 +54,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
 
   @override
   void dispose() {
-    _profileService.removeListener(update);
+    _goalsService.removeListener(update);
     _shortcutsService.removeListener(update);
 
     super.dispose();
@@ -134,7 +134,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
                         setState(() => routeGoal?.perWeek = value.toInt());
                         var newGoals = goals;
                         newGoals.routeGoal = routeGoal;
-                        _profileService.updateUserGoals(newGoals);
+                        _goalsService.updateUserGoals(newGoals);
                       },
               ),
               const VSpace(),
@@ -148,12 +148,12 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
                           onPressed: () {
                             if (routeGoal?.routeID == shortcut.id) {
                               goals.routeGoal = null;
-                              _profileService.updateUserGoals(goals);
+                              _goalsService.updateUserGoals(goals);
                             } else {
                               RouteGoals newRouteGoals = RouteGoals(shortcut.id, shortcut.name, goalValue);
                               var newGoals = goals;
                               newGoals.routeGoal = newRouteGoals;
-                              _profileService.updateUserGoals(newGoals);
+                              _goalsService.updateUserGoals(newGoals);
                             }
                           },
                           shortcut: shortcut,

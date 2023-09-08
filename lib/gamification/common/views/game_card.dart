@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/tiles.dart';
 
 /// Wrapper class for the cards shown in the gamification hub view. Provides a uniformly styled card,
 /// in which a custom content can be inserted.

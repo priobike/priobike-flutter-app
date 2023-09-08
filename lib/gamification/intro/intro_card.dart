@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/intro/game_intro.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/main.dart';
 
 class GameIntroCard extends StatefulWidget {
@@ -14,7 +14,7 @@ class GameIntroCard extends StatefulWidget {
 
 class _GameIntroCardState extends State<GameIntroCard> {
   /// The associated intro service, which is injected by the provider.
-  late GameProfileService _profileService;
+  late GamificationUserService _profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
@@ -22,7 +22,7 @@ class _GameIntroCardState extends State<GameIntroCard> {
   @override
   void initState() {
     // Add listener to game intro service, which manages the whole intro process.
-    _profileService = getIt<GameProfileService>();
+    _profileService = getIt<GamificationUserService>();
     _profileService.addListener(update);
     super.initState();
   }

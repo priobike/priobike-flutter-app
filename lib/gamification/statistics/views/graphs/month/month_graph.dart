@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
@@ -8,7 +8,6 @@ import 'package:priobike/main.dart';
 
 /// Displayes ride statistics for a single month. The data is obtained from a given [MonthGraphViewModel].
 class MonthStatsGraph extends StatefulWidget {
-
   final MonthGraphViewModel viewModel;
 
   const MonthStatsGraph({
@@ -21,21 +20,21 @@ class MonthStatsGraph extends StatefulWidget {
 
 class _MonthStatsGraphState extends State<MonthStatsGraph> {
   /// The associated profile service.
-  late GameProfileService _profileService;
+  late UserGoalsService _goalsService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
-    _profileService = getIt<GameProfileService>();
-    _profileService.addListener(update);
+    _goalsService = getIt<UserGoalsService>();
+    _goalsService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
-    _profileService.removeListener(update);
+    _goalsService.removeListener(update);
     super.dispose();
   }
 
@@ -72,9 +71,9 @@ class _MonthStatsGraphState extends State<MonthStatsGraph> {
     double? goalValue;
     var infoType = widget.viewModel.rideInfoType;
     if (infoType == RideInfo.distance) {
-      goalValue = _profileService.challengeGoals.dailyDistanceGoalMetres / 1000;
+      goalValue = _goalsService.challengeGoals.dailyDistanceGoalMetres / 1000;
     } else if (infoType == RideInfo.duration) {
-      goalValue = _profileService.challengeGoals.dailyDurationGoalMinutes;
+      goalValue = _goalsService.challengeGoals.dailyDurationGoalMinutes;
     }
     return CustomBarGraph(
       barColor: Theme.of(context).colorScheme.primary,

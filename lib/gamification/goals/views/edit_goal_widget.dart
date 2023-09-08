@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 

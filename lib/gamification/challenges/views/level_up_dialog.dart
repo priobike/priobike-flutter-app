@@ -1,13 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
+import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/models/level.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:confetti/confetti.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
@@ -41,7 +40,7 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
         ),
       );
 
-  List<ProfileUpgrade> get allowedUpgrades => getIt<GameProfileService>().allowedUpgrades;
+  List<ProfileUpgrade> get allowedUpgrades => getIt<ChallengeProfileService>().allowedUpgrades;
 
   @override
   void initState() {

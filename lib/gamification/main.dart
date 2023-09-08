@@ -4,7 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
 import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
 import 'package:priobike/main.dart';
@@ -20,14 +20,14 @@ class GameView extends StatefulWidget {
 
 class _GameViewState extends State<GameView> {
   /// The associated profile service.
-  late GameProfileService _profileService;
+  late GamificationUserService _profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
   final Map<String, Widget> _featureCards = {
-    GameProfileService.gameFeatureChallengesKey: const GameChallengesCard(),
-    GameProfileService.gameFeatureStatisticsKey: const RideStatisticsCard(),
+    GamificationUserService.gameFeatureChallengesKey: const GameChallengesCard(),
+    GamificationUserService.gameFeatureStatisticsKey: const RideStatisticsCard(),
   };
 
   List<Widget> get _enabledFeatureCards =>
@@ -38,7 +38,7 @@ class _GameViewState extends State<GameView> {
 
   @override
   void initState() {
-    _profileService = getIt<GameProfileService>();
+    _profileService = getIt<GamificationUserService>();
     _profileService.addListener(update);
     super.initState();
   }
@@ -79,7 +79,7 @@ class _GameViewState extends State<GameView> {
               const GameIntroCard(),
             ]
           : [
-              OverallStatistics(),
+              const OverallStatistics(),
               if (_profileService.showGoals) const GoalsView(),
               const SmallVSpace(),
               ..._enabledFeatureCards,

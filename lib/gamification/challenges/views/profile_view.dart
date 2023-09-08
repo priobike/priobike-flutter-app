@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
+import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
 import 'package:priobike/gamification/challenges/views/level_up_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/main.dart';
@@ -26,7 +25,7 @@ class GameProfileView extends StatefulWidget {
 
 class _GameProfileViewState extends State<GameProfileView> with TickerProviderStateMixin {
   /// The service which manages and provides the user profile.
-  late GameProfileService _profileService;
+  late ChallengeProfileService _profileService;
 
   /// The associated profile service, which is injected by the provider.
   late Profile _routingProfileService;
@@ -42,11 +41,49 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   bool canLevelUp = false;
 
+  /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
+  Level get currentLevel => levels.elementAt(_profileService.profile!.level);
+
+  /// Return the next level the user needs to achieve. Returns null, if the user has reached the max level.
+  Level? get nextLevel {
+    int level = _profileService.profile!.level;
+    if (level == levels.length - 1) return null;
+    return levels[level + 1];
+  }
+
+  void update() => {if (mounted) setState(() {})};
+
+  @override
+  void initState() {
+    _trophiesController = AnimationController(duration: ShortDuration(), vsync: this);
+    _medalsController = AnimationController(duration: ShortDuration(), vsync: this);
+    _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
+    _profileService = getIt<ChallengeProfileService>();
+    _profileService.addListener(updateProfile);
+    _routingProfileService = getIt<Profile>();
+    _routingProfileService.addListener(update);
+    _ringController.addListener(update);
+    // If the user has collected enough xp for the next level, set level up to true and start animation.
+    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
+      _ringController.repeat(reverse: true);
+      canLevelUp = true;
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _medalsController.dispose();
+    _trophiesController.dispose();
+    _profileService.removeListener(updateProfile);
+    _routingProfileService.removeListener(update);
+    _ringController.removeListener(update);
+    super.dispose();
+  }
+
   /// Bounce animation for the trophy or medal icon.
   Animation<double> getAnimation(var controller) =>
       Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
-
-  void update() => {if (mounted) setState(() {})};
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void updateProfile() async {
@@ -71,44 +108,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     else {
       if (mounted) setState(() {});
     }
-  }
-
-  @override
-  void initState() {
-    _trophiesController = AnimationController(duration: ShortDuration(), vsync: this);
-    _medalsController = AnimationController(duration: ShortDuration(), vsync: this);
-    _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
-    _profileService = getIt<GameProfileService>();
-    _profileService.addListener(updateProfile);
-    _routingProfileService = getIt<Profile>();
-    _routingProfileService.addListener(update);
-    _ringController.addListener(update);
-    // If the user has collected enough xp for the next level, set level up to true and start animation.
-    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
-      _ringController.repeat(reverse: true);
-      canLevelUp = true;
-    }
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _medalsController.dispose();
-    _trophiesController.dispose();
-    _profileService.removeListener(updateProfile);
-    _routingProfileService.removeListener(update);
-    _ringController.removeListener(update);
-    super.dispose();
-  }
-
-  /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
-  Level get currentLevel => levels.elementAt(_profileService.profile!.level);
-
-  /// Return the next level the user needs to achieve. Returns null, if the user has reached the max level.
-  Level? get nextLevel {
-    int level = _profileService.profile!.level;
-    if (level == levels.length - 1) return null;
-    return levels[level + 1];
   }
 
   Future<void> _showLevelUpDialog() async {

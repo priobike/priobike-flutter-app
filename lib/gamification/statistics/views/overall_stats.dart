@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/main.dart';
 
@@ -16,14 +16,14 @@ class OverallStatistics extends StatefulWidget {
 
 class _OverallStatisticsState extends State<OverallStatistics> {
   /// Game settings service required to check whether the user has set their challenge goals.
-  late GameProfileService _profileService;
+  late GamificationUserService _profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
-    _profileService = getIt<GameProfileService>();
+    _profileService = getIt<GamificationUserService>();
     _profileService.addListener(update);
     super.initState();
   }

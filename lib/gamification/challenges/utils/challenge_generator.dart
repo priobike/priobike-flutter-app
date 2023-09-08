@@ -6,7 +6,7 @@ import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/goals/models/user_goals.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/main.dart';
 
 /// Helper object which describes a possible range of values for a challenge target.
@@ -70,7 +70,7 @@ class DailyChallengeGenerator extends ChallengeGenerator {
 
   @override
   ChallengesCompanion generate() {
-    var goals = getIt<GameProfileService>().challengeGoals;
+    var goals = getIt<UserGoalsService>().challengeGoals;
     var now = DateTime.now();
     var type = dailyTypes.elementAt(math.Random().nextInt(dailyTypes.length));
     var range = getDailyChallengeValueRange(type, goals);
@@ -132,7 +132,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
 
   @override
   ChallengesCompanion generate() {
-    var goals = getIt<GameProfileService>().challengeGoals;
+    var goals = getIt<UserGoalsService>().challengeGoals;
     var now = DateTime.now();
     var end = DateTime(now.year, now.month, now.day).add(Duration(days: 8 - now.weekday));
     var type = (goals.routeGoal == null)

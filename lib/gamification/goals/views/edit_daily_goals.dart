@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/gamification/goals/models/user_goals.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
 import 'package:priobike/main.dart';
 
@@ -14,7 +14,7 @@ class EditDailyGoalsView extends StatefulWidget {
 
 class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
   /// The associated profile service.
-  late GameProfileService _profileService;
+  late UserGoalsService _goalsService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
@@ -25,18 +25,18 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
   /// The ride duration per day user goal.
   double get durationGoal => goals.dailyDurationGoalMinutes;
 
-  UserGoals get goals => _profileService.challengeGoals;
+  UserGoals get goals => _goalsService.challengeGoals;
 
   @override
   void initState() {
-    _profileService = getIt<GameProfileService>();
-    _profileService.addListener(update);
+    _goalsService = getIt<UserGoalsService>();
+    _goalsService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
-    _profileService.removeListener(update);
+    _goalsService.removeListener(update);
     super.dispose();
   }
 
@@ -54,7 +54,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           valueLabel: 'km',
           onChanged: (value) {
             goals.dailyDistanceGoalMetres = value * 1000;
-            _profileService.updateUserGoals(goals);
+            _goalsService.updateUserGoals(goals);
           },
           valueAsInt: false,
         ),
@@ -68,7 +68,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           valueLabel: 'min',
           onChanged: (value) {
             goals.dailyDurationGoalMinutes = value;
-            _profileService.updateUserGoals(goals);
+            _goalsService.updateUserGoals(goals);
           },
         ),
         const VSpace(),

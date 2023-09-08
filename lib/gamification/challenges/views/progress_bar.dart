@@ -6,13 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/challenges/services/challenges_service.dart';
+import 'package:priobike/gamification/challenges/services/challenge_service.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/challenges/views/new_challenge_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/main.dart';
 

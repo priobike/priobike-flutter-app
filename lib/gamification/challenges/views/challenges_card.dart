@@ -11,7 +11,7 @@ import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/views/game_card.dart';
-import 'package:priobike/gamification/common/services/profile_service.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 
 /// This card displays the current challenge state of the user or encourages them to set their challenge goals.
 /// If no goals are set, the goal setting view can be opened by tapping the card. otherwise it can be opened by
@@ -27,7 +27,7 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
   @override
   Widget build(BuildContext context) {
     return FeatureCard(
-      featureKey: GameProfileService.gameFeatureChallengesKey,
+      featureKey: GamificationUserService.gameFeatureChallengesKey,
       featureEnabledWidget: challengesEnabledWidget,
       featureDisabledWidget: challengesDisabledWidget,
     );
