@@ -214,19 +214,15 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
         ...(challenge != null && isCompleted)
             ? []
             : [
-                BlendIn(
-                  child: Icon(
-                    Icons.timer,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-                  ),
+                Icon(
+                  Icons.timer,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
                 ),
-                BlendIn(
-                  child: BoldSmall(
-                    text: StringFormatter.getTimeLeftStr(endTime),
-                    context: context,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
-                  ),
+                BoldSmall(
+                  text: StringFormatter.getTimeLeftStr(endTime),
+                  context: context,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
                 ),
                 const SizedBox(width: 16),
               ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/views/game_card.dart';
+import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/intro/game_intro.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/main.dart';
@@ -35,7 +35,7 @@ class _GameIntroCardState extends State<GameIntroCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GamificationCard(
+    return EnabledFeatureCard(
       directionView: const GameIntro(),
       content: Container(
         alignment: Alignment.centerLeft,

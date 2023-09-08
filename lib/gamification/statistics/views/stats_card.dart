@@ -4,8 +4,8 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/feature_view.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
-import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';
@@ -21,7 +21,7 @@ class RideStatisticsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FeatureCard(
+    return const GamificationFeatureView(
       featureKey: GamificationUserService.gameFeatureStatisticsKey,
       featureEnabledWidget: StatisticsEnabeldCard(),
       featureDisabledWidget: StatisticsDisabledCard(),
@@ -47,20 +47,6 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
   /// View models of the displayed graphs. They provide the graphs with their corresponding data.
   final List<GraphViewModel> graphViewModels = [];
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    var newIndex = getIt<StatisticService>().statInterval.index;
-    if (pageController.hasClients && (newIndex - (pageController.page ?? newIndex)).abs() >= 1) {
-      pageController.animateToPage(
-        newIndex,
-        duration: TinyDuration(),
-        curve: Curves.ease,
-      );
-      return;
-    }
-    if (mounted) setState(() {});
-  }
-
   late StatisticService _statsService;
 
   @override
@@ -80,6 +66,20 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
       viewModel.endStreams();
     }
     super.dispose();
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    var newIndex = getIt<StatisticService>().statInterval.index;
+    if (pageController.hasClients && (newIndex - (pageController.page ?? newIndex)).abs() >= 1) {
+      pageController.animateToPage(
+        newIndex,
+        duration: TinyDuration(),
+        curve: Curves.ease,
+      );
+      return;
+    }
+    if (mounted) setState(() {});
   }
 
   /// Initialize view models such that the graphs show the data of the current week, month, and the last 5 weeks.
@@ -107,69 +107,60 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
 
   @override
   Widget build(BuildContext context) {
-    return GamificationCard(
+    return EnabledFeatureCard(
+      featureKey: GamificationUserService.gameFeatureStatisticsKey,
+      directionView: const StatisticsView(),
       content: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const StatisticsView())),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const SmallHSpace(),
-                    BoldSubHeader(
-                      text: getTitle(tabController.index),
-                      context: context,
-                      textAlign: TextAlign.start,
-                    ),
-                    Expanded(child: Container()),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: const Icon(Icons.more_vert),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 200,
-                  child: PageView(
-                      controller: pageController,
-                      clipBehavior: Clip.hardEdge,
-                      onPageChanged: (int index) => setState(() {
-                            // Update tab controller index to update the indicator.
-                            tabController.index = index;
-                            getIt<StatisticService>().setStatInterval(StatInterval.values[index]);
-                          }),
-                      children: [
-                        IgnorePointer(
-                          child: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
-                        ),
-                        IgnorePointer(
-                          child: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
-                        ),
-                        IgnorePointer(
-                          child: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
-                        ),
-                      ]),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: TabPageSelector(
-                    controller: tabController,
-                    selectedColor: Theme.of(context).colorScheme.primary,
-                    indicatorSize: 6,
-                    borderStyle: BorderStyle.none,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
-                    key: GlobalKey(),
+          Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SmallHSpace(),
+                  BoldSubHeader(
+                    text: getTitle(tabController.index),
+                    context: context,
+                    textAlign: TextAlign.start,
                   ),
+                ],
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 200,
+                child: PageView(
+                    controller: pageController,
+                    clipBehavior: Clip.hardEdge,
+                    onPageChanged: (int index) => setState(() {
+                          // Update tab controller index to update the indicator.
+                          tabController.index = index;
+                          getIt<StatisticService>().setStatInterval(StatInterval.values[index]);
+                        }),
+                    children: [
+                      IgnorePointer(
+                        child: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
+                      ),
+                      IgnorePointer(
+                        child: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
+                      ),
+                      IgnorePointer(
+                        child: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                      ),
+                    ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: TabPageSelector(
+                  controller: tabController,
+                  selectedColor: Theme.of(context).colorScheme.primary,
+                  indicatorSize: 6,
+                  borderStyle: BorderStyle.none,
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+                  key: GlobalKey(),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -183,9 +174,8 @@ class StatisticsDisabledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GamificationCard(
-      splashColor: CI.blue,
-      directionView: const StatisticsTutorial(),
+    return DisabledFeatureCard(
+      introPage: const StatisticsTutorial(),
       content: Column(
         children: [
           Padding(

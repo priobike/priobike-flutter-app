@@ -9,8 +9,8 @@ import 'package:priobike/gamification/challenges/views/profile_view.dart';
 import 'package:priobike/gamification/challenges/views/progress_bar.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
+import 'package:priobike/gamification/common/views/feature_view.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
-import 'package:priobike/gamification/common/views/game_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 
 /// This card displays the current challenge state of the user or encourages them to set their challenge goals.
@@ -26,14 +26,15 @@ class GameChallengesCard extends StatefulWidget {
 class _GameChallengesCardState extends State<GameChallengesCard> {
   @override
   Widget build(BuildContext context) {
-    return FeatureCard(
+    return GamificationFeatureView(
       featureKey: GamificationUserService.gameFeatureChallengesKey,
       featureEnabledWidget: challengesEnabledWidget,
       featureDisabledWidget: challengesDisabledWidget,
     );
   }
 
-  Widget get challengesEnabledWidget => GamificationCard(
+  Widget get challengesEnabledWidget => EnabledFeatureCard(
+        featureKey: GamificationUserService.gameFeatureChallengesKey,
         content: Column(
           children: const [
             GameProfileView(),
@@ -46,9 +47,8 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
       );
 
   /// Info widget which encourages the user to participate in the challenges.
-  Widget get challengesDisabledWidget => GamificationCard(
-        splashColor: CI.blue,
-        directionView: const ChallengesTutorial(),
+  Widget get challengesDisabledWidget => DisabledFeatureCard(
+        introPage: const ChallengesTutorial(),
         content: Column(
           children: [
             Padding(

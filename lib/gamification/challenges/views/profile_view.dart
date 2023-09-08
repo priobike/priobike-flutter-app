@@ -75,9 +75,9 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   void dispose() {
     _medalsController.dispose();
     _trophiesController.dispose();
+    _ringController.dispose();
     _profileService.removeListener(updateProfile);
     _routingProfileService.removeListener(update);
-    _ringController.removeListener(update);
     super.dispose();
   }
 
@@ -163,7 +163,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       mainAxisSize: MainAxisSize.max,
       children: [
         AnimatedButton(
-          onPressed: _showLevelUpDialog,
+          onPressed: nextLevel == null ? null : _showLevelUpDialog,
           child: Stack(
             alignment: Alignment.center,
             children: [
