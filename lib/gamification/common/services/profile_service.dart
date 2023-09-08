@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/goals/models/user_goals.dart';
 import 'package:priobike/gamification/common/database/database.dart';
@@ -20,6 +21,7 @@ class GameProfileService with ChangeNotifier {
   static const enabledFeatureListKey = 'priobike.game.prefs.enabledFeatures';
   static const gameFeatureStatisticsKey = 'priobike.game.features.statistics';
   static const gameFeatureChallengesKey = 'priobike.game.features.challenges';
+  static const activatedProfileUpgrades = 'priobike.game.activatedProfileUpgrades';
   static const challengeGoalsKey = 'priobike.game.challenges.goals';
 
   static const gamificationFeatures = [
@@ -43,6 +45,9 @@ class GameProfileService with ChangeNotifier {
 
   List<String> get disabledFeatures =>
       gamificationFeatures.whereNot((feature) => enabledFeatures.contains(feature)).toList();
+
+  /// List of the activated profile upgrades regarding the challenges feature.
+  List<ProfileUpgrade> _activatedProfileUpgrades = [];
 
   /// Ride DAOs to access rides and challenges.
   RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
@@ -86,7 +91,7 @@ class GameProfileService with ChangeNotifier {
     var oldTrophies = _profile!.trophies;
 
     // Update rewards according to the completed challenges.
-    _profile!.xp = Utils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
+    _profile!.xp = 100000 + Utils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
     _profile!.medals = challenges.where((c) => !c.isWeekly).length;
     _profile!.trophies = challenges.where((c) => c.isWeekly).length;
 
@@ -133,8 +138,12 @@ class GameProfileService with ChangeNotifier {
     if (parsedProfile == null) return;
     _profile = GameProfile.fromJson(jsonDecode(parsedProfile));
 
-    _prefs ??= await SharedPreferences.getInstance();
     _enabledFeatures = _prefs!.getStringList(enabledFeatureListKey) ?? [];
+
+    var activatedUpgrades = _prefs!.getStringList(activatedProfileUpgrades);
+    if (activatedUpgrades != null) {
+      _activatedProfileUpgrades = activatedUpgrades.map((e) => ProfileUpgrade.fromJson(jsonDecode(e))).toList();
+    }
 
     var goalStr = _prefs!.getString(challengeGoalsKey);
     if (goalStr != null) userGoals = UserGoals.fromJson(jsonDecode(goalStr));
@@ -193,9 +202,40 @@ class GameProfileService with ChangeNotifier {
     notifyListeners();
   }
 
-  void levelUp() {
+  List<ProfileUpgrade> get allowedUpgrades => ProfileUpgrade.upgrades
+      .where(
+        (upgrade) =>
+            upgrade.levelToActivate <= profile!.level + 1 &&
+            !_activatedProfileUpgrades.map((u) => u.id).contains(upgrade.id),
+      )
+      .toList();
+
+  void levelUp(ProfileUpgrade? upgrade) {
     _profile!.level = min(_profile!.level + 1, levels.length - 1);
+    if (allowedUpgrades.isNotEmpty) {
+      var newUpgrade = upgrade ?? allowedUpgrades.first;
+      if (newUpgrade.type == ProfileUpgradeType.addDailyChoice) {
+        profile!.dailyChallengeChoices += 1;
+      } else if (newUpgrade.type == ProfileUpgradeType.addWeeklyChoice) {
+        profile!.weeklyChallengeChoices += 1;
+      }
+      _activatedProfileUpgrades.add(newUpgrade);
+      updateUpgrades();
+    }
     updateProfile();
+  }
+
+  void updateUpgrades() {
+    _prefs!.setStringList(
+      activatedProfileUpgrades,
+      _activatedProfileUpgrades
+          .map(
+            (upgrade) => jsonEncode(
+              upgrade.toJson(),
+            ),
+          )
+          .toList(),
+    );
   }
 
   /// Helper function which removes a created user profile. Just for tests currently.

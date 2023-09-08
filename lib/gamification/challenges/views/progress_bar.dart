@@ -237,10 +237,12 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   /// This widget returns the progress bar corresponding to the challenge state.
   Widget getProgressBar() {
-    return AnimatedButton(
+    /*return AnimatedButton(
       scaleFactor: 0.95,
-      onPressed: (deactivateTap) ? null : handleTap,
-      //onLongPress: () => service.deleteCurrentChallenge(),
+      onPressed: (deactivateTap) ? null : handleTap,*/
+    return GestureDetector(
+      onTap: (deactivateTap) ? null : handleTap,
+      onLongPress: () => service.deleteCurrentChallenge(),
       child: SizedBox.fromSize(
         size: const Size.fromHeight(44),
         child: Stack(

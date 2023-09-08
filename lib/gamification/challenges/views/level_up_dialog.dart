@@ -1,13 +1,17 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/models/level.dart';
+import 'package:priobike/gamification/common/services/profile_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:confetti/confetti.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/main.dart';
 
 /// Dialog widget to pop up after one or multiple challenges were generated.
 class LevelUpDialog extends StatefulWidget {
@@ -30,10 +34,14 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
   int? selectedUpgrade;
 
   /// Animation to
-  Animation<double> get animation => Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.fastLinearToSlowEaseIn,
-      ));
+  Animation<double> get animation => Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.fastLinearToSlowEaseIn,
+        ),
+      );
+
+  List<ProfileUpgrade> get allowedUpgrades => getIt<GameProfileService>().allowedUpgrades;
 
   @override
   void initState() {
@@ -52,8 +60,8 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
 
   void selectUpgrade(int index) async {
     setState(() => selectedUpgrade = index);
-    await Future.delayed(TinyDuration());
-    if (mounted) Navigator.of(context).pop(selectedUpgrade);
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (mounted) Navigator.of(context).pop(allowedUpgrades.elementAt(selectedUpgrade!));
   }
 
   @override
@@ -97,60 +105,40 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
                   children: [
                     const SmallVSpace(),
                     BoldContent(
-                      text: 'Level 1',
+                      text: 'Level ${levels.indexOf(widget.newLevel)}',
                       context: context,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                     Header(
                       text: widget.newLevel.title,
                       context: context,
                       color: CI.blue,
+                      textAlign: TextAlign.center,
                     ),
-                    const SmallVSpace(),
-                    UpgradeWidget(
-                      visible: selectedUpgrade == null || selectedUpgrade == 0,
-                      onTap: () => selectUpgrade(0),
-                      content: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          BoldSmall(text: 'Eine Wochenchallenge mehr', context: context),
-                          const SmallVSpace(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(CustomGameIcons.blank_trophy, size: 32),
-                              SmallVSpace(),
-                              Icon(Icons.arrow_forward, size: 32),
-                              SmallVSpace(),
-                              Icon(CustomGameIcons.blank_trophy, size: 32),
-                              Icon(CustomGameIcons.blank_trophy, size: 32),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    UpgradeWidget(
-                      visible: selectedUpgrade == null || selectedUpgrade == 1,
-                      onTap: () => selectUpgrade(1),
-                      content: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          BoldSmall(text: 'Eine Tageschallenge mehr', context: context),
-                          const SmallVSpace(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(CustomGameIcons.blank_medal, size: 32),
-                              SmallVSpace(),
-                              Icon(Icons.arrow_forward, size: 32),
-                              SmallVSpace(),
-                              Icon(CustomGameIcons.blank_medal, size: 32),
-                              Icon(CustomGameIcons.blank_medal, size: 32),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    if (allowedUpgrades.length == 1) FixedUpgradeWidget(description: allowedUpgrades.first.description),
+                    if (allowedUpgrades.length > 1)
+                      ...allowedUpgrades
+                          .mapIndexed(
+                            (i, upgrade) => UpgradeSelectionWidget(
+                              visible: selectedUpgrade == null || selectedUpgrade == i,
+                              onTap: () => selectUpgrade(i),
+                              content: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(CustomGameIcons.blank_trophy, size: 32),
+                                  const SmallHSpace(),
+                                  Expanded(
+                                    child: BoldSmall(
+                                      text: upgrade.description,
+                                      context: context,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
                   ],
                 ),
               ),
@@ -162,11 +150,73 @@ class _LevelUpDialogState extends State<LevelUpDialog> with SingleTickerProvider
   }
 }
 
-class UpgradeWidget extends StatefulWidget {
+class FixedUpgradeWidget extends StatelessWidget {
+  final String description;
+
+  const FixedUpgradeWidget({
+    Key? key,
+    required this.description,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SmallVSpace(),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: BoldContent(
+                text: 'Du bist ein Level aufgestiegen!',
+                context: context,
+                textAlign: TextAlign.center,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              ),
+            )
+          ],
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: CI.blue,
+            border: Border.all(
+              width: 0.5,
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                blurRadius: 4,
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                child: BoldContent(
+                  text: description,
+                  context: context,
+                  textAlign: TextAlign.center,
+                  color: Colors.white,
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class UpgradeSelectionWidget extends StatefulWidget {
   final Function() onTap;
   final Widget content;
   final bool visible;
-  const UpgradeWidget({
+  const UpgradeSelectionWidget({
     Key? key,
     required this.onTap,
     required this.content,
@@ -174,10 +224,10 @@ class UpgradeWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<UpgradeWidget> createState() => _UpgradeWidgetState();
+  State<UpgradeSelectionWidget> createState() => _UpgradeSelectionWidgetState();
 }
 
-class _UpgradeWidgetState extends State<UpgradeWidget> {
+class _UpgradeSelectionWidgetState extends State<UpgradeSelectionWidget> {
   @override
   Widget build(BuildContext context) {
     return Visibility(

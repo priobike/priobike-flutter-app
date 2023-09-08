@@ -20,12 +20,12 @@ class Level {
 
 /// These are the levels that are possible to achieve by the user vie their xp.
 List<Level> levels = const [
-  Level(value: 0, title: 'Neuling', color: Colors.transparent),
-  Level(value: 25, title: 'Beginner', color: Medals.mattBronze),
-  Level(value: 100, title: 'Radler', color: Medals.bronze),
-  Level(value: 1500, title: '', color: Medals.mattSilver),
-  Level(value: 2000, title: '', color: Medals.silver),
-  Level(value: 2500, title: '', color: Medals.mattGold),
-  Level(value: 3000, title: '', color: Medals.gold),
-  Level(value: 3500, title: '', color: Medals.priobike),
+  Level(value: 0, title: 'Novice', color: Colors.transparent),
+  Level(value: 25, title: 'Rookie', color: Medals.mattBronze),
+  Level(value: 100, title: 'Casual Biker', color: Medals.bronze),
+  Level(value: 1500, title: 'Regular', color: Medals.mattSilver),
+  Level(value: 2000, title: 'Frequent Biker', color: Medals.silver),
+  Level(value: 2500, title: 'Cycling Pro', color: Medals.mattGold),
+  Level(value: 3000, title: 'King of Pedals', color: Medals.gold),
+  Level(value: 3500, title: 'Biking Legend', color: Medals.priobike),
 ];

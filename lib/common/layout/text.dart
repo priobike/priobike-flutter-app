@@ -9,12 +9,14 @@ class Header extends Text {
       int? maxLines,
       double? fontSize,
       Color? color,
+      TextAlign? textAlign,
       required BuildContext context})
       : super(
           text,
           key: key,
           overflow: overflow,
           maxLines: maxLines,
+          textAlign: textAlign,
           style: Theme.of(context).textTheme.displayLarge!.merge(
                 TextStyle(color: color, fontSize: fontSize),
               ),

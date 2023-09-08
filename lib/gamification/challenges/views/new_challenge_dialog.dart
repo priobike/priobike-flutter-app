@@ -50,7 +50,7 @@ class _NewChallengeDialogState extends State<NewChallengeDialog> with SingleTick
 
   void selectChallenge(int index) async {
     setState(() => selectedChallenge = index);
-    await Future.delayed(TinyDuration());
+    await Future.delayed(const Duration(milliseconds: 100));
     if (mounted) Navigator.of(context).pop(selectedChallenge);
   }
 

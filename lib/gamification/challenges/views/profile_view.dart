@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/views/level_up_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
@@ -111,18 +112,15 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   }
 
   Future<void> _showLevelUpDialog() async {
-    // The dialog returns an index of the selected challenge or null, if no selection was made.
-    var result = await showDialog<int?>(
+    var result = await showDialog<ProfileUpgrade?>(
       context: context,
       builder: (BuildContext context) {
         return LevelUpDialog(newLevel: nextLevel!);
       },
     );
-    _ringController.repeat(reverse: true);
-    return;
     _ringController.stop();
     canLevelUp = false;
-    _profileService.levelUp();
+    _profileService.levelUp(result);
   }
 
   /// Returns widget for displaying a trophy count for a trophy with a given icon.
