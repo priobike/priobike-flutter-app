@@ -34,8 +34,8 @@ class _OverallStatisticsState extends State<OverallStatistics> {
     super.dispose();
   }
 
-  /// Returns an info widget for a given value with a given label and icon.
-  Widget getInfoWidget(IconData icon, String value, String label) {
+  /// Returns an info widget for a given stat, label and icon.
+  Widget getStatWidget(IconData icon, String value, String label) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,15 +45,17 @@ class _OverallStatisticsState extends State<OverallStatistics> {
             size: 24,
             color: CI.blue.withOpacity(1),
           ),
-          BoldSmall(
+          BoldContent(
             text: value,
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+            height: 1,
           ),
           BoldSmall(
             text: label,
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+            height: 1,
           ),
         ],
       ),
@@ -64,37 +66,45 @@ class _OverallStatisticsState extends State<OverallStatistics> {
   Widget build(BuildContext context) {
     var profile = _profileService.profile!;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const VSpace(),
+          const SizedBox(height: 16),
+          BoldContent(text: 'Dein PrioBike', context: context, height: 1),
+          BoldSmall(
+            text: 'beigetreten am ${StringFormatter.getDateStr(_profileService.profile!.joinDate)}',
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+            height: 1,
+          ),
+          const SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              getInfoWidget(
+              getStatWidget(
                 Icons.directions_bike,
                 StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
                 'km',
               ),
-              getInfoWidget(
+              getStatWidget(
                 Icons.timer,
                 StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
                 'min',
               ),
-              getInfoWidget(
+              getStatWidget(
                 Icons.speed,
-                'ø ${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
+                'ø${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
                 'km/h',
               ),
-              getInfoWidget(
+              getStatWidget(
                 Icons.arrow_upward,
                 StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
                 'm',
               ),
-              getInfoWidget(
+              getStatWidget(
                 Icons.arrow_downward,
                 StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
                 'm',

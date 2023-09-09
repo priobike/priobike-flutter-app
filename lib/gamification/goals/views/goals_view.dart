@@ -118,6 +118,7 @@ class CustomIconButton extends StatelessWidget {
               text: label,
               context: context,
               color: selected ? Colors.white : Theme.of(context).colorScheme.onBackground,
+              height: 1,
             ),
           ],
         ),

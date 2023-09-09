@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
+import 'package:priobike/gamification/challenges/views/challenges_profile/lvl_up_dialog.dart';
 import 'package:priobike/gamification/challenges/views/challenges_profile/multiple_upgrades_lvl_up.dart.dart';
 import 'package:priobike/gamification/challenges/views/challenges_profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
@@ -118,11 +119,14 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     var openUpgrades = _profileService.allowedUpgrades;
     var result = await showDialog<ProfileUpgrade?>(
       context: context,
+      barrierDismissible: openUpgrades.length <= 1,
       builder: (BuildContext context) {
-        if (openUpgrades.length > 1) {
-          return MultipleUpgradesLvlUpDialog(newLevel: nextLevel!, upgrades: openUpgrades);
+        if (openUpgrades.isEmpty) {
+          return LevelUpDialog(newLevel: nextLevel!);
+        } else if (openUpgrades.length == 1) {
+          return SingleUpgradeLvlUpDialog(newLevel: nextLevel!, upgrade: openUpgrades.first);
         } else {
-          return SingleUpgradeLvlUpDialog(newLevel: nextLevel!, upgrade: openUpgrades.firstOrNull);
+          return MultipleUpgradesLvlUpDialog(newLevel: nextLevel!, upgrades: openUpgrades);
         }
       },
     );
@@ -150,7 +154,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
             child: Icon(
               icon,
               size: 36,
-              color: animate ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              color: CI.blue, //animate ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
             ),
           ),
         ),
@@ -187,18 +191,20 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                   width: 0,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: nextLevel?.color ?? currentLevel.color.withOpacity(0.4),
-                        blurRadius: 30,
-                        spreadRadius: 40 + _ringController.value * 10,
-                      ),
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.background,
-                        blurRadius: 15,
-                        spreadRadius: 40,
-                      ),
-                    ],
+                    boxShadow: Theme.of(context).brightness == Brightness.dark
+                        ? [
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.4),
+                              blurRadius: 30,
+                              spreadRadius: 35 + _ringController.value * 10,
+                            ),
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.background,
+                              blurRadius: 15,
+                              spreadRadius: 45,
+                            ),
+                          ]
+                        : [],
                   ),
                 ),
               if (nextLevel == null)
@@ -230,11 +236,22 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
               ),
               if (canLevelUp)
                 ScaleTransition(
-                  scale: Tween<double>(begin: 1, end: 1.2).animate(_ringController),
+                  scale: Tween<double>(begin: 1, end: 1.3)
+                      .animate(CurvedAnimation(parent: _ringController, curve: Curves.easeOut)),
                   child: Column(
                     children: [
-                      BoldContent(text: 'Level', context: context, color: nextLevel!.color),
-                      BoldContent(text: 'Up', context: context, color: nextLevel!.color),
+                      BoldContent(
+                        text: 'Level',
+                        context: context,
+                        color: nextLevel!.color,
+                        height: 1,
+                      ),
+                      BoldSubHeader(
+                        text: 'Up',
+                        context: context,
+                        color: nextLevel!.color,
+                        height: 1,
+                      ),
                     ],
                   ),
                 ),
@@ -249,6 +266,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                         Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - levelProgress)),
                         nextLevel!.color.withOpacity(levelProgress),
                       ),
+                      height: 1,
                     ),
                     Header(
                       text: '${levels.indexOf(nextLevel!)}',

@@ -207,7 +207,7 @@ class StatisticsDisabledCard extends StatelessWidget {
                               child: const Icon(
                                 Icons.query_stats,
                                 size: 64,
-                                color: Medals.silver,
+                                color: LevelColors.silver,
                               ),
                             ),
                           ),

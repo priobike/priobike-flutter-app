@@ -77,7 +77,7 @@ class LevelRingState extends State<LevelRing> {
               child: CustomPaint(
                 painter: SolidRingPainter(
                   progressColor: widget.ringColor,
-                  backgroundColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                  backgroundColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
                   radiusThreshold: widget.animationController == null ? 1 : ringAnimation.value,
                   progress: widget.progress,
                 ),

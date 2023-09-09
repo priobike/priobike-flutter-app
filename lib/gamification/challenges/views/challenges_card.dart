@@ -98,10 +98,12 @@ class _GameChallengesCardState extends State<GameChallengesCard> {
                               alignment: Alignment.bottomRight,
                               child: Transform.rotate(
                                 angle: pi / 8,
-                                child: const Icon(
+                                child: Icon(
                                   CustomGameIcons.elevation_trophy,
                                   size: 64,
-                                  color: Medals.gold,
+                                  color: Theme.of(context).brightness == Brightness.light
+                                      ? LevelColors.brighten(LevelColors.gold)
+                                      : LevelColors.gold,
                                 ),
                               ),
                             ),
