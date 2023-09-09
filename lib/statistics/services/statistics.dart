@@ -128,7 +128,7 @@ class Statistics with ChangeNotifier {
 
     // Store summary in database, if a user profile exists.
     final storage = await SharedPreferences.getInstance();
-    if (storage.getBool(GamificationUserService.profileExistsKey) ?? false) {
+    if (storage.getBool(GamificationUserService.gamificationEnabledKey) ?? false) {
       // Get the route or location shortcut used for the ride, if there was one.
       var usedShortcut = getIt<Routing>().selectedShortcut;
       AppDatabase.instance.rideSummaryDao.createObjectFromSummary(currentSummary!, start, usedShortcut);

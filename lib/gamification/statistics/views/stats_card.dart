@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -12,6 +14,7 @@ import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/views/route_stats.dart';
 import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/gamification/statistics/views/stats_page.dart';
 import 'package:priobike/main.dart';
@@ -42,7 +45,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
   final PageController pageController = PageController();
 
   /// Controller which connects the tab indicator to the page view.
-  late final TabController tabController = TabController(length: 3, vsync: this);
+  late final TabController tabController = TabController(length: 4, vsync: this);
 
   /// View models of the displayed graphs. They provide the graphs with their corresponding data.
   final List<GraphViewModel> graphViewModels = [];
@@ -102,6 +105,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
     if (index == 0) return 'Diese Woche';
     if (index == 1) return 'Dieser Monat';
     if (index == 2) return '5 Wochen Rückblick';
+    if (index == 3) return '5 Wochen Rückblick';
     return '';
   }
 
@@ -127,27 +131,32 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
                 ],
               ),
               SizedBox(
-                width: MediaQuery.of(context).size.width,
                 height: 200,
                 child: PageView(
-                    controller: pageController,
-                    clipBehavior: Clip.hardEdge,
-                    onPageChanged: (int index) => setState(() {
-                          // Update tab controller index to update the indicator.
-                          tabController.index = index;
-                          getIt<StatisticService>().setStatInterval(StatInterval.values[index]);
-                        }),
-                    children: [
-                      IgnorePointer(
-                        child: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
-                      ),
-                      IgnorePointer(
-                        child: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
-                      ),
-                      IgnorePointer(
-                        child: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
-                      ),
-                    ]),
+                  controller: pageController,
+                  clipBehavior: Clip.hardEdge,
+                  onPageChanged: (int index) => setState(() {
+                    // Update tab controller index to update the indicator.
+                    tabController.index = index;
+                    getIt<StatisticService>().setStatInterval(
+                      StatInterval.values[min(index, StatInterval.values.length - 1)],
+                    );
+                  }),
+                  children: [
+                    IgnorePointer(
+                      child: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
+                    ),
+                    IgnorePointer(
+                      child: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
+                    ),
+                    IgnorePointer(
+                      child: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                    ),
+                    IgnorePointer(
+                      child: RouteStatistics(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                    )
+                  ],
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8),

@@ -8,10 +8,8 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
-import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
-import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
@@ -29,7 +27,7 @@ class EditRouteGoalsView extends StatefulWidget {
 }
 
 class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
-  /// The associated profile service.
+  /// The associated goals service.
   late UserGoalsService _goalsService;
 
   /// The associated shortcuts service
@@ -201,13 +199,14 @@ class _WeekdayButtonState extends State<WeekdayButton> with SingleTickerProvider
               widget.selected ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.05 : 0.1),
         ),
         child: Center(
-            child: BoldSmall(
-          text: widget.label,
-          context: context,
-          color: widget.selected
-              ? Colors.white
-              : Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.25 : 1),
-        )),
+          child: BoldSmall(
+            text: widget.label,
+            context: context,
+            color: widget.selected
+                ? Colors.white
+                : Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.25 : 1),
+          ),
+        ),
       ),
     );
   }

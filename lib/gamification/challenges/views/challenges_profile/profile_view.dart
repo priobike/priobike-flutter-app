@@ -34,9 +34,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   /// The service which manages and provides the user profile.
   late ChallengesProfileService _profileService;
 
-  /// The associated profile service, which is injected by the provider.
-  late Profile _routingProfileService;
-
   /// Controller to animate the trophy icon when a new trophy is gained.
   late final AnimationController _trophiesController;
 
@@ -77,8 +74,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
     _profileService = getIt<ChallengesProfileService>();
     _profileService.addListener(updateProfile);
-    _routingProfileService = getIt<Profile>();
-    _routingProfileService.addListener(update);
     _ringController.addListener(update);
     super.initState();
   }
@@ -89,7 +84,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _trophiesController.dispose();
     _ringController.dispose();
     _profileService.removeListener(updateProfile);
-    _routingProfileService.removeListener(update);
     super.dispose();
   }
 

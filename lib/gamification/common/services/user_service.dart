@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Service which manages and provides the values of the gamification user profile, including the users' settings.
 class GamificationUserService with ChangeNotifier {
   static const userProfileKey = 'priobike.gamification.userProfile';
-  static const profileExistsKey = 'priobike.gamification.profileExists';
+  static const gamificationEnabledKey = 'priobike.gamification.enabled';
   static const enabledFeatureListKey = 'priobike.gamification.prefs.enabledFeatures';
   static const gameFeatureStatisticsKey = 'priobike.gamification.feature.statistics';
   static const gameFeatureChallengesKey = 'priobike.gamification.feature.challenges';
@@ -65,7 +65,7 @@ class GamificationUserService with ChangeNotifier {
       return false;
     }
     // Try to set profile exists string and return false if not successful
-    if (!(await _prefs?.setBool(profileExistsKey, true) ?? false)) return false;
+    if (!(await _prefs?.setBool(gamificationEnabledKey, true) ?? false)) return false;
     // Start the database stream of rides, to update the profile data accordingly.
     startDatabaseStream();
     return true;
@@ -75,7 +75,7 @@ class GamificationUserService with ChangeNotifier {
   Future<void> _loadData() async {
     _prefs ??= await SharedPreferences.getInstance();
     // Return, if the profile exists value is not true or set;
-    if (!(_prefs?.getBool(profileExistsKey) ?? false)) return;
+    if (!(_prefs?.getBool(gamificationEnabledKey) ?? false)) return;
     // Try to load profile string from prefs and parse to user profile if possible.
     var parsedProfile = _prefs?.getString(userProfileKey);
     if (parsedProfile == null) return;
@@ -146,7 +146,7 @@ class GamificationUserService with ChangeNotifier {
     _profile = null;
     _enabledFeatures.clear();
     prefs.remove(userProfileKey);
-    prefs.remove(profileExistsKey);
+    prefs.remove(gamificationEnabledKey);
     prefs.remove(enabledFeatureListKey);
     notifyListeners();
   }

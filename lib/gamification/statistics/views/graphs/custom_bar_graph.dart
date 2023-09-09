@@ -82,9 +82,7 @@ class CustomBarGraph extends StatelessWidget {
   }
 
   /// Round a given double up to a given interval.
-  static double roundUpToInterval(double num, int interval) {
-    return interval * (num / interval).ceilToDouble();
-  }
+  static double roundUpToInterval(double num, int interval) => interval * (num / interval).ceilToDouble();
 
   @override
   Widget build(BuildContext context) {
