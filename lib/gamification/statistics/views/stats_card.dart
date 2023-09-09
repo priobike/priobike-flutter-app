@@ -101,12 +101,25 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
     }
   }
 
-  String getTitle(int index) {
-    if (index == 0) return 'Diese Woche';
-    if (index == 1) return 'Dieser Monat';
-    if (index == 2) return '5 Wochen Rückblick';
-    if (index == 3) return '5 Wochen Rückblick';
-    return '';
+  Widget getGraphWithTitle({required String title, required Widget graph}) {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Row(
+          children: [
+            const SmallHSpace(),
+            BoldSubHeader(
+              text: title,
+              context: context,
+              textAlign: TextAlign.start,
+            ),
+          ],
+        ),
+        Expanded(
+          child: IgnorePointer(child: graph),
+        ),
+      ],
+    );
   }
 
   @override
@@ -119,17 +132,6 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
         children: [
           Column(
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SmallHSpace(),
-                  BoldSubHeader(
-                    text: getTitle(tabController.index),
-                    context: context,
-                    textAlign: TextAlign.start,
-                  ),
-                ],
-              ),
               SizedBox(
                 height: 200,
                 child: PageView(
@@ -143,18 +145,19 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
                     );
                   }),
                   children: [
-                    IgnorePointer(
-                      child: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
+                    getGraphWithTitle(
+                      title: 'Diese Woche',
+                      graph: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
                     ),
-                    IgnorePointer(
-                      child: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
+                    getGraphWithTitle(
+                      title: 'Dieser Monat',
+                      graph: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
                     ),
-                    IgnorePointer(
-                      child: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                    getGraphWithTitle(
+                      title: '5 Wochen Rückblick',
+                      graph: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
                     ),
-                    IgnorePointer(
-                      child: RouteStatistics(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
-                    )
+                    RouteStatistics(viewModel: graphViewModels[0] as WeekGraphViewModel),
                   ],
                 ),
               ),

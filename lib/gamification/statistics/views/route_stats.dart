@@ -1,17 +1,22 @@
+import 'dart:ui';
+
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 
 class RouteStatistics extends StatefulWidget {
-  final MultipleWeeksGraphViewModel viewModel;
+  final WeekGraphViewModel viewModel;
 
   const RouteStatistics({Key? key, required this.viewModel}) : super(key: key);
 
@@ -27,6 +32,8 @@ class _RouteStatisticsState extends State<RouteStatistics> {
   void update() => {if (mounted) setState(() {})};
 
   RouteGoals? get goals => _goalsService.routeGoals;
+
+  Shortcut? get shortcut => getIt<Shortcuts>().shortcuts?.where((s) => s.id == goals!.routeID).firstOrNull;
 
   @override
   void initState() {
@@ -46,45 +53,92 @@ class _RouteStatisticsState extends State<RouteStatistics> {
     if (goals == null) {
       return Column(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.map,
-            size: 64,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+          Row(
+            children: [
+              const SmallHSpace(),
+              BoldSubHeader(
+                text: 'Routenziele',
+                context: context,
+                textAlign: TextAlign.start,
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: BoldContent(
-              text: 'Noch keine Routenziele gesetzt',
-              context: context,
-              textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.map,
+                  size: 64,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: BoldContent(
+                    text: 'Noch keine Routenziele gesetzt',
+                    context: context,
+                    textAlign: TextAlign.center,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       );
     }
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: widget.viewModel.rideMap.values
-          .map((rides) => WeekWidget(
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Positioned.fill(
+          child: Container(
+            foregroundDecoration: BoxDecoration(
+              gradient: RadialGradient(
+                radius: 0.7,
+                colors: [
+                  Theme.of(context).colorScheme.background.withOpacity(0.3),
+                  Theme.of(context).colorScheme.background,
+                ],
+              ),
+            ),
+            child: ClipRRect(
+              child: Image(
+                image: Theme.of(context).colorScheme.brightness == Brightness.dark
+                    ? const AssetImage('assets/images/map-dark.png')
+                    : const AssetImage('assets/images/map-light.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              BoldSubHeader(text: goals!.routeName, context: context),
+              RoutesInWeekWidget(
                 weekGoals: goals!.weekdays,
-                ridesInWeek: rides,
+                ridesInWeek: widget.viewModel.rides,
                 routeId: goals!.routeID,
-              ))
-          .toList(),
+              ),
+            ],
+          ),
+        ),
+        if (shortcut != null) shortcut!.getRepresentation(),
+      ],
     );
   }
 }
 
-class WeekWidget extends StatelessWidget {
+class RoutesInWeekWidget extends StatelessWidget {
   final String routeId;
   final List<bool> weekGoals;
   final List<RideSummary> ridesInWeek;
 
-  const WeekWidget({
+  const RoutesInWeekWidget({
     Key? key,
     required this.weekGoals,
     required this.ridesInWeek,
@@ -103,33 +157,52 @@ class WeekWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: weekGoals
-          .mapIndexed(
-            (i, isGoal) => Container(
-              height: 32,
-              width: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: weekPerformance[i] > 0
-                    ? CI.blue.withOpacity(isGoal ? 1 : 0.1)
-                    : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 0.1 : 0.05),
-                //border: isGoal ? Border.all(color: CI.blue, width: 2) : null,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          stops: const [0.5, 0.9],
+          colors: [
+            Theme.of(context).colorScheme.background,
+            Theme.of(context).colorScheme.background.withOpacity(0.25),
+          ],
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: weekGoals
+            .mapIndexed(
+              (i, isGoal) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: weekPerformance[i] > 0 && isGoal
+                          ? CI.blue
+                          : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 0.1 : 0.05),
+                    ),
+                    child: Center(
+                      child: BoldSmall(
+                        text: '${weekPerformance[i]}/${isGoal ? '1' : '0'}',
+                        context: context,
+                        color: weekPerformance[i] > 0 && isGoal
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 1 : 0.25),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  BoldContent(text: StringFormatter.getWeekStr(i), context: context)
+                ],
               ),
-              child: Center(
-                child: BoldSmall(
-                  text: '${weekPerformance[i]}/${isGoal ? '1' : '0'}',
-                  context: context,
-                  color: weekPerformance[i] > 0 && isGoal
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 1 : 0.25),
-                ),
-              ),
-            ),
-          )
-          .toList(),
+            )
+            .toList(),
+      ),
     );
   }
 }
