@@ -4,14 +4,6 @@ import 'package:priobike/gamification/common/database/database_dao.dart';
 
 part 'challenge.g.dart';
 
-/// This enum describes the different kind of challenges a user can do.
-enum ChallengeType {
-  overallDistance,
-  overallDuration,
-  routeRidesPerWeek,
-  routeStreakInWeek,
-}
-
 /// This table which holds objects, which represent the challenges a user can do in the game. The objects hold
 /// information about the challenge and its state and about the users challenge progress.
 class Challenges extends Table {

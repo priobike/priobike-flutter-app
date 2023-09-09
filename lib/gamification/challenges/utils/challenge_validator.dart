@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/utils.dart';
 
 /// This class continously checks the progress of a specific challenge, by listening to the finished rides in the db.
@@ -30,11 +30,17 @@ class ChallengeValidator {
   /// Updates the progress of the validators challenge according to a given list of rides.
   Future<void> validate(List<RideSummary> rides) async {
     // Handle rides according to the challenge type.
-    var type = ChallengeType.values.elementAt(challenge.type);
-    if (type == ChallengeType.overallDistance) await _handleDistanceChallenge(rides);
-    if (type == ChallengeType.overallDuration) await _handleDurationChallenge(rides);
-    if (type == ChallengeType.routeRidesPerWeek) await _handleRidesChallenge(rides);
-    if (type == ChallengeType.routeStreakInWeek) await _handleStreakChallenge(rides);
+    if (challenge.isWeekly) {
+      var type = WeeklyChallengeType.values.elementAt(challenge.type);
+      if (type == WeeklyChallengeType.overallDistance) await _handleDistanceChallenge(rides);
+      if (type == WeeklyChallengeType.overallDuration) await _handleDurationChallenge(rides);
+      if (type == WeeklyChallengeType.routeRidesPerWeek) await _handleRidesChallenge(rides);
+      if (type == WeeklyChallengeType.routeStreakInWeek) await _handleStreakChallenge(rides);
+    } else {
+      var type = DailyChallengeType.values.elementAt(challenge.type);
+      if (type == DailyChallengeType.distance) await _handleDistanceChallenge(rides);
+      if (type == DailyChallengeType.duration) await _handleDurationChallenge(rides);
+    }
   }
 
   /// Update challenge progress according to the overall ride distances.
