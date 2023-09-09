@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:math';
 
@@ -10,7 +11,7 @@ import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ChallengeProfileService with ChangeNotifier {
+class ChallengesProfileService with ChangeNotifier {
   static const profileKey = 'priobike.gamification.challenges.profile';
   static const activatedUpgradesKey = 'priobike.gamification.challenges.activatedUpgrades';
 
@@ -40,7 +41,7 @@ class ChallengeProfileService with ChangeNotifier {
       )
       .toList();
 
-  ChallengeProfileService() {
+  ChallengesProfileService() {
     _loadData();
   }
 

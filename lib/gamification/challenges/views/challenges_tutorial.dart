@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/common/views/tutorial_page.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/main.dart';
@@ -14,7 +14,7 @@ class ChallengesTutorial extends StatelessWidget {
     return GameTutorialPage(
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () async {
-        await getIt<ChallengeProfileService>().createProfile();
+        await getIt<ChallengesProfileService>().createProfile();
         getIt<GamificationUserService>().enableFeature(GamificationUserService.gameFeatureChallengesKey);
         if (context.mounted) Navigator.of(context).pop();
       },

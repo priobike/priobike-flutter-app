@@ -1,10 +1,12 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
-import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
-import 'package:priobike/gamification/challenges/views/level_up_dialog.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
+import 'package:priobike/gamification/challenges/views/challenges_profile/multiple_upgrades_lvl_up.dart.dart';
+import 'package:priobike/gamification/challenges/views/challenges_profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
@@ -26,7 +28,7 @@ class GameProfileView extends StatefulWidget {
 
 class _GameProfileViewState extends State<GameProfileView> with TickerProviderStateMixin {
   /// The service which manages and provides the user profile.
-  late ChallengeProfileService _profileService;
+  late ChallengesProfileService _profileService;
 
   /// The associated profile service, which is injected by the provider.
   late Profile _routingProfileService;
@@ -65,7 +67,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _trophiesController = AnimationController(duration: ShortDuration(), vsync: this);
     _medalsController = AnimationController(duration: ShortDuration(), vsync: this);
     _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
-    _profileService = getIt<ChallengeProfileService>();
+    _profileService = getIt<ChallengesProfileService>();
     _profileService.addListener(updateProfile);
     _routingProfileService = getIt<Profile>();
     _routingProfileService.addListener(update);
@@ -118,13 +120,18 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   }
 
   Future<void> _showLevelUpDialog() async {
+    if (nextLevel == null) return;
+    var openUpgrades = _profileService.allowedUpgrades;
     var result = await showDialog<ProfileUpgrade?>(
       context: context,
       builder: (BuildContext context) {
-        return LevelUpDialog(newLevel: nextLevel!);
+        if (openUpgrades.length > 1) {
+          return MultipleUpgradesLvlUpDialog(newLevel: nextLevel!, upgrades: openUpgrades);
+        } else {
+          return SingleUpgradeLvlUpDialog(newLevel: nextLevel!, upgrade: openUpgrades.firstOrNull);
+        }
       },
     );
-    return;
     _ringController.stop();
     canLevelUp = false;
     _profileService.levelUp(result);

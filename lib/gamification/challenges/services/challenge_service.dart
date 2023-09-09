@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_validator.dart';
@@ -191,7 +191,7 @@ class DailyChallengeService extends ChallengeService {
   bool get _isWeekly => false;
 
   @override
-  int get _numberOfChoices => getIt<ChallengeProfileService>().profile!.dailyChallengeChoices;
+  int get _numberOfChoices => getIt<ChallengesProfileService>().profile!.dailyChallengeChoices;
 }
 
 /// This service implements the challenge service and manages weekly challenges.
@@ -212,5 +212,5 @@ class WeeklyChallengeService extends ChallengeService {
   bool get _isWeekly => true;
 
   @override
-  int get _numberOfChoices => getIt<ChallengeProfileService>().profile!.weeklyChallengeChoices;
+  int get _numberOfChoices => getIt<ChallengesProfileService>().profile!.weeklyChallengeChoices;
 }

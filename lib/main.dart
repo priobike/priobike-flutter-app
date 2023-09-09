@@ -6,7 +6,7 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/gamification/challenges/services/challenge_profile_service.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/challenges/services/challenge_service.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -94,7 +94,7 @@ Future<void> main() async {
   getIt.registerSingleton<DailyChallengeService>(DailyChallengeService());
   getIt.registerSingleton<WeeklyChallengeService>(WeeklyChallengeService());
   getIt.registerSingleton<UserGoalsService>(UserGoalsService());
-  getIt.registerSingleton<ChallengeProfileService>(ChallengeProfileService());
+  getIt.registerSingleton<ChallengesProfileService>(ChallengesProfileService());
 
   runZonedGuarded(() async {
     runApp(const App());
