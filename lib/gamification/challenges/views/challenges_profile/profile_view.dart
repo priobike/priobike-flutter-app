@@ -8,6 +8,8 @@ import 'package:priobike/gamification/challenges/services/challenges_profile_ser
 import 'package:priobike/gamification/challenges/views/challenges_profile/multiple_upgrades_lvl_up.dart.dart';
 import 'package:priobike/gamification/challenges/views/challenges_profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
+import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/common/views/level_ring.dart';
 import 'package:priobike/gamification/common/models/level.dart';
@@ -101,6 +103,10 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       _ringController.repeat(reverse: true);
       setState(() => canLevelUp = true);
     }
+    // Otherwise, just rebuilt the widget.
+    else {
+      if (mounted) setState(() {});
+    }
     // If the medals have changed, animate the medal icon.
     if (_profileService.medalsChanged) {
       await _medalsController.reverse(from: 1);
@@ -111,10 +117,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     else if (_profileService.trophiesChanged) {
       await _trophiesController.reverse(from: 1);
       _profileService.trophiesChanged = false;
-      if (mounted) setState(() {});
-    }
-    // Otherwise, just rebuilt the widget.
-    else {
       if (mounted) setState(() {});
     }
   }
@@ -191,7 +193,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: CI.blue.withOpacity(0.4),
+                        color: nextLevel?.color ?? currentLevel.color.withOpacity(0.4),
                         blurRadius: 30,
                         spreadRadius: 40 + _ringController.value * 10,
                       ),
@@ -213,13 +215,13 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                     : currentLevel.color,
                 icon: canLevelUp ? null : _routingProfileService.bikeType?.icon() ?? Icons.pedal_bike,
                 ringSize: 96,
-                ringColor: canLevelUp ? CI.blue : nextLevel?.color ?? currentLevel.color,
+                ringColor: nextLevel?.color ?? currentLevel.color,
               ),
               if (canLevelUp)
                 Column(
                   children: [
-                    BoldContent(text: 'Level', context: context, color: CI.blue),
-                    BoldContent(text: 'Up', context: context, color: CI.blue),
+                    BoldContent(text: 'Level', context: context, color: nextLevel?.color ?? currentLevel.color),
+                    BoldContent(text: 'Up', context: context, color: nextLevel?.color ?? currentLevel.color),
                   ],
                 ),
             ],
@@ -234,7 +236,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BoldSubHeader(text: currentLevel.title, context: context),
+                    BoldContent(text: currentLevel.title, context: context),
                     Small(
                       text: (nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${nextLevel!.value} XP',
                       context: context,
@@ -247,17 +249,47 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  getTrophyWidget(
-                    _profile!.medals,
-                    CustomGameIcons.blank_medal,
-                    getAnimation(_medalsController),
-                    _profileService.medalsChanged,
+                  AnimatedButton(
+                    onPressed: () => AppDatabase.instance.challengeDao.createObject(
+                      ChallengesCompanion.insert(
+                        xp: 25,
+                        startTime: DateTime(2023),
+                        closingTime: DateTime(2023),
+                        description: '',
+                        target: 0,
+                        progress: 100,
+                        isWeekly: false,
+                        isOpen: false,
+                        type: 0,
+                      ),
+                    ),
+                    child: getTrophyWidget(
+                      _profile!.medals,
+                      CustomGameIcons.blank_medal,
+                      getAnimation(_medalsController),
+                      _profileService.medalsChanged,
+                    ),
                   ),
-                  getTrophyWidget(
-                    _profile!.trophies,
-                    CustomGameIcons.blank_trophy,
-                    getAnimation(_trophiesController),
-                    _profileService.trophiesChanged,
+                  AnimatedButton(
+                    onPressed: () => AppDatabase.instance.challengeDao.createObject(
+                      ChallengesCompanion.insert(
+                        xp: 100,
+                        startTime: DateTime(2023),
+                        closingTime: DateTime(2023),
+                        description: '',
+                        target: 0,
+                        progress: 100,
+                        isWeekly: true,
+                        isOpen: false,
+                        type: 0,
+                      ),
+                    ),
+                    child: getTrophyWidget(
+                      _profile!.trophies,
+                      CustomGameIcons.blank_trophy,
+                      getAnimation(_trophiesController),
+                      _profileService.trophiesChanged,
+                    ),
                   ),
                 ],
               ),

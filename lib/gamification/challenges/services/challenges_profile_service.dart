@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:math';
 
@@ -94,7 +93,7 @@ class ChallengesProfileService with ChangeNotifier {
     var oldMedals = _profile!.medals;
     var oldTrophies = _profile!.trophies;
     // Update rewards according to the completed challenges.
-    _profile!.xp = 100000 + Utils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
+    _profile!.xp = Utils.getListSum(challenges.map((c) => c.xp.toDouble()).toList()).toInt();
     _profile!.medals = challenges.where((c) => !c.isWeekly).length;
     _profile!.trophies = challenges.where((c) => c.isWeekly).length;
     // If the medals or trophies changed, update the bools accordingly.
