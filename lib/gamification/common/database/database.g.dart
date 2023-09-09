@@ -508,11 +508,11 @@ class $ChallengesTable extends Challenges
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
-  static const VerificationMeta _shortcutIdMeta =
-      const VerificationMeta('shortcutId');
+  static const VerificationMeta _routeIdMeta =
+      const VerificationMeta('routeId');
   @override
-  late final GeneratedColumn<String> shortcutId = GeneratedColumn<String>(
-      'shortcut_id', aliasedName, true,
+  late final GeneratedColumn<String> routeId = GeneratedColumn<String>(
+      'route_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
@@ -530,7 +530,7 @@ class $ChallengesTable extends Challenges
         progress,
         isWeekly,
         isOpen,
-        shortcutId,
+        routeId,
         type
       ];
   @override
@@ -596,11 +596,9 @@ class $ChallengesTable extends Challenges
     } else if (isInserting) {
       context.missing(_isOpenMeta);
     }
-    if (data.containsKey('shortcut_id')) {
-      context.handle(
-          _shortcutIdMeta,
-          shortcutId.isAcceptableOrUnknown(
-              data['shortcut_id']!, _shortcutIdMeta));
+    if (data.containsKey('route_id')) {
+      context.handle(_routeIdMeta,
+          routeId.isAcceptableOrUnknown(data['route_id']!, _routeIdMeta));
     }
     if (data.containsKey('type')) {
       context.handle(
@@ -635,8 +633,8 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.bool, data['${effectivePrefix}is_weekly'])!,
       isOpen: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_open'])!,
-      shortcutId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}shortcut_id']),
+      routeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}route_id']),
       type: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
     );
@@ -658,7 +656,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
   final int progress;
   final bool isWeekly;
   final bool isOpen;
-  final String? shortcutId;
+  final String? routeId;
   final int type;
   const Challenge(
       {required this.id,
@@ -670,7 +668,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       required this.progress,
       required this.isWeekly,
       required this.isOpen,
-      this.shortcutId,
+      this.routeId,
       required this.type});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -684,8 +682,8 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     map['progress'] = Variable<int>(progress);
     map['is_weekly'] = Variable<bool>(isWeekly);
     map['is_open'] = Variable<bool>(isOpen);
-    if (!nullToAbsent || shortcutId != null) {
-      map['shortcut_id'] = Variable<String>(shortcutId);
+    if (!nullToAbsent || routeId != null) {
+      map['route_id'] = Variable<String>(routeId);
     }
     map['type'] = Variable<int>(type);
     return map;
@@ -702,9 +700,9 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       progress: Value(progress),
       isWeekly: Value(isWeekly),
       isOpen: Value(isOpen),
-      shortcutId: shortcutId == null && nullToAbsent
+      routeId: routeId == null && nullToAbsent
           ? const Value.absent()
-          : Value(shortcutId),
+          : Value(routeId),
       type: Value(type),
     );
   }
@@ -722,7 +720,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       progress: serializer.fromJson<int>(json['progress']),
       isWeekly: serializer.fromJson<bool>(json['isWeekly']),
       isOpen: serializer.fromJson<bool>(json['isOpen']),
-      shortcutId: serializer.fromJson<String?>(json['shortcutId']),
+      routeId: serializer.fromJson<String?>(json['routeId']),
       type: serializer.fromJson<int>(json['type']),
     );
   }
@@ -739,7 +737,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       'progress': serializer.toJson<int>(progress),
       'isWeekly': serializer.toJson<bool>(isWeekly),
       'isOpen': serializer.toJson<bool>(isOpen),
-      'shortcutId': serializer.toJson<String?>(shortcutId),
+      'routeId': serializer.toJson<String?>(routeId),
       'type': serializer.toJson<int>(type),
     };
   }
@@ -754,7 +752,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           int? progress,
           bool? isWeekly,
           bool? isOpen,
-          Value<String?> shortcutId = const Value.absent(),
+          Value<String?> routeId = const Value.absent(),
           int? type}) =>
       Challenge(
         id: id ?? this.id,
@@ -766,7 +764,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
         progress: progress ?? this.progress,
         isWeekly: isWeekly ?? this.isWeekly,
         isOpen: isOpen ?? this.isOpen,
-        shortcutId: shortcutId.present ? shortcutId.value : this.shortcutId,
+        routeId: routeId.present ? routeId.value : this.routeId,
         type: type ?? this.type,
       );
   @override
@@ -781,7 +779,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
           ..write('isOpen: $isOpen, ')
-          ..write('shortcutId: $shortcutId, ')
+          ..write('routeId: $routeId, ')
           ..write('type: $type')
           ..write(')'))
         .toString();
@@ -789,7 +787,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
 
   @override
   int get hashCode => Object.hash(id, xp, startTime, closingTime, description,
-      target, progress, isWeekly, isOpen, shortcutId, type);
+      target, progress, isWeekly, isOpen, routeId, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -803,7 +801,7 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           other.progress == this.progress &&
           other.isWeekly == this.isWeekly &&
           other.isOpen == this.isOpen &&
-          other.shortcutId == this.shortcutId &&
+          other.routeId == this.routeId &&
           other.type == this.type);
 }
 
@@ -817,7 +815,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
   final Value<int> progress;
   final Value<bool> isWeekly;
   final Value<bool> isOpen;
-  final Value<String?> shortcutId;
+  final Value<String?> routeId;
   final Value<int> type;
   const ChallengesCompanion({
     this.id = const Value.absent(),
@@ -829,7 +827,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     this.progress = const Value.absent(),
     this.isWeekly = const Value.absent(),
     this.isOpen = const Value.absent(),
-    this.shortcutId = const Value.absent(),
+    this.routeId = const Value.absent(),
     this.type = const Value.absent(),
   });
   ChallengesCompanion.insert({
@@ -842,7 +840,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     required int progress,
     required bool isWeekly,
     required bool isOpen,
-    this.shortcutId = const Value.absent(),
+    this.routeId = const Value.absent(),
     required int type,
   })  : xp = Value(xp),
         startTime = Value(startTime),
@@ -863,7 +861,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     Expression<int>? progress,
     Expression<bool>? isWeekly,
     Expression<bool>? isOpen,
-    Expression<String>? shortcutId,
+    Expression<String>? routeId,
     Expression<int>? type,
   }) {
     return RawValuesInsertable({
@@ -876,7 +874,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       if (progress != null) 'progress': progress,
       if (isWeekly != null) 'is_weekly': isWeekly,
       if (isOpen != null) 'is_open': isOpen,
-      if (shortcutId != null) 'shortcut_id': shortcutId,
+      if (routeId != null) 'route_id': routeId,
       if (type != null) 'type': type,
     });
   }
@@ -891,7 +889,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       Value<int>? progress,
       Value<bool>? isWeekly,
       Value<bool>? isOpen,
-      Value<String?>? shortcutId,
+      Value<String?>? routeId,
       Value<int>? type}) {
     return ChallengesCompanion(
       id: id ?? this.id,
@@ -903,7 +901,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       progress: progress ?? this.progress,
       isWeekly: isWeekly ?? this.isWeekly,
       isOpen: isOpen ?? this.isOpen,
-      shortcutId: shortcutId ?? this.shortcutId,
+      routeId: routeId ?? this.routeId,
       type: type ?? this.type,
     );
   }
@@ -938,8 +936,8 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (isOpen.present) {
       map['is_open'] = Variable<bool>(isOpen.value);
     }
-    if (shortcutId.present) {
-      map['shortcut_id'] = Variable<String>(shortcutId.value);
+    if (routeId.present) {
+      map['route_id'] = Variable<String>(routeId.value);
     }
     if (type.present) {
       map['type'] = Variable<int>(type.value);
@@ -959,7 +957,7 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
           ..write('progress: $progress, ')
           ..write('isWeekly: $isWeekly, ')
           ..write('isOpen: $isOpen, ')
-          ..write('shortcutId: $shortcutId, ')
+          ..write('routeId: $routeId, ')
           ..write('type: $type')
           ..write(')'))
         .toString();

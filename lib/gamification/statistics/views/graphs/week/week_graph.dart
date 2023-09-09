@@ -73,9 +73,9 @@ class _WeekStatsGraphState extends State<WeekStatsGraph> {
     double? goalValue;
     var infoType = widget.viewModel.rideInfoType;
     if (infoType == RideInfo.distance) {
-      goalValue = _goalsService.userGoals.dailyDistanceGoalMetres / 1000;
+      goalValue = _goalsService.dailyGoals.distanceMetres / 1000;
     } else if (infoType == RideInfo.duration) {
-      goalValue = _goalsService.userGoals.dailyDurationGoalMinutes;
+      goalValue = _goalsService.dailyGoals.durationMinutes;
     }
     return CustomBarGraph(
       barWidth: 20,

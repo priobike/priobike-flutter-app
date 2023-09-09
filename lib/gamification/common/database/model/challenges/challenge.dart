@@ -24,7 +24,7 @@ class Challenges extends Table {
   IntColumn get progress => integer()();
   BoolColumn get isWeekly => boolean()();
   BoolColumn get isOpen => boolean()();
-  TextColumn get shortcutId => text().nullable()();
+  TextColumn get routeId => text().nullable()();
   IntColumn get type => integer()();
 }
 

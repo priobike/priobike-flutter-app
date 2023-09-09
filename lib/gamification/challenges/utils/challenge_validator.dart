@@ -52,15 +52,15 @@ class ChallengeValidator {
 
   /// Update challenge progress according to the number of rides on the challenge route.
   Future<void> _handleRidesChallenge(List<RideSummary> rides) async {
-    if (challenge.shortcutId == null) return;
-    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.shortcutId);
+    if (challenge.routeId == null) return;
+    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.routeId);
     _updateChallenge(ridesWithShortcut.length);
   }
 
   /// Update the challenge progress according to the number of rides on the challenge route on days in a row.
   Future<void> _handleStreakChallenge(List<RideSummary> rides) async {
-    if (challenge.shortcutId == null) return;
-    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.shortcutId);
+    if (challenge.routeId == null) return;
+    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.routeId);
 
     // Get start and endtime of the first day of the challenge interval.
     var start = DateTime(challenge.startTime.year, challenge.startTime.month, challenge.startTime.day);

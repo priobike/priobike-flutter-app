@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/goals/models/user_goals.dart';
+import 'package:priobike/gamification/goals/models/daily_goals.dart';
+import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/main.dart';
 
@@ -43,15 +44,15 @@ class DailyChallengeGenerator extends ChallengeGenerator {
   static const List<ChallengeType> dailyTypes = [ChallengeType.overallDistance, ChallengeType.overallDuration];
 
   /// This function returns a fitting value range for a given challenge type and user goals.
-  ValueRange getDailyChallengeValueRange(ChallengeType type, UserGoals goals) {
+  ValueRange getDailyChallengeValueRange(ChallengeType type, DailyGoals goals) {
     //TODO
     if (type == ChallengeType.overallDistance) {
-      var max = goals.dailyDistanceGoalMetres ~/ 500;
+      var max = goals.distanceMetres ~/ 500;
       var min = max ~/ 2;
       return ValueRange(math.max(min, 1), max, 500, 25);
     }
     if (type == ChallengeType.overallDuration) {
-      var max = goals.dailyDurationGoalMinutes ~/ 10;
+      var max = goals.durationMinutes ~/ 10;
       var min = max ~/ 2;
       return ValueRange(math.max(min, 1), max, 10, 25);
     }
@@ -70,7 +71,7 @@ class DailyChallengeGenerator extends ChallengeGenerator {
 
   @override
   ChallengesCompanion generate() {
-    var goals = getIt<UserGoalsService>().userGoals;
+    var goals = getIt<UserGoalsService>().dailyGoals;
     var now = DateTime.now();
     var type = dailyTypes.elementAt(math.Random().nextInt(dailyTypes.length));
     var range = getDailyChallengeValueRange(type, goals);
@@ -98,20 +99,20 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
   ];
 
   /// This function returns a fitting value range for a given challenge type and user goals.
-  ValueRange getWeeklyChallengeValueRange(ChallengeType type, UserGoals goals) {
+  ValueRange getWeeklyChallengeValueRange(ChallengeType type, DailyGoals dailyGoals, RouteGoals? routeGoals) {
     //TODO
     if (type == ChallengeType.overallDistance) {
-      var max = goals.dailyDistanceGoalMetres ~/ 500 * 3;
+      var max = dailyGoals.distanceMetres ~/ 500 * 3;
       var min = max ~/ 2;
       return ValueRange(math.max(min, 1), max, 500, 50);
     }
     if (type == ChallengeType.routeRidesPerWeek) {
-      var max = goals.routeGoal!.perWeek;
+      var max = routeGoals!.numOfDays;
       var min = max ~/ 2;
       return ValueRange(math.max(min, 1), max, 1, 100);
     }
     if (type == ChallengeType.routeStreakInWeek) {
-      var max = goals.routeGoal!.perWeek;
+      var max = routeGoals!.numOfDays;
       var min = max ~/ 2;
       return ValueRange(math.max(min, 1), max, 1, 150);
     }
@@ -132,25 +133,26 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
 
   @override
   ChallengesCompanion generate() {
-    var goals = getIt<UserGoalsService>().userGoals;
+    var dailyGoals = getIt<UserGoalsService>().dailyGoals;
     var now = DateTime.now();
     var end = DateTime(now.year, now.month, now.day).add(Duration(days: 8 - now.weekday));
-    var type = (goals.routeGoal == null)
+    var routeGoals = getIt<UserGoalsService>().routeGoals;
+    var type = (routeGoals == null || routeGoals.numOfDays == 0)
         ? ChallengeType.overallDistance
         : weeklyTypes.elementAt(math.Random().nextInt(weeklyTypes.length));
-    var range = getWeeklyChallengeValueRange(type, goals);
+    var range = getWeeklyChallengeValueRange(type, dailyGoals, routeGoals);
     var randomValue = range.max == range.min ? range.max : math.Random().nextInt(range.max - range.min) + range.min;
     return ChallengesCompanion.insert(
       xp: randomValue * range.xpFactor,
       startTime: now,
       closingTime: end,
-      description: buildDescriptionWeekly(type, randomValue * range.stepsize, goals.routeGoal?.trackName),
+      description: buildDescriptionWeekly(type, randomValue * range.stepsize, routeGoals?.routeName),
       target: randomValue * range.stepsize,
       progress: 0,
       isWeekly: true,
       isOpen: true,
       type: weeklyTypes.indexOf(type),
-      shortcutId: Value(goals.routeGoal == null ? null : goals.routeGoal!.routeID),
+      routeId: Value(routeGoals?.routeID),
     );
   }
 }
