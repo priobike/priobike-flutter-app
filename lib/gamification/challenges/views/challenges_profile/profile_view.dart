@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
@@ -9,12 +12,10 @@ import 'package:priobike/gamification/challenges/views/challenges_profile/multip
 import 'package:priobike/gamification/challenges/views/challenges_profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
-import 'package:priobike/gamification/common/views/level_ring.dart';
+import 'package:priobike/gamification/challenges/views/level_ring.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/main.dart';
 
@@ -44,8 +45,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   /// Animation Controller to controll the ring animation.
   late final AnimationController _ringController;
 
-  bool canLevelUp = false;
-
   ChallengesProfile? get _profile => _profileService.profile;
 
   /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
@@ -62,6 +61,12 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     return levels[level + 1];
   }
 
+  double get levelProgress {
+    if (nextLevel == null || _profile == null) return 1;
+    var progress = (_profile!.xp - currentLevel.value) / (nextLevel!.value - currentLevel.value);
+    return min(1, max(0, progress));
+  }
+
   void update() => {if (mounted) setState(() {})};
 
   @override
@@ -74,11 +79,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _routingProfileService = getIt<Profile>();
     _routingProfileService.addListener(update);
     _ringController.addListener(update);
-    // If the user has collected enough xp for the next level, set level up to true and start animation.
-    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
-      _ringController.repeat(reverse: true);
-      canLevelUp = true;
-    }
     super.initState();
   }
 
@@ -98,15 +98,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void updateProfile() async {
-    // If the user has collected enough xp for the next level, set level up to true and start animation.
-    if (nextLevel == null ? false : _profileService.profile!.xp >= nextLevel!.value) {
-      _ringController.repeat(reverse: true);
-      setState(() => canLevelUp = true);
-    }
-    // Otherwise, just rebuilt the widget.
-    else {
-      if (mounted) setState(() {});
-    }
+    if (mounted) setState(() {});
     // If the medals have changed, animate the medal icon.
     if (_profileService.medalsChanged) {
       await _medalsController.reverse(from: 1);
@@ -134,8 +126,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
         }
       },
     );
-    _ringController.stop();
-    canLevelUp = false;
     _profileService.levelUp(result);
   }
 
@@ -175,12 +165,18 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     if (_profile == null) return Container();
+    var canLevelUp = nextLevel != null && _profileService.profile!.xp >= nextLevel!.value;
+    if (canLevelUp && !_ringController.isAnimating) {
+      _ringController.repeat(reverse: true);
+    } else if (!canLevelUp && _ringController.isAnimating) {
+      _ringController.stop();
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
       children: [
         AnimatedButton(
-          onPressed: nextLevel == null ? null : _showLevelUpDialog,
+          onPressed: canLevelUp && nextLevel != null ? _showLevelUpDialog : null,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -205,95 +201,136 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                     ],
                   ),
                 ),
+              if (nextLevel == null)
+                Container(
+                  height: 0,
+                  width: 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: currentLevel.color.withOpacity(0.4),
+                        blurRadius: 30,
+                        spreadRadius: 40,
+                      ),
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.background,
+                        blurRadius: 15,
+                        spreadRadius: 40,
+                      ),
+                    ],
+                  ),
+                ),
               LevelRing(
-                showBorder: false,
-                minValue: currentLevel.value.toDouble(),
-                maxValue: nextLevel?.value.toDouble() ?? _profile!.xp.toDouble(),
-                value: _profile!.xp.toDouble(),
-                iconColor: (currentLevel == levels[0])
-                    ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
-                    : currentLevel.color,
-                icon: canLevelUp ? null : _routingProfileService.bikeType?.icon() ?? Icons.pedal_bike,
+                progress: levelProgress,
+                iconColor: currentLevel.color,
+                icon: nextLevel == null ? Icons.directions_bike : null,
                 ringSize: 96,
                 ringColor: nextLevel?.color ?? currentLevel.color,
               ),
               if (canLevelUp)
+                ScaleTransition(
+                  scale: Tween<double>(begin: 1, end: 1.2).animate(_ringController),
+                  child: Column(
+                    children: [
+                      BoldContent(text: 'Level', context: context, color: nextLevel!.color),
+                      BoldContent(text: 'Up', context: context, color: nextLevel!.color),
+                    ],
+                  ),
+                ),
+              if (!canLevelUp && nextLevel != null)
                 Column(
                   children: [
-                    BoldContent(text: 'Level', context: context, color: nextLevel?.color ?? currentLevel.color),
-                    BoldContent(text: 'Up', context: context, color: nextLevel?.color ?? currentLevel.color),
+                    const SmallVSpace(),
+                    BoldContent(
+                      text: 'Level',
+                      context: context,
+                      color: Color.alphaBlend(
+                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - levelProgress)),
+                        nextLevel!.color.withOpacity(levelProgress),
+                      ),
+                    ),
+                    Header(
+                      text: '${levels.indexOf(nextLevel!)}',
+                      context: context,
+                      color: Color.alphaBlend(
+                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - levelProgress)),
+                        nextLevel!.color.withOpacity(levelProgress),
+                      ),
+                    ),
                   ],
                 ),
             ],
           ),
         ),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 96,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                BoldContent(
+                  text: currentLevel.title,
+                  context: context,
+                ),
+                Content(
+                  text: (nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${nextLevel!.value} XP',
+                  context: context,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                ),
+                Expanded(child: Container()),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    BoldContent(text: currentLevel.title, context: context),
-                    Small(
-                      text: (nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${nextLevel!.value} XP',
-                      context: context,
+                    AnimatedButton(
+                      onPressed: () => AppDatabase.instance.challengeDao.createObject(
+                        ChallengesCompanion.insert(
+                          xp: 25,
+                          startTime: DateTime(2023),
+                          closingTime: DateTime(2023),
+                          description: '',
+                          target: 0,
+                          progress: 100,
+                          isWeekly: false,
+                          isOpen: false,
+                          type: 0,
+                        ),
+                      ),
+                      child: getTrophyWidget(
+                        _profile!.medals,
+                        CustomGameIcons.blank_medal,
+                        getAnimation(_medalsController),
+                        _profileService.medalsChanged,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    AnimatedButton(
+                      onPressed: () => AppDatabase.instance.challengeDao.createObject(
+                        ChallengesCompanion.insert(
+                          xp: 100,
+                          startTime: DateTime(2023),
+                          closingTime: DateTime(2023),
+                          description: '',
+                          target: 0,
+                          progress: 100,
+                          isWeekly: true,
+                          isOpen: false,
+                          type: 0,
+                        ),
+                      ),
+                      child: getTrophyWidget(
+                        _profile!.trophies,
+                        CustomGameIcons.blank_trophy,
+                        getAnimation(_trophiesController),
+                        _profileService.trophiesChanged,
+                      ),
+                    ),
                   ],
                 ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  AnimatedButton(
-                    onPressed: () => AppDatabase.instance.challengeDao.createObject(
-                      ChallengesCompanion.insert(
-                        xp: 25,
-                        startTime: DateTime(2023),
-                        closingTime: DateTime(2023),
-                        description: '',
-                        target: 0,
-                        progress: 100,
-                        isWeekly: false,
-                        isOpen: false,
-                        type: 0,
-                      ),
-                    ),
-                    child: getTrophyWidget(
-                      _profile!.medals,
-                      CustomGameIcons.blank_medal,
-                      getAnimation(_medalsController),
-                      _profileService.medalsChanged,
-                    ),
-                  ),
-                  AnimatedButton(
-                    onPressed: () => AppDatabase.instance.challengeDao.createObject(
-                      ChallengesCompanion.insert(
-                        xp: 100,
-                        startTime: DateTime(2023),
-                        closingTime: DateTime(2023),
-                        description: '',
-                        target: 0,
-                        progress: 100,
-                        isWeekly: true,
-                        isOpen: false,
-                        type: 0,
-                      ),
-                    ),
-                    child: getTrophyWidget(
-                      _profile!.trophies,
-                      CustomGameIcons.blank_trophy,
-                      getAnimation(_trophiesController),
-                      _profileService.trophiesChanged,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

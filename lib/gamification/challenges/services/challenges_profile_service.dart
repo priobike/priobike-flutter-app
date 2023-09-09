@@ -78,10 +78,9 @@ class ChallengesProfileService with ChangeNotifier {
 
   /// Update profile data stored in shared prefs and notify listeners.
   Future<void> storeProfile() async {
-    /// Update profile in shared preferences.
+    // Update profile in shared preferences.
     _prefs ??= await SharedPreferences.getInstance();
     _prefs?.setString(profileKey, jsonEncode(_profile!.toJson()));
-
     notifyListeners();
   }
 
@@ -130,12 +129,22 @@ class ChallengesProfileService with ChangeNotifier {
     );
   }
 
+  Future<void> resetChallenges() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    if (_profile == null) return;
+    _profile = ChallengesProfile();
+    _activatedUpgrades.clear();
+    _prefs!.remove(activatedUpgradesKey);
+    storeProfile();
+    challengeDao.clearObjects();
+  }
+
   Future<void> reset() async {
-    var prefs = await SharedPreferences.getInstance();
+    _prefs ??= await SharedPreferences.getInstance();
     _profile = null;
     _activatedUpgrades.clear();
-    prefs.remove(activatedUpgradesKey);
-    prefs.remove(profileKey);
+    _prefs!.remove(activatedUpgradesKey);
+    _prefs!.remove(profileKey);
     challengeDao.clearObjects();
     notifyListeners();
   }

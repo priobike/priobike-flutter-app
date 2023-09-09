@@ -318,7 +318,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    callback: () => AppDatabase.instance.challengeDao.clearObjects(),
+                    callback: () => getIt<ChallengesProfileService>().resetChallenges(),
                     title: 'Challenges zurücksetzen',
                     icon: Icons.recycling,
                   ),
