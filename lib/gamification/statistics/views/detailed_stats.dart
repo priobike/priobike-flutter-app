@@ -21,7 +21,7 @@ class DetailedStatistics extends StatelessWidget {
   final List<Widget> graphs;
 
   /// The viewmodel corresponding to the currently displayed graph.
-  final GraphViewModel currentViewModel;
+  final StatsForTimeFrameViewModel currentViewModel;
 
   /// Animation for the confirmation button. The button slides in from the bottom.
   Animation<Offset> getListAnimation(double start, double end) => Tween<Offset>(

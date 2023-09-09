@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/ci.dart';
@@ -12,11 +10,10 @@ import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 
 class RouteStatistics extends StatefulWidget {
-  final WeekGraphViewModel viewModel;
+  final WeekStatsViewModel viewModel;
 
   const RouteStatistics({Key? key, required this.viewModel}) : super(key: key);
 
@@ -33,7 +30,7 @@ class _RouteStatisticsState extends State<RouteStatistics> {
 
   RouteGoals? get goals => _goalsService.routeGoals;
 
-  Shortcut? get shortcut => getIt<Shortcuts>().shortcuts?.where((s) => s.id == goals!.routeID).firstOrNull;
+  Shortcut? get routeShortcut => getIt<Shortcuts>().shortcuts?.where((s) => s.id == goals!.routeID).firstOrNull;
 
   @override
   void initState() {
@@ -127,7 +124,7 @@ class _RouteStatisticsState extends State<RouteStatistics> {
             ],
           ),
         ),
-        if (shortcut != null) shortcut!.getRepresentation(),
+        if (routeShortcut != null) routeShortcut!.getRepresentation(),
       ],
     );
   }
@@ -149,7 +146,7 @@ class RoutesInWeekWidget extends StatelessWidget {
     var performance = List.filled(DateTime.daysPerWeek, 0);
     for (int i = 0; i < DateTime.daysPerWeek; i++) {
       var ridesOnDay = ridesInWeek.where((ride) => ride.startTime.weekday == i + 1);
-      var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId != routeId);
+      var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId == routeId);
       performance[i] = ridesOnRoute.length;
     }
     return performance;

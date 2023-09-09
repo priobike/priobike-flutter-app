@@ -4,9 +4,9 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
 
-/// Displayes ride statistics for a single week. The data is obtained from a given [MultipleWeeksGraphViewModel].
+/// Displayes ride statistics for a single week. The data is obtained from a given [MultipleWeeksStatsViewModel].
 class MultipleWeeksStatsGraph extends StatelessWidget {
-  final MultipleWeeksGraphViewModel viewModel;
+  final MultipleWeeksStatsViewModel viewModel;
 
   const MultipleWeeksStatsGraph({
     Key? key,

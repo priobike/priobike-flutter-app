@@ -20,7 +20,7 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
 
   late PageController pageController;
 
-  List<WeekGraphViewModel> viewModels = [];
+  List<WeekStatsViewModel> viewModels = [];
 
   int displayedPageIndex = numOfPages - 1;
 
@@ -48,7 +48,7 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
     weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
     for (int i = 0; i < numOfPages; i++) {
       var tmpWeekStart = weekStart.subtract(Duration(days: 7 * i));
-      var viewModel = WeekGraphViewModel(tmpWeekStart);
+      var viewModel = WeekStatsViewModel(tmpWeekStart);
       viewModel.startStreams();
       viewModel.addListener(() => update());
       viewModels.add(viewModel);

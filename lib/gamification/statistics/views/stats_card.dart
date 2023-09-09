@@ -47,8 +47,14 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
   /// Controller which connects the tab indicator to the page view.
   late final TabController tabController = TabController(length: 4, vsync: this);
 
-  /// View models of the displayed graphs. They provide the graphs with their corresponding data.
-  final List<GraphViewModel> graphViewModels = [];
+  late WeekStatsViewModel weekStatsViewModel;
+
+  late MonthStatsViewModel monthStatsViewModel;
+
+  late MultipleWeeksStatsViewModel multiWeeksStatsViewModel;
+
+  List<StatsForTimeFrameViewModel> get viewModels =>
+      [weekStatsViewModel, monthStatsViewModel, multiWeeksStatsViewModel];
 
   late StatisticService _statsService;
 
@@ -65,8 +71,8 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
     _statsService.removeListener(update);
     tabController.dispose();
     pageController.dispose();
-    for (var viewModel in graphViewModels) {
-      viewModel.endStreams();
+    for (var vm in viewModels) {
+      vm.endStreams();
     }
     super.dispose();
   }
@@ -90,14 +96,14 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
     var today = DateTime.now();
     today = DateTime(today.year, today.month, today.day);
     var thisWeeksStart = today.subtract(Duration(days: today.weekday - 1));
-    graphViewModels.add(WeekGraphViewModel(thisWeeksStart));
-    graphViewModels.add(MonthGraphViewModel(today.year, today.month));
-    graphViewModels.add(MultipleWeeksGraphViewModel(thisWeeksStart, 5));
+    weekStatsViewModel = WeekStatsViewModel(thisWeeksStart);
+    monthStatsViewModel = MonthStatsViewModel(today.year, today.month);
+    multiWeeksStatsViewModel = MultipleWeeksStatsViewModel(thisWeeksStart, 5);
 
     /// Listen to changes in the viewmodels and rebuilt widget if necessary.
-    for (var viewModel in graphViewModels) {
-      viewModel.startStreams();
-      viewModel.addListener(update);
+    for (var vm in viewModels) {
+      vm.startStreams();
+      vm.addListener(update);
     }
   }
 
@@ -147,17 +153,17 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
                   children: [
                     getGraphWithTitle(
                       title: 'Diese Woche',
-                      graph: WeekStatsGraph(viewModel: graphViewModels[0] as WeekGraphViewModel),
+                      graph: WeekStatsGraph(viewModel: weekStatsViewModel),
                     ),
                     getGraphWithTitle(
                       title: 'Dieser Monat',
-                      graph: MonthStatsGraph(viewModel: graphViewModels[1] as MonthGraphViewModel),
+                      graph: MonthStatsGraph(viewModel: monthStatsViewModel),
                     ),
                     getGraphWithTitle(
                       title: '5 Wochen Rückblick',
-                      graph: MultipleWeeksStatsGraph(viewModel: graphViewModels[2] as MultipleWeeksGraphViewModel),
+                      graph: MultipleWeeksStatsGraph(viewModel: multiWeeksStatsViewModel),
                     ),
-                    RouteStatistics(viewModel: graphViewModels[0] as WeekGraphViewModel),
+                    RouteStatistics(viewModel: weekStatsViewModel),
                   ],
                 ),
               ),

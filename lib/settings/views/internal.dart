@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
-import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';

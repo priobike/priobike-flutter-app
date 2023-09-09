@@ -23,7 +23,7 @@ class _DetailedMonthStatsState extends State<DetailedMonthStats> {
 
   late PageController pageController;
 
-  List<MonthGraphViewModel> viewModels = [];
+  List<MonthStatsViewModel> viewModels = [];
 
   int displayedPageIndex = numOfPages - 1;
 
@@ -50,7 +50,7 @@ class _DetailedMonthStatsState extends State<DetailedMonthStats> {
     var year = DateTime.now().year;
 
     for (int i = 0; i < numOfPages; i++) {
-      var viewModel = MonthGraphViewModel(year, month);
+      var viewModel = MonthStatsViewModel(year, month);
       viewModel.startStreams();
       viewModel.addListener(() => update());
       viewModels.add(viewModel);

@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -17,7 +16,6 @@ import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/challenges/views/level_ring.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/main.dart';
 
 /// This view displays the basic info about the users game profile. This can contain their achieved game rewards and

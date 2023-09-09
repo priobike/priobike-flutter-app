@@ -7,8 +7,8 @@ import 'package:priobike/gamification/common/database/model/ride_summary/ride_su
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 
-/// View model for a graph which manages the displayed ride data of a list of rides.
-abstract class GraphViewModel with ChangeNotifier {
+/// View model for a ride stats in a certain time frame.
+abstract class StatsForTimeFrameViewModel with ChangeNotifier {
   /// Ride DAO required to load the rides from the db.
   final RideSummaryDao rideDao = AppDatabase.instance.rideSummaryDao;
 
@@ -18,11 +18,11 @@ abstract class GraphViewModel with ChangeNotifier {
   /// List of stream subscription of currently listened streams.
   final List<StreamSubscription> _streamSubs = [];
 
-  /// List of y values for the graph
+  /// List of y values for a graph displaying the stats of the rides.
   late List<double> _yValues;
   List<double> get yValues => _yValues;
 
-  /// Type of ride info to be displayed in the graph.
+  /// Determines which of the ride values should be displayed by a graph connected to the view model.
   RideInfo _rideInfoType = RideInfo.distance;
   RideInfo get rideInfoType => _rideInfoType;
   void setRideInfoType(RideInfo type) {
@@ -30,7 +30,7 @@ abstract class GraphViewModel with ChangeNotifier {
     updateValues();
   }
 
-  /// Index of selected graph bar. If null, no bar is selected.
+  /// Index of a selected y value.
   int? _selectedIndex;
   int? get selectedIndex => _selectedIndex;
   void setSelectedIndex(int? selected) {
@@ -83,7 +83,7 @@ abstract class GraphViewModel with ChangeNotifier {
   /// Returns either all rides or, if the selected index is not null, only the ones corresponding to the selected index.
   List<RideSummary> get selectedOrAllRides => _selectedIndex == null ? allRides : selectedRides;
 
-  /// Return list of all rides currently displayed by the graph.
+  /// Return list of all rides in the time frame.
   List<RideSummary> get allRides;
 
   /// Returns all rides corresponding to the selected index.
@@ -102,8 +102,8 @@ abstract class GraphViewModel with ChangeNotifier {
   void updateValues({List<RideSummary>? update, int? index});
 }
 
-/// View model for a graph of a single week.
-class WeekGraphViewModel extends GraphViewModel {
+/// View model for rides in a single week.
+class WeekStatsViewModel extends StatsForTimeFrameViewModel {
   /// Start day of the week.
   final DateTime startDay;
 
@@ -111,7 +111,7 @@ class WeekGraphViewModel extends GraphViewModel {
   List<RideSummary> _rides = [];
   List<RideSummary> get rides => _rides;
 
-  WeekGraphViewModel(this.startDay) {
+  WeekStatsViewModel(this.startDay) {
     // Intitalize yValues as a list of zeros and a stream for rides in the displayed week.
     _yValues = List.filled(7, 0);
     _streams.add(rideDao.streamRidesInWeek(startDay));
@@ -141,8 +141,8 @@ class WeekGraphViewModel extends GraphViewModel {
   String get selectedDateStr => StringFormatter.getDateStr(startDay.add(Duration(days: selectedIndex!)));
 }
 
-/// View model for a graph of a single month.
-class MonthGraphViewModel extends GraphViewModel {
+/// View model for a rides in a single month.
+class MonthStatsViewModel extends StatsForTimeFrameViewModel {
   final int year, month;
 
   /// List of displayed rides.
@@ -155,7 +155,7 @@ class MonthGraphViewModel extends GraphViewModel {
   /// Number of days the displayed month has.
   int numberOfDays = 0;
 
-  MonthGraphViewModel(this.year, this.month) : firstDay = DateTime(year, month) {
+  MonthStatsViewModel(this.year, this.month) : firstDay = DateTime(year, month) {
     // Calculate number of days and intialize yValues as zeros and a stream of rides in the given month.
     numberOfDays = getNumberOfDays();
     _yValues = List.filled(numberOfDays, 0);
@@ -191,8 +191,8 @@ class MonthGraphViewModel extends GraphViewModel {
   String get selectedDateStr => '$selectedIndex. ${StringFormatter.getMonthAndYearStr(month, year)}';
 }
 
-/// View model for a graph of multiple weeks.
-class MultipleWeeksGraphViewModel extends GraphViewModel {
+/// View model for rides in multiple weeks.
+class MultipleWeeksStatsViewModel extends StatsForTimeFrameViewModel {
   /// The first day of the last week, of weeks which should be displayed.
   final DateTime lastWeekStartDay;
 
@@ -203,7 +203,7 @@ class MultipleWeeksGraphViewModel extends GraphViewModel {
   final Map<DateTime, List<RideSummary>> _rideMap = {};
   Map<DateTime, List<RideSummary>> get rideMap => _rideMap;
 
-  MultipleWeeksGraphViewModel(this.lastWeekStartDay, this.numOfWeeks) {
+  MultipleWeeksStatsViewModel(this.lastWeekStartDay, this.numOfWeeks) {
     _yValues = [];
     // Create map containing all the start days of the weeks to be displayed.
     var tmpStartDay = lastWeekStartDay;

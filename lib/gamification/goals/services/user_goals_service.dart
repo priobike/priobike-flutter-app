@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
+import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserGoalsService with ChangeNotifier {
@@ -24,6 +26,12 @@ class UserGoalsService with ChangeNotifier {
 
   UserGoalsService() {
     _loadData();
+    getIt<Shortcuts>().addListener(() {
+      if (_routeGoals == null) return;
+      var shortcuts = getIt<Shortcuts>().shortcuts ?? [];
+      if (shortcuts.where((s) => s.id == _routeGoals!.routeID).isNotEmpty) return;
+      updateRouteGoals(null);
+    });
   }
 
   /// Load goal data from shared prefs.

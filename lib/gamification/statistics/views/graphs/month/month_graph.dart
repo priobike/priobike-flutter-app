@@ -6,9 +6,9 @@ import 'package:priobike/gamification/statistics/services/statistics_service.dar
 import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
 import 'package:priobike/main.dart';
 
-/// Displayes ride statistics for a single month. The data is obtained from a given [MonthGraphViewModel].
+/// Displayes ride statistics for a single month. The data is obtained from a given [MonthStatsViewModel].
 class MonthStatsGraph extends StatefulWidget {
-  final MonthGraphViewModel viewModel;
+  final MonthStatsViewModel viewModel;
 
   const MonthStatsGraph({
     Key? key,
