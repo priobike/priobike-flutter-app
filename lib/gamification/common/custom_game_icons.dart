@@ -31,4 +31,10 @@ class CustomGameIcons {
   static const IconData elevation_medal = IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData elevation_trophy = IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData goals = IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData explore_medal = IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData explore_trophy = IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData location_medal = IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData location_trophy = IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData map_medal = IconData(0xe80d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData map_trophy = IconData(0xe80e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }
