@@ -5,7 +5,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -70,26 +72,35 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
-  void showDeleteDialog() {
-    showDialog(
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Fahrt löschen"),
-          content: const Text("Bitte bestätige, dass du diese Fahrt löschen möchtest."),
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt löschen',
+          text: "Bitte bestätige, dass du diese Fahrt löschen möchtest.",
+          icon: Icons.delete_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            TextButton(
-              child: const Text("Abbrechen"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Löschen"),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_forever_rounded,
+              fillColor: CI.red,
+              label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
                 Navigator.of(context).pop();
               },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+            BigButton(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
           ],
         );
@@ -118,6 +129,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
       child: Tile(
         onPressed: () => showAppSheet(
           context: context,
+          isScrollControlled: true,
           builder: (context) => TrackDetailsDialog(
               track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
         ),
@@ -167,7 +179,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 ),
               ),
               Positioned(
-                top: 10,
+                top: 13,
                 left: 10,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -176,7 +188,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     Text(
                       "$day.",
                       style: TextStyle(
-                        fontSize: 36,
+                        fontSize: widget.width * 0.17,
                         fontWeight: FontWeight.bold,
                         height: 0.9,
                         foreground: Paint()
@@ -191,18 +203,24 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                       ),
                     ),
                     const SmallHSpace(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "$monthName\n${year.toString()}",
-                          style: const TextStyle(
-                            fontSize: 11,
-                            height: 1.2,
-                          ),
+                    SizedBox(
+                      width: widget.width * 0.17,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "$monthName\n${year.toString()}",
+                              style: const TextStyle(
+                                fontSize: 11,
+                                height: 1.2,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -220,18 +238,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     ),
                   ),
                 ),
-              const Positioned(
-                bottom: 10,
-                right: 10,
-                child: Text(
-                  "Route",
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.2,
-                    color: CI.blue,
-                  ),
-                ),
-              ),
               if (routeNodes.isNotEmpty)
                 Positioned(
                   bottom: 10,
@@ -247,11 +253,23 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     ),
                   ),
                 ),
+              const Positioned(
+                bottom: 10,
+                right: 10,
+                child: Text(
+                  "Route",
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.2,
+                    color: CI.blue,
+                  ),
+                ),
+              ),
               Positioned(
                 right: 0,
                 top: 0,
                 child: IconButton(
-                  onPressed: () => showDeleteDialog(),
+                  onPressed: () => showDeleteDialog(context),
                   icon: Icon(
                     Icons.delete_rounded,
                     size: 22,
