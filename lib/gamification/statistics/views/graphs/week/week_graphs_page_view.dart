@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/views/detailed_stats.dart';
+import 'package:priobike/gamification/statistics/views/graphs/ride_graphs_page_view.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/main.dart';
 
-/// This widget shows detailed statistics for the last 10 weeks, using the [DetailedStatistics] widget.
-class DetailedWeekStats extends StatefulWidget {
-  final AnimationController rideListController;
+/// This widget shows detailed statistics for the last 10 weeks, using the [RideGraphsPageView] widget.
+class WeekGraphsPageView extends StatefulWidget {
+  final StatisticService statsService;
 
-  const DetailedWeekStats({Key? key, required this.rideListController}) : super(key: key);
+  const WeekGraphsPageView({Key? key, required this.statsService}) : super(key: key);
 
   @override
-  State<DetailedWeekStats> createState() => _DetailedWeekStatsState();
+  State<WeekGraphsPageView> createState() => _WeekGraphsPageViewState();
 }
 
-class _DetailedWeekStatsState extends State<DetailedWeekStats> {
-  static int numOfPages = 10;
+class _WeekGraphsPageViewState extends State<WeekGraphsPageView> {
+  static const int numOfPages = 10;
 
   late PageController pageController;
 
@@ -45,7 +44,6 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
   void createViewModels() {
     var today = DateTime.now();
     var weekStart = today.subtract(Duration(days: today.weekday - 1));
-    weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
     for (int i = 0; i < numOfPages; i++) {
       var tmpWeekStart = weekStart.subtract(Duration(days: 7 * i));
       var viewModel = WeekStatsViewModel(tmpWeekStart);
@@ -70,13 +68,12 @@ class _DetailedWeekStatsState extends State<DetailedWeekStats> {
   Widget build(BuildContext context) {
     if (viewModels.isEmpty) return const SizedBox.shrink();
     for (var vm in viewModels) {
-      vm.setRideInfoType(getIt<StatisticService>().rideInfo);
+      vm.setRideInfoType(widget.statsService.rideInfo);
     }
-    return DetailedStatistics(
+    return RideGraphsPageView(
       pageController: pageController,
       graphs: viewModels.map((vm) => WeekStatsGraph(viewModel: vm)).toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
-      rideListController: widget.rideListController,
     );
   }
 }

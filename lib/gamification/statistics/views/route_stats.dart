@@ -22,7 +22,7 @@ class RouteStatistics extends StatefulWidget {
 }
 
 class _RouteStatisticsState extends State<RouteStatistics> {
-  /// The associated profile service.
+  /// The associated goals service.
   late UserGoalsService _goalsService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -116,10 +116,24 @@ class _RouteStatisticsState extends State<RouteStatistics> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               BoldSubHeader(text: goals!.routeName, context: context),
-              RoutesInWeekWidget(
-                weekGoals: goals!.weekdays,
-                ridesInWeek: widget.viewModel.rides,
-                routeId: goals!.routeID,
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    stops: const [0.5, 0.9],
+                    colors: [
+                      Theme.of(context).colorScheme.background,
+                      Theme.of(context).colorScheme.background.withOpacity(0.25),
+                    ],
+                  ),
+                ),
+                child: RoutesInWeekWidget(
+                  weekGoals: goals!.weekdays,
+                  ridesInWeek: widget.viewModel.rides,
+                  routeId: goals!.routeID,
+                  buttonSize: 32,
+                ),
               ),
             ],
           ),
@@ -134,19 +148,21 @@ class RoutesInWeekWidget extends StatelessWidget {
   final String routeId;
   final List<bool> weekGoals;
   final List<RideSummary> ridesInWeek;
+  final double buttonSize;
 
   const RoutesInWeekWidget({
     Key? key,
     required this.weekGoals,
     required this.ridesInWeek,
     required this.routeId,
+    required this.buttonSize,
   }) : super(key: key);
 
   List<int> get weekPerformance {
     var performance = List.filled(DateTime.daysPerWeek, 0);
     for (int i = 0; i < DateTime.daysPerWeek; i++) {
       var ridesOnDay = ridesInWeek.where((ride) => ride.startTime.weekday == i + 1);
-      var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId == routeId);
+      var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId != routeId);
       performance[i] = ridesOnRoute.length;
     }
     return performance;
@@ -154,52 +170,39 @@ class RoutesInWeekWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          stops: const [0.5, 0.9],
-          colors: [
-            Theme.of(context).colorScheme.background,
-            Theme.of(context).colorScheme.background.withOpacity(0.25),
-          ],
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: weekGoals
-            .mapIndexed(
-              (i, isGoal) => Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: weekGoals
+          .mapIndexed(
+            (i, isGoal) => Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  height: buttonSize,
+                  width: buttonSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: weekPerformance[i] > 0 && isGoal
+                        ? CI.blue
+                        : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 0.1 : 0.05),
+                  ),
+                  child: Center(
+                    child: BoldSmall(
+                      text: '${weekPerformance[i]}/${isGoal ? '1' : '0'}',
+                      context: context,
                       color: weekPerformance[i] > 0 && isGoal
-                          ? CI.blue
-                          : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 0.1 : 0.05),
-                    ),
-                    child: Center(
-                      child: BoldSmall(
-                        text: '${weekPerformance[i]}/${isGoal ? '1' : '0'}',
-                        context: context,
-                        color: weekPerformance[i] > 0 && isGoal
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 1 : 0.25),
-                      ),
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 1 : 0.25),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  BoldContent(text: StringFormatter.getWeekStr(i), context: context)
-                ],
-              ),
-            )
-            .toList(),
-      ),
+                ),
+                const SizedBox(height: 4),
+                BoldContent(text: StringFormatter.getWeekStr(i), context: context)
+              ],
+            ),
+          )
+          .toList(),
     );
   }
 }

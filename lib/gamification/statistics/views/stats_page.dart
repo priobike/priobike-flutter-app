@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/custom_page.dart';
-import 'package:priobike/gamification/statistics/views/graphs/month/month_stats.dart';
-import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_stats.dart';
-import 'package:priobike/gamification/statistics/views/graphs/week/week_stats.dart';
+import 'package:priobike/gamification/statistics/views/graphs/month/month_graphs_page_view.dart';
+import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph_page_view.dart';
+import 'package:priobike/gamification/statistics/views/graphs/week/week_graphs_page_view.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/views/route_goals_history.dart';
 import 'package:priobike/main.dart';
 
 /// This view provides the user with detailed statistics about their ride history.
@@ -19,7 +21,6 @@ class StatisticsView extends StatefulWidget {
 }
 
 class _StatisticsViewState extends State<StatisticsView> with TickerProviderStateMixin {
-  late AnimationController _listAnimationController;
   late StatisticService _statService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -29,14 +30,12 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   void initState() {
     _statService = getIt<StatisticService>();
     _statService.addListener(update);
-    _listAnimationController = AnimationController(vsync: this, duration: ShortDuration());
     super.initState();
   }
 
   @override
   void dispose() {
     _statService.removeListener(update);
-    _listAnimationController.dispose();
     super.dispose();
   }
 
@@ -51,13 +50,13 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   /// Get ride statistic view according to stat interval.
   Widget getStatsViewFromInterval(StatInterval interval) {
     if (_statService.statInterval == StatInterval.weeks) {
-      return DetailedWeekStats(rideListController: _listAnimationController);
+      return WeekGraphsPageView(statsService: _statService, key: const ValueKey('week'));
     }
     if (_statService.statInterval == StatInterval.months) {
-      return DetailedMonthStats(rideListController: _listAnimationController);
+      return MonthGraphsPageView(statsService: _statService, key: const ValueKey('month'));
     }
     if (_statService.statInterval == StatInterval.multipleWeeks) {
-      return DetailedMultipleWeekStats(rideListController: _listAnimationController);
+      return MultipleWeeksGraphsPageView(statsService: _statService, key: const ValueKey('multiWeeks'));
     }
     return const SizedBox.shrink();
   }
@@ -94,32 +93,63 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
     );
   }
 
-  Widget getButtonRow() {
-    return Container(
-      color: Theme.of(context).colorScheme.background,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: StatInterval.values.map((interval) => IntervalSelectionButton(interval: interval)).toList(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return CustomPage(
-      title: 'Fahrtstatistiken',
-      backButtonCallback: () async {
-        _listAnimationController.duration = ShortDuration();
-        _listAnimationController.reverse();
-        if (!mounted) return;
-        Future.delayed(ShortDuration()).then((_) => Navigator.of(context).pop());
-      },
-      content: Column(
-        children: [
-          getButtonRow(),
-          getStatsViewFromInterval(_statService.statInterval),
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const SmallVSpace(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 0.5,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
+                      ),
+                    ),
+                    child: AppBackButton(
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                  const HSpace(),
+                  SubHeader(
+                    text: 'Statistiken',
+                    context: context,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              const SmallVSpace(),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: StatInterval.values.map((interval) => IntervalSelectionButton(interval: interval)).toList(),
+              ),
+              Expanded(child: Container()),
+              AnimatedSwitcher(
+                duration: TinyDuration(),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+                child: getStatsViewFromInterval(_statService.statInterval),
+              ),
+              Expanded(child: Container()),
+              const RouteGoalsHistory(),
+            ],
+          ),
+        ),
       ),
     );
   }
