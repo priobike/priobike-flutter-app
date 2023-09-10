@@ -129,16 +129,24 @@ abstract class ChallengeService with ChangeNotifier {
     return now.isBefore(challenge.closingTime);
   }
 
-  /// If the current challenge is null, generate a new challenge.
-  Future<List<Challenge>?> generateChallenge() async {
+  /// If the current challenge is null, generate new challenges.
+  Future<List<Challenge>?> generateChallengeChoices() async {
     if (_currentChallenge != null) return null;
     _challengeChoices.clear();
     // Generate as many challenges, as choices are allowed for the user.
-    for (int i = 0; i < _numberOfChoices; i++) {
-      var newChallenge = await _dao.createObject(_generator.generate());
-      if (newChallenge != null) _challengeChoices.add(newChallenge);
+    var newChallenges = _generator.generateChallenges(_numberOfChoices);
+    for (var c in newChallenges) {
+      var challenge = await _dao.createObject(c);
+      if (challenge != null) _challengeChoices.add(challenge);
     }
-    if (_challengeChoices.length != _numberOfChoices) throw Exception("Couldn't generate new challenge.");
+    // If something went wrong, delete generated challenges and return null.
+    if (_challengeChoices.length != _numberOfChoices) {
+      for (var c in _challengeChoices) {
+        await _dao.deleteObject(c);
+      }
+      _challengeChoices.clear();
+      return null;
+    }
     // Return challenge choices to user.
     return _challengeChoices;
   }

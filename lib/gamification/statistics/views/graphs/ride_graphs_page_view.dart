@@ -4,6 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/services/test.dart';
 import 'package:priobike/main.dart';
 
 /// This widget contains a number of graphs, displaying ride statistics, in a page view.
@@ -24,10 +25,10 @@ class RideGraphsPageView extends StatelessWidget {
   }) : super(key: key);
 
   /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
-  Widget getRideInfoButton(RideInfo rideInfoType, var context) {
+  Widget getRideInfoButton(StatType rideInfoType, var context) {
     double value = getIt<StatisticService>().isTypeSelected(rideInfoType) ? 1 : 0;
     return AnimatedButton(
-      onPressed: () => getIt<StatisticService>().setRideInfo(rideInfoType),
+      onPressed: () => getIt<StatisticService>().setStatType(rideInfoType),
       child: Stack(
         children: [
           Center(
@@ -53,7 +54,7 @@ class RideGraphsPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var isSpeed = currentViewModel.rideInfoType == RideInfo.averageSpeed;
+    var isSpeed = true;
     var barSelected = currentViewModel.selectedIndex != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +87,9 @@ class RideGraphsPageView extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: (barSelected || isSpeed)
-                          ? []
+                          ? (barSelected)
+                              ? []
+                              : []
                           : [
                               BoldSmall(
                                 text: 'GESAMT',
@@ -127,9 +130,9 @@ class RideGraphsPageView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    getRideInfoButton(RideInfo.distance, context),
-                    getRideInfoButton(RideInfo.duration, context),
-                    getRideInfoButton(RideInfo.averageSpeed, context),
+                    getRideInfoButton(StatType.distance, context),
+                    getRideInfoButton(StatType.duration, context),
+                    getRideInfoButton(StatType.speed, context),
                   ],
                 ),
               ),

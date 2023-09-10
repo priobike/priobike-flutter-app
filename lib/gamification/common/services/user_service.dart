@@ -7,6 +7,7 @@ import 'package:priobike/gamification/common/database/model/ride_summary/ride_su
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/models/user_profile.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/services/test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages and provides the values of the gamification user profile, including the users' settings.
@@ -90,11 +91,11 @@ class GamificationUserService with ChangeNotifier {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
     // Update profile statistics according to rides.
-    _profile!.totalDistanceKilometres = Utils.getOverallValueFromSummaries(rides, RideInfo.distance);
-    _profile!.totalDurationMinutes = Utils.getOverallValueFromSummaries(rides, RideInfo.duration);
-    _profile!.totalElevationGainMetres = Utils.getOverallValueFromSummaries(rides, RideInfo.elevationGain);
-    _profile!.totalElevationLossMetres = Utils.getOverallValueFromSummaries(rides, RideInfo.elevationLoss);
-    _profile!.averageSpeedKmh = Utils.getOverallValueFromSummaries(rides, RideInfo.averageSpeed);
+    _profile!.totalDistanceKilometres = Utils.getOverallValueFromSummaries(rides, StatType.distance);
+    _profile!.totalDurationMinutes = Utils.getOverallValueFromSummaries(rides, StatType.duration);
+    _profile!.totalElevationGainMetres = Utils.getOverallValueFromSummaries(rides, StatType.elevationGain);
+    _profile!.totalElevationLossMetres = Utils.getOverallValueFromSummaries(rides, StatType.elevationLoss);
+    _profile!.averageSpeedKmh = Utils.getOverallValueFromSummaries(rides, StatType.speed);
     updateProfile();
   }
 

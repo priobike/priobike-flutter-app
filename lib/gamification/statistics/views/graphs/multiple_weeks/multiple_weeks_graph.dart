@@ -2,42 +2,34 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/services/test.dart';
 import 'package:priobike/gamification/statistics/views/graphs/custom_bar_graph.dart';
 
 /// Displayes ride statistics for a single week. The data is obtained from a given [MultipleWeeksStatsViewModel].
 class MultipleWeeksStatsGraph extends StatelessWidget {
-  final MultipleWeeksStatsViewModel viewModel;
+  final Function(DateTime? date) onSelection;
+
+  final List<WeekStats> weeks;
+
+  final StatType type;
+
+  final int? selectedIndex;
 
   const MultipleWeeksStatsGraph({
     Key? key,
-    required this.viewModel,
+    required this.onSelection,
+    required this.weeks,
+    required this.type,
+    required this.selectedIndex,
   }) : super(key: key);
 
-  Widget getTitlesX(double value, TitleMeta meta, BuildContext context, TextStyle style) {
-    var today = DateTime.now();
-    var difference = today.difference(viewModel.rideMap.keys.elementAt(value.toInt())).inDays;
-    var todayInWeek = difference < 7;
+  Widget getTitlesX(double value, TitleMeta meta, TextStyle style) {
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
-      child: Column(
-        children: [
-          Text(
-            StringFormatter.getShortDateStr(viewModel.rideMap.keys.elementAt(value.toInt())),
-            style: todayInWeek ? style.copyWith(fontWeight: FontWeight.bold) : style,
-          ),
-          !todayInWeek
-              ? const SizedBox.shrink()
-              : SizedBox.fromSize(
-                  size: const Size(32, 3),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(3)),
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-        ],
+      child: Text(
+        StringFormatter.getShortDateStr(weeks.elementAt(value.toInt()).mondayDate),
+        style: style,
       ),
     );
   }
@@ -46,11 +38,12 @@ class MultipleWeeksStatsGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomBarGraph(
       barColor: Theme.of(context).colorScheme.primary,
-      yValues: viewModel.yValues,
       barWidth: 30,
-      selectedBar: viewModel.selectedIndex,
-      getTitlesX: (value, meta) => getTitlesX(value, meta, context, Theme.of(context).textTheme.labelSmall!),
-      onTap: (int? index) => viewModel.setSelectedIndex(index),
+      selectedBar: selectedIndex,
+      getTitlesX: (value, meta) => getTitlesX(value, meta, Theme.of(context).textTheme.labelSmall!),
+      onTap: (i) => onSelection(i == null ? null : weeks.elementAt(i).mondayDate),
+      rideStats: ListOfRideStats<WeekStats>(weeks),
+      statType: type,
     );
   }
 }

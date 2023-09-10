@@ -10,6 +10,7 @@ import 'package:priobike/gamification/common/views/feature_view.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/services/test.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
@@ -47,14 +48,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
   /// Controller which connects the tab indicator to the page view.
   late final TabController tabController = TabController(length: 4, vsync: this);
 
-  late WeekStatsViewModel weekStatsViewModel;
-
-  late MonthStatsViewModel monthStatsViewModel;
-
-  late MultipleWeeksStatsViewModel multiWeeksStatsViewModel;
-
-  List<StatsForTimeFrameViewModel> get viewModels =>
-      [weekStatsViewModel, monthStatsViewModel, multiWeeksStatsViewModel];
+  late final StatisticsViewModel viewModel;
 
   late StatisticService _statsService;
 
@@ -71,9 +65,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
     _statsService.removeListener(update);
     tabController.dispose();
     pageController.dispose();
-    for (var vm in viewModels) {
-      vm.endStreams();
-    }
+    viewModel.dispose();
     super.dispose();
   }
 
@@ -95,16 +87,8 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
   void initGraphViewModels() {
     var today = DateTime.now();
     today = DateTime(today.year, today.month, today.day);
-    var thisWeeksStart = today.subtract(Duration(days: today.weekday - 1));
-    weekStatsViewModel = WeekStatsViewModel(thisWeeksStart);
-    monthStatsViewModel = MonthStatsViewModel(today.year, today.month);
-    multiWeeksStatsViewModel = MultipleWeeksStatsViewModel(thisWeeksStart, 5);
-
-    /// Listen to changes in the viewmodels and rebuilt widget if necessary.
-    for (var vm in viewModels) {
-      vm.startStreams();
-      vm.addListener(update);
-    }
+    var statsStartDate = today.subtract(const Duration(days: 5 * DateTime.daysPerWeek));
+    viewModel = StatisticsViewModel(startDate: statsStartDate, endDate: today);
   }
 
   Widget getGraphWithTitle({required String title, required Widget graph}) {
@@ -153,17 +137,32 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
                   children: [
                     getGraphWithTitle(
                       title: 'Diese Woche',
-                      graph: WeekStatsGraph(viewModel: weekStatsViewModel),
+                      graph: WeekStatsGraph(
+                        onSelection: _statsService.setSelectedDate,
+                        week: viewModel.weeks.last,
+                        type: _statsService.rideInfo,
+                        selectedIndex: null,
+                      ),
                     ),
                     getGraphWithTitle(
                       title: 'Dieser Monat',
-                      graph: MonthStatsGraph(viewModel: monthStatsViewModel),
+                      graph: MonthStatsGraph(
+                        onSelection: _statsService.setSelectedDate,
+                        month: viewModel.months.last,
+                        type: _statsService.rideInfo,
+                        selectedIndex: null,
+                      ),
                     ),
                     getGraphWithTitle(
                       title: '5 Wochen Rückblick',
-                      graph: MultipleWeeksStatsGraph(viewModel: multiWeeksStatsViewModel),
+                      graph: MultipleWeeksStatsGraph(
+                        onSelection: _statsService.setSelectedDate,
+                        weeks: viewModel.weeks,
+                        type: _statsService.rideInfo,
+                        selectedIndex: null,
+                      ),
                     ),
-                    RouteStatistics(viewModel: weekStatsViewModel),
+                    //RouteStatistics(viewModel: weekStatsViewModel),
                   ],
                 ),
               ),

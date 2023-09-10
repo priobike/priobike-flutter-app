@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/services/test.dart';
 import 'package:priobike/main.dart';
 
 class OverallStatistics extends StatefulWidget {
@@ -85,27 +85,27 @@ class _OverallStatisticsState extends State<OverallStatistics> {
             children: [
               getStatWidget(
                 Icons.directions_bike,
-                StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, RideInfo.distance),
+                StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, StatType.distance),
                 'km',
               ),
               getStatWidget(
                 Icons.timer,
-                StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, RideInfo.duration),
+                StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, StatType.duration),
                 'min',
               ),
               getStatWidget(
                 Icons.speed,
-                'ø${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, RideInfo.averageSpeed)}',
+                'ø${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, StatType.speed)}',
                 'km/h',
               ),
               getStatWidget(
                 Icons.arrow_upward,
-                StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, RideInfo.elevationGain),
+                StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, StatType.elevationGain),
                 'm',
               ),
               getStatWidget(
                 Icons.arrow_downward,
-                StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, RideInfo.elevationLoss),
+                StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, StatType.elevationLoss),
                 'm',
               ),
             ],

@@ -44,7 +44,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
   @override
   void dispose() {
     for (var vm in viewModels) {
-      vm.endStreams();
+      vm.dispose();
     }
     _goalsService.removeListener(update);
     super.dispose();
@@ -56,7 +56,6 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
     for (int i = 0; i < numOfPages; i++) {
       var tmpWeekStart = weekStart.subtract(Duration(days: 7 * i));
       var viewModel = WeekStatsViewModel(tmpWeekStart);
-      viewModel.startStreams();
       viewModel.addListener(() => update());
       viewModels.add(viewModel);
     }

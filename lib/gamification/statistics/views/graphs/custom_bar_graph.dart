@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/statistics/services/test.dart';
 
 /// This widget displays a simple bar graph for given yValues.
 class CustomBarGraph extends StatelessWidget {
@@ -12,10 +11,9 @@ class CustomBarGraph extends StatelessWidget {
   /// Function which handles a user tap on the graph. If the user tapped a bar, the index is not null.
   final Function(int? index) onTap;
 
-  /// The displayed y values of the bars.
-  final List<double> yValues;
+  final ListOfRideStats rideStats;
 
-  final double? goalValue;
+  final StatType statType;
 
   /// The preffered width of the bars.
   final double barWidth;
@@ -30,37 +28,38 @@ class CustomBarGraph extends StatelessWidget {
     Key? key,
     required this.getTitlesX,
     required this.onTap,
-    required this.yValues,
+    required this.rideStats,
     required this.barWidth,
     required this.barColor,
     this.selectedBar,
-    this.goalValue,
+    required this.statType,
   }) : super(key: key);
 
   /// Get list of bars according to the given values.
   List<BarChartGroupData> getBars(Color onBackground) {
-    return yValues.mapIndexed((i, y) {
-      var barColorOpacity = 1.0;
+    return rideStats.list.mapIndexed((i, stat) {
+      var value = stat.getStatFromType(statType);
       var selected = selectedBar != null && selectedBar == i;
-      var goalReached = goalValue == null ? true : y >= goalValue!;
+      var goalForBar = stat.getGoalFromType(statType);
+      var goalReached = goalForBar == null ? true : value >= goalForBar;
+      var barColorOpacity = goalReached ? 1.0 : 0.4;
       if (selectedBar != null) {
-        barColorOpacity = selected ? 1 : 0.2;
-      } else {
-        barColorOpacity = goalReached ? 1 : 0.4;
+        barColorOpacity = selected ? 1.0 : 0.2;
       }
+
       return BarChartGroupData(
         x: i,
         barRods: [
           BarChartRodData(
-            toY: y,
+            toY: value,
             color: barColor.withOpacity(barColorOpacity),
             width: barWidth,
-            borderSide: selected ? BorderSide(color: onBackground, width: 1) : null,
+            borderSide: selected ? BorderSide(color: onBackground.withOpacity(0.5), width: 1) : null,
             backDrawRodData: goalReached
                 ? null
                 : BackgroundBarChartRodData(
                     show: true,
-                    toY: goalValue,
+                    toY: goalForBar,
                     color: onBackground.withOpacity(0.05),
                   ),
           ),
@@ -70,10 +69,9 @@ class CustomBarGraph extends StatelessWidget {
   }
 
   /// Get fitting max value for a given list of values.
-  double getFittingMax(List<double> values) {
-    if (values.isEmpty) return goalValue ?? 0;
-    var num = max(values.max, goalValue ?? 0);
-    if (num == 0) return goalValue ?? 0;
+  double getFittingMax() {
+    var num = rideStats.getMaxForType(statType);
+    if (num == 0) return 1;
     if (num <= 5) return num;
     if (num <= 10) return num.ceilToDouble();
     if (num <= 50) return roundUpToInterval(num, 5);
@@ -124,7 +122,7 @@ class CustomBarGraph extends StatelessWidget {
               ),
             ),
           ),
-          maxY: getFittingMax(yValues),
+          maxY: getFittingMax(),
           gridData: FlGridData(drawVerticalLine: false),
           barGroups: getBars(Theme.of(context).colorScheme.onBackground),
         ),

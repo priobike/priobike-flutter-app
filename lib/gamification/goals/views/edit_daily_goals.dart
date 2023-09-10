@@ -1,7 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
 import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
+import 'package:priobike/gamification/goals/views/weekday_button.dart';
 import 'package:priobike/main.dart';
 
 class EditDailyGoalsView extends StatefulWidget {
@@ -36,20 +39,41 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
     var goals = _goalsService.dailyGoals;
     var distanceGoal = goals.distanceMetres / 1000;
     var durationGoal = goals.durationMinutes;
+    var noDaysSelected = goals.weekdays.where((day) => day).isEmpty;
     return Column(
       children: [
+        const VSpace(),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: goals.weekdays
+              .mapIndexed(
+                (i, day) => WeekdayButton(
+                  label: StringFormatter.getWeekStr(i),
+                  onPressed: () {
+                    goals.weekdays[i] = !goals.weekdays[i];
+                    goals.weekdays = goals.weekdays;
+                    _goalsService.updateDailyGoals(goals);
+                  },
+                  selected: day,
+                ),
+              )
+              .toList(),
+        ),
         const VSpace(),
         EditGoalWidget(
           title: 'Distanz',
           value: distanceGoal,
-          min: 0.5,
-          max: 40,
-          stepSize: 0.5,
+          min: 1,
+          max: 80,
+          stepSize: 1,
           valueLabel: 'km',
-          onChanged: (value) {
-            goals.distanceMetres = value * 1000;
-            _goalsService.updateDailyGoals(goals);
-          },
+          onChanged: noDaysSelected
+              ? null
+              : (value) {
+                  goals.distanceMetres = value * 1000;
+                  _goalsService.updateDailyGoals(goals);
+                },
           valueAsInt: false,
         ),
         const VSpace(),
@@ -60,10 +84,12 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           max: 600,
           stepSize: 10,
           valueLabel: 'min',
-          onChanged: (value) {
-            goals.durationMinutes = value;
-            _goalsService.updateDailyGoals(goals);
-          },
+          onChanged: noDaysSelected
+              ? null
+              : (value) {
+                  goals.durationMinutes = value;
+                  _goalsService.updateDailyGoals(goals);
+                },
         ),
         const VSpace(),
       ],

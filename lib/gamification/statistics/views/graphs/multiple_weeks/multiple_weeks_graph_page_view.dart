@@ -3,7 +3,6 @@ import 'package:priobike/gamification/statistics/views/graphs/ride_graphs_page_v
 import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/main.dart';
 
 /// This widget shows detailed statistics for the last 5  5-week intervals, using the [RideGraphsPageView] widget.
 class MultipleWeeksGraphsPageView extends StatefulWidget {
@@ -36,7 +35,7 @@ class _MultipleWeeksGraphsPageViewState extends State<MultipleWeeksGraphsPageVie
   @override
   void dispose() {
     for (var vm in viewModels) {
-      vm.endStreams();
+      vm.dispose();
     }
     pageController.dispose();
     super.dispose();
@@ -48,7 +47,6 @@ class _MultipleWeeksGraphsPageViewState extends State<MultipleWeeksGraphsPageVie
     weekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
     for (int i = 0; i < numOfPages; i++) {
       var viewModel = MultipleWeeksStatsViewModel(weekStart, 5);
-      viewModel.startStreams();
       viewModel.addListener(() => update());
       viewModels.add(viewModel);
       weekStart = weekStart.subtract(const Duration(days: 7 * numOfPages));
@@ -69,12 +67,9 @@ class _MultipleWeeksGraphsPageViewState extends State<MultipleWeeksGraphsPageVie
   @override
   Widget build(BuildContext context) {
     if (viewModels.isEmpty) return const SizedBox.shrink();
-    for (var vm in viewModels) {
-      vm.setRideInfoType(widget.statsService.rideInfo);
-    }
     return RideGraphsPageView(
       pageController: pageController,
-      graphs: viewModels.map((vm) => MultipleWeeksStatsGraph(viewModel: vm)).toList(),
+      graphs: [], // viewModels.map((vm) => MultipleWeeksStatsGraph(viewModel: vm)).toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
     );
   }

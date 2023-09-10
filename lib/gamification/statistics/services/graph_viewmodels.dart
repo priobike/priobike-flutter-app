@@ -5,12 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/goals/models/daily_goals.dart';
+import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/statistics/services/test.dart';
+import 'package:priobike/main.dart';
 
 /// View model for a ride stats in a certain time frame.
 abstract class StatsForTimeFrameViewModel with ChangeNotifier {
   /// Ride DAO required to load the rides from the db.
   final RideSummaryDao rideDao = AppDatabase.instance.rideSummaryDao;
+
+  final UserGoalsService goalsService = getIt<UserGoalsService>();
 
   /// List of database streams to gather the managed rides from.
   final List<Stream<List<RideSummary>>> _streams = [];
@@ -23,12 +28,7 @@ abstract class StatsForTimeFrameViewModel with ChangeNotifier {
   List<double> get yValues => _yValues;
 
   /// Determines which of the ride values should be displayed by a graph connected to the view model.
-  RideInfo _rideInfoType = RideInfo.distance;
-  RideInfo get rideInfoType => _rideInfoType;
-  void setRideInfoType(RideInfo type) {
-    _rideInfoType = type;
-    updateValues();
-  }
+  StatType _rideInfoType = StatType.distance;
 
   /// Index of a selected y value.
   int? _selectedIndex;
@@ -39,18 +39,19 @@ abstract class StatsForTimeFrameViewModel with ChangeNotifier {
   }
 
   /// Start all streams in currents stream list and update values when an update comes in.
-  void startStreams() {
+  void _startStreams() {
     _streams.forEachIndexed((i, stream) => stream.listen((update) {
           updateValues(update: update, index: i);
           notifyListeners();
         }));
   }
 
-  /// Cancel all active stream subscriptions.
-  void endStreams() {
+  @override
+  void dispose() {
     for (var sub in _streamSubs) {
       sub.cancel();
     }
+    super.dispose();
   }
 
   /// Return overall value of current yValues. This value is either the sum, or the average, if the displayed
@@ -75,19 +76,28 @@ abstract class StatsForTimeFrameViewModel with ChangeNotifier {
 
   /// Returns average of the yValues as a formatted string according to the ride info type.
   String get valuesAverage {
-    var valuesToBeAveraged = _rideInfoType == RideInfo.averageSpeed ? yValues.where((val) => val > 0) : yValues;
+    var valuesToBeAveraged = _rideInfoType == StatType.speed ? yValues.where((val) => val > 0) : yValues;
     var average = valuesToBeAveraged.isEmpty ? 0.0 : valuesToBeAveraged.average;
     return StringFormatter.getFormattedStrByRideType(average, _rideInfoType);
   }
 
-  /// Returns either all rides or, if the selected index is not null, only the ones corresponding to the selected index.
-  List<RideSummary> get selectedOrAllRides => _selectedIndex == null ? allRides : selectedRides;
+  List<double?> mapGoalsToValues(DailyGoals goals) => mapGoalsToDays(goals);
+
+  List<double?> mapGoalsToDays(DailyGoals goals) {
+    return daysInTimeFrame.map((day) {
+      var hasGoal = goals.weekdays.elementAt(day.weekday - 1);
+      if (hasGoal) {
+        if (_rideInfoType == StatType.distance) return goals.distanceMetres / 1000;
+        if (_rideInfoType == StatType.duration) return goals.durationMinutes;
+      }
+      return null;
+    }).toList();
+  }
 
   /// Return list of all rides in the time frame.
   List<RideSummary> get allRides;
 
-  /// Returns all rides corresponding to the selected index.
-  List<RideSummary> get selectedRides;
+  List<DateTime> get daysInTimeFrame;
 
   /// Return string describing the time intervall of all displayed rides, or only the rides of the selected bar.
   String get rangeOrSelectedDateStr => (_selectedIndex == null) ? rangeStr : selectedDateStr;
@@ -111,10 +121,11 @@ class WeekStatsViewModel extends StatsForTimeFrameViewModel {
   List<RideSummary> _rides = [];
   List<RideSummary> get rides => _rides;
 
-  WeekStatsViewModel(this.startDay) {
+  WeekStatsViewModel(this.startDay) : super() {
     // Intitalize yValues as a list of zeros and a stream for rides in the displayed week.
     _yValues = List.filled(7, 0);
     _streams.add(rideDao.streamRidesInWeek(startDay));
+    _startStreams();
   }
 
   @override
@@ -124,7 +135,7 @@ class WeekStatsViewModel extends StatsForTimeFrameViewModel {
     for (int i = 0; i < 7; i++) {
       var weekDay = startDay.add(Duration(days: i)).day;
       var ridesOnDay = rides.where((ride) => ride.startTime.day == weekDay);
-      _yValues[i] = Utils.getOverallValueFromSummaries(ridesOnDay.toList(), rideInfoType);
+      _yValues[i] = Utils.getOverallValueFromSummaries(ridesOnDay.toList(), _rideInfoType);
     }
   }
 
@@ -139,6 +150,15 @@ class WeekStatsViewModel extends StatsForTimeFrameViewModel {
 
   @override
   String get selectedDateStr => StringFormatter.getDateStr(startDay.add(Duration(days: selectedIndex!)));
+
+  @override
+  List<DateTime> get daysInTimeFrame {
+    List<DateTime> days = [];
+    for (int i = 0; i < DateTime.daysPerWeek; i++) {
+      days.add(startDay.add(Duration(days: i)));
+    }
+    return days;
+  }
 }
 
 /// View model for a rides in a single month.
@@ -155,11 +175,14 @@ class MonthStatsViewModel extends StatsForTimeFrameViewModel {
   /// Number of days the displayed month has.
   int numberOfDays = 0;
 
-  MonthStatsViewModel(this.year, this.month) : firstDay = DateTime(year, month) {
+  MonthStatsViewModel(this.year, this.month)
+      : firstDay = DateTime(year, month),
+        super() {
     // Calculate number of days and intialize yValues as zeros and a stream of rides in the given month.
     numberOfDays = getNumberOfDays();
     _yValues = List.filled(numberOfDays, 0);
     _streams.add(rideDao.streamRidesInMonth(year, month));
+    _startStreams();
   }
 
   @override
@@ -167,7 +190,8 @@ class MonthStatsViewModel extends StatsForTimeFrameViewModel {
     if (update != null) _rides = update;
     // For each day in the month, save sum of ride info values on that day.
     for (int i = 0; i < numberOfDays; i++) {
-      _yValues[i] = Utils.getOverallValueFromSummaries(rides.where((r) => r.startTime.day == i).toList(), rideInfoType);
+      var ridesOnDay = rides.where((r) => r.startTime.day - 1 == i).toList();
+      _yValues[i] = Utils.getOverallValueFromSummaries(ridesOnDay, _rideInfoType);
     }
   }
 
@@ -188,7 +212,17 @@ class MonthStatsViewModel extends StatsForTimeFrameViewModel {
   String get rangeStr => StringFormatter.getMonthAndYearStr(month, year);
 
   @override
-  String get selectedDateStr => '$selectedIndex. ${StringFormatter.getMonthAndYearStr(month, year)}';
+  String get selectedDateStr =>
+      '${selectedIndex == null ? null : selectedIndex! + 1}. ${StringFormatter.getMonthAndYearStr(month, year)}';
+
+  @override
+  List<DateTime> get daysInTimeFrame {
+    List<DateTime> days = [];
+    for (int i = 0; i < numberOfDays; i++) {
+      days.add(firstDay.add(Duration(days: i)));
+    }
+    return days;
+  }
 }
 
 /// View model for rides in multiple weeks.
@@ -203,7 +237,7 @@ class MultipleWeeksStatsViewModel extends StatsForTimeFrameViewModel {
   final Map<DateTime, List<RideSummary>> _rideMap = {};
   Map<DateTime, List<RideSummary>> get rideMap => _rideMap;
 
-  MultipleWeeksStatsViewModel(this.lastWeekStartDay, this.numOfWeeks) {
+  MultipleWeeksStatsViewModel(this.lastWeekStartDay, this.numOfWeeks) : super() {
     _yValues = [];
     // Create map containing all the start days of the weeks to be displayed.
     var tmpStartDay = lastWeekStartDay;
@@ -217,6 +251,7 @@ class MultipleWeeksStatsViewModel extends StatsForTimeFrameViewModel {
     for (var key in _rideMap.keys) {
       _streams.add(rideDao.streamRidesInWeek(key));
     }
+    _startStreams();
   }
 
   @override
@@ -224,8 +259,8 @@ class MultipleWeeksStatsViewModel extends StatsForTimeFrameViewModel {
     // Update rides in map according to given stream index.
     if (update != null && index != null) _rideMap[_rideMap.keys.elementAt(index)] = update;
     // Update yValues as sum of ride info values for each week in the ride map.
-    _rideMap.values
-        .forEachIndexed((i, ridesInWeek) => yValues[i] = Utils.getOverallValueFromSummaries(ridesInWeek, rideInfoType));
+    _rideMap.values.forEachIndexed(
+        (i, ridesInWeek) => yValues[i] = Utils.getOverallValueFromSummaries(ridesInWeek, _rideInfoType));
   }
 
   @override
@@ -245,5 +280,37 @@ class MultipleWeeksStatsViewModel extends StatsForTimeFrameViewModel {
     if (rideMap.keys.isEmpty) return '';
     var currentWeekFirstDay = rideMap.keys.elementAt(selectedIndex!);
     return StringFormatter.getFromToDateStr(currentWeekFirstDay, currentWeekFirstDay.add(const Duration(days: 6)));
+  }
+
+  @override
+  List<DateTime> get daysInTimeFrame {
+    List<DateTime> days = [];
+    for (var weekStart in _rideMap.keys) {
+      for (int i = 0; i < DateTime.daysPerWeek; i++) {
+        days.add(weekStart.add(Duration(days: i)));
+      }
+    }
+    return days;
+  }
+
+  @override
+  List<double?> mapGoalsToValues(DailyGoals goals) {
+    List<double?> goalsForWeeks = [];
+    var goalsForDays = mapGoalsToDays(goals);
+    for (int i = 0; i < numOfWeeks; i++) {
+      double? goalSum;
+      for (int e = 0; e < DateTime.daysPerWeek; e++) {
+        var goalOnDay = goalsForDays[i * DateTime.daysPerWeek + e];
+        if (goalOnDay != null) {
+          if (goalSum == null) {
+            goalSum = goalOnDay;
+          } else {
+            goalSum += goalOnDay;
+          }
+        }
+      }
+      goalsForWeeks.add(goalSum);
+    }
+    return goalsForWeeks;
   }
 }

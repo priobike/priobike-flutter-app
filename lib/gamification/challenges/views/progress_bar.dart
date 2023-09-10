@@ -147,7 +147,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     }
     // If there is no challenge, but the service allows a new one, generate a new one.
     else if (challenge == null && service.allowNew) {
-      var result = await service.generateChallenge();
+      var result = await service.generateChallengeChoices();
       if (result != null) {
         await _showChallengeSelection(result);
       }

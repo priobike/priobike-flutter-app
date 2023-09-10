@@ -35,7 +35,7 @@ class _WeekGraphsPageViewState extends State<WeekGraphsPageView> {
   @override
   void dispose() {
     for (var vm in viewModels) {
-      vm.endStreams();
+      vm.dispose();
     }
     pageController.dispose();
     super.dispose();
@@ -47,7 +47,6 @@ class _WeekGraphsPageViewState extends State<WeekGraphsPageView> {
     for (int i = 0; i < numOfPages; i++) {
       var tmpWeekStart = weekStart.subtract(Duration(days: 7 * i));
       var viewModel = WeekStatsViewModel(tmpWeekStart);
-      viewModel.startStreams();
       viewModel.addListener(() => update());
       viewModels.add(viewModel);
     }
@@ -67,12 +66,9 @@ class _WeekGraphsPageViewState extends State<WeekGraphsPageView> {
   @override
   Widget build(BuildContext context) {
     if (viewModels.isEmpty) return const SizedBox.shrink();
-    for (var vm in viewModels) {
-      vm.setRideInfoType(widget.statsService.rideInfo);
-    }
     return RideGraphsPageView(
       pageController: pageController,
-      graphs: viewModels.map((vm) => WeekStatsGraph(viewModel: vm)).toList(),
+      graphs: [], // viewModels.map((vm) => WeekStatsGraph(viewModel: vm)).toList(),
       currentViewModel: viewModels.elementAt(displayedPageIndex),
     );
   }
