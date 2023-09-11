@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AnimatedButton extends StatefulWidget {
+/// A child wrapped by this widget is animated and gives haptic feedback when pressed, if the callback is not null.
+class OnTabAnimation extends StatefulWidget {
+  /// The child wrapped by this widget.
   final Widget child;
 
+  /// The callback function for when the widget is pressed.
   final Function()? onPressed;
 
+  /// The scale factor with which the animation should happen.
   final double scaleFactor;
 
+  /// Whether the widget should register a new click, while it is animating.
   final bool blockFastClicking;
 
-  const AnimatedButton({
+  const OnTabAnimation({
     Key? key,
     required this.child,
     this.onPressed,
@@ -19,11 +24,15 @@ class AnimatedButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AnimatedButton> createState() => _AnimatedButtonState();
+  State<OnTabAnimation> createState() => _OnTabAnimationState();
 }
 
-class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProviderStateMixin {
+class _OnTabAnimationState extends State<OnTabAnimation> with SingleTickerProviderStateMixin {
+  /// Controller which controls the on pressed scale animation of the widget.
   late final AnimationController _animationController;
+
+  /// True, if clicks on the widget should be blocked.
+  bool blocked = false;
 
   @override
   void initState() {
@@ -40,8 +49,6 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
     _animationController.dispose();
     super.dispose();
   }
-
-  bool blocked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +73,13 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
       },
       onTapCancel: () => _animationController.reverse(),
       child: ScaleTransition(
-        scale: Tween<double>(begin: 1, end: widget.scaleFactor)
-            .animate(CurvedAnimation(parent: _animationController, curve: Curves.easeIn)),
+        scale: Tween<double>(
+          begin: 1,
+          end: widget.scaleFactor,
+        ).animate(CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.easeIn,
+        )),
         child: widget.child,
       ),
     );

@@ -6,6 +6,7 @@ import 'package:priobike/gamification/challenges/utils/challenge_generator.dart'
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
+/// Dialog which displays a single challenge to the user. 
 class SingleChallengeDialog extends StatelessWidget {
   final Challenge challenge;
   final bool isWeekly;

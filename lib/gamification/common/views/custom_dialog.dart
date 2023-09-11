@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/utils.dart';
 
+/// A dialog widget to be used with the showDialog function and which shows a dialog with given content in a uniform style.
 class CustomDialog extends StatefulWidget {
+  /// The content of the dialog widget.
   final Widget content;
 
   const CustomDialog({Key? key, required this.content}) : super(key: key);
@@ -13,10 +15,6 @@ class CustomDialog extends StatefulWidget {
 class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderStateMixin {
   /// Animation controller to animate the dialog appearing.
   late final AnimationController _animationController;
-
-  /// Animation to
-  Animation<double> get animation => Tween<double>(begin: 0, end: 1)
-      .animate(CurvedAnimation(parent: _animationController, curve: Curves.fastLinearToSlowEaseIn));
 
   @override
   void initState() {
@@ -35,7 +33,10 @@ class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     var lightmode = Theme.of(context).brightness == Brightness.light;
     return ScaleTransition(
-      scale: animation,
+      scale: Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastLinearToSlowEaseIn,
+      )),
       child: Center(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 32),

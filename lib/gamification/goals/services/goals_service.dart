@@ -7,25 +7,33 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// This service manages the users goal setting.
 class GoalsService with ChangeNotifier {
+  /// A key to store the users daily goals in the shared prefs.
   static const dailyGoalsKey = 'priobike.gamification.dailyGoals';
+
+  /// A key to store the users route goals in the shared prefs.
   static const routeGoalsKey = 'priobike.gamification.routeGoals';
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
 
-  /// The users' daily goals.
+  /// The users daily goals.
   DailyGoals? _dailyGoals;
 
-  /// The users' goals for a specific route.
+  /// The users goals for a specific route.
   RouteGoals? _routeGoals;
 
+  /// Get the users daily goals, or the default goals, if they are null.
   DailyGoals get dailyGoals => _dailyGoals ?? DailyGoals.defaultGoals;
 
+  /// Get the users route goals or null, if there are none.
   RouteGoals? get routeGoals => _routeGoals;
 
   GoalsService() {
     _loadData();
+
+    /// Listen to shortcut events and remove a route goal, if the corresponding shortcut is deleted.
     getIt<Shortcuts>().addListener(() {
       if (_routeGoals == null) return;
       var shortcuts = getIt<Shortcuts>().shortcuts ?? [];
@@ -61,6 +69,7 @@ class GoalsService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reset all user goals.
   Future<void> reset() async {
     _prefs ??= await SharedPreferences.getInstance();
     _dailyGoals = null;

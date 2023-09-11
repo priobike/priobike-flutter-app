@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/colors.dart';
 
+/// A level, which can be reached by the user if they reach a certain xp value.
 class Level {
   /// The value of the level.
   final int value;
 
-  /// The title of the level.
+  /// A short title for the level.
   final String title;
 
   /// The color of the level.
@@ -21,7 +22,7 @@ class Level {
 /// These are the levels that are possible to achieve by the user vie their xp.
 List<Level> levels = const [
   Level(value: 0, title: 'Novize', color: Colors.transparent),
-  Level(value: 50, title: 'Rad-Rookie', color: LevelColors.pink),
+  Level(value: 25, title: 'Rad-Rookie', color: LevelColors.pink),
   Level(value: 100, title: 'Freizeitradler', color: LevelColors.green),
   Level(value: 250, title: 'Sattel-Routinier', color: LevelColors.bronze),
   Level(value: 500, title: 'Stadtsprinter', color: LevelColors.silver),

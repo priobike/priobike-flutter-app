@@ -22,7 +22,7 @@ class _WeekdayButtonState extends State<WeekdayButton> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedButton(
+    return OnTabAnimation(
       scaleFactor: 0.85,
       blockFastClicking: false,
       onPressed: widget.onPressed,

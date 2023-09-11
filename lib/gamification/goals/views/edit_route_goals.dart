@@ -19,6 +19,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
 
+/// Widget to edit the route goals set by the user.
 class EditRouteGoalsView extends StatefulWidget {
   const EditRouteGoalsView({Key? key}) : super(key: key);
 
@@ -27,17 +28,11 @@ class EditRouteGoalsView extends StatefulWidget {
 }
 
 class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
-  /// The associated goals service.
+  /// The associated goals service to update the route goals. 
   late GoalsService _goalsService;
 
-  /// The associated shortcuts service
+  /// The associated shortcuts service to display the users saved shortcuts as possible routes to set goals for. 
   late Shortcuts _shortcutsService;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
-
-  /// List of saved routes of the user from the shortcut service.
-  List<Shortcut> get routes => _shortcutsService.shortcuts?.toList() ?? [];
 
   @override
   void initState() {
@@ -55,11 +50,16 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
     super.dispose();
   }
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
+
+  /// Widget to inform the user that they need to create routes, if they want to set goals for them.
   Widget get noRoutesWidget => Column(
         children: [
           const VSpace(),
-          AnimatedButton(
+          OnTabAnimation(
             onPressed: () {
+              /// On pressed, the widget directs the user to the routing view to create a route. 
               if (getIt<Routing>().isFetchingRoute) return;
               HapticFeedback.mediumImpact();
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
@@ -107,7 +107,8 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
 
   @override
   Widget build(BuildContext context) {
-    if (routes.isEmpty) return noRoutesWidget;
+    List<Shortcut> shortcuts = _shortcutsService.shortcuts?.toList() ?? [];
+    if (shortcuts.isEmpty) return noRoutesWidget;
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
     final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
@@ -140,7 +141,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
           controller: ScrollController(),
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: routes
+            children: shortcuts
                 .map(
                   (shortcut) => ShortcutView(
                     onPressed: () {

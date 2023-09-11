@@ -13,7 +13,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// This service updates the challenges profile according to the user interaction.
 class ChallengesProfileService with ChangeNotifier {
+  /// Key to store the challenges profile in the shared prefs.
   static const profileKey = 'priobike.gamification.challenges.profile';
+
+  /// Key to store the profile upgrades activated by the user in the shared prefs.
   static const activatedUpgradesKey = 'priobike.gamification.challenges.activatedUpgrades';
 
   /// Instance of the shared preferences.

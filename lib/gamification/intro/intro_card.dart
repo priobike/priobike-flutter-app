@@ -36,7 +36,7 @@ class _GameIntroCardState extends State<GameIntroCard> {
   @override
   Widget build(BuildContext context) {
     return EnabledFeatureCard(
-      directionView: const GameIntro(),
+      featurePage: const GameIntro(),
       content: Container(
         alignment: Alignment.centerLeft,
         child: Column(

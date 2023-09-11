@@ -26,8 +26,8 @@ class _GameViewState extends State<GameView> {
 
   /// The gamification features mapped to their corresponding cards.
   final Map<String, Widget> _featureCards = {
-    GamificationUserService.gameFeatureChallengesKey: const GameChallengesCard(),
-    GamificationUserService.gameFeatureStatisticsKey: const RideStatisticsCard(),
+    GamificationUserService.challengesFeatureKey: const GameChallengesCard(),
+    GamificationUserService.statisticsFeatureKey: const RideStatisticsCard(),
   };
 
   /// List of feature cards for enabled features.
@@ -41,8 +41,8 @@ class _GameViewState extends State<GameView> {
   /// Whether to give the user the option to set goals, which is only meaningful
   /// if the goals are used by some activated features.
   bool get showGoals =>
-      _profileService.isFeatureEnabled(GamificationUserService.gameFeatureChallengesKey) ||
-      _profileService.isFeatureEnabled(GamificationUserService.gameFeatureStatisticsKey);
+      _profileService.isFeatureEnabled(GamificationUserService.challengesFeatureKey) ||
+      _profileService.isFeatureEnabled(GamificationUserService.statisticsFeatureKey);
 
   @override
   void initState() {

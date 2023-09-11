@@ -8,8 +8,11 @@ class DailyGoals {
   /// The users daily duration goals.
   double durationMinutes;
 
-  /// A list which holds 7 values which determinem whether the users wants to reach their dailay goals on a day.
+  /// A list which holds 7 bools which determinem whether the users wants to reach their dailay goals on a day.
   List<bool> weekdays;
+
+  /// Returns the number of weekdays where the goals are activated.
+  int get numOfDays => weekdays.where((day) => day).length;
 
   DailyGoals(this.distanceMetres, this.durationMinutes, this.weekdays);
 

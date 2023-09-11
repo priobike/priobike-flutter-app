@@ -114,7 +114,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
             Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                AnimatedButton(
+                OnTabAnimation(
                   scaleFactor: 0.8,
                   onPressed: displayedWeekIndex >= reversedWeeks.length - 1
                       ? null
@@ -136,7 +136,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                     height: 1,
                   ),
                 ),
-                AnimatedButton(
+                OnTabAnimation(
                   scaleFactor: 0.8,
                   onPressed: displayedWeekIndex == 0 ? null : () => setState(() => displayedWeekIndex--),
                   child: Icon(

@@ -8,18 +8,25 @@ import 'package:priobike/gamification/common/models/user_profile.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Service which manages and provides the values of the gamification user profile, including the users' settings.
+/// Service which manages and provides the values of the general user profile.
 class GamificationUserService with ChangeNotifier {
-  static const userProfileKey = 'priobike.gamification.userProfile';
+  /// Key to store whether the gamification as a whole is enabled or not in the shared prefs.
   static const gamificationEnabledKey = 'priobike.gamification.enabled';
-  static const enabledFeatureListKey = 'priobike.gamification.prefs.enabledFeatures';
-  static const gameFeatureStatisticsKey = 'priobike.gamification.feature.statistics';
-  static const gameFeatureChallengesKey = 'priobike.gamification.feature.challenges';
 
-  static const gamificationFeatures = [
-    gameFeatureChallengesKey,
-    gameFeatureStatisticsKey,
-  ];
+  /// Key to store the profile data in the shared prefs.
+  static const userProfileKey = 'priobike.gamification.userProfile';
+
+  /// Key to store the list of features, which the user has enabled, in the shared prefs.
+  static const enabledFeatureListKey = 'priobike.gamification.prefs.enabledFeatures';
+
+  /// Key describing the statistics feature.
+  static const statisticsFeatureKey = 'priobike.gamification.feature.statistics';
+
+  /// Key describing the challenges feature.
+  static const challengesFeatureKey = 'priobike.gamification.feature.challenges';
+
+  /// List of keys for the features of the gamification system.
+  static const gamificationFeatures = [challengesFeatureKey, statisticsFeatureKey];
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;

@@ -95,8 +95,8 @@ class _OverallStatisticsState extends State<OverallStatistics> {
               ),
               getStatWidget(
                 Icons.speed,
-                'ø${StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, StatType.speed)}',
-                'km/h',
+                StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, StatType.speed),
+                'økm/h',
               ),
               getStatWidget(
                 Icons.arrow_upward,

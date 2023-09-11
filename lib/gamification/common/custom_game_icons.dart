@@ -16,6 +16,7 @@
 import 'package:flutter/widgets.dart';
 
 // ignore_for_file: constant_identifier_names
+/// List of custom designed icons used in the gamification.
 class CustomGameIcons {
   CustomGameIcons._();
 

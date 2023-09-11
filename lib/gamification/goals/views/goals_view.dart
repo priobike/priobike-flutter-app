@@ -8,6 +8,7 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/views/edit_daily_goals.dart';
 import 'package:priobike/gamification/goals/views/edit_route_goals.dart';
 
+/// This view
 class GoalsView extends StatefulWidget {
   const GoalsView({Key? key}) : super(key: key);
 

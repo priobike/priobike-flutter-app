@@ -1,4 +1,4 @@
-/// This class holds the relevant game data of a user.
+/// This class holds general user data concerning the gamification feature.
 class UserProfile {
   /// The total distance covered by a user while using the app.
   double totalDistanceKilometres;

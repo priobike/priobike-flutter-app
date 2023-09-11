@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/services/challenge_service.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
-import 'package:priobike/gamification/challenges/views/challenge_choice_dialog.dart';
+import 'package:priobike/gamification/challenges/views/challenge_selection_dialog.dart';
 import 'package:priobike/gamification/challenges/views/single_challenge_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
@@ -72,12 +72,6 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     }
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired. It restards the update timer and rebuilds the widget.
-  void update() {
-    if (isCompleted) startUpdateTimer();
-    if (mounted) setState(() {});
-  }
-
   @override
   void initState() {
     _ringController = AnimationController(vsync: this, duration: MediumDuration(), value: 1);
@@ -91,6 +85,12 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     endTimer();
     service.removeListener(update);
     super.dispose();
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired. It restards the update timer and rebuilds the widget.
+  void update() {
+    if (isCompleted) startUpdateTimer();
+    if (mounted) setState(() {});
   }
 
   /// Either start a timer which updates the time left every minute, or, if the challenge has been completed,
@@ -119,15 +119,13 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   /// Handle a tap on the progress bar.
   void handleTap() async {
-    /// If there is a challenge, but it hasn't been completed yet, finish it TODO just for tests.
+    // If there is a non-completed challenge, open dialog field containing information about the challenge.
     if (challenge != null && !isCompleted) {
-      //service.finishChallenge();
       return showDialog(
         context: context,
         builder: (context) => SingleChallengeDialog(challenge: challenge!, isWeekly: challenge!.isWeekly),
       );
     }
-
     // Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
     _ringController.reverse();
     setState(() => onTapAnimation = true);
@@ -169,7 +167,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
             isWeekly: widget.isWeekly,
           );
         } else {
-          return ChallengeChoiceDialog(
+          return ChallengeSelectionDialog(
             challenges: challenges,
             isWeekly: widget.isWeekly,
           );

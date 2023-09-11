@@ -9,23 +9,28 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
-/// Dialog widget to pop up after one or multiple challenges were generated.
-class ChallengeChoiceDialog extends StatefulWidget {
+/// Dialog widget to pop up after multiple challenges were generated, to give the user the option to select one of them.
+class ChallengeSelectionDialog extends StatefulWidget {
+  /// The list of selectable challenges.
   final List<Challenge> challenges;
+
+  /// Whether the challenges are weekly, or daily challenges.
   final bool isWeekly;
 
-  const ChallengeChoiceDialog({
+  const ChallengeSelectionDialog({
     Key? key,
     required this.challenges,
     required this.isWeekly,
   }) : super(key: key);
   @override
-  State<ChallengeChoiceDialog> createState() => _ChallengeChoiceDialogState();
+  State<ChallengeSelectionDialog> createState() => _ChallengeSelectionDialogState();
 }
 
-class _ChallengeChoiceDialogState extends State<ChallengeChoiceDialog> with SingleTickerProviderStateMixin {
+class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> with SingleTickerProviderStateMixin {
+  /// The index of the challenge selected by the user.
   int? selectedChallenge;
 
+  /// Select one out of the challenges, make the other choices disappear and close the dialog after half a second.
   void selectChallenge(int index) async {
     setState(() => selectedChallenge = index);
     await Future.delayed(MediumDuration());
@@ -73,10 +78,17 @@ class _ChallengeChoiceDialogState extends State<ChallengeChoiceDialog> with Sing
   }
 }
 
+/// This widget displays a single challenge, to be selected by the user.
 class ChallengeWidget extends StatelessWidget {
+  /// Whether the widget should be visible.
   final bool visible;
+
+  /// What to do, when the widget is tapped on.
   final Function() onTap;
+
+  /// The challenge represented by the widget.
   final Challenge challenge;
+
   const ChallengeWidget({
     Key? key,
     required this.challenge,
@@ -89,7 +101,7 @@ class ChallengeWidget extends StatelessWidget {
     return AnimatedOpacity(
       opacity: visible ? 1 : 0,
       duration: ShortDuration(),
-      child: AnimatedButton(
+      child: OnTabAnimation(
         onPressed: visible ? onTap : null,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),

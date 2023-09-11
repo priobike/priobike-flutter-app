@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
-import 'package:priobike/gamification/challenges/views/challenges_profile/lvl_up_dialog.dart';
+import 'package:priobike/gamification/challenges/views/profile/lvl_up_dialog.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
@@ -75,7 +75,7 @@ class UpgradeChoice extends StatelessWidget {
     return AnimatedOpacity(
       opacity: visible ? 1 : 0,
       duration: ShortDuration(),
-      child: AnimatedButton(
+      child: OnTabAnimation(
         onPressed: visible ? onTap : null,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),

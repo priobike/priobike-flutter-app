@@ -7,9 +7,9 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
-import 'package:priobike/gamification/challenges/views/challenges_profile/lvl_up_dialog.dart';
-import 'package:priobike/gamification/challenges/views/challenges_profile/multiple_upgrades_lvl_up.dart.dart';
-import 'package:priobike/gamification/challenges/views/challenges_profile/single_upgrade_lvl_up.dart';
+import 'package:priobike/gamification/challenges/views/profile/lvl_up_dialog.dart';
+import 'package:priobike/gamification/challenges/views/profile/multiple_upgrades_lvl_up.dart.dart';
+import 'package:priobike/gamification/challenges/views/profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
@@ -128,7 +128,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _profileService.levelUp(result);
   }
 
-  /// Returns widget for displaying the count of a collected virtual reward. 
+  /// Returns widget for displaying the count of a collected virtual reward.
   Widget getRewardWidget(int number, IconData icon, Animation<double> animation, bool animate) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,7 +174,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
       children: [
-        AnimatedButton(
+        OnTabAnimation(
           onPressed: canLevelUp && nextLevel != null ? _showLevelUpDialog : null,
           child: Stack(
             alignment: Alignment.center,
@@ -298,7 +298,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    AnimatedButton(
+                    OnTabAnimation(
                       onPressed: () => AppDatabase.instance.challengeDao.createObject(
                         ChallengesCompanion.insert(
                           xp: 25,
@@ -319,7 +319,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                         _profileService.medalsChanged,
                       ),
                     ),
-                    AnimatedButton(
+                    OnTabAnimation(
                       onPressed: () => AppDatabase.instance.challengeDao.createObject(
                         ChallengesCompanion.insert(
                           xp: 100,

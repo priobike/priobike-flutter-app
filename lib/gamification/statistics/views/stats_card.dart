@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/feature_view.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
@@ -15,8 +14,8 @@ import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks_gra
 import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/route_stats.dart';
-import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/gamification/statistics/views/stats_page.dart';
+import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/main.dart';
 
 class RideStatisticsCard extends StatelessWidget {
@@ -24,23 +23,80 @@ class RideStatisticsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const GamificationFeatureView(
-      featureKey: GamificationUserService.gameFeatureStatisticsKey,
-      featureEnabledWidget: StatisticsEnabeldCard(),
-      featureDisabledWidget: StatisticsDisabledCard(),
+    return GamificationFeatureCard(
+      featureKey: GamificationUserService.statisticsFeatureKey,
+      featurePage: const StatisticsView(),
+      featureEnabledContent: const StatisticsOverview(),
+      tutorialPage: const StatisticsTutorial(),
+      featureDisabledContent: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: BoldSubHeader(
+                        text: 'Deine Fahrtstatistiken',
+                        context: context,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    SizedBox(
+                      width: 96,
+                      height: 80,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Transform.rotate(
+                              angle: 0,
+                              child: const Icon(
+                                Icons.query_stats,
+                                size: 64,
+                                color: LevelColors.silver,
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Transform.rotate(
+                              angle: 0,
+                              child: const Icon(
+                                Icons.bar_chart,
+                                size: 64,
+                                color: CI.blue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 /// A gamification hub card which displays graphs containing statistics of the users' rides.
-class StatisticsEnabeldCard extends StatefulWidget {
-  const StatisticsEnabeldCard({Key? key}) : super(key: key);
+class StatisticsOverview extends StatefulWidget {
+  const StatisticsOverview({Key? key}) : super(key: key);
 
   @override
-  State<StatisticsEnabeldCard> createState() => _StatisticsEnabeldCardState();
+  State<StatisticsOverview> createState() => _StatisticsOverviewState();
 }
 
-class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with SingleTickerProviderStateMixin {
+class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTickerProviderStateMixin {
   // Controller for the page view displaying the different statistics.
   final PageController pageController = PageController();
 
@@ -115,126 +171,54 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
 
   @override
   Widget build(BuildContext context) {
-    return EnabledFeatureCard(
-      featureKey: GamificationUserService.gameFeatureStatisticsKey,
-      directionView: const StatisticsView(),
-      content: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Column(
-            children: [
-              SizedBox(
-                height: 200,
-                child: PageView(
-                  controller: pageController,
-                  clipBehavior: Clip.hardEdge,
-                  onPageChanged: (int index) => setState(() {
-                    // Update tab controller index to update the indicator.
-                    tabController.index = index;
-                    getIt<StatisticService>().setStatInterval(
-                      StatInterval.values[min(index, StatInterval.values.length - 1)],
-                    );
-                  }),
-                  children: [
-                    getGraphWithTitle(
-                      title: 'Diese Woche',
-                      graph: WeekStatsGraph(week: viewModel.weeks.last),
-                    ),
-                    getGraphWithTitle(
-                      title: 'Dieser Monat',
-                      graph: MonthStatsGraph(month: viewModel.months.last),
-                    ),
-                    getGraphWithTitle(
-                      title: '${viewModel.weeks.length} Wochen Rückblick',
-                      graph: MultipleWeeksStatsGraph(weeks: viewModel.weeks),
-                    ),
-                    RouteStatistics(viewModel: viewModel),
-                  ],
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Column(
+          children: [
+            SizedBox(
+              height: 200,
+              child: PageView(
+                controller: pageController,
+                clipBehavior: Clip.hardEdge,
+                onPageChanged: (int index) => setState(() {
+                  // Update tab controller index to update the indicator.
+                  tabController.index = index;
+                  getIt<StatisticService>().setStatInterval(
+                    StatInterval.values[min(index, StatInterval.values.length - 1)],
+                  );
+                }),
+                children: [
+                  getGraphWithTitle(
+                    title: 'Diese Woche',
+                    graph: WeekStatsGraph(week: viewModel.weeks.last),
+                  ),
+                  getGraphWithTitle(
+                    title: 'Dieser Monat',
+                    graph: MonthStatsGraph(month: viewModel.months.last),
+                  ),
+                  getGraphWithTitle(
+                    title: '${viewModel.weeks.length} Wochen Rückblick',
+                    graph: MultipleWeeksStatsGraph(weeks: viewModel.weeks),
+                  ),
+                  RouteStatistics(viewModel: viewModel),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: TabPageSelector(
-                  controller: tabController,
-                  selectedColor: Theme.of(context).colorScheme.primary,
-                  indicatorSize: 6,
-                  borderStyle: BorderStyle.none,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
-                  key: GlobalKey(),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Info widget which is shown, if the user hasn't enabled the statistics.
-class StatisticsDisabledCard extends StatelessWidget {
-  const StatisticsDisabledCard({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return DisabledFeatureCard(
-      introPage: const StatisticsTutorial(),
-      content: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: BoldSubHeader(
-                        text: 'Deine Fahrtstatistiken',
-                        context: context,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SmallHSpace(),
-                    SizedBox(
-                      width: 96,
-                      height: 80,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Transform.rotate(
-                              angle: 0,
-                              child: const Icon(
-                                Icons.query_stats,
-                                size: 64,
-                                color: LevelColors.silver,
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Transform.rotate(
-                              angle: 0,
-                              child: const Icon(
-                                Icons.bar_chart,
-                                size: 64,
-                                color: CI.blue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ),
-          ),
-        ],
-      ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: TabPageSelector(
+                controller: tabController,
+                selectedColor: Theme.of(context).colorScheme.primary,
+                indicatorSize: 6,
+                borderStyle: BorderStyle.none,
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+                key: GlobalKey(),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
@@ -16,21 +15,6 @@ class MediumDuration extends Duration {
 /// Fixed short duration for animations and stuff.
 class ShortDuration extends Duration {
   ShortDuration() : super(milliseconds: 250);
-}
-
-/// Simple fade tranistion to let widgets appear smooth.
-class CustomFadeTransition extends FadeTransition {
-  CustomFadeTransition({
-    Key? key,
-    required AnimationController controller,
-    required Widget child,
-    Interval? interval,
-  }) : super(key: key, opacity: getFadeAnimation(controller, interval), child: child);
-
-  static Animation<double> getFadeAnimation(var controller, var interval) => CurvedAnimation(
-        parent: controller,
-        curve: interval ?? const Interval(0, 1, curve: Curves.easeIn),
-      );
 }
 
 /// A bunch of utility methods for processing ride data.

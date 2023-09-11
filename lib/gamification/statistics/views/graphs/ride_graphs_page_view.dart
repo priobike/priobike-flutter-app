@@ -57,7 +57,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
 
   /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
   Widget getRideInfoButton(StatType type) {
-    return AnimatedButton(
+    return OnTabAnimation(
       onPressed: () => statsService.setStatType(type),
       child: Stack(
         children: [

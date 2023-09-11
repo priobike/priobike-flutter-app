@@ -1,25 +1,97 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/main.dart';
+import 'package:collection/collection.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
-import 'package:priobike/main.dart';
 
+/// A card to display the state of a given gamification feature on the home screen.
+class GamificationFeatureCard extends StatefulWidget {
+  /// The shared prefs key of the feature.
+  final String featureKey;
+
+  /// The content of the card, if the feature is enabled.
+  final Widget featureEnabledContent;
+
+  /// The page, the card navigates to, if the feature is enabled.
+  final Widget? featurePage;
+
+  /// The content of the card, if the feature is disabled.
+  final Widget featureDisabledContent;
+
+  /// The page, the card navigates to, if the feature is disabled.
+  final Widget tutorialPage;
+
+  const GamificationFeatureCard({
+    Key? key,
+    required this.featureKey,
+    required this.featureEnabledContent,
+    required this.featureDisabledContent,
+    required this.tutorialPage,
+    this.featurePage,
+  }) : super(key: key);
+
+  @override
+  State<GamificationFeatureCard> createState() => _GamificationFeatureCardState();
+}
+
+class _GamificationFeatureCardState extends State<GamificationFeatureCard> {
+  /// Profile service to check, whether the feature is enabeld and to listen to changes.
+  late GamificationUserService _profileService;
+
+  @override
+  void initState() {
+    _profileService = getIt<GamificationUserService>();
+    _profileService.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _profileService.removeListener(update);
+    super.dispose();
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
+
+  @override
+  Widget build(BuildContext context) {
+    bool featureEnabled = _profileService.enabledFeatures.contains(widget.featureKey);
+
+    /// Show the fitting card design for whether the feature is enabled or disabled.
+    if (featureEnabled) {
+      return EnabledFeatureCard(
+        featureKey: widget.featureKey,
+        featurePage: widget.featurePage,
+        content: widget.featureEnabledContent,
+      );
+    } else {
+      return DisabledFeatureCard(
+        content: widget.featureDisabledContent,
+        tutorialPage: widget.tutorialPage,
+      );
+    }
+  }
+}
+
+/// A card for displaying a disabled feature on the home screen.
 class DisabledFeatureCard extends StatelessWidget {
-  /// Content to be displayed inside of the element card.
+  /// Content to be displayed inside of the feature card.
   final Widget content;
 
-  final Widget introPage;
+  /// Tutorial page to which the card directs to, if pressed.
+  final Widget tutorialPage;
 
   const DisabledFeatureCard({
     Key? key,
     required this.content,
-    required this.introPage,
+    required this.tutorialPage,
   }) : super(key: key);
 
   @override
@@ -43,7 +115,7 @@ class DisabledFeatureCard extends StatelessWidget {
           onTap: () async {
             await Future.delayed(const Duration(milliseconds: 250));
             if (context.mounted) {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => introPage));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => tutorialPage));
             }
           },
           child: Padding(padding: const EdgeInsets.all(16), child: content),
@@ -53,18 +125,21 @@ class DisabledFeatureCard extends StatelessWidget {
   }
 }
 
+/// A card for displaying an enabled feature on the home screen.
 class EnabledFeatureCard extends StatefulWidget {
-  /// Content to be displayed inside of the element card.
+  /// Content to be displayed inside of the card.
   final Widget content;
 
-  final Widget? directionView;
+  /// Page to which the card directs the user to, if pressed.
+  final Widget? featurePage;
 
+  /// The key of the corresponding feature.
   final String? featureKey;
 
   const EnabledFeatureCard({
     Key? key,
     required this.content,
-    this.directionView,
+    this.featurePage,
     this.featureKey,
   }) : super(key: key);
   @override
@@ -72,32 +147,26 @@ class EnabledFeatureCard extends StatefulWidget {
 }
 
 class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
+  ///Whether to show the settings menu of the card, which enabled the user to move the card or disable the feature.
   bool showMenu = false;
 
+  /// User service to apply changes to the feature settings.
   GamificationUserService get userService => getIt<GamificationUserService>();
 
+  /// Whether the feature card can be moved up in the feature list.
   bool get showMoveUpButton => userService.enabledFeatures.firstOrNull != widget.featureKey;
 
+  /// Whether the feature card can be moved down in the feature list.
   bool get showMoveDownButton => userService.enabledFeatures.lastOrNull != widget.featureKey;
 
-  Widget getMenuItem({required IconData icon, Function()? onPressed}) {
-    return AnimatedButton(
-      scaleFactor: 0.8,
-      onPressed: onPressed,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        child: Icon(icon, size: 32),
-      ),
-    );
-  }
-
-  Widget getCustomButton({
+  /// A custom button design for the disable feature dialog.
+  Widget getDialogButton({
     required Color color,
     required IconData icon,
     required String label,
     required Function() onPressed,
   }) {
-    return AnimatedButton(
+    return OnTabAnimation(
       onPressed: onPressed,
       child: Tile(
         fill: color,
@@ -126,6 +195,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
     );
   }
 
+  /// A dialog which is opened, if the user presses the disable button in the menu, which asks the user to confirm.
   void showDisableFeatureDialog() {
     showDialog(
       context: context,
@@ -147,13 +217,13 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    getCustomButton(
+                    getDialogButton(
                       label: 'Abbrechen',
                       icon: Icons.close_rounded,
                       onPressed: () => Navigator.of(context).pop(),
                       color: CI.blue,
                     ),
-                    getCustomButton(
+                    getDialogButton(
                       label: 'Deaktivieren',
                       icon: Icons.not_interested,
                       onPressed: () {
@@ -172,16 +242,28 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
     );
   }
 
+  /// The design of a menu item, which invokes a given function when pressed.
+  Widget getMenuItem({required IconData icon, Function()? onPressed}) {
+    return OnTabAnimation(
+      scaleFactor: 0.8,
+      onPressed: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        child: Icon(icon, size: 32),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: AnimatedButton(
+      child: OnTabAnimation(
         scaleFactor: 0.95,
-        onPressed: widget.directionView == null
+        onPressed: widget.featurePage == null
             ? null
             : () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => widget.directionView!),
+                  MaterialPageRoute(builder: (context) => widget.featurePage!),
                 ),
         child: Stack(
           alignment: Alignment.topRight,
@@ -211,6 +293,8 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                 ),
               ),
             ),
+
+            /// If the menu is opened, it is shown above the card at the positin of the menu button.
             AnimatedOpacity(
               opacity: showMenu ? 1 : 0,
               duration: ShortDuration(),
@@ -257,6 +341,8 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                 ),
               ),
             ),
+
+            /// Button to open or close the menu.
             if (widget.featureKey != null)
               GestureDetector(
                 onTap: () => setState(() => showMenu = !showMenu),

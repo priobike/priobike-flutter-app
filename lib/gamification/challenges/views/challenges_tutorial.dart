@@ -6,6 +6,8 @@ import 'package:priobike/gamification/common/views/tutorial_page.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/main.dart';
 
+/// This tutorial page gives the user a brief introduction to the challenges feature
+/// and gives them the option to activate it.
 class ChallengesTutorial extends StatelessWidget {
   const ChallengesTutorial({Key? key}) : super(key: key);
 
@@ -15,7 +17,7 @@ class ChallengesTutorial extends StatelessWidget {
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () async {
         await getIt<ChallengesProfileService>().createProfile();
-        getIt<GamificationUserService>().enableFeature(GamificationUserService.gameFeatureChallengesKey);
+        getIt<GamificationUserService>().enableFeature(GamificationUserService.challengesFeatureKey);
         if (context.mounted) Navigator.of(context).pop();
       },
       contentList: [
