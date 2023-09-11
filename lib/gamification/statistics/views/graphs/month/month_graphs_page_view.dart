@@ -1,81 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/graphs/ride_graphs_page_view.dart';
-import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 
 /// This widget shows detailed statistics for the last 6 months, using the [RideGraphsPageView] widget.
-class MonthGraphsPageView extends StatefulWidget {
-  final StatisticService statsService;
+class MonthGraphsPageView extends StatelessWidget {
+  final StatisticsViewModel viewModel;
 
-  const MonthGraphsPageView({Key? key, required this.statsService}) : super(key: key);
-
-  @override
-  State<MonthGraphsPageView> createState() => _MonthGraphsPageViewState();
-}
-
-class _MonthGraphsPageViewState extends State<MonthGraphsPageView> {
-  static const int numOfPages = 6;
-
-  late PageController pageController;
-
-  List<MonthStatsViewModel> viewModels = [];
-
-  int displayedPageIndex = numOfPages - 1;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
-
-  @override
-  void initState() {
-    createViewModels();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    for (var vm in viewModels) {
-      vm.dispose();
-    }
-    pageController.dispose();
-    super.dispose();
-  }
-
-  void createViewModels() {
-    var month = DateTime.now().month;
-    var year = DateTime.now().year;
-
-    for (int i = 0; i < numOfPages; i++) {
-      var viewModel = MonthStatsViewModel(year, month);
-      viewModel.addListener(() => update());
-      viewModels.add(viewModel);
-      if (month == 1) {
-        month = 12;
-        year -= 1;
-      } else {
-        month -= 1;
-      }
-    }
-    viewModels = viewModels.reversed.toList();
-    pageController = PageController(initialPage: viewModels.length - 1);
-    pageController.addListener(() {
-      if (pageController.page == null) return;
-      var prevIndex = displayedPageIndex;
-      displayedPageIndex = pageController.page!.round();
-      if (displayedPageIndex != prevIndex) {
-        viewModels[prevIndex].setSelectedIndex(null);
-      }
-      setState(() {});
-    });
-  }
+  const MonthGraphsPageView({Key? key, required this.viewModel}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (viewModels.isEmpty) return const SizedBox.shrink();
+    if (viewModel.months.isEmpty) return const SizedBox.shrink();
     return RideGraphsPageView(
-      pageController: pageController,
-      graphs: [], // viewModels.map((vm) => MonthStatsGraph(viewModel: vm)).toList(),
-      currentViewModel: viewModels.elementAt(displayedPageIndex),
+      graphs: viewModel.months.map((month) => MonthStatsGraph(month: month)).toList(),
+      displayedStats: viewModel.months,
     );
   }
 }

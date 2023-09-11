@@ -6,8 +6,7 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/models/user_profile.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/services/test.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages and provides the values of the gamification user profile, including the users' settings.

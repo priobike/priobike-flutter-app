@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/services/test.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
 /// Fixed duration for long animation.
 class LongDuration extends Duration {

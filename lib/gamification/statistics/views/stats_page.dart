@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month/month_graphs_page_view.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph_page_view.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graphs_page_view.dart';
@@ -23,6 +24,8 @@ class StatisticsView extends StatefulWidget {
 class _StatisticsViewState extends State<StatisticsView> with TickerProviderStateMixin {
   late StatisticService _statService;
 
+  late StatisticsViewModel viewModel;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
@@ -30,13 +33,25 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   void initState() {
     _statService = getIt<StatisticService>();
     _statService.addListener(update);
+    initViewModel();
     super.initState();
   }
 
   @override
   void dispose() {
     _statService.removeListener(update);
+    viewModel.removeListener(update);
+    viewModel.dispose();
     super.dispose();
+  }
+
+  /// Initialize view model to hold data for the last year.
+  void initViewModel() {
+    var today = DateTime.now();
+    today = DateTime(today.year, today.month, today.day);
+    var todayLastYear = DateTime(today.year - 1, today.month, today.day);
+    viewModel = StatisticsViewModel(startDate: todayLastYear, endDate: today);
+    viewModel.addListener(update);
   }
 
   /// Get widget header title from stat interval.
@@ -50,13 +65,13 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   /// Get ride statistic view according to stat interval.
   Widget getStatsViewFromInterval(StatInterval interval) {
     if (_statService.statInterval == StatInterval.weeks) {
-      return WeekGraphsPageView(statsService: _statService, key: const ValueKey('week'));
+      return WeekGraphsPageView(viewModel: viewModel, key: const ValueKey('week'));
     }
     if (_statService.statInterval == StatInterval.months) {
-      return MonthGraphsPageView(statsService: _statService, key: const ValueKey('month'));
+      return MonthGraphsPageView(viewModel: viewModel, key: const ValueKey('month'));
     }
     if (_statService.statInterval == StatInterval.multipleWeeks) {
-      return MultipleWeeksGraphsPageView(statsService: _statService, key: const ValueKey('multiWeeks'));
+      return MultipleWeeksGraphsPageView(viewModel: viewModel, key: const ValueKey('multiWeeks'), weeksPerGraph: 5);
     }
     return const SizedBox.shrink();
   }

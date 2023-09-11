@@ -7,7 +7,8 @@ import 'package:priobike/gamification/common/database/model/ride_summary/ride_su
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
-import 'package:priobike/gamification/statistics/services/test.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
+import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/main.dart';
 
 /// View model for a ride stats in a certain time frame.

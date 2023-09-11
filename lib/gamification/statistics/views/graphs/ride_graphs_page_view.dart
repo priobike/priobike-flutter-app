@@ -1,34 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
-import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/models/ride_stats.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/services/test.dart';
 import 'package:priobike/main.dart';
 
 /// This widget contains a number of graphs, displaying ride statistics, in a page view.
-class RideGraphsPageView extends StatelessWidget {
-  final PageController pageController;
-
+class RideGraphsPageView extends StatefulWidget {
   /// The graphs, displayed by the widget in a page view to scroll through.
   final List<Widget> graphs;
 
-  /// The viewmodel corresponding to the currently displayed graph.
-  final StatsForTimeFrameViewModel currentViewModel;
+  /// The data of the currently displayed page.
+  final List<ListOfRideStats> displayedStats;
 
   const RideGraphsPageView({
     Key? key,
     required this.graphs,
-    required this.pageController,
-    required this.currentViewModel,
+    required this.displayedStats,
   }) : super(key: key);
+  @override
+  State<RideGraphsPageView> createState() => _RideGraphsPageViewState();
+}
+
+class _RideGraphsPageViewState extends State<RideGraphsPageView> {
+  late PageController pageController;
+
+  late StatisticService statsService;
+
+  int displayedPageIndex = 0;
+
+  List<ListOfRideStats<WeekStats>> displayedStats = [];
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
+
+  @override
+  void initState() {
+    statsService = getIt<StatisticService>();
+    statsService.addListener(update);
+    pageController = PageController(initialPage: displayedStats.length - 1);
+    pageController.addListener(() {
+      setState(() => displayedPageIndex = pageController.page!.round());
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    statsService.removeListener(update);
+    pageController.dispose();
+    super.dispose();
+  }
 
   /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
-  Widget getRideInfoButton(StatType rideInfoType, var context) {
-    double value = getIt<StatisticService>().isTypeSelected(rideInfoType) ? 1 : 0;
+  Widget getRideInfoButton(StatType type) {
     return AnimatedButton(
-      onPressed: () => getIt<StatisticService>().setStatType(rideInfoType),
+      onPressed: () => statsService.setStatType(type),
       child: Stack(
         children: [
           Center(
@@ -37,14 +67,14 @@ class RideGraphsPageView extends StatelessWidget {
               child: CircularProgressIndicator(
                 color: Theme.of(context).colorScheme.primary,
                 backgroundColor: Colors.grey.withOpacity(0.5),
-                value: value,
+                value: statsService.isTypeSelected(type) ? 1 : 0,
               ),
             ),
           ),
           SizedBox.fromSize(
             size: const Size.square(48),
             child: Center(
-              child: Icon(StatisticService.getIconForInfoType(rideInfoType)),
+              child: Icon(StatisticService.getIconForInfoType(type)),
             ),
           ),
         ],
@@ -54,13 +84,15 @@ class RideGraphsPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var isSpeed = true;
-    var barSelected = currentViewModel.selectedIndex != null;
+    var statsOnPage = widget.displayedStats.elementAt(displayedPageIndex);
+    var statType = statsService.rideInfo;
+    var selectedIndex = statsOnPage.isDayInList(statsService.selectedDate);
+    var selectedElement = selectedIndex == null ? null : statsOnPage.list.elementAt(selectedIndex);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: () => currentViewModel.setSelectedIndex(null),
+          onTap: () => statsService.setSelectedDate(null),
           child: Column(
             children: [
               Padding(
@@ -73,21 +105,24 @@ class RideGraphsPageView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         BoldSmall(
-                          text: (!isSpeed && barSelected) ? 'GESAMT' : 'DURCHSCHNITT',
+                          text: (statType != StatType.speed && selectedIndex != null) ? 'GESAMT' : 'DURCHSCHNITT',
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                         ),
                         BoldSubHeader(
-                          text:
-                              barSelected ? currentViewModel.selectedOrOverallValueStr : currentViewModel.valuesAverage,
+                          text: StringFormatter.getFormattedStrByRideType(
+                              (selectedElement != null)
+                                  ? selectedElement.getStatFromType(statType)
+                                  : statsOnPage.getAvgFromType(statType),
+                              statType),
                           context: context,
                         ),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: (barSelected || isSpeed)
-                          ? (barSelected)
+                      children: (selectedElement != null || statType == StatType.speed)
+                          ? (selectedElement != null)
                               ? []
                               : []
                           : [
@@ -97,7 +132,11 @@ class RideGraphsPageView extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                               ),
                               BoldSubHeader(
-                                text: currentViewModel.selectedOrOverallValueStr,
+                                text: StringFormatter.getFormattedStrByRideType(
+                                    (selectedElement != null)
+                                        ? selectedElement.getStatFromType(statType)
+                                        : statsOnPage.getStatFromType(statType),
+                                    statType),
                                 context: context,
                               ),
                             ],
@@ -111,16 +150,22 @@ class RideGraphsPageView extends StatelessWidget {
                   width: MediaQuery.of(context).size.width,
                   height: 224,
                   child: PageView(
+                    reverse: true,
                     controller: pageController,
                     clipBehavior: Clip.hardEdge,
-                    children: graphs,
+                    children: widget.graphs,
                   ),
                 ),
               ),
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [SubHeader(text: currentViewModel.rangeOrSelectedDateStr, context: context)],
+                children: [
+                  SubHeader(
+                    text: statsOnPage.getTimeDescription(selectedIndex),
+                    context: context,
+                  ),
+                ],
               ),
               const SmallVSpace(),
               Padding(
@@ -130,9 +175,9 @@ class RideGraphsPageView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    getRideInfoButton(StatType.distance, context),
-                    getRideInfoButton(StatType.duration, context),
-                    getRideInfoButton(StatType.speed, context),
+                    getRideInfoButton(StatType.distance),
+                    getRideInfoButton(StatType.duration),
+                    getRideInfoButton(StatType.speed),
                   ],
                 ),
               ),

@@ -1,59 +1,77 @@
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/services/test.dart';
+import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/gamification/statistics/models/ride_stats.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/main.dart';
 
-/// This widget displays a simple bar graph for given yValues.
-class CustomBarGraph extends StatelessWidget {
+class RideStatsGraph extends StatefulWidget {
   /// Function which returns title widgets for the x axis.
   final Widget Function(double value, TitleMeta meta) getTitlesX;
 
-  /// Function which handles a user tap on the graph. If the user tapped a bar, the index is not null.
-  final Function(int? index) onTap;
-
-  final ListOfRideStats rideStats;
-
-  final StatType statType;
+  /// The stats displayed by the graph.
+  final ListOfRideStats displayedStats;
 
   /// The preffered width of the bars.
   final double barWidth;
 
-  /// Index of a bar that should be marked as selected.
-  final int? selectedBar;
-
   /// Color of the displayed bars.
   final Color barColor;
 
-  const CustomBarGraph({
+  const RideStatsGraph({
     Key? key,
     required this.getTitlesX,
-    required this.onTap,
-    required this.rideStats,
+    required this.displayedStats,
     required this.barWidth,
-    required this.barColor,
-    this.selectedBar,
-    required this.statType,
+    this.barColor = CI.blue,
   }) : super(key: key);
+
+  @override
+  State<RideStatsGraph> createState() => _RideStatsGraphState();
+}
+
+class _RideStatsGraphState extends State<RideStatsGraph> {
+  late StatisticService statsService;
+
+  StatType get type => statsService.rideInfo;
+
+  int? get selectedIndex => widget.displayedStats.isDayInList(statsService.selectedDate);
+
+  @override
+  void initState() {
+    statsService = getIt<StatisticService>();
+    statsService.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    statsService.removeListener(update);
+    super.dispose();
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   /// Get list of bars according to the given values.
   List<BarChartGroupData> getBars(Color onBackground) {
-    return rideStats.list.mapIndexed((i, stat) {
-      var value = stat.getStatFromType(statType);
-      var selected = selectedBar != null && selectedBar == i;
-      var goalForBar = stat.getGoalFromType(statType);
+    return widget.displayedStats.list.mapIndexed((i, stat) {
+      var value = stat.getStatFromType(type);
+      var selected = selectedIndex != null && selectedIndex == i;
+      var goalForBar = stat.getGoalFromType(type);
       var goalReached = goalForBar == null ? true : value >= goalForBar;
       var barColorOpacity = goalReached ? 1.0 : 0.4;
-      if (selectedBar != null) {
-        barColorOpacity = selected ? 1.0 : 0.2;
-      }
+      if (selectedIndex != null) barColorOpacity = selected ? 1.0 : 0.2;
 
       return BarChartGroupData(
         x: i,
         barRods: [
           BarChartRodData(
             toY: value,
-            color: barColor.withOpacity(barColorOpacity),
-            width: barWidth,
+            color: widget.barColor.withOpacity(barColorOpacity),
+            width: widget.barWidth,
             borderSide: selected ? BorderSide(color: onBackground.withOpacity(0.5), width: 1) : null,
             backDrawRodData: goalReached
                 ? null
@@ -70,7 +88,7 @@ class CustomBarGraph extends StatelessWidget {
 
   /// Get fitting max value for a given list of values.
   double getFittingMax() {
-    var num = rideStats.getMaxForType(statType);
+    var num = widget.displayedStats.getMaxForType(type);
     if (num == 0) return 1;
     if (num <= 5) return num;
     if (num <= 10) return num.ceilToDouble();
@@ -92,7 +110,18 @@ class CustomBarGraph extends StatelessWidget {
               handleBuiltInTouches: false,
               touchCallback: (p0, p1) {
                 if (p0 is FlTapUpEvent) {
-                  onTap(p1?.spot?.touchedBarGroupIndex);
+                  var index = p1?.spot?.touchedBarGroupIndex;
+                  if (index == null) {
+                    statsService.setSelectedDate(null);
+                    return;
+                  } else {
+                    var selectedElement = widget.displayedStats.list.elementAt(index);
+                    if (selectedElement is DayStats) {
+                      statsService.setSelectedDate(selectedElement.date);
+                    } else if (selectedElement is WeekStats) {
+                      statsService.setSelectedDate(selectedElement.mondayDate);
+                    }
+                  }
                 }
               },
               touchExtraThreshold: const EdgeInsets.all(8)),
@@ -116,7 +145,7 @@ class CustomBarGraph extends StatelessWidget {
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
-                getTitlesWidget: getTitlesX,
+                getTitlesWidget: widget.getTitlesX,
                 showTitles: true,
                 reservedSize: 27,
               ),

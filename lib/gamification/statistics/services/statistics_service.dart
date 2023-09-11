@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/gamification/statistics/services/test.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
 /// Enum which describes different kinds of intervals for displayed statistics.
 enum StatInterval {

@@ -3,7 +3,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/statistics/services/test.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
+import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/main.dart';
 
 class OverallStatistics extends StatefulWidget {
