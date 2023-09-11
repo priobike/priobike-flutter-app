@@ -12,9 +12,10 @@ class MonthGraphsPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (viewModel.months.isEmpty) return const SizedBox.shrink();
+    var reversedMonths = viewModel.months.reversed.toList();
     return RideGraphsPageView(
-      graphs: viewModel.months.map((month) => MonthStatsGraph(month: month)).toList(),
-      displayedStats: viewModel.months,
+      graphs: reversedMonths.map((month) => MonthStatsGraph(month: month)).toList(),
+      displayedStats: reversedMonths,
     );
   }
 }

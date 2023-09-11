@@ -14,6 +14,7 @@ import 'package:priobike/gamification/statistics/views/graphs/month/month_graph.
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/views/route_stats.dart';
 import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/gamification/statistics/views/stats_page.dart';
 import 'package:priobike/main.dart';
@@ -144,10 +145,10 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
                       graph: MonthStatsGraph(month: viewModel.months.last),
                     ),
                     getGraphWithTitle(
-                      title: '5 Wochen Rückblick',
+                      title: '${viewModel.weeks.length} Wochen Rückblick',
                       graph: MultipleWeeksStatsGraph(weeks: viewModel.weeks),
                     ),
-                    //RouteStatistics(viewModel: weekStatsViewModel),
+                    RouteStatistics(viewModel: viewModel),
                   ],
                 ),
               ),

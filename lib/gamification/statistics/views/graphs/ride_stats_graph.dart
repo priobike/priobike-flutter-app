@@ -56,8 +56,9 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
   void update() => {if (mounted) setState(() {})};
 
   /// Get list of bars according to the given values.
-  List<BarChartGroupData> getBars(Color onBackground) {
-    return widget.displayedStats.list.mapIndexed((i, stat) {
+  List<BarChartGroupData> getBars() {
+    var list = widget.displayedStats.list;
+    return list.mapIndexed((i, stat) {
       var value = stat.getStatFromType(type);
       var selected = selectedIndex != null && selectedIndex == i;
       var goalForBar = stat.getGoalFromType(type);
@@ -72,13 +73,15 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
             toY: value,
             color: widget.barColor.withOpacity(barColorOpacity),
             width: widget.barWidth,
-            borderSide: selected ? BorderSide(color: onBackground.withOpacity(0.5), width: 1) : null,
+            borderSide: selected
+                ? BorderSide(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5), width: 1)
+                : null,
             backDrawRodData: goalReached
                 ? null
                 : BackgroundBarChartRodData(
                     show: true,
                     toY: goalForBar,
-                    color: onBackground.withOpacity(0.05),
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
                   ),
           ),
         ],
@@ -112,8 +115,7 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
                 if (p0 is FlTapUpEvent) {
                   var index = p1?.spot?.touchedBarGroupIndex;
                   if (index == null) {
-                    statsService.setSelectedDate(null);
-                    return;
+                    return statsService.setSelectedDate(null);
                   } else {
                     var selectedElement = widget.displayedStats.list.elementAt(index);
                     if (selectedElement is DayStats) {
@@ -153,7 +155,7 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
           ),
           maxY: getFittingMax(),
           gridData: FlGridData(drawVerticalLine: false),
-          barGroups: getBars(Theme.of(context).colorScheme.onBackground),
+          barGroups: getBars(),
         ),
         swapAnimationDuration: Duration.zero,
       ),

@@ -52,11 +52,14 @@ abstract class RideStats {
   }
 
   String getTimeDescription(int? index);
+
+  List<RideSummary> get rides;
 }
 
 class DayStats extends RideStats {
   final DateTime date;
 
+  @override
   final List<RideSummary> rides;
 
   DayStats(int year, int month, int day, this.rides, DailyGoals? goals)
@@ -65,10 +68,12 @@ class DayStats extends RideStats {
     setGoals(goals);
   }
 
-  DayStats.empty(int year, int month, int day)
+  DayStats.empty(int year, int month, int day, DailyGoals? goals)
       : date = DateTime(year, month, day),
         rides = [],
-        super.fromSummaries([]);
+        super.fromSummaries([]) {
+    setGoals(goals);
+  }
 
   void setGoals(DailyGoals? goals) {
     if (goals != null && goals.weekdays[date.weekday - 1]) {
@@ -112,8 +117,8 @@ class ListOfRideStats<T extends RideStats> extends RideStats {
       values = list.map((day) => day.distanceKilometres).toList() +
           list.map((day) => day.distanceGoalKilometres ?? 0).toList();
     } else if (type == StatType.duration) {
-      values = list.map((day) => day.distanceKilometres).toList() +
-          list.map((day) => day.distanceGoalKilometres ?? 0).toList();
+      values =
+          list.map((day) => day.durationMinutes).toList() + list.map((day) => day.durationGoalMinutes ?? 0).toList();
     } else if (type == StatType.elevationGain) {
       values = list.map((day) => day.elevationGainMetres).toList();
     } else if (type == StatType.elevationLoss) {
@@ -146,10 +151,10 @@ class ListOfRideStats<T extends RideStats> extends RideStats {
   @override
   String getTimeDescription(int? index) {
     if (index == null || index > list.length - 1) {
-      if (T is WeekStats) {
-        var firstWeek = list.first as WeekStats;
+      var firstElement = list.first;
+      if (firstElement is WeekStats) {
         var lastWeek = list.last as WeekStats;
-        return StringFormatter.getFromToDateStr(firstWeek.mondayDate, lastWeek.list.last.date);
+        return StringFormatter.getFromToDateStr(firstElement.mondayDate, lastWeek.list.last.date);
       } else {
         return '${list.first.getTimeDescription(null)} - ${list.last.getTimeDescription(null)}';
       }
@@ -158,6 +163,9 @@ class ListOfRideStats<T extends RideStats> extends RideStats {
       return element.getTimeDescription(null);
     }
   }
+
+  @override
+  List<RideSummary> get rides => list.map((e) => e.rides).reduce((a, b) => a + b);
 }
 
 class WeekStats extends ListOfRideStats<DayStats> {

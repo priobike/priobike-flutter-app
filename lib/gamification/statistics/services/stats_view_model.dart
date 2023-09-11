@@ -83,8 +83,8 @@ class StatisticsViewModel with ChangeNotifier {
       List<DayStats> stats = [];
       var tmpDay = monday;
       for (int i = 0; i < DateTime.daysPerWeek; i++) {
-        var weekdayStats = days.firstWhere((day) => sameDay(day.date, tmpDay),
-            orElse: () => DayStats.empty(tmpDay.year, tmpDay.month, tmpDay.day));
+        var weekdayStats = days.firstWhere((day) => day.isOnDay(tmpDay),
+            orElse: () => DayStats.empty(tmpDay.year, tmpDay.month, tmpDay.day, goals));
         stats.add(weekdayStats);
         tmpDay = tmpDay.add(oneDay);
       }
@@ -100,18 +100,14 @@ class StatisticsViewModel with ChangeNotifier {
       List<DayStats> stats = [];
       var tmpDay = firstDayOfMonth;
       while (tmpDay.month == firstDayOfMonth.month) {
-        var dayStats = days.firstWhere((day) => sameDay(day.date, tmpDay),
-            orElse: () => DayStats.empty(tmpDay.year, tmpDay.month, tmpDay.day));
+        var dayStats = days.firstWhere((day) => day.isOnDay(tmpDay),
+            orElse: () => DayStats.empty(tmpDay.year, tmpDay.month, tmpDay.day, goals));
         stats.add(dayStats);
         tmpDay = tmpDay.add(oneDay);
       }
       months.add(MonthStats(stats));
       firstDayOfMonth = DateTime(tmpDay.year, tmpDay.month, 1);
     }
-  }
-
-  bool sameDay(DateTime day1, DateTime day2) {
-    return day1.year == day2.year && day1.month == day2.month && day1.day == day2.day;
   }
 
   List<DateTime> get daysInTimeFrame {

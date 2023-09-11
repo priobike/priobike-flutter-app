@@ -12,9 +12,10 @@ class WeekGraphsPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (viewModel.weeks.isEmpty) return const SizedBox.shrink();
+    var reverseWeeks = viewModel.weeks.reversed.toList();
     return RideGraphsPageView(
-      graphs: viewModel.weeks.map((week) => WeekStatsGraph(week: week)).toList(),
-      displayedStats: viewModel.weeks,
+      graphs: reverseWeeks.map((week) => WeekStatsGraph(week: week)).toList(),
+      displayedStats: reverseWeeks,
     );
   }
 }

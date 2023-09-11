@@ -22,24 +22,22 @@ class StatisticsView extends StatefulWidget {
 }
 
 class _StatisticsViewState extends State<StatisticsView> with TickerProviderStateMixin {
-  late StatisticService _statService;
-
   late StatisticsViewModel viewModel;
+
+  /// The interval in which rides shall be displayed.
+  StatInterval _statInterval = StatInterval.weeks;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
-    _statService = getIt<StatisticService>();
-    _statService.addListener(update);
     initViewModel();
     super.initState();
   }
 
   @override
   void dispose() {
-    _statService.removeListener(update);
     viewModel.removeListener(update);
     viewModel.dispose();
     super.dispose();
@@ -54,58 +52,18 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
     viewModel.addListener(update);
   }
 
-  /// Get widget header title from stat interval.
-  String getTitleFromStatInterval(StatInterval interval) {
-    if (interval == StatInterval.weeks) return 'Woche';
-    if (interval == StatInterval.multipleWeeks) return '5 Wochen';
-    if (interval == StatInterval.months) return 'Monat';
-    return '';
-  }
-
   /// Get ride statistic view according to stat interval.
   Widget getStatsViewFromInterval(StatInterval interval) {
-    if (_statService.statInterval == StatInterval.weeks) {
+    if (_statInterval == StatInterval.weeks) {
       return WeekGraphsPageView(viewModel: viewModel, key: const ValueKey('week'));
     }
-    if (_statService.statInterval == StatInterval.months) {
+    if (_statInterval == StatInterval.months) {
       return MonthGraphsPageView(viewModel: viewModel, key: const ValueKey('month'));
     }
-    if (_statService.statInterval == StatInterval.multipleWeeks) {
+    if (_statInterval == StatInterval.multipleWeeks) {
       return MultipleWeeksGraphsPageView(viewModel: viewModel, key: const ValueKey('multiWeeks'), weeksPerGraph: 5);
     }
     return const SizedBox.shrink();
-  }
-
-  Widget getIntervalButton(StatInterval interval) {
-    var selected = _statService.statInterval == interval;
-    return Expanded(
-      child: Material(
-        child: InkWell(
-          splashColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: () => _statService.setStatInterval(interval),
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Column(
-              children: [
-                Content(text: getTitleFromStatInterval(interval), context: context),
-                const SmallVSpace(),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: selected ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -149,7 +107,13 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: StatInterval.values.map((interval) => IntervalSelectionButton(interval: interval)).toList(),
+                children: StatInterval.values
+                    .map((interval) => IntervalSelectionButton(
+                          interval: interval,
+                          selected: _statInterval == interval,
+                          onTap: () => setState(() => _statInterval = interval),
+                        ))
+                    .toList(),
               ),
               Expanded(child: Container()),
               AnimatedSwitcher(
@@ -158,10 +122,10 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
                   opacity: animation,
                   child: child,
                 ),
-                child: getStatsViewFromInterval(_statService.statInterval),
+                child: getStatsViewFromInterval(_statInterval),
               ),
               Expanded(child: Container()),
-              const RouteGoalsHistory(),
+              RouteGoalsHistory(viewModel: viewModel),
             ],
           ),
         ),
@@ -173,7 +137,16 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
 class IntervalSelectionButton extends StatefulWidget {
   final StatInterval interval;
 
-  const IntervalSelectionButton({Key? key, required this.interval}) : super(key: key);
+  final bool selected;
+
+  final Function() onTap;
+
+  const IntervalSelectionButton({
+    Key? key,
+    required this.interval,
+    required this.onTap,
+    required this.selected,
+  }) : super(key: key);
 
   @override
   State<IntervalSelectionButton> createState() => _IntervalSelectionButtonState();
@@ -192,15 +165,16 @@ class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
 
   @override
   Widget build(BuildContext context) {
-    var statService = getIt<StatisticService>();
-    var selected = statService.statInterval == widget.interval;
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTapDown: (_) => setState(() => tapDown = true),
         onTapUp: (_) => setState(() => tapDown = false),
         onTapCancel: () => setState(() => tapDown = false),
-        onTap: () => statService.setStatInterval(widget.interval),
+        onTap: () {
+          widget.onTap();
+          setState(() {});
+        },
         child: Container(
           padding: const EdgeInsets.all(4),
           child: Column(
@@ -215,7 +189,7 @@ class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 height: 4,
                 decoration: BoxDecoration(
-                  color: selected
+                  color: widget.selected
                       ? CI.blue
                       : Theme.of(context).colorScheme.onBackground.withOpacity(tapDown ? 0.01 : 0.05),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),

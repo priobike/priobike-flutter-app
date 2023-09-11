@@ -7,13 +7,13 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
-import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 
 class RouteStatistics extends StatefulWidget {
-  final WeekStatsViewModel viewModel;
+  final StatisticsViewModel viewModel;
 
   const RouteStatistics({Key? key, required this.viewModel}) : super(key: key);
 
@@ -24,9 +24,6 @@ class RouteStatistics extends StatefulWidget {
 class _RouteStatisticsState extends State<RouteStatistics> {
   /// The associated goals service.
   late UserGoalsService _goalsService;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
 
   RouteGoals? get goals => _goalsService.routeGoals;
 
@@ -44,6 +41,9 @@ class _RouteStatisticsState extends State<RouteStatistics> {
     _goalsService.removeListener(update);
     super.dispose();
   }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +130,7 @@ class _RouteStatisticsState extends State<RouteStatistics> {
                 ),
                 child: RoutesInWeekWidget(
                   weekGoals: goals!.weekdays,
-                  ridesInWeek: widget.viewModel.rides,
+                  ridesInWeek: widget.viewModel.weeks.last.rides,
                   routeId: goals!.routeID,
                   buttonSize: 32,
                 ),
@@ -162,7 +162,7 @@ class RoutesInWeekWidget extends StatelessWidget {
     var performance = List.filled(DateTime.daysPerWeek, 0);
     for (int i = 0; i < DateTime.daysPerWeek; i++) {
       var ridesOnDay = ridesInWeek.where((ride) => ride.startTime.weekday == i + 1);
-      var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId != routeId);
+      var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId == routeId);
       performance[i] = ridesOnRoute.length;
     }
     return performance;

@@ -5,62 +5,47 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/user_goals_service.dart';
-import 'package:priobike/gamification/statistics/services/graph_viewmodels.dart';
+import 'package:priobike/gamification/statistics/models/ride_stats.dart';
+import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/route_stats.dart';
 import 'package:priobike/main.dart';
 
 class RouteGoalsHistory extends StatefulWidget {
-  const RouteGoalsHistory({Key? key}) : super(key: key);
+  final StatisticsViewModel viewModel;
+
+  const RouteGoalsHistory({Key? key, required this.viewModel}) : super(key: key);
 
   @override
   State<RouteGoalsHistory> createState() => _RouteGoalsHistoryState();
 }
 
 class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
-  static const int numOfPages = 10;
-
   /// The associated goals service.
   late UserGoalsService _goalsService;
 
-  List<WeekStatsViewModel> viewModels = [];
-
-  int displayedViewModelIndex = numOfPages - 1;
+  int displayedWeekIndex = 0;
 
   RouteGoals? get goals => _goalsService.routeGoals;
 
-  WeekStatsViewModel get currentViewModel => viewModels[displayedViewModelIndex];
+  List<WeekStats> get reversedWeeks => widget.viewModel.weeks.reversed.toList();
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  WeekStats get currentWeekStats => reversedWeeks.elementAt(displayedWeekIndex);
 
   @override
   void initState() {
     _goalsService = getIt<UserGoalsService>();
     _goalsService.addListener(update);
-    createViewModels();
     super.initState();
   }
 
   @override
   void dispose() {
-    for (var vm in viewModels) {
-      vm.dispose();
-    }
     _goalsService.removeListener(update);
     super.dispose();
   }
 
-  void createViewModels() {
-    var today = DateTime.now();
-    var weekStart = today.subtract(Duration(days: today.weekday - 1));
-    for (int i = 0; i < numOfPages; i++) {
-      var tmpWeekStart = weekStart.subtract(Duration(days: 7 * i));
-      var viewModel = WeekStatsViewModel(tmpWeekStart);
-      viewModel.addListener(() => update());
-      viewModels.add(viewModel);
-    }
-    viewModels = viewModels.reversed.toList();
-  }
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   @override
   Widget build(BuildContext context) {
@@ -118,9 +103,9 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                   child: child,
                 ),
                 child: RoutesInWeekWidget(
-                  key: ValueKey(currentViewModel.rangeStr),
+                  key: ValueKey(currentWeekStats.getTimeDescription(null)),
                   weekGoals: goals!.weekdays,
-                  ridesInWeek: currentViewModel.allRides,
+                  ridesInWeek: currentWeekStats.rides,
                   routeId: goals!.routeID,
                   buttonSize: 40,
                 ),
@@ -131,20 +116,21 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
               children: [
                 AnimatedButton(
                   scaleFactor: 0.8,
-                  onPressed:
-                      currentViewModel == viewModels.first ? null : () => setState(() => displayedViewModelIndex--),
+                  onPressed: displayedWeekIndex >= reversedWeeks.length - 1
+                      ? null
+                      : () => setState(() => displayedWeekIndex++),
                   child: Icon(
                     Icons.arrow_back_ios_rounded,
                     size: 32,
                     color: Theme.of(context)
                         .colorScheme
                         .onBackground
-                        .withOpacity(currentViewModel == viewModels.first ? 0.25 : 1),
+                        .withOpacity(displayedWeekIndex >= reversedWeeks.length - 1 ? 0.25 : 1),
                   ),
                 ),
                 Expanded(
                   child: SubHeader(
-                    text: currentViewModel.rangeStr,
+                    text: currentWeekStats.getTimeDescription(null),
                     context: context,
                     textAlign: TextAlign.center,
                     height: 1,
@@ -152,15 +138,11 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                 ),
                 AnimatedButton(
                   scaleFactor: 0.8,
-                  onPressed:
-                      currentViewModel == viewModels.last ? null : () => setState(() => displayedViewModelIndex++),
+                  onPressed: displayedWeekIndex == 0 ? null : () => setState(() => displayedWeekIndex--),
                   child: Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 32,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onBackground
-                        .withOpacity(currentViewModel == viewModels.last ? 0.25 : 1),
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(displayedWeekIndex == 0 ? 0.25 : 1),
                   ),
                 ),
               ],

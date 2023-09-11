@@ -19,7 +19,7 @@ class MultipleWeeksGraphsPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<ListOfRideStats<WeekStats>> displayedStats = [];
-    var allWeeks = viewModel.weeks;
+    var allWeeks = List.from(viewModel.weeks);
     while (allWeeks.length >= weeksPerGraph) {
       List<WeekStats> weeks = [];
       for (int i = 0; i < weeksPerGraph; i++) {
