@@ -61,7 +61,8 @@ class QRCodeViewState extends State<QRCodeView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
@@ -178,7 +179,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           if (state == QRCodeViewMode.showing)
                             Column(
                               children: [
-                                Content(text: shortcut!.getShortInfo(), context: context),
+                                Content(text: shortcut!.getShortInfo(), context: context, textAlign: TextAlign.center),
                                 const VSpace(),
                                 BoldSmall(
                                   text: "Scanne diesen QR-Code mit einer anderen PrioBike-App, um die Route zu teilen.",

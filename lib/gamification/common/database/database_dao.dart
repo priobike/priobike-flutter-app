@@ -53,4 +53,11 @@ abstract class DatabaseDao<T extends DataClass> extends DatabaseAccessor<AppData
   Stream<List<T>> streamAllObjects() {
     return _select.watch().asyncMap((result) => _castResultList(result));
   }
+
+  Future<void> clearObjects() async {
+    var objects = await getAllObjects();
+    for (var o in objects) {
+      await deleteObject(o as Insertable<T>);
+    }
+  }
 }

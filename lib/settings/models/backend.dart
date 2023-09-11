@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -198,11 +199,13 @@ extension BackendShortcuts on Backend {
       case Backend.production:
         return [
           ShortcutLocation(
+            id: UniqueKey().toString(),
             name: "Elbphilharmonie",
             waypoint: Waypoint(53.5415701077766, 9.984275605794686,
                 address: "Elbphilharmonie Hamburg, Platz der Deutschen Einheit, Hamburg"),
           ),
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "Edmund-S.-Allee Ost ➔ West",
             waypoints: [
               Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
@@ -210,6 +213,7 @@ extension BackendShortcuts on Backend {
             ],
           ),
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "Edmund-S.-Allee West ➔ Ost",
             waypoints: [
               Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
@@ -217,6 +221,7 @@ extension BackendShortcuts on Backend {
             ],
           ),
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "B4 Ost ➔ West",
             waypoints: [
               Waypoint(53.547722154285324, 10.004045134575035, address: "Burchardstraße 11, 20095 Hamburg"),
@@ -225,6 +230,7 @@ extension BackendShortcuts on Backend {
             ],
           ),
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "B4 West ➔ Ost",
             waypoints: [
               Waypoint(53.54990402934412, 9.971606990198367, address: "St. Pauli, 20359 Hamburg"),
@@ -232,6 +238,7 @@ extension BackendShortcuts on Backend {
             ],
           ),
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "Lombardsbrücke Ost ➔ West",
             waypoints: [
               Waypoint(53.5511715, 10.0062077, address: "Steintorwall, 20095 Hamburg"),
@@ -241,6 +248,7 @@ extension BackendShortcuts on Backend {
             ],
           ),
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "Lombardsbrücke West ➔ Ost",
             waypoints: [
               Waypoint(53.55285, 9.976352, address: "Ring 1 13, 20355 Hamburg"),
@@ -252,6 +260,7 @@ extension BackendShortcuts on Backend {
       case Backend.staging:
         return [
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "Teststrecke POT",
             waypoints: [
               Waypoint(51.03148, 13.72757, address: "Wegpunkt 1"),
@@ -264,6 +273,7 @@ extension BackendShortcuts on Backend {
             ],
           ),
           ShortcutRoute(
+            id: UniqueKey().toString(),
             name: "Quer durch Dresden",
             waypoints: [
               Waypoint(51.038294, 13.703280, address: "Clara-Viebig-Straße 9"),

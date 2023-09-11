@@ -3,14 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -28,59 +27,6 @@ import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-
-/// Show a sheet to save the current route as a shortcut.
-void showSaveShortcutSheet(context) {
-  final shortcuts = GetIt.instance.get<Shortcuts>();
-  showDialog(
-    context: context,
-    builder: (_) {
-      final nameController = TextEditingController();
-      return AlertDialog(
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-        insetPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40.0),
-        title: BoldContent(
-          text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.',
-          context: context,
-        ),
-        content: SizedBox(
-          height: 78,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: nameController,
-                maxLength: 20,
-                decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
-              ),
-            ],
-          ),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              final name = nameController.text;
-              if (name.trim().isEmpty) {
-                ToastMessage.showError("Name darf nicht leer sein.");
-                return;
-              }
-              await shortcuts.saveNewShortcutRoute(name);
-              ToastMessage.showSuccess("Route gespeichert!");
-              Navigator.pop(context);
-            },
-            child: BoldContent(
-              text: 'Speichern',
-              color: Theme.of(context).colorScheme.primary,
-              context: context,
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
 
 class RoutingView extends StatefulWidget {
   const RoutingView({Key? key}) : super(key: key);
@@ -197,33 +143,32 @@ class RoutingViewState extends State<RoutingView> {
     if (settings.didViewWarning) {
       startRide();
     } else {
-      showDialog(
+      showGeneralDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          content: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                await settings.setDidViewWarning(true);
-                startRide();
-              },
-              child: BoldContent(
-                text: 'OK',
-                color: Theme.of(context).colorScheme.primary,
-                context: context,
-              ),
-            ),
-          ],
-        ),
+        barrierDismissible: true,
+        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierColor: Colors.black.withOpacity(0.4),
+        pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+          return DialogLayout(
+            title: 'Hinweis',
+            text:
+                'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+            icon: Icons.info_rounded,
+            iconColor: Theme.of(context).colorScheme.primary,
+            actions: [
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.check_rounded,
+                label: "Ok",
+                onPressed: () async {
+                  await settings.setDidViewWarning(true);
+                  startRide();
+                },
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              )
+            ],
+          );
+        },
       );
     }
   }
@@ -333,29 +278,26 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Alert dialog for location accuracy
   void showAlertGPSQualityDialog() {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-          title: BoldSubHeader(text: 'Hinweis', context: context),
-          content: Content(
-            text:
-                'Deine GPS-Position scheint ungenau zu sein. Solltest du während der Fahrt Probleme mit der Ortung feststellen, prüfe deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
-            context: context,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: BoldContent(
-                text: 'Okay',
-                context: context,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Hinweis',
+          text:
+              'Deine GPS-Position scheint ungenau zu sein. Solltest du während der Fahrt Probleme mit der Ortung feststellen, prüfe deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
+          icon: Icons.info_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.check_rounded,
+              label: "Ok",
               onPressed: () => Navigator.of(context).pop(),
-            ),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            )
           ],
         );
       },

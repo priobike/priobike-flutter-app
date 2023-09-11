@@ -1,0 +1,98 @@
+import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
+import 'package:priobike/main.dart';
+
+/// Widget to display the overall statistics of the users registered rides since enabling the gamification.
+class OverallStatistics extends StatefulWidget {
+  const OverallStatistics({Key? key}) : super(key: key);
+
+  @override
+  State<OverallStatistics> createState() => _OverallStatisticsState();
+}
+
+class _OverallStatisticsState extends State<OverallStatistics> {
+  /// Service to pull the stats from.
+  late GamificationUserService _userService;
+
+  @override
+  void initState() {
+    _userService = getIt<GamificationUserService>();
+    _userService.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _userService.removeListener(update);
+    super.dispose();
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
+
+  /// Returns an info widget for a given stat, label and icon.
+  Widget _getStatWidget(IconData icon, double value, String label, StatType type) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 24,
+            color: CI.blue.withOpacity(1),
+          ),
+          BoldContent(
+            text: StringFormatter.getRoundedStrByRideType(value, StatType.distance),
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+            height: 1,
+          ),
+          BoldSmall(
+            text: label,
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+            height: 1,
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var profile = _userService.profile!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 16),
+          BoldContent(text: 'Dein PrioBike', context: context, height: 1),
+          BoldSmall(
+            text: 'beigetreten am ${StringFormatter.getDateStr(_userService.profile!.joinDate)}',
+            context: context,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+            height: 1,
+          ),
+          const SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _getStatWidget(Icons.directions_bike, profile.totalDistanceKilometres, 'km', StatType.distance),
+              _getStatWidget(Icons.timer, profile.totalDurationMinutes, 'min', StatType.duration),
+              _getStatWidget(Icons.speed, profile.averageSpeedKmh, 'økm/h', StatType.speed),
+              _getStatWidget(Icons.arrow_upward, profile.totalElevationGainMetres, 'm', StatType.elevationGain),
+              _getStatWidget(Icons.arrow_downward, profile.totalElevationLossMetres, 'm', StatType.elevationLoss),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

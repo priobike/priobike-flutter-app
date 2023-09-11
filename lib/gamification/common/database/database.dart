@@ -4,14 +4,15 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 
 part 'database.g.dart';
 
 /// Class holding the database required for the gamification data structure. It can be accessed as a Singleton.
 @DriftDatabase(
-  tables: [RideSummaries],
-  daos: [RideSummaryDao],
+  tables: [RideSummaries, Challenges],
+  daos: [RideSummaryDao, ChallengeDao],
 )
 class AppDatabase extends _$AppDatabase {
   /// Static instance of the class to access it as a singleton.

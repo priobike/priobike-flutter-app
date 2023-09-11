@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -134,6 +135,8 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
+  Shortcut? selectedShortcut;
+
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -195,6 +198,9 @@ class Routing with ChangeNotifier {
       final discomforts = getIt<Discomforts>();
       await discomforts.reset();
     }
+
+    checkShortcutWaypoints();
+
     notifyListeners();
   }
 
@@ -222,6 +228,19 @@ class Routing with ChangeNotifier {
     return await selectWaypoints(remaining);
   }
 
+  // Select waypoints from shortcut and save shortcut.
+  Future<void> selectShortcut(Shortcut shortcut) async {
+    selectedShortcut = shortcut;
+    selectWaypoints(shortcut.getWaypoints());
+  }
+
+  // Check if all shortcut waypoints are still contained in the selected waypoints and reset shortcut if not.
+  void checkShortcutWaypoints() {
+    if (selectedShortcut == null || selectedWaypoints == null) return;
+    if (selectedShortcut!.getWaypoints().every((waypoint) => selectedWaypoints!.contains(waypoint))) return;
+    selectedShortcut = null;
+  }
+
   // Reset the routing service.
   Future<void> reset() async {
     hadErrorDuringFetch = false;
@@ -230,6 +249,7 @@ class Routing with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
+    selectedShortcut = null;
     notifyListeners();
   }
 

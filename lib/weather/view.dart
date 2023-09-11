@@ -161,48 +161,48 @@ class WeatherViewState extends State<WeatherView> {
         // Convert the timestamp to a clock time.
         final clock = "${forecast.timestamp.hour.toString()}:${forecast.timestamp.minute.toString().padLeft(2, '0')}";
         final isTomorrow = forecast.timestamp.day != DateTime.now().day;
-        summary = "${summary!}${isTomorrow ? ' Morgen' : ' Heute'} ab $clock Uhr wird es";
+        summary = "${summary!}${isTomorrow ? ' Morgen' : ' Heute'} ab $clock Uhr";
         switch (forecast.icon) {
           case "clear-day":
-            summary = "${summary!} sonnig.";
+            summary = "${summary!} wird es sonnig.";
             break;
           case "clear-night":
-            summary = "${summary!} klar.";
+            summary = "${summary!} wird es klar.";
             break;
           case "partly-cloudy-day":
-            summary = "${summary!} teilweise bewölkt.";
+            summary = "${summary!} wird es teilweise bewölkt.";
             break;
           case "partly-cloudy-night":
-            summary = "${summary!} teilweise bewölkt.";
+            summary = "${summary!} wird es teilweise bewölkt.";
             break;
           case "cloudy":
-            summary = "${summary!} bewölkt.";
+            summary = "${summary!} wird es bewölkt.";
             break;
           case "fog":
-            summary = "${summary!} neblig.";
+            summary = "${summary!} wird es neblig.";
             break;
           case "wind":
-            summary = "${summary!} windig.";
+            summary = "${summary!} wird es windig.";
             warning = true;
             break;
           case "rain":
-            summary = "${summary!} regnerisch.";
+            summary = "${summary!} wird Regen erwartet.";
             warning = true;
             break;
           case "sleet":
-            summary = "${summary!} schneien.";
+            summary = "${summary!} wird Schneeregen erwartet.";
             warning = true;
             break;
           case "snow":
-            summary = "${summary!} schneien.";
+            summary = "${summary!} wird Schneefall erwartet.";
             warning = true;
             break;
           case "hail":
-            summary = "${summary!} hageln.";
+            summary = "${summary!} wird Hagel erwartet.";
             warning = true;
             break;
           case "thunderstorm":
-            summary = "${summary!} gewittern.";
+            summary = "${summary!} wird ein Gewitter erwartet.";
             warning = true;
             break;
         }
