@@ -41,12 +41,13 @@ class ChallengesProfileService with ChangeNotifier {
   ChallengesProfile? get profile => _profile;
 
   /// Returns list of upgrades allowed for the user according to their current level.
-  List<ProfileUpgrade> get allowedUpgrades => ProfileUpgrade.upgrades
-      .where(
-        (upgrade) =>
-            upgrade.levelToActivate <= profile!.level + 1 && !_activatedUpgrades.map((u) => u.id).contains(upgrade.id),
-      )
-      .toList();
+  List<ProfileUpgrade> get allowedUpgrades => ProfileUpgrade.upgrades.where(
+        (upgrade) {
+          var upgradeNotActive = !_activatedUpgrades.map((u) => u.id).contains(upgrade.id);
+          var levelHighEnough = upgrade.levelToActivate <= profile!.level + 1;
+          return upgradeNotActive && levelHighEnough;
+        },
+      ).toList();
 
   ChallengesProfileService() {
     _loadData();
@@ -108,7 +109,6 @@ class ChallengesProfileService with ChangeNotifier {
 
   /// Perform a level up on the user profile with a given profile upgrade.
   void levelUp(ProfileUpgrade? upgrade) {
-    _profile!.level = min(_profile!.level + 1, levels.length - 1);
     var newUpgrade = upgrade ?? allowedUpgrades.firstOrNull;
     // If there is an upgrade to apply, do that according to the upgrade type.
     if (newUpgrade != null) {
@@ -121,6 +121,7 @@ class ChallengesProfileService with ChangeNotifier {
       _activatedUpgrades.add(newUpgrade);
       updateUpgrades();
     }
+    _profile!.level = min(_profile!.level + 1, levels.length - 1);
     // Save changed profile in shared prefs.
     storeProfile();
   }
