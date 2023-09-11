@@ -18,9 +18,8 @@ import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/main.dart';
 
-/// This view displays the basic info about the users game profile. This can contain their achieved game rewards and
-/// their overall statistics of all registered rides. But what exactly is displayed depends on the users'
-/// enabled gamification features.
+/// This view displays the users game state for the challenge feature and provides them with the option to
+/// upgrade to the next level, if the current level is finished.
 class GameProfileView extends StatefulWidget {
   const GameProfileView({Key? key}) : super(key: key);
 
@@ -38,12 +37,13 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   /// Controller to animate the medal icon when a new medal is gained.
   late final AnimationController _medalsController;
 
-  /// Animation Controller to controll the ring animation.
+  /// Animation Controller to controll the animation of the level ring, when the user can level up.
   late final AnimationController _ringController;
 
+  /// The users profile for the challenges feature.
   ChallengesProfile? get _profile => _profileService.profile;
 
-  /// Get the current level of the user according to their xp. Returns null if the user hasn't reached a level yet.
+  /// Get the current level of the user as a Level object.
   Level get currentLevel {
     if (_profile == null) return levels.first;
     return levels.elementAt(_profile!.level);
@@ -57,19 +57,18 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     return levels[level + 1];
   }
 
+  /// The progress of the user for the next level to reach, as a value between 0 and 1.
   double get levelProgress {
     if (nextLevel == null || _profile == null) return 1;
     var progress = (_profile!.xp - currentLevel.value) / (nextLevel!.value - currentLevel.value);
     return min(1, max(0, progress));
   }
 
-  void update() => {if (mounted) setState(() {})};
-
   @override
   void initState() {
-    _trophiesController = AnimationController(duration: ShortDuration(), vsync: this);
-    _medalsController = AnimationController(duration: ShortDuration(), vsync: this);
-    _ringController = AnimationController(vsync: this, duration: ShortDuration(), value: 1);
+    _trophiesController = AnimationController(duration: MediumDuration(), vsync: this);
+    _medalsController = AnimationController(duration: MediumDuration(), vsync: this);
+    _ringController = AnimationController(vsync: this, duration: MediumDuration(), value: 1);
     _profileService = getIt<ChallengesProfileService>();
     _profileService.addListener(updateProfile);
     _ringController.addListener(update);
@@ -85,11 +84,14 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     super.dispose();
   }
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
+
   /// Bounce animation for the trophy or medal icon.
   Animation<double> getAnimation(var controller) =>
       Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
+  /// Called when the users challenge profile changes.
   void updateProfile() async {
     if (mounted) setState(() {});
     // If the medals have changed, animate the medal icon.
@@ -106,6 +108,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     }
   }
 
+  /// Opaen level up dialog according to the number of possible upgrades the user can apply with the level up.
   Future<void> _showLevelUpDialog() async {
     if (nextLevel == null) return;
     var openUpgrades = _profileService.allowedUpgrades;
@@ -125,15 +128,15 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _profileService.levelUp(result);
   }
 
-  /// Returns widget for displaying a trophy count for a trophy with a given icon.
-  Widget getTrophyWidget(int number, IconData icon, Animation<double> animation, bool animate) {
+  /// Returns widget for displaying the count of a collected virtual reward. 
+  Widget getRewardWidget(int number, IconData icon, Animation<double> animation, bool animate) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ScaleTransition(
           scale: animation,
           child: AnimatedContainer(
-            duration: ShortDuration(),
+            duration: MediumDuration(),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
@@ -309,7 +312,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                           type: 0,
                         ),
                       ),
-                      child: getTrophyWidget(
+                      child: getRewardWidget(
                         _profile!.medals,
                         CustomGameIcons.blank_medal,
                         getAnimation(_medalsController),
@@ -330,7 +333,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                           type: 0,
                         ),
                       ),
-                      child: getTrophyWidget(
+                      child: getRewardWidget(
                         _profile!.trophies,
                         CustomGameIcons.blank_trophy,
                         getAnimation(_trophiesController),

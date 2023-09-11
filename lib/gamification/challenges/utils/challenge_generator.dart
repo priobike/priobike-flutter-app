@@ -65,9 +65,10 @@ abstract class ChallengeGenerator {
     }
   }
 
-  List<ChallengesCompanion> generateChallenges(int number) {
+  /// Generate a list of challenges, which are different.
+  List<ChallengesCompanion> generateChallenges(int length) {
     List<ChallengesCompanion> challenges = [];
-    while (challenges.length < number) {
+    while (challenges.length < length) {
       var newChallenge = generate();
       var similar = challenges.where((c) => c.type == newChallenge.type && c.xp == newChallenge.xp);
       if (similar.isEmpty) challenges.add(newChallenge);
@@ -75,10 +76,13 @@ abstract class ChallengeGenerator {
     return challenges;
   }
 
+  /// Route goals of the user, pulled from the goals service.
   RouteGoals? get routeGoals => getIt<GoalsService>().routeGoals;
 
+  /// Daily distance and duration goals of the user, pulled from the goals service.
   DailyGoals get dailyGoals => getIt<GoalsService>().dailyGoals;
 
+  /// Generate a single new challenge.
   ChallengesCompanion generate();
 }
 
@@ -88,7 +92,7 @@ class DailyChallengeGenerator extends ChallengeGenerator {
   final int xpMaxSteps = 8;
   final int xpStepSize = 5;
 
-  /// This function returns a fitting value range for a given challenge type and user goals.
+  /// This function returns a fitting value range for a given challenge type.
   ValueRange getDailyChallengeValueRange(DailyChallengeType type) {
     //TODO
     if (type == DailyChallengeType.distance) {
@@ -141,6 +145,8 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
   final int xpMaxSteps = 10;
   final int xpStepSize = 10;
 
+  /// If [withRoutes] is true, all weekly challenge types are returned,
+  /// otherwise only the ones which are not connected to route goals.
   List<WeeklyChallengeType> getAllowedChallengeTypes(bool withRoutes) {
     var types = List<WeeklyChallengeType>.from(WeeklyChallengeType.values);
     if (!withRoutes) {
@@ -150,7 +156,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
     return types;
   }
 
-  /// This function returns a fitting value range for a given challenge type and user goals.
+  /// This function returns a fitting value range for a given challenge type.
   ValueRange getWeeklyChallengeValueRange(WeeklyChallengeType type) {
     //TODO
     if (type == WeeklyChallengeType.overallDistance) {
@@ -168,7 +174,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
     return ValueRange.fromMax(1, 1);
   }
 
-  /// This function returns a fitting challenge description for a given challenge type and the target value.
+  /// This function returns a fitting challenge description for a given challenge type, target value and route label.
   String buildDescriptionWeekly(WeeklyChallengeType type, int value, String? routeLabel) {
     if (type == WeeklyChallengeType.overallDistance) {
       return 'Bringe diese Woche eine Strecke von ${value / 1000} Kilometern hinter Dich!';

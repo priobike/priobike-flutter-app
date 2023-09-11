@@ -1,4 +1,4 @@
-/// This class holds the relevant game data of a user.
+/// This profile holds the users' game state for the challenges feature .
 class ChallengesProfile {
   /// The xp of the user.
   int xp;

@@ -6,9 +6,12 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
+/// Dialog widget for when the user reached a new level in their challenge profile. 
 class LevelUpDialog extends StatefulWidget {
+  /// The new level of the user. 
   final Level newLevel;
 
+  /// Additional content on the dialog. 
   final Widget? content;
 
   const LevelUpDialog({Key? key, required this.newLevel, this.content}) : super(key: key);
@@ -18,6 +21,7 @@ class LevelUpDialog extends StatefulWidget {
 }
 
 class _LevelUpDialogState extends State<LevelUpDialog> {
+  /// Controller to display confetti behind the dialog. 
   late final ConfettiController _confettiController;
 
   @override

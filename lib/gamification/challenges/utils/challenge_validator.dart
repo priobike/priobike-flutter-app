@@ -59,7 +59,7 @@ class ChallengeValidator {
     return _updateChallenge(totalDurationMinutes);
   }
 
-  /// Update challenge progress according to the overall ride distances.
+  /// Update challenge progress according to the overall ride elevation gain.
   Future<void> _handleElevationChallenge(List<RideSummary> rides) async {
     var totalElevationGain = ListUtils.getListSum(rides.map((ride) => ride.elevationGainMetres).toList()).toInt();
     return _updateChallenge(totalElevationGain);
@@ -101,7 +101,7 @@ class ChallengeValidator {
     _updateChallenge(streak);
   }
 
-  /// Update challenge progress according to the overall ride durations.
+  /// Update challenge progress according to the daily goals of the user and the corresponding ride values.
   Future<void> _handleDailyGoalsCompletedChallenge(List<RideSummary> rides) async {
     if (challenge.routeId == null) return;
 
@@ -110,7 +110,7 @@ class ChallengeValidator {
     var end = start.add(const Duration(days: 1));
 
     // Iterate through all the days of the challenge interval, till the end of the interval or the current time
-    // and count the days where the daily goals where completed.
+    // and count the days where the daily goals were completed.
     var dailyGoals = getIt<GoalsService>().dailyGoals;
     var daysWithGoalsCompleted = 0;
     while (!(end.isAfter(challenge.closingTime) || start.isAfter(DateTime.now()))) {

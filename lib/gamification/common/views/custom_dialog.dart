@@ -20,7 +20,7 @@ class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderSt
 
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: ShortDuration());
+    _animationController = AnimationController(vsync: this, duration: MediumDuration());
     _animationController.forward();
     super.initState();
   }

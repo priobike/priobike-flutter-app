@@ -28,7 +28,7 @@ class _ChallengeChoiceDialogState extends State<ChallengeChoiceDialog> with Sing
 
   void selectChallenge(int index) async {
     setState(() => selectedChallenge = index);
-    await Future.delayed(ShortDuration());
+    await Future.delayed(MediumDuration());
     if (mounted) Navigator.of(context).pop(selectedChallenge);
   }
 
@@ -88,7 +88,7 @@ class ChallengeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       opacity: visible ? 1 : 0,
-      duration: TinyDuration(),
+      duration: ShortDuration(),
       child: AnimatedButton(
         onPressed: visible ? onTap : null,
         child: Container(

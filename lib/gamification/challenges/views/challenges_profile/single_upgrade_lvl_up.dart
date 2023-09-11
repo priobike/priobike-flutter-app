@@ -5,8 +5,12 @@ import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/views/challenges_profile/lvl_up_dialog.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 
+/// Dialog widget for when the user reached a new level in their challenge profile and gained a single profile upgrade.
 class SingleUpgradeLvlUpDialog extends StatelessWidget {
+  /// The new level of the user.
   final Level newLevel;
+
+  /// The upgrade gained by the level up.
   final ProfileUpgrade upgrade;
 
   const SingleUpgradeLvlUpDialog({Key? key, required this.newLevel, required this.upgrade}) : super(key: key);

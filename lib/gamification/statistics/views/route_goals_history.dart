@@ -97,7 +97,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                 borderRadius: BorderRadius.circular(24),
               ),
               child: AnimatedSwitcher(
-                duration: TinyDuration(),
+                duration: ShortDuration(),
                 transitionBuilder: (child, animation) => FadeTransition(
                   opacity: animation,
                   child: child,

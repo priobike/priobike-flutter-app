@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 
+/// The possible upgrade types, which determine what to do, if an update is activated by the user.
 enum ProfileUpgradeType {
   addDailyChoice,
   addWeeklyChoice,
@@ -8,15 +9,21 @@ enum ProfileUpgradeType {
   addWeeklyChallenge,
 }
 
+/// An upgrade which can be activated when the users reaches a certain level to enhance certain profile values.
 class ProfileUpgrade {
+  /// Unique id for the upgrade.
   final String id;
 
+  /// Textual description of the upgrade.
   final String description;
 
+  /// Level needet to activate this upgrade.
   final int levelToActivate;
 
+  /// Type of upgrade.
   final ProfileUpgradeType type;
 
+  /// Icon describing the upgrades.
   final IconData icon;
 
   ProfileUpgrade(this.id, this.description, this.levelToActivate, this.type, this.icon);
@@ -36,6 +43,7 @@ class ProfileUpgrade {
         type = ProfileUpgradeType.values.elementAt(json['type']),
         icon = IconData(json['icon'], fontFamily: 'MaterialIcons');
 
+  /// List of possible upgrades.
   static List<ProfileUpgrade> upgrades = [
     ProfileUpgrade(
       '0',

@@ -213,7 +213,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
             ),
             AnimatedOpacity(
               opacity: showMenu ? 1 : 0,
-              duration: TinyDuration(),
+              duration: ShortDuration(),
               child: GestureDetector(
                 onTap: () {},
                 child: Container(
@@ -263,7 +263,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   child: AnimatedSwitcher(
-                    duration: TinyDuration(),
+                    duration: ShortDuration(),
                     transitionBuilder: (child, animation) => ScaleTransition(
                       scale: animation,
                       child: child,

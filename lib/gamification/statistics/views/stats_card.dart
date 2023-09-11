@@ -84,7 +84,7 @@ class _StatisticsEnabeldCardState extends State<StatisticsEnabeldCard> with Sing
     if (pageController.hasClients && (newIndex - (pageController.page ?? newIndex)).abs() >= 1) {
       pageController.animateToPage(
         newIndex,
-        duration: TinyDuration(),
+        duration: ShortDuration(),
         curve: Curves.ease,
       );
       return;

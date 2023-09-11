@@ -8,9 +8,13 @@ import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 
+/// Dialog widget for when the user reached a new level in their challenge profile
+/// and has the option to apply an upgrade out of multiple options.
 class MultipleUpgradesLvlUpDialog extends StatefulWidget {
+  /// The new level of the user.
   final Level newLevel;
 
+  /// The upgrade options the user has.
   final List<ProfileUpgrade> upgrades;
 
   const MultipleUpgradesLvlUpDialog({
@@ -23,11 +27,13 @@ class MultipleUpgradesLvlUpDialog extends StatefulWidget {
 }
 
 class _MultipleUpgradesLvlUpDialogState extends State<MultipleUpgradesLvlUpDialog> with SingleTickerProviderStateMixin {
+  /// Index of the upgrade selected by the user.
   int? selectedUpgrade;
 
+  /// Update the selected upgrade and close the dialog after a short time.
   void selectUpgrade(int index) async {
     setState(() => selectedUpgrade = index);
-    await Future.delayed(ShortDuration());
+    await Future.delayed(MediumDuration());
     if (mounted) Navigator.of(context).pop(widget.upgrades.elementAt(selectedUpgrade!));
   }
 
@@ -52,6 +58,7 @@ class _MultipleUpgradesLvlUpDialogState extends State<MultipleUpgradesLvlUpDialo
   }
 }
 
+/// This is a clickable widget displaying an upgrade the user can apply to their challenge profile.
 class UpgradeChoice extends StatelessWidget {
   final Function()? onTap;
   final ProfileUpgrade upgrade;
@@ -67,7 +74,7 @@ class UpgradeChoice extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       opacity: visible ? 1 : 0,
-      duration: TinyDuration(),
+      duration: ShortDuration(),
       child: AnimatedButton(
         onPressed: visible ? onTap : null,
         child: Container(

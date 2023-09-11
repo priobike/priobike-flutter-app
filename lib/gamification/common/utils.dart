@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
-import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
-/// Fixed duration for long animation.
+/// Fixed long duration for animations and stuff.
 class LongDuration extends Duration {
   LongDuration() : super(milliseconds: 1000);
 }
 
-/// Fixed duration for a short animation.
-class ShortDuration extends Duration {
-  ShortDuration() : super(milliseconds: 500);
+/// Fixed medium duration for animations and stuff.
+class MediumDuration extends Duration {
+  MediumDuration() : super(milliseconds: 500);
 }
 
-class TinyDuration extends Duration {
-  TinyDuration() : super(milliseconds: 250);
+/// Fixed short duration for animations and stuff.
+class ShortDuration extends Duration {
+  ShortDuration() : super(milliseconds: 250);
 }
 
 /// Simple fade tranistion to let widgets appear smooth.

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
@@ -10,6 +11,7 @@ import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// This service updates the challenges profile according to the user interaction.
 class ChallengesProfileService with ChangeNotifier {
   static const profileKey = 'priobike.gamification.challenges.profile';
   static const activatedUpgradesKey = 'priobike.gamification.challenges.activatedUpgrades';
@@ -29,10 +31,13 @@ class ChallengesProfileService with ChangeNotifier {
   /// List of the activated profile upgrades.
   List<ProfileUpgrade> _activatedUpgrades = [];
 
+  /// Dao to access the challenges completed by the user.
   ChallengeDao get challengeDao => AppDatabase.instance.challengeDao;
 
+  /// The current state of the users challenge profile.
   ChallengesProfile? get profile => _profile;
 
+  /// Returns list of upgrades allowed for the user according to their current level.
   List<ProfileUpgrade> get allowedUpgrades => ProfileUpgrade.upgrades
       .where(
         (upgrade) =>
@@ -44,28 +49,26 @@ class ChallengesProfileService with ChangeNotifier {
     _loadData();
   }
 
+  /// Load profile data from shared preferences.
   Future<void> _loadData() async {
     _prefs ??= await SharedPreferences.getInstance();
-    // Try to load profile string from prefs and parse to user profile if possible.
     var parsedProfile = _prefs?.getString(profileKey);
     if (parsedProfile == null) return;
     _profile = ChallengesProfile.fromJson(jsonDecode(parsedProfile));
     var activatedUpgrades = _prefs!.getStringList(activatedUpgradesKey) ?? [];
     _activatedUpgrades = activatedUpgrades.map((e) => ProfileUpgrade.fromJson(jsonDecode(e))).toList();
+
     // If a profile was loaded, start the database stream of rides, to update the profile according to the challenges.
     startDatabaseStreams();
   }
 
-  /// Create a user profile with a given username and save in shared prefs.
+  /// Create a challenge profile for the user, store it an prefs and start streams to observe completed challenges.
   Future<bool> createProfile() async {
     if (_profile != null) return false;
-    // Create profile and set join date to now.
     _profile = ChallengesProfile();
-    // Try to save profile in shared prefs and return false if not successful.
     if (!(await _prefs?.setString(profileKey, jsonEncode(_profile!.toJson().toString())) ?? false)) {
       return false;
     }
-    // Start the database stream of rides, to update the profile data accordingly.
     startDatabaseStreams();
     return true;
   }
@@ -78,7 +81,6 @@ class ChallengesProfileService with ChangeNotifier {
 
   /// Update profile data stored in shared prefs and notify listeners.
   Future<void> storeProfile() async {
-    // Update profile in shared preferences.
     _prefs ??= await SharedPreferences.getInstance();
     _prefs?.setString(profileKey, jsonEncode(_profile!.toJson()));
     notifyListeners();
@@ -101,34 +103,34 @@ class ChallengesProfileService with ChangeNotifier {
     storeProfile();
   }
 
+  /// Perform a level up on the user profile with a given profile upgrade.
   void levelUp(ProfileUpgrade? upgrade) {
     _profile!.level = min(_profile!.level + 1, levels.length - 1);
-    if (allowedUpgrades.isNotEmpty) {
-      var newUpgrade = upgrade ?? allowedUpgrades.first;
+    var newUpgrade = upgrade ?? allowedUpgrades.firstOrNull;
+    // If there is an upgrade to apply, do that according to the upgrade type.
+    if (newUpgrade != null) {
       if (newUpgrade.type == ProfileUpgradeType.addDailyChoice) {
         profile!.dailyChallengeChoices += 1;
       } else if (newUpgrade.type == ProfileUpgradeType.addWeeklyChoice) {
         profile!.weeklyChallengeChoices += 1;
       }
+      // Save, that the upgrades has been activated, so that it can not be activated again.
       _activatedUpgrades.add(newUpgrade);
       updateUpgrades();
     }
+    // Save changed profile in shared prefs.
     storeProfile();
   }
 
+  /// Update the activated upgrades in the shared preferences.
   void updateUpgrades() {
     _prefs!.setStringList(
       activatedUpgradesKey,
-      _activatedUpgrades
-          .map(
-            (upgrade) => jsonEncode(
-              upgrade.toJson(),
-            ),
-          )
-          .toList(),
+      _activatedUpgrades.map((upgrade) => jsonEncode(upgrade.toJson())).toList(),
     );
   }
 
+  /// Reset all challenges and the their influence on the challenges profile.
   Future<void> resetChallenges() async {
     _prefs ??= await SharedPreferences.getInstance();
     if (_profile == null) return;
@@ -139,6 +141,7 @@ class ChallengesProfileService with ChangeNotifier {
     challengeDao.clearObjects();
   }
 
+  /// Reset everything connected to the challenge feature.
   Future<void> reset() async {
     _prefs ??= await SharedPreferences.getInstance();
     _profile = null;

@@ -9,8 +9,7 @@ import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
 import 'package:priobike/main.dart';
 
-/// The game view is displayed when the user presses the game card on the home view. It either starts the game intro,
-/// or opens the gamification hub, where the user can access all game elements.
+/// This view contains the gamification functionality.
 class GameView extends StatefulWidget {
   const GameView({Key? key}) : super(key: key);
 
@@ -19,23 +18,28 @@ class GameView extends StatefulWidget {
 }
 
 class _GameViewState extends State<GameView> {
-  /// The associated profile service.
+  /// This service provides user information.
   late GamificationUserService _profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
+  /// The gamification features mapped to their corresponding cards.
   final Map<String, Widget> _featureCards = {
     GamificationUserService.gameFeatureChallengesKey: const GameChallengesCard(),
     GamificationUserService.gameFeatureStatisticsKey: const RideStatisticsCard(),
   };
 
+  /// List of feature cards for enabled features.
   List<Widget> get _enabledFeatureCards =>
       _profileService.enabledFeatures.map((key) => _featureCards[key] as Widget).toList();
 
+  /// List of feature cards for disabled features.
   List<Widget> get _disabledFeatureCards =>
       _profileService.disabledFeatures.map((key) => _featureCards[key] as Widget).toList();
 
+  /// Whether to give the user the option to set goals, which is only meaningful
+  /// if the goals are used by some activated features.
   bool get showGoals =>
       _profileService.isFeatureEnabled(GamificationUserService.gameFeatureChallengesKey) ||
       _profileService.isFeatureEnabled(GamificationUserService.gameFeatureStatisticsKey);
