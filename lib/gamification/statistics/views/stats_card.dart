@@ -18,6 +18,7 @@ import 'package:priobike/gamification/statistics/views/stats_page.dart';
 import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/main.dart';
 
+/// This card is displayed on the home view and holds all information and functionality of the statistics feature.
 class RideStatisticsCard extends StatelessWidget {
   const RideStatisticsCard({Key? key}) : super(key: key);
 
@@ -88,7 +89,7 @@ class RideStatisticsCard extends StatelessWidget {
   }
 }
 
-/// A gamification hub card which displays graphs containing statistics of the users' rides.
+/// A page view displaying a reduced stat history of the user, only inclduing recent weeks.
 class StatisticsOverview extends StatefulWidget {
   const StatisticsOverview({Key? key}) : super(key: key);
 
@@ -97,13 +98,14 @@ class StatisticsOverview extends StatefulWidget {
 }
 
 class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTickerProviderStateMixin {
-  // Controller for the page view displaying the different statistics.
-  final PageController pageController = PageController();
+  // Controller for the page view displaying the different pages.
+  final PageController _pageController = PageController();
 
   /// Controller which connects the tab indicator to the page view.
-  late final TabController tabController = TabController(length: 4, vsync: this);
+  late final TabController _tabController = TabController(length: 4, vsync: this);
 
-  late final StatisticsViewModel viewModel;
+  /// The view model holding the ride stats of the displayed data.
+  late final StatisticsViewModel _viewModel;
 
   late StatisticService _statsService;
 
@@ -118,10 +120,10 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
   @override
   void dispose() {
     _statsService.removeListener(update);
-    tabController.dispose();
-    pageController.dispose();
-    viewModel.removeListener(update);
-    viewModel.dispose();
+    _tabController.dispose();
+    _pageController.dispose();
+    _viewModel.removeListener(update);
+    _viewModel.dispose();
     super.dispose();
   }
 
@@ -130,15 +132,15 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
     var today = DateTime.now();
     today = DateTime(today.year, today.month, today.day);
     var statsStartDate = today.subtract(const Duration(days: 5 * DateTime.daysPerWeek));
-    viewModel = StatisticsViewModel(startDate: statsStartDate, endDate: today);
-    viewModel.addListener(update);
+    _viewModel = StatisticsViewModel(startDate: statsStartDate, endDate: today);
+    _viewModel.addListener(update);
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
+  /// Update the displayed page.
   void update() {
-    var newIndex = getIt<StatisticService>().statInterval.index;
-    if (pageController.hasClients && (newIndex - (pageController.page ?? newIndex)).abs() >= 1) {
-      pageController.animateToPage(
+    var newIndex = _statsService.statInterval.index;
+    if (_pageController.hasClients && (newIndex - (_pageController.page ?? newIndex)).abs() >= 1) {
+      _pageController.animateToPage(
         newIndex,
         duration: ShortDuration(),
         curve: Curves.ease,
@@ -148,6 +150,7 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
     if (mounted) setState(() {});
   }
 
+  /// Wrap a a graph in a column and add a title above of the graph.
   Widget getGraphWithTitle({required String title, required Widget graph}) {
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -179,11 +182,11 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
             SizedBox(
               height: 200,
               child: PageView(
-                controller: pageController,
+                controller: _pageController,
                 clipBehavior: Clip.hardEdge,
                 onPageChanged: (int index) => setState(() {
                   // Update tab controller index to update the indicator.
-                  tabController.index = index;
+                  _tabController.index = index;
                   getIt<StatisticService>().setStatInterval(
                     StatInterval.values[min(index, StatInterval.values.length - 1)],
                   );
@@ -191,24 +194,24 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
                 children: [
                   getGraphWithTitle(
                     title: 'Diese Woche',
-                    graph: WeekStatsGraph(week: viewModel.weeks.last),
+                    graph: WeekStatsGraph(week: _viewModel.weeks.last),
                   ),
                   getGraphWithTitle(
                     title: 'Dieser Monat',
-                    graph: MonthStatsGraph(month: viewModel.months.last),
+                    graph: MonthStatsGraph(month: _viewModel.months.last),
                   ),
                   getGraphWithTitle(
-                    title: '${viewModel.weeks.length} Wochen Rückblick',
-                    graph: MultipleWeeksStatsGraph(weeks: viewModel.weeks),
+                    title: '${_viewModel.weeks.length} Wochen Rückblick',
+                    graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
                   ),
-                  RouteStatistics(viewModel: viewModel),
+                  FancyRouteStatsForWeek(week: _viewModel.weeks.last),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: TabPageSelector(
-                controller: tabController,
+                controller: _tabController,
                 selectedColor: Theme.of(context).colorScheme.primary,
                 indicatorSize: 6,
                 borderStyle: BorderStyle.none,

@@ -1,32 +1,34 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
-import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
+import 'package:priobike/gamification/statistics/models/ride_stats.dart';
+import 'package:priobike/gamification/statistics/views/route_goals_in_week.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 
-class RouteStatistics extends StatefulWidget {
-  final StatisticsViewModel viewModel;
+/// A widget displaying the users route stats for a single given week.
+class FancyRouteStatsForWeek extends StatefulWidget {
+  /// The week displayed by the widget. 
+  final WeekStats week;
 
-  const RouteStatistics({Key? key, required this.viewModel}) : super(key: key);
+  const FancyRouteStatsForWeek({Key? key, required this.week}) : super(key: key);
 
   @override
-  State<RouteStatistics> createState() => _RouteStatisticsState();
+  State<FancyRouteStatsForWeek> createState() => _FancyRouteStatsForWeekState();
 }
 
-class _RouteStatisticsState extends State<RouteStatistics> {
-  /// The associated goals service.
+class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
+  /// The associated goals service to get the route goals to display, whether the user has reached the goasl.
   late GoalsService _goalsService;
 
+  /// The current route goals of the user. 
   RouteGoals? get goals => _goalsService.routeGoals;
 
+  /// Get shortcut corresponding to the route the users has goals for. 
   Shortcut? get routeShortcut => getIt<Shortcuts>().shortcuts?.where((s) => s.id == goals!.routeID).firstOrNull;
 
   @override
@@ -128,11 +130,10 @@ class _RouteStatisticsState extends State<RouteStatistics> {
                     ],
                   ),
                 ),
-                child: RoutesInWeekWidget(
-                  weekGoals: goals!.weekdays,
-                  ridesInWeek: widget.viewModel.weeks.last.rides,
-                  routeId: goals!.routeID,
-                  buttonSize: 32,
+                child: RouteGoalsInWeek(
+                  goals: goals!,
+                  ridesInWeek: widget.week.rides,
+                  daySize: 32,
                 ),
               ),
             ],
@@ -140,69 +141,6 @@ class _RouteStatisticsState extends State<RouteStatistics> {
         ),
         if (routeShortcut != null) routeShortcut!.getRepresentation(),
       ],
-    );
-  }
-}
-
-class RoutesInWeekWidget extends StatelessWidget {
-  final String routeId;
-  final List<bool> weekGoals;
-  final List<RideSummary> ridesInWeek;
-  final double buttonSize;
-
-  const RoutesInWeekWidget({
-    Key? key,
-    required this.weekGoals,
-    required this.ridesInWeek,
-    required this.routeId,
-    required this.buttonSize,
-  }) : super(key: key);
-
-  List<int> get weekPerformance {
-    var performance = List.filled(DateTime.daysPerWeek, 0);
-    for (int i = 0; i < DateTime.daysPerWeek; i++) {
-      var ridesOnDay = ridesInWeek.where((ride) => ride.startTime.weekday == i + 1);
-      var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId == routeId);
-      performance[i] = ridesOnRoute.length;
-    }
-    return performance;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: weekGoals
-          .mapIndexed(
-            (i, isGoal) => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: buttonSize,
-                  width: buttonSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: weekPerformance[i] > 0 && isGoal
-                        ? CI.blue
-                        : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 0.1 : 0.05),
-                  ),
-                  child: Center(
-                    child: BoldSmall(
-                      text: '${weekPerformance[i]}/${isGoal ? '1' : '0'}',
-                      context: context,
-                      color: weekPerformance[i] > 0 && isGoal
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 1 : 0.25),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                BoldContent(text: StringFormatter.getWeekStr(i), context: context)
-              ],
-            ),
-          )
-          .toList(),
     );
   }
 }

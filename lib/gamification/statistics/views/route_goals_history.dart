@@ -7,10 +7,12 @@ import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
-import 'package:priobike/gamification/statistics/views/route_stats.dart';
+import 'package:priobike/gamification/statistics/views/route_goals_in_week.dart';
 import 'package:priobike/main.dart';
 
+/// Display a history of the user reaching their route goal.
 class RouteGoalsHistory extends StatefulWidget {
+  /// The view model with the weeks, for which the history should be displayed.
   final StatisticsViewModel viewModel;
 
   const RouteGoalsHistory({Key? key, required this.viewModel}) : super(key: key);
@@ -20,16 +22,20 @@ class RouteGoalsHistory extends StatefulWidget {
 }
 
 class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
-  /// The associated goals service.
+  /// The associated goals service to get the route goals from.
   late GoalsService _goalsService;
 
-  int displayedWeekIndex = 0;
+  /// Index of the currently displayed week.
+  int _currentWeekIndex = 0;
 
-  RouteGoals? get goals => _goalsService.routeGoals;
+  /// Return the users route goals.
+  RouteGoals? get _goals => _goalsService.routeGoals;
 
-  List<WeekStats> get reversedWeeks => widget.viewModel.weeks.reversed.toList();
+  /// Get the list of weeks the history should include.
+  List<WeekStats> get _reversedWeeks => widget.viewModel.weeks.reversed.toList();
 
-  WeekStats get currentWeekStats => reversedWeeks.elementAt(displayedWeekIndex);
+  /// Get the stats of the currently selected week.
+  WeekStats get _currentWeekStats => _reversedWeeks.elementAt(_currentWeekIndex);
 
   @override
   void initState() {
@@ -63,7 +69,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
             textAlign: TextAlign.start,
           ),
-          if (goals == null) ...[
+          if (_goals == null) ...[
             const VSpace(),
             Icon(
               Icons.map,
@@ -81,10 +87,10 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
             ),
             const VSpace(),
           ],
-          if (goals != null) ...[
+          if (_goals != null) ...[
             const SmallVSpace(),
             BoldSubHeader(
-              text: goals!.routeName,
+              text: _goals!.routeName,
               context: context,
               textAlign: TextAlign.center,
               height: 1,
@@ -102,12 +108,11 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                   opacity: animation,
                   child: child,
                 ),
-                child: RoutesInWeekWidget(
-                  key: ValueKey(currentWeekStats.getTimeDescription(null)),
-                  weekGoals: goals!.weekdays,
-                  ridesInWeek: currentWeekStats.rides,
-                  routeId: goals!.routeID,
-                  buttonSize: 40,
+                child: RouteGoalsInWeek(
+                  key: ValueKey(_currentWeekStats.getTimeDescription(null)),
+                  goals: _goals!,
+                  ridesInWeek: _currentWeekStats.rides,
+                  daySize: 40,
                 ),
               ),
             ),
@@ -116,21 +121,20 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
               children: [
                 OnTabAnimation(
                   scaleFactor: 0.8,
-                  onPressed: displayedWeekIndex >= reversedWeeks.length - 1
-                      ? null
-                      : () => setState(() => displayedWeekIndex++),
+                  onPressed:
+                      _currentWeekIndex >= _reversedWeeks.length - 1 ? null : () => setState(() => _currentWeekIndex++),
                   child: Icon(
                     Icons.arrow_back_ios_rounded,
                     size: 32,
                     color: Theme.of(context)
                         .colorScheme
                         .onBackground
-                        .withOpacity(displayedWeekIndex >= reversedWeeks.length - 1 ? 0.25 : 1),
+                        .withOpacity(_currentWeekIndex >= _reversedWeeks.length - 1 ? 0.25 : 1),
                   ),
                 ),
                 Expanded(
                   child: SubHeader(
-                    text: currentWeekStats.getTimeDescription(null),
+                    text: _currentWeekStats.getTimeDescription(null),
                     context: context,
                     textAlign: TextAlign.center,
                     height: 1,
@@ -138,11 +142,11 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                 ),
                 OnTabAnimation(
                   scaleFactor: 0.8,
-                  onPressed: displayedWeekIndex == 0 ? null : () => setState(() => displayedWeekIndex--),
+                  onPressed: _currentWeekIndex == 0 ? null : () => setState(() => _currentWeekIndex--),
                   child: Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 32,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(displayedWeekIndex == 0 ? 0.25 : 1),
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(_currentWeekIndex == 0 ? 0.25 : 1),
                   ),
                 ),
               ],

@@ -6,6 +6,7 @@ import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/main.dart';
 
+/// Widget to display the overall statistics of the users registered rides since enabling the gamification.
 class OverallStatistics extends StatefulWidget {
   const OverallStatistics({Key? key}) : super(key: key);
 
@@ -14,27 +15,27 @@ class OverallStatistics extends StatefulWidget {
 }
 
 class _OverallStatisticsState extends State<OverallStatistics> {
-  /// Game settings service required to check whether the user has set their challenge goals.
-  late GamificationUserService _profileService;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  /// Service to pull the stats from.
+  late GamificationUserService _userService;
 
   @override
   void initState() {
-    _profileService = getIt<GamificationUserService>();
-    _profileService.addListener(update);
+    _userService = getIt<GamificationUserService>();
+    _userService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
-    _profileService.removeListener(update);
+    _userService.removeListener(update);
     super.dispose();
   }
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
+
   /// Returns an info widget for a given stat, label and icon.
-  Widget getStatWidget(IconData icon, String value, String label) {
+  Widget getStatWidget(IconData icon, double value, String label, StatType type) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,7 +46,7 @@ class _OverallStatisticsState extends State<OverallStatistics> {
             color: CI.blue.withOpacity(1),
           ),
           BoldContent(
-            text: value,
+            text: StringFormatter.getRoundedStrByRideType(value, StatType.distance),
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
             height: 1,
@@ -63,7 +64,7 @@ class _OverallStatisticsState extends State<OverallStatistics> {
 
   @override
   Widget build(BuildContext context) {
-    var profile = _profileService.profile!;
+    var profile = _userService.profile!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -72,7 +73,7 @@ class _OverallStatisticsState extends State<OverallStatistics> {
           const SizedBox(height: 16),
           BoldContent(text: 'Dein PrioBike', context: context, height: 1),
           BoldSmall(
-            text: 'beigetreten am ${StringFormatter.getDateStr(_profileService.profile!.joinDate)}',
+            text: 'beigetreten am ${StringFormatter.getDateStr(_userService.profile!.joinDate)}',
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
             height: 1,
@@ -83,31 +84,11 @@ class _OverallStatisticsState extends State<OverallStatistics> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              getStatWidget(
-                Icons.directions_bike,
-                StringFormatter.getRoundedStrByRideType(profile.totalDistanceKilometres, StatType.distance),
-                'km',
-              ),
-              getStatWidget(
-                Icons.timer,
-                StringFormatter.getRoundedStrByRideType(profile.totalDurationMinutes, StatType.duration),
-                'min',
-              ),
-              getStatWidget(
-                Icons.speed,
-                StringFormatter.getRoundedStrByRideType(profile.averageSpeedKmh, StatType.speed),
-                'økm/h',
-              ),
-              getStatWidget(
-                Icons.arrow_upward,
-                StringFormatter.getRoundedStrByRideType(profile.totalElevationGainMetres, StatType.elevationGain),
-                'm',
-              ),
-              getStatWidget(
-                Icons.arrow_downward,
-                StringFormatter.getRoundedStrByRideType(profile.totalElevationLossMetres, StatType.elevationLoss),
-                'm',
-              ),
+              getStatWidget(Icons.directions_bike, profile.totalDistanceKilometres, 'km', StatType.distance),
+              getStatWidget(Icons.timer, profile.totalDurationMinutes, 'min', StatType.duration),
+              getStatWidget(Icons.speed, profile.averageSpeedKmh, 'økm/h', StatType.speed),
+              getStatWidget(Icons.arrow_upward, profile.totalElevationGainMetres, 'm', StatType.elevationGain),
+              getStatWidget(Icons.arrow_downward, profile.totalElevationLossMetres, 'm', StatType.elevationLoss),
             ],
           ),
         ],

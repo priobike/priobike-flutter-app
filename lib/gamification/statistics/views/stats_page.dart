@@ -7,12 +7,10 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
-import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
-import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/ride_graphs_page_view.dart';
-import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/route_goals_history.dart';
+import 'package:priobike/main.dart';
 
 /// This view provides the user with detailed statistics about their ride history.
 class StatisticsView extends StatefulWidget {
@@ -23,55 +21,60 @@ class StatisticsView extends StatefulWidget {
 }
 
 class _StatisticsViewState extends State<StatisticsView> with TickerProviderStateMixin {
-  late StatisticsViewModel viewModel;
+  /// The view model, which hold all the stats displayed by the view.
+  late StatisticsViewModel _viewModel;
 
   /// The interval in which rides shall be displayed.
-  StatInterval _statInterval = StatInterval.weeks;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  late StatInterval _statInterval;
 
   @override
   void initState() {
+    _statInterval = getIt<StatisticService>().statInterval;
     initViewModel();
     super.initState();
   }
 
   @override
   void dispose() {
-    viewModel.removeListener(update);
-    viewModel.dispose();
+    _viewModel.removeListener(update);
+    _viewModel.dispose();
     super.dispose();
   }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   /// Initialize view model to hold data for the last year.
   void initViewModel() {
     var today = DateTime.now();
     today = DateTime(today.year, today.month, today.day);
     var todayLastYear = DateTime(today.year - 1, today.month, today.day);
-    viewModel = StatisticsViewModel(startDate: todayLastYear, endDate: today);
-    viewModel.addListener(update);
+    _viewModel = StatisticsViewModel(startDate: todayLastYear, endDate: today);
+    _viewModel.addListener(update);
   }
 
   /// Get ride statistic view according to stat interval.
   Widget getStatsViewFromInterval(StatInterval interval) {
-    if (_statInterval == StatInterval.weeks && viewModel.weeks.isNotEmpty) {
-      var reverseWeeks = viewModel.weeks.reversed.toList();
+    // If the stat interval ist weeks, return a page view for all weeks in the view model.
+    if (_statInterval == StatInterval.weeks && _viewModel.weeks.isNotEmpty) {
       return RideGraphsPageView(
-        graphs: reverseWeeks.map((week) => WeekStatsGraph(week: week)).toList(),
-        displayedStats: reverseWeeks,
+        key: const ValueKey('weeks'),
+        stats: _viewModel.weeks.reversed.toList(),
       );
-    } else if (_statInterval == StatInterval.months && viewModel.months.isNotEmpty) {
-      var reversedMonths = viewModel.months.reversed.toList();
+    }
+    // If the stat interval ist months, return a page view for all months in the view model.
+    else if (_statInterval == StatInterval.months && _viewModel.months.isNotEmpty) {
       return RideGraphsPageView(
-        key: const ValueKey('month'),
-        graphs: reversedMonths.map((month) => MonthStatsGraph(month: month)).toList(),
-        displayedStats: reversedMonths,
+        key: const ValueKey('months'),
+        stats: _viewModel.months.reversed.toList(),
       );
-    } else if (_statInterval == StatInterval.multipleWeeks) {
+    }
+    // If the stat interval ist multiple weeks, built groups of 5 weeks from the weeks
+    // in the view model and return a page view for the week-groups.
+    else if (_statInterval == StatInterval.multipleWeeks) {
       int weeksPerGraph = 5;
       List<ListOfRideStats<WeekStats>> displayedStats = [];
-      var allWeeks = List.from(viewModel.weeks);
+      var allWeeks = List.from(_viewModel.weeks);
       while (allWeeks.length >= weeksPerGraph) {
         List<WeekStats> weeks = [];
         for (int i = 0; i < weeksPerGraph; i++) {
@@ -79,16 +82,12 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
         }
         displayedStats.add(ListOfRideStats<WeekStats>(weeks));
       }
-      if (displayedStats.isEmpty) return const SizedBox.shrink();
-      return RideGraphsPageView(
-        key: const ValueKey('multiWeeks'),
-        graphs: displayedStats
-            .map(
-              (element) => MultipleWeeksStatsGraph(weeks: element.list),
-            )
-            .toList(),
-        displayedStats: displayedStats,
-      );
+      if (displayedStats.isNotEmpty) {
+        return RideGraphsPageView(
+          key: const ValueKey('multiWeeks'),
+          stats: displayedStats,
+        );
+      }
     }
     return const SizedBox.shrink();
   }
@@ -152,7 +151,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
                 child: getStatsViewFromInterval(_statInterval),
               ),
               Expanded(child: Container()),
-              RouteGoalsHistory(viewModel: viewModel),
+              RouteGoalsHistory(viewModel: _viewModel),
             ],
           ),
         ),
@@ -161,11 +160,15 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   }
 }
 
+/// Button to change the displayed stat interval.
 class IntervalSelectionButton extends StatefulWidget {
+  /// The stat interval corresponding to the button.
   final StatInterval interval;
 
+  /// If the interval is currently selected.
   final bool selected;
 
+  /// Callback for when the button is tapped.
   final Function() onTap;
 
   const IntervalSelectionButton({
@@ -201,6 +204,7 @@ class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
         onTap: () {
           widget.onTap();
           setState(() {});
+          getIt<StatisticService>().setStatInterval(widget.interval);
         },
         child: Container(
           padding: const EdgeInsets.all(4),

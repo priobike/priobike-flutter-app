@@ -134,13 +134,13 @@ class EnabledFeatureCard extends StatefulWidget {
   final Widget? featurePage;
 
   /// The key of the corresponding feature.
-  final String? featureKey;
+  final String featureKey;
 
   const EnabledFeatureCard({
     Key? key,
     required this.content,
+    required this.featureKey,
     this.featurePage,
-    this.featureKey,
   }) : super(key: key);
   @override
   State<EnabledFeatureCard> createState() => _EnabledFeatureCardState();
@@ -227,7 +227,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                       label: 'Deaktivieren',
                       icon: Icons.not_interested,
                       onPressed: () {
-                        userService.disableFeature(widget.featureKey!);
+                        userService.disableFeature(widget.featureKey);
                         Navigator.of(context).pop();
                       },
                       color: CI.red,
@@ -293,8 +293,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                 ),
               ),
             ),
-
-            /// If the menu is opened, it is shown above the card at the positin of the menu button.
+            // If the menu is opened, it is shown above the card at the positin of the menu button.
             AnimatedOpacity(
               opacity: showMenu ? 1 : 0,
               duration: ShortDuration(),
@@ -328,12 +327,12 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                       if (showMoveUpButton)
                         getMenuItem(
                           icon: Icons.keyboard_arrow_up,
-                          onPressed: () => userService.moveFeatureUp(widget.featureKey!),
+                          onPressed: () => userService.moveFeatureUp(widget.featureKey),
                         ),
                       if (showMoveDownButton)
                         getMenuItem(
                           icon: Icons.keyboard_arrow_down,
-                          onPressed: () => userService.moveFeatureDown(widget.featureKey!),
+                          onPressed: () => userService.moveFeatureDown(widget.featureKey),
                         ),
                       const SizedBox(height: 4),
                     ],
@@ -341,33 +340,31 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                 ),
               ),
             ),
-
-            /// Button to open or close the menu.
-            if (widget.featureKey != null)
-              GestureDetector(
-                onTap: () => setState(() => showMenu = !showMenu),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: AnimatedSwitcher(
-                    duration: ShortDuration(),
-                    transitionBuilder: (child, animation) => ScaleTransition(
-                      scale: animation,
-                      child: child,
-                    ),
-                    child: showMenu
-                        ? const Icon(
-                            Icons.close_rounded,
-                            size: 32,
-                            key: ValueKey("hide"),
-                          )
-                        : const Icon(
-                            Icons.more_vert,
-                            size: 32,
-                            key: ValueKey("show"),
-                          ),
+            // Button to open or close the menu.
+            GestureDetector(
+              onTap: () => setState(() => showMenu = !showMenu),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: AnimatedSwitcher(
+                  duration: ShortDuration(),
+                  transitionBuilder: (child, animation) => ScaleTransition(
+                    scale: animation,
+                    child: child,
                   ),
+                  child: showMenu
+                      ? const Icon(
+                          Icons.close_rounded,
+                          size: 32,
+                          key: ValueKey("hide"),
+                        )
+                      : const Icon(
+                          Icons.more_vert,
+                          size: 32,
+                          key: ValueKey("show"),
+                        ),
                 ),
               ),
+            ),
           ],
         ),
       ),

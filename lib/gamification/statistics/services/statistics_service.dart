@@ -16,37 +16,36 @@ class StatisticService with ChangeNotifier {
   /// The ride info which shall be displayed.
   StatType _selectedType = StatType.distance;
 
+  /// The date selected from the stats.
   DateTime? _selectedDate;
 
+  /// Get the currently selected stat interval.
   StatInterval get statInterval => _statInterval;
 
+  /// Get the currently selected stat type.
   StatType get selectedType => _selectedType;
 
+  /// Get the currently selected date.
   DateTime? get selectedDate => _selectedDate;
 
+  /// Change selected stat interval.
   void setStatInterval(StatInterval type) {
     _statInterval = type;
     notifyListeners();
   }
 
+  /// Change selected stat type.
   void setStatType(StatType type) {
     _selectedType = type;
     notifyListeners();
   }
 
-  void setSelectedDate(DateTime? date) {
+  /// Change selected date or set it to null.
+  void selectDate(DateTime? date) {
     _selectedDate = date;
     notifyListeners();
   }
 
   /// Check if given ride info type is currently selected.
   bool isTypeSelected(StatType type) => type == _selectedType;
-
-  /// Get icon describing a given ride info type.
-  static IconData getIconForInfoType(StatType type) {
-    if (type == StatType.distance) return Icons.directions_bike;
-    if (type == StatType.speed) return Icons.speed;
-    if (type == StatType.duration) return Icons.timer;
-    return Icons.question_mark;
-  }
 }

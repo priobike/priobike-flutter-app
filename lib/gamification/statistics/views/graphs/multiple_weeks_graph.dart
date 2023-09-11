@@ -4,11 +4,14 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/views/graphs/ride_stats_graph.dart';
 
+/// Graph which displays the data for a given list of weeks. 
 class MultipleWeeksStatsGraph extends StatelessWidget {
+  /// The week stats corresponding to the weeks to be displayed. 
   final List<WeekStats> weeks;
 
   const MultipleWeeksStatsGraph({Key? key, required this.weeks}) : super(key: key);
 
+  /// Label the x axis by adding the monday date to each week bar.
   Widget getTitlesX(double value, TitleMeta meta, TextStyle style) {
     return SideTitleWidget(
       axisSide: meta.axisSide,

@@ -4,21 +4,30 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
+/// This object holds some kind of aggregation of ride statistics.
 class RideStats {
+  /// Distance in kilometres.
   final double distanceKilometres;
 
+  /// Duration in minutes.
   final double durationMinutes;
 
+  /// Elevation gain in metres.
   final double elevationGainMetres;
 
+  /// Elevation loss in metres.
   final double elevationLossMetres;
 
+  /// Average speed in kilometres per hour.
   final double averageSpeedKmh;
 
+  /// A goal value for the distance in kilometres.
   double? distanceGoalKilometres;
 
+  /// A goal value for the duration in minutes.
   double? durationGoalMinutes;
 
+  /// Get ride stats from a list of summaries, by summing up all the ride values and averaging the speed.
   RideStats.fromSummaries(List<RideSummary> rides)
       : distanceKilometres = ListUtils.getListSum(rides.map((r) => r.distanceMetres / 1000).toList()),
         durationMinutes = ListUtils.getListSum(rides.map((r) => r.durationSeconds / 60).toList()),
@@ -26,6 +35,7 @@ class RideStats {
         elevationLossMetres = ListUtils.getListSum(rides.map((r) => r.elevationLossMetres).toList()),
         averageSpeedKmh = ListUtils.getListAvg(rides.map((r) => r.averageSpeedKmh).toList());
 
+  /// Get ride stats from a list of ride stats, by summing up all the ride values and averaging the speed.
   RideStats.fromStats(List<RideStats> stats)
       : distanceKilometres = ListUtils.getListSum(stats.map((s) => s.distanceKilometres).toList()),
         durationMinutes = ListUtils.getListSum(stats.map((s) => s.durationMinutes).toList()),
@@ -37,6 +47,7 @@ class RideStats {
     durationGoalMinutes = ListUtils.getListSum(stats.map((s) => s.durationGoalMinutes).whereType<double>().toList());
   }
 
+  /// Get ride stat value for a given stat type.
   double getStatFromType(StatType type) {
     if (type == StatType.distance) return distanceKilometres;
     if (type == StatType.duration) return durationMinutes;
@@ -46,29 +57,36 @@ class RideStats {
     return 0;
   }
 
+  /// Get goal value for a given stat type.
   double? getGoalFromType(StatType type) {
     if (type == StatType.distance) return distanceGoalKilometres;
     if (type == StatType.duration) return durationGoalMinutes;
     return null;
   }
 
+  /// Get textual description of the time frame the stats are in.
   String getTimeDescription(int? index) => '';
 
+  /// Get ride summaries corresponding to the stats.
   List<RideSummary> get rides => [];
 }
 
+/// This object holds ride statistics for a concrete day.
 class DayStats extends RideStats {
+  /// The date of the day.
   final DateTime date;
 
   @override
   final List<RideSummary> rides;
 
+  /// The object can be retreived from given goals and rides and date.
   DayStats(int year, int month, int day, this.rides, DailyGoals? goals)
       : date = DateTime(year, month, day),
         super.fromSummaries(rides) {
     setGoals(goals);
   }
 
+  /// Create an empty stat object from given date and goals.
   DayStats.empty(int year, int month, int day, DailyGoals? goals)
       : date = DateTime(year, month, day),
         rides = [],
@@ -76,6 +94,7 @@ class DayStats extends RideStats {
     setGoals(goals);
   }
 
+  /// Set goal values of the object according to given goals.
   void setGoals(DailyGoals? goals) {
     if (goals != null && goals.weekdays[date.weekday - 1]) {
       distanceGoalKilometres = goals.distanceMetres / 1000;
@@ -86,6 +105,7 @@ class DayStats extends RideStats {
     }
   }
 
+  /// Whether a given date is on the same day as this day stats.
   bool isOnDay(tmpDate) {
     return date.year == tmpDate.year && date.month == tmpDate.month && date.day == tmpDate.day;
   }
@@ -94,17 +114,25 @@ class DayStats extends RideStats {
   String getTimeDescription(int? index) => StringFormatter.getDateStr(date);
 }
 
+/// This objects aggregates a list of ride stats in an object holding the concrete list,
+/// the corresponding ride stats and, in addition, average values.
 class ListOfRideStats<T extends RideStats> extends RideStats {
+  /// The corresponding list of ride stats.
   final List<T> list;
 
+  /// The average distance covered by all ride stats in the list.
   final double avgDistanceKilometres;
 
+  /// The average duration of all ride stats in the list.
   final double avgDurationMinutes;
 
+  /// The average elevation gain of all ride stats in the list.
   final double avgElevationGainMetres;
 
+  /// The average elevation loss of all ride stats in the list.
   final double avgElevationLossMetres;
 
+  /// Get object from list of ride stats by calculating averages.
   ListOfRideStats(this.list)
       : avgDistanceKilometres = list.map((d) => d.distanceKilometres).average,
         avgDurationMinutes = list.map((d) => d.durationMinutes).average,
@@ -112,24 +140,14 @@ class ListOfRideStats<T extends RideStats> extends RideStats {
         avgElevationLossMetres = list.map((d) => d.elevationLossMetres).average,
         super.fromStats(list);
 
+  /// Get max of values and goals of all elements in the stat list.
   double getMaxForType(StatType type) {
-    List<double> values = [];
-    if (type == StatType.distance) {
-      values = list.map((day) => day.distanceKilometres).toList() +
-          list.map((day) => day.distanceGoalKilometres ?? 0).toList();
-    } else if (type == StatType.duration) {
-      values =
-          list.map((day) => day.durationMinutes).toList() + list.map((day) => day.durationGoalMinutes ?? 0).toList();
-    } else if (type == StatType.elevationGain) {
-      values = list.map((day) => day.elevationGainMetres).toList();
-    } else if (type == StatType.elevationLoss) {
-      values = list.map((day) => day.elevationLossMetres).toList();
-    } else if (type == StatType.speed) {
-      values = list.map((day) => day.averageSpeedKmh).toList();
-    }
-    return values.maxOrNull ?? 0;
+    var listOfValues = list.map((e) => e.getStatFromType(type)).toList();
+    var listOfGoalValues = list.map((e) => e.getGoalFromType(type)).whereType<double>().toList();
+    return (listOfValues + listOfGoalValues).maxOrNull ?? 0;
   }
 
+  /// Get average value for given stat type.
   double getAvgFromType(StatType type) {
     if (type == StatType.distance) return avgDistanceKilometres;
     if (type == StatType.duration) return avgDurationMinutes;
@@ -139,6 +157,7 @@ class ListOfRideStats<T extends RideStats> extends RideStats {
     return 0;
   }
 
+  /// Whether the list hold ride stats for a given day.
   int? isDayInList(DateTime? day) {
     if (day == null) return null;
     for (int i = 0; i < list.length; i++) {
@@ -169,9 +188,12 @@ class ListOfRideStats<T extends RideStats> extends RideStats {
   List<RideSummary> get rides => list.map((e) => e.rides).reduce((a, b) => a + b);
 }
 
+/// This object holds ride statistics for a week.
 class WeekStats extends ListOfRideStats<DayStats> {
+  /// Date of the monday of the week.
   final DateTime mondayDate;
 
+  /// Get stats from list of days of the week.
   WeekStats(List<DayStats> days)
       : mondayDate = days.first.date,
         super(days);
@@ -186,11 +208,15 @@ class WeekStats extends ListOfRideStats<DayStats> {
   }
 }
 
+/// This object holds ride statistics for a month.
 class MonthStats extends ListOfRideStats<DayStats> {
+  /// Year of the month.
   final int year;
 
+  /// Index of the month from 1 to 12.
   final int month;
 
+  /// Get stats from list of days of the month.
   MonthStats(List<DayStats> days)
       : year = days.first.date.year,
         month = days.first.date.month,

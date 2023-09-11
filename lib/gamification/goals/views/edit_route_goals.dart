@@ -28,10 +28,10 @@ class EditRouteGoalsView extends StatefulWidget {
 }
 
 class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
-  /// The associated goals service to update the route goals. 
+  /// The associated goals service to update the route goals.
   late GoalsService _goalsService;
 
-  /// The associated shortcuts service to display the users saved shortcuts as possible routes to set goals for. 
+  /// The associated shortcuts service to display the users saved shortcuts as possible routes to set goals for.
   late Shortcuts _shortcutsService;
 
   @override
@@ -59,7 +59,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
           const VSpace(),
           OnTabAnimation(
             onPressed: () {
-              /// On pressed, the widget directs the user to the routing view to create a route. 
+              /// On pressed, the widget directs the user to the routing view to create a route.
               if (getIt<Routing>().isFetchingRoute) return;
               HapticFeedback.mediumImpact();
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
@@ -123,7 +123,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
           children: selectedDays
               .mapIndexed(
                 (i, day) => WeekdayButton(
-                  label: StringFormatter.getWeekStr(i),
+                  day: i,
                   onPressed: goals == null
                       ? null
                       : () {

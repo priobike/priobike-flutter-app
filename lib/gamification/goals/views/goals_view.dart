@@ -8,7 +8,7 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/views/edit_daily_goals.dart';
 import 'package:priobike/gamification/goals/views/edit_route_goals.dart';
 
-/// This view
+/// This view gives the user to open widgets to edit their daily and route goals by pressing on corresponding buttons.
 class GoalsView extends StatefulWidget {
   const GoalsView({Key? key}) : super(key: key);
 
@@ -17,8 +17,10 @@ class GoalsView extends StatefulWidget {
 }
 
 class _GoalsViewState extends State<GoalsView> {
+  /// Whether to show the daily goals widget.
   bool showEditDailyGoals = false;
 
+  /// Whether to show the route goals widget.
   bool showEditRouteGoals = false;
 
   @override
@@ -80,13 +82,18 @@ class _GoalsViewState extends State<GoalsView> {
   }
 }
 
+/// Custom button design to either open or close a goals edit widget.
 class CustomIconButton extends StatelessWidget {
+  /// Icon on the left side of the button.
   final IconData icon;
 
+  /// Label on the button.
   final String label;
 
+  /// Whether the button is selected, which means it is displayed in blue.
   final bool selected;
 
+  /// Callback function for when the button is pressed.
   final Function() onPressed;
 
   const CustomIconButton({

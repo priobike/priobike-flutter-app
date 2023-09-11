@@ -51,7 +51,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
           children: goals.weekdays
               .mapIndexed(
                 (i, day) => WeekdayButton(
-                  label: StringFormatter.getWeekStr(i),
+                  day: i,
                   onPressed: () {
                     goals.weekdays[i] = !goals.weekdays[i];
                     goals.weekdays = goals.weekdays;

@@ -5,6 +5,9 @@ import 'package:priobike/gamification/common/views/tutorial_page.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/main.dart';
 
+
+/// This tutorial page gives the user a brief introduction to the statistics feature
+/// and gives them the option to activate it.
 class StatisticsTutorial extends StatelessWidget {
   const StatisticsTutorial({Key? key}) : super(key: key);
 

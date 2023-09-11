@@ -26,6 +26,11 @@ class StatisticsViewModel with ChangeNotifier {
 
   int? _selectedDay;
 
+  /// The c
+  DateTime? _selectedDate;
+
+  DateTime? get selectedDate => _selectedDate;
+
   int? get selectedDay => _selectedDay;
 
   DailyGoals? get goals => goalsService.dailyGoals;
@@ -50,6 +55,11 @@ class StatisticsViewModel with ChangeNotifier {
 
   void setSelectedDay(int? day) {
     _selectedDay = day;
+    notifyListeners();
+  }
+
+  void setSelectedDate(DateTime? date) {
+    _selectedDate = date;
     notifyListeners();
   }
 

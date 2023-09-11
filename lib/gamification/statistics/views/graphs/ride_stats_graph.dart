@@ -7,6 +7,7 @@ import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/main.dart';
 
+/// This widget displays a given list of ride stats in a graph.
 class RideStatsGraph extends StatefulWidget {
   /// Function which returns title widgets for the x axis.
   final Widget Function(double value, TitleMeta meta) getTitlesX;
@@ -33,16 +34,20 @@ class RideStatsGraph extends StatefulWidget {
 }
 
 class _RideStatsGraphState extends State<RideStatsGraph> {
+  /// The stat service to get the current selected stat type to be displayed.
   late StatisticService statsService;
 
-  StatType get type => statsService.selectedType;
+  /// Index of the selected bar or null, if none is selected.
+  int? selectedIndex;
 
-  int? get selectedIndex => widget.displayedStats.isDayInList(statsService.selectedDate);
+  /// Stat type to be displayed.
+  StatType get type => statsService.selectedType;
 
   @override
   void initState() {
     statsService = getIt<StatisticService>();
     statsService.addListener(update);
+    selectedIndex = widget.displayedStats.isDayInList(statsService.selectedDate);
     super.initState();
   }
 
@@ -55,7 +60,7 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
-  /// Get list of bars according to the given values.
+  /// Get list of bars according to the given values and goal values.
   List<BarChartGroupData> getBars() {
     var list = widget.displayedStats.list;
     return list.mapIndexed((i, stat) {
@@ -89,15 +94,17 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
     }).toList();
   }
 
-  /// Get fitting max value for a given list of values.
-  double getFittingMax() {
+  /// Get max value for the stats to be displayed, rounded to a fitting interval.
+  double getRoundedMax() {
     var num = widget.displayedStats.getMaxForType(type);
     if (num == 0) return 1;
     if (num <= 5) return num;
     if (num <= 10) return num.ceilToDouble();
     if (num <= 50) return roundUpToInterval(num, 5);
     if (num <= 100) return roundUpToInterval(num, 10);
-    return roundUpToInterval(num, 50);
+    if (num <= 200) return roundUpToInterval(num, 25);
+    if (num <= 500) return roundUpToInterval(num, 50);
+    return roundUpToInterval(num, 100);
   }
 
   /// Round a given double up to a given interval.
@@ -115,13 +122,13 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
                 if (p0 is FlTapUpEvent) {
                   var index = p1?.spot?.touchedBarGroupIndex;
                   if (index == null) {
-                    return statsService.setSelectedDate(null);
+                    return statsService.selectDate(null);
                   } else {
                     var selectedElement = widget.displayedStats.list.elementAt(index);
                     if (selectedElement is DayStats) {
-                      statsService.setSelectedDate(selectedElement.date);
+                      statsService.selectDate(selectedElement.date);
                     } else if (selectedElement is WeekStats) {
-                      statsService.setSelectedDate(selectedElement.mondayDate);
+                      statsService.selectDate(selectedElement.mondayDate);
                     }
                   }
                 }
@@ -153,7 +160,7 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
               ),
             ),
           ),
-          maxY: getFittingMax(),
+          maxY: getRoundedMax(),
           gridData: FlGridData(drawVerticalLine: false),
           barGroups: getBars(),
         ),

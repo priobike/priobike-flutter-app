@@ -6,45 +6,39 @@ import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
+import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
 import 'package:priobike/main.dart';
 
-/// This widget contains a number of graphs, displaying ride statistics, in a page view.
+/// This widget displays a list of ride stats in an interactive page view containing the corresponding graphs.
 class RideGraphsPageView extends StatefulWidget {
-  /// The graphs, displayed by the widget in a page view to scroll through.
-  final List<Widget> graphs;
-
   /// The data of the currently displayed page.
-  final List<ListOfRideStats> displayedStats;
+  final List<ListOfRideStats> stats;
 
   const RideGraphsPageView({
     Key? key,
-    required this.graphs,
-    required this.displayedStats,
+    required this.stats,
   }) : super(key: key);
   @override
   State<RideGraphsPageView> createState() => _RideGraphsPageViewState();
 }
 
 class _RideGraphsPageViewState extends State<RideGraphsPageView> {
-  late PageController pageController;
+  /// Controller to controll the page view.
+  final PageController pageController = PageController(initialPage: 0);
 
+  /// Stat service to change selected date and stat type.
   late StatisticService statsService;
 
+  /// Index of the page currently displayed by the page view.
   int displayedPageIndex = 0;
-
-  List<ListOfRideStats<WeekStats>> displayedStats = [];
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
     statsService = getIt<StatisticService>();
     statsService.addListener(update);
-    pageController = PageController(initialPage: displayedStats.length - 1);
-    pageController.addListener(() {
-      setState(() => displayedPageIndex = pageController.page!.round());
-    });
+    pageController.addListener(() => setState(() => displayedPageIndex = pageController.page!.round()));
     super.initState();
   }
 
@@ -53,6 +47,19 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
     statsService.removeListener(update);
     pageController.dispose();
     super.dispose();
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
+
+  /// Get list of graphs according the stats given to the widget.
+  List<Widget> getGraphs() {
+    return widget.stats.map<Widget>((element) {
+      if (element is WeekStats) return WeekStatsGraph(week: element);
+      if (element is MonthStats) return MonthStatsGraph(month: element);
+      if (element is ListOfRideStats<WeekStats>) return MultipleWeeksStatsGraph(weeks: element.list);
+      return const SizedBox.shrink();
+    }).toList();
   }
 
   /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
@@ -74,7 +81,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
           SizedBox.fromSize(
             size: const Size.square(48),
             child: Center(
-              child: Icon(StatisticService.getIconForInfoType(type)),
+              child: Icon(getIconForInfoType(type)),
             ),
           ),
         ],
@@ -84,7 +91,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
 
   @override
   Widget build(BuildContext context) {
-    var statsOnPage = widget.displayedStats.elementAt(displayedPageIndex);
+    var statsOnPage = widget.stats.elementAt(displayedPageIndex);
     var statType = statsService.selectedType;
     var selectedIndex = statsOnPage.isDayInList(statsService.selectedDate);
     var selectedElement = selectedIndex == null ? null : statsOnPage.list.elementAt(selectedIndex);
@@ -92,7 +99,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: () => statsService.setSelectedDate(null),
+          onTap: () => statsService.selectDate(null),
           child: Column(
             children: [
               Padding(
@@ -153,7 +160,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
                     reverse: true,
                     controller: pageController,
                     clipBehavior: Clip.hardEdge,
-                    children: widget.graphs,
+                    children: getGraphs(),
                   ),
                 ),
               ),

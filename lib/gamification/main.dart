@@ -9,7 +9,7 @@ import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/stats_card.dart';
 import 'package:priobike/main.dart';
 
-/// This view contains the gamification functionality.
+/// This view displays the gamification functionality according to the user settings.
 class GameView extends StatefulWidget {
   const GameView({Key? key}) : super(key: key);
 
@@ -19,10 +19,7 @@ class GameView extends StatefulWidget {
 
 class _GameViewState extends State<GameView> {
   /// This service provides user information.
-  late GamificationUserService _profileService;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
+  late GamificationUserService _userService;
 
   /// The gamification features mapped to their corresponding cards.
   final Map<String, Widget> _featureCards = {
@@ -32,35 +29,38 @@ class _GameViewState extends State<GameView> {
 
   /// List of feature cards for enabled features.
   List<Widget> get _enabledFeatureCards =>
-      _profileService.enabledFeatures.map((key) => _featureCards[key] as Widget).toList();
+      _userService.enabledFeatures.map((key) => _featureCards[key] as Widget).toList();
 
   /// List of feature cards for disabled features.
   List<Widget> get _disabledFeatureCards =>
-      _profileService.disabledFeatures.map((key) => _featureCards[key] as Widget).toList();
+      _userService.disabledFeatures.map((key) => _featureCards[key] as Widget).toList();
 
   /// Whether to give the user the option to set goals, which is only meaningful
   /// if the goals are used by some activated features.
-  bool get showGoals =>
-      _profileService.isFeatureEnabled(GamificationUserService.challengesFeatureKey) ||
-      _profileService.isFeatureEnabled(GamificationUserService.statisticsFeatureKey);
+  bool get _showGoals =>
+      _userService.isFeatureEnabled(GamificationUserService.challengesFeatureKey) ||
+      _userService.isFeatureEnabled(GamificationUserService.statisticsFeatureKey);
 
   @override
   void initState() {
-    _profileService = getIt<GamificationUserService>();
-    _profileService.addListener(update);
+    _userService = getIt<GamificationUserService>();
+    _userService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
-    _profileService.removeListener(update);
+    _userService.removeListener(update);
     super.dispose();
   }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => {if (mounted) setState(() {})};
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: (!_profileService.hasProfile)
+      children: (!_userService.hasProfile)
           ? [
               Container(
                 alignment: Alignment.center,
@@ -86,7 +86,7 @@ class _GameViewState extends State<GameView> {
             ]
           : [
               const OverallStatistics(),
-              if (showGoals) const GoalsView(),
+              if (_showGoals) const GoalsView(),
               const SmallVSpace(),
               ..._enabledFeatureCards,
               ..._disabledFeatureCards,
