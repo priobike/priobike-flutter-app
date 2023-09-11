@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
-import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/main.dart';
 
 class StatisticsViewModel with ChangeNotifier {
   static const Duration oneDay = Duration(days: 1);
 
-  final UserGoalsService goalsService = getIt<UserGoalsService>();
+  final GoalsService goalsService = getIt<GoalsService>();
 
   StreamSubscription? rideStream;
 

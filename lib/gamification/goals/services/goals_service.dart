@@ -7,7 +7,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UserGoalsService with ChangeNotifier {
+class GoalsService with ChangeNotifier {
   static const dailyGoalsKey = 'priobike.gamification.dailyGoals';
   static const routeGoalsKey = 'priobike.gamification.routeGoals';
 
@@ -24,7 +24,7 @@ class UserGoalsService with ChangeNotifier {
 
   RouteGoals? get routeGoals => _routeGoals;
 
-  UserGoalsService() {
+  GoalsService() {
     _loadData();
     getIt<Shortcuts>().addListener(() {
       if (_routeGoals == null) return;

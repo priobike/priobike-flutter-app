@@ -34,31 +34,7 @@ class CustomFadeTransition extends FadeTransition {
 }
 
 /// A bunch of utility methods for processing ride data.
-class Utils {
-  /// Calculate overall value from given list of values according to a given ride info type.
-  static double getOverallValueFromDouble(List<double> list, StatType type) {
-    return 0;
-  }
-
-  /// Calculate overall value from a given list of rides.
-  static double getOverallValueFromSummaries(List<RideSummary> list, StatType type) {
-    if (list.isEmpty) return 0;
-    return Utils.getOverallValueFromDouble(
-      list.map((ride) => Utils.getConvertedRideValueFromType(ride, type)).toList(),
-      type,
-    );
-  }
-
-  /// Get ride info value from given ride according to a given ride info type. Also convert m to km and s to min.
-  static double getConvertedRideValueFromType(RideSummary ride, StatType infoType) {
-    if (infoType == StatType.distance) return ride.distanceMetres / 1000;
-    if (infoType == StatType.duration) return ride.durationSeconds / 60;
-    if (infoType == StatType.speed) return ride.averageSpeedKmh;
-    if (infoType == StatType.elevationGain) return ride.elevationGainMetres;
-    if (infoType == StatType.elevationLoss) return ride.elevationLossMetres;
-    return 0;
-  }
-
+class ListUtils {
   /// Calculate sum of values in list.
   static double getListSum(List<double> list) {
     if (list.isEmpty) return 0;

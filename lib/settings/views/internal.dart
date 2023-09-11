@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
@@ -330,7 +330,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     callback: () async {
                       await getIt<GamificationUserService>().reset();
                       await getIt<ChallengesProfileService>().reset();
-                      await getIt<UserGoalsService>().reset();
+                      await getIt<GoalsService>().reset();
                     },
                   ),
                 ),

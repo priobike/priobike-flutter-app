@@ -85,7 +85,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
   @override
   Widget build(BuildContext context) {
     var statsOnPage = widget.displayedStats.elementAt(displayedPageIndex);
-    var statType = statsService.rideInfo;
+    var statType = statsService.selectedType;
     var selectedIndex = statsOnPage.isDayInList(statsService.selectedDate);
     var selectedElement = selectedIndex == null ? null : statsOnPage.list.elementAt(selectedIndex);
     return Column(

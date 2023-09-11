@@ -8,7 +8,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
-import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/goals/views/weekday_button.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
@@ -28,7 +28,7 @@ class EditRouteGoalsView extends StatefulWidget {
 
 class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
   /// The associated goals service.
-  late UserGoalsService _goalsService;
+  late GoalsService _goalsService;
 
   /// The associated shortcuts service
   late Shortcuts _shortcutsService;
@@ -41,7 +41,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
 
   @override
   void initState() {
-    _goalsService = getIt<UserGoalsService>();
+    _goalsService = getIt<GoalsService>();
     _goalsService.addListener(update);
     _shortcutsService = getIt<Shortcuts>();
     _shortcutsService.addListener(update);

@@ -4,7 +4,7 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
-abstract class RideStats {
+class RideStats {
   final double distanceKilometres;
 
   final double durationMinutes;
@@ -20,20 +20,21 @@ abstract class RideStats {
   double? durationGoalMinutes;
 
   RideStats.fromSummaries(List<RideSummary> rides)
-      : distanceKilometres = Utils.getListSum(rides.map((r) => r.distanceMetres / 1000).toList()),
-        durationMinutes = Utils.getListSum(rides.map((r) => r.durationSeconds / 60).toList()),
-        elevationGainMetres = Utils.getListSum(rides.map((r) => r.elevationGainMetres).toList()),
-        elevationLossMetres = Utils.getListSum(rides.map((r) => r.elevationLossMetres).toList()),
-        averageSpeedKmh = Utils.getListAvg(rides.map((r) => r.averageSpeedKmh).toList());
+      : distanceKilometres = ListUtils.getListSum(rides.map((r) => r.distanceMetres / 1000).toList()),
+        durationMinutes = ListUtils.getListSum(rides.map((r) => r.durationSeconds / 60).toList()),
+        elevationGainMetres = ListUtils.getListSum(rides.map((r) => r.elevationGainMetres).toList()),
+        elevationLossMetres = ListUtils.getListSum(rides.map((r) => r.elevationLossMetres).toList()),
+        averageSpeedKmh = ListUtils.getListAvg(rides.map((r) => r.averageSpeedKmh).toList());
 
   RideStats.fromStats(List<RideStats> stats)
-      : distanceKilometres = Utils.getListSum(stats.map((s) => s.distanceKilometres).toList()),
-        durationMinutes = Utils.getListSum(stats.map((s) => s.durationMinutes).toList()),
-        elevationGainMetres = Utils.getListSum(stats.map((s) => s.elevationGainMetres).toList()),
-        elevationLossMetres = Utils.getListSum(stats.map((s) => s.elevationLossMetres).toList()),
-        averageSpeedKmh = Utils.getListAvg(stats.map((s) => s.averageSpeedKmh).toList()) {
-    distanceGoalKilometres = Utils.getListSum(stats.map((s) => s.distanceGoalKilometres).whereType<double>().toList());
-    durationGoalMinutes = Utils.getListSum(stats.map((s) => s.durationGoalMinutes).whereType<double>().toList());
+      : distanceKilometres = ListUtils.getListSum(stats.map((s) => s.distanceKilometres).toList()),
+        durationMinutes = ListUtils.getListSum(stats.map((s) => s.durationMinutes).toList()),
+        elevationGainMetres = ListUtils.getListSum(stats.map((s) => s.elevationGainMetres).toList()),
+        elevationLossMetres = ListUtils.getListSum(stats.map((s) => s.elevationLossMetres).toList()),
+        averageSpeedKmh = ListUtils.getListAvg(stats.map((s) => s.averageSpeedKmh).toList()) {
+    distanceGoalKilometres =
+        ListUtils.getListSum(stats.map((s) => s.distanceGoalKilometres).whereType<double>().toList());
+    durationGoalMinutes = ListUtils.getListSum(stats.map((s) => s.durationGoalMinutes).whereType<double>().toList());
   }
 
   double getStatFromType(StatType type) {
@@ -51,9 +52,9 @@ abstract class RideStats {
     return null;
   }
 
-  String getTimeDescription(int? index);
+  String getTimeDescription(int? index) => '';
 
-  List<RideSummary> get rides;
+  List<RideSummary> get rides => [];
 }
 
 class DayStats extends RideStats {

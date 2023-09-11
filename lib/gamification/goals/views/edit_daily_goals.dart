@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/goals/views/edit_goal_widget.dart';
 import 'package:priobike/gamification/goals/views/weekday_button.dart';
 import 'package:priobike/main.dart';
@@ -16,14 +16,14 @@ class EditDailyGoalsView extends StatefulWidget {
 
 class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
   /// The associated goals service.
-  late UserGoalsService _goalsService;
+  late GoalsService _goalsService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
   @override
   void initState() {
-    _goalsService = getIt<UserGoalsService>();
+    _goalsService = getIt<GoalsService>();
     _goalsService.addListener(update);
     super.initState();
   }

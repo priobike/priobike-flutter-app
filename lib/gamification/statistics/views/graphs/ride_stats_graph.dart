@@ -35,7 +35,7 @@ class RideStatsGraph extends StatefulWidget {
 class _RideStatsGraphState extends State<RideStatsGraph> {
   late StatisticService statsService;
 
-  StatType get type => statsService.rideInfo;
+  StatType get type => statsService.selectedType;
 
   int? get selectedIndex => widget.displayedStats.isDayInList(statsService.selectedDate);
 

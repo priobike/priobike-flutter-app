@@ -6,6 +6,7 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/models/user_profile.dart';
+import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,11 +91,12 @@ class GamificationUserService with ChangeNotifier {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
     // Update profile statistics according to rides.
-    _profile!.totalDistanceKilometres = Utils.getOverallValueFromSummaries(rides, StatType.distance);
-    _profile!.totalDurationMinutes = Utils.getOverallValueFromSummaries(rides, StatType.duration);
-    _profile!.totalElevationGainMetres = Utils.getOverallValueFromSummaries(rides, StatType.elevationGain);
-    _profile!.totalElevationLossMetres = Utils.getOverallValueFromSummaries(rides, StatType.elevationLoss);
-    _profile!.averageSpeedKmh = Utils.getOverallValueFromSummaries(rides, StatType.speed);
+    RideStats stats = RideStats.fromSummaries(rides);
+    _profile!.totalDistanceKilometres = stats.distanceKilometres;
+    _profile!.totalDurationMinutes = stats.durationMinutes;
+    _profile!.totalElevationGainMetres = stats.elevationGainMetres;
+    _profile!.totalElevationLossMetres = stats.elevationLossMetres;
+    _profile!.averageSpeedKmh = stats.averageSpeedKmh;
     updateProfile();
   }
 

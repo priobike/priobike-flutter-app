@@ -6,7 +6,7 @@ import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
-import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/main.dart';
 
 /// This enum describes the different kind of daily challenges.
@@ -75,9 +75,9 @@ abstract class ChallengeGenerator {
     return challenges;
   }
 
-  RouteGoals? get routeGoals => getIt<UserGoalsService>().routeGoals;
+  RouteGoals? get routeGoals => getIt<GoalsService>().routeGoals;
 
-  DailyGoals get dailyGoals => getIt<UserGoalsService>().dailyGoals;
+  DailyGoals get dailyGoals => getIt<GoalsService>().dailyGoals;
 
   ChallengesCompanion generate();
 }

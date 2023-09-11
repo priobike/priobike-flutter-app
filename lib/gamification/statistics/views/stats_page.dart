@@ -5,13 +5,14 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
-import 'package:priobike/gamification/statistics/views/graphs/month/month_graphs_page_view.dart';
-import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks/multiple_weeks_graph_page_view.dart';
-import 'package:priobike/gamification/statistics/views/graphs/week/week_graphs_page_view.dart';
+import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks_graph.dart';
+import 'package:priobike/gamification/statistics/views/graphs/ride_graphs_page_view.dart';
+import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/route_goals_history.dart';
-import 'package:priobike/main.dart';
 
 /// This view provides the user with detailed statistics about their ride history.
 class StatisticsView extends StatefulWidget {
@@ -54,14 +55,40 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
 
   /// Get ride statistic view according to stat interval.
   Widget getStatsViewFromInterval(StatInterval interval) {
-    if (_statInterval == StatInterval.weeks) {
-      return WeekGraphsPageView(viewModel: viewModel, key: const ValueKey('week'));
-    }
-    if (_statInterval == StatInterval.months) {
-      return MonthGraphsPageView(viewModel: viewModel, key: const ValueKey('month'));
-    }
-    if (_statInterval == StatInterval.multipleWeeks) {
-      return MultipleWeeksGraphsPageView(viewModel: viewModel, key: const ValueKey('multiWeeks'), weeksPerGraph: 5);
+    if (_statInterval == StatInterval.weeks && viewModel.weeks.isNotEmpty) {
+      var reverseWeeks = viewModel.weeks.reversed.toList();
+      return RideGraphsPageView(
+        graphs: reverseWeeks.map((week) => WeekStatsGraph(week: week)).toList(),
+        displayedStats: reverseWeeks,
+      );
+    } else if (_statInterval == StatInterval.months && viewModel.months.isNotEmpty) {
+      var reversedMonths = viewModel.months.reversed.toList();
+      return RideGraphsPageView(
+        key: const ValueKey('month'),
+        graphs: reversedMonths.map((month) => MonthStatsGraph(month: month)).toList(),
+        displayedStats: reversedMonths,
+      );
+    } else if (_statInterval == StatInterval.multipleWeeks) {
+      int weeksPerGraph = 5;
+      List<ListOfRideStats<WeekStats>> displayedStats = [];
+      var allWeeks = List.from(viewModel.weeks);
+      while (allWeeks.length >= weeksPerGraph) {
+        List<WeekStats> weeks = [];
+        for (int i = 0; i < weeksPerGraph; i++) {
+          weeks.insert(0, allWeeks.removeLast());
+        }
+        displayedStats.add(ListOfRideStats<WeekStats>(weeks));
+      }
+      if (displayedStats.isEmpty) return const SizedBox.shrink();
+      return RideGraphsPageView(
+        key: const ValueKey('multiWeeks'),
+        graphs: displayedStats
+            .map(
+              (element) => MultipleWeeksStatsGraph(weeks: element.list),
+            )
+            .toList(),
+        displayedStats: displayedStats,
+      );
     }
     return const SizedBox.shrink();
   }

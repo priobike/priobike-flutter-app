@@ -4,7 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
-import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/route_stats.dart';
@@ -21,7 +21,7 @@ class RouteGoalsHistory extends StatefulWidget {
 
 class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
   /// The associated goals service.
-  late UserGoalsService _goalsService;
+  late GoalsService _goalsService;
 
   int displayedWeekIndex = 0;
 
@@ -33,7 +33,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
 
   @override
   void initState() {
-    _goalsService = getIt<UserGoalsService>();
+    _goalsService = getIt<GoalsService>();
     _goalsService.addListener(update);
     super.initState();
   }

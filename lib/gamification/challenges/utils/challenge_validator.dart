@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/goals/services/user_goals_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/main.dart';
 
 /// This class continously checks the progress of a specific challenge, by listening to the finished rides in the db.
@@ -48,20 +48,20 @@ class ChallengeValidator {
 
   /// Update challenge progress according to the overall ride distances.
   Future<void> _handleDistanceChallenge(List<RideSummary> rides) async {
-    var totalDistance = Utils.getListSum(rides.map((ride) => ride.distanceMetres).toList()).toInt();
+    var totalDistance = ListUtils.getListSum(rides.map((ride) => ride.distanceMetres).toList()).toInt();
     return _updateChallenge(totalDistance);
   }
 
   /// Update challenge progress according to the overall ride durations.
   Future<void> _handleDurationChallenge(List<RideSummary> rides) async {
-    var totalDuration = Utils.getListSum(rides.map((ride) => ride.durationSeconds).toList());
+    var totalDuration = ListUtils.getListSum(rides.map((ride) => ride.durationSeconds).toList());
     var totalDurationMinutes = totalDuration ~/ 60;
     return _updateChallenge(totalDurationMinutes);
   }
 
   /// Update challenge progress according to the overall ride distances.
   Future<void> _handleElevationChallenge(List<RideSummary> rides) async {
-    var totalElevationGain = Utils.getListSum(rides.map((ride) => ride.elevationGainMetres).toList()).toInt();
+    var totalElevationGain = ListUtils.getListSum(rides.map((ride) => ride.elevationGainMetres).toList()).toInt();
     return _updateChallenge(totalElevationGain);
   }
 
@@ -111,12 +111,12 @@ class ChallengeValidator {
 
     // Iterate through all the days of the challenge interval, till the end of the interval or the current time
     // and count the days where the daily goals where completed.
-    var dailyGoals = getIt<UserGoalsService>().dailyGoals;
+    var dailyGoals = getIt<GoalsService>().dailyGoals;
     var daysWithGoalsCompleted = 0;
     while (!(end.isAfter(challenge.closingTime) || start.isAfter(DateTime.now()))) {
       var ridesOnDay = rides.where((ride) => ride.startTime.isAfter(start) && ride.startTime.isBefore(end));
-      var distance = Utils.getListSum(ridesOnDay.map((ride) => ride.distanceMetres).toList()).toInt();
-      var duration = Utils.getListSum(ridesOnDay.map((ride) => ride.durationSeconds).toList()).toInt() / 60;
+      var distance = ListUtils.getListSum(ridesOnDay.map((ride) => ride.distanceMetres).toList()).toInt();
+      var duration = ListUtils.getListSum(ridesOnDay.map((ride) => ride.durationSeconds).toList()).toInt() / 60;
       if (distance >= dailyGoals.distanceMetres && duration >= dailyGoals.durationMinutes) {
         daysWithGoalsCompleted++;
       }
