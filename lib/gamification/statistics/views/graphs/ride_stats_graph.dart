@@ -35,25 +35,25 @@ class RideStatsGraph extends StatefulWidget {
 
 class _RideStatsGraphState extends State<RideStatsGraph> {
   /// The stat service to get the current selected stat type to be displayed.
-  late StatisticService statsService;
+  late StatisticService _statsService;
 
   /// Index of the selected bar or null, if none is selected.
-  int? selectedIndex;
+  int? _selectedIndex;
 
   /// Stat type to be displayed.
-  StatType get type => statsService.selectedType;
+  StatType get _type => _statsService.selectedType;
 
   @override
   void initState() {
-    statsService = getIt<StatisticService>();
-    statsService.addListener(update);
-    selectedIndex = widget.displayedStats.isDayInList(statsService.selectedDate);
+    _statsService = getIt<StatisticService>();
+    _statsService.addListener(update);
+    _selectedIndex = widget.displayedStats.isDayInList(_statsService.selectedDate);
     super.initState();
   }
 
   @override
   void dispose() {
-    statsService.removeListener(update);
+    _statsService.removeListener(update);
     super.dispose();
   }
 
@@ -61,15 +61,15 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
   void update() => {if (mounted) setState(() {})};
 
   /// Get list of bars according to the given values and goal values.
-  List<BarChartGroupData> getBars() {
+  List<BarChartGroupData> _getBars() {
     var list = widget.displayedStats.list;
     return list.mapIndexed((i, stat) {
-      var value = stat.getStatFromType(type);
-      var selected = selectedIndex != null && selectedIndex == i;
-      var goalForBar = stat.getGoalFromType(type);
+      var value = stat.getStatFromType(_type);
+      var selected = _selectedIndex != null && _selectedIndex == i;
+      var goalForBar = stat.getGoalFromType(_type);
       var goalReached = goalForBar == null ? true : value >= goalForBar;
       var barColorOpacity = goalReached ? 1.0 : 0.4;
-      if (selectedIndex != null) barColorOpacity = selected ? 1.0 : 0.2;
+      if (_selectedIndex != null) barColorOpacity = selected ? 1.0 : 0.2;
 
       return BarChartGroupData(
         x: i,
@@ -95,20 +95,20 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
   }
 
   /// Get max value for the stats to be displayed, rounded to a fitting interval.
-  double getRoundedMax() {
-    var num = widget.displayedStats.getMaxForType(type);
+  double _getRoundedMax() {
+    var num = widget.displayedStats.getMaxForType(_type);
     if (num == 0) return 1;
     if (num <= 5) return num;
     if (num <= 10) return num.ceilToDouble();
-    if (num <= 50) return roundUpToInterval(num, 5);
-    if (num <= 100) return roundUpToInterval(num, 10);
-    if (num <= 200) return roundUpToInterval(num, 25);
-    if (num <= 500) return roundUpToInterval(num, 50);
-    return roundUpToInterval(num, 100);
+    if (num <= 50) return _roundUpToInterval(num, 5);
+    if (num <= 100) return _roundUpToInterval(num, 10);
+    if (num <= 200) return _roundUpToInterval(num, 25);
+    if (num <= 500) return _roundUpToInterval(num, 50);
+    return _roundUpToInterval(num, 100);
   }
 
   /// Round a given double up to a given interval.
-  static double roundUpToInterval(double num, int interval) => interval * (num / interval).ceilToDouble();
+  double _roundUpToInterval(double num, int interval) => interval * (num / interval).ceilToDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -122,13 +122,13 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
                 if (p0 is FlTapUpEvent) {
                   var index = p1?.spot?.touchedBarGroupIndex;
                   if (index == null) {
-                    return statsService.selectDate(null);
+                    return _statsService.selectDate(null);
                   } else {
                     var selectedElement = widget.displayedStats.list.elementAt(index);
                     if (selectedElement is DayStats) {
-                      statsService.selectDate(selectedElement.date);
+                      _statsService.selectDate(selectedElement.date);
                     } else if (selectedElement is WeekStats) {
-                      statsService.selectDate(selectedElement.mondayDate);
+                      _statsService.selectDate(selectedElement.mondayDate);
                     }
                   }
                 }
@@ -160,9 +160,9 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
               ),
             ),
           ),
-          maxY: getRoundedMax(),
+          maxY: _getRoundedMax(),
           gridData: FlGridData(drawVerticalLine: false),
-          barGroups: getBars(),
+          barGroups: _getBars(),
         ),
         swapAnimationDuration: Duration.zero,
       ),

@@ -18,10 +18,10 @@ class GoalsView extends StatefulWidget {
 
 class _GoalsViewState extends State<GoalsView> {
   /// Whether to show the daily goals widget.
-  bool showEditDailyGoals = false;
+  bool _showEditDailyGoals = false;
 
   /// Whether to show the route goals widget.
-  bool showEditRouteGoals = false;
+  bool _showEditRouteGoals = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +36,11 @@ class _GoalsViewState extends State<GoalsView> {
               CustomIconButton(
                 icon: CustomGameIcons.goals,
                 label: 'Tagesziele',
-                selected: showEditDailyGoals,
+                selected: _showEditDailyGoals,
                 onPressed: () async {
                   setState(() {
-                    showEditDailyGoals = !showEditDailyGoals;
-                    showEditRouteGoals = false;
+                    _showEditDailyGoals = !_showEditDailyGoals;
+                    _showEditRouteGoals = false;
                   });
                 },
               ),
@@ -48,11 +48,11 @@ class _GoalsViewState extends State<GoalsView> {
               CustomIconButton(
                 icon: Icons.map,
                 label: 'Routenziele',
-                selected: showEditRouteGoals,
+                selected: _showEditRouteGoals,
                 onPressed: () async {
                   setState(() {
-                    showEditRouteGoals = !showEditRouteGoals;
-                    showEditDailyGoals = false;
+                    _showEditRouteGoals = !_showEditRouteGoals;
+                    _showEditDailyGoals = false;
                   });
                 },
               ),
@@ -65,7 +65,7 @@ class _GoalsViewState extends State<GoalsView> {
             duration: MediumDuration(),
             firstChild: Container(),
             secondChild: const EditDailyGoalsView(),
-            crossFadeState: showEditDailyGoals ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: _showEditDailyGoals ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           ),
           AnimatedCrossFade(
             firstCurve: Curves.easeInOutCubic,
@@ -74,7 +74,7 @@ class _GoalsViewState extends State<GoalsView> {
             duration: MediumDuration(),
             firstChild: Container(),
             secondChild: const EditRouteGoalsView(),
-            crossFadeState: showEditRouteGoals ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: _showEditRouteGoals ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           ),
         ],
       ),

@@ -12,7 +12,7 @@ class WeekStatsGraph extends StatelessWidget {
   const WeekStatsGraph({Key? key, required this.week}) : super(key: key);
 
   /// Label the x axis by adding a short description of the days of the week.
-  Widget getTitlesX(double value, TitleMeta meta, TextStyle style) {
+  Widget _getTitlesX(double value, TitleMeta meta, TextStyle style) {
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
@@ -27,7 +27,7 @@ class WeekStatsGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return RideStatsGraph(
       barWidth: 20,
-      getTitlesX: (value, meta) => getTitlesX(value, meta, Theme.of(context).textTheme.labelMedium!),
+      getTitlesX: (value, meta) => _getTitlesX(value, meta, Theme.of(context).textTheme.labelMedium!),
       displayedStats: week,
     );
   }

@@ -25,7 +25,7 @@ class RouteGoalsInWeek extends StatelessWidget {
   }) : super(key: key);
 
   /// Returns the number of rides the user did on the route for a given weekday.
-  int ridesOnDay(int day) {
+  int _ridesOnDay(int day) {
     var ridesOnDay = ridesInWeek.where((ride) => ride.startTime.weekday == day + 1);
     var ridesOnRoute = ridesOnDay.where((ride) => ride.shortcutId == goals.routeID);
     return ridesOnRoute.length;
@@ -46,15 +46,15 @@ class RouteGoalsInWeek extends StatelessWidget {
                   width: daySize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: ridesOnDay(i) > 0 && isGoal
+                    color: _ridesOnDay(i) > 0 && isGoal
                         ? CI.blue
                         : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 0.1 : 0.05),
                   ),
                   child: Center(
                     child: BoldSmall(
-                      text: '${ridesOnDay(i)}/${isGoal ? '1' : '0'}',
+                      text: '${_ridesOnDay(i)}/${isGoal ? '1' : '0'}',
                       context: context,
-                      color: ridesOnDay(i) > 0 && isGoal
+                      color: _ridesOnDay(i) > 0 && isGoal
                           ? Colors.white
                           : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 1 : 0.25),
                     ),

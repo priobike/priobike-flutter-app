@@ -44,13 +44,13 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   ChallengesProfile? get _profile => _profileService.profile;
 
   /// Get the current level of the user as a Level object.
-  Level get currentLevel {
+  Level get _currentLevel {
     if (_profile == null) return levels.first;
     return levels.elementAt(_profile!.level);
   }
 
   /// Return the next level the user needs to achieve. Returns null, if the user has reached the max level.
-  Level? get nextLevel {
+  Level? get _nextLevel {
     if (_profile == null) return null;
     int level = _profile!.level;
     if (level == levels.length - 1) return null;
@@ -58,9 +58,9 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   }
 
   /// The progress of the user for the next level to reach, as a value between 0 and 1.
-  double get levelProgress {
-    if (nextLevel == null || _profile == null) return 1;
-    var progress = (_profile!.xp - currentLevel.value) / (nextLevel!.value - currentLevel.value);
+  double get _levelProgress {
+    if (_nextLevel == null || _profile == null) return 1;
+    var progress = (_profile!.xp - _currentLevel.value) / (_nextLevel!.value - _currentLevel.value);
     return min(1, max(0, progress));
   }
 
@@ -87,10 +87,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
-  /// Bounce animation for the trophy or medal icon.
-  Animation<double> getAnimation(var controller) =>
-      Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
-
   /// Called when the users challenge profile changes.
   void updateProfile() async {
     if (mounted) setState(() {});
@@ -108,20 +104,24 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     }
   }
 
+  /// Bounce animation for the trophy or medal icon.
+  Animation<double> _getAnimation(var controller) =>
+      Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
+
   /// Opaen level up dialog according to the number of possible upgrades the user can apply with the level up.
   Future<void> _showLevelUpDialog() async {
-    if (nextLevel == null) return;
+    if (_nextLevel == null) return;
     var openUpgrades = _profileService.allowedUpgrades;
     var result = await showDialog<ProfileUpgrade?>(
       context: context,
       barrierDismissible: openUpgrades.length <= 1,
       builder: (BuildContext context) {
         if (openUpgrades.isEmpty) {
-          return LevelUpDialog(newLevel: nextLevel!);
+          return LevelUpDialog(newLevel: _nextLevel!);
         } else if (openUpgrades.length == 1) {
-          return SingleUpgradeLvlUpDialog(newLevel: nextLevel!, upgrade: openUpgrades.first);
+          return SingleUpgradeLvlUpDialog(newLevel: _nextLevel!, upgrade: openUpgrades.first);
         } else {
-          return MultipleUpgradesLvlUpDialog(newLevel: nextLevel!, upgrades: openUpgrades);
+          return MultipleUpgradesLvlUpDialog(newLevel: _nextLevel!, upgrades: openUpgrades);
         }
       },
     );
@@ -129,7 +129,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   }
 
   /// Returns widget for displaying the count of a collected virtual reward.
-  Widget getRewardWidget(int number, IconData icon, Animation<double> animation, bool animate) {
+  Widget _getRewardWidget(int number, IconData icon, Animation<double> animation, bool animate) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -164,7 +164,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     if (_profile == null) return Container();
-    var canLevelUp = nextLevel != null && _profileService.profile!.xp >= nextLevel!.value;
+    var canLevelUp = _nextLevel != null && _profileService.profile!.xp >= _nextLevel!.value;
     if (canLevelUp && !_ringController.isAnimating) {
       _ringController.repeat(reverse: true);
     } else if (!canLevelUp && _ringController.isAnimating) {
@@ -175,7 +175,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
       mainAxisSize: MainAxisSize.max,
       children: [
         OnTabAnimation(
-          onPressed: canLevelUp && nextLevel != null ? _showLevelUpDialog : null,
+          onPressed: canLevelUp && _nextLevel != null ? _showLevelUpDialog : null,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -202,7 +202,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                         : [],
                   ),
                 ),
-              if (nextLevel == null)
+              if (_nextLevel == null)
                 Container(
                   height: 0,
                   width: 0,
@@ -210,7 +210,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: currentLevel.color.withOpacity(0.4),
+                        color: _currentLevel.color.withOpacity(0.4),
                         blurRadius: 30,
                         spreadRadius: 40,
                       ),
@@ -223,11 +223,11 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                   ),
                 ),
               LevelRing(
-                progress: levelProgress,
-                iconColor: currentLevel.color,
-                icon: nextLevel == null ? Icons.directions_bike : null,
+                progress: _levelProgress,
+                iconColor: _currentLevel.color,
+                icon: _nextLevel == null ? Icons.directions_bike : null,
                 ringSize: 96,
-                ringColor: nextLevel?.color ?? currentLevel.color,
+                ringColor: _nextLevel?.color ?? _currentLevel.color,
               ),
               if (canLevelUp)
                 ScaleTransition(
@@ -238,19 +238,19 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                       BoldContent(
                         text: 'Level',
                         context: context,
-                        color: nextLevel!.color,
+                        color: _nextLevel!.color,
                         height: 1,
                       ),
                       BoldSubHeader(
                         text: 'Up',
                         context: context,
-                        color: nextLevel!.color,
+                        color: _nextLevel!.color,
                         height: 1,
                       ),
                     ],
                   ),
                 ),
-              if (!canLevelUp && nextLevel != null)
+              if (!canLevelUp && _nextLevel != null)
                 Column(
                   children: [
                     const SmallVSpace(),
@@ -258,17 +258,17 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                       text: 'Level',
                       context: context,
                       color: Color.alphaBlend(
-                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - levelProgress)),
-                        nextLevel!.color.withOpacity(levelProgress),
+                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
+                        _nextLevel!.color.withOpacity(_levelProgress),
                       ),
                       height: 1,
                     ),
                     Header(
-                      text: '${levels.indexOf(nextLevel!)}',
+                      text: '${levels.indexOf(_nextLevel!)}',
                       context: context,
                       color: Color.alphaBlend(
-                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - levelProgress)),
-                        nextLevel!.color.withOpacity(levelProgress),
+                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
+                        _nextLevel!.color.withOpacity(_levelProgress),
                       ),
                     ),
                   ],
@@ -285,11 +285,11 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 BoldContent(
-                  text: currentLevel.title,
+                  text: _currentLevel.title,
                   context: context,
                 ),
                 Content(
-                  text: (nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${nextLevel!.value} XP',
+                  text: (_nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${_nextLevel!.value} XP',
                   context: context,
                   color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                 ),
@@ -312,10 +312,10 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                           type: 0,
                         ),
                       ),
-                      child: getRewardWidget(
+                      child: _getRewardWidget(
                         _profile!.medals,
                         CustomGameIcons.blank_medal,
-                        getAnimation(_medalsController),
+                        _getAnimation(_medalsController),
                         _profileService.medalsChanged,
                       ),
                     ),
@@ -333,10 +333,10 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                           type: 0,
                         ),
                       ),
-                      child: getRewardWidget(
+                      child: _getRewardWidget(
                         _profile!.trophies,
                         CustomGameIcons.blank_trophy,
-                        getAnimation(_trophiesController),
+                        _getAnimation(_trophiesController),
                         _profileService.trophiesChanged,
                       ),
                     ),

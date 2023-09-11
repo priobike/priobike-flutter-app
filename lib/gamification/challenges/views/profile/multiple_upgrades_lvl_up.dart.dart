@@ -28,13 +28,13 @@ class MultipleUpgradesLvlUpDialog extends StatefulWidget {
 
 class _MultipleUpgradesLvlUpDialogState extends State<MultipleUpgradesLvlUpDialog> with SingleTickerProviderStateMixin {
   /// Index of the upgrade selected by the user.
-  int? selectedUpgrade;
+  int? _selectedUpgrade;
 
   /// Update the selected upgrade and close the dialog after a short time.
-  void selectUpgrade(int index) async {
-    setState(() => selectedUpgrade = index);
+  void _selectUpgrade(int index) async {
+    setState(() => _selectedUpgrade = index);
     await Future.delayed(MediumDuration());
-    if (mounted) Navigator.of(context).pop(widget.upgrades.elementAt(selectedUpgrade!));
+    if (mounted) Navigator.of(context).pop(widget.upgrades.elementAt(_selectedUpgrade!));
   }
 
   @override
@@ -47,8 +47,8 @@ class _MultipleUpgradesLvlUpDialogState extends State<MultipleUpgradesLvlUpDialo
         children: [
           ...widget.upgrades
               .mapIndexed((i, upgrade) => UpgradeChoice(
-                    visible: selectedUpgrade == null || selectedUpgrade == i,
-                    onTap: selectedUpgrade == i ? null : () => selectUpgrade(i),
+                    visible: _selectedUpgrade == null || _selectedUpgrade == i,
+                    onTap: _selectedUpgrade == i ? null : () => _selectUpgrade(i),
                     upgrade: upgrade,
                   ))
               .toList(),

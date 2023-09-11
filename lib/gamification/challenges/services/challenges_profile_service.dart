@@ -35,7 +35,7 @@ class ChallengesProfileService with ChangeNotifier {
   List<ProfileUpgrade> _activatedUpgrades = [];
 
   /// Dao to access the challenges completed by the user.
-  ChallengeDao get challengeDao => AppDatabase.instance.challengeDao;
+  ChallengeDao get _challengeDao => AppDatabase.instance.challengeDao;
 
   /// The current state of the users challenge profile.
   ChallengesProfile? get profile => _profile;
@@ -79,7 +79,7 @@ class ChallengesProfileService with ChangeNotifier {
   /// Start challenges database stream to update user profile accordingly.
   void startDatabaseStreams() {
     // Only challenges which are closed and completed, since open challenges are not regarded for the rewards yet.
-    challengeDao.streamClosedCompletedChallenges().listen((update) => updateRewards(update));
+    _challengeDao.streamClosedCompletedChallenges().listen((update) => updateRewards(update));
   }
 
   /// Update profile data stored in shared prefs and notify listeners.
@@ -141,7 +141,7 @@ class ChallengesProfileService with ChangeNotifier {
     _activatedUpgrades.clear();
     _prefs!.remove(activatedUpgradesKey);
     storeProfile();
-    challengeDao.clearObjects();
+    _challengeDao.clearObjects();
   }
 
   /// Reset everything connected to the challenge feature.
@@ -151,7 +151,7 @@ class ChallengesProfileService with ChangeNotifier {
     _activatedUpgrades.clear();
     _prefs!.remove(activatedUpgradesKey);
     _prefs!.remove(profileKey);
-    challengeDao.clearObjects();
+    _challengeDao.clearObjects();
     notifyListeners();
   }
 }

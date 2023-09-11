@@ -31,39 +31,39 @@ class ChallengeProgressBar extends StatefulWidget {
 
 class _ChallengeProgressBarState extends State<ChallengeProgressBar> with SingleTickerProviderStateMixin {
   /// A timer that is used to update the displayed time left, or to create the pulsing animation when completed.
-  Timer? timer;
+  Timer? _timer;
 
   /// This bool is true, if the progress bar has been tapped and needs to be animated.
-  bool onTapAnimation = false;
+  bool _onTapAnimation = false;
 
   /// This bool is true, if the progress bar has been tapped to collect a reward and the reward animation is shown.
-  bool completedAnimation = false;
+  bool _completedAnimation = false;
 
   /// Animation Controller to controll the ring animation.
   late final AnimationController _ringController;
 
   /// This value determines the shadow spread of the challenge icon.
   /// It is used to create the pulsing animation for completed challenges.
-  double iconShadowSpred = 12;
+  double _iconShadowSpred = 12;
 
   /// Get the weekly or daily challenge service, according to the isWeekly variable.
-  ChallengeService get service => widget.isWeekly ? getIt<WeeklyChallengeService>() : getIt<DailyChallengeService>();
+  ChallengeService get _service => widget.isWeekly ? getIt<WeeklyChallengeService>() : getIt<DailyChallengeService>();
 
   /// Get the challenge currently connected to the progress bar, or null if there is none.
-  Challenge? get challenge => service.currentChallenge;
+  Challenge? get _challenge => _service.currentChallenge;
 
   /// The progress of completion of the challenge as a percentage value between 0 and 100.
-  double get progressPercentage => challenge == null ? 0 : challenge!.progress / challenge!.target;
+  double get _progressPercentage => _challenge == null ? 0 : _challenge!.progress / _challenge!.target;
 
   /// Returns true, if the user completed the challenge.
-  bool get isCompleted => progressPercentage >= 1;
+  bool get _isCompleted => _progressPercentage >= 1;
 
   /// If there is no active challenge, and there are no available challenge choices, and the service does not allow
   /// the generation of a new challenge, this bar ist true and indicates, that a tap on the bar should do nothing.
-  bool get deactivateTap => challenge == null && !service.allowNew && service.challengeChoices.isEmpty;
+  bool get _deactivateTap => _challenge == null && !_service.allowNew && _service.challengeChoices.isEmpty;
 
   /// Time where the challenge ends.
-  DateTime get endTime {
+  DateTime get _endTime {
     var now = DateTime.now();
     if (widget.isWeekly) {
       return now.add(Duration(days: 8 - now.weekday)).copyWith(hour: 0, minute: 0, second: 0);
@@ -75,36 +75,36 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   @override
   void initState() {
     _ringController = AnimationController(vsync: this, duration: MediumDuration(), value: 1);
-    startUpdateTimer();
-    service.addListener(update);
+    _startUpdateTimer();
+    _service.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
-    endTimer();
-    service.removeListener(update);
+    _endTimer();
+    _service.removeListener(update);
     super.dispose();
   }
 
   /// Called when a listener callback of a ChangeNotifier is fired. It restards the update timer and rebuilds the widget.
   void update() {
-    if (isCompleted) startUpdateTimer();
+    if (_isCompleted) _startUpdateTimer();
     if (mounted) setState(() {});
   }
 
   /// Either start a timer which updates the time left every minute, or, if the challenge has been completed,
   /// start a timer that creates the pulsing animation by changing the icon shadow spread value periodically.
-  void startUpdateTimer() {
-    endTimer();
-    if (isCompleted) {
-      timer = Timer.periodic(
+  void _startUpdateTimer() {
+    _endTimer();
+    if (_isCompleted) {
+      _timer = Timer.periodic(
           MediumDuration(),
           (timer) => setState(() {
-                iconShadowSpred = (iconShadowSpred == 0) ? 20 : 0;
+                _iconShadowSpred = (_iconShadowSpred == 0) ? 20 : 0;
               }));
     } else {
-      timer = Timer.periodic(
+      _timer = Timer.periodic(
         const Duration(seconds: 10),
         (timer) => setState(() {}),
       );
@@ -112,40 +112,40 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   }
 
   /// End any running timer.
-  void endTimer() {
-    timer?.cancel();
-    timer = null;
+  void _endTimer() {
+    _timer?.cancel();
+    _timer = null;
   }
 
   /// Handle a tap on the progress bar.
-  void handleTap() async {
+  void _handleTap() async {
     // If there is a non-completed challenge, open dialog field containing information about the challenge.
-    if (challenge != null && !isCompleted) {
+    if (_challenge != null && !_isCompleted) {
       return showDialog(
         context: context,
-        builder: (context) => SingleChallengeDialog(challenge: challenge!, isWeekly: challenge!.isWeekly),
+        builder: (context) => SingleChallengeDialog(challenge: _challenge!, isWeekly: _challenge!.isWeekly),
       );
     }
     // Start and stop the ring and glowing animation of the progress bar and wait till the animation has finished.
     _ringController.reverse();
-    setState(() => onTapAnimation = true);
-    if (isCompleted) setState(() => completedAnimation = true);
-    await Future.delayed(MediumDuration()).then((_) => setState(() => onTapAnimation = false));
+    setState(() => _onTapAnimation = true);
+    if (_isCompleted) setState(() => _completedAnimation = true);
+    await Future.delayed(MediumDuration()).then((_) => setState(() => _onTapAnimation = false));
     // If there are a number of challenges, of which the user can chose from, open the challenge selection dialog.
-    if (service.challengeChoices.isNotEmpty) {
-      await _showChallengeSelection(service.challengeChoices);
+    if (_service.challengeChoices.isNotEmpty) {
+      await _showChallengeSelection(_service.challengeChoices);
     }
     // If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
-    else if (isCompleted) {
+    else if (_isCompleted) {
       await Future.delayed(MediumDuration()).then((_) {
-        setState(() => completedAnimation = false);
+        setState(() => _completedAnimation = false);
       });
-      service.completeChallenge();
+      _service.completeChallenge();
       HapticFeedback.heavyImpact();
     }
     // If there is no challenge, but the service allows a new one, generate a new one.
-    else if (challenge == null && service.allowNew) {
-      var result = await service.generateChallengeChoices();
+    else if (_challenge == null && _service.allowNew) {
+      var result = await _service.generateChallengeChoices();
       if (result != null) {
         await _showChallengeSelection(result);
       }
@@ -176,11 +176,11 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     );
     // If there is only one challenge to chose from, select that challenge.
     if (challenges.length == 1) {
-      service.selectAndStartChallenge(0);
+      _service.selectAndStartChallenge(0);
     }
     // If there are multiple challenges to chose from, select a challenge according to the users choice.
     else if (result != null) {
-      service.selectAndStartChallenge(result);
+      _service.selectAndStartChallenge(result);
     }
   }
 
@@ -190,8 +190,8 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         children: [
-          getTimeLeftWidget(),
-          getProgressBar(),
+          _getTimeLeftWidget(),
+          _getProgressBar(),
         ],
       ),
     );
@@ -200,7 +200,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   /// Returns a widget which displays the time the user has left for the challenge. It also displays a title, which
   /// depends on whether if the challenge is a daily or a weekly challenge. Additionally, the time left is only shown,
   /// if there is a displayed challenge, or if the user is allowed to create a new one.
-  Widget getTimeLeftWidget() {
+  Widget _getTimeLeftWidget() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.max,
@@ -216,7 +216,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
             ),
           ),
         ),
-        ...(challenge != null && isCompleted)
+        ...(_challenge != null && _isCompleted)
             ? []
             : [
                 Icon(
@@ -225,7 +225,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                   color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
                 ),
                 BoldSmall(
-                  text: StringFormatter.getTimeLeftStr(endTime),
+                  text: StringFormatter.getTimeLeftStr(_endTime),
                   context: context,
                   color: Theme.of(context).colorScheme.onBackground.withOpacity(0.333),
                 ),
@@ -236,13 +236,13 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   }
 
   /// This widget returns the progress bar corresponding to the challenge state.
-  Widget getProgressBar() {
+  Widget _getProgressBar() {
     /*return AnimatedButton(
       scaleFactor: 0.95,
       onPressed: (deactivateTap) ? null : handleTap,*/
     return GestureDetector(
-      onTap: (deactivateTap) ? null : handleTap,
-      onLongPress: () => service.deleteCurrentChallenge(),
+      onTap: (_deactivateTap) ? null : _handleTap,
+      onLongPress: () => _service.deleteCurrentChallenge(),
       child: SizedBox.fromSize(
         size: const Size.fromHeight(44),
         child: Stack(
@@ -258,7 +258,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                           Border.all(width: 2, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.075)),
                     ),
                     child: Stack(
-                      children: (challenge != null)
+                      children: (_challenge != null)
                           ? [
                               FractionallySizedBox(
                                 child: Container(
@@ -269,13 +269,13 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                   clipBehavior: Clip.hardEdge,
                                   alignment: Alignment.centerLeft,
                                   child: FractionallySizedBox(
-                                    widthFactor: isCompleted ? 1 : progressPercentage,
+                                    widthFactor: _isCompleted ? 1 : _progressPercentage,
                                     child: Container(color: CI.blue),
                                   ),
                                 ),
                               ),
                               FractionallySizedBox(
-                                widthFactor: isCompleted ? 1 : progressPercentage,
+                                widthFactor: _isCompleted ? 1 : _progressPercentage,
                                 heightFactor: 1,
                                 child: AnimatedContainer(
                                   duration: LongDuration(),
@@ -283,9 +283,9 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                     borderRadius: const BorderRadius.all(Radius.circular(32)),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: CI.blue.withOpacity((isCompleted && completedAnimation) ? 1 : 0.3),
+                                        color: CI.blue.withOpacity((_isCompleted && _completedAnimation) ? 1 : 0.3),
                                         blurRadius: 20,
-                                        spreadRadius: (isCompleted && completedAnimation) ? 5 : 0,
+                                        spreadRadius: (_isCompleted && _completedAnimation) ? 5 : 0,
                                       ),
                                     ],
                                   ),
@@ -298,12 +298,12 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(Radius.circular(32)),
                                   boxShadow: [
-                                    BoxShadow(color: CI.blue.withOpacity(onTapAnimation ? 0.2 : 0), blurRadius: 20),
+                                    BoxShadow(color: CI.blue.withOpacity(_onTapAnimation ? 0.2 : 0), blurRadius: 20),
                                   ],
                                   gradient: LinearGradient(
                                     colors: [
-                                      CI.blue.withOpacity(deactivateTap ? 0.2 : (onTapAnimation ? 0.8 : 0.5)),
-                                      CI.blue.withOpacity(deactivateTap ? 0.01 : (onTapAnimation ? 0.2 : 0.05)),
+                                      CI.blue.withOpacity(_deactivateTap ? 0.2 : (_onTapAnimation ? 0.8 : 0.5)),
+                                      CI.blue.withOpacity(_deactivateTap ? 0.01 : (_onTapAnimation ? 0.2 : 0.05)),
                                     ],
                                   ),
                                 ),
@@ -317,17 +317,17 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
-              children: [getIconRing()],
+              children: [_getIconRing()],
             ),
             Center(
               child: BoldSmall(
-                text: (challenge == null)
-                    ? (deactivateTap ? 'Challenge abgeschlossen' : 'Neue Challenge starten!')
-                    : (isCompleted)
+                text: (_challenge == null)
+                    ? (_deactivateTap ? 'Challenge abgeschlossen' : 'Neue Challenge starten!')
+                    : (_isCompleted)
                         ? 'Belohnung einsammeln'
-                        : '${challenge!.progress} / ${challenge!.target}',
+                        : '${_challenge!.progress} / ${_challenge!.target}',
                 context: context,
-                color: isCompleted ? Colors.white : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                color: _isCompleted ? Colors.white : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
               ),
             ),
           ],
@@ -337,29 +337,29 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   }
 
   /// Widget returns a small icon ring to be displayed inside of the progress bar.
-  Widget getIconRing() {
-    var color = CI.blue.withOpacity(isCompleted ? 1 : math.max(progressPercentage, 0.25));
+  Widget _getIconRing() {
+    var color = CI.blue.withOpacity(_isCompleted ? 1 : math.max(_progressPercentage, 0.25));
     return AnimatedContainer(
       duration: MediumDuration(),
       margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: ((isCompleted && completedAnimation) || deactivateTap)
+        boxShadow: ((_isCompleted && _completedAnimation) || _deactivateTap)
             ? []
             : [
                 BoxShadow(
                   color: CI.blue.withOpacity(0.3),
                   blurRadius: 12,
-                  spreadRadius: isCompleted ? iconShadowSpred : iconShadowSpred * progressPercentage,
+                  spreadRadius: _isCompleted ? _iconShadowSpred : _iconShadowSpred * _progressPercentage,
                 ),
               ],
       ),
       child: LevelRing(
         ringSize: 32,
         iconColor: color,
-        icon: (challenge == null)
+        icon: (_challenge == null)
             ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
-            : ChallengeGenerator.getChallengeIcon(challenge!),
+            : ChallengeGenerator.getChallengeIcon(_challenge!),
         animationController: _ringController,
         ringColor: color,
         background: Theme.of(context).colorScheme.background,

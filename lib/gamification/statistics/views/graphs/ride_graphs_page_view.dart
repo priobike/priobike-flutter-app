@@ -26,26 +26,26 @@ class RideGraphsPageView extends StatefulWidget {
 
 class _RideGraphsPageViewState extends State<RideGraphsPageView> {
   /// Controller to controll the page view.
-  final PageController pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
 
   /// Stat service to change selected date and stat type.
-  late StatisticService statsService;
+  late StatisticService _statsService;
 
   /// Index of the page currently displayed by the page view.
-  int displayedPageIndex = 0;
+  int _displayedPageIndex = 0;
 
   @override
   void initState() {
-    statsService = getIt<StatisticService>();
-    statsService.addListener(update);
-    pageController.addListener(() => setState(() => displayedPageIndex = pageController.page!.round()));
+    _statsService = getIt<StatisticService>();
+    _statsService.addListener(update);
+    _pageController.addListener(() => setState(() => _displayedPageIndex = _pageController.page!.round()));
     super.initState();
   }
 
   @override
   void dispose() {
-    statsService.removeListener(update);
-    pageController.dispose();
+    _statsService.removeListener(update);
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -53,7 +53,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
   void update() => {if (mounted) setState(() {})};
 
   /// Get list of graphs according the stats given to the widget.
-  List<Widget> getGraphs() {
+  List<Widget> _getGraphs() {
     return widget.stats.map<Widget>((element) {
       if (element is WeekStats) return WeekStatsGraph(week: element);
       if (element is MonthStats) return MonthStatsGraph(month: element);
@@ -63,9 +63,9 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
   }
 
   /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
-  Widget getRideInfoButton(StatType type) {
+  Widget _getRideInfoButton(StatType type) {
     return OnTabAnimation(
-      onPressed: () => statsService.setStatType(type),
+      onPressed: () => _statsService.setStatType(type),
       child: Stack(
         children: [
           Center(
@@ -74,7 +74,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
               child: CircularProgressIndicator(
                 color: Theme.of(context).colorScheme.primary,
                 backgroundColor: Colors.grey.withOpacity(0.5),
-                value: statsService.isTypeSelected(type) ? 1 : 0,
+                value: _statsService.isTypeSelected(type) ? 1 : 0,
               ),
             ),
           ),
@@ -91,15 +91,15 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
 
   @override
   Widget build(BuildContext context) {
-    var statsOnPage = widget.stats.elementAt(displayedPageIndex);
-    var statType = statsService.selectedType;
-    var selectedIndex = statsOnPage.isDayInList(statsService.selectedDate);
+    var statsOnPage = widget.stats.elementAt(_displayedPageIndex);
+    var statType = _statsService.selectedType;
+    var selectedIndex = statsOnPage.isDayInList(_statsService.selectedDate);
     var selectedElement = selectedIndex == null ? null : statsOnPage.list.elementAt(selectedIndex);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: () => statsService.selectDate(null),
+          onTap: () => _statsService.selectDate(null),
           child: Column(
             children: [
               Padding(
@@ -158,9 +158,9 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
                   height: 224,
                   child: PageView(
                     reverse: true,
-                    controller: pageController,
+                    controller: _pageController,
                     clipBehavior: Clip.hardEdge,
-                    children: getGraphs(),
+                    children: _getGraphs(),
                   ),
                 ),
               ),
@@ -182,9 +182,9 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    getRideInfoButton(StatType.distance),
-                    getRideInfoButton(StatType.duration),
-                    getRideInfoButton(StatType.speed),
+                    _getRideInfoButton(StatType.distance),
+                    _getRideInfoButton(StatType.duration),
+                    _getRideInfoButton(StatType.speed),
                   ],
                 ),
               ),

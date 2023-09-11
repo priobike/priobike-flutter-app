@@ -30,7 +30,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   @override
   void initState() {
     _statInterval = getIt<StatisticService>().statInterval;
-    initViewModel();
+    _initViewModel();
     super.initState();
   }
 
@@ -45,7 +45,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   void update() => {if (mounted) setState(() {})};
 
   /// Initialize view model to hold data for the last year.
-  void initViewModel() {
+  void _initViewModel() {
     var today = DateTime.now();
     today = DateTime(today.year, today.month, today.day);
     var todayLastYear = DateTime(today.year - 1, today.month, today.day);
@@ -54,7 +54,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
   }
 
   /// Get ride statistic view according to stat interval.
-  Widget getStatsViewFromInterval(StatInterval interval) {
+  Widget _getStatsViewFromInterval(StatInterval interval) {
     // If the stat interval ist weeks, return a page view for all weeks in the view model.
     if (_statInterval == StatInterval.weeks && _viewModel.weeks.isNotEmpty) {
       return RideGraphsPageView(
@@ -148,7 +148,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
                   opacity: animation,
                   child: child,
                 ),
-                child: getStatsViewFromInterval(_statInterval),
+                child: _getStatsViewFromInterval(_statInterval),
               ),
               Expanded(child: Container()),
               RouteGoalsHistory(viewModel: _viewModel),
@@ -183,10 +183,10 @@ class IntervalSelectionButton extends StatefulWidget {
 }
 
 class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
-  bool tapDown = false;
+  bool _tapDown = false;
 
   /// Get widget header title from stat interval.
-  String getTitleFromStatInterval(StatInterval interval) {
+  String _getTitleFromStatInterval(StatInterval interval) {
     if (interval == StatInterval.weeks) return 'Woche';
     if (interval == StatInterval.multipleWeeks) return '5 Wochen';
     if (interval == StatInterval.months) return 'Monat';
@@ -198,9 +198,9 @@ class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTapDown: (_) => setState(() => tapDown = true),
-        onTapUp: (_) => setState(() => tapDown = false),
-        onTapCancel: () => setState(() => tapDown = false),
+        onTapDown: (_) => setState(() => _tapDown = true),
+        onTapUp: (_) => setState(() => _tapDown = false),
+        onTapCancel: () => setState(() => _tapDown = false),
         onTap: () {
           widget.onTap();
           setState(() {});
@@ -211,9 +211,9 @@ class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
           child: Column(
             children: [
               Content(
-                text: getTitleFromStatInterval(widget.interval),
+                text: _getTitleFromStatInterval(widget.interval),
                 context: context,
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(tapDown ? 0.1 : 1),
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(_tapDown ? 0.1 : 1),
               ),
               const SmallVSpace(),
               Container(
@@ -222,7 +222,7 @@ class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
                 decoration: BoxDecoration(
                   color: widget.selected
                       ? CI.blue
-                      : Theme.of(context).colorScheme.onBackground.withOpacity(tapDown ? 0.01 : 0.05),
+                      : Theme.of(context).colorScheme.onBackground.withOpacity(_tapDown ? 0.01 : 0.05),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),
               )

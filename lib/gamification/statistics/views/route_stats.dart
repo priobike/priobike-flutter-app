@@ -12,7 +12,7 @@ import 'package:priobike/main.dart';
 
 /// A widget displaying the users route stats for a single given week.
 class FancyRouteStatsForWeek extends StatefulWidget {
-  /// The week displayed by the widget. 
+  /// The week displayed by the widget.
   final WeekStats week;
 
   const FancyRouteStatsForWeek({Key? key, required this.week}) : super(key: key);
@@ -25,11 +25,11 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
   /// The associated goals service to get the route goals to display, whether the user has reached the goasl.
   late GoalsService _goalsService;
 
-  /// The current route goals of the user. 
-  RouteGoals? get goals => _goalsService.routeGoals;
+  /// The current route goals of the user.
+  RouteGoals? get _goals => _goalsService.routeGoals;
 
-  /// Get shortcut corresponding to the route the users has goals for. 
-  Shortcut? get routeShortcut => getIt<Shortcuts>().shortcuts?.where((s) => s.id == goals!.routeID).firstOrNull;
+  /// Get shortcut corresponding to the route the users has goals for.
+  Shortcut? get _routeShortcut => getIt<Shortcuts>().shortcuts?.where((s) => s.id == _goals!.routeID).firstOrNull;
 
   @override
   void initState() {
@@ -49,7 +49,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
 
   @override
   Widget build(BuildContext context) {
-    if (goals == null) {
+    if (_goals == null) {
       return Column(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -117,7 +117,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              BoldSubHeader(text: goals!.routeName, context: context),
+              BoldSubHeader(text: _goals!.routeName, context: context),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -131,7 +131,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
                   ),
                 ),
                 child: RouteGoalsInWeek(
-                  goals: goals!,
+                  goals: _goals!,
                   ridesInWeek: widget.week.rides,
                   daySize: 32,
                 ),
@@ -139,7 +139,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
             ],
           ),
         ),
-        if (routeShortcut != null) routeShortcut!.getRepresentation(),
+        if (_routeShortcut != null) _routeShortcut!.getRepresentation(),
       ],
     );
   }

@@ -28,13 +28,13 @@ class ChallengeSelectionDialog extends StatefulWidget {
 
 class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> with SingleTickerProviderStateMixin {
   /// The index of the challenge selected by the user.
-  int? selectedChallenge;
+  int? _selectedChallenge;
 
   /// Select one out of the challenges, make the other choices disappear and close the dialog after half a second.
-  void selectChallenge(int index) async {
-    setState(() => selectedChallenge = index);
+  void _selectChallenge(int index) async {
+    setState(() => _selectedChallenge = index);
     await Future.delayed(MediumDuration());
-    if (mounted) Navigator.of(context).pop(selectedChallenge);
+    if (mounted) Navigator.of(context).pop(_selectedChallenge);
   }
 
   @override
@@ -56,8 +56,8 @@ class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> wit
             ...widget.challenges.mapIndexed(
               (i, challenge) => ChallengeWidget(
                 challenge: challenge,
-                onTap: () => selectChallenge(i),
-                visible: selectedChallenge == null || selectedChallenge == i,
+                onTap: () => _selectChallenge(i),
+                visible: _selectedChallenge == null || _selectedChallenge == i,
               ),
             ),
             Row(

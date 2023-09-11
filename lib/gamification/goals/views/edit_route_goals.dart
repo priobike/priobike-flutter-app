@@ -5,7 +5,6 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
@@ -54,7 +53,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
   void update() => {if (mounted) setState(() {})};
 
   /// Widget to inform the user that they need to create routes, if they want to set goals for them.
-  Widget get noRoutesWidget => Column(
+  Widget get _noRoutesWidget => Column(
         children: [
           const VSpace(),
           OnTabAnimation(
@@ -108,7 +107,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
   @override
   Widget build(BuildContext context) {
     List<Shortcut> shortcuts = _shortcutsService.shortcuts?.toList() ?? [];
-    if (shortcuts.isEmpty) return noRoutesWidget;
+    if (shortcuts.isEmpty) return _noRoutesWidget;
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
     final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);

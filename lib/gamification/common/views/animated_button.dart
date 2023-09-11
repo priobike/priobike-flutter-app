@@ -32,7 +32,7 @@ class _OnTabAnimationState extends State<OnTabAnimation> with SingleTickerProvid
   late final AnimationController _animationController;
 
   /// True, if clicks on the widget should be blocked.
-  bool blocked = false;
+  bool _blocked = false;
 
   @override
   void initState() {
@@ -61,11 +61,11 @@ class _OnTabAnimationState extends State<OnTabAnimation> with SingleTickerProvid
       },
       onTapUp: (_) async {
         if (widget.blockFastClicking) {
-          if (blocked) return;
-          blocked = true;
+          if (_blocked) return;
+          _blocked = true;
           if (_animationController.isAnimating) await _animationController.forward();
           await _animationController.reverse();
-          blocked = false;
+          _blocked = false;
         } else {
           _animationController.reverse();
         }

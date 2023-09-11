@@ -113,7 +113,7 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
   void initState() {
     _statsService = getIt<StatisticService>();
     _statsService.addListener(update);
-    initViewModel();
+    _initViewModel();
     super.initState();
   }
 
@@ -128,7 +128,7 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
   }
 
   /// Initialize view model to hold data for roughly the last 5 weeks, which is enough for the graphs.
-  void initViewModel() {
+  void _initViewModel() {
     var today = DateTime.now();
     today = DateTime(today.year, today.month, today.day);
     var statsStartDate = today.subtract(const Duration(days: 5 * DateTime.daysPerWeek));
@@ -151,7 +151,7 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
   }
 
   /// Wrap a a graph in a column and add a title above of the graph.
-  Widget getGraphWithTitle({required String title, required Widget graph}) {
+  Widget _getGraphWithTitle({required String title, required Widget graph}) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
@@ -192,15 +192,15 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
                   );
                 }),
                 children: [
-                  getGraphWithTitle(
+                  _getGraphWithTitle(
                     title: 'Diese Woche',
                     graph: WeekStatsGraph(week: _viewModel.weeks.last),
                   ),
-                  getGraphWithTitle(
+                  _getGraphWithTitle(
                     title: 'Dieser Monat',
                     graph: MonthStatsGraph(month: _viewModel.months.last),
                   ),
-                  getGraphWithTitle(
+                  _getGraphWithTitle(
                     title: '${_viewModel.weeks.length} Wochen Rückblick',
                     graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
                   ),

@@ -148,19 +148,19 @@ class EnabledFeatureCard extends StatefulWidget {
 
 class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   ///Whether to show the settings menu of the card, which enabled the user to move the card or disable the feature.
-  bool showMenu = false;
+  bool _showMenu = false;
 
   /// User service to apply changes to the feature settings.
-  GamificationUserService get userService => getIt<GamificationUserService>();
+  GamificationUserService get _userService => getIt<GamificationUserService>();
 
   /// Whether the feature card can be moved up in the feature list.
-  bool get showMoveUpButton => userService.enabledFeatures.firstOrNull != widget.featureKey;
+  bool get _showMoveUpButton => _userService.enabledFeatures.firstOrNull != widget.featureKey;
 
   /// Whether the feature card can be moved down in the feature list.
-  bool get showMoveDownButton => userService.enabledFeatures.lastOrNull != widget.featureKey;
+  bool get _showMoveDownButton => _userService.enabledFeatures.lastOrNull != widget.featureKey;
 
   /// A custom button design for the disable feature dialog.
-  Widget getDialogButton({
+  Widget _getDialogButton({
     required Color color,
     required IconData icon,
     required String label,
@@ -196,7 +196,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   }
 
   /// A dialog which is opened, if the user presses the disable button in the menu, which asks the user to confirm.
-  void showDisableFeatureDialog() {
+  void _showDisableFeatureDialog() {
     showDialog(
       context: context,
       builder: (context) {
@@ -217,17 +217,17 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    getDialogButton(
+                    _getDialogButton(
                       label: 'Abbrechen',
                       icon: Icons.close_rounded,
                       onPressed: () => Navigator.of(context).pop(),
                       color: CI.blue,
                     ),
-                    getDialogButton(
+                    _getDialogButton(
                       label: 'Deaktivieren',
                       icon: Icons.not_interested,
                       onPressed: () {
-                        userService.disableFeature(widget.featureKey);
+                        _userService.disableFeature(widget.featureKey);
                         Navigator.of(context).pop();
                       },
                       color: CI.red,
@@ -243,7 +243,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   }
 
   /// The design of a menu item, which invokes a given function when pressed.
-  Widget getMenuItem({required IconData icon, Function()? onPressed}) {
+  Widget _getMenuItem({required IconData icon, Function()? onPressed}) {
     return OnTabAnimation(
       scaleFactor: 0.8,
       onPressed: onPressed,
@@ -269,11 +269,11 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
           alignment: Alignment.topRight,
           children: [
             GestureDetector(
-              behavior: showMenu ? HitTestBehavior.opaque : null,
-              onTap: showMenu ? () => setState(() => showMenu = false) : null,
+              behavior: _showMenu ? HitTestBehavior.opaque : null,
+              onTap: _showMenu ? () => setState(() => _showMenu = false) : null,
               child: Container(
                 padding: const EdgeInsets.all(16),
-                foregroundDecoration: showMenu
+                foregroundDecoration: _showMenu
                     ? BoxDecoration(
                         color: Theme.of(context).colorScheme.background.withOpacity(0.75),
                         borderRadius: BorderRadius.circular(24),
@@ -288,14 +288,14 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                   ),
                 ),
                 child: IgnorePointer(
-                  ignoring: showMenu,
+                  ignoring: _showMenu,
                   child: widget.content,
                 ),
               ),
             ),
             // If the menu is opened, it is shown above the card at the positin of the menu button.
             AnimatedOpacity(
-              opacity: showMenu ? 1 : 0,
+              opacity: _showMenu ? 1 : 0,
               duration: ShortDuration(),
               child: GestureDetector(
                 onTap: () {},
@@ -320,19 +320,19 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox.fromSize(size: const Size.square(32 + 8)),
-                      getMenuItem(
+                      _getMenuItem(
                         icon: Icons.not_interested,
-                        onPressed: showDisableFeatureDialog,
+                        onPressed: _showDisableFeatureDialog,
                       ),
-                      if (showMoveUpButton)
-                        getMenuItem(
+                      if (_showMoveUpButton)
+                        _getMenuItem(
                           icon: Icons.keyboard_arrow_up,
-                          onPressed: () => userService.moveFeatureUp(widget.featureKey),
+                          onPressed: () => _userService.moveFeatureUp(widget.featureKey),
                         ),
-                      if (showMoveDownButton)
-                        getMenuItem(
+                      if (_showMoveDownButton)
+                        _getMenuItem(
                           icon: Icons.keyboard_arrow_down,
-                          onPressed: () => userService.moveFeatureDown(widget.featureKey),
+                          onPressed: () => _userService.moveFeatureDown(widget.featureKey),
                         ),
                       const SizedBox(height: 4),
                     ],
@@ -342,7 +342,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
             ),
             // Button to open or close the menu.
             GestureDetector(
-              onTap: () => setState(() => showMenu = !showMenu),
+              onTap: () => setState(() => _showMenu = !_showMenu),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 child: AnimatedSwitcher(
@@ -351,7 +351,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                     scale: animation,
                     child: child,
                   ),
-                  child: showMenu
+                  child: _showMenu
                       ? const Icon(
                           Icons.close_rounded,
                           size: 32,

@@ -56,7 +56,7 @@ class GamificationUserService with ChangeNotifier {
 
   /// Start rides database stream to update user profile accordingly.
   void startDatabaseStream() {
-    rideDao.streamAllObjects().listen((update) => updateOverallStats(update));
+    rideDao.streamAllObjects().listen((update) => _updateOverallStats(update));
   }
 
   /// Create a user profile with a given username and save in shared prefs.
@@ -92,7 +92,7 @@ class GamificationUserService with ChangeNotifier {
   }
 
   /// Update user profile statistics according to database and user prefs and save in shared pref.
-  Future<void> updateOverallStats(List<RideSummary> rides) async {
+  Future<void> _updateOverallStats(List<RideSummary> rides) async {
     // If for some reason there is no user profile, return.
     if (_profile == null) return;
     // Update profile statistics according to rides.
@@ -102,11 +102,11 @@ class GamificationUserService with ChangeNotifier {
     _profile!.totalElevationGainMetres = stats.elevationGainMetres;
     _profile!.totalElevationLossMetres = stats.elevationLossMetres;
     _profile!.averageSpeedKmh = stats.averageSpeedKmh;
-    updateProfile();
+    _updateProfile();
   }
 
   /// Update profile data stored in shared prefs and notify listeners.
-  Future<void> updateProfile() async {
+  Future<void> _updateProfile() async {
     // Update profile in shared preferences.
     _prefs ??= await SharedPreferences.getInstance();
     _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson()));

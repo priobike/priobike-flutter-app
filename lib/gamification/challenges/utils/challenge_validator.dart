@@ -9,37 +9,39 @@ import 'package:priobike/main.dart';
 /// This class continously checks the progress of a specific challenge, by listening to the finished rides in the db.
 class ChallengeValidator {
   /// The challenge that needs to be validated.
-  final Challenge challenge;
+  final Challenge _challenge;
 
   /// Stream sub of the db stream, to cancel it if not needed anymore.
-  late StreamSubscription streamSub;
+  late StreamSubscription _streamSub;
 
   /// This bool determines, whether to start the stream of rides automatically.
-  final bool startStream;
+  final bool _startStream;
 
-  ChallengeValidator({required this.challenge, this.startStream = true}) {
-    if (startStream) {
+  ChallengeValidator({required Challenge challenge, bool startStream = true})
+      : _startStream = startStream,
+        _challenge = challenge {
+    if (_startStream) {
       // Listen to rides in the challenge interval and call validate if needed.
-      streamSub = AppDatabase.instance.rideSummaryDao
-          .streamRidesInInterval(challenge.startTime, challenge.closingTime)
+      _streamSub = AppDatabase.instance.rideSummaryDao
+          .streamRidesInInterval(_challenge.startTime, _challenge.closingTime)
           .listen((rides) => validate(rides));
     }
   }
 
   /// Call this function when the validator is not needed anymore and the ride stream can be cancelt.
-  void dispose() => streamSub.cancel();
+  void dispose() => _streamSub.cancel();
 
   /// Updates the progress of the validators challenge according to a given list of rides.
   Future<void> validate(List<RideSummary> rides) async {
     // Handle rides according to the challenge type.
-    if (challenge.isWeekly) {
-      var type = WeeklyChallengeType.values.elementAt(challenge.type);
+    if (_challenge.isWeekly) {
+      var type = WeeklyChallengeType.values.elementAt(_challenge.type);
       if (type == WeeklyChallengeType.overallDistance) await _handleDistanceChallenge(rides);
       if (type == WeeklyChallengeType.daysWithGoalsCompleted) await _handleDailyGoalsCompletedChallenge(rides);
       if (type == WeeklyChallengeType.routeRidesPerWeek) await _handleRidesChallenge(rides);
       if (type == WeeklyChallengeType.routeStreakInWeek) await _handleStreakChallenge(rides);
     } else {
-      var type = DailyChallengeType.values.elementAt(challenge.type);
+      var type = DailyChallengeType.values.elementAt(_challenge.type);
       if (type == DailyChallengeType.distance) await _handleDistanceChallenge(rides);
       if (type == DailyChallengeType.duration) await _handleDurationChallenge(rides);
       if (type == DailyChallengeType.elevation) await _handleElevationChallenge(rides);
@@ -67,24 +69,24 @@ class ChallengeValidator {
 
   /// Update challenge progress according to the number of rides on the challenge route.
   Future<void> _handleRidesChallenge(List<RideSummary> rides) async {
-    if (challenge.routeId == null) return;
-    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.routeId);
+    if (_challenge.routeId == null) return;
+    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == _challenge.routeId);
     _updateChallenge(ridesWithShortcut.length);
   }
 
   /// Update the challenge progress according to the number of rides on the challenge route on days in a row.
   Future<void> _handleStreakChallenge(List<RideSummary> rides) async {
-    if (challenge.routeId == null) return;
-    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == challenge.routeId);
+    if (_challenge.routeId == null) return;
+    var ridesWithShortcut = rides.where((ride) => ride.shortcutId == _challenge.routeId);
 
     // Get start and endtime of the first day of the challenge interval.
-    var start = DateTime(challenge.startTime.year, challenge.startTime.month, challenge.startTime.day);
+    var start = DateTime(_challenge.startTime.year, _challenge.startTime.month, _challenge.startTime.day);
     var end = start.add(const Duration(days: 1));
 
     // Iterate through all the days of the challenge interval, till the end of the interval or the current time
     // and increase the streak value accordingly.
     var streak = 0;
-    while (!(end.isAfter(challenge.closingTime) || start.isAfter(DateTime.now()))) {
+    while (!(end.isAfter(_challenge.closingTime) || start.isAfter(DateTime.now()))) {
       var ridesInInterval = ridesWithShortcut.where(
         (ride) => ride.startTime.isAfter(start) && ride.startTime.isBefore(end),
       );
@@ -93,7 +95,7 @@ class ChallengeValidator {
       } else {
         streak++;
       }
-      if (streak >= challenge.target) break;
+      if (streak >= _challenge.target) break;
       start = start.add(const Duration(days: 1));
       end = end.add(const Duration(days: 1));
     }
@@ -103,17 +105,17 @@ class ChallengeValidator {
 
   /// Update challenge progress according to the daily goals of the user and the corresponding ride values.
   Future<void> _handleDailyGoalsCompletedChallenge(List<RideSummary> rides) async {
-    if (challenge.routeId == null) return;
+    if (_challenge.routeId == null) return;
 
     // Get start and endtime of the first day of the challenge interval.
-    var start = DateTime(challenge.startTime.year, challenge.startTime.month, challenge.startTime.day);
+    var start = DateTime(_challenge.startTime.year, _challenge.startTime.month, _challenge.startTime.day);
     var end = start.add(const Duration(days: 1));
 
     // Iterate through all the days of the challenge interval, till the end of the interval or the current time
     // and count the days where the daily goals were completed.
     var dailyGoals = getIt<GoalsService>().dailyGoals;
     var daysWithGoalsCompleted = 0;
-    while (!(end.isAfter(challenge.closingTime) || start.isAfter(DateTime.now()))) {
+    while (!(end.isAfter(_challenge.closingTime) || start.isAfter(DateTime.now()))) {
       var ridesOnDay = rides.where((ride) => ride.startTime.isAfter(start) && ride.startTime.isBefore(end));
       var distance = ListUtils.getListSum(ridesOnDay.map((ride) => ride.distanceMetres).toList()).toInt();
       var duration = ListUtils.getListSum(ridesOnDay.map((ride) => ride.durationSeconds).toList()).toInt() / 60;
@@ -129,9 +131,9 @@ class ChallengeValidator {
 
   /// Update the progress value of a challenge and store in database.
   Future<void> _updateChallenge(int newProgress) async {
-    if (challenge.progress != newProgress) {
+    if (_challenge.progress != newProgress) {
       await AppDatabase.instance.challengeDao.updateObject(
-        challenge.copyWith(progress: newProgress),
+        _challenge.copyWith(progress: newProgress),
       );
     }
   }

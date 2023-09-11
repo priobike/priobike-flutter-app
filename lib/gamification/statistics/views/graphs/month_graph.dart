@@ -11,7 +11,7 @@ class MonthStatsGraph extends StatelessWidget {
   const MonthStatsGraph({Key? key, required this.month}) : super(key: key);
 
   /// Label the x axis by adding the day value to every fifth day.
-  Widget getTitlesX(double value, TitleMeta meta, TextStyle style) {
+  Widget _getTitlesX(double value, TitleMeta meta, TextStyle style) {
     if ((value + 1) % 5 > 0) return const SizedBox.shrink();
     return SideTitleWidget(
       axisSide: meta.axisSide,
@@ -27,7 +27,7 @@ class MonthStatsGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return RideStatsGraph(
       barWidth: 5,
-      getTitlesX: (value, meta) => getTitlesX(value, meta, Theme.of(context).textTheme.labelMedium!),
+      getTitlesX: (value, meta) => _getTitlesX(value, meta, Theme.of(context).textTheme.labelMedium!),
       displayedStats: month,
     );
   }

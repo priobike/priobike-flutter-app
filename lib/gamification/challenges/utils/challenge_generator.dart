@@ -77,10 +77,10 @@ abstract class ChallengeGenerator {
   }
 
   /// Route goals of the user, pulled from the goals service.
-  RouteGoals? get routeGoals => getIt<GoalsService>().routeGoals;
+  RouteGoals? get _routeGoals => getIt<GoalsService>().routeGoals;
 
   /// Daily distance and duration goals of the user, pulled from the goals service.
-  DailyGoals get dailyGoals => getIt<GoalsService>().dailyGoals;
+  DailyGoals get _dailyGoals => getIt<GoalsService>().dailyGoals;
 
   /// Generate a single new challenge.
   ChallengesCompanion generate();
@@ -88,28 +88,28 @@ abstract class ChallengeGenerator {
 
 /// This class can be used to generate new daily challenges.
 class DailyChallengeGenerator extends ChallengeGenerator {
-  final int minXP = 10;
-  final int xpMaxSteps = 8;
-  final int xpStepSize = 5;
+  final int _minXP = 10;
+  final int _xpMaxSteps = 8;
+  final int _xpStepSize = 5;
 
   /// This function returns a fitting value range for a given challenge type.
-  ValueRange getDailyChallengeValueRange(DailyChallengeType type) {
+  ValueRange _getDailyChallengeValueRange(DailyChallengeType type) {
     //TODO
     if (type == DailyChallengeType.distance) {
-      var max = dailyGoals.distanceMetres ~/ 500;
+      var max = _dailyGoals.distanceMetres ~/ 500;
       return ValueRange.fromMax(max, 500);
     } else if (type == DailyChallengeType.duration) {
-      var max = dailyGoals.durationMinutes ~/ 10;
+      var max = _dailyGoals.durationMinutes ~/ 10;
       return ValueRange.fromMax(max, 10);
     } else if (type == DailyChallengeType.elevation) {
-      var max = dailyGoals.distanceMetres ~/ 1000 * 3;
+      var max = _dailyGoals.distanceMetres ~/ 1000 * 3;
       return ValueRange.fromMax(max, 10);
     }
     return ValueRange.fromMax(1, 1);
   }
 
   /// This function returns a fitting challenge description for a given challenge type and the target value.
-  String buildDescriptionDaily(DailyChallengeType type, int value) {
+  String _buildDescriptionDaily(DailyChallengeType type, int value) {
     if (type == DailyChallengeType.distance) {
       return 'Fahre eine Strecke von ${value / 1000} Kilometern!';
     } else if (type == DailyChallengeType.duration) {
@@ -124,13 +124,13 @@ class DailyChallengeGenerator extends ChallengeGenerator {
   ChallengesCompanion generate() {
     var now = DateTime.now();
     var type = DailyChallengeType.values.elementAt(math.Random().nextInt(DailyChallengeType.values.length));
-    var range = getDailyChallengeValueRange(type);
+    var range = _getDailyChallengeValueRange(type);
     var randomValue = range.getRandomValue();
     return ChallengesCompanion.insert(
-      xp: range.getXpForValue(minXP, xpStepSize, xpMaxSteps, randomValue),
+      xp: range.getXpForValue(_minXP, _xpStepSize, _xpMaxSteps, randomValue),
       startTime: now,
       closingTime: DateTime(now.year, now.month, now.day).add(const Duration(days: 1)),
-      description: buildDescriptionDaily(type, randomValue * range.stepsize),
+      description: _buildDescriptionDaily(type, randomValue * range.stepsize),
       target: randomValue * range.stepsize,
       progress: 0,
       isWeekly: false,
@@ -141,13 +141,13 @@ class DailyChallengeGenerator extends ChallengeGenerator {
 }
 
 class WeeklyChallengeGenerator extends ChallengeGenerator {
-  final int minXP = 50;
-  final int xpMaxSteps = 10;
-  final int xpStepSize = 10;
+  final int _minXP = 50;
+  final int _xpMaxSteps = 10;
+  final int _xpStepSize = 10;
 
   /// If [withRoutes] is true, all weekly challenge types are returned,
   /// otherwise only the ones which are not connected to route goals.
-  List<WeeklyChallengeType> getAllowedChallengeTypes(bool withRoutes) {
+  List<WeeklyChallengeType> _getAllowedChallengeTypes(bool withRoutes) {
     var types = List<WeeklyChallengeType>.from(WeeklyChallengeType.values);
     if (!withRoutes) {
       types.remove(WeeklyChallengeType.routeRidesPerWeek);
@@ -157,16 +157,16 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
   }
 
   /// This function returns a fitting value range for a given challenge type.
-  ValueRange getWeeklyChallengeValueRange(WeeklyChallengeType type) {
+  ValueRange _getWeeklyChallengeValueRange(WeeklyChallengeType type) {
     //TODO
     if (type == WeeklyChallengeType.overallDistance) {
-      var max = dailyGoals.distanceMetres ~/ 500 * 5;
+      var max = _dailyGoals.distanceMetres ~/ 500 * 5;
       return ValueRange.fromMax(max, 500);
     } else if (type == WeeklyChallengeType.routeRidesPerWeek) {
-      var max = routeGoals!.numOfDays;
+      var max = _routeGoals!.numOfDays;
       return ValueRange.fromMax(max, 1);
     } else if (type == WeeklyChallengeType.routeStreakInWeek) {
-      var max = routeGoals!.numOfDays;
+      var max = _routeGoals!.numOfDays;
       return ValueRange.fromMax(max, 1);
     } else if (type == WeeklyChallengeType.daysWithGoalsCompleted) {
       return ValueRange.fromMax(5, 1);
@@ -175,7 +175,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
   }
 
   /// This function returns a fitting challenge description for a given challenge type, target value and route label.
-  String buildDescriptionWeekly(WeeklyChallengeType type, int value, String? routeLabel) {
+  String _buildDescriptionWeekly(WeeklyChallengeType type, int value, String? routeLabel) {
     if (type == WeeklyChallengeType.overallDistance) {
       return 'Bringe diese Woche eine Strecke von ${value / 1000} Kilometern hinter Dich!';
     } else if (type == WeeklyChallengeType.routeRidesPerWeek) {
@@ -192,21 +192,21 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
   ChallengesCompanion generate() {
     var now = DateTime.now();
     var end = DateTime(now.year, now.month, now.day).add(Duration(days: 8 - now.weekday));
-    var allowedTypes = getAllowedChallengeTypes(routeGoals != null && routeGoals!.numOfDays > 0);
+    var allowedTypes = _getAllowedChallengeTypes(_routeGoals != null && _routeGoals!.numOfDays > 0);
     var type = allowedTypes.elementAt(math.Random().nextInt(allowedTypes.length));
-    var range = getWeeklyChallengeValueRange(type);
+    var range = _getWeeklyChallengeValueRange(type);
     var randomValue = range.getRandomValue();
     return ChallengesCompanion.insert(
-      xp: range.getXpForValue(minXP, xpStepSize, xpMaxSteps, randomValue),
+      xp: range.getXpForValue(_minXP, _xpStepSize, _xpMaxSteps, randomValue),
       startTime: now,
       closingTime: end,
-      description: buildDescriptionWeekly(type, randomValue * range.stepsize, routeGoals?.routeName),
+      description: _buildDescriptionWeekly(type, randomValue * range.stepsize, _routeGoals?.routeName),
       target: randomValue * range.stepsize,
       progress: 0,
       isWeekly: true,
       isOpen: true,
       type: WeeklyChallengeType.values.indexOf(type),
-      routeId: Value(routeGoals?.routeID),
+      routeId: Value(_routeGoals?.routeID),
     );
   }
 }
