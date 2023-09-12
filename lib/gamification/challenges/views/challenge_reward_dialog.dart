@@ -6,8 +6,10 @@ import 'package:priobike/gamification/common/database/database.dart';
 
 /// Dialog widget for when the user collects their reward for a challenge.
 class ChallengeRewardDialog extends StatefulWidget {
+  /// The challenge which has been completed by the user.
   final Challenge challenge;
 
+  /// The color in which the reward should be shown.
   final Color color;
 
   const ChallengeRewardDialog({Key? key, required this.color, required this.challenge}) : super(key: key);
@@ -69,7 +71,7 @@ class ChallengeRewardDialogState extends State<ChallengeRewardDialog> with Singl
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    ChallengeGenerator.getChallengeIcon(widget.challenge),
+                    getChallengeIcon(widget.challenge),
                     size: 212,
                     color: widget.color,
                   ),

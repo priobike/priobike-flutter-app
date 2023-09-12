@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
 /// Fixed long duration for animations and stuff.
@@ -78,6 +79,28 @@ class StringFormatter {
     return '';
   }
 
+  /// Rounds and returns a given value for a given challenge type as a string.
+  static getRoundStrByChallengeType(int value, var type) {
+    if (type == DailyChallengeType.distance || type == WeeklyChallengeType.overallDistance) {
+      double valueInKm = value / 1000;
+      if (valueInKm - valueInKm.floor() == 0) return valueInKm.toStringAsFixed(0);
+      return valueInKm.toStringAsFixed(1);
+    }
+    return value.toString();
+  }
+
+  /// Returns a label for the values of a given challenge type as a string.
+  static String getLabelForChallengeType(var type) {
+    if (type == DailyChallengeType.distance) return 'km';
+    if (type == WeeklyChallengeType.overallDistance) return 'km';
+    if (type == DailyChallengeType.duration) return 'min';
+    if (type == DailyChallengeType.elevation) return 'm';
+    if (type == WeeklyChallengeType.daysWithGoalsCompleted) return 'Tage';
+    if (type == WeeklyChallengeType.routeRidesPerWeek) return 'Fahrten';
+    if (type == WeeklyChallengeType.routeStreakInWeek) return 'Fahrten';
+    return '';
+  }
+
   /// Round a given value according to a given ride info type.
   static String getRoundedStrByRideType(double value, StatType type) {
     if ((type == StatType.distance || type == StatType.speed) && value < 100) {
@@ -87,9 +110,8 @@ class StringFormatter {
     }
   }
 
-  static String getMonthAndYearStr(int month, int year) {
-    return '${getMonthStr(month)} $year';
-  }
+  /// Returns a fitting string for a given month and year.
+  static String getMonthAndYearStr(int month, int year) => '${getMonthStr(month)} $year';
 
   /// Convert month index to its name.
   static String getMonthStr(int i) {

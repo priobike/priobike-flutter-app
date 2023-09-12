@@ -131,7 +131,7 @@ class ChallengeWidget extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                ChallengeGenerator.getChallengeIcon(challenge),
+                getChallengeIcon(challenge),
                 size: 64,
                 color: iconColor,
               ),

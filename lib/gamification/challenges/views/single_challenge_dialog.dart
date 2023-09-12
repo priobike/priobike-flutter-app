@@ -47,13 +47,13 @@ class SingleChallengeDialog extends StatelessWidget {
                 ),
               ],
             ),
-            const SmallVSpace(),
+            const VSpace(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
-                  ChallengeGenerator.getChallengeIcon(challenge),
+                  getChallengeIcon(challenge),
                   size: 60,
                   color: color.withOpacity(0.75),
                 ),

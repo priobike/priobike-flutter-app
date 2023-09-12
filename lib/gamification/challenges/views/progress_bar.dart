@@ -9,6 +9,7 @@ import 'package:priobike/gamification/challenges/services/challenges_profile_ser
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/challenges/views/challenge_reward_dialog.dart';
 import 'package:priobike/gamification/challenges/views/challenge_selection_dialog.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/countdown_timer.dart';
 import 'package:priobike/gamification/challenges/views/single_challenge_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
@@ -63,6 +64,11 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
       return now.add(const Duration(days: 1)).copyWith(hour: 0, minute: 0, second: 0);
     }
   }
+
+  /// Return the type of the current challenge.
+  get challengeType => _challenge!.isWeekly
+      ? WeeklyChallengeType.values.elementAt(_challenge!.type)
+      : DailyChallengeType.values.elementAt(_challenge!.type);
 
   @override
   void initState() {
@@ -236,7 +242,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                               Icon(
                                 (_challenge == null)
                                     ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
-                                    : ChallengeGenerator.getChallengeIcon(_challenge!),
+                                    : getChallengeIcon(_challenge!),
                                 size: 32,
                                 color: _isCompleted
                                     ? Colors.white
@@ -249,7 +255,13 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                         : (widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge')
                                     : _isCompleted
                                         ? 'Belohnung Abholen'
-                                        : '${_challenge!.progress}/${_challenge!.target}',
+                                        : '${StringFormatter.getRoundStrByChallengeType(
+                                            _challenge!.progress,
+                                            challengeType,
+                                          )}/${StringFormatter.getRoundStrByChallengeType(
+                                            _challenge!.target,
+                                            challengeType,
+                                          )} ${StringFormatter.getLabelForChallengeType(challengeType)}',
                                 context: context,
                                 color: _isCompleted
                                     ? Colors.white
