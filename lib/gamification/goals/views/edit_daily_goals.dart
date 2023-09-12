@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/goals/views/weekday_button.dart';
 import 'package:priobike/main.dart';
@@ -38,7 +39,7 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
 
   @override
   Widget build(BuildContext context) {
-    var goals = _goalsService.dailyGoals;
+    var goals = _goalsService.dailyGoals ?? DailyGoals.defaultGoals;
     var distanceGoal = goals.distanceMetres / 1000;
     var durationGoal = goals.durationMinutes;
     var noDaysSelected = goals.numOfDays == 0;
@@ -55,7 +56,11 @@ class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
                   onPressed: () {
                     goals.weekdays[i] = !goals.weekdays[i];
                     goals.weekdays = goals.weekdays;
-                    _goalsService.updateDailyGoals(goals);
+                    if (goals.numOfDays == 0) {
+                      _goalsService.updateDailyGoals(null);
+                    } else {
+                      _goalsService.updateDailyGoals(goals);
+                    }
                   },
                   selected: day,
                 ),

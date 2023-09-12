@@ -63,15 +63,19 @@ class StringFormatter {
     return result;
   }
 
-  /// Get formatted string for a given double by rounding it and giving it
-  /// a fitting label, all according to a given ride info type.
+  /// Get formatted string for a given double by rounding it and giving it appending a fitting label.
   static String getFormattedStrByRideType(double value, StatType type) {
-    String label = '';
-    if (type == StatType.distance) label = 'km';
-    if (type == StatType.duration) label = 'min';
-    if (type == StatType.speed) label = 'km/h';
+    return '${getRoundedStrByRideType(value, type)} ${getLabelForRideType(type)}';
+  }
 
-    return '${getRoundedStrByRideType(value, type)} $label';
+  /// Returns a fitting label for a given ride type, consisting of the unit describing the type.
+  static String getLabelForRideType(StatType type) {
+    if (type == StatType.distance) return 'km';
+    if (type == StatType.duration) return 'min';
+    if (type == StatType.speed) return 'km/h';
+    if (type == StatType.elevationGain) return 'm';
+    if (type == StatType.elevationLoss) return 'm';
+    return '';
   }
 
   /// Round a given value according to a given ride info type.

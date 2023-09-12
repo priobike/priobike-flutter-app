@@ -80,7 +80,7 @@ abstract class ChallengeGenerator {
   RouteGoals? get _routeGoals => getIt<GoalsService>().routeGoals;
 
   /// Daily distance and duration goals of the user, pulled from the goals service.
-  DailyGoals get _dailyGoals => getIt<GoalsService>().dailyGoals;
+  DailyGoals get _dailyGoals => getIt<GoalsService>().dailyGoals ?? DailyGoals.defaultGoals;
 
   /// Generate a single new challenge.
   ChallengesCompanion generate();

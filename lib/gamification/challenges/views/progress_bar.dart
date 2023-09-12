@@ -12,7 +12,7 @@ import 'package:priobike/gamification/challenges/views/single_challenge_dialog.d
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/challenges/views/level_ring.dart';
+import 'package:priobike/gamification/common/views/progress_ring.dart';
 import 'package:priobike/main.dart';
 
 /// A Widget which displays the progress of a given challenge and relevant info about the challenge.
@@ -354,12 +354,15 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                 ),
               ],
       ),
-      child: LevelRing(
+      child: ProgressRing(
         ringSize: 32,
-        iconColor: color,
-        icon: (_challenge == null)
-            ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
-            : ChallengeGenerator.getChallengeIcon(_challenge!),
+        content: Icon(
+          (_challenge == null)
+              ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
+              : ChallengeGenerator.getChallengeIcon(_challenge!),
+          size: 20,
+          color: color,
+        ),
         animationController: _ringController,
         ringColor: color,
         background: Theme.of(context).colorScheme.background,

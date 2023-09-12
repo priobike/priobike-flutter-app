@@ -5,10 +5,11 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
+import 'package:priobike/gamification/statistics/views/daily_overview.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
@@ -97,29 +98,30 @@ class StatisticsOverview extends StatefulWidget {
   State<StatisticsOverview> createState() => _StatisticsOverviewState();
 }
 
-class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTickerProviderStateMixin {
+class _StatisticsOverviewState extends State<StatisticsOverview> with TickerProviderStateMixin {
   // Controller for the page view displaying the different pages.
   late final PageController _pageController = PageController();
 
   /// Controller which connects the tab indicator to the page view.
-  late final TabController _tabController = TabController(length: 4, vsync: this);
+  late TabController _tabController = TabController(length: 5, vsync: this);
 
   /// The view model holding the ride stats of the displayed data.
   late final StatisticsViewModel _viewModel;
 
+  /// Service to get the current stat interval that should be displayed.
   late StatisticService _statsService;
 
   @override
   void initState() {
     _statsService = getIt<StatisticService>();
-    _statsService.addListener(update);
+    _statsService.addListener(updatePage);
     _initViewModel();
     super.initState();
   }
 
   @override
   void dispose() {
-    _statsService.removeListener(update);
+    _statsService.removeListener(updatePage);
     _tabController.dispose();
     _pageController.dispose();
     _viewModel.removeListener(update);
@@ -136,14 +138,15 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
     _viewModel.addListener(update);
   }
 
-  /// Update the displayed page.
-  void update() {
+  void updatePage() {
     var newIndex = _statsService.statInterval.index;
     if (_pageController.hasClients && (newIndex - (_pageController.page ?? newIndex)).abs() >= 1) {
       _pageController.jumpToPage(newIndex);
     }
-    if (mounted) setState(() {});
   }
+
+  /// Update the displayed page.
+  void update() => {if (mounted) setState(() {})};
 
   /// Wrap a a graph in a column and add a title above of the graph.
   Widget _getGraphWithTitle({required String title, required Widget graph}) {
@@ -182,11 +185,14 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
                 onPageChanged: (int index) => setState(() {
                   // Update tab controller index to update the indicator.
                   _tabController.index = index;
-                  getIt<StatisticService>().setStatInterval(
-                    StatInterval.values[min(index, StatInterval.values.length - 1)],
-                  );
+                  if (index < StatInterval.values.length) {
+                    getIt<StatisticService>().setStatInterval(
+                      StatInterval.values[index],
+                    );
+                  }
                 }),
                 children: [
+                  DailyOverview(today: _viewModel.days.last),
                   _getGraphWithTitle(
                     title: 'Diese Woche (Km)',
                     graph: WeekStatsGraph(week: _viewModel.weeks.last),

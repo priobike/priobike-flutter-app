@@ -13,7 +13,7 @@ import 'package:priobike/gamification/challenges/views/profile/single_upgrade_lv
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/views/animated_button.dart';
-import 'package:priobike/gamification/challenges/views/level_ring.dart';
+import 'package:priobike/gamification/common/views/progress_ring.dart';
 import 'package:priobike/gamification/common/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/main.dart';
@@ -63,6 +63,8 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     var progress = (_profile!.xp - _currentLevel.value) / (_nextLevel!.value - _currentLevel.value);
     return min(1, max(0, progress));
   }
+
+  bool get canLevelUp => _nextLevel != null && _profileService.profile!.xp >= _nextLevel!.value;
 
   @override
   void initState() {
@@ -161,10 +163,65 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     );
   }
 
+  Widget _getRingContent() {
+    if (canLevelUp) {
+      return ScaleTransition(
+        scale:
+            Tween<double>(begin: 1, end: 1.3).animate(CurvedAnimation(parent: _ringController, curve: Curves.easeOut)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            BoldContent(
+              text: 'Level',
+              context: context,
+              color: _nextLevel!.color,
+              height: 1,
+            ),
+            BoldSubHeader(
+              text: 'Up',
+              context: context,
+              color: _nextLevel!.color,
+              height: 1,
+            ),
+          ],
+        ),
+      );
+    } else if (!canLevelUp && _nextLevel != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SmallVSpace(),
+          BoldContent(
+            text: 'Level',
+            context: context,
+            color: Color.alphaBlend(
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
+              _nextLevel!.color.withOpacity(_levelProgress),
+            ),
+            height: 1,
+          ),
+          Header(
+            text: '${levels.indexOf(_nextLevel!)}',
+            context: context,
+            color: Color.alphaBlend(
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
+              _nextLevel!.color.withOpacity(_levelProgress),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Icon(
+        Icons.directions_bike,
+        color: _currentLevel.color,
+        size: 56,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_profile == null) return Container();
-    var canLevelUp = _nextLevel != null && _profileService.profile!.xp >= _nextLevel!.value;
     if (canLevelUp && !_ringController.isAnimating) {
       _ringController.repeat(reverse: true);
     } else if (!canLevelUp && _ringController.isAnimating) {
@@ -222,57 +279,12 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                     ],
                   ),
                 ),
-              LevelRing(
+              ProgressRing(
                 progress: _levelProgress,
-                iconColor: _currentLevel.color,
-                icon: _nextLevel == null ? Icons.directions_bike : null,
                 ringSize: 96,
                 ringColor: _nextLevel?.color ?? _currentLevel.color,
+                content: _getRingContent(),
               ),
-              if (canLevelUp)
-                ScaleTransition(
-                  scale: Tween<double>(begin: 1, end: 1.3)
-                      .animate(CurvedAnimation(parent: _ringController, curve: Curves.easeOut)),
-                  child: Column(
-                    children: [
-                      BoldContent(
-                        text: 'Level',
-                        context: context,
-                        color: _nextLevel!.color,
-                        height: 1,
-                      ),
-                      BoldSubHeader(
-                        text: 'Up',
-                        context: context,
-                        color: _nextLevel!.color,
-                        height: 1,
-                      ),
-                    ],
-                  ),
-                ),
-              if (!canLevelUp && _nextLevel != null)
-                Column(
-                  children: [
-                    const SmallVSpace(),
-                    BoldContent(
-                      text: 'Level',
-                      context: context,
-                      color: Color.alphaBlend(
-                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
-                        _nextLevel!.color.withOpacity(_levelProgress),
-                      ),
-                      height: 1,
-                    ),
-                    Header(
-                      text: '${levels.indexOf(_nextLevel!)}',
-                      context: context,
-                      color: Color.alphaBlend(
-                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
-                        _nextLevel!.color.withOpacity(_levelProgress),
-                      ),
-                    ),
-                  ],
-                ),
             ],
           ),
         ),
