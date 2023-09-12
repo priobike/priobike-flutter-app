@@ -33,10 +33,12 @@ class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     var lightmode = Theme.of(context).brightness == Brightness.light;
     return ScaleTransition(
-      scale: Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.fastLinearToSlowEaseIn,
-      )),
+      scale: Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.fastLinearToSlowEaseIn,
+        ),
+      ),
       child: Center(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 32),

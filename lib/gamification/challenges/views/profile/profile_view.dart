@@ -129,7 +129,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   }
 
   /// Returns widget for displaying the count of a collected virtual reward with a matching icon.
-  Widget _getRewardNumber(int number, IconData icon, Animation<double> animation, bool animate) {
+  Widget _getRewardNumber(int number, IconData icon, Animation<double> animation, bool animate, String heroTag) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -146,11 +146,13 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 ),
               ],
             ),
-            child: Icon(
-              icon,
-              size: 36,
-              color: animate ? _lvlColor : Color.alphaBlend(Colors.white.withOpacity(0.4), _lvlColor),
-              // animate ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+            child: Hero(
+              tag: heroTag,
+              child: Icon(
+                icon,
+                size: 36,
+                color: animate ? _lvlColor : Color.alphaBlend(Colors.white.withOpacity(0.4), _lvlColor),
+              ),
             ),
           ),
         ),
@@ -331,6 +333,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                         CustomGameIcons.blank_medal,
                         _getAnimation(_medalsController),
                         _profileService.medalsChanged,
+                        'medal',
                       ),
                     ),
                     OnTapAnimation(
@@ -352,6 +355,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                         CustomGameIcons.blank_trophy,
                         _getAnimation(_trophiesController),
                         _profileService.trophiesChanged,
+                        'trophy',
                       ),
                     ),
                   ],

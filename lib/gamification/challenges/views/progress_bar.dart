@@ -7,6 +7,7 @@ import 'package:priobike/gamification/challenges/models/level.dart';
 import 'package:priobike/gamification/challenges/services/challenge_service.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
+import 'package:priobike/gamification/challenges/views/challenge_reward_dialog.dart';
 import 'package:priobike/gamification/challenges/views/challenge_selection_dialog.dart';
 import 'package:priobike/gamification/common/views/countdown_timer.dart';
 import 'package:priobike/gamification/challenges/views/single_challenge_dialog.dart';
@@ -100,7 +101,12 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     }
     // If the challenge has been completed, update it in the db and give haptic feedback again, as the user receives their rewards.
     else if (_isCompleted) {
-      _service.completeChallenge();
+      await showDialog(
+        barrierColor: Colors.black.withOpacity(0.8),
+        context: context,
+        builder: (context) => ChallengeRewardDialog(color: _barColor, challenge: _challenge!),
+      );
+      //_service.completeChallenge();
       HapticFeedback.heavyImpact();
     }
     // If there is no challenge, but the service allows a new one, generate a new one.

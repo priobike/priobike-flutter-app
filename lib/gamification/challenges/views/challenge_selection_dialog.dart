@@ -54,7 +54,7 @@ class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> wit
               text: 'Wähle eine ${widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge'}',
               context: context,
               textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
             ),
             ...widget.challenges.mapIndexed(
               (i, challenge) => ChallengeWidget(
@@ -71,7 +71,7 @@ class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> wit
                 BoldSmall(
                   text: 'Verbleibende Zeit: ${StringFormatter.getTimeLeftStr(widget.challenges.first.closingTime)}',
                   context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
                 )
               ],
             )
