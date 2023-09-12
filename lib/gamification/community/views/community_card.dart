@@ -1,38 +1,33 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/challenges/views/challenges_tutorial.dart';
-import 'package:priobike/gamification/challenges/views/profile/profile_view.dart';
-import 'package:priobike/gamification/challenges/views/progress_bar.dart';
-import 'package:priobike/gamification/common/colors.dart';
-import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/community/views/community_tutorial.dart';
 
 /// This card is displayed on the home view and holds all information about the users
 /// game state regarding the challenges feature.
-class ChallengesCard extends StatelessWidget {
-  const ChallengesCard({Key? key}) : super(key: key);
+class CommunityCard extends StatelessWidget {
+  const CommunityCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GamificationFeatureCard(
-      featureKey: GamificationUserService.challengesFeatureKey,
+      featureKey: GamificationUserService.communityFeatureKey,
       // If the feature is enabled, show progress bars of the users challenges and the profile view.
       featureEnabledContent: Column(
-        children: const [
-          GameProfileView(),
-          SmallVSpace(),
-          ChallengeProgressBar(isWeekly: true),
-          ChallengeProgressBar(isWeekly: false),
-          SmallVSpace(),
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              BoldSubHeader(text: 'PrioBike Community', context: context),
+            ],
+          )
         ],
       ),
       // If the feature is disabled, show an info widget which directs the user to an intro page.
-      tutorialPage: const ChallengesTutorial(),
+      tutorialPage: const CommunityTutorial(),
       featureDisabledContent: Column(
         children: [
           Padding(
@@ -45,7 +40,7 @@ class ChallengesCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: BoldSubHeader(
-                        text: 'PrioBike Challenges',
+                        text: 'PrioBike Community',
                         context: context,
                         textAlign: TextAlign.center,
                       ),
@@ -79,25 +74,12 @@ class ChallengesCard extends StatelessWidget {
                             ),
                           ),
                           Align(
-                            alignment: Alignment.bottomRight,
+                            alignment: Alignment.center,
                             child: Transform.rotate(
-                              angle: pi / 8,
-                              child: Icon(
-                                CustomGameIcons.elevation_trophy,
-                                size: 64,
-                                color: Theme.of(context).brightness == Brightness.light
-                                    ? LevelColors.brighten(LevelColors.gold)
-                                    : LevelColors.gold,
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Transform.rotate(
-                              angle: -pi / 8,
+                              angle: 0,
                               child: const Icon(
-                                CustomGameIcons.distance_medal,
-                                size: 64,
+                                Icons.groups,
+                                size: 80,
                                 color: CI.blue,
                               ),
                             ),

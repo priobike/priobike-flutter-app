@@ -13,7 +13,7 @@ class ChallengesTutorial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GameTutorialPage(
+    return TutorialPage(
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () async {
         await getIt<ChallengesProfileService>().createProfile();

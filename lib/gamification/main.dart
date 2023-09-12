@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
+import 'package:priobike/gamification/community/views/community_card.dart';
 import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
@@ -23,8 +24,9 @@ class _GameViewState extends State<GameView> {
 
   /// The gamification features mapped to their corresponding cards.
   final Map<String, Widget> _featureCards = {
-    GamificationUserService.challengesFeatureKey: const GameChallengesCard(),
+    GamificationUserService.challengesFeatureKey: const ChallengesCard(),
     GamificationUserService.statisticsFeatureKey: const RideStatisticsCard(),
+    GamificationUserService.communityFeatureKey: const CommunityCard(),
   };
 
   /// List of feature cards for enabled features.

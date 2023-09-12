@@ -25,8 +25,11 @@ class GamificationUserService with ChangeNotifier {
   /// Key describing the challenges feature.
   static const challengesFeatureKey = 'priobike.gamification.feature.challenges';
 
+  /// Key describing the community feature.
+  static const communityFeatureKey = 'priobike.gamification.feature.community';
+
   /// List of keys for the features of the gamification system.
-  static const gamificationFeatures = [challengesFeatureKey, statisticsFeatureKey];
+  static const gamificationFeatures = [challengesFeatureKey, statisticsFeatureKey, communityFeatureKey];
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
@@ -116,6 +119,7 @@ class GamificationUserService with ChangeNotifier {
   /// Returns true, if a given string key is inside of the list of selected game prefs.
   bool isFeatureEnabled(String key) => _enabledFeatures.contains(key);
 
+  /// Enable the feature with the given key.
   Future<void> enableFeature(String key) async {
     if (_enabledFeatures.contains(key)) return;
     _enabledFeatures.add(key);
@@ -124,6 +128,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Disable the feature with the given key.
   void disableFeature(String key) async {
     if (!_enabledFeatures.contains(key)) return;
     _enabledFeatures.remove(key);
@@ -132,6 +137,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Move the feature with the given key one place down in the feature list, which moves its card one place up.
   void moveFeatureUp(String key) {
     if (_enabledFeatures.firstOrNull == key) return;
     int index = _enabledFeatures.indexOf(key);
@@ -140,6 +146,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Move the feature with the given key one place up in the feature list, which moves its card one place down.
   void moveFeatureDown(String key) {
     if (_enabledFeatures.lastOrNull == key) return;
     int index = _enabledFeatures.indexOf(key);
@@ -148,6 +155,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reset the user profile and all generated gamification data.
   Future<void> reset() async {
     var prefs = await SharedPreferences.getInstance();
     _profile = null;
