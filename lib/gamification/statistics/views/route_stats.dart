@@ -22,7 +22,7 @@ class FancyRouteStatsForWeek extends StatefulWidget {
 }
 
 class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
-  /// The associated goals service to get the route goals to display, whether the user has reached the goasl.
+  /// The associated goals service to get the route goals to display, whether the user has reached the goals.
   late GoalsService _goalsService;
 
   /// The current route goals of the user.
