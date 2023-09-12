@@ -188,15 +188,15 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
                 }),
                 children: [
                   _getGraphWithTitle(
-                    title: 'Diese Woche',
+                    title: 'Diese Woche (Km)',
                     graph: WeekStatsGraph(week: _viewModel.weeks.last),
                   ),
                   _getGraphWithTitle(
-                    title: 'Dieser Monat',
+                    title: 'Dieser Monat (Km)',
                     graph: MonthStatsGraph(month: _viewModel.months.last),
                   ),
                   _getGraphWithTitle(
-                    title: '${_viewModel.weeks.length} Wochen Rückblick',
+                    title: '${_viewModel.weeks.length} Wochen Rückblick (Km)',
                     graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
                   ),
                   FancyRouteStatsForWeek(week: _viewModel.weeks.last),
