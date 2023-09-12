@@ -22,7 +22,6 @@ class WeekdayButton extends StatelessWidget {
     bool disable = onPressed == null;
     return OnTabAnimation(
       scaleFactor: 0.85,
-      blockFastClicking: false,
       onPressed: onPressed,
       child: Container(
         height: 40,

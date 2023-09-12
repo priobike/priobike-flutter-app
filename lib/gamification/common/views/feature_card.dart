@@ -268,31 +268,34 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
         child: Stack(
           alignment: Alignment.topRight,
           children: [
-            GestureDetector(
-              behavior: _showMenu ? HitTestBehavior.opaque : null,
-              onTap: _showMenu ? () => setState(() => _showMenu = false) : null,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                foregroundDecoration: _showMenu
-                    ? BoxDecoration(
-                        color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(24),
-                      )
-                    : null,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    width: 1,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
-                  ),
-                ),
-                child: IgnorePointer(
-                  ignoring: _showMenu,
-                  child: widget.content,
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  width: 1,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
                 ),
               ),
+              child: IgnorePointer(
+                ignoring: _showMenu,
+                child: widget.content,
+              ),
             ),
+            if (_showMenu)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(() => _showMenu = false),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                ),
+              ),
             // If the menu is opened, it is shown above the card at the positin of the menu button.
             AnimatedOpacity(
               opacity: _showMenu ? 1 : 0,

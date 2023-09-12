@@ -89,7 +89,7 @@ class RideStatisticsCard extends StatelessWidget {
   }
 }
 
-/// A page view displaying a reduced stat history of the user, only inclduing recent weeks.
+/// A page view displaying a reduced stat history of the user for only the recent weeks.
 class StatisticsOverview extends StatefulWidget {
   const StatisticsOverview({Key? key}) : super(key: key);
 
@@ -99,7 +99,7 @@ class StatisticsOverview extends StatefulWidget {
 
 class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTickerProviderStateMixin {
   // Controller for the page view displaying the different pages.
-  final PageController _pageController = PageController();
+  late final PageController _pageController = PageController();
 
   /// Controller which connects the tab indicator to the page view.
   late final TabController _tabController = TabController(length: 4, vsync: this);
@@ -140,12 +140,7 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
   void update() {
     var newIndex = _statsService.statInterval.index;
     if (_pageController.hasClients && (newIndex - (_pageController.page ?? newIndex)).abs() >= 1) {
-      _pageController.animateToPage(
-        newIndex,
-        duration: ShortDuration(),
-        curve: Curves.ease,
-      );
-      return;
+      _pageController.jumpToPage(newIndex);
     }
     if (mounted) setState(() {});
   }
