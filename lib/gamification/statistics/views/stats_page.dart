@@ -158,7 +158,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
                 ),
                 Expanded(child: Container()),
                 AnimatedSwitcher(
-                  duration: ShortDuration(),
+                  duration: const ShortDuration(),
                   transitionBuilder: (child, animation) => FadeTransition(
                     opacity: animation,
                     child: child,

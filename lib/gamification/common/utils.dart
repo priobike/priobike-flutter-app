@@ -4,17 +4,17 @@ import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
 /// Fixed long duration for animations and stuff.
 class LongDuration extends Duration {
-  LongDuration() : super(milliseconds: 1000);
+  const LongDuration() : super(milliseconds: 1000);
 }
 
 /// Fixed medium duration for animations and stuff.
 class MediumDuration extends Duration {
-  MediumDuration() : super(milliseconds: 500);
+  const MediumDuration() : super(milliseconds: 500);
 }
 
 /// Fixed short duration for animations and stuff.
 class ShortDuration extends Duration {
-  ShortDuration() : super(milliseconds: 250);
+  const ShortDuration() : super(milliseconds: 250);
 }
 
 /// A bunch of utility methods for processing ride data.

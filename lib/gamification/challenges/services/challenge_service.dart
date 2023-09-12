@@ -179,6 +179,15 @@ abstract class ChallengeService with ChangeNotifier {
     var modified = _currentChallenge!.copyWith(progress: (_currentChallenge!.target * 1.25).toInt());
     _dao.updateObject(modified);
   }
+
+  /// TODO helper function
+  void increaseChallengeProgress() {
+    if (_currentChallenge == null) return;
+    var modified = _currentChallenge!.copyWith(
+      progress: _currentChallenge!.progress + (_currentChallenge!.target * 0.2).toInt(),
+    );
+    _dao.updateObject(modified);
+  }
 }
 
 /// This service implements the challenge service and manages daily challenges.

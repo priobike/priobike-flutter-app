@@ -1,12 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
 /// Dialog widget to pop up after multiple challenges were generated, to give the user the option to select one of them.
@@ -17,10 +16,14 @@ class ChallengeSelectionDialog extends StatefulWidget {
   /// Whether the challenges are weekly, or daily challenges.
   final bool isWeekly;
 
+  /// An accent color for the challenges.
+  final Color color;
+
   const ChallengeSelectionDialog({
     Key? key,
     required this.challenges,
     required this.isWeekly,
+    required this.color,
   }) : super(key: key);
   @override
   State<ChallengeSelectionDialog> createState() => _ChallengeSelectionDialogState();
@@ -33,7 +36,7 @@ class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> wit
   /// Select one out of the challenges, make the other choices disappear and close the dialog after half a second.
   void _selectChallenge(int index) async {
     setState(() => _selectedChallenge = index);
-    await Future.delayed(MediumDuration());
+    await Future.delayed(const MediumDuration());
     if (mounted) Navigator.of(context).pop(_selectedChallenge);
   }
 
@@ -58,6 +61,7 @@ class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> wit
                 challenge: challenge,
                 onTap: () => _selectChallenge(i),
                 visible: _selectedChallenge == null || _selectedChallenge == i,
+                iconColor: widget.color,
               ),
             ),
             Row(
@@ -89,19 +93,23 @@ class ChallengeWidget extends StatelessWidget {
   /// The challenge represented by the widget.
   final Challenge challenge;
 
+  /// An accent color for the challenges.
+  final Color iconColor;
+
   const ChallengeWidget({
     Key? key,
     required this.challenge,
     required this.onTap,
     this.visible = true,
+    required this.iconColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       opacity: visible ? 1 : 0,
-      duration: ShortDuration(),
-      child: OnTabAnimation(
+      duration: const ShortDuration(),
+      child: OnTapAnimation(
         onPressed: visible ? onTap : null,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
@@ -125,7 +133,7 @@ class ChallengeWidget extends StatelessWidget {
               Icon(
                 ChallengeGenerator.getChallengeIcon(challenge),
                 size: 64,
-                color: CI.blue,
+                color: iconColor,
               ),
               const SmallHSpace(),
               Expanded(

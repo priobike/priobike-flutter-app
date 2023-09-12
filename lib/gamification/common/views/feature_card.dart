@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
 /// A card to display the state of a given gamification feature on the home screen.
@@ -166,7 +166,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
     required String label,
     required Function() onPressed,
   }) {
-    return OnTabAnimation(
+    return OnTapAnimation(
       onPressed: onPressed,
       child: Tile(
         fill: color,
@@ -244,7 +244,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
 
   /// The design of a menu item, which invokes a given function when pressed.
   Widget _getMenuItem({required IconData icon, Function()? onPressed}) {
-    return OnTabAnimation(
+    return OnTapAnimation(
       scaleFactor: 0.8,
       onPressed: onPressed,
       child: Container(
@@ -258,7 +258,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: OnTabAnimation(
+      child: OnTapAnimation(
         scaleFactor: 0.95,
         onPressed: widget.featurePage == null
             ? null
@@ -299,7 +299,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
             // If the menu is opened, it is shown above the card at the positin of the menu button.
             AnimatedOpacity(
               opacity: _showMenu ? 1 : 0,
-              duration: ShortDuration(),
+              duration: const ShortDuration(),
               child: GestureDetector(
                 onTap: () {},
                 child: Container(
@@ -349,7 +349,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 child: AnimatedSwitcher(
-                  duration: ShortDuration(),
+                  duration: const ShortDuration(),
                   transitionBuilder: (child, animation) => ScaleTransition(
                     scale: animation,
                     child: child,

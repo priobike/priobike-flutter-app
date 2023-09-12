@@ -28,7 +28,6 @@ class GameChallengesCard extends StatelessWidget {
           SmallVSpace(),
           ChallengeProgressBar(isWeekly: true),
           ChallengeProgressBar(isWeekly: false),
-          SmallVSpace(),
         ],
       ),
       // If the feature is disabled, show an info widget which directs the user to an intro page.

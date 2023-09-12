@@ -63,8 +63,8 @@ class _GameTutorialPageState extends State<GameTutorialPage> with SingleTickerPr
 
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: MediumDuration());
-    _animationController.forward().then((value) => _animationController.duration = ShortDuration());
+    _animationController = AnimationController(vsync: this, duration: const MediumDuration());
+    _animationController.forward().then((value) => _animationController.duration = const ShortDuration());
     super.initState();
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 
 /// Button to describe a weekday to activate or deactive goals on this weekday.
 class WeekdayButton extends StatelessWidget {
@@ -20,7 +20,7 @@ class WeekdayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool disable = onPressed == null;
-    return OnTabAnimation(
+    return OnTapAnimation(
       scaleFactor: 0.85,
       onPressed: onPressed,
       child: Container(

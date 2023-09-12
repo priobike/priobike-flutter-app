@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
@@ -11,10 +10,14 @@ class SingleChallengeDialog extends StatelessWidget {
   /// The challenge in question.
   final Challenge challenge;
 
-  /// Whether the challenge is a weekly or a daily challenge.
-  final bool isWeekly;
+  /// An accent color for the challenge.
+  final Color color;
 
-  const SingleChallengeDialog({Key? key, required this.challenge, required this.isWeekly}) : super(key: key);
+  const SingleChallengeDialog({
+    Key? key,
+    required this.challenge,
+    required this.color,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,7 @@ class SingleChallengeDialog extends StatelessWidget {
           children: [
             const SizedBox(height: 4),
             BoldSubHeader(
-              text: isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
+              text: challenge.isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
               context: context,
               textAlign: TextAlign.center,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
@@ -38,7 +41,7 @@ class SingleChallengeDialog extends StatelessWidget {
                 Icon(
                   ChallengeGenerator.getChallengeIcon(challenge),
                   size: 48,
-                  color: CI.blue,
+                  color: color,
                 ),
                 Expanded(
                   child: Content(

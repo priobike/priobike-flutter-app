@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -7,7 +5,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/daily_overview.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
@@ -103,7 +100,7 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with TickerProv
   late final PageController _pageController = PageController();
 
   /// Controller which connects the tab indicator to the page view.
-  late TabController _tabController = TabController(length: 5, vsync: this);
+  late final TabController _tabController = TabController(length: 5, vsync: this);
 
   /// The view model holding the ride stats of the displayed data.
   late final StatisticsViewModel _viewModel;
