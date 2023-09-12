@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/views/profile/lvl_up_dialog.dart';
@@ -50,6 +49,7 @@ class _MultipleUpgradesLvlUpDialogState extends State<MultipleUpgradesLvlUpDialo
                     visible: _selectedUpgrade == null || _selectedUpgrade == i,
                     onTap: _selectedUpgrade == i ? null : () => _selectUpgrade(i),
                     upgrade: upgrade,
+                    color: widget.newLevel.color,
                   ))
               .toList(),
         ],
@@ -60,14 +60,24 @@ class _MultipleUpgradesLvlUpDialogState extends State<MultipleUpgradesLvlUpDialo
 
 /// This is a clickable widget displaying an upgrade the user can apply to their challenge profile.
 class UpgradeChoice extends StatelessWidget {
+  /// Callback for when the choice is selected.
   final Function()? onTap;
+
+  /// The choice displayed by this widget.
   final ProfileUpgrade upgrade;
+
+  /// Whether the choice should be visible for the user.
   final bool visible;
+
+  /// Background color of the widget.
+  final Color color;
+
   const UpgradeChoice({
     Key? key,
     required this.onTap,
     required this.upgrade,
     required this.visible,
+    required this.color,
   }) : super(key: key);
 
   @override
@@ -81,18 +91,8 @@ class UpgradeChoice extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: CI.blue,
-            border: Border.all(
-              width: 0.5,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-            ),
+            color: color.withOpacity(0.75),
             borderRadius: const BorderRadius.all(Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                blurRadius: 4,
-              )
-            ],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

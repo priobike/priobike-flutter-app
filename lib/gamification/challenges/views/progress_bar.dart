@@ -86,8 +86,8 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   void _handleTap() async {
     // If there is a non-completed challenge, open dialog field containing information about the challenge.
     if (_challenge != null && !_isCompleted) {
-      return _service.increaseChallengeProgress();
       return showDialog(
+        barrierColor: Colors.black.withOpacity(0.8),
         context: context,
         builder: (context) => SingleChallengeDialog(
           challenge: _challenge!,
@@ -106,7 +106,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
         context: context,
         builder: (context) => ChallengeRewardDialog(color: _barColor, challenge: _challenge!),
       );
-      //_service.completeChallenge();
+      _service.completeChallenge();
       HapticFeedback.heavyImpact();
     }
     // If there is no challenge, but the service allows a new one, generate a new one.
@@ -124,6 +124,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     // The dialog returns an index of the selected challenge or null, if no selection was made.
     var result = await showDialog<int?>(
       context: context,
+      barrierColor: Colors.black.withOpacity(0.8),
       barrierDismissible: challenges.length == 1,
       builder: (BuildContext context) {
         if (challenges.length == 1) {
@@ -173,6 +174,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     return GestureDetector(
       onTap: (_deactivateTap) ? null : _handleTap,
       onLongPress: () => _service.deleteCurrentChallenge(),
+      onHorizontalDragEnd: (_) => _service.increaseChallengeProgress(),
       child: SizedBox.fromSize(
         size: const Size.fromHeight(48),
         child: Row(

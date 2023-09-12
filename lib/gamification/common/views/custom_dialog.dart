@@ -49,7 +49,7 @@ class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderSt
               BoxShadow(
                 color: Colors.white.withOpacity(lightmode ? 1 : 0.25),
                 spreadRadius: 0,
-                blurRadius: 50,
+                blurRadius: 5,
               ),
             ],
           ),

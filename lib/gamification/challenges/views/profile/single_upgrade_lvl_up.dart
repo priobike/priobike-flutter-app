@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/views/profile/lvl_up_dialog.dart';
@@ -23,18 +22,8 @@ class SingleUpgradeLvlUpDialog extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: CI.blue,
-          border: Border.all(
-            width: 0.5,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-          ),
+          color: newLevel.color.withOpacity(0.75),
           borderRadius: const BorderRadius.all(Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-              blurRadius: 4,
-            )
-          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

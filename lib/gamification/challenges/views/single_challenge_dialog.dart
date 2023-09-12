@@ -33,16 +33,11 @@ class SingleChallengeDialog extends StatelessWidget {
               text: challenge.isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
               context: context,
               textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
             ),
             const SmallVSpace(),
             Row(
               children: [
-                Icon(
-                  ChallengeGenerator.getChallengeIcon(challenge),
-                  size: 48,
-                  color: color,
-                ),
                 Expanded(
                   child: Content(
                     text: challenge.description,
@@ -55,10 +50,25 @@ class SingleChallengeDialog extends StatelessWidget {
             const SmallVSpace(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BoldSubHeader(text: '+ ${challenge.xp} XP', context: context),
+                Icon(
+                  ChallengeGenerator.getChallengeIcon(challenge),
+                  size: 60,
+                  color: color.withOpacity(0.75),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Header(
+                    text: '${challenge.xp} XP',
+                    context: context,
+                    height: 1,
+                    color: color.withOpacity(0.75),
+                  ),
+                ),
               ],
             ),
+            const SmallVSpace(),
           ],
         ),
       ),

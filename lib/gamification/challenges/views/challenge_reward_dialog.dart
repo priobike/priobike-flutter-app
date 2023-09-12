@@ -68,13 +68,10 @@ class ChallengeRewardDialogState extends State<ChallengeRewardDialog> with Singl
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Hero(
-                    tag: widget.challenge.isWeekly ? 'trophy' : 'medal',
-                    child: Icon(
-                      ChallengeGenerator.getChallengeIcon(widget.challenge),
-                      size: 212,
-                      color: widget.color,
-                    ),
+                  Icon(
+                    ChallengeGenerator.getChallengeIcon(widget.challenge),
+                    size: 212,
+                    color: widget.color,
                   ),
                   Header(
                     text: '+${widget.challenge.xp} XP',

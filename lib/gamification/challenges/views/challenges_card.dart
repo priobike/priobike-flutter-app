@@ -26,6 +26,7 @@ class GameChallengesCard extends StatelessWidget {
         children: const [
           GameProfileView(),
           SmallVSpace(),
+          SmallVSpace(),
           ChallengeProgressBar(isWeekly: true),
           ChallengeProgressBar(isWeekly: false),
         ],

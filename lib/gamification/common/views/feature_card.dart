@@ -198,6 +198,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   /// A dialog which is opened, if the user presses the disable button in the menu, which asks the user to confirm.
   void _showDisableFeatureDialog() {
     showDialog(
+      barrierColor: Colors.black.withOpacity(0.8),
       context: context,
       builder: (context) {
         return CustomDialog(
