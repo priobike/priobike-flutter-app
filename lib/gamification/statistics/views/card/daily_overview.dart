@@ -53,7 +53,6 @@ class _DailyOverviewState extends State<DailyOverview> {
   Widget _getProgressRing({
     required double value,
     required StatType type,
-    required String label,
     double progress = 1,
     double size = 80,
   }) {
@@ -69,12 +68,12 @@ class _DailyOverviewState extends State<DailyOverview> {
             children: [
               const SizedBox(height: 4),
               BoldSubHeader(
-                text: StringFormatter.getRoundedStrByRideType(value, type),
+                text: StringFormatter.getRoundedStrByStatType(value, type),
                 context: context,
                 height: 0,
               ),
               BoldContent(
-                text: StringFormatter.getLabelForRideType(type),
+                text: StringFormatter.getLabelForStatType(type),
                 context: context,
                 color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                 height: 0,
@@ -82,7 +81,7 @@ class _DailyOverviewState extends State<DailyOverview> {
             ],
           ),
         ),
-        BoldContent(text: label, context: context),
+        BoldContent(text: StringFormatter.getDescriptionForStatType(type), context: context),
       ],
     );
   }
@@ -114,7 +113,6 @@ class _DailyOverviewState extends State<DailyOverview> {
                   _getProgressRing(
                     value: widget.today.distanceKilometres,
                     type: StatType.distance,
-                    label: 'Distanz',
                     progress: widget.today.distanceGoalKilometres == null
                         ? 1
                         : widget.today.distanceKilometres / widget.today.distanceGoalKilometres!,
@@ -122,7 +120,6 @@ class _DailyOverviewState extends State<DailyOverview> {
                   _getProgressRing(
                     value: widget.today.durationMinutes,
                     type: StatType.duration,
-                    label: 'Zeit',
                     progress: widget.today.durationGoalMinutes == null
                         ? 1
                         : widget.today.durationMinutes / widget.today.durationGoalMinutes!,
@@ -130,7 +127,6 @@ class _DailyOverviewState extends State<DailyOverview> {
                   _getProgressRing(
                     value: widget.today.averageSpeedKmh,
                     type: StatType.speed,
-                    label: 'Tempo',
                     progress: 1,
                   ),
                 ],

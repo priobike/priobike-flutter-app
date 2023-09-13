@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
@@ -35,6 +36,11 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
   /// Index of the page currently displayed by the page view.
   int _displayedPageIndex = 0;
 
+  ListOfRideStats get statsOnPage => widget.stats.elementAt(_displayedPageIndex);
+  StatType get statType => _statsService.selectedType;
+  int? get selectedIndex => statsOnPage.isDayInList(_statsService.selectedDate);
+  RideStats? get selectedElement => selectedIndex == null ? null : statsOnPage.list.elementAt(selectedIndex!);
+
   @override
   void initState() {
     _statsService = getIt<StatisticService>();
@@ -63,27 +69,44 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
     }).toList();
   }
 
-  /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
-  Widget _getRideInfoButton(StatType type) {
-    return OnTapAnimation(
-      onPressed: () => _statsService.setStatType(type),
-      child: Stack(
+  /// Returns a widget displaying the overall or selected value for a given stat type.
+  Widget _getStatInfoWidget(StatType type) {
+    return Expanded(
+      flex: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Center(
-            child: SizedBox.fromSize(
-              size: const Size.square(48),
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
-                backgroundColor: Colors.grey.withOpacity(0.5),
-                value: _statsService.isTypeSelected(type) ? 1 : 0,
-              ),
+          OnTapAnimation(
+            onPressed: () => _statsService.setStatType(type),
+            child: Icon(
+              getIconForInfoType(type),
+              size: 40,
             ),
           ),
-          SizedBox.fromSize(
-            size: const Size.square(48),
-            child: Center(
-              child: Icon(getIconForInfoType(type)),
+          Container(
+            height: 4,
+            width: 40,
+            decoration: BoxDecoration(
+              color: _statsService.selectedType == type ? CI.blue : Colors.transparent,
+              borderRadius: const BorderRadius.all(Radius.circular(4)),
             ),
+          ),
+          const SizedBox(height: 8),
+          BoldSubHeader(
+            text: StringFormatter.getRoundedStrByStatType(
+              (selectedElement != null) ? selectedElement!.getStatFromType(type) : statsOnPage.getStatFromType(type),
+              type,
+            ),
+            context: context,
+            height: 1,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+          ),
+          BoldSmall(
+            text: StringFormatter.getLabelForStatType(type),
+            context: context,
+            height: 1,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
           ),
         ],
       ),
@@ -92,10 +115,6 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
 
   @override
   Widget build(BuildContext context) {
-    var statsOnPage = widget.stats.elementAt(_displayedPageIndex);
-    var statType = _statsService.selectedType;
-    var selectedIndex = statsOnPage.isDayInList(_statsService.selectedDate);
-    var selectedElement = selectedIndex == null ? null : statsOnPage.list.elementAt(selectedIndex);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -103,55 +122,52 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
           onTap: () => _statsService.selectDate(null),
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+              const SmallVSpace(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 16),
+                  SubHeader(
+                    text: StringFormatter.getDescriptionForStatType(_statsService.selectedType),
+                    context: context,
+                  ),
+                  Expanded(child: Container()),
+                  if (selectedElement == null) ...[
+                    BoldContent(
+                      text: 'ø',
+                      context: context,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                    ),
+                    const SizedBox(width: 2),
+                    BoldSubHeader(
+                      text: StringFormatter.getFormattedStrByStatType(
+                        statsOnPage.getAvgFromType(_statsService.selectedType),
+                        _statsService.selectedType,
+                      ),
+                      context: context,
+                      height: 1,
+                    ),
+                  ],
+                  const SizedBox(width: 16),
+                ],
+              ),
+              Container(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BoldSmall(
-                          text: (statType != StatType.speed && selectedIndex != null) ? 'GESAMT' : 'DURCHSCHNITT',
-                          context: context,
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                        ),
-                        BoldSubHeader(
-                          text: StringFormatter.getFormattedStrByRideType(
-                              (selectedElement != null)
-                                  ? selectedElement.getStatFromType(statType)
-                                  : statsOnPage.getAvgFromType(statType),
-                              statType),
-                          context: context,
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: (selectedElement != null || statType == StatType.speed)
-                          ? (selectedElement != null)
-                              ? []
-                              : []
-                          : [
-                              BoldSmall(
-                                text: 'GESAMT',
-                                context: context,
-                                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                              ),
-                              BoldSubHeader(
-                                text: StringFormatter.getFormattedStrByRideType(
-                                    (selectedElement != null)
-                                        ? selectedElement.getStatFromType(statType)
-                                        : statsOnPage.getStatFromType(statType),
-                                    statType),
-                                context: context,
-                              ),
-                            ],
+                    const SizedBox(width: 16),
+                    BoldSmall(
+                      text: statsOnPage.getTimeDescription(selectedIndex),
+                      context: context,
                     ),
                   ],
                 ),
               ),
+              const SmallVSpace(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SizedBox(
@@ -167,27 +183,19 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
                   ),
                 ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SubHeader(
-                    text: statsOnPage.getTimeDescription(selectedIndex),
-                    context: context,
-                  ),
-                ],
-              ),
               const SmallVSpace(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    _getRideInfoButton(StatType.distance),
-                    _getRideInfoButton(StatType.duration),
-                    _getRideInfoButton(StatType.speed),
+                    _getStatInfoWidget(StatType.distance),
+                    _getStatInfoWidget(StatType.duration),
+                    _getStatInfoWidget(StatType.speed),
+                    _getStatInfoWidget(StatType.elevationGain),
+                    _getStatInfoWidget(StatType.elevationLoss),
                   ],
                 ),
               ),

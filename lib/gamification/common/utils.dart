@@ -65,17 +65,27 @@ class StringFormatter {
   }
 
   /// Get formatted string for a given double by rounding it and giving it appending a fitting label.
-  static String getFormattedStrByRideType(double value, StatType type) {
-    return '${getRoundedStrByRideType(value, type)} ${getLabelForRideType(type)}';
+  static String getFormattedStrByStatType(double value, StatType type) {
+    return '${getRoundedStrByStatType(value, type)} ${getLabelForStatType(type)}';
   }
 
   /// Returns a fitting label for a given ride type, consisting of the unit describing the type.
-  static String getLabelForRideType(StatType type) {
+  static String getLabelForStatType(StatType type) {
     if (type == StatType.distance) return 'km';
     if (type == StatType.duration) return 'min';
     if (type == StatType.speed) return 'km/h';
     if (type == StatType.elevationGain) return 'm';
     if (type == StatType.elevationLoss) return 'm';
+    return '';
+  }
+
+  /// Returns a fitting label for a given ride type, consisting of the unit describing the type.
+  static String getDescriptionForStatType(StatType type) {
+    if (type == StatType.distance) return 'Distanz';
+    if (type == StatType.duration) return 'Dauer';
+    if (type == StatType.speed) return 'Tempo';
+    if (type == StatType.elevationGain) return 'Höhenmeter';
+    if (type == StatType.elevationLoss) return 'Höhenmeter';
     return '';
   }
 
@@ -102,7 +112,7 @@ class StringFormatter {
   }
 
   /// Round a given value according to a given ride info type.
-  static String getRoundedStrByRideType(double value, StatType type) {
+  static String getRoundedStrByStatType(double value, StatType type) {
     if ((type == StatType.distance || type == StatType.speed) && value < 100) {
       return value.toStringAsFixed(1);
     } else {

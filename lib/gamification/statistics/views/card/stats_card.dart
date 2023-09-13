@@ -7,13 +7,13 @@ import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/views/map_background.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
-import 'package:priobike/gamification/statistics/views/daily_overview.dart';
+import 'package:priobike/gamification/statistics/views/card/daily_overview.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/views/route_stats.dart';
-import 'package:priobike/gamification/statistics/views/stats_page.dart';
+import 'package:priobike/gamification/statistics/views/card/route_stats.dart';
+import 'package:priobike/gamification/statistics/views/page/stats_page.dart';
 import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/main.dart';
 

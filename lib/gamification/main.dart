@@ -7,7 +7,7 @@ import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/views/overall_stats.dart';
-import 'package:priobike/gamification/statistics/views/stats_card.dart';
+import 'package:priobike/gamification/statistics/views/card/stats_card.dart';
 import 'package:priobike/main.dart';
 
 /// This view displays the gamification functionality according to the user settings.

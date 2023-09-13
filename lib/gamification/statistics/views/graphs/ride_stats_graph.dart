@@ -136,9 +136,9 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
               touchExtraThreshold: const EdgeInsets.all(8)),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles: AxisTitles(
+            rightTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) => SideTitleWidget(
