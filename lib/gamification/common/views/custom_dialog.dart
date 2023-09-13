@@ -6,7 +6,13 @@ class CustomDialog extends StatefulWidget {
   /// The content of the dialog widget.
   final Widget content;
 
-  const CustomDialog({Key? key, required this.content}) : super(key: key);
+  /// Background color of the dialog.
+  final Color? backgroundColor;
+
+  /// Whether to show a glow around the dialog.
+  final bool withGlow;
+
+  const CustomDialog({Key? key, required this.content, this.backgroundColor, this.withGlow = false}) : super(key: key);
 
   @override
   State<CustomDialog> createState() => _CustomDialogState();
@@ -43,15 +49,18 @@ class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderSt
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 32),
           decoration: BoxDecoration(
-            color: lightmode ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.background,
+            color: widget.backgroundColor ??
+                (lightmode ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.background),
             borderRadius: const BorderRadius.all(Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.white.withOpacity(lightmode ? 1 : 0.25),
-                spreadRadius: 0,
-                blurRadius: 5,
-              ),
-            ],
+            boxShadow: widget.withGlow
+                ? [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(lightmode ? 1 : 0.25),
+                      spreadRadius: 0,
+                      blurRadius: 5,
+                    ),
+                  ]
+                : null,
           ),
           child: widget.content,
         ),

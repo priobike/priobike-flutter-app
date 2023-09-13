@@ -51,6 +51,7 @@ class _LevelUpDialogState extends State<LevelUpDialog> {
         colors: [widget.newLevel.color],
       ),
       CustomDialog(
+        withGlow: true,
         content: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),

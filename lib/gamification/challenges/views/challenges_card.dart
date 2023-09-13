@@ -6,7 +6,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_tutorial.dart';
 import 'package:priobike/gamification/challenges/views/profile/profile_view.dart';
-import 'package:priobike/gamification/challenges/views/progress_bar.dart';
+import 'package:priobike/gamification/challenges/views/progress_bar/progress_bar.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';

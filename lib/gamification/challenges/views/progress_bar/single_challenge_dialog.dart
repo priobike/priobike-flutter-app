@@ -29,25 +29,30 @@ class SingleChallengeDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
-            BoldSubHeader(
-              text: challenge.isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
-              context: context,
+            Text(
+              challenge.isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
               textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
+              style: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 30,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
+              ),
             ),
             const SmallVSpace(),
             Row(
               children: [
                 Expanded(
-                  child: Content(
+                  child: SubHeader(
                     text: challenge.description,
                     context: context,
                     textAlign: TextAlign.center,
+                    height: 1.1,
                   ),
                 ),
               ],
             ),
-            const VSpace(),
+            const SmallVSpace(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
