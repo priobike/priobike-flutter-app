@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
@@ -11,10 +10,14 @@ class SingleChallengeDialog extends StatelessWidget {
   /// The challenge in question.
   final Challenge challenge;
 
-  /// Whether the challenge is a weekly or a daily challenge.
-  final bool isWeekly;
+  /// An accent color for the challenge.
+  final Color color;
 
-  const SingleChallengeDialog({Key? key, required this.challenge, required this.isWeekly}) : super(key: key);
+  const SingleChallengeDialog({
+    Key? key,
+    required this.challenge,
+    required this.color,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,25 +29,25 @@ class SingleChallengeDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
-            BoldSubHeader(
-              text: isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
-              context: context,
+            Text(
+              challenge.isWeekly ? 'Wochenchallenge' : 'Tageschallenge',
               textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              style: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 30,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
+              ),
             ),
             const SmallVSpace(),
             Row(
               children: [
-                Icon(
-                  ChallengeGenerator.getChallengeIcon(challenge),
-                  size: 48,
-                  color: CI.blue,
-                ),
                 Expanded(
-                  child: Content(
+                  child: SubHeader(
                     text: challenge.description,
                     context: context,
                     textAlign: TextAlign.center,
+                    height: 1.1,
                   ),
                 ),
               ],
@@ -52,10 +55,25 @@ class SingleChallengeDialog extends StatelessWidget {
             const SmallVSpace(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BoldSubHeader(text: '+ ${challenge.xp} XP', context: context),
+                Icon(
+                  getChallengeIcon(challenge),
+                  size: 60,
+                  color: color.withOpacity(0.75),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Header(
+                    text: '${challenge.xp} XP',
+                    context: context,
+                    height: 1,
+                    color: color.withOpacity(0.75),
+                  ),
+                ),
               ],
             ),
+            const SmallVSpace(),
           ],
         ),
       ),

@@ -12,9 +12,10 @@ import 'package:priobike/gamification/challenges/views/profile/multiple_upgrades
 import 'package:priobike/gamification/challenges/views/profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
-import 'package:priobike/gamification/challenges/views/level_ring.dart';
-import 'package:priobike/gamification/common/models/level.dart';
+import 'package:priobike/gamification/common/views/blink_animation.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
+import 'package:priobike/gamification/common/views/progress_ring.dart';
+import 'package:priobike/gamification/challenges/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/main.dart';
 
@@ -36,9 +37,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   /// Controller to animate the medal icon when a new medal is gained.
   late final AnimationController _medalsController;
-
-  /// Animation Controller to controll the animation of the level ring, when the user can level up.
-  late final AnimationController _ringController;
 
   /// The users profile for the challenges feature.
   ChallengesProfile? get _profile => _profileService.profile;
@@ -64,14 +62,18 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     return min(1, max(0, progress));
   }
 
+  /// True, if the user has enough xp to reach the next level.
+  bool get _canLevelUp => _nextLevel != null && _profileService.profile!.xp >= _nextLevel!.value;
+
+  /// The color representing the current level of the user.
+  Color get _lvlColor => _currentLevel.color;
+
   @override
   void initState() {
-    _trophiesController = AnimationController(duration: MediumDuration(), vsync: this);
-    _medalsController = AnimationController(duration: MediumDuration(), vsync: this);
-    _ringController = AnimationController(vsync: this, duration: MediumDuration(), value: 1);
+    _trophiesController = AnimationController(duration: const LongDuration(), vsync: this);
+    _medalsController = AnimationController(duration: const LongDuration(), vsync: this);
     _profileService = getIt<ChallengesProfileService>();
     _profileService.addListener(updateProfile);
-    _ringController.addListener(update);
     super.initState();
   }
 
@@ -79,7 +81,6 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   void dispose() {
     _medalsController.dispose();
     _trophiesController.dispose();
-    _ringController.dispose();
     _profileService.removeListener(updateProfile);
     super.dispose();
   }
@@ -106,13 +107,14 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   /// Bounce animation for the trophy or medal icon.
   Animation<double> _getAnimation(var controller) =>
-      Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
+      Tween<double>(begin: 1, end: 3).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
 
   /// Opaen level up dialog according to the number of possible upgrades the user can apply with the level up.
   Future<void> _showLevelUpDialog() async {
     if (_nextLevel == null) return;
     var openUpgrades = _profileService.allowedUpgrades;
     var result = await showDialog<ProfileUpgrade?>(
+      barrierColor: Colors.black.withOpacity(0.8),
       context: context,
       barrierDismissible: openUpgrades.length <= 1,
       builder: (BuildContext context) {
@@ -128,78 +130,134 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
     _profileService.levelUp(result);
   }
 
-  /// Returns widget for displaying the count of a collected virtual reward.
-  Widget _getRewardWidget(int number, IconData icon, Animation<double> animation, bool animate) {
+  /// Returns widget for displaying the count of a collected virtual reward with a matching icon.
+  Widget _getRewardCounter(int number, IconData icon, Animation<double> animation, bool animate, double size) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ScaleTransition(
           scale: animation,
           child: AnimatedContainer(
-            duration: MediumDuration(),
+            duration: const MediumDuration(),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: CI.blue.withOpacity(animate ? 0.25 : 0),
+                  color: CI.blue.withOpacity(animate ? 0.2 : 0),
                   blurRadius: 12,
                 ),
               ],
             ),
             child: Icon(
               icon,
-              size: 36,
-              color: CI.blue, //animate ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              size: size,
+              color: animate ? CI.blue : Color.alphaBlend(Colors.white.withOpacity(0.2), CI.blue),
             ),
           ),
         ),
-        BoldContent(
-          text: 'x $number',
+        BoldSubHeader(
+          text: '$number',
           context: context,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
         ),
       ],
     );
   }
 
+  /// Get the widget that should be displayed inside of the level progress ring.
+  Widget _getRingContent() {
+    if (_canLevelUp) {
+      return BlinkAnimation(
+        animate: _canLevelUp,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            BoldContent(
+              text: 'Level',
+              context: context,
+              color: _lvlColor,
+              height: 1,
+            ),
+            BoldSubHeader(
+              text: 'Up',
+              context: context,
+              color: _lvlColor,
+              height: 1,
+            ),
+          ],
+        ),
+      );
+    } else if (!_canLevelUp && _nextLevel != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SmallVSpace(),
+          BoldContent(
+            text: 'Level',
+            context: context,
+            color: Color.alphaBlend(
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
+              _lvlColor.withOpacity(_levelProgress),
+            ),
+            height: 1,
+          ),
+          Header(
+            text: '${levels.indexOf(_currentLevel)}',
+            context: context,
+            color: Color.alphaBlend(
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
+              _lvlColor.withOpacity(_levelProgress),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Icon(
+        Icons.directions_bike,
+        color: _lvlColor,
+        size: 56,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_profile == null) return Container();
-    var canLevelUp = _nextLevel != null && _profileService.profile!.xp >= _nextLevel!.value;
-    if (canLevelUp && !_ringController.isAnimating) {
-      _ringController.repeat(reverse: true);
-    } else if (!canLevelUp && _ringController.isAnimating) {
-      _ringController.stop();
-    }
+    double width = MediaQuery.of(context).size.width;
+    double widthWithoutPadding = width - 48 * 2;
+    double ringDimensions = widthWithoutPadding / 2.75;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
       children: [
-        OnTabAnimation(
-          onPressed: canLevelUp && _nextLevel != null ? _showLevelUpDialog : null,
+        OnTapAnimation(
+          onPressed: _canLevelUp && _nextLevel != null ? _showLevelUpDialog : null,
           child: Stack(
             alignment: Alignment.center,
             children: [
-              SizedBox.fromSize(size: const Size.square(96)),
-              if (canLevelUp)
-                Container(
-                  height: 0,
-                  width: 0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: Theme.of(context).brightness == Brightness.dark
-                        ? [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.4),
-                              blurRadius: 30,
-                              spreadRadius: 35 + _ringController.value * 10,
-                            ),
-                            BoxShadow(
-                              color: Theme.of(context).colorScheme.background,
-                              blurRadius: 15,
-                              spreadRadius: 45,
-                            ),
-                          ]
-                        : [],
+              SizedBox.fromSize(size: Size.square(ringDimensions)),
+              if (_canLevelUp)
+                BlinkAnimation(
+                  child: Container(
+                    height: 0,
+                    width: 0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: Theme.of(context).brightness == Brightness.dark
+                          ? [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.4),
+                                blurRadius: 30,
+                                spreadRadius: 35,
+                              ),
+                              BoxShadow(
+                                color: Theme.of(context).colorScheme.background,
+                                blurRadius: 15,
+                                spreadRadius: 35,
+                              ),
+                            ]
+                          : [],
+                    ),
                   ),
                 ),
               if (_nextLevel == null)
@@ -210,7 +268,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: _currentLevel.color.withOpacity(0.4),
+                        color: _lvlColor.withOpacity(0.4),
                         blurRadius: 30,
                         spreadRadius: 40,
                       ),
@@ -222,83 +280,43 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                     ],
                   ),
                 ),
-              LevelRing(
+              ProgressRing(
                 progress: _levelProgress,
-                iconColor: _currentLevel.color,
-                icon: _nextLevel == null ? Icons.directions_bike : null,
-                ringSize: 96,
-                ringColor: _nextLevel?.color ?? _currentLevel.color,
+                ringSize: ringDimensions,
+                ringColor: _lvlColor,
+                content: _getRingContent(),
               ),
-              if (canLevelUp)
-                ScaleTransition(
-                  scale: Tween<double>(begin: 1, end: 1.3)
-                      .animate(CurvedAnimation(parent: _ringController, curve: Curves.easeOut)),
-                  child: Column(
-                    children: [
-                      BoldContent(
-                        text: 'Level',
-                        context: context,
-                        color: _nextLevel!.color,
-                        height: 1,
-                      ),
-                      BoldSubHeader(
-                        text: 'Up',
-                        context: context,
-                        color: _nextLevel!.color,
-                        height: 1,
-                      ),
-                    ],
-                  ),
-                ),
-              if (!canLevelUp && _nextLevel != null)
-                Column(
-                  children: [
-                    const SmallVSpace(),
-                    BoldContent(
-                      text: 'Level',
-                      context: context,
-                      color: Color.alphaBlend(
-                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
-                        _nextLevel!.color.withOpacity(_levelProgress),
-                      ),
-                      height: 1,
-                    ),
-                    Header(
-                      text: '${levels.indexOf(_nextLevel!)}',
-                      context: context,
-                      color: Color.alphaBlend(
-                        Theme.of(context).colorScheme.onBackground.withOpacity(0.1 * (1 - _levelProgress)),
-                        _nextLevel!.color.withOpacity(_levelProgress),
-                      ),
-                    ),
-                  ],
-                ),
             ],
           ),
         ),
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            height: 96,
+          child: SizedBox(
+            height: ringDimensions,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                BoldContent(
-                  text: _currentLevel.title,
-                  context: context,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: BoldContent(
+                    text: _currentLevel.title,
+                    context: context,
+                  ),
                 ),
-                Content(
-                  text: (_nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${_nextLevel!.value} XP',
-                  context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Content(
+                    text: (_nextLevel == null) ? '${_profile!.xp} XP' : '${_profile!.xp} / ${_nextLevel!.value} XP',
+                    context: context,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  ),
                 ),
                 Expanded(child: Container()),
                 Row(
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    OnTabAnimation(
+                    OnTapAnimation(
                       onPressed: () => AppDatabase.instance.challengeDao.createObject(
                         ChallengesCompanion.insert(
                           xp: 25,
@@ -312,14 +330,15 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                           type: 0,
                         ),
                       ),
-                      child: _getRewardWidget(
+                      child: _getRewardCounter(
                         _profile!.medals,
                         CustomGameIcons.blank_medal,
                         _getAnimation(_medalsController),
                         _profileService.medalsChanged,
+                        ringDimensions * 0.375,
                       ),
                     ),
-                    OnTabAnimation(
+                    OnTapAnimation(
                       onPressed: () => AppDatabase.instance.challengeDao.createObject(
                         ChallengesCompanion.insert(
                           xp: 100,
@@ -333,11 +352,12 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                           type: 0,
                         ),
                       ),
-                      child: _getRewardWidget(
+                      child: _getRewardCounter(
                         _profile!.trophies,
                         CustomGameIcons.blank_trophy,
                         _getAnimation(_trophiesController),
                         _profileService.trophiesChanged,
+                        ringDimensions * 0.375,
                       ),
                     ),
                   ],

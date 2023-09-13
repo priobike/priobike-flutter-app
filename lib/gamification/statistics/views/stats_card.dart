@@ -1,14 +1,12 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
+import 'package:priobike/gamification/statistics/views/daily_overview.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/multiple_weeks_graph.dart';
 import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
@@ -89,7 +87,7 @@ class RideStatisticsCard extends StatelessWidget {
   }
 }
 
-/// A page view displaying a reduced stat history of the user, only inclduing recent weeks.
+/// A page view displaying a reduced stat history of the user for only the recent weeks.
 class StatisticsOverview extends StatefulWidget {
   const StatisticsOverview({Key? key}) : super(key: key);
 
@@ -97,32 +95,32 @@ class StatisticsOverview extends StatefulWidget {
   State<StatisticsOverview> createState() => _StatisticsOverviewState();
 }
 
-class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTickerProviderStateMixin {
+class _StatisticsOverviewState extends State<StatisticsOverview> with TickerProviderStateMixin {
   // Controller for the page view displaying the different pages.
-  final PageController _pageController = PageController();
+  late final PageController _pageController = PageController();
 
   /// Controller which connects the tab indicator to the page view.
-  late final TabController _tabController = TabController(length: 4, vsync: this);
+  late final TabController _tabController = TabController(length: 5, vsync: this);
 
   /// The view model holding the ride stats of the displayed data.
   late final StatisticsViewModel _viewModel;
 
+  /// Service to get the current stat interval that should be displayed.
   late StatisticService _statsService;
 
   @override
   void initState() {
     _statsService = getIt<StatisticService>();
-    _statsService.addListener(update);
+    _statsService.addListener(updatePage);
     _initViewModel();
     super.initState();
   }
 
   @override
   void dispose() {
-    _statsService.removeListener(update);
+    _statsService.removeListener(updatePage);
     _tabController.dispose();
     _pageController.dispose();
-    _viewModel.removeListener(update);
     _viewModel.dispose();
     super.dispose();
   }
@@ -136,19 +134,15 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
     _viewModel.addListener(update);
   }
 
-  /// Update the displayed page.
-  void update() {
+  void updatePage() {
     var newIndex = _statsService.statInterval.index;
     if (_pageController.hasClients && (newIndex - (_pageController.page ?? newIndex)).abs() >= 1) {
-      _pageController.animateToPage(
-        newIndex,
-        duration: ShortDuration(),
-        curve: Curves.ease,
-      );
-      return;
+      _pageController.jumpToPage(newIndex);
     }
-    if (mounted) setState(() {});
   }
+
+  /// Update the displayed page.
+  void update() => {if (mounted) setState(() {})};
 
   /// Wrap a a graph in a column and add a title above of the graph.
   Widget _getGraphWithTitle({required String title, required Widget graph}) {
@@ -187,21 +181,24 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with SingleTick
                 onPageChanged: (int index) => setState(() {
                   // Update tab controller index to update the indicator.
                   _tabController.index = index;
-                  getIt<StatisticService>().setStatInterval(
-                    StatInterval.values[min(index, StatInterval.values.length - 1)],
-                  );
+                  if (index < StatInterval.values.length) {
+                    getIt<StatisticService>().setStatInterval(
+                      StatInterval.values[index],
+                    );
+                  }
                 }),
                 children: [
+                  DailyOverview(today: _viewModel.days.last),
                   _getGraphWithTitle(
-                    title: 'Diese Woche',
+                    title: 'Diese Woche (Km)',
                     graph: WeekStatsGraph(week: _viewModel.weeks.last),
                   ),
                   _getGraphWithTitle(
-                    title: 'Dieser Monat',
+                    title: 'Dieser Monat (Km)',
                     graph: MonthStatsGraph(month: _viewModel.months.last),
                   ),
                   _getGraphWithTitle(
-                    title: '${_viewModel.weeks.length} Wochen Rückblick',
+                    title: '${_viewModel.weeks.length} Wochen Rückblick (Km)',
                     graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
                   ),
                   FancyRouteStatsForWeek(week: _viewModel.weeks.last),

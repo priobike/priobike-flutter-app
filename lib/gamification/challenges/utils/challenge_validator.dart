@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/main.dart';
 
@@ -113,7 +114,7 @@ class ChallengeValidator {
 
     // Iterate through all the days of the challenge interval, till the end of the interval or the current time
     // and count the days where the daily goals were completed.
-    var dailyGoals = getIt<GoalsService>().dailyGoals;
+    var dailyGoals = getIt<GoalsService>().dailyGoals ?? DailyGoals.defaultGoals;
     var daysWithGoalsCompleted = 0;
     while (!(end.isAfter(_challenge.closingTime) || start.isAfter(DateTime.now()))) {
       var ridesOnDay = rides.where((ride) => ride.startTime.isAfter(start) && ride.startTime.isBefore(end));

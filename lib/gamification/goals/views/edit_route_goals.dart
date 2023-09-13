@@ -5,7 +5,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/goals/views/weekday_button.dart';
@@ -56,7 +56,7 @@ class _EditRouteGoalsViewState extends State<EditRouteGoalsView> {
   Widget get _noRoutesWidget => Column(
         children: [
           const VSpace(),
-          OnTabAnimation(
+          OnTapAnimation(
             onPressed: () {
               /// On pressed, the widget directs the user to the routing view to create a route.
               if (getIt<Routing>().isFetchingRoute) return;
