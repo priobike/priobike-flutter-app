@@ -130,7 +130,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   }
 
   /// Returns widget for displaying the count of a collected virtual reward with a matching icon.
-  Widget _getRewardCounter(int number, IconData icon, Animation<double> animation, bool animate) {
+  Widget _getRewardCounter(int number, IconData icon, Animation<double> animation, bool animate, double size) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -149,7 +149,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
             ),
             child: Icon(
               icon,
-              size: 36,
+              size: size,
               color: animate ? _lvlColor : Color.alphaBlend(Colors.white.withOpacity(0.2), _lvlColor),
             ),
           ),
@@ -222,6 +222,9 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     if (_profile == null) return Container();
+    double width = MediaQuery.of(context).size.width;
+    double widthWithoutPadding = width - 48 * 2;
+    double ringDimensions = widthWithoutPadding / 2.75;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -231,7 +234,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
           child: Stack(
             alignment: Alignment.center,
             children: [
-              SizedBox.fromSize(size: const Size.square(96)),
+              SizedBox.fromSize(size: Size.square(ringDimensions)),
               if (_canLevelUp)
                 BlinkAnimation(
                   child: Container(
@@ -278,7 +281,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 ),
               ProgressRing(
                 progress: _levelProgress,
-                ringSize: 96,
+                ringSize: ringDimensions,
                 ringColor: _lvlColor,
                 content: _getRingContent(),
               ),
@@ -287,7 +290,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
         ),
         Expanded(
           child: SizedBox(
-            height: 96,
+            height: ringDimensions,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -331,6 +334,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                         CustomGameIcons.blank_medal,
                         _getAnimation(_medalsController),
                         _profileService.medalsChanged,
+                        ringDimensions * 0.375,
                       ),
                     ),
                     OnTapAnimation(
@@ -352,6 +356,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                         CustomGameIcons.blank_trophy,
                         _getAnimation(_trophiesController),
                         _profileService.trophiesChanged,
+                        ringDimensions * 0.375,
                       ),
                     ),
                   ],
