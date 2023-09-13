@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/common/views/map_background.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/daily_overview.dart';
 import 'package:priobike/gamification/statistics/views/graphs/month_graph.dart';
@@ -175,34 +176,36 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with TickerProv
           children: [
             SizedBox(
               height: 200,
-              child: PageView(
-                controller: _pageController,
-                clipBehavior: Clip.hardEdge,
-                onPageChanged: (int index) => setState(() {
-                  // Update tab controller index to update the indicator.
-                  _tabController.index = index;
-                  if (index < StatInterval.values.length) {
-                    getIt<StatisticService>().setStatInterval(
-                      StatInterval.values[index],
-                    );
-                  }
-                }),
-                children: [
-                  DailyOverview(today: _viewModel.days.last),
-                  _getGraphWithTitle(
-                    title: 'Diese Woche (Km)',
-                    graph: WeekStatsGraph(week: _viewModel.weeks.last),
-                  ),
-                  _getGraphWithTitle(
-                    title: 'Dieser Monat (Km)',
-                    graph: MonthStatsGraph(month: _viewModel.months.last),
-                  ),
-                  _getGraphWithTitle(
-                    title: '${_viewModel.weeks.length} Wochen Rückblick (Km)',
-                    graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
-                  ),
-                  FancyRouteStatsForWeek(week: _viewModel.weeks.last),
-                ],
+              child: MapBackground(
+                child: PageView(
+                  controller: _pageController,
+                  clipBehavior: Clip.hardEdge,
+                  onPageChanged: (int index) => setState(() {
+                    // Update tab controller index to update the indicator.
+                    _tabController.index = index;
+                    if (index < StatInterval.values.length) {
+                      getIt<StatisticService>().setStatInterval(
+                        StatInterval.values[index],
+                      );
+                    }
+                  }),
+                  children: [
+                    DailyOverview(today: _viewModel.days.last),
+                    _getGraphWithTitle(
+                      title: 'Diese Woche (Km)',
+                      graph: WeekStatsGraph(week: _viewModel.weeks.last),
+                    ),
+                    _getGraphWithTitle(
+                      title: 'Dieser Monat (Km)',
+                      graph: MonthStatsGraph(month: _viewModel.months.last),
+                    ),
+                    _getGraphWithTitle(
+                      title: '${_viewModel.weeks.length} Wochen Rückblick (Km)',
+                      graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
+                    ),
+                    FancyRouteStatsForWeek(week: _viewModel.weeks.last),
+                  ],
+                ),
               ),
             ),
             Padding(

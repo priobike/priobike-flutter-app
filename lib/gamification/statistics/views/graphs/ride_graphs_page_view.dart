@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/gamification/common/views/map_background.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
@@ -156,11 +157,13 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: 224,
-                  child: PageView(
-                    reverse: true,
-                    controller: _pageController,
-                    clipBehavior: Clip.hardEdge,
-                    children: _getGraphs(),
+                  child: MapBackground(
+                    child: PageView(
+                      reverse: true,
+                      controller: _pageController,
+                      clipBehavior: Clip.hardEdge,
+                      children: _getGraphs(),
+                    ),
                   ),
                 ),
               ),

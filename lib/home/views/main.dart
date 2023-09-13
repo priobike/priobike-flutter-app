@@ -350,8 +350,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         end: Alignment.bottomCenter,
                         colors: [
                           Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.surface.withOpacity(0),
+                          Theme.of(context).colorScheme.background.withOpacity(0.8),
+                          Theme.of(context).colorScheme.background.withOpacity(0.6),
+                          Theme.of(context).colorScheme.background.withOpacity(0.4),
+                          Theme.of(context).colorScheme.background.withOpacity(0.2),
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surface,
                         ],
                       ),
                       borderRadius: const BorderRadius.only(

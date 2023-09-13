@@ -301,7 +301,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
             // If the menu is opened, it is shown above the card at the positin of the menu button.
             if (_showMenu)
               BlendIn(
-                duration: ShortDuration(),
+                duration: const ShortDuration(),
                 child: GestureDetector(
                   onTap: () {},
                   child: Container(
