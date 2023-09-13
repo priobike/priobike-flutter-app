@@ -37,7 +37,6 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
 
   @override
   void dispose() {
-    _viewModel.removeListener(update);
     _viewModel.dispose();
     super.dispose();
   }

@@ -9,7 +9,9 @@ import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/main.dart';
 
+/// This widget displays a simple overview of the daily statistics of a user, including their daily goals (if set).
 class DailyOverview extends StatefulWidget {
+  /// The day to be displayed.
   final DayStats today;
 
   const DailyOverview({Key? key, required this.today}) : super(key: key);
@@ -22,10 +24,12 @@ class _DailyOverviewState extends State<DailyOverview> {
   /// The associated goals service to get the daily goals and route goals of the user.
   late GoalsService _goalsService;
 
+  /// How many rides the user did on the route target for the day, if there is one.
   int get _ridesOnRouteGoal => _hasRouteGoal
       ? widget.today.rides.where((ride) => ride.shortcutId == _goalsService.routeGoals!.routeID).length
       : 0;
 
+  /// Whether the user has set route goals for the day.
   bool get _hasRouteGoal =>
       _goalsService.routeGoals != null && _goalsService.routeGoals!.weekdays.elementAt(widget.today.date.weekday - 1);
 
@@ -45,6 +49,7 @@ class _DailyOverviewState extends State<DailyOverview> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
+  /// This widget displays the progress a user has made for a certain value.
   Widget _getProgressRing({
     required double value,
     required StatType type,

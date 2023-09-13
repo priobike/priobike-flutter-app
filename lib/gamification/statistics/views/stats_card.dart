@@ -121,7 +121,6 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with TickerProv
     _statsService.removeListener(updatePage);
     _tabController.dispose();
     _pageController.dispose();
-    _viewModel.removeListener(update);
     _viewModel.dispose();
     super.dispose();
   }
