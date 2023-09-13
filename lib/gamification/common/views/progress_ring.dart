@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 /// A ring which displays the users progress for something, which can be animated and which can contain an icon.
-class LevelRing extends StatefulWidget {
+class ProgressRing extends StatefulWidget {
   /// The progress displayed by the ring, as a level between 0 and 1.
   final double progress;
 
@@ -13,11 +13,8 @@ class LevelRing extends StatefulWidget {
   /// The size of the ring. The icon size also depends on this value.
   final double ringSize;
 
-  /// The icon to be displayed.
-  final IconData? icon;
-
-  /// The color of the icon inside the ring.
-  final Color iconColor;
+  /// The widget to be displayed inside of the ring. 
+  final Widget? content;
 
   /// Whether to show a border around the level ring.
   final bool showBorder;
@@ -28,23 +25,22 @@ class LevelRing extends StatefulWidget {
   /// An animation controller animate the level ring.
   final AnimationController? animationController;
 
-  const LevelRing({
+  const ProgressRing({
     Key? key,
     required this.ringColor,
     required this.ringSize,
-    this.iconColor = Colors.transparent,
-    this.icon,
     this.progress = 1,
     this.animationController,
     this.showBorder = true,
     this.background = Colors.transparent,
+    this.content,
   }) : super(key: key);
 
   @override
-  LevelRingState createState() => LevelRingState();
+  ProgressRingState createState() => ProgressRingState();
 }
 
-class LevelRingState extends State<LevelRing> {
+class ProgressRingState extends State<ProgressRing> {
   @override
   void initState() {
     widget.animationController?.addListener(update);
@@ -92,13 +88,14 @@ class LevelRingState extends State<LevelRing> {
               ),
             ),
           ),
-          SizedBox(
-            width: widget.ringSize,
-            height: widget.ringSize,
-            child: Center(
-              child: Icon(widget.icon, size: widget.ringSize * 0.5, color: widget.iconColor),
+          if (widget.content != null)
+            SizedBox(
+              width: widget.ringSize,
+              height: widget.ringSize,
+              child: Center(
+                child: widget.content,
+              ),
             ),
-          ),
         ]),
       ]),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -62,79 +63,82 @@ class _TutorialPageState extends State<TutorialPage> with SingleTickerProviderSt
 
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: MediumDuration());
-    _animationController.forward().then((value) => _animationController.duration = ShortDuration());
+    _animationController = AnimationController(vsync: this, duration: const MediumDuration());
+    _animationController.forward().then((value) => _animationController.duration = const ShortDuration());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        color: Theme.of(context).colorScheme.surface,
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: SlideTransition(
-                position: _contentAnimation,
-                child: SafeArea(
-                  child: HPad(
-                    child: Fade(
-                      stops: widget.withContentFade ? [0, 0.05, 0.85, 0.95] : null,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: widget.contentList,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: SlideTransition(
+                  position: _contentAnimation,
+                  child: SafeArea(
+                    child: HPad(
+                      child: Fade(
+                        stops: widget.withContentFade ? [0, 0.05, 0.85, 0.95] : null,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: widget.contentList,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SafeArea(
-              child: Column(
-                children: [
-                  const SmallVSpace(),
-                  Row(
-                    children: [
-                      AppBackButton(
-                        onPressed: () async {
-                          await _animationController.reverse();
-                          if (widget.onBackButtonTab != null) {
-                            widget.onBackButtonTab!();
-                          } else {
-                            if (mounted) Navigator.of(context).pop();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SlideTransition(
-                position: _buttonAnimation,
-                child: Pad(
-                  child: BigButton(
-                    icon: widget.confirmButtonIcon,
-                    iconColor: Colors.white,
-                    label: widget.confirmButtonLabel,
-                    onPressed: widget.onConfirmButtonTab == null
-                        ? null
-                        : () async {
+              SafeArea(
+                child: Column(
+                  children: [
+                    const SmallVSpace(),
+                    Row(
+                      children: [
+                        AppBackButton(
+                          onPressed: () async {
                             await _animationController.reverse();
-                            widget.onConfirmButtonTab!();
+                            if (widget.onBackButtonTab != null) {
+                              widget.onBackButtonTab!();
+                            } else {
+                              if (mounted) Navigator.of(context).pop();
+                            }
                           },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SlideTransition(
+                  position: _buttonAnimation,
+                  child: Pad(
+                    child: BigButton(
+                      icon: widget.confirmButtonIcon,
+                      iconColor: Colors.white,
+                      label: widget.confirmButtonLabel,
+                      onPressed: widget.onConfirmButtonTab == null
+                          ? null
+                          : () async {
+                              await _animationController.reverse();
+                              widget.onConfirmButtonTab!();
+                            },
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

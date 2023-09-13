@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
+import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/graphs/ride_graphs_page_view.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -36,7 +37,6 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
 
   @override
   void dispose() {
-    _viewModel.removeListener(update);
     _viewModel.dispose();
     super.dispose();
   }
@@ -92,67 +92,82 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
     return const SizedBox.shrink();
   }
 
+  /// Reset the selected date and type, to not make the stat card on the home screen confusing.
+  void _resetGraphs() {
+    getIt<StatisticService>().selectDate(null);
+    getIt<StatisticService>().setStatType(StatType.distance);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const SmallVSpace(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 0.5,
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+      child: WillPopScope(
+        onWillPop: () async {
+          _resetGraphs();
+          return true;
+        },
+        child: Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.background,
+          body: SafeArea(
+            child: Column(
+              children: [
+                const SmallVSpace(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 0.5,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(24),
+                          bottomRight: Radius.circular(24),
+                        ),
                       ),
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(24),
-                        bottomRight: Radius.circular(24),
+                      child: AppBackButton(
+                        onPressed: () {
+                          _resetGraphs();
+                          Navigator.pop(context);
+                        },
                       ),
                     ),
-                    child: AppBackButton(
-                      onPressed: () => Navigator.pop(context),
+                    const HSpace(),
+                    SubHeader(
+                      text: 'Statistiken',
+                      context: context,
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  const HSpace(),
-                  SubHeader(
-                    text: 'Statistiken',
-                    context: context,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-              const SmallVSpace(),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: StatInterval.values
-                    .map((interval) => IntervalSelectionButton(
-                          interval: interval,
-                          selected: _statInterval == interval,
-                          onTap: () => setState(() => _statInterval = interval),
-                        ))
-                    .toList(),
-              ),
-              Expanded(child: Container()),
-              AnimatedSwitcher(
-                duration: ShortDuration(),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: child,
+                  ],
                 ),
-                child: _getStatsViewFromInterval(_statInterval),
-              ),
-              Expanded(child: Container()),
-              RouteGoalsHistory(viewModel: _viewModel),
-            ],
+                const SmallVSpace(),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: StatInterval.values
+                      .map((interval) => IntervalSelectionButton(
+                            interval: interval,
+                            selected: _statInterval == interval,
+                            onTap: () => setState(() => _statInterval = interval),
+                          ))
+                      .toList(),
+                ),
+                Expanded(child: Container()),
+                AnimatedSwitcher(
+                  duration: const ShortDuration(),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                  child: _getStatsViewFromInterval(_statInterval),
+                ),
+                Expanded(child: Container()),
+                RouteGoalsHistory(viewModel: _viewModel),
+              ],
+            ),
           ),
         ),
       ),

@@ -8,7 +8,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
 /// A card to display the state of a given gamification feature on the home screen.
@@ -167,7 +167,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
     required String label,
     required Function() onPressed,
   }) {
-    return OnTabAnimation(
+    return OnTapAnimation(
       onPressed: onPressed,
       child: Tile(
         fill: color,
@@ -199,6 +199,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   /// A dialog which is opened, if the user presses the disable button in the menu, which asks the user to confirm.
   void _showDisableFeatureDialog() {
     showDialog(
+      barrierColor: Colors.black.withOpacity(0.8),
       context: context,
       builder: (context) {
         return CustomDialog(
@@ -245,7 +246,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
 
   /// The design of a menu item, which invokes a given function when pressed.
   Widget _getMenuItem({required IconData icon, Function()? onPressed}) {
-    return OnTabAnimation(
+    return OnTapAnimation(
       scaleFactor: 0.8,
       onPressed: onPressed,
       child: Container(
@@ -259,7 +260,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: OnTabAnimation(
+      child: OnTapAnimation(
         scaleFactor: 0.95,
         onPressed: widget.featurePage == null
             ? null
@@ -269,31 +270,34 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
         child: Stack(
           alignment: Alignment.topRight,
           children: [
-            GestureDetector(
-              behavior: _showMenu ? HitTestBehavior.opaque : null,
-              onTap: _showMenu ? () => setState(() => _showMenu = false) : null,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                foregroundDecoration: _showMenu
-                    ? BoxDecoration(
-                        color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(24),
-                      )
-                    : null,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    width: 1,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
-                  ),
-                ),
-                child: IgnorePointer(
-                  ignoring: _showMenu,
-                  child: widget.content,
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  width: 1,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
                 ),
               ),
+              child: IgnorePointer(
+                ignoring: _showMenu,
+                child: widget.content,
+              ),
             ),
+            if (_showMenu)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(() => _showMenu = false),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                ),
+              ),
             // If the menu is opened, it is shown above the card at the positin of the menu button.
             if (_showMenu)
               BlendIn(
@@ -347,7 +351,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 child: AnimatedSwitcher(
-                  duration: ShortDuration(),
+                  duration: const ShortDuration(),
                   transitionBuilder: (child, animation) => ScaleTransition(
                     scale: animation,
                     child: child,

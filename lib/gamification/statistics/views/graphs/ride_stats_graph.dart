@@ -47,7 +47,6 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
   void initState() {
     _statsService = getIt<StatisticService>();
     _statsService.addListener(update);
-    _selectedIndex = widget.displayedStats.isDayInList(_statsService.selectedDate);
     super.initState();
   }
 
@@ -112,6 +111,7 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
 
   @override
   Widget build(BuildContext context) {
+    _selectedIndex = widget.displayedStats.isDayInList(_statsService.selectedDate);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: BarChart(

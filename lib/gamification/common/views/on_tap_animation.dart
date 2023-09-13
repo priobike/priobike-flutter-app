@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// A child wrapped by this widget is animated and gives haptic feedback when pressed, if the callback is not null.
-class OnTabAnimation extends StatefulWidget {
+class OnTapAnimation extends StatefulWidget {
   /// The child wrapped by this widget.
   final Widget child;
 
@@ -15,7 +15,7 @@ class OnTabAnimation extends StatefulWidget {
   /// Whether the widget should register a new click, while it is animating.
   final bool blockFastClicking;
 
-  const OnTabAnimation({
+  const OnTapAnimation({
     Key? key,
     required this.child,
     this.onPressed,
@@ -24,10 +24,10 @@ class OnTabAnimation extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<OnTabAnimation> createState() => _OnTabAnimationState();
+  State<OnTapAnimation> createState() => _OnTapAnimationState();
 }
 
-class _OnTabAnimationState extends State<OnTabAnimation> with SingleTickerProviderStateMixin {
+class _OnTapAnimationState extends State<OnTapAnimation> with SingleTickerProviderStateMixin {
   /// Controller which controls the on pressed scale animation of the widget.
   late final AnimationController _animationController;
 
@@ -56,7 +56,7 @@ class _OnTabAnimationState extends State<OnTabAnimation> with SingleTickerProvid
     return GestureDetector(
       onTapDown: (_) {
         if (widget.blockFastClicking && _animationController.isAnimating) return;
-        HapticFeedback.heavyImpact();
+        HapticFeedback.selectionClick();
         _animationController.forward();
       },
       onTapUp: (_) async {
