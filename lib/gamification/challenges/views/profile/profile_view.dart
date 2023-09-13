@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
@@ -69,8 +70,8 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   @override
   void initState() {
-    _trophiesController = AnimationController(duration: const MediumDuration(), vsync: this);
-    _medalsController = AnimationController(duration: const MediumDuration(), vsync: this);
+    _trophiesController = AnimationController(duration: const LongDuration(), vsync: this);
+    _medalsController = AnimationController(duration: const LongDuration(), vsync: this);
     _profileService = getIt<ChallengesProfileService>();
     _profileService.addListener(updateProfile);
     super.initState();
@@ -106,7 +107,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
 
   /// Bounce animation for the trophy or medal icon.
   Animation<double> _getAnimation(var controller) =>
-      Tween<double>(begin: 1, end: 2).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
+      Tween<double>(begin: 1, end: 3).animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
 
   /// Opaen level up dialog according to the number of possible upgrades the user can apply with the level up.
   Future<void> _showLevelUpDialog() async {
@@ -142,7 +143,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: _lvlColor.withOpacity(animate ? 0.2 : 0),
+                  color: CI.blue.withOpacity(animate ? 0.2 : 0),
                   blurRadius: 12,
                 ),
               ],
@@ -150,7 +151,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
             child: Icon(
               icon,
               size: size,
-              color: animate ? _lvlColor : Color.alphaBlend(Colors.white.withOpacity(0.2), _lvlColor),
+              color: animate ? CI.blue : Color.alphaBlend(Colors.white.withOpacity(0.2), CI.blue),
             ),
           ),
         ),
@@ -313,7 +314,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                 Expanded(child: Container()),
                 Row(
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     OnTapAnimation(
                       onPressed: () => AppDatabase.instance.challengeDao.createObject(

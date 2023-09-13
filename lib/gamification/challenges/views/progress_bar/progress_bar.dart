@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/level.dart';
 import 'package:priobike/gamification/challenges/services/challenge_service.dart';
@@ -53,7 +54,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   bool get _deactivateTap => _challenge == null && !_service.allowNew && _service.challengeChoices.isEmpty;
 
   /// The color representing the current level of the user.
-  Color get _barColor => levels.elementAt(_profileService.profile?.level ?? 0).color;
+  Color get _barColor => CI.blue; //levels.elementAt(_profileService.profile?.level ?? 0).color;
 
   /// Time where the challenge ends.
   DateTime get _endTime {
