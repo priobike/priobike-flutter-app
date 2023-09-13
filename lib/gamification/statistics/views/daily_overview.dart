@@ -22,6 +22,13 @@ class _DailyOverviewState extends State<DailyOverview> {
   /// The associated goals service to get the daily goals and route goals of the user.
   late GoalsService _goalsService;
 
+  int get _ridesOnRouteGoal => _hasRouteGoal
+      ? widget.today.rides.where((ride) => ride.shortcutId == _goalsService.routeGoals!.routeID).length
+      : 0;
+
+  bool get _hasRouteGoal =>
+      _goalsService.routeGoals != null && _goalsService.routeGoals!.weekdays.elementAt(widget.today.date.weekday - 1);
+
   @override
   void initState() {
     _goalsService = getIt<GoalsService>();
@@ -38,7 +45,13 @@ class _DailyOverviewState extends State<DailyOverview> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => {if (mounted) setState(() {})};
 
-  Widget _getProgressRing({required double value, required StatType type, double progress = 1, double size = 80}) {
+  Widget _getProgressRing({
+    required double value,
+    required StatType type,
+    required String label,
+    double progress = 1,
+    double size = 80,
+  }) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -64,6 +77,7 @@ class _DailyOverviewState extends State<DailyOverview> {
             ],
           ),
         ),
+        BoldContent(text: label, context: context),
       ],
     );
   }
@@ -74,48 +88,6 @@ class _DailyOverviewState extends State<DailyOverview> {
       alignment: Alignment.center,
       children: [
         Positioned.fill(
-          child: Container(
-            foregroundDecoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Theme.of(context).colorScheme.background,
-                  Theme.of(context).colorScheme.background.withOpacity(0.8),
-                  Theme.of(context).colorScheme.background.withOpacity(0.7),
-                  Theme.of(context).colorScheme.background.withOpacity(0.7),
-                  Theme.of(context).colorScheme.background.withOpacity(0.8),
-                  Theme.of(context).colorScheme.background,
-                ],
-              ),
-            ),
-            child: Container(
-              foregroundDecoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).colorScheme.background,
-                    Theme.of(context).colorScheme.background.withOpacity(0.5),
-                    Theme.of(context).colorScheme.background.withOpacity(0.2),
-                    Theme.of(context).colorScheme.background.withOpacity(0.2),
-                    Theme.of(context).colorScheme.background.withOpacity(0.5),
-                    Theme.of(context).colorScheme.background,
-                  ],
-                ),
-              ),
-              child: ClipRRect(
-                child: Image(
-                  image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                      ? const AssetImage('assets/images/map-dark.png')
-                      : const AssetImage('assets/images/map-light.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -123,7 +95,7 @@ class _DailyOverviewState extends State<DailyOverview> {
                 children: [
                   const SmallHSpace(),
                   BoldSubHeader(
-                    text: widget.today.getTimeDescription(null),
+                    text: 'Heute',
                     context: context,
                     textAlign: TextAlign.start,
                   ),
@@ -137,6 +109,7 @@ class _DailyOverviewState extends State<DailyOverview> {
                   _getProgressRing(
                     value: widget.today.distanceKilometres,
                     type: StatType.distance,
+                    label: 'Distanz',
                     progress: widget.today.distanceGoalKilometres == null
                         ? 1
                         : widget.today.distanceKilometres / widget.today.distanceGoalKilometres!,
@@ -144,6 +117,7 @@ class _DailyOverviewState extends State<DailyOverview> {
                   _getProgressRing(
                     value: widget.today.durationMinutes,
                     type: StatType.duration,
+                    label: 'Zeit',
                     progress: widget.today.durationGoalMinutes == null
                         ? 1
                         : widget.today.durationMinutes / widget.today.durationGoalMinutes!,
@@ -151,38 +125,33 @@ class _DailyOverviewState extends State<DailyOverview> {
                   _getProgressRing(
                     value: widget.today.averageSpeedKmh,
                     type: StatType.speed,
+                    label: 'Tempo',
                     progress: 1,
                   ),
                 ],
               ),
               Expanded(child: Container()),
-              if (_goalsService.routeGoals == null)
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    BoldSubHeader(
-                      text: '',
-                      context: context,
-                      height: 0,
-                    ),
-                    const SizedBox(width: 4),
-                    SubHeader(
-                      text: '',
-                      context: context,
-                      height: 0,
-                    )
-                  ],
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                width: double.infinity,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  color: !_hasRouteGoal
+                      ? Theme.of(context).colorScheme.onBackground.withOpacity(0.1)
+                      : (_ridesOnRouteGoal >= 1
+                          ? CI.blue.withOpacity(1)
+                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                 ),
-              if (_goalsService.routeGoals != null)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BoldSubHeader(text: _goalsService.routeGoals!.routeName, context: context),
-                  ],
+                child: BoldContent(
+                  text: !_hasRouteGoal
+                      ? 'Kein Routenziel für Heute'
+                      : '$_ridesOnRouteGoal/1 ${_goalsService.routeGoals!.routeName}',
+                  context: context,
+                  height: 1,
                 ),
+              ),
+              Expanded(child: Container()),
             ],
           ),
         ),

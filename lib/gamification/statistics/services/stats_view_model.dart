@@ -42,7 +42,7 @@ class StatisticsViewModel with ChangeNotifier {
     updateRides([]);
     goalsService.addListener(updateGoals);
     rideStream = AppDatabase.instance.rideSummaryDao
-        .streamRidesInInterval(startDate, endDate)
+        .streamRidesInInterval(startDate, endDate.add(oneDay))
         .listen((rides) => updateRides(rides));
   }
 
