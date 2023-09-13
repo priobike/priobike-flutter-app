@@ -213,7 +213,7 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with TickerProv
               child: TabPageSelector(
                 controller: _tabController,
                 selectedColor: Theme.of(context).colorScheme.primary,
-                indicatorSize: 6,
+                indicatorSize: 12,
                 borderStyle: BorderStyle.none,
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
                 key: GlobalKey(),

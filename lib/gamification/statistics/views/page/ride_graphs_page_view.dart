@@ -122,7 +122,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
           onTap: () => _statsService.selectDate(null),
           child: Column(
             children: [
-              const SmallVSpace(),
+              const SizedBox(height: 16),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.max,
@@ -132,6 +132,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
                   SubHeader(
                     text: StringFormatter.getDescriptionForStatType(_statsService.selectedType),
                     context: context,
+                    height: 1,
                   ),
                   Expanded(child: Container()),
                   if (selectedElement == null) ...[
