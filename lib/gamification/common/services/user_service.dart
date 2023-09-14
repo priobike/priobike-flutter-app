@@ -7,9 +7,7 @@ import 'package:priobike/gamification/common/database/model/ride_summary/ride_su
 import 'package:priobike/gamification/common/models/user_profile.dart';
 import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
-import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages and provides the values of the general user profile.
@@ -173,5 +171,6 @@ class GamificationUserService with ChangeNotifier {
         'communityEnabled': false,
       };
 
-  Future<void> sendProfileData() => getIt<EvaluationDataService>().sendJsonToAddress('profiles/post/', profilData);
+  Future<void> sendProfileData() =>
+      getIt<EvaluationDataService>().sendJsonToAddress('profile_updates/post/', profilData);
 }
