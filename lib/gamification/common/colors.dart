@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/ci.dart';
 
 /// Custom level colors with at least a 3:1 contrast on white and black.
 class LevelColors {
+  static Color grey = Colors.grey;
   static const Color pink = Color.fromRGBO(238, 0, 136, 1); //ee0088 | onWhite: 4.2:1 - onBlack: 4.99:1
   static const Color green = Color.fromRGBO(17, 147, 0, 1); //119300 | onWhite: 4.04:1 - onBlack: 5.19:1
   static const Color gold = Color.fromRGBO(177, 144, 37, 1); //d4af37 | onWhite: 3.04:1 - onBlack: 6.88:1

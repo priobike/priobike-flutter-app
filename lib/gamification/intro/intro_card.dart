@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/intro/intro_page.dart';
 
 /// Intro card to be displayed on the home view of the app, if the gamification feauture is disabled.
@@ -11,7 +11,7 @@ class GameIntroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: OnTabAnimation(
+      child: OnTapAnimation(
         scaleFactor: 0.95,
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const IntroPage())),
         child: Container(

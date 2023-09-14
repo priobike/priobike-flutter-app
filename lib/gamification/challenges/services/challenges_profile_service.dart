@@ -7,7 +7,7 @@ import 'package:priobike/gamification/challenges/models/challenges_profile.dart'
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
-import 'package:priobike/gamification/common/models/level.dart';
+import 'package:priobike/gamification/challenges/models/level.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

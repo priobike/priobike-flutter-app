@@ -186,6 +186,15 @@ abstract class ChallengeService with ChangeNotifier {
     _dao.updateObject(modified);
   }
 
+  /// TODO helper function
+  void increaseChallengeProgress() {
+    if (_currentChallenge == null) return;
+    var modified = _currentChallenge!.copyWith(
+      progress: _currentChallenge!.progress + (_currentChallenge!.target * 0.2).toInt(),
+    );
+    _dao.updateObject(modified);
+  }
+
   Future<void> sendChallengeDataToBackend(Challenge challenge) async {
     Map<String, dynamic> challengeData = {
       'challengeType': challenge.type,

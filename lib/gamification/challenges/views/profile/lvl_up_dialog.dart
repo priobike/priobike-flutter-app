@@ -1,17 +1,16 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/models/level.dart';
+import 'package:priobike/gamification/challenges/models/level.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
-/// Dialog widget for when the user reached a new level in their challenge profile. 
+/// Dialog widget for when the user reached a new level in their challenge profile.
 class LevelUpDialog extends StatefulWidget {
-  /// The new level of the user. 
+  /// The new level of the user.
   final Level newLevel;
 
-  /// Additional content on the dialog. 
+  /// Additional content on the dialog.
   final Widget? content;
 
   const LevelUpDialog({Key? key, required this.newLevel, this.content}) : super(key: key);
@@ -21,7 +20,7 @@ class LevelUpDialog extends StatefulWidget {
 }
 
 class _LevelUpDialogState extends State<LevelUpDialog> {
-  /// Controller to display confetti behind the dialog. 
+  /// Controller to display confetti behind the dialog.
   late final ConfettiController _confettiController;
 
   @override
@@ -49,9 +48,10 @@ class _LevelUpDialogState extends State<LevelUpDialog> {
         emissionFrequency: 0.1,
         confettiController: _confettiController,
         blastDirectionality: BlastDirectionality.explosive,
-        colors: const [CI.blue],
+        colors: [widget.newLevel.color],
       ),
       CustomDialog(
+        withGlow: true,
         content: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),

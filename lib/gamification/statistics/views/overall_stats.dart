@@ -35,7 +35,7 @@ class _OverallStatisticsState extends State<OverallStatistics> {
   void update() => {if (mounted) setState(() {})};
 
   /// Returns an info widget for a given stat, label and icon.
-  Widget _getStatWidget(IconData icon, double value, String label, StatType type) {
+  Widget _getStatWidget(IconData icon, double value, StatType type) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,13 +46,13 @@ class _OverallStatisticsState extends State<OverallStatistics> {
             color: CI.blue.withOpacity(1),
           ),
           BoldContent(
-            text: StringFormatter.getRoundedStrByRideType(value, StatType.distance),
+            text: StringFormatter.getRoundedStrByRideType(value, type),
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
             height: 1,
           ),
           BoldSmall(
-            text: label,
+            text: StringFormatter.getLabelForRideType(type),
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
             height: 1,
@@ -84,11 +84,11 @@ class _OverallStatisticsState extends State<OverallStatistics> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _getStatWidget(Icons.directions_bike, profile.totalDistanceKilometres, 'km', StatType.distance),
-              _getStatWidget(Icons.timer, profile.totalDurationMinutes, 'min', StatType.duration),
-              _getStatWidget(Icons.speed, profile.averageSpeedKmh, 'økm/h', StatType.speed),
-              _getStatWidget(Icons.arrow_upward, profile.totalElevationGainMetres, 'm', StatType.elevationGain),
-              _getStatWidget(Icons.arrow_downward, profile.totalElevationLossMetres, 'm', StatType.elevationLoss),
+              _getStatWidget(Icons.directions_bike, profile.totalDistanceKilometres, StatType.distance),
+              _getStatWidget(Icons.timer, profile.totalDurationMinutes, StatType.duration),
+              _getStatWidget(Icons.speed, profile.averageSpeedKmh, StatType.speed),
+              _getStatWidget(Icons.arrow_upward, profile.totalElevationGainMetres, StatType.elevationGain),
+              _getStatWidget(Icons.arrow_downward, profile.totalElevationLossMetres, StatType.elevationLoss),
             ],
           ),
         ],

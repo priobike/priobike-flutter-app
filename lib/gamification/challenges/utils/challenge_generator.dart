@@ -45,26 +45,27 @@ class ValueRange {
   }
 }
 
+/// Return matching icon for a given challenge.
+IconData getChallengeIcon(Challenge challenge) {
+  if (challenge.isWeekly) {
+    var type = WeeklyChallengeType.values.elementAt(challenge.type);
+    if (type == WeeklyChallengeType.overallDistance) return CustomGameIcons.distance_trophy;
+    if (type == WeeklyChallengeType.daysWithGoalsCompleted) return CustomGameIcons.explore_trophy;
+    if (type == WeeklyChallengeType.routeRidesPerWeek) return CustomGameIcons.map_trophy;
+    if (type == WeeklyChallengeType.routeStreakInWeek) return CustomGameIcons.map_trophy;
+
+    return CustomGameIcons.blank_trophy;
+  } else {
+    var type = DailyChallengeType.values.elementAt(challenge.type);
+    if (type == DailyChallengeType.distance) return CustomGameIcons.distance_medal;
+    if (type == DailyChallengeType.duration) return CustomGameIcons.duration_medal;
+    if (type == DailyChallengeType.elevation) return CustomGameIcons.elevation_medal;
+    return CustomGameIcons.blank_medal;
+  }
+}
+
 /// A class that implements this class can be used, to generate a new challenge according to the user goals.
 abstract class ChallengeGenerator {
-  static IconData getChallengeIcon(Challenge challenge) {
-    if (challenge.isWeekly) {
-      var type = WeeklyChallengeType.values.elementAt(challenge.type);
-      if (type == WeeklyChallengeType.overallDistance) return CustomGameIcons.distance_trophy;
-      if (type == WeeklyChallengeType.daysWithGoalsCompleted) return CustomGameIcons.explore_trophy;
-      if (type == WeeklyChallengeType.routeRidesPerWeek) return CustomGameIcons.map_trophy;
-      if (type == WeeklyChallengeType.routeStreakInWeek) return CustomGameIcons.map_trophy;
-
-      return CustomGameIcons.blank_trophy;
-    } else {
-      var type = DailyChallengeType.values.elementAt(challenge.type);
-      if (type == DailyChallengeType.distance) return CustomGameIcons.distance_medal;
-      if (type == DailyChallengeType.duration) return CustomGameIcons.duration_medal;
-      if (type == DailyChallengeType.elevation) return CustomGameIcons.elevation_medal;
-      return CustomGameIcons.blank_medal;
-    }
-  }
-
   /// Generate a list of challenges, which are different.
   List<ChallengesCompanion> generateChallenges(int length) {
     List<ChallengesCompanion> challenges = [];
@@ -80,7 +81,7 @@ abstract class ChallengeGenerator {
   RouteGoals? get _routeGoals => getIt<GoalsService>().routeGoals;
 
   /// Daily distance and duration goals of the user, pulled from the goals service.
-  DailyGoals get _dailyGoals => getIt<GoalsService>().dailyGoals;
+  DailyGoals get _dailyGoals => getIt<GoalsService>().dailyGoals ?? DailyGoals.defaultGoals;
 
   /// Generate a single new challenge.
   ChallengesCompanion generate();

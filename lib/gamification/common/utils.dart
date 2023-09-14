@@ -1,20 +1,21 @@
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
+import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 
 /// Fixed long duration for animations and stuff.
 class LongDuration extends Duration {
-  LongDuration() : super(milliseconds: 1000);
+  const LongDuration() : super(milliseconds: 1000);
 }
 
 /// Fixed medium duration for animations and stuff.
 class MediumDuration extends Duration {
-  MediumDuration() : super(milliseconds: 500);
+  const MediumDuration() : super(milliseconds: 500);
 }
 
 /// Fixed short duration for animations and stuff.
 class ShortDuration extends Duration {
-  ShortDuration() : super(milliseconds: 250);
+  const ShortDuration() : super(milliseconds: 250);
 }
 
 /// A bunch of utility methods for processing ride data.
@@ -63,15 +64,41 @@ class StringFormatter {
     return result;
   }
 
-  /// Get formatted string for a given double by rounding it and giving it
-  /// a fitting label, all according to a given ride info type.
+  /// Get formatted string for a given double by rounding it and giving it appending a fitting label.
   static String getFormattedStrByRideType(double value, StatType type) {
-    String label = '';
-    if (type == StatType.distance) label = 'km';
-    if (type == StatType.duration) label = 'min';
-    if (type == StatType.speed) label = 'km/h';
+    return '${getRoundedStrByRideType(value, type)} ${getLabelForRideType(type)}';
+  }
 
-    return '${getRoundedStrByRideType(value, type)} $label';
+  /// Returns a fitting label for a given ride type, consisting of the unit describing the type.
+  static String getLabelForRideType(StatType type) {
+    if (type == StatType.distance) return 'km';
+    if (type == StatType.duration) return 'min';
+    if (type == StatType.speed) return 'km/h';
+    if (type == StatType.elevationGain) return 'm';
+    if (type == StatType.elevationLoss) return 'm';
+    return '';
+  }
+
+  /// Rounds and returns a given value for a given challenge type as a string.
+  static getRoundStrByChallengeType(int value, var type) {
+    if (type == DailyChallengeType.distance || type == WeeklyChallengeType.overallDistance) {
+      double valueInKm = value / 1000;
+      if (valueInKm - valueInKm.floor() == 0) return valueInKm.toStringAsFixed(0);
+      return valueInKm.toStringAsFixed(1);
+    }
+    return value.toString();
+  }
+
+  /// Returns a label for the values of a given challenge type as a string.
+  static String getLabelForChallengeType(var type) {
+    if (type == DailyChallengeType.distance) return 'km';
+    if (type == WeeklyChallengeType.overallDistance) return 'km';
+    if (type == DailyChallengeType.duration) return 'min';
+    if (type == DailyChallengeType.elevation) return 'm';
+    if (type == WeeklyChallengeType.daysWithGoalsCompleted) return 'Tage';
+    if (type == WeeklyChallengeType.routeRidesPerWeek) return 'Fahrten';
+    if (type == WeeklyChallengeType.routeStreakInWeek) return 'Fahrten';
+    return '';
   }
 
   /// Round a given value according to a given ride info type.
@@ -83,9 +110,8 @@ class StringFormatter {
     }
   }
 
-  static String getMonthAndYearStr(int month, int year) {
-    return '${getMonthStr(month)} $year';
-  }
+  /// Returns a fitting string for a given month and year.
+  static String getMonthAndYearStr(int month, int year) => '${getMonthStr(month)} $year';
 
   /// Convert month index to its name.
   static String getMonthStr(int i) {

@@ -25,7 +25,7 @@ class GoalsService with ChangeNotifier {
   RouteGoals? _routeGoals;
 
   /// Get the users daily goals, or the default goals, if they are null.
-  DailyGoals get dailyGoals => _dailyGoals ?? DailyGoals.defaultGoals;
+  DailyGoals? get dailyGoals => _dailyGoals;
 
   /// Get the users route goals or null, if there are none.
   RouteGoals? get routeGoals => _routeGoals;

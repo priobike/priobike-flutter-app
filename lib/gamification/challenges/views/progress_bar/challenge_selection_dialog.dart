@@ -1,12 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 
 /// Dialog widget to pop up after multiple challenges were generated, to give the user the option to select one of them.
@@ -17,10 +15,14 @@ class ChallengeSelectionDialog extends StatefulWidget {
   /// Whether the challenges are weekly, or daily challenges.
   final bool isWeekly;
 
+  /// An accent color for the challenges.
+  final Color color;
+
   const ChallengeSelectionDialog({
     Key? key,
     required this.challenges,
     required this.isWeekly,
+    required this.color,
   }) : super(key: key);
   @override
   State<ChallengeSelectionDialog> createState() => _ChallengeSelectionDialogState();
@@ -33,46 +35,27 @@ class _ChallengeSelectionDialogState extends State<ChallengeSelectionDialog> wit
   /// Select one out of the challenges, make the other choices disappear and close the dialog after half a second.
   void _selectChallenge(int index) async {
     setState(() => _selectedChallenge = index);
-    await Future.delayed(MediumDuration());
+    await Future.delayed(const MediumDuration());
     if (mounted) Navigator.of(context).pop(_selectedChallenge);
   }
 
   @override
   Widget build(BuildContext context) {
     return CustomDialog(
-      content: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 4),
-            BoldContent(
-              text: 'Wähle eine ${widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge'}',
-              context: context,
-              textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+      backgroundColor: Colors.transparent,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ...widget.challenges.mapIndexed(
+            (i, challenge) => ChallengeWidget(
+              challenge: challenge,
+              onTap: () => _selectChallenge(i),
+              visible: _selectedChallenge == null || _selectedChallenge == i,
+              color: widget.color,
             ),
-            ...widget.challenges.mapIndexed(
-              (i, challenge) => ChallengeWidget(
-                challenge: challenge,
-                onTap: () => _selectChallenge(i),
-                visible: _selectedChallenge == null || _selectedChallenge == i,
-              ),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                BoldSmall(
-                  text: 'Verbleibende Zeit: ${StringFormatter.getTimeLeftStr(widget.challenges.first.closingTime)}',
-                  context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
-                )
-              ],
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -89,22 +72,26 @@ class ChallengeWidget extends StatelessWidget {
   /// The challenge represented by the widget.
   final Challenge challenge;
 
+  /// An accent color for the challenges.
+  final Color color;
+
   const ChallengeWidget({
     Key? key,
     required this.challenge,
     required this.onTap,
     this.visible = true,
+    required this.color,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       opacity: visible ? 1 : 0,
-      duration: ShortDuration(),
-      child: OnTabAnimation(
+      duration: const ShortDuration(),
+      child: OnTapAnimation(
         onPressed: visible ? onTap : null,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.background,
@@ -122,31 +109,47 @@ class ChallengeWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                ChallengeGenerator.getChallengeIcon(challenge),
-                size: 64,
-                color: CI.blue,
-              ),
-              const SmallHSpace(),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Small(
+                    const SizedBox(height: 4),
+                    SubHeader(
                       text: challenge.description,
                       context: context,
+                      textAlign: TextAlign.center,
+                      height: 1.1,
                     ),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        BoldSmall(text: '+${challenge.xp}XP', context: context),
+                        Icon(
+                          getChallengeIcon(challenge),
+                          size: 48,
+                          color: color.withOpacity(0.75),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            '${challenge.xp} XP',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'HamburgSans',
+                              fontSize: 28,
+                              height: 1,
+                              fontWeight: FontWeight.w600,
+                              color: color.withOpacity(0.75),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ),
-              const SmallHSpace(),
             ],
           ),
         ),

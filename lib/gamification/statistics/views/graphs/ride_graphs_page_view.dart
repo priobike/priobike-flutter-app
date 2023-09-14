@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
@@ -64,7 +64,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
 
   /// Returns a simple button for a given ride info type, which changes the selected ride info type when pressed.
   Widget _getRideInfoButton(StatType type) {
-    return OnTabAnimation(
+    return OnTapAnimation(
       onPressed: () => _statsService.setStatType(type),
       child: Stack(
         children: [

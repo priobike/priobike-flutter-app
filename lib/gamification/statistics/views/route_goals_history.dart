@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/animated_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
@@ -103,7 +103,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                 borderRadius: BorderRadius.circular(24),
               ),
               child: AnimatedSwitcher(
-                duration: ShortDuration(),
+                duration: const ShortDuration(),
                 transitionBuilder: (child, animation) => FadeTransition(
                   opacity: animation,
                   child: child,
@@ -119,7 +119,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
             Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                OnTabAnimation(
+                OnTapAnimation(
                   scaleFactor: 0.8,
                   onPressed:
                       _currentWeekIndex >= _reversedWeeks.length - 1 ? null : () => setState(() => _currentWeekIndex++),
@@ -140,7 +140,7 @@ class _RouteGoalsHistoryState extends State<RouteGoalsHistory> {
                     height: 1,
                   ),
                 ),
-                OnTabAnimation(
+                OnTapAnimation(
                   scaleFactor: 0.8,
                   onPressed: _currentWeekIndex == 0 ? null : () => setState(() => _currentWeekIndex--),
                   child: Icon(
