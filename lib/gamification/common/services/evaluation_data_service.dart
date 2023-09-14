@@ -1,36 +1,29 @@
-import 'dart:convert';
-
+import 'package:priobike/gamification/common/models/evaluation_data.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class EvaluationData {
-  final String address;
-
-  final String jsonData;
-
-  EvaluationData(this.address, Map<String, dynamic> map) : jsonData = json.encode(map);
-
-  String toJson() => json.encode({'address': address, 'jsonData': jsonData});
-
-  EvaluationData.fromJson(String encoded)
-      : address = json.decode(encoded)['address'],
-        jsonData = json.decode(encoded)['jsonData'];
-}
-
+/// This service handles sending data relevant for the evaluation of the gamification functionality to the backend.
 class EvaluationDataService {
+  /// Shared prefs key to store unsent elements.
   static const String unsentElementsKey = 'priobike.gamification.evaluation.unsentElements';
 
+  /// Url of the gamification service.
   final baseUrl = '10.0.2.2:8000'; //settings.backend.path;
 
+  /// List of unsent elements.
   List<EvaluationData> unsentElements = [];
 
+  /// Send a given json map to a given address of the gamification service.
   Future<void> sendJsonToAddress(String address, Map<String, dynamic> jsonData) async {
+    // Add user id and timestamp to the data and create a data object.
     final userId = await User.getOrCreateId();
     jsonData.addAll({'userId': userId, 'timestamp': DateTime.now().millisecondsSinceEpoch});
     var data = EvaluationData(address, jsonData);
-    var result = await sendData(data);
+    // Try to send data to service.
+    var result = await sendEvaluationData(data);
+    // If sending was not successful, store the object in the list of unsent elements.
     if (!result) {
       unsentElements.add(data);
       var prefs = await SharedPreferences.getInstance();
@@ -39,27 +32,31 @@ class EvaluationDataService {
     }
   }
 
+  /// Try to send all elements from the list of unsent elements to the service.
   Future<void> sendUnsentElements() async {
     var prefs = await SharedPreferences.getInstance();
     var tmpList = prefs.getStringList(unsentElementsKey)?.map((e) => EvaluationData.fromJson(e)).toList() ?? [];
     for (var element in tmpList) {
-      var result = await sendData(element);
+      var result = await sendEvaluationData(element);
       if (result) continue;
       unsentElements.add(element);
       log.e('Saved unsent message: ${element.toJson()}');
     }
+
+    /// Store elements that still couldn't be sent in the shared prefs.
     prefs.setStringList(unsentElementsKey, unsentElements.map((e) => e.toJson()).toList());
   }
 
-  Future<bool> sendData(EvaluationData data) async {
+  /// Send the data in a given evaluation data object to the corresponding address of the gamification service.
+  Future<bool> sendEvaluationData(EvaluationData data) async {
     try {
-      //final settings = getIt<Settings>();
-
+      // Build and parse url to send to.
       final postUrl = "http://$baseUrl/${data.address}";
       final postProfileEndpoint = Uri.parse(postUrl);
 
       log.i("Sending gamification data to $postUrl");
 
+      // Try to send json data to url of the gamification service.
       final response = await Http.post(postProfileEndpoint, body: data.jsonData);
 
       if (response.statusCode == 200) {

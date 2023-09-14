@@ -15,7 +15,7 @@ import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 
-/// Widget to edit the route goals set by the user.
+/// Dialog to edit the route goals set by the user.
 class EditRouteGoalsDialog extends StatefulWidget {
   const EditRouteGoalsDialog({Key? key}) : super(key: key);
 
@@ -27,12 +27,16 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
   /// The associated shortcuts service to display the users saved shortcuts as possible routes to set goals for.
   late Shortcuts _shortcutsService;
 
+  /// The shortcut (to a route) currently selected by the user.
   Shortcut? _selectedShortcut;
 
+  /// A list of bools which signifies on which weekdays the user wants to drive the selected route.
   late List<bool> weekdays;
 
+  /// Get list of exisiting shortcuts from corresponding service.
   List<Shortcut> get _shortcuts => _shortcutsService.shortcuts?.toList() ?? [];
 
+  /// Check whether the user has selected any days to drive a route on.
   bool get noDaysSelected => weekdays.where((day) => day).isEmpty;
 
   @override

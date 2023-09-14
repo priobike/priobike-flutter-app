@@ -82,6 +82,7 @@ class GoalsService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Send the users current goal settings to backend.
   Future<void> sendGoalsDataToBackend() async {
     Map<String, dynamic> data = {
       'dailyGoalsSet': dailyGoals != null,

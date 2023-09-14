@@ -11,7 +11,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 
-/// This widget enables the user to edit their daily goals.
+/// This dialog enables the user to edit their daily goals.
 class EditDailyGoalsDialog extends StatefulWidget {
   const EditDailyGoalsDialog({Key? key}) : super(key: key);
 
@@ -20,12 +20,16 @@ class EditDailyGoalsDialog extends StatefulWidget {
 }
 
 class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
+  /// Default goals to set the values to when no user goals exist.
   DailyGoals get defaultGoals => DailyGoals.defaultGoals;
 
+  /// The users daily distance goals.
   late double distance;
 
+  /// The users daily duration goals.
   late double duration;
 
+  /// The weekdays on which the goals should be implemented.
   late List<bool> weekdays;
 
   @override

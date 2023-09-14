@@ -115,7 +115,7 @@ abstract class ChallengeService with ChangeNotifier {
     await ChallengeValidator(challenge: challenge, startStream: false).validate(rides);
     var isCompleted = challenge.progress / challenge.target >= 1;
 
-    // If an open challenge was not completed and the time did run out, close the challenge.
+    // If an open challenge was not completed and the time did run out, close the challenge and send it to the backend.
     if (!isCompleted && !currentlyActive(challenge)) {
       var closedChallenge = challenge.copyWith(isOpen: false);
       var result = await _dao.updateObject(closedChallenge);
@@ -195,6 +195,7 @@ abstract class ChallengeService with ChangeNotifier {
     _dao.updateObject(modified);
   }
 
+  /// Send a given completed challenge to the backend.
   Future<void> sendChallengeDataToBackend(Challenge challenge) async {
     Map<String, dynamic> challengeData = {
       'challengeType': challenge.type,
