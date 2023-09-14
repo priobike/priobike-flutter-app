@@ -12,7 +12,16 @@ class CustomDialog extends StatefulWidget {
   /// Whether to show a glow around the dialog.
   final bool withGlow;
 
-  const CustomDialog({Key? key, required this.content, this.backgroundColor, this.withGlow = false}) : super(key: key);
+  /// Margin on the right and left side of the dialog.
+  final double horizontalMargin;
+
+  const CustomDialog({
+    Key? key,
+    required this.content,
+    this.backgroundColor,
+    this.withGlow = false,
+    this.horizontalMargin = 32,
+  }) : super(key: key);
 
   @override
   State<CustomDialog> createState() => _CustomDialogState();
@@ -47,7 +56,7 @@ class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderSt
       ),
       child: Center(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 32),
+          margin: EdgeInsets.symmetric(horizontal: widget.horizontalMargin),
           decoration: BoxDecoration(
             color: widget.backgroundColor ??
                 (lightmode ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.background),

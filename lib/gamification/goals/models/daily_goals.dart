@@ -1,6 +1,6 @@
 /// This object holds information about the users daily goals.
 class DailyGoals {
-  static DailyGoals defaultGoals = DailyGoals(3000, 30, List.filled(DateTime.daysPerWeek, false));
+  static DailyGoals get defaultGoals => DailyGoals(3000, 30, List.filled(DateTime.daysPerWeek, false));
 
   /// The users daily distance goals.
   double distanceMetres;

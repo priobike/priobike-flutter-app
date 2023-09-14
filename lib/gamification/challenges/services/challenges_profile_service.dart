@@ -8,7 +8,9 @@ import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/challenges/models/level.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
+import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This service updates the challenges profile according to the user interaction.
@@ -73,6 +75,7 @@ class ChallengesProfileService with ChangeNotifier {
     if (!(await _prefs?.setString(profileKey, jsonEncode(_profile!.toJson().toString())) ?? false)) {
       return false;
     }
+    sendProfileDataToBackend();
     startDatabaseStreams();
     return true;
   }
@@ -124,6 +127,7 @@ class ChallengesProfileService with ChangeNotifier {
     _profile!.level = min(_profile!.level + 1, levels.length - 1);
     // Save changed profile in shared prefs.
     storeProfile();
+    sendProfileDataToBackend();
   }
 
   /// Update the activated upgrades in the shared preferences.
@@ -154,5 +158,13 @@ class ChallengesProfileService with ChangeNotifier {
     _prefs!.remove(profileKey);
     _challengeDao.clearObjects();
     notifyListeners();
+  }
+
+  Future<void> sendProfileDataToBackend() async {
+    if (_profile == null) return;
+    Map<String, dynamic> data = {
+      'level': _profile!.level,
+    };
+    getIt<EvaluationDataService>().sendJsonToAddress('challenges/profile-update/', data);
   }
 }
