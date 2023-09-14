@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/ride_summary/ride_summary.dart';
 import 'package:priobike/gamification/common/models/user_profile.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
+import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service which manages and provides the values of the general user profile.
@@ -43,10 +45,13 @@ class GamificationUserService with ChangeNotifier {
   /// Ride DAOs to access rides.
   RideSummaryDao get rideDao => AppDatabase.instance.rideSummaryDao;
 
+  /// The user profile for the gamificaiton functionality.
   UserProfile? get profile => _profile;
 
+  /// List of keys of the features enabled by the user.
   List<String> get enabledFeatures => _enabledFeatures;
 
+  /// List of keys of the features disabled by the user.
   List<String> get disabledFeatures =>
       gamificationFeatures.whereNot((feature) => enabledFeatures.contains(feature)).toList();
 
@@ -77,6 +82,7 @@ class GamificationUserService with ChangeNotifier {
     if (!(await _prefs?.setBool(gamificationEnabledKey, true) ?? false)) return false;
     // Start the database stream of rides, to update the profile data accordingly.
     startDatabaseStream();
+    sendProfileDataToBackend();
     return true;
   }
 
@@ -125,6 +131,7 @@ class GamificationUserService with ChangeNotifier {
     _enabledFeatures.add(key);
     _prefs ??= await SharedPreferences.getInstance();
     _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
+    sendProfileDataToBackend();
     notifyListeners();
   }
 
@@ -134,6 +141,7 @@ class GamificationUserService with ChangeNotifier {
     _enabledFeatures.remove(key);
     _prefs ??= await SharedPreferences.getInstance();
     _prefs!.setStringList(enabledFeatureListKey, _enabledFeatures);
+    sendProfileDataToBackend();
     notifyListeners();
   }
 
@@ -163,6 +171,18 @@ class GamificationUserService with ChangeNotifier {
     prefs.remove(userProfileKey);
     prefs.remove(gamificationEnabledKey);
     prefs.remove(enabledFeatureListKey);
+    sendProfileDataToBackend();
     notifyListeners();
+  }
+
+  /// Send the users profile settings to the backend.
+  void sendProfileDataToBackend() {
+    var profilData = {
+      'gamificationEnabled': _profile != null,
+      'challengesEnabled': isFeatureEnabled(challengesFeatureKey),
+      'statisticsEnabled': isFeatureEnabled(statisticsFeatureKey),
+      'communityEnabled': false,
+    };
+    getIt<EvaluationDataService>().sendJsonToAddress('settings/post/', profilData);
   }
 }

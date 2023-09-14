@@ -6,6 +6,7 @@ import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/challenges/challenge.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_validator.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/main.dart';
 
 /// This class is to be extended by a service, which manages only challenges in a certain timeframe, such as
@@ -63,7 +64,7 @@ abstract class ChallengeService with ChangeNotifier {
   }
 
   /// If the current challenge has been completed by the user and this method is called, the challenge is closed.
-  void completeChallenge() {
+  void completeChallenge() async {
     if (_currentChallenge == null) return;
     // Do nothing, if the challenge wasn't completed yet.
     var notCompleted = _currentChallenge!.progress / _currentChallenge!.target < 1;
@@ -72,7 +73,10 @@ abstract class ChallengeService with ChangeNotifier {
     // If the challenge has been completed, cancel the challenge stream, dispose the validator, and close it.
     _currentChallengeStream?.cancel();
     _validator?.dispose();
-    _dao.updateObject(_currentChallenge!.copyWith(isOpen: false));
+    var closedChallenge = _currentChallenge!.copyWith(isOpen: false);
+    var result = await _dao.updateObject(closedChallenge);
+    if (!result) throw Exception("Couldn't save challenge in database!");
+    sendChallengeDataToBackend(closedChallenge);
     _currentChallenge = null;
   }
 
@@ -111,13 +115,15 @@ abstract class ChallengeService with ChangeNotifier {
     await ChallengeValidator(challenge: challenge, startStream: false).validate(rides);
     var isCompleted = challenge.progress / challenge.target >= 1;
 
-    // If an open challenge was not completed and the time did run out, close the challenge.
+    // If an open challenge was not completed and the time did run out, close the challenge and send it to the backend.
     if (!isCompleted && !currentlyActive(challenge)) {
-      await _dao.updateObject(challenge.copyWith(isOpen: false));
+      var closedChallenge = challenge.copyWith(isOpen: false);
+      var result = await _dao.updateObject(closedChallenge);
+      if (result) sendChallengeDataToBackend(closedChallenge);
       return;
     }
 
-    /// If a challenge has been completed, or it still can be completed select it as the current challenge.
+    // If a challenge has been completed, or it still can be completed select it as the current challenge.
     _currentChallenge = challenge;
     _validator = ChallengeValidator(challenge: challenge);
     startChallengeStream();
@@ -187,6 +193,21 @@ abstract class ChallengeService with ChangeNotifier {
       progress: _currentChallenge!.progress + (_currentChallenge!.target * 0.2).toInt(),
     );
     _dao.updateObject(modified);
+  }
+
+  /// Send a given completed challenge to the backend.
+  Future<void> sendChallengeDataToBackend(Challenge challenge) async {
+    Map<String, dynamic> challengeData = {
+      'challengeType': challenge.type,
+      'isWeekly': challenge.isWeekly,
+      'reachedValue': challenge.progress,
+      'targetValue': challenge.target,
+      'xp': challenge.xp,
+      'completed': challenge.progress >= challenge.target,
+      'startingTime': challenge.startTime.millisecondsSinceEpoch,
+      'closingTime': challenge.closingTime.millisecondsSinceEpoch,
+    };
+    getIt<EvaluationDataService>().sendJsonToAddress('challenges/send-challenge/', challengeData);
   }
 }
 

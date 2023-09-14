@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -85,6 +86,7 @@ class LoaderState extends State<Loader> {
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
       settings.incrementUseCounter();
+      getIt<EvaluationDataService>().sendUnsentElements();
     } catch (e) {
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);

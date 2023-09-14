@@ -39,7 +39,7 @@ class _OnTapAnimationState extends State<OnTapAnimation> with SingleTickerProvid
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: widget.blockFastClicking ? 50 : 0),
-      reverseDuration: const Duration(milliseconds: 150),
+      reverseDuration: const Duration(milliseconds: 100),
     );
     super.initState();
   }
