@@ -171,6 +171,5 @@ class GamificationUserService with ChangeNotifier {
         'communityEnabled': false,
       };
 
-  Future<void> sendProfileData() =>
-      getIt<EvaluationDataService>().sendJsonToAddress('profile_updates/post/', profilData);
+  Future<void> sendProfileData() => getIt<EvaluationDataService>().sendJsonToAddress('settings/post/', profilData);
 }

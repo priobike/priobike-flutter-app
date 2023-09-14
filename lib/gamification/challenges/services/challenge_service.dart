@@ -206,7 +206,7 @@ abstract class ChallengeService with ChangeNotifier {
       'startingTime': challenge.startTime.millisecondsSinceEpoch,
       'closingTime': challenge.closingTime.millisecondsSinceEpoch,
     };
-    getIt<EvaluationDataService>().sendJsonToAddress('challenges/post/', challengeData);
+    getIt<EvaluationDataService>().sendJsonToAddress('challenges/send-challenge/', challengeData);
   }
 }
 
