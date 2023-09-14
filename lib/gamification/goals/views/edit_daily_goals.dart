@@ -1,6 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/gamification/common/views/custom_dialog.dart';
+import 'package:priobike/gamification/common/views/dialog_button.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/goals/views/weekday_button.dart';
@@ -9,95 +12,107 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 
 /// This widget enables the user to edit their daily goals.
-class EditDailyGoalsView extends StatefulWidget {
-  const EditDailyGoalsView({Key? key}) : super(key: key);
+class EditDailyGoalsDialog extends StatefulWidget {
+  const EditDailyGoalsDialog({Key? key}) : super(key: key);
 
   @override
-  State<EditDailyGoalsView> createState() => _EditDailyGoalsViewState();
+  State<EditDailyGoalsDialog> createState() => _EditDailyGoalsDialogState();
 }
 
-class _EditDailyGoalsViewState extends State<EditDailyGoalsView> {
-  /// The associated goals service.
-  late GoalsService _goalsService;
+class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
+  DailyGoals get defaultGoals => DailyGoals.defaultGoals;
+
+  late double distance;
+
+  late double duration;
+
+  late List<bool> weekdays;
 
   @override
   void initState() {
-    _goalsService = getIt<GoalsService>();
-    _goalsService.addListener(update);
+    var goals = getIt<GoalsService>().dailyGoals;
+    distance = goals?.distanceMetres ?? defaultGoals.distanceMetres;
+    duration = goals?.durationMinutes ?? defaultGoals.durationMinutes;
+    weekdays = List.from(goals?.weekdays ?? defaultGoals.weekdays);
     super.initState();
   }
 
   @override
-  void dispose() {
-    _goalsService.removeListener(update);
-    super.dispose();
-  }
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => {if (mounted) setState(() {})};
-
-  @override
   Widget build(BuildContext context) {
-    var goals = _goalsService.dailyGoals ?? DailyGoals.defaultGoals;
-    var distanceGoal = goals.distanceMetres / 1000;
-    var durationGoal = goals.durationMinutes;
-    var noDaysSelected = goals.numOfDays == 0;
-    return Column(
-      children: [
-        const VSpace(),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: goals.weekdays
-              .mapIndexed(
-                (i, day) => WeekdayButton(
-                  day: i,
-                  onPressed: () {
-                    goals.weekdays[i] = !goals.weekdays[i];
-                    goals.weekdays = goals.weekdays;
-                    if (goals.numOfDays == 0) {
-                      _goalsService.updateDailyGoals(null);
-                    } else {
-                      _goalsService.updateDailyGoals(goals);
-                    }
-                  },
-                  selected: day,
+    var noDaysSelected = weekdays.where((day) => day).isEmpty;
+    return CustomDialog(
+      horizontalMargin: 16,
+      content: Container(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SmallVSpace(),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: weekdays
+                  .mapIndexed(
+                    (i, day) => WeekdayButton(
+                      day: i,
+                      onPressed: () => setState(() => weekdays[i] = !weekdays[i]),
+                      selected: day,
+                    ),
+                  )
+                  .toList(),
+            ),
+            const VSpace(),
+            EditGoalWidget(
+              title: 'Distanz',
+              value: distance / 1000,
+              min: 1,
+              max: 80,
+              stepSize: 1,
+              valueLabel: 'km',
+              onChanged: noDaysSelected ? null : (value) => setState(() => distance = value * 1000),
+            ),
+            const VSpace(),
+            EditGoalWidget(
+              title: 'Fahrtzeit',
+              value: duration,
+              min: 10,
+              max: 600,
+              stepSize: 10,
+              valueLabel: 'min',
+              onChanged: noDaysSelected ? null : (value) => setState(() => duration = value),
+            ),
+            const VSpace(),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const SmallHSpace(),
+                CustomDialogButton(
+                  label: 'Abbrechen',
+                  onPressed: () => Navigator.of(context).pop(),
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
                 ),
-              )
-              .toList(),
+                const SmallHSpace(),
+                CustomDialogButton(
+                  label: 'Speichern',
+                  onPressed: () {
+                    DailyGoals? goals;
+                    if (!noDaysSelected) {
+                      goals = DailyGoals(distance, duration, weekdays);
+                    }
+                    getIt<GoalsService>().updateDailyGoals(goals);
+                    Navigator.of(context).pop();
+                  },
+                  color: CI.blue,
+                ),
+                const SmallHSpace(),
+              ],
+            ),
+            const SmallVSpace(),
+          ],
         ),
-        const VSpace(),
-        EditGoalWidget(
-          title: 'Distanz',
-          value: distanceGoal,
-          min: 1,
-          max: 80,
-          stepSize: 1,
-          valueLabel: 'km',
-          onChanged: noDaysSelected
-              ? null
-              : (value) {
-                  goals.distanceMetres = value * 1000;
-                  _goalsService.updateDailyGoals(goals);
-                },
-        ),
-        const VSpace(),
-        EditGoalWidget(
-          title: 'Fahrtzeit',
-          value: durationGoal,
-          min: 10,
-          max: 600,
-          stepSize: 10,
-          valueLabel: 'min',
-          onChanged: noDaysSelected
-              ? null
-              : (value) {
-                  goals.durationMinutes = value;
-                  _goalsService.updateDailyGoals(goals);
-                },
-        ),
-        const VSpace(),
-      ],
+      ),
     );
   }
 }

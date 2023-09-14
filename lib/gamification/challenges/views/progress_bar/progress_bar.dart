@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/challenges/models/level.dart';
 import 'package:priobike/gamification/challenges/services/challenge_service.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';

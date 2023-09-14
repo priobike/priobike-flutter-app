@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -58,6 +59,7 @@ class GoalsService with ChangeNotifier {
     if (goals == null) _prefs!.remove(dailyGoalsKey);
     if (goals != null) _prefs!.setString(dailyGoalsKey, jsonEncode(goals.toJson()));
     notifyListeners();
+    sendGoalsDataToBackend();
   }
 
   /// Update route goals according to a given goal object.
@@ -67,6 +69,7 @@ class GoalsService with ChangeNotifier {
     if (goals == null) _prefs!.remove(routeGoalsKey);
     if (goals != null) _prefs!.setString(routeGoalsKey, jsonEncode(goals.toJson()));
     notifyListeners();
+    sendGoalsDataToBackend();
   }
 
   /// Reset all user goals.
@@ -77,5 +80,15 @@ class GoalsService with ChangeNotifier {
     _prefs!.remove(dailyGoalsKey);
     _prefs!.remove(routeGoalsKey);
     notifyListeners();
+  }
+
+  Future<void> sendGoalsDataToBackend() async {
+    Map<String, dynamic> data = {
+      'dailyGoalsSet': dailyGoals != null,
+      'distanceGoalMetres': dailyGoals?.distanceMetres.toInt(),
+      'durationGoalMinutes': dailyGoals?.durationMinutes.toInt(),
+      'routeGoalsSet': routeGoals != null,
+    };
+    getIt<EvaluationDataService>().sendJsonToAddress('goals/send-goals/', data);
   }
 }

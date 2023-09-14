@@ -86,7 +86,7 @@ class LoaderState extends State<Loader> {
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
       settings.incrementUseCounter();
-      await getIt<EvaluationDataService>().sendUnsentElements();
+      getIt<EvaluationDataService>().sendUnsentElements();
     } catch (e) {
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);

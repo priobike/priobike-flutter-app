@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/common/views/dialog_button.dart';
 import 'package:priobike/main.dart';
 import 'package:collection/collection.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
@@ -159,42 +159,6 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
   /// Whether the feature card can be moved down in the feature list.
   bool get _showMoveDownButton => _userService.enabledFeatures.lastOrNull != widget.featureKey;
 
-  /// A custom button design for the disable feature dialog.
-  Widget _getDialogButton({
-    required Color color,
-    required IconData icon,
-    required String label,
-    required Function() onPressed,
-  }) {
-    return OnTapAnimation(
-      onPressed: onPressed,
-      child: Tile(
-        fill: color,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        borderRadius: BorderRadius.circular(24),
-        content: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 24,
-              color: Colors.white,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4, left: 4),
-              child: BoldContent(
-                text: label,
-                context: context,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// A dialog which is opened, if the user presses the disable button in the menu, which asks the user to confirm.
   void _showDisableFeatureDialog() {
     showDialog(
@@ -218,15 +182,14 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _getDialogButton(
+                    CustomDialogButton(
                       label: 'Abbrechen',
-                      icon: Icons.close_rounded,
                       onPressed: () => Navigator.of(context).pop(),
                       color: CI.blue,
                     ),
-                    _getDialogButton(
+                    const SmallHSpace(),
+                    CustomDialogButton(
                       label: 'Deaktivieren',
-                      icon: Icons.not_interested,
                       onPressed: () {
                         _userService.disableFeature(widget.featureKey);
                         Navigator.of(context).pop();
