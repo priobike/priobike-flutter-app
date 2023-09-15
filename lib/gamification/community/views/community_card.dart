@@ -1,42 +1,16 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/community/views/event_view.dart';
 import 'package:priobike/gamification/community/views/community_tutorial.dart';
-import 'package:http/http.dart' as http;
-import 'package:priobike/http.dart';
-import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information about the users
 /// game state regarding the challenges feature.
 class CommunityCard extends StatelessWidget {
   const CommunityCard({Key? key}) : super(key: key);
-
-  Future<void> getLocations() async {
-    const baseUrl = 'http://10.0.2.2:8000/locations/list/';
-    final newsArticlesEndpoint = Uri.parse(baseUrl);
-    // Catch the error if there is no connection to the internet.
-    try {
-      http.Response response = await Http.get(newsArticlesEndpoint).timeout(const Duration(seconds: 4));
-
-      if (response.statusCode != 200) {
-        final err = "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
-        throw Exception(err);
-      }
-
-      var result = await json.decode(response.body);
-      log.i(result.toString());
-    } catch (e) {
-      final hint = "Failed to load articles: $e";
-      log.e(hint);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

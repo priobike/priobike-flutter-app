@@ -31,18 +31,18 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
   Shortcut? _selectedShortcut;
 
   /// A list of bools which signifies on which weekdays the user wants to drive the selected route.
-  late List<bool> weekdays;
+  late List<bool> _weekdays;
 
   /// Get list of exisiting shortcuts from corresponding service.
   List<Shortcut> get _shortcuts => _shortcutsService.shortcuts?.toList() ?? [];
 
   /// Check whether the user has selected any days to drive a route on.
-  bool get noDaysSelected => weekdays.where((day) => day).isEmpty;
+  bool get _noDaysSelected => _weekdays.where((day) => day).isEmpty;
 
   @override
   void initState() {
     var goals = getIt<GoalsService>().routeGoals;
-    weekdays = List.from(goals?.weekdays ?? List.filled(7, false));
+    _weekdays = List.from(goals?.weekdays ?? List.filled(7, false));
     _shortcutsService = getIt<Shortcuts>();
     _shortcutsService.addListener(update);
     _selectedShortcut = _shortcuts.where((s) => s.id == goals?.routeID).firstOrNull;
@@ -97,15 +97,15 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: weekdays
+              children: _weekdays
                   .mapIndexed(
                     (i, day) => WeekdayButton(
                       day: i,
                       onPressed: _selectedShortcut == null
                           ? null
                           : () {
-                              weekdays[i] = !weekdays[i];
-                              if (noDaysSelected) _selectedShortcut = null;
+                              _weekdays[i] = !_weekdays[i];
+                              if (_noDaysSelected) _selectedShortcut = null;
                               setState(() {});
                             },
                       selected: day,
@@ -125,12 +125,12 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
                           if (_selectedShortcut == shortcut) {
                             setState(() {
                               _selectedShortcut = null;
-                              weekdays = List.filled(7, false);
+                              _weekdays = List.filled(7, false);
                             });
                           } else if (_selectedShortcut == null) {
                             setState(() {
                               _selectedShortcut = shortcut;
-                              weekdays = [true, true, true, true, true, false, false];
+                              _weekdays = [true, true, true, true, true, false, false];
                             });
                           } else {
                             setState(() => _selectedShortcut = shortcut);
@@ -163,8 +163,8 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
                   label: 'Speichern',
                   onPressed: () {
                     RouteGoals? goals;
-                    if (!noDaysSelected && _selectedShortcut != null) {
-                      goals = RouteGoals(_selectedShortcut!.id, _selectedShortcut!.name, weekdays);
+                    if (!_noDaysSelected && _selectedShortcut != null) {
+                      goals = RouteGoals(_selectedShortcut!.id, _selectedShortcut!.name, _weekdays);
                     }
                     getIt<GoalsService>().updateRouteGoals(goals);
                     Navigator.of(context).pop();

@@ -21,29 +21,29 @@ class EditDailyGoalsDialog extends StatefulWidget {
 
 class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
   /// Default goals to set the values to when no user goals exist.
-  DailyGoals get defaultGoals => DailyGoals.defaultGoals;
+  DailyGoals get _defaultGoals => DailyGoals.defaultGoals;
 
   /// The users daily distance goals.
-  late double distance;
+  late double _distance;
 
   /// The users daily duration goals.
-  late double duration;
+  late double _duration;
 
   /// The weekdays on which the goals should be implemented.
-  late List<bool> weekdays;
+  late List<bool> _weekdays;
 
   @override
   void initState() {
     var goals = getIt<GoalsService>().dailyGoals;
-    distance = goals?.distanceMetres ?? defaultGoals.distanceMetres;
-    duration = goals?.durationMinutes ?? defaultGoals.durationMinutes;
-    weekdays = List.from(goals?.weekdays ?? defaultGoals.weekdays);
+    _distance = goals?.distanceMetres ?? _defaultGoals.distanceMetres;
+    _duration = goals?.durationMinutes ?? _defaultGoals.durationMinutes;
+    _weekdays = List.from(goals?.weekdays ?? _defaultGoals.weekdays);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var noDaysSelected = weekdays.where((day) => day).isEmpty;
+    var noDaysSelected = _weekdays.where((day) => day).isEmpty;
     return CustomDialog(
       horizontalMargin: 16,
       content: Container(
@@ -56,11 +56,11 @@ class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: weekdays
+              children: _weekdays
                   .mapIndexed(
                     (i, day) => WeekdayButton(
                       day: i,
-                      onPressed: () => setState(() => weekdays[i] = !weekdays[i]),
+                      onPressed: () => setState(() => _weekdays[i] = !_weekdays[i]),
                       selected: day,
                     ),
                   )
@@ -69,22 +69,22 @@ class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
             const VSpace(),
             EditGoalWidget(
               title: 'Distanz',
-              value: distance / 1000,
+              value: _distance / 1000,
               min: 1,
               max: 80,
               stepSize: 1,
               valueLabel: 'km',
-              onChanged: noDaysSelected ? null : (value) => setState(() => distance = value * 1000),
+              onChanged: noDaysSelected ? null : (value) => setState(() => _distance = value * 1000),
             ),
             const VSpace(),
             EditGoalWidget(
               title: 'Fahrtzeit',
-              value: duration,
+              value: _duration,
               min: 10,
               max: 600,
               stepSize: 10,
               valueLabel: 'min',
-              onChanged: noDaysSelected ? null : (value) => setState(() => duration = value),
+              onChanged: noDaysSelected ? null : (value) => setState(() => _duration = value),
             ),
             const VSpace(),
             Row(
@@ -103,7 +103,7 @@ class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
                   onPressed: () {
                     DailyGoals? goals;
                     if (!noDaysSelected) {
-                      goals = DailyGoals(distance, duration, weekdays);
+                      goals = DailyGoals(_distance, _duration, _weekdays);
                     }
                     getIt<GoalsService>().updateDailyGoals(goals);
                     Navigator.of(context).pop();
