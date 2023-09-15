@@ -4,20 +4,66 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/community/model/event.dart';
+import 'package:priobike/gamification/community/service/community_service.dart';
+import 'package:priobike/gamification/community/views/event_page.dart';
 import 'package:priobike/gamification/community/views/event_view.dart';
 import 'package:priobike/gamification/community/views/community_tutorial.dart';
+import 'package:priobike/main.dart';
 
-/// This card is displayed on the home view and holds all information about the users
-/// game state regarding the challenges feature.
-class CommunityCard extends StatelessWidget {
+/// This card is displayed on the home view and holds all information about the users participation in the community events.
+
+class CommunityCard extends StatefulWidget {
   const CommunityCard({Key? key}) : super(key: key);
+
+  @override
+  State<CommunityCard> createState() => _CommunityCardState();
+}
+
+class _CommunityCardState extends State<CommunityCard> {
+  late CommunityService _communityService;
+
+  CommunityEvent? get _event => _communityService.event;
+
+  bool get _noEvent => _event == null;
+
+  bool get _eventStarted => _noEvent ? false : DateTime.now().isAfter(_event!.startTime);
+
+  bool get _eventEnded => _noEvent ? false : DateTime.now().isAfter(_event!.endTime);
+
+  @override
+  void initState() {
+    _communityService = getIt<CommunityService>();
+    _communityService.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _communityService.removeListener(update);
+    super.dispose();
+  }
+
+  /// Called when a listener callback of a ChangeNotifier is fired
+  void update() => {if (mounted) setState(() {})};
 
   @override
   Widget build(BuildContext context) {
     return GamificationFeatureCard(
       featureKey: GamificationUserService.communityFeatureKey,
       // If the feature is enabled, show progress bars of the users challenges and the profile view.
-      featureEnabledContent: const CommunityEventView(),
+      featurePage: _eventStarted ? const CommunityEventPage() : null,
+      featureEnabledContent: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BoldContent(
+            text: 'Wochenendradeln',
+            context: context,
+          ),
+          if (_eventStarted) ActiveEventView(event: _event!, locations: _communityService.locations),
+          if (!_eventStarted) WaitingForEventView(event: _event!),
+        ],
+      ),
       // If the feature is disabled, show an info widget which directs the user to an intro page.
       tutorialPage: const CommunityTutorial(),
       featureDisabledContent: Padding(
@@ -27,7 +73,7 @@ class CommunityCard extends StatelessWidget {
           children: [
             Expanded(
               child: BoldSubHeader(
-                text: 'Community Events',
+                text: 'PrioBike Wochenendradeln',
                 context: context,
                 textAlign: TextAlign.center,
               ),

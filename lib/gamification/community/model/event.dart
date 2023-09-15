@@ -1,5 +1,5 @@
 class CommunityEvent {
-  final String id;
+  final int id;
 
   final String title;
 

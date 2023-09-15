@@ -1,50 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/community/service/community_service.dart';
-import 'package:priobike/main.dart';
+import 'package:priobike/gamification/common/views/countdown_timer.dart';
+import 'package:priobike/gamification/community/model/event.dart';
+import 'package:priobike/gamification/community/model/location.dart';
 
-class CommunityEventView extends StatefulWidget {
-  const CommunityEventView({Key? key}) : super(key: key);
+class WaitingForEventView extends StatelessWidget {
+  final CommunityEvent event;
 
-  @override
-  State<CommunityEventView> createState() => _CommunityEventViewState();
-}
-
-class _CommunityEventViewState extends State<CommunityEventView> {
-  late CommunityService _communityService;
-
-  @override
-  void initState() {
-    _communityService = getIt<CommunityService>();
-    _communityService.addListener(update);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _communityService.removeListener(update);
-    super.dispose();
-  }
-
-  /// Called when a listener callback of a ChangeNotifier is fired
-  void update() => {if (mounted) setState(() {})};
+  const WaitingForEventView({Key? key, required this.event}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        BoldSubHeader(
-          text: 'Community Events',
-          context: context,
-        ),
         BoldContent(
-          text: 'nächstes Event am 26.11.2023',
+          text: 'nächstes Event am ${DateFormat('dd.MM').format(event.startTime)}',
           context: context,
           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
         ),
-        Header(text: _communityService.event?.title ?? 'KEIN EVENT BRO', context: context),
-        SubHeader(text: _communityService.locations.length.toString(), context: context)
+        CountdownTimer(timestamp: event.startTime),
+        Header(text: event.title, context: context),
+      ],
+    );
+  }
+}
+
+class ActiveEventView extends StatelessWidget {
+  final CommunityEvent event;
+
+  final List<EventLocation> locations;
+
+  const ActiveEventView({Key? key, required this.event, required this.locations}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Header(text: event.title, context: context),
+        SubHeader(text: locations.length.toString(), context: context),
       ],
     );
   }

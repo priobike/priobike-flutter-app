@@ -53,17 +53,6 @@ class StringFormatter {
     }
   }
 
-  /// Returns a string describing how much time the user has left for a challenge.
-  static String getTimeLeftStr(DateTime date) {
-    var timeLeft = date.difference(DateTime.now());
-    var result = '';
-    var daysLeft = timeLeft.inDays;
-    if (daysLeft > 0) result += '$daysLeft ${daysLeft > 1 ? 'Tage' : 'Tag'} ';
-    var formatter = NumberFormat('00');
-    result += '${formatter.format(timeLeft.inHours % 24)}:${formatter.format(timeLeft.inMinutes % 60)}h';
-    return result;
-  }
-
   /// Get formatted string for a given double by rounding it and giving it appending a fitting label.
   static String getFormattedStrByStatType(double value, StatType type) {
     return '${getRoundedStrByStatType(value, type)} ${getLabelForStatType(type)}';
