@@ -28,61 +28,52 @@ class RideStatisticsCard extends StatelessWidget {
       featurePage: const StatisticsView(),
       featureEnabledContent: const StatisticsOverview(),
       tutorialPage: const StatisticsTutorial(),
-      featureDisabledContent: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: BoldSubHeader(
-                        text: 'Deine Fahrtstatistiken',
-                        context: context,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SmallHSpace(),
-                    SizedBox(
-                      width: 96,
-                      height: 80,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Transform.rotate(
-                              angle: 0,
-                              child: const Icon(
-                                Icons.query_stats,
-                                size: 64,
-                                color: LevelColors.silver,
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Transform.rotate(
-                              angle: 0,
-                              child: const Icon(
-                                Icons.bar_chart,
-                                size: 64,
-                                color: CI.blue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+      featureDisabledContent: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: BoldSubHeader(
+                text: 'Deine Fahrtstatistiken',
+                context: context,
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
-        ],
+            const SmallHSpace(),
+            SizedBox(
+              width: 96,
+              height: 80,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Transform.rotate(
+                      angle: 0,
+                      child: const Icon(
+                        Icons.query_stats,
+                        size: 64,
+                        color: LevelColors.silver,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Transform.rotate(
+                      angle: 0,
+                      child: const Icon(
+                        Icons.bar_chart,
+                        size: 64,
+                        color: CI.blue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -172,54 +163,50 @@ class _StatisticsOverviewState extends State<StatisticsOverview> with TickerProv
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        Column(
-          children: [
-            SizedBox(
-              height: 200,
-              child: MapBackground(
-                child: PageView(
-                  controller: _pageController,
-                  clipBehavior: Clip.hardEdge,
-                  onPageChanged: (int index) => setState(() {
-                    // Update tab controller index to update the indicator.
-                    _tabController.index = index;
-                    if (index < StatInterval.values.length) {
-                      getIt<StatisticService>().setStatInterval(
-                        StatInterval.values[index],
-                      );
-                    }
-                  }),
-                  children: [
-                    DailyOverview(today: _viewModel.days.last),
-                    _getGraphWithTitle(
-                      title: 'Diese Woche (Km)',
-                      graph: WeekStatsGraph(week: _viewModel.weeks.last),
-                    ),
-                    _getGraphWithTitle(
-                      title: 'Dieser Monat (Km)',
-                      graph: MonthStatsGraph(month: _viewModel.months.last),
-                    ),
-                    _getGraphWithTitle(
-                      title: '${_viewModel.weeks.length} Wochen Rückblick (Km)',
-                      graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
-                    ),
-                    FancyRouteStatsForWeek(week: _viewModel.weeks.last),
-                  ],
+        SizedBox(
+          height: 200,
+          child: MapBackground(
+            child: PageView(
+              controller: _pageController,
+              clipBehavior: Clip.hardEdge,
+              onPageChanged: (int index) => setState(() {
+                // Update tab controller index to update the indicator.
+                _tabController.index = index;
+                if (index < StatInterval.values.length) {
+                  getIt<StatisticService>().setStatInterval(
+                    StatInterval.values[index],
+                  );
+                }
+              }),
+              children: [
+                DailyOverview(today: _viewModel.days.last),
+                _getGraphWithTitle(
+                  title: 'Diese Woche (Km)',
+                  graph: WeekStatsGraph(week: _viewModel.weeks.last),
                 ),
-              ),
+                _getGraphWithTitle(
+                  title: 'Dieser Monat (Km)',
+                  graph: MonthStatsGraph(month: _viewModel.months.last),
+                ),
+                _getGraphWithTitle(
+                  title: '${_viewModel.weeks.length} Wochen Rückblick (Km)',
+                  graph: MultipleWeeksStatsGraph(weeks: _viewModel.weeks),
+                ),
+                FancyRouteStatsForWeek(week: _viewModel.weeks.last),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: TabPageSelector(
-                controller: _tabController,
-                selectedColor: Theme.of(context).colorScheme.primary,
-                indicatorSize: 12,
-                borderStyle: BorderStyle.none,
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
-                key: GlobalKey(),
-              ),
-            ),
-          ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: TabPageSelector(
+            controller: _tabController,
+            selectedColor: Theme.of(context).colorScheme.primary,
+            indicatorSize: 12,
+            borderStyle: BorderStyle.none,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+            key: GlobalKey(),
+          ),
         ),
       ],
     );
