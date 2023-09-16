@@ -16,7 +16,7 @@ class ConfirmButton extends StatelessWidget {
       onPressed: onPressed,
       child: Container(
         padding: const EdgeInsets.all(12),
-        width: double.infinity,
+        //width: double.infinity,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: onPressed == null ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25) : CI.blue,
