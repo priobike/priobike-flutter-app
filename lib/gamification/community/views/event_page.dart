@@ -31,7 +31,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
 
   Map<EventLocation, bool> _mappedLocations = {};
 
-  bool _selectionMode = false;
+  bool _selectionMode = true;
 
   CommunityEvent? get _event => _communityService.event;
 
@@ -93,8 +93,60 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
     );
   }
 
+  Widget get _participantCounter => Container(
+        width: 96,
+        height: 68,
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 0.5,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(child: Container()),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Icon(
+                    Icons.directions_bike,
+                    color: CI.blue,
+                    size: 28,
+                  ),
+                ),
+                const SmallHSpace(),
+                BoldSubHeader(
+                  text: '0',
+                  context: context,
+                ),
+              ],
+            ),
+            Expanded(child: Container()),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              ),
+              child: Small(
+                text: 'Teilnehmer',
+                context: context,
+              ),
+            ),
+          ],
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
+    if (_event == null) return Container();
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -124,69 +176,98 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   ),
                   const HSpace(),
                   SubHeader(
-                    text: 'Statistiken',
+                    text: _event!.title,
                     context: context,
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
               const SmallVSpace(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _participantCounter,
+                  ],
+                ),
+              ),
+              const SmallVSpace(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: BoldContent(
+                      text: 'Zielpunkte:',
+                      context: context,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ],
+              ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: _mappedLocations.entries.map(
-                      (e) {
-                        var foregroundColor = e.value ? Colors.white : Theme.of(context).colorScheme.onBackground;
-                        return OnTapAnimation(
-                          onPressed: _selectionMode
-                              ? () {
-                                  setState(() {
-                                    _mappedLocations[e.key] = !e.value;
-                                  });
-                                }
-                              : () {
-                                  var shortcut = ShortcutLocation(
-                                    name: 'unknown',
-                                    waypoint: Waypoint(e.key.lat, e.key.lon, address: e.key.title),
-                                    id: 'unknown',
-                                  );
-                                  _startRouteFromShortcut(shortcut);
-                                },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: e.value ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Icon(
-                                  e.value ? Icons.done : Icons.place,
-                                  size: 32,
-                                  color: foregroundColor,
-                                ),
-                                Expanded(
-                                  child: SubHeader(
-                                    text: e.key.title,
-                                    context: context,
-                                    textAlign: TextAlign.center,
+                child: Container(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: _mappedLocations.entries.map(
+                        (e) {
+                          var foregroundColor = e.value ? Colors.white : Theme.of(context).colorScheme.onBackground;
+                          return OnTapAnimation(
+                            scaleFactor: 0.95,
+                            onPressed: _selectionMode
+                                ? () {
+                                    setState(() {
+                                      _mappedLocations[e.key] = !e.value;
+                                    });
+                                  }
+                                : () {
+                                    var shortcut = ShortcutLocation(
+                                      name: 'unknown',
+                                      waypoint: Waypoint(e.key.lat, e.key.lon, address: e.key.title),
+                                      id: 'unknown',
+                                    );
+                                    _startRouteFromShortcut(shortcut);
+                                  },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: e.value ? CI.blue : Theme.of(context).colorScheme.background,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Icon(
+                                    e.value ? Icons.done : Icons.place,
+                                    size: 32,
                                     color: foregroundColor,
                                   ),
-                                ),
-                              ],
+                                  Expanded(
+                                    child: SubHeader(
+                                      text: e.key.title,
+                                      context: context,
+                                      textAlign: TextAlign.center,
+                                      color: foregroundColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ).toList(),
+                          );
+                        },
+                      ).toList(),
+                    ),
                   ),
                 ),
               ),
               const SmallVSpace(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ConfirmButton(
                   label: _itemsSelected ? 'Route anzeigen ($_numOfSelected)' : 'Zielpunkte auswählen',
                   onPressed: _itemsSelected

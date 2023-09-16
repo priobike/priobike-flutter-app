@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:priobike/gamification/common/utils.dart';
 
 /// Timer which counts down to a certain timestamp and updates every second.
 class CountdownTimer extends StatefulWidget {

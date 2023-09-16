@@ -16,12 +16,14 @@ class ConfirmButton extends StatelessWidget {
       onPressed: onPressed,
       child: Container(
         padding: const EdgeInsets.all(12),
+        width: double.infinity,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: onPressed == null ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25) : CI.blue,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
               blurRadius: 4,
               spreadRadius: 4,
               offset: const Offset(1, 1),
