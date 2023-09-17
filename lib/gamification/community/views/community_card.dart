@@ -46,7 +46,7 @@ class _CommunityCardState extends State<CommunityCard> {
     return GamificationFeatureCard(
       featureKey: GamificationUserService.communityFeatureKey,
       // If the feature is enabled, show progress bars of the users challenges and the profile view.
-      featurePage: _communityService.eventStarted ? const CommunityEventPage() : null,
+      featurePage: _communityService.activeEvent ? const CommunityEventPage() : null,
       featureEnabledContent: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -54,7 +54,7 @@ class _CommunityCardState extends State<CommunityCard> {
             text: 'Wochenendradeln',
             context: context,
           ),
-          if (_communityService.eventStarted) ActiveEventView(event: _event!, locations: _communityService.locations),
+          if (_communityService.activeEvent) ActiveEventView(event: _event!, locations: _communityService.locations),
           if (_communityService.waitingForEvent) WaitingForEventView(event: _event!),
         ],
       ),

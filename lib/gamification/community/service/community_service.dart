@@ -34,6 +34,8 @@ class CommunityService with ChangeNotifier {
 
   bool get eventEnded => noEvent ? false : DateTime.now().isAfter(_event!.endTime);
 
+  bool get activeEvent => eventStarted && !eventEnded;
+
   bool get waitingForEvent => noEvent ? false : DateTime.now().isBefore(_event!.startTime);
 
   CommunityEvent? get event => _event;

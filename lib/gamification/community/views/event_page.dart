@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/confirm_button.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
@@ -280,12 +281,24 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   ),
                 ],
               ),
-              const SmallVSpace(),
+              Expanded(child: Container()),
               Row(
                 mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  BoldContent(text: _communityService.numOfAchievedLocations.toString(), context: context),
+                  const Icon(
+                    Icons.shield,
+                    size: 96,
+                    color: LevelColors.silver,
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Header(
+                          text: '${_communityService.numOfAchievedLocations}/${_locations.length}', context: context),
+                      Content(text: 'Zielpunkte erreicht', context: context)
+                    ],
+                  )
                 ],
               ),
               Expanded(child: Container()),
