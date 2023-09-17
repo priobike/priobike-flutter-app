@@ -34,6 +34,8 @@ class CommunityService with ChangeNotifier {
 
   bool get eventEnded => noEvent ? false : DateTime.now().isAfter(_event!.endTime);
 
+  bool get waitingForEvent => noEvent ? false : DateTime.now().isBefore(_event!.startTime);
+
   CommunityEvent? get event => _event;
 
   List<EventLocation> get _unachievedLocations =>

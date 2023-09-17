@@ -55,7 +55,7 @@ class _CommunityCardState extends State<CommunityCard> {
             context: context,
           ),
           if (_communityService.eventStarted) ActiveEventView(event: _event!, locations: _communityService.locations),
-          if (!_communityService.eventStarted) WaitingForEventView(event: _event!),
+          if (_communityService.waitingForEvent) WaitingForEventView(event: _event!),
         ],
       ),
       // If the feature is disabled, show an info widget which directs the user to an intro page.
