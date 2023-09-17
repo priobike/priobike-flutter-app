@@ -13,6 +13,7 @@ import 'package:priobike/routing/services/routing.dart';
 class ShortcutView extends StatelessWidget {
   final Shortcut? shortcut;
   final void Function() onPressed;
+  final void Function()? onLongPressed;
   final double width;
   final double height;
   final double rightPad;
@@ -26,6 +27,7 @@ class ShortcutView extends StatelessWidget {
     required this.width,
     required this.height,
     required this.rightPad,
+    this.onLongPressed,
     this.selected = false,
     this.showSplash = true,
   }) : super(key: key);
@@ -37,6 +39,7 @@ class ShortcutView extends StatelessWidget {
       constraints: BoxConstraints(minWidth: width, maxWidth: width),
       padding: EdgeInsets.only(right: rightPad, bottom: 24),
       child: Tile(
+        onLongPressed: onLongPressed,
         onPressed: onPressed,
         shadow: shortcut == null ? CI.blue : const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: shortcut == null ? 0.3 : 0.08,

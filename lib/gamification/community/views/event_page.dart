@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/confirm_button.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
@@ -13,6 +16,7 @@ import 'package:priobike/gamification/community/service/community_service.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -30,14 +34,28 @@ class CommunityEventPage extends StatefulWidget {
 class _CommunityEventPageState extends State<CommunityEventPage> {
   late CommunityService _communityService;
 
+  final ScrollController _scrollController = ScrollController();
+
+  bool _selectionMode = false;
+
   CommunityEvent? get _event => _communityService.event;
 
   List<EventLocation> get _locations => _communityService.locations;
+
+  Map<EventLocation, bool> _mappedLocations = {};
+
+  List<EventLocation> get _selectedLocations =>
+      _mappedLocations.entries.where((e) => e.value).map((e) => e.key).toList();
+
+  bool get _itemsSelected => _selectedLocations.isNotEmpty;
+
+  int get _numOfSelected => _selectedLocations.length;
 
   @override
   void initState() {
     _communityService = getIt<CommunityService>();
     _communityService.addListener(update);
+    _updateMappedLocations();
     super.initState();
   }
 
@@ -48,7 +66,20 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
   }
 
   /// Called when a listener callback of a ChangeNotifier is fired
-  void update() => {if (mounted) setState(() {})};
+  void update() => {if (mounted) setState(_updateMappedLocations)};
+
+  void _updateMappedLocations() {
+    Map<EventLocation, bool> newMap = {};
+    for (var loc in _locations) {
+      newMap.addAll({loc: false});
+    }
+    for (var map in _mappedLocations.entries) {
+      if (newMap[map.key] != null) {
+        newMap[map.key] = map.value;
+      }
+    }
+    _mappedLocations = newMap;
+  }
 
   void _startRouteFromShortcut(Shortcut shortcut) {
     final shortcutIsValid = shortcut.isValid();
@@ -65,6 +96,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
           getIt<Discomforts>().reset();
           getIt<PredictionSGStatus>().reset();
         }
+        setState(() {});
       },
     );
   }
@@ -97,6 +129,116 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
             ),
             Expanded(child: Container()),
           ],
+        ),
+      );
+
+  Widget get locationSelection {
+    const double shortcutRightPad = 16;
+    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
+    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+    return SingleChildScrollView(
+      controller: _scrollController,
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Row(
+          children: _mappedLocations.entries.map((e) {
+            var loc = e.key;
+            var selected = e.value;
+            var shortcut = ShortcutLocation(
+              name: loc.title,
+              waypoint: Waypoint(
+                loc.lat,
+                loc.lon,
+                address: loc.title,
+              ),
+              id: 'unknown',
+            );
+            return ShortcutView(
+              onLongPressed: () => setState(() {
+                if (!_selectionMode) {
+                  _selectionMode = !_selectionMode;
+                  setState(() => _mappedLocations[loc] = !selected);
+                } else {
+                  _mappedLocations[loc] = !selected;
+                  setState(() {});
+                }
+              }),
+              onPressed: () {
+                if (_selectionMode) {
+                  _mappedLocations[loc] = !selected;
+                  if (!_itemsSelected) {
+                    _selectionMode = !_selectionMode;
+                  }
+                  setState(() {});
+                } else {
+                  _startRouteFromShortcut(shortcut);
+                }
+              },
+              shortcut: shortcut,
+              width: shortcutWidth,
+              height: shortcutHeight,
+              rightPad: shortcutRightPad,
+              selected: selected,
+              showSplash: false,
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget get confirmButton => Container(
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: AnimatedSwitcher(
+          switchInCurve: Curves.easeIn,
+          duration: const ShortDuration(),
+          reverseDuration: const Duration(milliseconds: 100),
+          transitionBuilder: (child, animation) => SlideTransition(
+            position: Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(animation),
+            child: child,
+          ),
+          child: (_selectionMode)
+              ? Padding(
+                  key: const ValueKey('ConfirmButton'),
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: ConfirmButton(
+                    label: 'Route anzeigen ($_numOfSelected)',
+                    onPressed: _itemsSelected
+                        ? () {
+                            var waypoints = _selectedLocations
+                                .map((loc) => Waypoint(
+                                      loc.lat,
+                                      loc.lon,
+                                      address: loc.title,
+                                    ))
+                                .toList();
+                            var shortcut = ShortcutRoute(
+                              name: 'unknown',
+                              waypoints: waypoints,
+                              id: 'unknown',
+                            );
+                            _startRouteFromShortcut(shortcut);
+                            for (var e in _mappedLocations.entries) {
+                              _mappedLocations[e.key] = false;
+                            }
+                            _selectionMode = false;
+                          }
+                        : null,
+                  ),
+                )
+              : Center(
+                  key: const ValueKey('InfoText'),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    child: BoldSmall(
+                      text: 'Erstelle eine Route über mehrere Standorte, indem du ein Element lange gedrückt hältst.',
+                      context: context,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
         ),
       );
 
@@ -144,219 +286,23 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   BoldContent(text: _communityService.numOfAchievedLocations.toString(), context: context),
-                  IconButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => LocationSelection(
-                            locations: _locations,
-                            startRoute: _startRouteFromShortcut,
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.star,
-                        size: 56,
-                      ))
                 ],
               ),
-              const SmallVSpace(),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SmallVSpace(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16),
-                              child: BoldContent(
-                                text: 'Zielpunkte:',
-                                context: context,
-                                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ..._locations.map(
-                          (loc) {
-                            return OnTapAnimation(
-                              scaleFactor: 0.95,
-                              onPressed: () {
-                                var shortcut = ShortcutLocation(
-                                  name: 'unknown',
-                                  waypoint: Waypoint(loc.lat, loc.lon, address: loc.title),
-                                  id: 'unknown',
-                                );
-                                _startRouteFromShortcut(shortcut);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.background,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    const Icon(
-                                      Icons.place,
-                                      size: 32,
-                                    ),
-                                    Expanded(
-                                      child: SubHeader(
-                                        text: loc.title,
-                                        context: context,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ).toList(),
-                      ],
-                    ),
-                  ),
+              Expanded(child: Container()),
+              Container(
+                color: Theme.of(context).colorScheme.surface,
+                padding: const EdgeInsets.only(top: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    locationSelection,
+                    confirmButton,
+                  ],
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class LocationSelection extends StatefulWidget {
-  final Function(Shortcut) startRoute;
-
-  final List<EventLocation> locations;
-
-  const LocationSelection({Key? key, required this.locations, required this.startRoute}) : super(key: key);
-
-  @override
-  State<LocationSelection> createState() => _LocationSelectionState();
-}
-
-class _LocationSelectionState extends State<LocationSelection> {
-  Map<EventLocation, bool> _mappedLocations = {};
-
-  List<EventLocation> get _selectedLocations =>
-      _mappedLocations.entries.where((e) => e.value).map((e) => e.key).toList();
-
-  bool get _itemsSelected => _selectedLocations.isNotEmpty;
-
-  int get _numOfSelected => _selectedLocations.length;
-
-  @override
-  void initState() {
-    _updateMappedLocations();
-    super.initState();
-  }
-
-  /// Called when a listener callback of a ChangeNotifier is fired
-  void update() => {if (mounted) setState(_updateMappedLocations)};
-
-  void _updateMappedLocations() {
-    Map<EventLocation, bool> newMap = {};
-    for (var loc in widget.locations) {
-      newMap.addAll({loc: false});
-    }
-    for (var map in _mappedLocations.entries) {
-      if (newMap[map.key] != null) {
-        newMap[map.key] = map.value;
-      }
-    }
-    _mappedLocations = newMap;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          BoldSubHeader(text: 'Wähle deine Zielpunkte', context: context),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-            child: ConfirmButton(
-              label: _itemsSelected ? 'Route anzeigen ($_numOfSelected)' : 'Zielpunkte auswählen',
-              onPressed: _itemsSelected
-                  ? () {
-                      var waypoints = _selectedLocations
-                          .map((loc) => Waypoint(
-                                loc.lat,
-                                loc.lon,
-                                address: loc.title,
-                              ))
-                          .toList();
-                      var shortcut = ShortcutRoute(
-                        name: 'unknown',
-                        waypoints: waypoints,
-                        id: 'unknown',
-                      );
-                      widget.startRoute(shortcut);
-                    }
-                  : null,
-            ),
-          ),
-          Container(
-            color: Theme.of(context).colorScheme.surface,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ..._mappedLocations.entries.map(
-                    (e) {
-                      var foregroundColor = e.value ? Colors.white : Theme.of(context).colorScheme.onBackground;
-                      return OnTapAnimation(
-                        scaleFactor: 0.95,
-                        onPressed: () {
-                          setState(() {
-                            _mappedLocations[e.key] = !e.value;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: e.value ? CI.blue : Theme.of(context).colorScheme.background,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                e.value ? Icons.done : Icons.place,
-                                size: 32,
-                                color: foregroundColor,
-                              ),
-                              Expanded(
-                                child: SubHeader(
-                                  text: e.key.title,
-                                  context: context,
-                                  textAlign: TextAlign.center,
-                                  color: foregroundColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ).toList(),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
