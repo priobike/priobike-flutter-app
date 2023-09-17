@@ -9,6 +9,8 @@ class EvaluationDataService {
   /// Shared prefs key to store unsent elements.
   static const String unsentElementsKey = 'priobike.gamification.evaluation.unsentElements';
 
+  static const int dataSendingAttempsThreshold = 5;
+
   /// Url of the gamification service.
   final baseUrl = '10.0.2.2:8000'; //settings.backend.path;
 
@@ -25,6 +27,7 @@ class EvaluationDataService {
     var result = await sendEvaluationData(data);
     // If sending was not successful, store the object in the list of unsent elements.
     if (!result) {
+      data.numOfAttemps = 1;
       unsentElements.add(data);
       var prefs = await SharedPreferences.getInstance();
       prefs.setStringList(unsentElementsKey, unsentElements.map((e) => e.toJson()).toList());
@@ -39,6 +42,8 @@ class EvaluationDataService {
     for (var element in tmpList) {
       var result = await sendEvaluationData(element);
       if (result) continue;
+      element.numOfAttemps += 1;
+      if (element.numOfAttemps >= dataSendingAttempsThreshold) continue;
       unsentElements.add(element);
       log.e('Saved unsent message: ${element.toJson()}');
     }

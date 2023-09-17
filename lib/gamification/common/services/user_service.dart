@@ -72,7 +72,7 @@ class GamificationUserService with ChangeNotifier {
       joinDate: DateTime.now(),
     );
     // Try to save profile in shared prefs and return false if not successful.
-    if (!(await _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson().toString())) ?? false)) {
+    if (!(await _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson())) ?? false)) {
       return false;
     }
     // Try to set profile exists string and return false if not successful
@@ -174,7 +174,7 @@ class GamificationUserService with ChangeNotifier {
 
   /// Send the users profile settings to the backend.
   void sendProfileDataToBackend() {
-    var profilData = {
+    Map<String, dynamic> profilData = {
       'gamificationEnabled': _profile != null,
       'challengesEnabled': isFeatureEnabled(challengesFeatureKey),
       'statisticsEnabled': isFeatureEnabled(statisticsFeatureKey),

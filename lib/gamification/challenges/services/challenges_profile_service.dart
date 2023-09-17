@@ -18,9 +18,6 @@ class ChallengesProfileService with ChangeNotifier {
   /// Key to store the challenges profile in the shared prefs.
   static const profileKey = 'priobike.gamification.challenges.profile';
 
-  /// Key to store the profile upgrades activated by the user in the shared prefs.
-  static const activatedUpgradesKey = 'priobike.gamification.challenges.activatedUpgrades';
-
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
 
@@ -33,9 +30,6 @@ class ChallengesProfileService with ChangeNotifier {
   /// This bool describes, whether the profiles trophy value has been changed.
   bool trophiesChanged = false;
 
-  /// List of the activated profile upgrades.
-  List<ProfileUpgrade> _activatedUpgrades = [];
-
   /// Dao to access the challenges completed by the user.
   ChallengeDao get _challengeDao => AppDatabase.instance.challengeDao;
 
@@ -43,13 +37,7 @@ class ChallengesProfileService with ChangeNotifier {
   ChallengesProfile? get profile => _profile;
 
   /// Returns list of upgrades allowed for the user according to their current level.
-  List<ProfileUpgrade> get allowedUpgrades => ProfileUpgrade.upgrades.where(
-        (upgrade) {
-          var upgradeNotActive = !_activatedUpgrades.map((u) => u.id).contains(upgrade.id);
-          var levelHighEnough = upgrade.levelToActivate <= profile!.level + 1;
-          return upgradeNotActive && levelHighEnough;
-        },
-      ).toList();
+  List<ProfileUpgrade> get upgradesForNextLevel => getUpgradesForLevel(_profile!.level + 1);
 
   ChallengesProfileService() {
     _loadData();
@@ -61,8 +49,6 @@ class ChallengesProfileService with ChangeNotifier {
     var parsedProfile = _prefs?.getString(profileKey);
     if (parsedProfile == null) return;
     _profile = ChallengesProfile.fromJson(jsonDecode(parsedProfile));
-    var activatedUpgrades = _prefs!.getStringList(activatedUpgradesKey) ?? [];
-    _activatedUpgrades = activatedUpgrades.map((e) => ProfileUpgrade.fromJson(jsonDecode(e))).toList();
 
     // If a profile was loaded, start the database stream of rides, to update the profile according to the challenges.
     startDatabaseStreams();
@@ -112,7 +98,7 @@ class ChallengesProfileService with ChangeNotifier {
 
   /// Perform a level up on the user profile with a given profile upgrade.
   void levelUp(ProfileUpgrade? upgrade) {
-    var newUpgrade = upgrade ?? allowedUpgrades.firstOrNull;
+    var newUpgrade = upgrade ?? upgradesForNextLevel.firstOrNull;
     // If there is an upgrade to apply, do that according to the upgrade type.
     if (newUpgrade != null) {
       if (newUpgrade.type == ProfileUpgradeType.addDailyChoice) {
@@ -120,9 +106,6 @@ class ChallengesProfileService with ChangeNotifier {
       } else if (newUpgrade.type == ProfileUpgradeType.addWeeklyChoice) {
         profile!.weeklyChallengeChoices += 1;
       }
-      // Save, that the upgrades has been activated, so that it can not be activated again.
-      _activatedUpgrades.add(newUpgrade);
-      updateUpgrades();
     }
     _profile!.level = min(_profile!.level + 1, levels.length - 1);
     // Save changed profile in shared prefs.
@@ -130,21 +113,11 @@ class ChallengesProfileService with ChangeNotifier {
     sendProfileDataToBackend();
   }
 
-  /// Update the activated upgrades in the shared preferences.
-  void updateUpgrades() {
-    _prefs!.setStringList(
-      activatedUpgradesKey,
-      _activatedUpgrades.map((upgrade) => jsonEncode(upgrade.toJson())).toList(),
-    );
-  }
-
   /// Reset all challenges and the their influence on the challenges profile.
   Future<void> resetChallenges() async {
     _prefs ??= await SharedPreferences.getInstance();
     if (_profile == null) return;
     _profile = ChallengesProfile();
-    _activatedUpgrades.clear();
-    _prefs!.remove(activatedUpgradesKey);
     storeProfile();
     _challengeDao.clearObjects();
   }
@@ -153,8 +126,6 @@ class ChallengesProfileService with ChangeNotifier {
   Future<void> reset() async {
     _prefs ??= await SharedPreferences.getInstance();
     _profile = null;
-    _activatedUpgrades.clear();
-    _prefs!.remove(activatedUpgradesKey);
     _prefs!.remove(profileKey);
     _challengeDao.clearObjects();
     notifyListeners();

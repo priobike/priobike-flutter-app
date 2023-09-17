@@ -97,7 +97,6 @@ class UpgradeChoice extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(upgrade.icon, size: 40, color: Colors.white),
               Expanded(
                 child: BoldContent(
                   text: upgrade.description,

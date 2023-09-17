@@ -112,7 +112,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
   /// Opaen level up dialog according to the number of possible upgrades the user can apply with the level up.
   Future<void> _showLevelUpDialog() async {
     if (_nextLevel == null) return;
-    var openUpgrades = _profileService.allowedUpgrades;
+    var openUpgrades = _profileService.upgradesForNextLevel;
     var result = await showDialog<ProfileUpgrade?>(
       barrierColor: Colors.black.withOpacity(0.8),
       context: context,

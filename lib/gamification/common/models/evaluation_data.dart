@@ -8,6 +8,9 @@ class EvaluationData {
   /// The data as an encoded json String.
   final String jsonData;
 
+  /// Number of attemps of sending this data object to the backend.
+  int numOfAttemps = 0;
+
   EvaluationData(this.address, Map<String, dynamic> map) : jsonData = json.encode(map);
 
   String toJson() => json.encode({'address': address, 'jsonData': jsonData});

@@ -252,7 +252,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                 text: _challenge == null
                                     ? _deactivateTap
                                         ? 'Challenge Abgeschlossen'
-                                        : (widget.isWeekly ? 'Wochenchallenge' : 'Tageschallenge')
+                                        : (widget.isWeekly ? 'Neue Wochenchallenge' : 'Neue Tageschallenge')
                                     : _isCompleted
                                         ? 'Belohnung Abholen'
                                         : '${StringFormatter.getRoundStrByChallengeType(
@@ -284,14 +284,18 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          _getProgressBar(),
-          _getTimeLeftWidget(),
-        ],
-      ),
-    );
+    if (widget.isWeekly && _profileService.profile!.level < 2) {
+      return const SizedBox.shrink();
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: [
+            _getProgressBar(),
+            _getTimeLeftWidget(),
+          ],
+        ),
+      );
+    }
   }
 }

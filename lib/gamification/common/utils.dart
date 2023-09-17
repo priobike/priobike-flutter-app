@@ -94,7 +94,6 @@ class StringFormatter {
     if (type == DailyChallengeType.distance) return 'km';
     if (type == WeeklyChallengeType.overallDistance) return 'km';
     if (type == DailyChallengeType.duration) return 'min';
-    if (type == DailyChallengeType.elevation) return 'm';
     if (type == WeeklyChallengeType.daysWithGoalsCompleted) return 'Tage';
     if (type == WeeklyChallengeType.routeRidesPerWeek) return 'Fahrten';
     if (type == WeeklyChallengeType.routeStreakInWeek) return 'Fahrten';
