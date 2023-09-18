@@ -156,7 +156,7 @@ class FeedbackViewState extends State<FeedbackView> {
     final start = routing.selectedWaypoints?.first.address!.split(",")[0] ?? "";
     final end = routing.selectedWaypoints?.last.address!.split(",")[0] ?? "";
 
-    const double bottomSheetHeight = 228;
+    const bottomSheetHeight = 228.0;
 
     return Scaffold(
       bottomSheet: Container(

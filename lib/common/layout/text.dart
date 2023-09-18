@@ -151,3 +151,90 @@ class BoldSmall extends Text {
               ),
         );
 }
+
+/// A text with a shadow behind it.
+class ShadowedText extends StatelessWidget {
+  /// The text to display.
+  final String text;
+
+  /// The font size.
+  final double fontSize;
+
+  /// The background color.
+  final Color? backgroundColor;
+
+  /// The stroke width.
+  final double strokeWidth = 1.5;
+
+  /// The blur radius of the shadow.
+  final double blurRadius = 0.0;
+
+  /// The height of the text.
+  final double? height;
+
+  /// The text color.
+  final Color? textColor;
+
+  /// The shader.
+  final Shader? shader;
+
+  /// Font weight.
+  final FontWeight? fontWeight;
+
+  /// The text overflow.
+  final TextOverflow? overflow;
+
+  /// The max lines.
+  final int? maxLines;
+
+  const ShadowedText({
+    Key? key,
+    required this.text,
+    required this.fontSize,
+    this.height,
+    this.textColor,
+    this.backgroundColor,
+    this.shader,
+    this.fontWeight,
+    this.overflow,
+    this.maxLines,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        (backgroundColor != null)
+            ? Text(
+                text,
+                overflow: overflow,
+                maxLines: maxLines,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  height: height,
+                  fontWeight: fontWeight,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeJoin = StrokeJoin.round
+                    ..strokeWidth = strokeWidth
+                    ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius)
+                    ..shader = shader
+                    ..color = backgroundColor!,
+                ),
+              )
+            : Container(),
+        Text(
+          text,
+          overflow: overflow,
+          maxLines: maxLines,
+          style: TextStyle(
+            fontSize: fontSize,
+            height: height,
+            color: textColor,
+            fontWeight: fontWeight,
+          ),
+        ),
+      ],
+    );
+  }
+}

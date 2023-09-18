@@ -75,7 +75,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.enablePerformanceOverlay;
     this.enablePerformanceOverlay = enablePerformanceOverlay;
-    bool success = await storage.setBool(enablePerformanceOverlayKey, enablePerformanceOverlay);
+    final bool success = await storage.setBool(enablePerformanceOverlayKey, enablePerformanceOverlay);
     if (!success) {
       log.e("Failed to set enablePerformanceOverlay to $enablePerformanceOverlay");
       this.enablePerformanceOverlay = prev;
@@ -92,7 +92,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.didViewWarning;
     this.didViewWarning = didViewWarning;
-    bool success = await storage.setBool(didViewWarningKey, didViewWarning);
+    final bool success = await storage.setBool(didViewWarningKey, didViewWarning);
     if (!success) {
       log.e("Failed to set didViewWarning to $didViewWarning");
       this.didViewWarning = prev;
@@ -108,7 +108,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.backend;
     this.backend = backend;
-    bool success = await storage.setString(backendKey, backend.name);
+    final bool success = await storage.setString(backendKey, backend.name);
     if (!success) {
       log.e("Failed to set backend to $backend");
       this.backend = prev;
@@ -125,7 +125,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.predictionMode;
     this.predictionMode = predictionMode;
-    bool success = await storage.setString(predictionModeKey, predictionMode.name);
+    final bool success = await storage.setString(predictionModeKey, predictionMode.name);
     if (!success) {
       log.e("Failed to set predictionMode to $predictionMode");
       this.predictionMode = prev;
@@ -142,7 +142,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.positioningMode;
     this.positioningMode = positioningMode;
-    bool success = await storage.setString(positioningModeKey, positioningMode.name);
+    final bool success = await storage.setString(positioningModeKey, positioningMode.name);
     if (!success) {
       log.e("Failed to set positioningMode to $positioningMode");
       this.positioningMode = prev;
@@ -159,7 +159,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.routingEndpoint;
     this.routingEndpoint = routingEndpoint;
-    bool success = await storage.setString(routingEndpointKey, routingEndpoint.name);
+    final bool success = await storage.setString(routingEndpointKey, routingEndpoint.name);
     if (!success) {
       log.e("Failed to set routingEndpoint to $routingEndpoint");
       this.routingEndpoint = prev;
@@ -176,7 +176,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.sgLabelsMode;
     this.sgLabelsMode = sgLabelsMode;
-    bool success = await storage.setString(sgLabelsModeKey, sgLabelsMode.name);
+    final bool success = await storage.setString(sgLabelsModeKey, sgLabelsMode.name);
     if (!success) {
       log.e("Failed to set sgLabelsMode to $sgLabelsMode");
       this.sgLabelsMode = prev;
@@ -193,7 +193,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.colorMode;
     this.colorMode = colorMode;
-    bool success = await storage.setString(colorModeKey, colorMode.name);
+    final bool success = await storage.setString(colorModeKey, colorMode.name);
     if (!success) {
       log.e("Failed to set colorMode to $colorMode");
       this.colorMode = prev;
@@ -210,7 +210,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.speedMode;
     this.speedMode = speedMode;
-    bool success = await storage.setString(speedModeKey, speedMode.name);
+    final bool success = await storage.setString(speedModeKey, speedMode.name);
     if (!success) {
       log.e("Failed to set speedMode to $speedMode");
       this.speedMode = prev;
@@ -227,7 +227,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.datastreamMode;
     this.datastreamMode = datastreamMode;
-    bool success = await storage.setString(datastreamModeKey, datastreamMode.name);
+    final bool success = await storage.setString(datastreamModeKey, datastreamMode.name);
     if (!success) {
       log.e("Failed to set datastreamMode to $datastreamMode");
       this.datastreamMode = prev;
@@ -244,7 +244,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = connectionErrorCounter;
     connectionErrorCounter += 1;
-    bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
+    final bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
     if (!success) {
       log.e("Failed to increment connectionErrorCounter to $connectionErrorCounter");
       connectionErrorCounter = prev;
@@ -261,7 +261,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = useCounter;
     useCounter += 1;
-    bool success = await storage.setInt(useCounterKey, useCounter);
+    final bool success = await storage.setInt(useCounterKey, useCounter);
     if (!success) {
       log.e("Failed to increment useCounter to $useCounter");
       useCounter = prev;
@@ -275,7 +275,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = connectionErrorCounter;
     connectionErrorCounter = defaultConnectionErrorCounter;
-    bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
+    final bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
     if (!success) {
       log.e("Failed to reset connectionErrorCounter to $connectionErrorCounter");
       connectionErrorCounter = prev;
@@ -292,7 +292,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.sgSelector;
     this.sgSelector = sgSelector;
-    bool success = await storage.setString(sgSelectorKey, sgSelector.name);
+    final bool success = await storage.setString(sgSelectorKey, sgSelector.name);
     if (!success) {
       log.e("Failed to set sgSelector to $sgSelector");
       this.sgSelector = prev;
@@ -309,7 +309,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.dismissedSurvey;
     this.dismissedSurvey = dismissedSurvey;
-    bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
+    final bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
     if (!success) {
       log.e("Failed to set sgSelector to $sgSelector");
       this.dismissedSurvey = prev;
@@ -329,7 +329,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.trackingSubmissionPolicy;
     this.trackingSubmissionPolicy = trackingSubmissionPolicy;
-    bool success = await storage.setString(trackingSubmissionPolicyKey, trackingSubmissionPolicy.name);
+    final bool success = await storage.setString(trackingSubmissionPolicyKey, trackingSubmissionPolicy.name);
     if (!success) {
       log.e("Failed to set trackingSubmissionPolicy to $trackingSubmissionPolicy");
       this.trackingSubmissionPolicy = prev;
@@ -346,7 +346,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.saveBatteryModeEnabled;
     this.saveBatteryModeEnabled = saveBatteryModeEnabled;
-    bool success = await storage.setBool(saveBatteryModeEnabledKey, saveBatteryModeEnabled);
+    final bool success = await storage.setBool(saveBatteryModeEnabledKey, saveBatteryModeEnabled);
     if (!success) {
       log.e("Failed to set saveBatteryModeEnabled to $saveBatteryModeEnabled");
       this.saveBatteryModeEnabled = prev;
@@ -363,7 +363,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.enableGamification;
     this.enableGamification = enableGamification;
-    bool success = await storage.setBool(enableGamificationKey, enableGamification);
+    final bool success = await storage.setBool(enableGamificationKey, enableGamification);
     if (!success) {
       log.e("Failed to set enablePerformanceOverlay to $enableGamificationKey");
       this.enableGamification = prev;
