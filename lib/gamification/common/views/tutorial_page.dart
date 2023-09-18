@@ -83,7 +83,8 @@ class _GameTutorialPageState extends State<GameTutorialPage> with SingleTickerPr
                 child: SlideTransition(
                   position: _contentAnimation,
                   child: SafeArea(
-                    child: HPad(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Fade(
                         stops: widget.withContentFade ? [0, 0.05, 0.85, 0.95] : null,
                         child: SingleChildScrollView(

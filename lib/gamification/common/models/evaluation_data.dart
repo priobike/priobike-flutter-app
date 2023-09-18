@@ -13,9 +13,10 @@ class EvaluationData {
 
   EvaluationData(this.address, Map<String, dynamic> map) : jsonData = json.encode(map);
 
-  String toJson() => json.encode({'address': address, 'jsonData': jsonData});
+  String toJson() => json.encode({'address': address, 'jsonData': jsonData, 'numOfAttemps': numOfAttemps});
 
   EvaluationData.fromJson(String encoded)
       : address = json.decode(encoded)['address'],
-        jsonData = json.decode(encoded)['jsonData'];
+        jsonData = json.decode(encoded)['jsonData'],
+        numOfAttemps = json.decode(encoded)['numOfAttemps'];
 }

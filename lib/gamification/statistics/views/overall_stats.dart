@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
@@ -71,14 +72,18 @@ class _OverallStatisticsState extends State<OverallStatistics> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 16),
-          BoldContent(text: 'Dein PrioBike', context: context, height: 1),
-          BoldSmall(
-            text: 'beigetreten am ${StringFormatter.getDateStr(_userService.profile!.joinDate)}',
-            context: context,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
-            height: 1,
+          BoldContent(text: 'Beta-Features', context: context, height: 1),
+          Text(
+            'aktiviert am ${StringFormatter.getDateStr(_userService.profile!.joinDate)}',
+            style: TextStyle(
+              fontFamily: 'HamburgSans',
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+              height: 1,
+            ),
           ),
-          const SizedBox(height: 4),
+          const SmallVSpace(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,

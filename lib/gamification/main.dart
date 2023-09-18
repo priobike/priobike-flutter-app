@@ -82,6 +82,7 @@ class _GameViewState extends State<GameView> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
               const GameIntroCard(),
             ]
           : [

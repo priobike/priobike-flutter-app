@@ -96,30 +96,26 @@ class DisabledFeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          width: 1,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
-        ),
-      ),
-      child: Material(
-        borderRadius: BorderRadius.circular(24),
-        child: InkWell(
+    return OnTapAnimation(
+      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => tutorialPage)),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.background,
           borderRadius: BorderRadius.circular(24),
-          splashColor: CI.blue,
-          highlightColor: CI.blue,
-          onTap: () async {
-            await Future.delayed(const Duration(milliseconds: 250));
-            if (context.mounted) {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => tutorialPage));
-            }
-          },
-          child: Padding(padding: const EdgeInsets.all(16), child: content),
+          border: Border.all(
+            width: 1,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 2,
+            ),
+          ],
         ),
+        child: content,
       ),
     );
   }
@@ -241,6 +237,12 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                   width: 1,
                   color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 2,
+                  ),
+                ],
               ),
               child: IgnorePointer(
                 ignoring: _showMenu,
