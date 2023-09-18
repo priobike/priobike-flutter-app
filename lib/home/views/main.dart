@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/community/service/community_service.dart';
 import 'package:priobike/gamification/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -250,6 +251,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
+          await getIt<CommunityService>().fetchCommunityEventData();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),
@@ -350,8 +352,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         end: Alignment.bottomCenter,
                         colors: [
                           Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.surface.withOpacity(0),
+                          Theme.of(context).colorScheme.background.withOpacity(0.8),
+                          Theme.of(context).colorScheme.background.withOpacity(0.6),
+                          Theme.of(context).colorScheme.background.withOpacity(0.4),
+                          Theme.of(context).colorScheme.background.withOpacity(0.2),
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surface,
                         ],
                       ),
                       borderRadius: const BorderRadius.only(

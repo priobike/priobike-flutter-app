@@ -38,4 +38,6 @@ class CustomGameIcons {
   static const IconData location_trophy = IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData map_medal = IconData(0xe80d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData map_trophy = IconData(0xe80e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData elevation_gain = IconData(0xe80f, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData elevation_loss = IconData(0xe810, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

@@ -37,7 +37,7 @@ class IntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GameTutorialPage(
+    return TutorialPage(
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () {
         getIt<GamificationUserService>().createProfile();

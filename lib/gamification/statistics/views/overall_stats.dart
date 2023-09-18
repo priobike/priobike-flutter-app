@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
@@ -47,13 +48,13 @@ class _OverallStatisticsState extends State<OverallStatistics> {
             color: CI.blue.withOpacity(1),
           ),
           BoldContent(
-            text: StringFormatter.getRoundedStrByRideType(value, type),
+            text: StringFormatter.getRoundedStrByStatType(value, type),
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
             height: 1,
           ),
           BoldSmall(
-            text: StringFormatter.getLabelForRideType(type),
+            text: StringFormatter.getLabelForStatType(type),
             context: context,
             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
             height: 1,
@@ -92,8 +93,8 @@ class _OverallStatisticsState extends State<OverallStatistics> {
               _getStatWidget(Icons.directions_bike, profile.totalDistanceKilometres, StatType.distance),
               _getStatWidget(Icons.timer, profile.totalDurationMinutes, StatType.duration),
               _getStatWidget(Icons.speed, profile.averageSpeedKmh, StatType.speed),
-              _getStatWidget(Icons.arrow_upward, profile.totalElevationGainMetres, StatType.elevationGain),
-              _getStatWidget(Icons.arrow_downward, profile.totalElevationLossMetres, StatType.elevationLoss),
+              _getStatWidget(CustomGameIcons.elevation_gain, profile.totalElevationGainMetres, StatType.elevationGain),
+              _getStatWidget(CustomGameIcons.elevation_loss, profile.totalElevationLossMetres, StatType.elevationLoss),
             ],
           ),
         ],

@@ -24,15 +24,14 @@ class EvaluationDataService {
     jsonData.addAll({'userId': userId, 'timestamp': DateTime.now().millisecondsSinceEpoch});
     var data = EvaluationData(address, jsonData);
     // Try to send data to service.
-    var result = await sendEvaluationData(data);
+    var success = await sendEvaluationData(data);
+    if (success) return;
     // If sending was not successful, store the object in the list of unsent elements.
-    if (!result) {
-      data.numOfAttemps = 1;
-      unsentElements.add(data);
-      var prefs = await SharedPreferences.getInstance();
-      prefs.setStringList(unsentElementsKey, unsentElements.map((e) => e.toJson()).toList());
-      log.e('Saved unsent message: ${data.toJson()}');
-    }
+    data.numOfAttemps = 1;
+    unsentElements.add(data);
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setStringList(unsentElementsKey, unsentElements.map((e) => e.toJson()).toList());
+    log.e('Saved unsent message: ${data.toJson()}');
   }
 
   /// Try to send all elements from the list of unsent elements to the service.
@@ -40,12 +39,12 @@ class EvaluationDataService {
     var prefs = await SharedPreferences.getInstance();
     var tmpList = prefs.getStringList(unsentElementsKey)?.map((e) => EvaluationData.fromJson(e)).toList() ?? [];
     for (var element in tmpList) {
-      var result = await sendEvaluationData(element);
-      if (result) continue;
+      var success = await sendEvaluationData(element);
+      if (success) continue;
       element.numOfAttemps += 1;
       if (element.numOfAttemps >= dataSendingAttempsThreshold) continue;
       unsentElements.add(element);
-      log.e('Saved unsent message: ${element.toJson()}');
+      log.i('Saved unsent message: ${element.toJson()}');
     }
 
     /// Store elements that still couldn't be sent in the shared prefs.

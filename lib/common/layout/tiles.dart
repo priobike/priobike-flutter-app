@@ -8,6 +8,9 @@ class Tile extends StatelessWidget {
   /// A callback that is fired when the tile was tapped.
   final void Function()? onPressed;
 
+  /// A callback that is fired when the tile is long pressed.
+  final void Function()? onLongPressed;
+
   /// The fill color of the tile.
   final Color? fill;
 
@@ -42,6 +45,7 @@ class Tile extends StatelessWidget {
     Key? key,
     required this.content,
     this.onPressed,
+    this.onLongPressed,
     this.fill,
     this.splash = Colors.grey,
     this.shadow = Colors.black,
@@ -90,6 +94,7 @@ class Tile extends StatelessWidget {
                 borderRadius: borderRadius,
                 splashColor: splash,
                 onTap: onPressed,
+                onLongPress: onLongPressed,
                 child: Padding(padding: padding, child: content),
               ),
             ),
