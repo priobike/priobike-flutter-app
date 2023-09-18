@@ -87,13 +87,20 @@ class LoaderState extends State<Loader> {
       await weather.fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
-      await MapboxTileImageCache.pruneUnusedImages();
       settings.incrementUseCounter();
     } catch (e) {
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();
       return;
+    }
+
+    // FIXME: There was a bug where the app would not load anymore and we suspected this to be the cause.
+    // If the bug does not occur anymore, we can move this to the try-catch-block above.
+    try {
+      await MapboxTileImageCache.pruneUnusedImages();
+    } catch (e) {
+      log.e("Error while pruning unused images: $e");
     }
 
     // Finish loading.
