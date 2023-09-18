@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/animation.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/views/dialog_button.dart';
 import 'package:priobike/main.dart';
@@ -261,52 +262,52 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                 ),
               ),
             // If the menu is opened, it is shown above the card at the positin of the menu button.
-            AnimatedOpacity(
-              opacity: _showMenu ? 1 : 0,
-              duration: const ShortDuration(),
-              child: GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      width: 0.5,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
+            if (_showMenu)
+              BlendIn(
+                duration: const ShortDuration(),
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        width: 0.5,
                         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                        spreadRadius: 2,
-                        blurRadius: 2,
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox.fromSize(size: const Size.square(32 + 8)),
-                      _getMenuItem(
-                        icon: Icons.not_interested,
-                        onPressed: _showDisableFeatureDialog,
-                      ),
-                      if (_showMoveUpButton)
-                        _getMenuItem(
-                          icon: Icons.keyboard_arrow_up,
-                          onPressed: () => _userService.moveFeatureUp(widget.featureKey),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                          spreadRadius: 2,
+                          blurRadius: 2,
                         ),
-                      if (_showMoveDownButton)
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox.fromSize(size: const Size.square(32 + 8)),
                         _getMenuItem(
-                          icon: Icons.keyboard_arrow_down,
-                          onPressed: () => _userService.moveFeatureDown(widget.featureKey),
+                          icon: Icons.not_interested,
+                          onPressed: _showDisableFeatureDialog,
                         ),
-                      const SizedBox(height: 4),
-                    ],
+                        if (_showMoveUpButton)
+                          _getMenuItem(
+                            icon: Icons.keyboard_arrow_up,
+                            onPressed: () => _userService.moveFeatureUp(widget.featureKey),
+                          ),
+                        if (_showMoveDownButton)
+                          _getMenuItem(
+                            icon: Icons.keyboard_arrow_down,
+                            onPressed: () => _userService.moveFeatureDown(widget.featureKey),
+                          ),
+                        const SizedBox(height: 4),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
             // Button to open or close the menu.
             GestureDetector(
               onTap: () => setState(() => _showMenu = !_showMenu),

@@ -92,27 +92,6 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
       alignment: Alignment.center,
       children: [
         Positioned.fill(
-          child: Container(
-            foregroundDecoration: BoxDecoration(
-              gradient: RadialGradient(
-                radius: 0.7,
-                colors: [
-                  Theme.of(context).colorScheme.background.withOpacity(0.3),
-                  Theme.of(context).colorScheme.background,
-                ],
-              ),
-            ),
-            child: ClipRRect(
-              child: Image(
-                image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                    ? const AssetImage('assets/images/map-dark.png')
-                    : const AssetImage('assets/images/map-light.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

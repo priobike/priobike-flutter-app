@@ -7,7 +7,7 @@ import 'package:priobike/gamification/common/utils.dart';
 
 /// Widget which displays a tutorial page for something regarding the gamification.
 /// Each Page consist of a back button at the top, a list of content widgets and a confirmation button at the bottom.
-class GameTutorialPage extends StatefulWidget {
+class TutorialPage extends StatefulWidget {
   /// Icon which is displayed on the confirmation button.
   final IconData confirmButtonIcon;
 
@@ -26,7 +26,7 @@ class GameTutorialPage extends StatefulWidget {
   /// List of content widgets displayed on the page.
   final List<Widget> contentList;
 
-  const GameTutorialPage({
+  const TutorialPage({
     Key? key,
     this.confirmButtonIcon = Icons.check,
     required this.confirmButtonLabel,
@@ -37,10 +37,10 @@ class GameTutorialPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<GameTutorialPage> createState() => _GameTutorialPageState();
+  State<TutorialPage> createState() => _TutorialPageState();
 }
 
-class _GameTutorialPageState extends State<GameTutorialPage> with SingleTickerProviderStateMixin {
+class _TutorialPageState extends State<TutorialPage> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
 
   /// Animation for the confirmation button. The button slides in from the bottom.

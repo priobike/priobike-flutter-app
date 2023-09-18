@@ -27,8 +27,11 @@ class GamificationUserService with ChangeNotifier {
   /// Key describing the challenges feature.
   static const challengesFeatureKey = 'priobike.gamification.feature.challenges';
 
+  /// Key describing the community feature.
+  static const communityFeatureKey = 'priobike.gamification.feature.community';
+
   /// List of keys for the features of the gamification system.
-  static const gamificationFeatures = [challengesFeatureKey, statisticsFeatureKey];
+  static const gamificationFeatures = [challengesFeatureKey, statisticsFeatureKey, communityFeatureKey];
 
   /// Instance of the shared preferences.
   SharedPreferences? _prefs;
@@ -72,7 +75,7 @@ class GamificationUserService with ChangeNotifier {
       joinDate: DateTime.now(),
     );
     // Try to save profile in shared prefs and return false if not successful.
-    if (!(await _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson().toString())) ?? false)) {
+    if (!(await _prefs?.setString(userProfileKey, jsonEncode(_profile!.toJson())) ?? false)) {
       return false;
     }
     // Try to set profile exists string and return false if not successful
@@ -122,7 +125,7 @@ class GamificationUserService with ChangeNotifier {
   /// Returns true, if a given string key is inside of the list of selected game prefs.
   bool isFeatureEnabled(String key) => _enabledFeatures.contains(key);
 
-  /// Enabel the feature for a given key.
+  /// Enable the feature with the given key.
   Future<void> enableFeature(String key) async {
     if (_enabledFeatures.contains(key)) return;
     _enabledFeatures.add(key);
@@ -132,7 +135,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Disable the feature with a given key.
+  /// Disable the feature with the given key.
   void disableFeature(String key) async {
     if (!_enabledFeatures.contains(key)) return;
     _enabledFeatures.remove(key);
@@ -142,7 +145,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Move feature up in the feature-list, to change its position on the home view.
+  /// Move the feature with the given key one place down in the feature list, which moves its card one place up.
   void moveFeatureUp(String key) {
     if (_enabledFeatures.firstOrNull == key) return;
     int index = _enabledFeatures.indexOf(key);
@@ -151,7 +154,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Move feature down in the feature-list, to change its position on the home view.
+  /// Move the feature with the given key one place up in the feature list, which moves its card one place down.
   void moveFeatureDown(String key) {
     if (_enabledFeatures.lastOrNull == key) return;
     int index = _enabledFeatures.indexOf(key);
@@ -160,7 +163,7 @@ class GamificationUserService with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Reset the whole gamification profile of the user.
+  /// Reset the user profile and all generated gamification data.
   Future<void> reset() async {
     var prefs = await SharedPreferences.getInstance();
     _profile = null;
@@ -174,11 +177,11 @@ class GamificationUserService with ChangeNotifier {
 
   /// Send the users profile settings to the backend.
   void sendProfileDataToBackend() {
-    var profilData = {
+    Map<String, dynamic> profilData = {
       'gamificationEnabled': _profile != null,
       'challengesEnabled': isFeatureEnabled(challengesFeatureKey),
       'statisticsEnabled': isFeatureEnabled(statisticsFeatureKey),
-      'communityEnabled': false,
+      'communityEnabled': isFeatureEnabled(communityFeatureKey),
     };
     getIt<EvaluationDataService>().sendJsonToAddress('settings/post/', profilData);
   }

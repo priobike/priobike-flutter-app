@@ -85,7 +85,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
     super.dispose();
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired. It restards the update timer and rebuilds the widget.
+  /// Called when a listener callback of a ChangeNotifier is fired
   void update() => {if (mounted) setState(() {})};
 
   /// Handle a tap on the progress bar.

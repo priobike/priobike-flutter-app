@@ -8,14 +8,9 @@ import 'package:priobike/gamification/goals/views/edit_daily_goals.dart';
 import 'package:priobike/gamification/goals/views/edit_route_goals.dart';
 
 /// This view gives the user to open dialogs to edit their daily and route goals by pressing on corresponding buttons.
-class GoalsView extends StatefulWidget {
+class GoalsView extends StatelessWidget {
   const GoalsView({Key? key}) : super(key: key);
 
-  @override
-  State<GoalsView> createState() => _GoalsViewState();
-}
-
-class _GoalsViewState extends State<GoalsView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -29,21 +24,13 @@ class _GoalsViewState extends State<GoalsView> {
               CustomIconButton(
                 icon: CustomGameIcons.goals,
                 label: 'Tagesziele',
-                onPressed: () async {
-                  setState(() {
-                    showDialog(context: context, builder: (context) => EditDailyGoalsDialog(key: UniqueKey()));
-                  });
-                },
+                onPressed: () => showDialog(context: context, builder: (context) => const EditDailyGoalsDialog()),
               ),
               const SmallHSpace(),
               CustomIconButton(
                 icon: Icons.map,
                 label: 'Routenziele',
-                onPressed: () async {
-                  setState(() {
-                    showDialog(context: context, builder: (context) => const EditRouteGoalsDialog());
-                  });
-                },
+                onPressed: () => showDialog(context: context, builder: (context) => const EditRouteGoalsDialog()),
               ),
             ],
           ),

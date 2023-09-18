@@ -18,30 +18,31 @@ class RideStats {
   /// Elevation loss in metres.
   final double elevationLossMetres;
 
-  /// Average speed in kilometres per hour.
-  final double averageSpeedKmh;
-
   /// A goal value for the distance in kilometres.
   double? distanceGoalKilometres;
 
   /// A goal value for the duration in minutes.
   double? durationGoalMinutes;
 
+  /// Average speed in kilometres per hour.
+  double get averageSpeedKmh {
+    if (durationMinutes > 0) return distanceKilometres / (durationMinutes / 60);
+    return 0;
+  }
+
   /// Get ride stats from a list of summaries, by summing up all the ride values and averaging the speed.
   RideStats.fromSummaries(List<RideSummary> rides)
       : distanceKilometres = ListUtils.getListSum(rides.map((r) => r.distanceMetres / 1000).toList()),
         durationMinutes = ListUtils.getListSum(rides.map((r) => r.durationSeconds / 60).toList()),
         elevationGainMetres = ListUtils.getListSum(rides.map((r) => r.elevationGainMetres).toList()),
-        elevationLossMetres = ListUtils.getListSum(rides.map((r) => r.elevationLossMetres).toList()),
-        averageSpeedKmh = ListUtils.getListAvg(rides.map((r) => r.averageSpeedKmh).toList());
+        elevationLossMetres = ListUtils.getListSum(rides.map((r) => r.elevationLossMetres).toList());
 
   /// Get ride stats from a list of ride stats, by summing up all the ride values and averaging the speed.
   RideStats.fromStats(List<RideStats> stats)
       : distanceKilometres = ListUtils.getListSum(stats.map((s) => s.distanceKilometres).toList()),
         durationMinutes = ListUtils.getListSum(stats.map((s) => s.durationMinutes).toList()),
         elevationGainMetres = ListUtils.getListSum(stats.map((s) => s.elevationGainMetres).toList()),
-        elevationLossMetres = ListUtils.getListSum(stats.map((s) => s.elevationLossMetres).toList()),
-        averageSpeedKmh = ListUtils.getListAvg(stats.map((s) => s.averageSpeedKmh).toList()) {
+        elevationLossMetres = ListUtils.getListSum(stats.map((s) => s.elevationLossMetres).toList()) {
     distanceGoalKilometres =
         ListUtils.getListSum(stats.map((s) => s.distanceGoalKilometres).whereType<double>().toList());
     durationGoalMinutes = ListUtils.getListSum(stats.map((s) => s.durationGoalMinutes).whereType<double>().toList());
