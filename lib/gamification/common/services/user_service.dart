@@ -181,7 +181,7 @@ class GamificationUserService with ChangeNotifier {
       'gamificationEnabled': _profile != null,
       'challengesEnabled': isFeatureEnabled(challengesFeatureKey),
       'statisticsEnabled': isFeatureEnabled(statisticsFeatureKey),
-      'communityEnabled': false,
+      'communityEnabled': isFeatureEnabled(communityFeatureKey),
     };
     getIt<EvaluationDataService>().sendJsonToAddress('settings/post/', profilData);
   }

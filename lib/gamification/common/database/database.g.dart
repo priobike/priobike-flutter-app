@@ -974,12 +974,27 @@ class $AchievedLocationsTable extends AchievedLocations
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
       'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _locationIdMeta =
+      const VerificationMeta('locationId');
+  @override
+  late final GeneratedColumn<int> locationId = GeneratedColumn<int>(
+      'location_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _eventIdMeta =
       const VerificationMeta('eventId');
   @override
   late final GeneratedColumn<int> eventId = GeneratedColumn<int>(
       'event_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<int> color = GeneratedColumn<int>(
+      'color', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
@@ -993,7 +1008,8 @@ class $AchievedLocationsTable extends AchievedLocations
       'timestamp', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, eventId, title, timestamp];
+  List<GeneratedColumn> get $columns =>
+      [id, locationId, eventId, color, title, timestamp];
   @override
   String get aliasedName => _alias ?? 'achieved_locations';
   @override
@@ -1005,14 +1021,26 @@ class $AchievedLocationsTable extends AchievedLocations
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('location_id')) {
+      context.handle(
+          _locationIdMeta,
+          locationId.isAcceptableOrUnknown(
+              data['location_id']!, _locationIdMeta));
     } else if (isInserting) {
-      context.missing(_idMeta);
+      context.missing(_locationIdMeta);
     }
     if (data.containsKey('event_id')) {
       context.handle(_eventIdMeta,
           eventId.isAcceptableOrUnknown(data['event_id']!, _eventIdMeta));
     } else if (isInserting) {
       context.missing(_eventIdMeta);
+    }
+    if (data.containsKey('color')) {
+      context.handle(
+          _colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    } else if (isInserting) {
+      context.missing(_colorMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -1030,15 +1058,19 @@ class $AchievedLocationsTable extends AchievedLocations
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   AchievedLocation map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return AchievedLocation(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      locationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}location_id'])!,
       eventId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}event_id'])!,
+      color: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}color'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       timestamp: attachedDatabase.typeMapping
@@ -1055,19 +1087,25 @@ class $AchievedLocationsTable extends AchievedLocations
 class AchievedLocation extends DataClass
     implements Insertable<AchievedLocation> {
   final int id;
+  final int locationId;
   final int eventId;
+  final int color;
   final String title;
   final DateTime timestamp;
   const AchievedLocation(
       {required this.id,
+      required this.locationId,
       required this.eventId,
+      required this.color,
       required this.title,
       required this.timestamp});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['location_id'] = Variable<int>(locationId);
     map['event_id'] = Variable<int>(eventId);
+    map['color'] = Variable<int>(color);
     map['title'] = Variable<String>(title);
     map['timestamp'] = Variable<DateTime>(timestamp);
     return map;
@@ -1076,7 +1114,9 @@ class AchievedLocation extends DataClass
   AchievedLocationsCompanion toCompanion(bool nullToAbsent) {
     return AchievedLocationsCompanion(
       id: Value(id),
+      locationId: Value(locationId),
       eventId: Value(eventId),
+      color: Value(color),
       title: Value(title),
       timestamp: Value(timestamp),
     );
@@ -1087,7 +1127,9 @@ class AchievedLocation extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AchievedLocation(
       id: serializer.fromJson<int>(json['id']),
+      locationId: serializer.fromJson<int>(json['locationId']),
       eventId: serializer.fromJson<int>(json['eventId']),
+      color: serializer.fromJson<int>(json['color']),
       title: serializer.fromJson<String>(json['title']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
     );
@@ -1097,17 +1139,26 @@ class AchievedLocation extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'locationId': serializer.toJson<int>(locationId),
       'eventId': serializer.toJson<int>(eventId),
+      'color': serializer.toJson<int>(color),
       'title': serializer.toJson<String>(title),
       'timestamp': serializer.toJson<DateTime>(timestamp),
     };
   }
 
   AchievedLocation copyWith(
-          {int? id, int? eventId, String? title, DateTime? timestamp}) =>
+          {int? id,
+          int? locationId,
+          int? eventId,
+          int? color,
+          String? title,
+          DateTime? timestamp}) =>
       AchievedLocation(
         id: id ?? this.id,
+        locationId: locationId ?? this.locationId,
         eventId: eventId ?? this.eventId,
+        color: color ?? this.color,
         title: title ?? this.title,
         timestamp: timestamp ?? this.timestamp,
       );
@@ -1115,7 +1166,9 @@ class AchievedLocation extends DataClass
   String toString() {
     return (StringBuffer('AchievedLocation(')
           ..write('id: $id, ')
+          ..write('locationId: $locationId, ')
           ..write('eventId: $eventId, ')
+          ..write('color: $color, ')
           ..write('title: $title, ')
           ..write('timestamp: $timestamp')
           ..write(')'))
@@ -1123,68 +1176,79 @@ class AchievedLocation extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, eventId, title, timestamp);
+  int get hashCode =>
+      Object.hash(id, locationId, eventId, color, title, timestamp);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AchievedLocation &&
           other.id == this.id &&
+          other.locationId == this.locationId &&
           other.eventId == this.eventId &&
+          other.color == this.color &&
           other.title == this.title &&
           other.timestamp == this.timestamp);
 }
 
 class AchievedLocationsCompanion extends UpdateCompanion<AchievedLocation> {
   final Value<int> id;
+  final Value<int> locationId;
   final Value<int> eventId;
+  final Value<int> color;
   final Value<String> title;
   final Value<DateTime> timestamp;
-  final Value<int> rowid;
   const AchievedLocationsCompanion({
     this.id = const Value.absent(),
+    this.locationId = const Value.absent(),
     this.eventId = const Value.absent(),
+    this.color = const Value.absent(),
     this.title = const Value.absent(),
     this.timestamp = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
   AchievedLocationsCompanion.insert({
-    required int id,
+    this.id = const Value.absent(),
+    required int locationId,
     required int eventId,
+    required int color,
     required String title,
     required DateTime timestamp,
-    this.rowid = const Value.absent(),
-  })  : id = Value(id),
+  })  : locationId = Value(locationId),
         eventId = Value(eventId),
+        color = Value(color),
         title = Value(title),
         timestamp = Value(timestamp);
   static Insertable<AchievedLocation> custom({
     Expression<int>? id,
+    Expression<int>? locationId,
     Expression<int>? eventId,
+    Expression<int>? color,
     Expression<String>? title,
     Expression<DateTime>? timestamp,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (locationId != null) 'location_id': locationId,
       if (eventId != null) 'event_id': eventId,
+      if (color != null) 'color': color,
       if (title != null) 'title': title,
       if (timestamp != null) 'timestamp': timestamp,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
   AchievedLocationsCompanion copyWith(
       {Value<int>? id,
+      Value<int>? locationId,
       Value<int>? eventId,
+      Value<int>? color,
       Value<String>? title,
-      Value<DateTime>? timestamp,
-      Value<int>? rowid}) {
+      Value<DateTime>? timestamp}) {
     return AchievedLocationsCompanion(
       id: id ?? this.id,
+      locationId: locationId ?? this.locationId,
       eventId: eventId ?? this.eventId,
+      color: color ?? this.color,
       title: title ?? this.title,
       timestamp: timestamp ?? this.timestamp,
-      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -1194,17 +1258,20 @@ class AchievedLocationsCompanion extends UpdateCompanion<AchievedLocation> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (locationId.present) {
+      map['location_id'] = Variable<int>(locationId.value);
+    }
     if (eventId.present) {
       map['event_id'] = Variable<int>(eventId.value);
+    }
+    if (color.present) {
+      map['color'] = Variable<int>(color.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
     if (timestamp.present) {
       map['timestamp'] = Variable<DateTime>(timestamp.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -1213,10 +1280,11 @@ class AchievedLocationsCompanion extends UpdateCompanion<AchievedLocation> {
   String toString() {
     return (StringBuffer('AchievedLocationsCompanion(')
           ..write('id: $id, ')
+          ..write('locationId: $locationId, ')
           ..write('eventId: $eventId, ')
+          ..write('color: $color, ')
           ..write('title: $title, ')
-          ..write('timestamp: $timestamp, ')
-          ..write('rowid: $rowid')
+          ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
   }

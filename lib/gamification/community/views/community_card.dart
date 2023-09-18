@@ -6,6 +6,7 @@ import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/community/model/event.dart';
 import 'package:priobike/gamification/community/service/community_service.dart';
+import 'package:priobike/gamification/community/views/badge_collection.dart';
 import 'package:priobike/gamification/community/views/event_page.dart';
 import 'package:priobike/gamification/community/views/event_view.dart';
 import 'package:priobike/gamification/community/views/community_tutorial.dart';
@@ -22,8 +23,6 @@ class CommunityCard extends StatefulWidget {
 
 class _CommunityCardState extends State<CommunityCard> {
   late CommunityService _communityService;
-
-  CommunityEvent? get _event => _communityService.event;
 
   @override
   void initState() {
@@ -46,16 +45,35 @@ class _CommunityCardState extends State<CommunityCard> {
     return GamificationFeatureCard(
       featureKey: GamificationUserService.communityFeatureKey,
       // If the feature is enabled, show progress bars of the users challenges and the profile view.
-      featurePage: _communityService.activeEvent ? const CommunityEventPage() : null,
+      featurePage: _communityService.activeEvent
+          ? const CommunityEventPage()
+          : (_communityService.waitingForEvent && _communityService.numOfAchievedBadges > 0
+              ? const BadgeCollection()
+              : null),
       featureEnabledContent: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          BoldContent(
-            text: 'Wochenendradeln',
-            context: context,
-          ),
-          if (_communityService.activeEvent) ActiveEventView(event: _event!, locations: _communityService.locations),
-          if (_communityService.waitingForEvent) WaitingForEventView(event: _event!),
+          if (_communityService.activeEvent) ActiveEventView(service: _communityService),
+          if (_communityService.waitingForEvent) WaitingForEventView(service: _communityService),
+          if (!_communityService.activeEvent && !_communityService.waitingForEvent)
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.shield,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                    size: 80,
+                  ),
+                  const SmallVSpace(),
+                  BoldSubHeader(
+                    text: 'Gerade gibt es leider kein Wochenend-Event',
+                    context: context,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
       // If the feature is disabled, show an info widget which directs the user to an intro page.

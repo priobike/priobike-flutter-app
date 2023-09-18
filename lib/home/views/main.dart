@@ -251,8 +251,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
-          await getIt<CommunityService>().loadOpenCommunityEvent();
-          await getIt<CommunityService>().loadEventLocations();
+          await getIt<CommunityService>().fetchCommunityEventData();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),

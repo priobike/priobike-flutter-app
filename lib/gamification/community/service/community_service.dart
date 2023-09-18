@@ -26,7 +26,13 @@ class CommunityService with ChangeNotifier {
 
   StreamSubscription? _achievedLocStream;
 
-  final List<EventLocation> _locations = [];
+  int numOfActiveUsers = 0;
+
+  int numOfAchievedBadges = 0;
+
+  int numOfOverallAchievedLocations = 0;
+
+  List<EventLocation> _locations = [];
 
   List<AchievedLocation> _achievedLocations = [];
 
@@ -43,15 +49,21 @@ class CommunityService with ChangeNotifier {
   CommunityEvent? get event => _event;
 
   List<EventLocation> get _unachievedLocations =>
-      _locations.where((loc) => _achievedLocations.where((e) => e.id == loc.id).isEmpty).toList();
+      _locations.where((loc) => _achievedLocations.where((e) => e.locationId == loc.id).isEmpty).toList();
 
   List<EventLocation> get locations => List.from(_locations);
 
   int get numOfAchievedLocations => _achievedLocations.length;
 
+  bool wasLocationAchieved(EventLocation loc) {
+    return !_unachievedLocations.contains(loc);
+  }
+
+  Stream<List<AchievedLocation>> getStreamOfAllBadges() => _achievedLocationDao.streamAllObjects();
+
   Future<void> checkLocations() async {
     try {
-      if (!eventStarted) return;
+      if (!activeEvent) return;
 
       final positioning = getIt<Positioning>();
       final positions = positioning.positions;
@@ -62,9 +74,13 @@ class CommunityService with ChangeNotifier {
       for (var location in _unachievedLocations) {
         var hasBeenAchieved = checkIfLocationWasAchieved(location, latLngList);
         if (hasBeenAchieved) {
-          var achievedLocation = await _achievedLocationDao.addLocation(location, _event!.id);
-          var json = {
-            'eventId': achievedLocation!.eventId,
+          var achievedLocation = await _achievedLocationDao.addLocation(location, _event!);
+          if (achievedLocation == null) {
+            log.e('Failed to store achieved location in database');
+            continue;
+          }
+          Map<String, dynamic> json = {
+            'eventId': achievedLocation.eventId,
             'locationId': achievedLocation.id,
           };
           getIt<EvaluationDataService>().sendJsonToAddress('community/send-achieved-location/', json);
@@ -93,7 +109,6 @@ class CommunityService with ChangeNotifier {
   }
 
   Future<void> loadOpenCommunityEvent() async {
-    _event = null;
     const url = '${baseUrl}get-open-event/';
     final endpoint = Uri.parse(url);
     try {
@@ -116,13 +131,12 @@ class CommunityService with ChangeNotifier {
     }
     // Catch the error if there is no connection to the internet or something else went wrong.
     catch (e) {
+      _event = null;
       log.e("Failed to load open event: $e");
     }
-    notifyListeners();
   }
 
   Future<void> loadEventLocations() async {
-    _locations.clear();
     const url = '${baseUrl}get-locations/';
     final endpoint = Uri.parse(url);
 
@@ -137,10 +151,13 @@ class CommunityService with ChangeNotifier {
       /// Try to decode the result list and save in locations variale.
       try {
         var results = jsonDecode(response.body);
+        List<EventLocation> list = [];
         for (var location in results) {
-          _locations.add(EventLocation.fromJson(location));
+          list.add(EventLocation.fromJson(location));
         }
+        _locations = list;
       } on TypeError catch (e) {
+        _locations.clear();
         final err = "Could not decode the resonse body ${response.body} with error: $e";
         throw Exception(err);
       }
@@ -149,6 +166,43 @@ class CommunityService with ChangeNotifier {
     catch (e) {
       log.e("Failed to load locations: $e");
     }
+  }
+
+  Future<void> fetchEventStatus() async {
+    const url = '${baseUrl}get-event-status/';
+    final endpoint = Uri.parse(url);
+
+    try {
+      // Try to retrieve status of the current event from the gamification service.
+      http.Response response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        final err = "Could not be fetched from endpoint $endpoint: ${response.body}";
+        throw Exception(err);
+      }
+
+      /// Try to decode the result list and save in locations variale.
+      try {
+        var result = jsonDecode(response.body);
+        numOfActiveUsers = result['numOfUsers'];
+        numOfOverallAchievedLocations = result['achievedLocations'];
+      } on TypeError catch (e) {
+        numOfActiveUsers = 0;
+        numOfOverallAchievedLocations = 0;
+        final err = "Could not decode the resonse body ${response.body} with error: $e";
+        throw Exception(err);
+      }
+    }
+    // Catch the error if there is no connection to the internet or something else went wrong.
+    catch (e) {
+      log.e("Failed to load locations: $e");
+    }
+  }
+
+  Future<void> fetchCommunityEventData() async {
+    await loadOpenCommunityEvent();
+    await loadEventLocations();
+    await fetchEventStatus();
+    numOfAchievedBadges = (await _achievedLocationDao.getAllObjects()).length;
     notifyListeners();
   }
 }

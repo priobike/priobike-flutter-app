@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -14,7 +15,9 @@ import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/community/model/event.dart';
 import 'package:priobike/gamification/community/model/location.dart';
 import 'package:priobike/gamification/community/service/community_service.dart';
+import 'package:priobike/gamification/community/views/badge.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_event_location.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
@@ -57,6 +60,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
     _communityService = getIt<CommunityService>();
     _communityService.addListener(update);
     _updateMappedLocations();
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) => _communityService.fetchCommunityEventData());
     super.initState();
   }
 
@@ -102,37 +106,6 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
     );
   }
 
-  Widget get _participantCounter => SizedBox(
-        height: 64,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(child: Container()),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Icon(
-                    Icons.directions_bike,
-                    color: CI.blue,
-                    size: 32,
-                  ),
-                ),
-                const SmallHSpace(),
-                BoldSubHeader(
-                  text: '0',
-                  context: context,
-                ),
-              ],
-            ),
-            Expanded(child: Container()),
-          ],
-        ),
-      );
-
   Widget get locationSelection {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
@@ -143,47 +116,76 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
       child: Padding(
         padding: const EdgeInsets.only(left: 16),
         child: Row(
-          children: _mappedLocations.entries.map((e) {
-            var loc = e.key;
-            var selected = e.value;
-            var shortcut = ShortcutLocation(
-              name: loc.title,
-              waypoint: Waypoint(
-                loc.lat,
-                loc.lon,
-                address: loc.title,
-              ),
-              id: 'unknown',
-            );
-            return ShortcutView(
-              onLongPressed: () => setState(() {
-                if (!_selectionMode) {
-                  _selectionMode = !_selectionMode;
-                  setState(() => _mappedLocations[loc] = !selected);
-                } else {
-                  _mappedLocations[loc] = !selected;
-                  setState(() {});
-                }
-              }),
-              onPressed: () {
-                if (_selectionMode) {
-                  _mappedLocations[loc] = !selected;
-                  if (!_itemsSelected) {
-                    _selectionMode = !_selectionMode;
-                  }
-                  setState(() {});
-                } else {
-                  _startRouteFromShortcut(shortcut);
-                }
-              },
-              shortcut: shortcut,
-              width: shortcutWidth,
-              height: shortcutHeight,
-              rightPad: shortcutRightPad,
-              selected: selected,
-              showSplash: false,
-            );
-          }).toList(),
+          children: _mappedLocations.entries.map(
+            (e) {
+              var loc = e.key;
+              var selected = e.value;
+              var wasAchieved = _communityService.wasLocationAchieved(loc);
+              var shortcut = ShortcutEventLocation(
+                name: loc.title,
+                achieved: wasAchieved,
+                waypoint: Waypoint(
+                  loc.lat,
+                  loc.lon,
+                  address: loc.title,
+                ),
+                id: 'unknown',
+              );
+              return Stack(
+                children: [
+                  ShortcutView(
+                    selectionColor: _event!.color,
+                    onLongPressed: wasAchieved
+                        ? null
+                        : () {
+                            if (!_selectionMode) {
+                              _selectionMode = !_selectionMode;
+                              setState(() => _mappedLocations[loc] = !selected);
+                            } else {
+                              _mappedLocations[loc] = !selected;
+                              setState(() {});
+                            }
+                          },
+                    onPressed: wasAchieved
+                        ? () {}
+                        : () {
+                            if (_selectionMode) {
+                              _mappedLocations[loc] = !selected;
+                              if (!_itemsSelected) {
+                                _selectionMode = !_selectionMode;
+                              }
+                              setState(() {});
+                            } else {
+                              _startRouteFromShortcut(shortcut);
+                            }
+                          },
+                    shortcut: shortcut,
+                    width: shortcutWidth,
+                    height: shortcutHeight,
+                    rightPad: shortcutRightPad,
+                    selected: selected,
+                    showSplash: false,
+                  ),
+                  if (wasAchieved)
+                    Container(
+                      width: shortcutWidth - 16,
+                      height: shortcutHeight + 40,
+                      decoration: BoxDecoration(
+                        color: _event!.color.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.shield,
+                          color: _event!.color,
+                          size: 96,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ).toList(),
         ),
       ),
     );
@@ -205,6 +207,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   key: const ValueKey('ConfirmButton'),
                   padding: const EdgeInsets.only(bottom: 16),
                   child: ConfirmButton(
+                    color: _event!.color,
                     label: 'Route anzeigen ($_numOfSelected)',
                     onPressed: _itemsSelected
                         ? () {
@@ -234,13 +237,42 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                     child: BoldSmall(
-                      text: 'Erstelle eine Route über mehrere Standorte, indem du ein Element lange gedrückt hältst.',
+                      text:
+                          'Du kannst auch mehrere Locations gleichzeitig auswählen, indem du ein Element gedrückt hältst.',
                       context: context,
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ),
         ),
+      );
+
+  Widget get _helpDialog => CustomDialog(
+        backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+        horizontalMargin: 16,
+        content: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                BoldSubHeader(text: 'Weekend-Events', context: context),
+                const SmallVSpace(),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: SubHeader(
+                        text:
+                            'Jedes Wochenende finden individuelle Weekend-Events, mit unterschiedlichen Themengebieten statt. Mit dem Event kommen eine Reihe von thematisch passenden Standorten. Für jeden dieser Standorte kannst du ein Event-spezifisches Abzeichen erlangen, indem du mithilfe der Navigationsfunktion an ihnen vorbeifährst.',
+                        context: context,
+                        textAlign: TextAlign.center,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            )),
       );
 
   @override
@@ -273,35 +305,105 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                  const HSpace(),
-                  BoldSubHeader(
-                    text: 'Wochenendradeln',
-                    context: context,
-                    textAlign: TextAlign.center,
+                  Expanded(child: Container()),
+                  IconButton(
+                    onPressed: () => showDialog(context: context, builder: (context) => _helpDialog),
+                    icon: const Icon(Icons.question_mark, size: 48),
                   ),
+                  const SmallHSpace(),
                 ],
               ),
-              Expanded(child: Container()),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.shield,
-                    size: 96,
-                    color: LevelColors.silver,
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Header(
-                          text: '${_communityService.numOfAchievedLocations}/${_locations.length}', context: context),
-                      Content(text: 'Zielpunkte erreicht', context: context)
-                    ],
-                  )
-                ],
+              const SmallVSpace(),
+              Text(
+                _event!.title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'HamburgSans',
+                  fontSize: 30,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
               ),
-              Expanded(child: Container()),
+              const SmallVSpace(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Content(
+                  text:
+                      'Fahr dieses Wochenende doch einfach mal durch die Grünstreifen der Stadt und genieß das gute Wetter!',
+                  context: context,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const VSpace(),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 3,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                  ),
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    BoldSubHeader(text: 'Community', context: context),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          children: [
+                            Icon(
+                              Icons.groups,
+                              size: 64,
+                              color: _event!.color,
+                            ),
+                            BoldSubHeader(
+                              text: '${_communityService.numOfActiveUsers}',
+                              context: context,
+                              height: 1,
+                            )
+                          ],
+                        ),
+                        RewardBadge(
+                          color: _event!.color,
+                          size: 80,
+                          value: _communityService.numOfOverallAchievedLocations,
+                        ),
+                      ],
+                    ),
+                    const SmallVSpace(),
+                    Small(
+                      text: _communityService.numOfActiveUsers == 0
+                          ? 'Du bist der erste Teilnehmer an dem Weekend-Event!'
+                          : 'An diesem Weekend-Event ${_communityService.numOfActiveUsers == 1 ? 'hat' : 'haben'} bereits ${_communityService.numOfActiveUsers} PrioBikler teilgenommen und${_communityService.numOfActiveUsers == 1 ? '' : ' zusammen'} ${_communityService.numOfOverallAchievedLocations} Abzeichen gesammelt!',
+                      context: context,
+                      textAlign: TextAlign.center,
+                    )
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        BoldContent(text: 'Deine Gesammelten Abzeichen', context: context),
+                        RewardBadge(
+                          color: _event!.color,
+                          size: 64,
+                          value: _communityService.numOfAchievedLocations,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               Container(
                 color: Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.only(top: 16),

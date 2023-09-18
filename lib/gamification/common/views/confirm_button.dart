@@ -6,9 +6,11 @@ import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 class ConfirmButton extends StatelessWidget {
   final String label;
 
+  final Color color;
+
   final Function()? onPressed;
 
-  const ConfirmButton({Key? key, required this.label, this.onPressed}) : super(key: key);
+  const ConfirmButton({Key? key, required this.label, this.onPressed, this.color = CI.blue}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class ConfirmButton extends StatelessWidget {
         //width: double.infinity,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: onPressed == null ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25) : CI.blue,
+          color: onPressed == null ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25) : color,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
