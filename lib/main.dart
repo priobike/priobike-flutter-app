@@ -98,7 +98,7 @@ Future<void> main() async {
   getIt.registerSingleton<GoalsService>(GoalsService());
   getIt.registerSingleton<ChallengesProfileService>(ChallengesProfileService());
   getIt.registerSingleton<EvaluationDataService>(EvaluationDataService());
-  getIt.registerSingleton<CommunityService>(CommunityService());
+  getIt.registerSingleton<EventService>(EventService());
 
   runZonedGuarded(() async {
     runApp(const App());

@@ -32,15 +32,15 @@ class CommunityEventPage extends StatefulWidget {
 }
 
 class _CommunityEventPageState extends State<CommunityEventPage> {
-  late CommunityService _communityService;
+  late EventService _eventService;
 
   final ScrollController _scrollController = ScrollController();
 
   bool _selectionMode = false;
 
-  CommunityEvent? get _event => _communityService.event;
+  WeekendEvent? get _event => _eventService.event;
 
-  List<EventLocation> get _locations => _communityService.locations;
+  List<EventLocation> get _locations => _eventService.locations;
 
   Map<EventLocation, bool> _mappedLocations = {};
 
@@ -53,16 +53,16 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
 
   @override
   void initState() {
-    _communityService = getIt<CommunityService>();
-    _communityService.addListener(update);
+    _eventService = getIt<EventService>();
+    _eventService.addListener(update);
     _updateMappedLocations();
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) => _communityService.fetchCommunityEventData());
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) => _eventService.fetchData());
     super.initState();
   }
 
   @override
   void dispose() {
-    _communityService.removeListener(update);
+    _eventService.removeListener(update);
     super.dispose();
   }
 
@@ -116,7 +116,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
             (e) {
               var loc = e.key;
               var selected = e.value;
-              var wasAchieved = _communityService.wasLocationAchieved(loc);
+              var wasAchieved = _eventService.wasLocationAchieved(loc);
               var shortcut = ShortcutEventLocation(
                 name: loc.title,
                 achieved: wasAchieved,
@@ -285,6 +285,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     decoration: BoxDecoration(
@@ -320,86 +321,114 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   color: Theme.of(context).colorScheme.onBackground,
                 ),
               ),
+              Container(
+                height: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _eventService.event!.color,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
               const SmallVSpace(),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 4, left: 8),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 3,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                        ),
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          BoldContent(text: 'Community', context: context),
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Column(
+                                children: [
+                                  Icon(
+                                    Icons.groups,
+                                    size: 48,
+                                    color: _event!.color,
+                                  ),
+                                  BoldSubHeader(
+                                    text: '${_eventService.numOfActiveUsers}',
+                                    context: context,
+                                    height: 1,
+                                  )
+                                ],
+                              ),
+                              RewardBadge(
+                                color: _event!.color,
+                                size: 64,
+                                value: _eventService.overallNumOfAchievedBadges,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8, left: 4),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 3,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                        ),
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          BoldContent(
+                            text: 'Deine Abzeichen',
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          RewardBadge(
+                            color: _event!.color,
+                            size: 64,
+                            value: _eventService.numOfAchievedLocations,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(child: Container()),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Content(
-                  text:
-                      'Fahr dieses Wochenende doch einfach mal durch die Grünstreifen der Stadt und genieß das gute Wetter!',
+                child: SubHeader(
+                  text: _eventService.event!.description,
                   context: context,
                   textAlign: TextAlign.center,
                 ),
               ),
-              const VSpace(),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 32),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 3,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                  ),
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    BoldSubHeader(text: 'Community', context: context),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Column(
-                          children: [
-                            Icon(
-                              Icons.groups,
-                              size: 64,
-                              color: _event!.color,
-                            ),
-                            BoldSubHeader(
-                              text: '${_communityService.numOfActiveUsers}',
-                              context: context,
-                              height: 1,
-                            )
-                          ],
-                        ),
-                        RewardBadge(
-                          color: _event!.color,
-                          size: 80,
-                          value: _communityService.numOfOverallAchievedLocations,
-                        ),
-                      ],
-                    ),
-                    const SmallVSpace(),
-                    Small(
-                      text: _communityService.numOfActiveUsers == 0
-                          ? 'Du bist der erste Teilnehmer an dem Weekend-Event!'
-                          : 'An diesem Weekend-Event ${_communityService.numOfActiveUsers == 1 ? 'hat' : 'haben'} bereits ${_communityService.numOfActiveUsers} PrioBikler teilgenommen und${_communityService.numOfActiveUsers == 1 ? '' : ' zusammen'} ${_communityService.numOfOverallAchievedLocations} Abzeichen gesammelt!',
-                      context: context,
-                      textAlign: TextAlign.center,
-                    )
-                  ],
+              const SmallVSpace(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: BoldContent(
+                  text: 'Wähle eine oder mehrere Standorte aus und fang an zu sammeln!',
+                  context: context,
+                  textAlign: TextAlign.center,
                 ),
               ),
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        BoldContent(text: 'Deine Gesammelten Abzeichen', context: context),
-                        RewardBadge(
-                          color: _event!.color,
-                          size: 64,
-                          value: _communityService.numOfAchievedLocations,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              const SmallVSpace(),
               Container(
                 color: Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.only(top: 16),

@@ -1,10 +1,15 @@
+/// A location that is part of a weekly event.
 class EventLocation {
+  /// Unique id of the location.
   final int id;
 
+  /// Latitude of the location.
   final double lat;
 
+  /// Longitude of the location.
   final double lon;
 
+  /// Title describing the location.
   final String title;
 
   EventLocation(this.lat, this.lon, this.title, this.id);

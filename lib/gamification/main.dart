@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
+import 'package:priobike/gamification/community/views/community_card.dart';
 import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
@@ -46,7 +47,17 @@ class _GameViewState extends State<GameView> {
         RideStatisticsCard(),
       ],
     ),
-    GamificationUserService.communityFeatureKey: Container(), //const CommunityCard(),
+    GamificationUserService.communityFeatureKey: Column(
+      children: const [
+        TutorialView(
+          padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
+          id: 'priobike.gamification.community.tutorial',
+          text:
+              'Fahre durch ganz Hamburg und sammel dabei unterschiedliche Abzeichen in den wöchentlich stattfindenden Weekend-Events.',
+        ),
+        EventCard(),
+      ],
+    ),
   };
 
   /// List of feature cards for enabled features.

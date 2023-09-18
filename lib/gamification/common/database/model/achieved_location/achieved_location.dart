@@ -27,7 +27,7 @@ class AchievedLocationDao extends DatabaseDao<AchievedLocation> with _$AchievedL
     return (select(achievedLocations)..where((tbl) => (tbl as $AchievedLocationsTable).id.equals(value)));
   }
 
-  Future<AchievedLocation?> addLocation(EventLocation location, CommunityEvent event) async {
+  Future<AchievedLocation?> addLocation(EventLocation location, WeekendEvent event) async {
     var obj = await (select(achievedLocations)..where((tbl) => tbl.locationId.equals(location.id))).get();
     if (obj.isEmpty) {
       return createObject(

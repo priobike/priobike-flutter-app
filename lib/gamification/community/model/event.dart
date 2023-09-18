@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 
-class CommunityEvent {
+/// This object holds information about a weekend event pulled from the server.
+class WeekendEvent {
+  /// Unique id of the event.
   final int id;
 
+  /// Title given to the event.
   final String title;
 
+  /// Description of the event.
   final String description;
 
+  /// Time where the event starts and the user gets access to its locations.
   final DateTime startTime;
 
+  /// Time the event ends.
   final DateTime endTime;
 
+  /// Color corresponding to the event as an int.
   final int colorValue;
 
+  /// Get color value converted to actual color.
   Color get color => Color(colorValue);
 
-  CommunityEvent(this.id, this.title, this.description, this.startTime, this.endTime, this.colorValue);
+  WeekendEvent(this.id, this.title, this.description, this.startTime, this.endTime, this.colorValue);
 
-  CommunityEvent.fromJson(Map<String, dynamic> json)
+  WeekendEvent.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         title = json['title'],
         description = json['description'],

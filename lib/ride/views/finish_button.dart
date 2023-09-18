@@ -70,7 +70,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
     await statistics.calculateSummary();
 
     // If there is an active event, check if the user passed some of the event locations.
-    await getIt<CommunityService>().checkLocations();
+    await getIt<EventService>().checkLocations();
 
     // Disconnect from the mqtt broker.
     final datastream = getIt<Datastream>();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 
+/// This widget displays a badge with a given size, a given color and with a given number to display on top of it.
 class RewardBadge extends StatelessWidget {
   final Color color;
 

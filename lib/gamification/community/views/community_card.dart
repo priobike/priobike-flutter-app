@@ -7,24 +7,24 @@ import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/community/service/community_service.dart';
 import 'package:priobike/gamification/community/views/badge_collection.dart';
 import 'package:priobike/gamification/community/views/event_page.dart';
-import 'package:priobike/gamification/community/views/event_view.dart';
+import 'package:priobike/gamification/common/views/countdown_timer.dart';
 import 'package:priobike/main.dart';
 
-/// This card is displayed on the home view and holds all information about the users participation in the community events.
-
-class CommunityCard extends StatefulWidget {
-  const CommunityCard({Key? key}) : super(key: key);
+/// This card is displayed on the home view and holds all information about the users participation in the weekend events.
+class EventCard extends StatefulWidget {
+  const EventCard({Key? key}) : super(key: key);
 
   @override
-  State<CommunityCard> createState() => _CommunityCardState();
+  State<EventCard> createState() => _EventCardState();
 }
 
-class _CommunityCardState extends State<CommunityCard> {
-  late CommunityService _communityService;
+class _EventCardState extends State<EventCard> {
+  /// Event service to gather all the relevant data about the current event.
+  late EventService _communityService;
 
   @override
   void initState() {
-    _communityService = getIt<CommunityService>();
+    _communityService = getIt<EventService>();
     _communityService.addListener(update);
     super.initState();
   }
@@ -52,6 +52,7 @@ class _CommunityCardState extends State<CommunityCard> {
       featureEnabledContent: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          /// Display card content according to the current events status.
           if (_communityService.activeEvent) ActiveEventView(service: _communityService),
           if (_communityService.waitingForEvent) WaitingForEventView(service: _communityService),
           if (!_communityService.activeEvent && !_communityService.waitingForEvent)
@@ -132,6 +133,130 @@ class _CommunityCardState extends State<CommunityCard> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class WaitingForEventView extends StatelessWidget {
+  final EventService service;
+
+  const WaitingForEventView({Key? key, required this.service}) : super(key: key);
+
+  Widget getInfoIcon(IconData icon, int value, Color color, var context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Icon(icon, size: 52, color: color),
+        ),
+        if (value > 0) Header(text: '$value', context: context, height: 1),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SmallVSpace(),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            getInfoIcon(Icons.shield, getIt<EventService>().numOfAchievedLocations, CI.blue, context),
+          ],
+        ),
+        const SmallVSpace(),
+        Text(
+          'Nächstes Weekend-Event startet in:',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'HamburgSans',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+          ),
+        ),
+        CountdownTimer(
+          timestamp: service.event!.startTime,
+          style: Theme.of(context).textTheme.titleSmall!.merge(
+                TextStyle(
+                  color: Theme.of(context).colorScheme.onBackground,
+                  height: 1,
+                ),
+              ),
+        ),
+        const SmallVSpace(),
+        if (service.numOfAchievedBadges > 0)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              BoldSmall(
+                  text: 'Abzeichensammlung',
+                  context: context,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
+              const Icon(Icons.redo)
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class ActiveEventView extends StatelessWidget {
+  final EventService service;
+
+  const ActiveEventView({Key? key, required this.service}) : super(key: key);
+
+  Widget getInfoIcon(IconData icon, int value, Color color, var context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(icon, size: 52, color: color),
+        Header(text: '$value', context: context),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SmallVSpace(),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            getInfoIcon(Icons.location_on, service.locations.length, Colors.grey, context),
+            getInfoIcon(Icons.shield, service.numOfAchievedLocations, service.event!.color, context),
+          ],
+        ),
+        const SmallVSpace(),
+        Text(
+          service.event!.title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'HamburgSans',
+            fontSize: 30,
+            fontWeight: FontWeight.w600,
+            color: service.event!.color,
+          ),
+        ),
+        const SmallVSpace(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            BoldSmall(
+                text: 'noch ', context: context, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
+            CountdownTimer(
+              timestamp: service.event!.endTime,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

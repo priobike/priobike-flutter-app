@@ -1,6 +1,8 @@
 import 'package:priobike/gamification/common/models/evaluation_data.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,8 +13,7 @@ class EvaluationDataService {
 
   static const int dataSendingAttempsThreshold = 5;
 
-  /// Url of the gamification service.
-  final baseUrl = '10.0.2.2:8000'; //settings.backend.path;
+  String get baseUrl => 'https://${getIt<Settings>().backend.path}/game-service/';
 
   /// List of unsent elements.
   List<EvaluationData> unsentElements = [];
@@ -55,13 +56,13 @@ class EvaluationDataService {
   Future<bool> sendEvaluationData(EvaluationData data) async {
     try {
       // Build and parse url to send to.
-      final postUrl = "http://$baseUrl/${data.address}";
+      final postUrl = "$baseUrl${data.address}";
       final postProfileEndpoint = Uri.parse(postUrl);
 
       log.i("Sending gamification data to $postUrl");
 
       // Try to send json data to url of the gamification service.
-      final response = await Http.post(postProfileEndpoint, body: data.jsonData);
+      final response = await Http.post(postProfileEndpoint, body: data.jsonData).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         log.i("Sending of gamification data successful: $postUrl");

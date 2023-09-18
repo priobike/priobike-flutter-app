@@ -10,6 +10,7 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/community/service/community_service.dart';
 import 'package:priobike/main.dart';
 
+/// This view displays the badges the user has collected, which represent the achieved locations of the user.
 class BadgeCollection extends StatefulWidget {
   const BadgeCollection({Key? key}) : super(key: key);
 
@@ -24,7 +25,8 @@ class _BadgeCollectionState extends State<BadgeCollection> {
 
   @override
   void initState() {
-    _stream = getIt<CommunityService>().getStreamOfAllBadges().listen((results) {
+    // Listen to stream of achieved locations and update the variable accordingly.
+    _stream = getIt<EventService>().getStreamOfAllBadges().listen((results) {
       setState(() {
         _achievedLocations = results;
       });
