@@ -98,12 +98,9 @@ class MapboxAttribution extends StatelessWidget {
       right: right,
       bottom: bottom,
       child: InkWell(
-        child: Opacity(
-          opacity: 0.7,
-          child: Image.asset(
-            'assets/images/mapbox-logo-transparent.png',
-            width: width,
-          ),
+        child: Image.asset(
+          'assets/images/mapbox-logo-transparent.png',
+          width: width,
         ),
         onTap: () => showAttribution(context),
       ),
