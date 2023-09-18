@@ -194,9 +194,25 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => MapboxTileImageCache.requestTile(coords: [
+        LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
+        LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
+      ]).then((value) {
+        setState(() {
+          backgroundImage = value;
+        });
+      });
+
   @override
   void initState() {
     super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     // Load the background image
     MapboxTileImageCache.requestTile(coords: [
@@ -207,6 +223,12 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
         backgroundImage = value;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   @override
