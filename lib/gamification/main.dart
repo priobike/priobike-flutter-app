@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
-import 'package:priobike/gamification/community/views/community_card.dart';
 import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/card/stats_card.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/tutorial/view.dart';
 
 /// This view displays the gamification functionality according to the user settings.
 class GameView extends StatefulWidget {
@@ -24,8 +24,28 @@ class _GameViewState extends State<GameView> {
 
   /// The gamification features mapped to their corresponding cards.
   final Map<String, Widget> _featureCards = {
-    GamificationUserService.challengesFeatureKey: const ChallengesCard(),
-    GamificationUserService.statisticsFeatureKey: const RideStatisticsCard(),
+    GamificationUserService.challengesFeatureKey: Column(
+      children: const [
+        TutorialView(
+          padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
+          id: 'priobike.gamification.challenges.tutorial',
+          text:
+              'Erfülle tägliche Challenges, steige Level auf und lass dich überraschen, vor was für Herausforderungen du dabei sonst noch gestellt wirst...',
+        ),
+        ChallengesCard(),
+      ],
+    ),
+    GamificationUserService.statisticsFeatureKey: Column(
+      children: const [
+        TutorialView(
+          padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
+          id: 'priobike.gamification.statistics.tutorial',
+          text:
+              'Erhalte einen genaueren Überblick über deine zurückgelegten Fahrten, durch tägliche, wöchentliche und monatliche Statistik-Überblicke.',
+        ),
+        RideStatisticsCard(),
+      ],
+    ),
     GamificationUserService.communityFeatureKey: Container(), //const CommunityCard(),
   };
 

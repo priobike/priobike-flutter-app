@@ -284,18 +284,16 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isWeekly && _profileService.profile!.level < 2) {
-      return const SizedBox.shrink();
-    } else {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          children: [
-            _getProgressBar(),
-            _getTimeLeftWidget(),
-          ],
-        ),
-      );
-    }
+    if (_profileService.profile == null) return const SizedBox.shrink();
+    if (widget.isWeekly && _profileService.profile!.level < 2) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        children: [
+          _getProgressBar(),
+          _getTimeLeftWidget(),
+        ],
+      ),
+    );
   }
 }

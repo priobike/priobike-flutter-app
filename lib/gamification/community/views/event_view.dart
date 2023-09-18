@@ -3,7 +3,6 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/countdown_timer.dart';
-import 'package:priobike/gamification/community/model/event.dart';
 import 'package:priobike/gamification/community/service/community_service.dart';
 import 'package:priobike/main.dart';
 

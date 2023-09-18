@@ -8,7 +8,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/community/service/community_service.dart';
-import 'package:priobike/gamification/community/views/badge.dart';
 import 'package:priobike/main.dart';
 
 class BadgeCollection extends StatefulWidget {

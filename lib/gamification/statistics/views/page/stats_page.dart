@@ -10,7 +10,6 @@ import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/page/ride_graphs_page_view.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
-import 'package:priobike/gamification/statistics/views/page/route_goals_history.dart';
 import 'package:priobike/main.dart';
 
 /// This view provides the user with detailed statistics about their ride history.
@@ -143,18 +142,22 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
                     ),
                   ],
                 ),
-                const SmallVSpace(),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: StatInterval.values
-                      .map((interval) => IntervalSelectionButton(
-                            interval: interval,
-                            selected: _statInterval == interval,
-                            onTap: () => setState(() => _statInterval = interval),
-                          ))
-                      .toList(),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: StatInterval.values
+                        .map((interval) => IntervalSelectionButton(
+                              interval: interval,
+                              selected: _statInterval == interval,
+                              onTap: () => setState(() => _statInterval = interval),
+                            ))
+                        .toList(),
+                  ),
                 ),
+                const SmallVSpace(),
                 AnimatedSwitcher(
                   duration: const ShortDuration(),
                   transitionBuilder: (child, animation) => FadeTransition(
@@ -163,8 +166,10 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
                   ),
                   child: _getStatsViewFromInterval(_statInterval),
                 ),
-                Expanded(child: Container()),
-                RouteGoalsHistory(viewModel: _viewModel),
+                Expanded(
+                  child: Container(),
+                ),
+                //RouteGoalsHistory(viewModel: _viewModel),
               ],
             ),
           ),

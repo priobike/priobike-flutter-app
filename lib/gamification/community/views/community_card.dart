@@ -4,12 +4,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/community/model/event.dart';
 import 'package:priobike/gamification/community/service/community_service.dart';
 import 'package:priobike/gamification/community/views/badge_collection.dart';
 import 'package:priobike/gamification/community/views/event_page.dart';
 import 'package:priobike/gamification/community/views/event_view.dart';
-import 'package:priobike/gamification/community/views/community_tutorial.dart';
 import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information about the users participation in the community events.
@@ -45,6 +43,7 @@ class _CommunityCardState extends State<CommunityCard> {
     return GamificationFeatureCard(
       featureKey: GamificationUserService.communityFeatureKey,
       // If the feature is enabled, show progress bars of the users challenges and the profile view.
+      onEnabled: () {},
       featurePage: _communityService.activeEvent
           ? const CommunityEventPage()
           : (_communityService.waitingForEvent && _communityService.numOfAchievedBadges > 0
@@ -76,8 +75,6 @@ class _CommunityCardState extends State<CommunityCard> {
             ),
         ],
       ),
-      // If the feature is disabled, show an info widget which directs the user to an intro page.
-      tutorialPage: const CommunityTutorial(),
       featureDisabledContent: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(

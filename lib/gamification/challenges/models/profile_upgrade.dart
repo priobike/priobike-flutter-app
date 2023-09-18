@@ -6,7 +6,7 @@ enum ProfileUpgradeType {
   addWeeklyChallenge,
   addDailyChoice,
   addWeeklyChoice,
-  betaTester,
+  highestLevel,
 }
 
 /// An upgrade which can be activated when the users reaches a certain level to enhance certain profile values.
@@ -61,8 +61,8 @@ List<ProfileUpgrade> getUpgradesForLevel(int level) {
   } else if (level == levels.length - 1) {
     return [
       ProfileUpgrade(
-        'Herzlichen Glückwunsch, du hast das höchste Level erreich! Als Belohnung kannst du nun in den Einstellungen auf die neusten Beta-Funktionen der App zugreifen.',
-        ProfileUpgradeType.betaTester,
+        'Herzlichen Glückwunsch, du hast das höchste Level erreich!',
+        ProfileUpgradeType.highestLevel,
       ),
     ];
   } else {

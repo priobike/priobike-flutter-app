@@ -19,22 +19,21 @@ class GamificationFeatureCard extends StatefulWidget {
   /// The content of the card, if the feature is enabled.
   final Widget featureEnabledContent;
 
+  final Function() onEnabled;
+
   /// The page, the card navigates to, if the feature is enabled.
   final Widget? featurePage;
 
   /// The content of the card, if the feature is disabled.
   final Widget featureDisabledContent;
 
-  /// The page, the card navigates to, if the feature is disabled.
-  final Widget tutorialPage;
-
   const GamificationFeatureCard({
     Key? key,
     required this.featureKey,
     required this.featureEnabledContent,
     required this.featureDisabledContent,
-    required this.tutorialPage,
     this.featurePage,
+    required this.onEnabled,
   }) : super(key: key);
 
   @override
@@ -74,8 +73,9 @@ class _GamificationFeatureCardState extends State<GamificationFeatureCard> {
       );
     } else {
       return DisabledFeatureCard(
+        onEnabled: widget.onEnabled,
         content: widget.featureDisabledContent,
-        tutorialPage: widget.tutorialPage,
+        featureKey: widget.featureKey,
       );
     }
   }
@@ -86,19 +86,70 @@ class DisabledFeatureCard extends StatelessWidget {
   /// Content to be displayed inside of the feature card.
   final Widget content;
 
-  /// Tutorial page to which the card directs to, if pressed.
-  final Widget tutorialPage;
+  /// The key of the corresponding feature.
+  final String featureKey;
+
+  final Function() onEnabled;
 
   const DisabledFeatureCard({
     Key? key,
     required this.content,
-    required this.tutorialPage,
+    required this.featureKey,
+    required this.onEnabled,
   }) : super(key: key);
+
+  /// A dialog which is opened, if the user presses the card to enable a feature.
+  void _enableFeatureDialog(var context) {
+    showDialog(
+      barrierColor: Colors.black.withOpacity(0.8),
+      context: context,
+      builder: (context) {
+        return CustomDialog(
+          content: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                BoldSubHeader(
+                  text: 'Möchtest du dieses Feature aktivieren?',
+                  context: context,
+                  textAlign: TextAlign.center,
+                ),
+                const VSpace(),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    CustomDialogButton(
+                      label: 'Abbrechen',
+                      onPressed: () => Navigator.of(context).pop(),
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                    ),
+                    const SmallHSpace(),
+                    CustomDialogButton(
+                      label: 'Aktivieren',
+                      onPressed: () {
+                        onEnabled();
+                        getIt<GamificationUserService>().enableFeature(featureKey);
+                        Navigator.of(context).pop();
+                      },
+                      color: CI.blue,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return OnTapAnimation(
-      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => tutorialPage)),
+      onPressed: () => _enableFeatureDialog(context),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         padding: const EdgeInsets.all(16),
@@ -164,7 +215,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
       builder: (context) {
         return CustomDialog(
           content: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,

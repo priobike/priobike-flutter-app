@@ -1,8 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/intro/intro_page.dart';

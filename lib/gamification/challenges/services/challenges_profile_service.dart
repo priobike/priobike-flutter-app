@@ -120,6 +120,7 @@ class ChallengesProfileService with ChangeNotifier {
     _profile = ChallengesProfile();
     storeProfile();
     _challengeDao.clearObjects();
+    notifyListeners();
   }
 
   /// Reset everything connected to the challenge feature.

@@ -115,96 +115,91 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: () => _statsService.selectDate(null),
-          child: Column(
+    return GestureDetector(
+      onTap: () => _statsService.selectDate(null),
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 16),
-                  SubHeader(
-                    text: StringFormatter.getDescriptionForStatType(_statsService.selectedType),
-                    context: context,
-                    height: 1,
+              const SizedBox(width: 16),
+              SubHeader(
+                text: StringFormatter.getDescriptionForStatType(_statsService.selectedType),
+                context: context,
+                height: 1,
+              ),
+              Expanded(child: Container()),
+              if (selectedElement == null) ...[
+                BoldContent(
+                  text: 'ø',
+                  context: context,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                ),
+                const SizedBox(width: 2),
+                BoldSubHeader(
+                  text: StringFormatter.getFormattedStrByStatType(
+                    statsOnPage.getAvgFromType(_statsService.selectedType),
+                    _statsService.selectedType,
                   ),
-                  Expanded(child: Container()),
-                  if (selectedElement == null) ...[
-                    BoldContent(
-                      text: 'ø',
-                      context: context,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                    ),
-                    const SizedBox(width: 2),
-                    BoldSubHeader(
-                      text: StringFormatter.getFormattedStrByStatType(
-                        statsOnPage.getAvgFromType(_statsService.selectedType),
-                        _statsService.selectedType,
-                      ),
-                      context: context,
-                      height: 1,
-                    ),
-                  ],
-                  const SizedBox(width: 16),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(width: 16),
-                    BoldSmall(
-                      text: statsOnPage.getTimeDescription(selectedIndex),
-                      context: context,
-                    ),
-                  ],
+                  context: context,
+                  height: 1,
                 ),
-              ),
-              const SmallVSpace(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 224,
-                  child: MapBackground(
-                    child: PageView(
-                      reverse: true,
-                      controller: _pageController,
-                      clipBehavior: Clip.hardEdge,
-                      children: _getGraphs(),
-                    ),
-                  ),
-                ),
-              ),
-              const SmallVSpace(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _getStatInfoWidget(StatType.distance),
-                    _getStatInfoWidget(StatType.duration),
-                    _getStatInfoWidget(StatType.speed),
-                    _getStatInfoWidget(StatType.elevationGain),
-                    _getStatInfoWidget(StatType.elevationLoss),
-                  ],
-                ),
-              ),
+              ],
+              const SizedBox(width: 16),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Container(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(width: 16),
+                BoldSmall(
+                  text: statsOnPage.getTimeDescription(selectedIndex),
+                  context: context,
+                ),
+              ],
+            ),
+          ),
+          const SmallVSpace(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 224,
+              child: MapBackground(
+                child: PageView(
+                  reverse: true,
+                  controller: _pageController,
+                  clipBehavior: Clip.hardEdge,
+                  children: _getGraphs(),
+                ),
+              ),
+            ),
+          ),
+          const SmallVSpace(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _getStatInfoWidget(StatType.distance),
+                _getStatInfoWidget(StatType.duration),
+                _getStatInfoWidget(StatType.speed),
+                _getStatInfoWidget(StatType.elevationGain),
+                _getStatInfoWidget(StatType.elevationLoss),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

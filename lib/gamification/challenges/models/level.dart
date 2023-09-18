@@ -22,9 +22,9 @@ class Level {
 /// These are the levels that are possible to achieve by the user vie their xp.
 List<Level> levels = [
   Level(value: 0, title: 'Novize', color: LevelColors.grey),
-  const Level(value: 25, title: 'Rad-Rookie', color: LevelColors.pink),
-  const Level(value: 100, title: 'Freizeitradler', color: LevelColors.green),
-  const Level(value: 250, title: 'Sattel-Routinier', color: LevelColors.bronze),
+  const Level(value: 10, title: 'Rad-Rookie', color: LevelColors.pink),
+  const Level(value: 50, title: 'Freizeitradler', color: LevelColors.green),
+  const Level(value: 200, title: 'Sattel-Routinier', color: LevelColors.bronze),
   const Level(value: 500, title: 'Stadtsprinter', color: LevelColors.silver),
   const Level(value: 1000, title: 'Pedal-Profi', color: LevelColors.gold),
   const Level(value: 2500, title: 'Fahrrad-Flüsterer', color: LevelColors.diamond),

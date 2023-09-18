@@ -6,6 +6,7 @@ import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/goals/views/edit_daily_goals.dart';
 import 'package:priobike/gamification/goals/views/edit_route_goals.dart';
+import 'package:priobike/tutorial/view.dart';
 
 /// This view gives the user to open dialogs to edit their daily and route goals by pressing on corresponding buttons.
 class GoalsView extends StatelessWidget {
@@ -18,6 +19,12 @@ class GoalsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          const TutorialView(
+            padding: EdgeInsets.fromLTRB(32, 0, 32, 24),
+            id: 'priobike.gamification.goals.tutorial',
+            text:
+                'Setze dir tägliche Ziele. Die Ziele die du für dich festlegst, werden in deine Statistiken integriert und bestimmen die Schwierigkeit der für dich generierten Challenges.',
+          ),
           Row(
             mainAxisSize: MainAxisSize.max,
             children: [

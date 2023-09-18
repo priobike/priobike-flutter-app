@@ -53,6 +53,12 @@ class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SmallVSpace(),
+            BoldSubHeader(
+              text: 'Möchtest du dir an bestimmten Tagen eine Distanz oder Zeit vornehmen?',
+              context: context,
+              textAlign: TextAlign.center,
+            ),
+            const SmallVSpace(),
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

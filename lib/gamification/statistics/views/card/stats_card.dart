@@ -14,7 +14,6 @@ import 'package:priobike/gamification/statistics/views/graphs/week_graph.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/views/card/route_stats.dart';
 import 'package:priobike/gamification/statistics/views/page/stats_page.dart';
-import 'package:priobike/gamification/statistics/views/stats_tutorial.dart';
 import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information and functionality of the statistics feature.
@@ -24,10 +23,10 @@ class RideStatisticsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GamificationFeatureCard(
+      onEnabled: () {},
       featureKey: GamificationUserService.statisticsFeatureKey,
       featurePage: const StatisticsView(),
       featureEnabledContent: const StatisticsOverview(),
-      tutorialPage: const StatisticsTutorial(),
       featureDisabledContent: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(

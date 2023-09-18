@@ -194,14 +194,14 @@ class CommunityService with ChangeNotifier {
     }
     // Catch the error if there is no connection to the internet or something else went wrong.
     catch (e) {
-      log.e("Failed to load locations: $e");
+      log.e("Failed to load event status: $e");
     }
   }
 
   Future<void> fetchCommunityEventData() async {
-    await loadOpenCommunityEvent();
-    await loadEventLocations();
-    await fetchEventStatus();
+    loadOpenCommunityEvent();
+    loadEventLocations();
+    fetchEventStatus();
     numOfAchievedBadges = (await _achievedLocationDao.getAllObjects()).length;
     notifyListeners();
   }

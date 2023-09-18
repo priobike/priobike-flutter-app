@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';

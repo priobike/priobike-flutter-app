@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/challenges/views/challenges_tutorial.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/challenges/views/profile/profile_view.dart';
 import 'package:priobike/gamification/challenges/views/progress_bar/progress_bar.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information about the users
 /// game state regarding the challenges feature.
@@ -22,6 +23,10 @@ class ChallengesCard extends StatelessWidget {
     return GamificationFeatureCard(
       featureKey: GamificationUserService.challengesFeatureKey,
       // If the feature is enabled, show progress bars of the users challenges and the profile view.
+      onEnabled: () async {
+        await getIt<ChallengesProfileService>().createProfile();
+        await getIt<GamificationUserService>().enableFeature(GamificationUserService.challengesFeatureKey);
+      },
       featureEnabledContent: Column(
         children: const [
           GameProfileView(),
@@ -31,8 +36,6 @@ class ChallengesCard extends StatelessWidget {
           ChallengeProgressBar(isWeekly: false),
         ],
       ),
-      // If the feature is disabled, show an info widget which directs the user to an intro page.
-      tutorialPage: const ChallengesTutorial(),
       featureDisabledContent: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
