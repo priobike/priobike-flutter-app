@@ -154,6 +154,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
                   const SizedBox(width: 16),
                 ],
               ),
+              const SizedBox(height: 8),
               Container(
                 color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                 child: Row(

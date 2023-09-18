@@ -94,6 +94,12 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SmallVSpace(),
+            BoldSubHeader(
+              text: 'Möchtest du dir vornehmen eine deiner Routen regelmäßig zu fahren?',
+              context: context,
+              textAlign: TextAlign.center,
+            ),
+            const SmallVSpace(),
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -66,13 +66,14 @@ class IntroPage extends StatelessWidget {
           context: context,
         ),
         const SmallVSpace(),
+        /*
         IconItem(
-          icon: Icons.groups,
-          text: 'Dies sind Community Features, dies sind community features, hier sind sie die features.',
+          icon: Icons.shield,
+          text: 'Nimm an wöchentlichen Events Teil und sammel .',
           context: context,
         ),
-        const SmallVSpace(),
-        Content(
+        const SmallVSpace(),*/
+        SubHeader(
           text: '',
           context: context,
         ),

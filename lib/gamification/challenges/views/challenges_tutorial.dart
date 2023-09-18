@@ -17,7 +17,7 @@ class ChallengesTutorial extends StatelessWidget {
       confirmButtonLabel: 'Aktivieren',
       onConfirmButtonTab: () async {
         await getIt<ChallengesProfileService>().createProfile();
-        getIt<GamificationUserService>().enableFeature(GamificationUserService.challengesFeatureKey);
+        await getIt<GamificationUserService>().enableFeature(GamificationUserService.challengesFeatureKey);
         if (context.mounted) Navigator.of(context).pop();
       },
       contentList: [
