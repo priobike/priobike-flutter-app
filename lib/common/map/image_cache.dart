@@ -24,17 +24,18 @@ class MapboxTileImageCache {
   static Future<MemoryImage?> requestTile({required List<LatLng> coords}) async {
     final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
     if (bbox == null) return null;
-    final String bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
+    final colorMode = getIt<Settings>().colorMode;
+    final imageName = "${bbox.minLon}_${bbox.minLat}_${bbox.maxLon}_${bbox.maxLat}+${colorMode.toString()}";
 
     // Check if we are currently already fetching the image.
-    if (MapboxTileImageCache.ongoingFetches.containsKey(bboxStr)) {
-      return MapboxTileImageCache.ongoingFetches[bboxStr];
+    if (MapboxTileImageCache.ongoingFetches.containsKey(imageName)) {
+      return MapboxTileImageCache.ongoingFetches[imageName];
     } else {
       // Fetch the image.
-      final fetch = MapboxTileImageCache._fetchTile(bbox: bbox);
-      MapboxTileImageCache.ongoingFetches[bboxStr] = fetch;
-      final image = await fetch;
-      MapboxTileImageCache.ongoingFetches.remove(bboxStr);
+      final Future<MemoryImage?> fetch = MapboxTileImageCache._fetchTile(bbox: bbox);
+      MapboxTileImageCache.ongoingFetches[imageName] = fetch;
+      final MemoryImage? image = await fetch;
+      MapboxTileImageCache.ongoingFetches.remove(imageName);
       return image;
     }
   }
@@ -47,18 +48,17 @@ class MapboxTileImageCache {
 
     try {
       // See: https://docs.mapbox.com/api/maps/static-images/
-      const String accessToken =
+      const accessToken =
           "access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
       final ColorMode colorMode = getIt<Settings>().colorMode;
       final String styleId = colorMode == ColorMode.dark
           // remove prefix "mapbox://styles/" from the styles
           ? getIt<MapDesigns>().mapDesign.darkStyleNoText.replaceFirst("mapbox://styles/", "")
           : getIt<MapDesigns>().mapDesign.lightStyleNoText.replaceFirst("mapbox://styles/", "");
-      final String bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
+      final bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
       // we display the logo and attribution, so we can hide it in the image
-      final String url =
+      final url =
           "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessToken";
-      log.i("Fetching background image from Mapbox: $url");
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
@@ -67,7 +67,7 @@ class MapboxTileImageCache {
       }
       final MemoryImage image = MemoryImage(response.bodyBytes);
 
-      log.i("Fetched background image from Mapbox.");
+      log.i("Fetched background image from Mapbox: $url");
       await saveImage(bbox, image);
 
       // save timestamp of last fetch to shared preferences, used in pruning of old images
