@@ -125,13 +125,13 @@ class MapboxTileImageCache {
     ToastMessage.showSuccess("Alle Hintergrundbilder gelöscht");
   }
 
-  /// Prunes all images that were not used in the last 7 days. Gets called during app launch.
+  /// Prunes all images that were not used within 7 days since last fetch of background image.
+  /// Gets called during app launch.
   static Future<void> pruneUnusedImages() async {
     final prefs = await SharedPreferences.getInstance();
     final int? lastFetch = prefs.getInt("priobike.backgroundimage.lastfetch");
     if (lastFetch == null) return;
 
-    final int now = DateTime.now().millisecondsSinceEpoch;
     final dirPath = await _getImageDir();
     final imagesDir = Directory(dirPath);
     if (!await imagesDir.exists()) return;
@@ -141,7 +141,7 @@ class MapboxTileImageCache {
       final path = file.path;
       final stat = await file.stat();
       final lastAccessed = stat.accessed.millisecondsSinceEpoch;
-      if (now - lastAccessed > 7 * 24 * 60 * 60 * 1000) {
+      if ((lastFetch - lastAccessed) > (7 * 24 * 60 * 60 * 1000)) {
         await file.delete();
         log.i("Deleted unused image from $path");
       }
