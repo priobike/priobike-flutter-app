@@ -26,7 +26,7 @@ class _GameViewState extends State<GameView> {
   final Map<String, Widget> _featureCards = {
     GamificationUserService.challengesFeatureKey: const ChallengesCard(),
     GamificationUserService.statisticsFeatureKey: const RideStatisticsCard(),
-    GamificationUserService.communityFeatureKey: const CommunityCard(),
+    GamificationUserService.communityFeatureKey: Container(), //const CommunityCard(),
   };
 
   /// List of feature cards for enabled features.
