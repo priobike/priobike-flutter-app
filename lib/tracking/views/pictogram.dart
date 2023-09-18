@@ -9,6 +9,8 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
@@ -69,9 +71,25 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   /// The future of the background image.
   Future? backgroundImageFuture;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => // Load the background image
+      backgroundImageFuture =
+          MapboxTileImageCache.requestTile(coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList())
+              .then((value) {
+        setState(() {
+          backgroundImage = value;
+        });
+      });
+
   @override
   void initState() {
     super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     animation = Tween<double>(begin: 0, end: 1).animate(controller)
@@ -105,6 +123,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     backgroundImageFuture?.ignore();
     controller.stop();
     controller.dispose();
+    settings.removeListener(update);
     super.dispose();
   }
 
