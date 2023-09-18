@@ -6,17 +6,19 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/achieved_location/achieved_location.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/gamification/community/model/event.dart';
 import 'package:priobike/gamification/community/model/location.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride.dart';
 
 class CommunityService with ChangeNotifier {
   static const baseUrl = 'http://10.0.2.2:8000/community/';
 
   static const double locationThresholdMetres = 100;
+
+  static const vincenty = Distance(roundResult: true, calculator: Vincenty());
 
   final AchievedLocationDao _achievedLocationDao = AppDatabase.instance.achievedLocationDao;
 
@@ -41,7 +43,7 @@ class CommunityService with ChangeNotifier {
   CommunityEvent? get event => _event;
 
   List<EventLocation> get _unachievedLocations =>
-      _locations.where((loc) => _achievedLocations.where((e) => e.id == e.id).isEmpty).toList();
+      _locations.where((loc) => _achievedLocations.where((e) => e.id == loc.id).isEmpty).toList();
 
   List<EventLocation> get locations => List.from(_locations);
 
@@ -59,7 +61,14 @@ class CommunityService with ChangeNotifier {
 
       for (var location in _unachievedLocations) {
         var hasBeenAchieved = checkIfLocationWasAchieved(location, latLngList);
-        if (hasBeenAchieved) await _achievedLocationDao.addLocation(location, _event!.id);
+        if (hasBeenAchieved) {
+          var achievedLocation = await _achievedLocationDao.addLocation(location, _event!.id);
+          var json = {
+            'eventId': achievedLocation!.eventId,
+            'locationId': achievedLocation.id,
+          };
+          getIt<EvaluationDataService>().sendJsonToAddress('community/send-achieved-location/', json);
+        }
       }
     } catch (_) {
       log.e('Failed to check event locations after saving routes.');
@@ -69,6 +78,7 @@ class CommunityService with ChangeNotifier {
   bool checkIfLocationWasAchieved(EventLocation location, Iterable<LatLng> positions) {
     for (var pos in positions) {
       var distance = vincenty.distance(LatLng(location.lat, location.lon), pos);
+      log.i('distance to ${location.title} is $distance what');
       if (distance <= locationThresholdMetres) return true;
     }
     return false;

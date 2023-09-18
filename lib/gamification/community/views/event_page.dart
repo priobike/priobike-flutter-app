@@ -274,8 +274,8 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                     ),
                   ),
                   const HSpace(),
-                  SubHeader(
-                    text: _event!.title,
+                  BoldSubHeader(
+                    text: 'Wochenendradeln',
                     context: context,
                     textAlign: TextAlign.center,
                   ),
