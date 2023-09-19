@@ -145,9 +145,7 @@ class ShortcutRoutePainter extends CustomPainter {
         final x2_ = x1 + (x2 - x1) / dashCount * (j + 1);
         final y2_ = y1 + (y2 - y1) / dashCount * (j + 1);
 
-        if (j % 2 == 0) {
-          canvas.drawLine(Offset(x1_, y1_), Offset(x2_, y2_), paint);
-        }
+        if (j % 2 == 0) canvas.drawLine(Offset(x1_, y1_), Offset(x2_, y2_), paint);
       }
     }
 
@@ -255,7 +253,7 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
                 : Container(),
           ),
           Transform.translate(
-            offset: const Offset(0, -32),
+            offset: const Offset(0, -28),
             child: Icon(
               Icons.location_on,
               color: widget.color,
