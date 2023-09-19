@@ -7,11 +7,14 @@ import 'package:priobike/gamification/common/database/model/challenges/challenge
 import 'package:priobike/gamification/challenges/utils/challenge_validator.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 
 /// This class is to be extended by a service, which manages only challenges in a certain timeframe, such as
 /// weekly or daily challenges.
 abstract class ChallengeService with ChangeNotifier {
+  final log = Logger('ChallengeService');
+
   /// DAO to access the challenges in the database.
   final ChallengeDao _dao = AppDatabase.instance.challengeDao;
 
@@ -113,6 +116,11 @@ abstract class ChallengeService with ChangeNotifier {
       challenge.closingTime,
     );
     await ChallengeValidator(challenge: challenge, startStream: false).validate(rides);
+    try {
+      challenge = (await AppDatabase.instance.challengeDao.getObjectByPrimaryKey(challenge.id))!;
+    } catch (e) {
+      log.e('Failed to validate open challenge');
+    }
     var isCompleted = challenge.progress / challenge.target >= 1;
 
     // If an open challenge was not completed and the time did run out, close the challenge and send it to the backend.

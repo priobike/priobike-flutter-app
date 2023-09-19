@@ -48,7 +48,7 @@ class _EventCardState extends State<EventCard> {
       onEnabled: () {},
       featurePage: _eventService.activeEvent
           ? const CommunityEventPage()
-          : (_eventService.waitingForEvent && _eventService.userBadges.isNotEmpty
+          : (!_eventService.eventStarted && _eventService.userBadges.isNotEmpty
               ? BadgeCollection(badges: _eventService.userBadges)
               : null),
       featureEnabledContent: Column(
