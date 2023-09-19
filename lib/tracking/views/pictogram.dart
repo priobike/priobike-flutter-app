@@ -5,7 +5,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
