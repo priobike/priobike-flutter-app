@@ -9,9 +9,10 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/color_mode.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
@@ -46,16 +47,32 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   /// The GPS positions of the driven route.
   List<Position> positions = [];
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
+
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         await loadTrack();
         setState(() {});
       },
     );
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   /// Load the track.
@@ -143,6 +160,8 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
+    final colorMode = settings.colorMode;
+
     return SizedBox(
       width: widget.width,
       height: widget.width,
@@ -175,33 +194,47 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 ),
               ),
             Positioned(
-              top: 13,
+              top: 10,
               left: 10,
-              child: Column(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
-                  ShadowedText(
-                    text: "$day.",
-                    backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                    fontSize: widget.width * 0.17,
-                    height: 0.9,
-                    textColor: CI.blue,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  const SmallHSpace(),
-                  SizedBox(
-                    width: widget.width * 0.17,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: ShadowedText(
-                        text: "$monthName\n${year.toString()}",
-                        fontSize: 11,
-                        height: 1.2,
-                        textColor: Theme.of(context).colorScheme.onBackground,
-                        backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                      ),
+                  Text(
+                    "$day.",
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: colorMode == ColorMode.light ? CI.blue : CI.blueLight,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  const SizedBox(width: 2),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    verticalDirection: VerticalDirection.up,
+                    children: [
+                      Text(
+                        year.toString(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          height: 0.98,
+                          color: colorMode == ColorMode.light ? CI.blue : CI.blueLight,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        monthName,
+                        style: TextStyle(
+                          fontSize: 10,
+                          height: 0.98,
+                          color: colorMode == ColorMode.light ? CI.blue : CI.blueLight,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -210,102 +243,54 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               Positioned(
                 bottom: 10,
                 left: 10,
-                child: ShadowedText(
-                  text: trackDurationFormatted,
-                  fontSize: 11,
-                  height: 1.2,
-                  textColor: Theme.of(context).colorScheme.onBackground,
-                  backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
+                    child: Text(
+                      trackDurationFormatted,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        height: 1.2,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             Positioned(
-              right: 0,
-              bottom: 0,
-              child: IconButton(
-                onPressed: () => showDeleteDialog(context),
-                icon: Icon(
-                  Icons.delete_rounded,
-                  size: 22,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+              right: 10,
+              bottom: 10,
+              child: Container(
+                height: 33,
+                width: 33,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.withOpacity(0.5),
+                ),
+                child: IconButton(
+                  onPressed: () => showDeleteDialog(context),
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(
+                    Icons.delete_rounded,
+                    size: 22,
+                    color: Colors.white,
+                  ),
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-/// A text with a shadow behind it.
-class ShadowedText extends StatelessWidget {
-  /// The text to display.
-  final String text;
-
-  /// The font size.
-  final double fontSize;
-
-  /// The background color.
-  final Color backgroundColor;
-
-  /// The stroke width.
-  final double strokeWidth = 2.5;
-
-  /// The blur radius of the shadow.
-  final double blurRadius = 0.5;
-
-  /// The height of the text.
-  final double? height;
-
-  /// The text color.
-  final Color? textColor;
-
-  /// The shader.
-  final Shader? shader;
-
-  /// Font weight.
-  final FontWeight? fontWeight;
-
-  const ShadowedText({
-    Key? key,
-    required this.text,
-    required this.backgroundColor,
-    required this.fontSize,
-    this.height,
-    this.textColor,
-    this.shader,
-    this.fontWeight,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            height: height,
-            fontWeight: fontWeight,
-            foreground: Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeJoin = StrokeJoin.round
-              ..strokeWidth = strokeWidth
-              ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius)
-              ..shader = shader
-              ..color = backgroundColor,
-          ),
-        ),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            height: height,
-            color: textColor,
-            fontWeight: fontWeight,
-          ),
-        ),
-      ],
     );
   }
 }

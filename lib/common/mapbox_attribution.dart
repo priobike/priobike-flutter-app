@@ -26,7 +26,7 @@ class MapboxAttribution extends StatelessWidget {
     this.left,
     this.right,
     this.bottom,
-    this.width = 48,
+    this.width = 52,
   }) : super(key: key);
 
   /// Used to show the attribution dialog.

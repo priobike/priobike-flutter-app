@@ -169,30 +169,48 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
           Positioned(
             bottom: 8,
             left: 12,
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [widget.minSpeedColor, widget.maxSpeedColor],
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.withOpacity(0.5),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [widget.minSpeedColor, widget.maxSpeedColor],
+                        ),
+                      ),
                     ),
-                  ),
+                    const SmallHSpace(),
+                    Text(
+                      '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-                const SmallHSpace(),
-                Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
-              ],
+              ),
             ),
           ),
         //Mapbox Attribution Logo
         const MapboxAttribution(
           top: 10,
           right: 10,
-          width: 64,
         ),
       ],
     );
