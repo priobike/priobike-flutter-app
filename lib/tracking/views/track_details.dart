@@ -39,6 +39,7 @@ class TrackDetailsDialog extends StatelessWidget {
         Column(
           children: [
             TrackDetailsView(
+              key: ValueKey(track.sessionId),
               track: track,
               startImage: startImage,
               destinationImage: destinationImage,

@@ -6,10 +6,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:priobike/common/map/image_cache.dart';
-import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -19,7 +16,6 @@ import 'package:priobike/ride/services/hybrid_predictor.dart';
 import 'package:priobike/ride/services/prediction_service.dart';
 import 'package:priobike/ride/services/predictor.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -536,22 +532,8 @@ class Tracking with ChangeNotifier {
     log.i("Deleting track with id ${track.sessionId}.");
     // Delete the track files.
     final directory = await track.trackDirectory;
-    if (await directory.exists()) {
-      await directory.delete(recursive: true);
-    }
+    if (await directory.exists()) await directory.delete(recursive: true);
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
-
-    // Delete the associated background image. Needs to first get the bounding box of the track.
-    List<LatLng> coordinates = [];
-    for (final Route route in track.routes.values) {
-      for (final NavigationNode node in route.route) {
-        final latLng = LatLng(node.lat, node.lon);
-        coordinates.add(latLng);
-      }
-    }
-    final bbox = MapboxMapProjection.mercatorBoundingBox(coordinates);
-    if (bbox != null) await MapboxTileImageCache.deleteImage(bbox);
-
     await savePreviousTracks();
     notifyListeners();
   }

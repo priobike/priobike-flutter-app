@@ -51,18 +51,14 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   /// Load the routes.
   Future<void> loadRoutes() async {
-    if (tracking.previousTracks == null) {
-      return;
-    }
-    if (tracking.previousTracks!.isEmpty) {
-      return;
-    }
+    if (tracking.previousTracks == null) return;
+    if (tracking.previousTracks!.isEmpty) return;
 
     newestTracks.clear();
     totalTracks = 0;
 
     // Get max. 10 newest tracks
-    var i = tracking.previousTracks!.length - 2;
+    var i = tracking.previousTracks!.length - 1;
     final backend = getIt<Settings>().backend;
     while (i >= 0) {
       if (tracking.previousTracks![i].backend == backend) {
@@ -112,7 +108,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    final shortcutWidth = (MediaQuery.of(context).size.width / 2.4);
+    final shortcutWidth = MediaQuery.of(context).size.width / 2.4;
 
     if (startImage == null || destinationImage == null) return Container();
     if (newestTracks.isEmpty) return Container();
@@ -128,7 +124,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     views += newestTracks
         .map(
           (track) => TrackHistoryItemView(
-            key: ValueKey(track.sessionId),
+            key: UniqueKey(),
             track: track,
             width: shortcutWidth,
             startImage: startImage!,
@@ -138,8 +134,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         .toList();
 
     // Show a hint for the other tracks if there are more than 10.
-    // We need "+ 1" because the newest track in the larger view above is not in the newestTracks list.
-    if ((newestTracks.length + 1) < totalTracks) {
+    if (newestTracks.length < totalTracks) {
       views.add(
         Align(
           alignment: Alignment.center,
@@ -203,7 +198,9 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
           // Padding is nessessary for Shadow in LightMode
           padding: const EdgeInsets.only(bottom: 18),
           scrollDirection: Axis.horizontal,
-          child: Row(children: animatedViews),
+          child: Row(
+            children: animatedViews,
+          ),
         ),
         const VSpace(),
       ],
