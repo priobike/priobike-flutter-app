@@ -291,6 +291,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
       child: Column(
         children: [
           _getProgressBar(),
+          const SizedBox(height: 4),
           _getTimeLeftWidget(),
         ],
       ),

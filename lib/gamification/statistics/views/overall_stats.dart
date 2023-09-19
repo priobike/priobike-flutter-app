@@ -84,7 +84,7 @@ class _OverallStatisticsState extends State<OverallStatistics> {
               height: 1,
             ),
           ),
-          const SmallVSpace(),
+          const VSpace(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,

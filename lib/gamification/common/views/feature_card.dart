@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/animation.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/views/dialog_button.dart';
 import 'package:priobike/main.dart';
@@ -280,23 +281,10 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
         child: Stack(
           alignment: Alignment.topRight,
           children: [
-            Container(
+            Tile(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  width: 1,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.07),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 2,
-                  ),
-                ],
-              ),
-              child: IgnorePointer(
+              fill: Theme.of(context).colorScheme.background,
+              content: IgnorePointer(
                 ignoring: _showMenu,
                 child: widget.content,
               ),

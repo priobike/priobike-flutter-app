@@ -74,6 +74,7 @@ class CustomIconButton extends StatelessWidget {
           fill: Colors.transparent,
           padding: const EdgeInsets.all(8),
           borderRadius: BorderRadius.circular(24),
+          showShadow: false,
           content: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
