@@ -11,8 +11,6 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/settings/models/color_mode.dart';
-import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
@@ -47,19 +45,10 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   /// The GPS positions of the driven route.
   List<Position> positions = [];
 
-  /// The associated settings service, which is injected by the provider.
-  late Settings settings;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {});
-
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
-
-    settings = getIt<Settings>();
-    settings.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -67,12 +56,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         setState(() {});
       },
     );
-  }
-
-  @override
-  void dispose() {
-    settings.removeListener(update);
-    super.dispose();
   }
 
   /// Load the track.
@@ -160,8 +143,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
-    final colorMode = settings.colorMode;
-
     return SizedBox(
       width: widget.width,
       height: widget.width,
@@ -205,7 +186,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     "$day.",
                     style: TextStyle(
                       fontSize: 28,
-                      color: colorMode == ColorMode.light ? CI.blue : Colors.white,
+                      color: Theme.of(context).colorScheme.brightness == Brightness.light ? CI.blue : Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -221,7 +202,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                         style: TextStyle(
                           fontSize: 10,
                           height: 0.98,
-                          color: colorMode == ColorMode.light ? CI.blue : Colors.white,
+                          color: Theme.of(context).colorScheme.brightness == Brightness.light ? CI.blue : Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -230,7 +211,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                         style: TextStyle(
                           fontSize: 10,
                           height: 0.98,
-                          color: colorMode == ColorMode.light ? CI.blue : Colors.white,
+                          color: Theme.of(context).colorScheme.brightness == Brightness.light ? CI.blue : Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
