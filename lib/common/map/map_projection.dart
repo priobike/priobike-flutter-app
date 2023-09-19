@@ -61,8 +61,8 @@ class MapboxMapProjection {
 
     // Make the bounding box square.
     // This has to happen in the Mercator projection system.
-    final minM = convertLatLonToMercator(minLat, minLon);
-    final maxM = convertLatLonToMercator(maxLat, maxLon);
+    final Point minM = convertLatLonToMercator(minLat, minLon);
+    final Point maxM = convertLatLonToMercator(maxLat, maxLon);
     double minMx = minM.x;
     double minMy = minM.y;
     double maxMx = maxM.x;
@@ -79,8 +79,8 @@ class MapboxMapProjection {
       maxMy += d;
     }
     // Convert back to lat/lon.
-    final paddedMin = convertMercatorToLatLon(minMx, minMy);
-    final paddedMax = convertMercatorToLatLon(maxMx, maxMy);
+    final LatLng paddedMin = convertMercatorToLatLon(minMx, minMy);
+    final LatLng paddedMax = convertMercatorToLatLon(maxMx, maxMy);
 
     return MapboxMapProjectionBoundingBox(
       minLat: paddedMin.latitude,
