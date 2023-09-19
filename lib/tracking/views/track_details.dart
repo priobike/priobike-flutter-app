@@ -102,9 +102,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the track.
   Future<void> loadTrack() async {
-    if (positions.isNotEmpty) {
-      return;
-    }
+    if (positions.isNotEmpty) return;
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
@@ -142,9 +140,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   }
 
   Future<void> loadTrackSummary() async {
-    if (positions.isEmpty) {
-      return;
-    }
+    if (positions.isEmpty) return;
 
     final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
     var totalDistance = 0.0;
@@ -275,6 +271,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
             ),
             const SmallVSpace(),
             Container(
+              // use width as height to make it a square
               height: MediaQuery.of(context).size.width,
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(24),
