@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/community/service/community_service.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/gamification/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';

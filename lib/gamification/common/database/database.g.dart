@@ -1290,21 +1290,312 @@ class AchievedLocationsCompanion extends UpdateCompanion<AchievedLocation> {
   }
 }
 
+class $EventBadgesTable extends EventBadges
+    with TableInfo<$EventBadgesTable, EventBadge> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EventBadgesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<int> icon = GeneratedColumn<int>(
+      'icon', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _eventIdMeta =
+      const VerificationMeta('eventId');
+  @override
+  late final GeneratedColumn<int> eventId = GeneratedColumn<int>(
+      'event_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _achievedTimestampMeta =
+      const VerificationMeta('achievedTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> achievedTimestamp =
+      GeneratedColumn<DateTime>('achieved_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, icon, eventId, title, achievedTimestamp];
+  @override
+  String get aliasedName => _alias ?? 'event_badges';
+  @override
+  String get actualTableName => 'event_badges';
+  @override
+  VerificationContext validateIntegrity(Insertable<EventBadge> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('icon')) {
+      context.handle(
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
+    } else if (isInserting) {
+      context.missing(_iconMeta);
+    }
+    if (data.containsKey('event_id')) {
+      context.handle(_eventIdMeta,
+          eventId.isAcceptableOrUnknown(data['event_id']!, _eventIdMeta));
+    } else if (isInserting) {
+      context.missing(_eventIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('achieved_timestamp')) {
+      context.handle(
+          _achievedTimestampMeta,
+          achievedTimestamp.isAcceptableOrUnknown(
+              data['achieved_timestamp']!, _achievedTimestampMeta));
+    } else if (isInserting) {
+      context.missing(_achievedTimestampMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  EventBadge map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EventBadge(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}icon'])!,
+      eventId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}event_id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      achievedTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}achieved_timestamp'])!,
+    );
+  }
+
+  @override
+  $EventBadgesTable createAlias(String alias) {
+    return $EventBadgesTable(attachedDatabase, alias);
+  }
+}
+
+class EventBadge extends DataClass implements Insertable<EventBadge> {
+  final int id;
+  final int icon;
+  final int eventId;
+  final String title;
+  final DateTime achievedTimestamp;
+  const EventBadge(
+      {required this.id,
+      required this.icon,
+      required this.eventId,
+      required this.title,
+      required this.achievedTimestamp});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['icon'] = Variable<int>(icon);
+    map['event_id'] = Variable<int>(eventId);
+    map['title'] = Variable<String>(title);
+    map['achieved_timestamp'] = Variable<DateTime>(achievedTimestamp);
+    return map;
+  }
+
+  EventBadgesCompanion toCompanion(bool nullToAbsent) {
+    return EventBadgesCompanion(
+      id: Value(id),
+      icon: Value(icon),
+      eventId: Value(eventId),
+      title: Value(title),
+      achievedTimestamp: Value(achievedTimestamp),
+    );
+  }
+
+  factory EventBadge.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EventBadge(
+      id: serializer.fromJson<int>(json['id']),
+      icon: serializer.fromJson<int>(json['icon']),
+      eventId: serializer.fromJson<int>(json['eventId']),
+      title: serializer.fromJson<String>(json['title']),
+      achievedTimestamp:
+          serializer.fromJson<DateTime>(json['achievedTimestamp']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'icon': serializer.toJson<int>(icon),
+      'eventId': serializer.toJson<int>(eventId),
+      'title': serializer.toJson<String>(title),
+      'achievedTimestamp': serializer.toJson<DateTime>(achievedTimestamp),
+    };
+  }
+
+  EventBadge copyWith(
+          {int? id,
+          int? icon,
+          int? eventId,
+          String? title,
+          DateTime? achievedTimestamp}) =>
+      EventBadge(
+        id: id ?? this.id,
+        icon: icon ?? this.icon,
+        eventId: eventId ?? this.eventId,
+        title: title ?? this.title,
+        achievedTimestamp: achievedTimestamp ?? this.achievedTimestamp,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('EventBadge(')
+          ..write('id: $id, ')
+          ..write('icon: $icon, ')
+          ..write('eventId: $eventId, ')
+          ..write('title: $title, ')
+          ..write('achievedTimestamp: $achievedTimestamp')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, icon, eventId, title, achievedTimestamp);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EventBadge &&
+          other.id == this.id &&
+          other.icon == this.icon &&
+          other.eventId == this.eventId &&
+          other.title == this.title &&
+          other.achievedTimestamp == this.achievedTimestamp);
+}
+
+class EventBadgesCompanion extends UpdateCompanion<EventBadge> {
+  final Value<int> id;
+  final Value<int> icon;
+  final Value<int> eventId;
+  final Value<String> title;
+  final Value<DateTime> achievedTimestamp;
+  const EventBadgesCompanion({
+    this.id = const Value.absent(),
+    this.icon = const Value.absent(),
+    this.eventId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.achievedTimestamp = const Value.absent(),
+  });
+  EventBadgesCompanion.insert({
+    this.id = const Value.absent(),
+    required int icon,
+    required int eventId,
+    required String title,
+    required DateTime achievedTimestamp,
+  })  : icon = Value(icon),
+        eventId = Value(eventId),
+        title = Value(title),
+        achievedTimestamp = Value(achievedTimestamp);
+  static Insertable<EventBadge> custom({
+    Expression<int>? id,
+    Expression<int>? icon,
+    Expression<int>? eventId,
+    Expression<String>? title,
+    Expression<DateTime>? achievedTimestamp,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (icon != null) 'icon': icon,
+      if (eventId != null) 'event_id': eventId,
+      if (title != null) 'title': title,
+      if (achievedTimestamp != null) 'achieved_timestamp': achievedTimestamp,
+    });
+  }
+
+  EventBadgesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? icon,
+      Value<int>? eventId,
+      Value<String>? title,
+      Value<DateTime>? achievedTimestamp}) {
+    return EventBadgesCompanion(
+      id: id ?? this.id,
+      icon: icon ?? this.icon,
+      eventId: eventId ?? this.eventId,
+      title: title ?? this.title,
+      achievedTimestamp: achievedTimestamp ?? this.achievedTimestamp,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (icon.present) {
+      map['icon'] = Variable<int>(icon.value);
+    }
+    if (eventId.present) {
+      map['event_id'] = Variable<int>(eventId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (achievedTimestamp.present) {
+      map['achieved_timestamp'] = Variable<DateTime>(achievedTimestamp.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EventBadgesCompanion(')
+          ..write('id: $id, ')
+          ..write('icon: $icon, ')
+          ..write('eventId: $eventId, ')
+          ..write('title: $title, ')
+          ..write('achievedTimestamp: $achievedTimestamp')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RideSummariesTable rideSummaries = $RideSummariesTable(this);
   late final $ChallengesTable challenges = $ChallengesTable(this);
   late final $AchievedLocationsTable achievedLocations =
       $AchievedLocationsTable(this);
+  late final $EventBadgesTable eventBadges = $EventBadgesTable(this);
   late final RideSummaryDao rideSummaryDao =
       RideSummaryDao(this as AppDatabase);
   late final ChallengeDao challengeDao = ChallengeDao(this as AppDatabase);
   late final AchievedLocationDao achievedLocationDao =
       AchievedLocationDao(this as AppDatabase);
+  late final EventBadgeDao eventBadgeDao = EventBadgeDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [rideSummaries, challenges, achievedLocations];
+      [rideSummaries, challenges, achievedLocations, eventBadges];
 }

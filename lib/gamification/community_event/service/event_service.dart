@@ -6,9 +6,10 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/model/achieved_location/achieved_location.dart';
+import 'package:priobike/gamification/common/database/model/event_badge/event_badge.dart';
 import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
-import 'package:priobike/gamification/community/model/event.dart';
-import 'package:priobike/gamification/community/model/location.dart';
+import 'package:priobike/gamification/community_event/model/event.dart';
+import 'package:priobike/gamification/community_event/model/location.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -28,6 +29,9 @@ class EventService with ChangeNotifier {
   /// Data access object to access the locations achieved by the user.
   final AchievedLocationDao _achievedLocationDao = AppDatabase.instance.achievedLocationDao;
 
+  /// Data access object to access the badges rewarded to the user.
+  final EventBadgeDao _badgeDao = AppDatabase.instance.eventBadgeDao;
+
   /// The current open weekend event pulled from the server. If null, the server didn't provide one.
   WeekendEvent? _event;
 
@@ -37,14 +41,14 @@ class EventService with ChangeNotifier {
   /// Stream subscription to the stream of achieved locations, to cancel a stream if the event changes.
   StreamSubscription? _achievedLocStream;
 
-  /// The number of badges by the users has achieved for the current event.
-  int numOfAchievedBadges = 0;
+  /// List of all badges the user has collected.
+  List<EventBadge> userBadges = [];
 
   /// The number of users that have achieved at least one location of the current event.
   int numOfActiveUsers = 0;
 
-  /// The number of aggregated badges by all users participating in the current event.
-  int overallNumOfAchievedBadges = 0;
+  /// The number of achieved locations by all users participating in the current event.
+  int numOfAchievedLocations = 0;
 
   /// List of locations that the user has achieved, out of the locations of the current event.
   List<AchievedLocation> _achievedLocations = [];
@@ -74,14 +78,15 @@ class EventService with ChangeNotifier {
   /// Getter for the list of locations of the current event.
   List<EventLocation> get locations => List.from(_locations);
 
-  /// This returns the number of locations from the current event, that the user has achieved.
-  int get numOfAchievedLocations => _achievedLocations.length;
-
   /// This function checks, whether a given location has been achieved by the user.
   bool wasLocationAchieved(EventLocation loc) => !_unachievedLocations.contains(loc);
 
-  /// This function returns a stream of all locations achieved by the user, which correspond the rewarded badges.
-  Stream<List<AchievedLocation>> getStreamOfAllBadges() => _achievedLocationDao.streamAllObjects();
+  EventService() {
+    _badgeDao.streamAllObjects().listen((results) {
+      userBadges = results;
+      notifyListeners();
+    });
+  }
 
   /// This function can be called after a ride to check, if the user has passed some of the current locations.
   Future<void> checkLocations() async {
@@ -99,11 +104,13 @@ class EventService with ChangeNotifier {
         var hasBeenAchieved = checkIfLocationWasAchieved(location, latLngList);
         // If a new location has been achieved, save the corresponding object in the database and send it to the service.
         if (hasBeenAchieved) {
-          var achievedLocation = await _achievedLocationDao.addLocation(location, _event!);
+          var achievedLocation = await _achievedLocationDao.createAchievedLocation(location, _event!);
           if (achievedLocation == null) {
             log.e('Failed to store achieved location in database');
             continue;
           }
+          // If a location was achieved, create a event badge, if there isn't already one.
+          _badgeDao.createEventBadge(_event!);
           Map<String, dynamic> json = {
             'eventId': achievedLocation.eventId,
             'locationId': achievedLocation.id,
@@ -214,10 +221,10 @@ class EventService with ChangeNotifier {
       try {
         var result = jsonDecode(response.body);
         numOfActiveUsers = result['numOfUsers'];
-        overallNumOfAchievedBadges = result['achievedLocations'];
+        numOfAchievedLocations = result['achievedLocations'];
       } on TypeError catch (e) {
         numOfActiveUsers = 0;
-        overallNumOfAchievedBadges = 0;
+        numOfAchievedLocations = 0;
         final err = "Could not decode the resonse body ${response.body} with error: $e";
         throw Exception(err);
       }
@@ -233,7 +240,6 @@ class EventService with ChangeNotifier {
     await fetchWeekendEvent();
     await fetchEventLocations();
     await fetchEventStatus();
-    numOfAchievedBadges = (await _achievedLocationDao.getAllObjects()).length;
     notifyListeners();
   }
 }

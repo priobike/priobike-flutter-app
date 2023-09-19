@@ -1,44 +1,18 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/community/service/community_service.dart';
-import 'package:priobike/main.dart';
+import 'package:priobike/gamification/community_event/views/badge.dart';
 
 /// This view displays the badges the user has collected, which represent the achieved locations of the user.
-class BadgeCollection extends StatefulWidget {
-  const BadgeCollection({Key? key}) : super(key: key);
+class BadgeCollection extends StatelessWidget {
+  final List<EventBadge> badges;
 
-  @override
-  State<BadgeCollection> createState() => _BadgeCollectionState();
-}
-
-class _BadgeCollectionState extends State<BadgeCollection> {
-  List<AchievedLocation> _achievedLocations = [];
-
-  StreamSubscription? _stream;
-
-  @override
-  void initState() {
-    // Listen to stream of achieved locations and update the variable accordingly.
-    _stream = getIt<EventService>().getStreamOfAllBadges().listen((results) {
-      setState(() {
-        _achievedLocations = results;
-      });
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _stream?.cancel();
-    super.dispose();
-  }
+  const BadgeCollection({Key? key, required this.badges}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +47,9 @@ class _BadgeCollectionState extends State<BadgeCollection> {
                   ],
                 ),
                 const SmallVSpace(),
-                ..._achievedLocations
+                ...badges
                     .map(
-                      (loc) => Container(
+                      (badge) => Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
@@ -88,16 +62,16 @@ class _BadgeCollectionState extends State<BadgeCollection> {
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Icon(
-                              Icons.shield,
-                              color: Color(loc.color),
-                              size: 48,
-                            ),
+                            RewardBadge(
+                                color: CI.blue,
+                                size: 64,
+                                icon: IconData(badge.icon, fontFamily: 'MaterialIcons'),
+                                achieved: true),
                             Expanded(
                               child: Column(
                                 children: [
-                                  BoldSubHeader(text: loc.title, context: context),
-                                  Content(text: StringFormatter.getDateStr(loc.timestamp), context: context),
+                                  BoldSubHeader(text: badge.title, context: context),
+                                  Content(text: StringFormatter.getDateStr(badge.achievedTimestamp), context: context),
                                 ],
                               ),
                             ),

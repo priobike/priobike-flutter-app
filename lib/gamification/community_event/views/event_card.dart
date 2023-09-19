@@ -4,9 +4,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/community/service/community_service.dart';
-import 'package:priobike/gamification/community/views/badge_collection.dart';
-import 'package:priobike/gamification/community/views/event_page.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
+import 'package:priobike/gamification/community_event/views/badge.dart';
+import 'package:priobike/gamification/community_event/views/badge_collection.dart';
+import 'package:priobike/gamification/community_event/views/event_page.dart';
 import 'package:priobike/gamification/common/views/countdown_timer.dart';
 import 'package:priobike/main.dart';
 
@@ -20,18 +21,18 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   /// Event service to gather all the relevant data about the current event.
-  late EventService _communityService;
+  late EventService _eventService;
 
   @override
   void initState() {
-    _communityService = getIt<EventService>();
-    _communityService.addListener(update);
+    _eventService = getIt<EventService>();
+    _eventService.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
-    _communityService.removeListener(update);
+    _eventService.removeListener(update);
     super.dispose();
   }
 
@@ -44,18 +45,29 @@ class _EventCardState extends State<EventCard> {
       featureKey: GamificationUserService.communityFeatureKey,
       // If the feature is enabled, show progress bars of the users challenges and the profile view.
       onEnabled: () {},
-      featurePage: _communityService.activeEvent
+      featurePage: _eventService.activeEvent
           ? const CommunityEventPage()
-          : (_communityService.waitingForEvent && _communityService.numOfAchievedBadges > 0
-              ? const BadgeCollection()
+          : (_eventService.waitingForEvent && _eventService.userBadges.isNotEmpty
+              ? BadgeCollection(badges: _eventService.userBadges)
               : null),
       featureEnabledContent: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Row(
+            children: [
+              const SmallHSpace(),
+              BoldSubHeader(
+                text: 'Stadtteil-Hopping',
+                context: context,
+                textAlign: TextAlign.start,
+              ),
+            ],
+          ),
+
           /// Display card content according to the current events status.
-          if (_communityService.activeEvent) ActiveEventView(service: _communityService),
-          if (_communityService.waitingForEvent) WaitingForEventView(service: _communityService),
-          if (!_communityService.activeEvent && !_communityService.waitingForEvent)
+          if (_eventService.activeEvent) ActiveEventView(service: _eventService),
+          if (_eventService.waitingForEvent) WaitingForEventView(service: _eventService),
+          if (!_eventService.activeEvent && !_eventService.waitingForEvent)
             Container(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -66,8 +78,8 @@ class _EventCardState extends State<EventCard> {
                     size: 80,
                   ),
                   const SmallVSpace(),
-                  BoldSubHeader(
-                    text: 'Gerade gibt es leider kein Wochenend-Event',
+                  Content(
+                    text: 'Das nächste Event findet bald statt!',
                     context: context,
                     textAlign: TextAlign.center,
                   ),
@@ -142,35 +154,20 @@ class WaitingForEventView extends StatelessWidget {
 
   const WaitingForEventView({Key? key, required this.service}) : super(key: key);
 
-  Widget getInfoIcon(IconData icon, int value, Color color, var context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Icon(icon, size: 52, color: color),
-        ),
-        if (value > 0) Header(text: '$value', context: context, height: 1),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const SmallVSpace(),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            getInfoIcon(Icons.shield, getIt<EventService>().numOfAchievedLocations, CI.blue, context),
-          ],
+        const RewardBadge(
+          color: CI.blue,
+          size: 64,
+          icon: Icons.question_mark,
+          achieved: true,
         ),
         const SmallVSpace(),
         Text(
-          'Nächstes Weekend-Event startet in:',
+          'Das nächste Event startet in:',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'HamburgSans',
@@ -189,7 +186,7 @@ class WaitingForEventView extends StatelessWidget {
               ),
         ),
         const SmallVSpace(),
-        if (service.numOfAchievedBadges > 0)
+        if (service.userBadges.isNotEmpty)
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -228,21 +225,27 @@ class ActiveEventView extends StatelessWidget {
         const SmallVSpace(),
         Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            getInfoIcon(Icons.location_on, service.locations.length, Colors.grey, context),
-            getInfoIcon(Icons.shield, service.numOfAchievedLocations, service.event!.color, context),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: RewardBadge(
+                color: CI.blue,
+                size: 64,
+                icon: service.event!.icon,
+                achieved: true,
+              ),
+            ),
           ],
         ),
-        const SmallVSpace(),
         Text(
           service.event!.title,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'HamburgSans',
             fontSize: 30,
             fontWeight: FontWeight.w600,
-            color: service.event!.color,
+            height: 1,
           ),
         ),
         const SmallVSpace(),
@@ -250,7 +253,9 @@ class ActiveEventView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             BoldSmall(
-                text: 'noch ', context: context, color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
+                text: 'endet in ',
+                context: context,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
             CountdownTimer(
               timestamp: service.event!.endTime,
             ),

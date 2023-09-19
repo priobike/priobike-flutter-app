@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/confirm_button.dart';
-import 'package:priobike/gamification/common/views/custom_dialog.dart';
-import 'package:priobike/gamification/community/model/event.dart';
-import 'package:priobike/gamification/community/model/location.dart';
-import 'package:priobike/gamification/community/service/community_service.dart';
-import 'package:priobike/gamification/community/views/badge.dart';
+import 'package:priobike/gamification/community_event/model/event.dart';
+import 'package:priobike/gamification/community_event/model/location.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
+import 'package:priobike/gamification/community_event/views/badge.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_event_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -37,6 +37,8 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
   final ScrollController _scrollController = ScrollController();
 
   bool _selectionMode = false;
+
+  bool _showCommunity = false;
 
   WeekendEvent? get _event => _eventService.event;
 
@@ -130,7 +132,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
               return Stack(
                 children: [
                   ShortcutView(
-                    selectionColor: _event!.color,
+                    selectionColor: CI.blue,
                     onLongPressed: wasAchieved
                         ? null
                         : () {
@@ -167,13 +169,13 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                       width: shortcutWidth - 16,
                       height: shortcutHeight + 40,
                       decoration: BoxDecoration(
-                        color: _event!.color.withOpacity(0.25),
+                        color: CI.blue.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Icon(
                           Icons.shield,
-                          color: _event!.color,
+                          color: CI.blue,
                           size: 96,
                         ),
                       ),
@@ -188,7 +190,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
   }
 
   Widget get confirmButton => Container(
-        height: 72,
+        height: 64,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: AnimatedSwitcher(
           switchInCurve: Curves.easeIn,
@@ -201,9 +203,9 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
           child: (_selectionMode)
               ? Padding(
                   key: const ValueKey('ConfirmButton'),
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: ConfirmButton(
-                    color: _event!.color,
+                    color: CI.blue,
                     label: 'Route anzeigen ($_numOfSelected)',
                     onPressed: _itemsSelected
                         ? () {
@@ -231,44 +233,15 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
               : Center(
                   key: const ValueKey('InfoText'),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
                     child: BoldSmall(
-                      text:
-                          'Du kannst auch mehrere Locations gleichzeitig auswählen, indem du ein Element gedrückt hältst.',
+                      text: 'Du kannst auch mehrere Orte gleichzeitig auswählen, indem du ein Element gedrückt hältst.',
                       context: context,
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ),
         ),
-      );
-
-  Widget get _helpDialog => CustomDialog(
-        backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-        horizontalMargin: 16,
-        content: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                BoldSubHeader(text: 'Weekend-Events', context: context),
-                const SmallVSpace(),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: SubHeader(
-                        text:
-                            'Jedes Wochenende finden individuelle Weekend-Events, mit unterschiedlichen Themengebieten statt. Mit dem Event kommen eine Reihe von thematisch passenden Standorten. Für jeden dieser Standorte kannst du ein Event-spezifisches Abzeichen erlangen, indem du mithilfe der Navigationsfunktion an ihnen vorbeifährst.',
-                        context: context,
-                        textAlign: TextAlign.center,
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            )),
       );
 
   @override
@@ -285,7 +258,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     decoration: BoxDecoration(
@@ -302,35 +275,188 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                  Expanded(child: Container()),
-                  IconButton(
-                    onPressed: () => showDialog(context: context, builder: (context) => _helpDialog),
-                    icon: const Icon(Icons.question_mark, size: 48),
+                  const HSpace(),
+                  Text(
+                    _event!.title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'HamburgSans',
+                      fontSize: 30,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
                   ),
-                  const SmallHSpace(),
                 ],
               ),
-              const SmallVSpace(),
-              Text(
-                _event!.title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 30,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onBackground,
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 3,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                    ),
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => setState(() => _showCommunity = false),
+                              child: Column(
+                                children: [
+                                  BoldSubHeader(
+                                    text: 'Du',
+                                    context: context,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: _showCommunity
+                                          ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
+                                          : CI.blue,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => setState(() => _showCommunity = true),
+                              child: Column(
+                                children: [
+                                  BoldSubHeader(
+                                    text: 'Community',
+                                    context: context,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: _showCommunity
+                                          ? CI.blue
+                                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SmallVSpace(),
+                      if (_showCommunity) ...[
+                        Expanded(child: Container()),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                const Icon(
+                                  Icons.group,
+                                  size: 56,
+                                  color: CI.blue,
+                                ),
+                                Header(
+                                  text: '${_eventService.numOfActiveUsers}',
+                                  context: context,
+                                  height: 1,
+                                )
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  size: 56,
+                                  color: CI.blue,
+                                ),
+                                Header(
+                                  text: '${_eventService.numOfAchievedLocations}',
+                                  context: context,
+                                  height: 1,
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SmallVSpace(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Content(
+                            text: (_eventService.numOfActiveUsers == 0)
+                                ? 'Du bist der erste, der dieses Wochenende am Stadtteil-Hopping teilnimmt!'
+                                : 'Dieses Wochenende haben bereits ${_eventService.numOfActiveUsers} Personen ${_event!.title} an ${_eventService.numOfAchievedLocations} Orten besucht.',
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Expanded(child: Container()),
+                      ],
+                      if (!_showCommunity) ...[
+                        Expanded(child: Container()),
+                        Center(
+                          child: RewardBadge(
+                            color: CI.blue,
+                            size: 96,
+                            icon: _event!.icon,
+                            achieved: false,
+                          ),
+                        ),
+                        const SmallVSpace(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Content(
+                            text:
+                                'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole dir das Abzeichen der Woche!',
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Expanded(child: Container()),
+                      ],
+                    ],
+                  ),
                 ),
               ),
               Container(
-                height: 4,
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _eventService.event!.color,
-                  borderRadius: BorderRadius.circular(24),
+                color: Theme.of(context).colorScheme.surface,
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    locationSelection,
+                    confirmButton,
+                  ],
                 ),
               ),
-              const SmallVSpace(),
-              Row(
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+/*            Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Expanded(
@@ -355,10 +481,10 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                             children: [
                               Column(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.groups,
                                     size: 48,
-                                    color: _event!.color,
+                                    color: CI.blue,
                                   ),
                                   BoldSubHeader(
                                     text: '${_eventService.numOfActiveUsers}',
@@ -366,11 +492,6 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                     height: 1,
                                   )
                                 ],
-                              ),
-                              RewardBadge(
-                                color: _event!.color,
-                                size: 64,
-                                value: _eventService.overallNumOfAchievedBadges,
                               ),
                             ],
                           ),
@@ -400,50 +521,13 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                             textAlign: TextAlign.center,
                           ),
                           RewardBadge(
-                            color: _event!.color,
+                            color: CI.blue,
                             size: 64,
-                            value: _eventService.numOfAchievedLocations,
+                            icon: null,
                           ),
                         ],
                       ),
                     ),
                   ),
                 ],
-              ),
-              Expanded(child: Container()),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SubHeader(
-                  text: _eventService.event!.description,
-                  context: context,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SmallVSpace(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: BoldContent(
-                  text: 'Wähle eine oder mehrere Standorte aus und fang an zu sammeln!',
-                  context: context,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SmallVSpace(),
-              Container(
-                color: Theme.of(context).colorScheme.surface,
-                padding: const EdgeInsets.only(top: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    locationSelection,
-                    confirmButton,
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+              ),*/

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 /// This object holds information about a weekend event pulled from the server.
@@ -20,8 +21,7 @@ class WeekendEvent {
   /// Color corresponding to the event as an int.
   final int colorValue;
 
-  /// Get color value converted to actual color.
-  Color get color => Color(colorValue);
+  IconData get icon => IconData(colorValue, fontFamily: 'MaterialIcons');
 
   WeekendEvent(this.id, this.title, this.description, this.startTime, this.endTime, this.colorValue);
 

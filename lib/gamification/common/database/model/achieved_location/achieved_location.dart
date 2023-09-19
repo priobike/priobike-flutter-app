@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/database_dao.dart';
-import 'package:priobike/gamification/community/model/event.dart';
-import 'package:priobike/gamification/community/model/location.dart';
+import 'package:priobike/gamification/community_event/model/event.dart';
+import 'package:priobike/gamification/community_event/model/location.dart';
 
 part 'achieved_location.g.dart';
 
@@ -27,21 +27,20 @@ class AchievedLocationDao extends DatabaseDao<AchievedLocation> with _$AchievedL
     return (select(achievedLocations)..where((tbl) => (tbl as $AchievedLocationsTable).id.equals(value)));
   }
 
-  Future<AchievedLocation?> addLocation(EventLocation location, WeekendEvent event) async {
+  Future<AchievedLocation?> createAchievedLocation(EventLocation location, WeekendEvent event) async {
     var obj = await (select(achievedLocations)..where((tbl) => tbl.locationId.equals(location.id))).get();
-    if (obj.isEmpty) {
-      return createObject(
-        AchievedLocationsCompanion.insert(
-          locationId: location.id,
-          eventId: event.id,
-          color: event.colorValue,
-          title: location.title,
-          timestamp: DateTime.now(),
-        ),
-      );
-    } else {
-      return null;
-    }
+    // If the location was already saved as achieved, return null.
+    if (obj.isNotEmpty) return null;
+    // If the location has not been saved yet, create a new object and save it.
+    return createObject(
+      AchievedLocationsCompanion.insert(
+        locationId: location.id,
+        eventId: event.id,
+        color: event.colorValue,
+        title: location.title,
+        timestamp: DateTime.now(),
+      ),
+    );
   }
 
   Stream<List<AchievedLocation>> streamLocationsForEvent(int eventId) {

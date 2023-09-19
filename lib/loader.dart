@@ -9,7 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
-import 'package:priobike/gamification/community/service/community_service.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
