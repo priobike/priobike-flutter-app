@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 /// This object holds information about a weekend event pulled from the server.
@@ -19,11 +18,11 @@ class WeekendEvent {
   final DateTime endTime;
 
   /// Color corresponding to the event as an int.
-  final int colorValue;
+  final int iconValue;
 
-  IconData get icon => IconData(colorValue, fontFamily: 'MaterialIcons');
+  IconData get icon => IconData(iconValue, fontFamily: 'MaterialIcons');
 
-  WeekendEvent(this.id, this.title, this.description, this.startTime, this.endTime, this.colorValue);
+  WeekendEvent(this.id, this.title, this.description, this.startTime, this.endTime, this.iconValue);
 
   WeekendEvent.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -31,5 +30,5 @@ class WeekendEvent {
         description = json['description'],
         startTime = DateTime.fromMillisecondsSinceEpoch(json['startTime']),
         endTime = DateTime.fromMillisecondsSinceEpoch(json['endTime']),
-        colorValue = json['color'];
+        iconValue = json['icon'];
 }

@@ -174,7 +174,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                       ),
                       child: const Center(
                         child: Icon(
-                          Icons.shield,
+                          Icons.done_rounded,
                           color: CI.blue,
                           size: 96,
                         ),
@@ -405,7 +405,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                           child: Content(
                             text: (_eventService.numOfActiveUsers == 0)
                                 ? 'Du bist der erste, der dieses Wochenende am Stadtteil-Hopping teilnimmt!'
-                                : 'Dieses Wochenende haben bereits ${_eventService.numOfActiveUsers} Personen ${_event!.title} an ${_eventService.numOfAchievedLocations} Orten besucht.',
+                                : 'Dieses Wochenende ${_eventService.numOfActiveUsers == 1 ? 'hat' : 'haben'} bereits ${_eventService.numOfActiveUsers} ${_eventService.numOfActiveUsers == 1 ? 'Person' : 'Personen'} am Stadtteil-Hopping teilgenommen. Dabei ${_eventService.numOfActiveUsers == 1 ? 'wurde 1 Ort' : 'wurden ${_eventService.numOfAchievedLocations} Orte'} in ${_event!.title} besucht.',
                             context: context,
                             textAlign: TextAlign.center,
                           ),
@@ -419,18 +419,26 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                             color: CI.blue,
                             size: 96,
                             icon: _event!.icon,
-                            achieved: false,
+                            achieved: _eventService.wasCurrentEventAchieved,
                           ),
                         ),
                         const SmallVSpace(),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Content(
-                            text:
-                                'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole dir das Abzeichen der Woche!',
-                            context: context,
-                            textAlign: TextAlign.center,
-                          ),
+                          child: _eventService.wasCurrentEventAchieved
+                              ? BoldSubHeader(
+                                  text:
+                                      'Super, du hast ${_event!.title} besucht und das dieswöchige Abzeichen erhalten!',
+                                  context: context,
+                                  textAlign: TextAlign.center,
+                                )
+                              : BoldContent(
+                                  text:
+                                      'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole dir das Abzeichen der Woche!',
+                                  context: context,
+                                  textAlign: TextAlign.center,
+                                  color: CI.blue,
+                                ),
                         ),
                         Expanded(child: Container()),
                       ],

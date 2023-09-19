@@ -32,7 +32,7 @@ class EventBadgeDao extends DatabaseDao<EventBadge> with _$EventBadgeDaoMixin {
     // If there is no badge for the event, create a new one.
     return createObject(
       EventBadgesCompanion.insert(
-        icon: event.colorValue,
+        icon: event.iconValue,
         eventId: event.id,
         title: event.title,
         achievedTimestamp: DateTime.now(),

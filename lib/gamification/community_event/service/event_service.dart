@@ -71,6 +71,8 @@ class EventService with ChangeNotifier {
   /// Getter for the current event.
   WeekendEvent? get event => _event;
 
+  bool get wasCurrentEventAchieved => userBadges.where((b) => b.eventId == event?.id).isNotEmpty;
+
   /// Get list of locations from the current event, that the user has not achieved yet.
   List<EventLocation> get _unachievedLocations =>
       _locations.where((loc) => _achievedLocations.where((e) => e.locationId == loc.id).isEmpty).toList();
@@ -118,8 +120,8 @@ class EventService with ChangeNotifier {
           getIt<EvaluationDataService>().sendJsonToAddress('community/send-achieved-location/', json);
         }
       }
-    } catch (_) {
-      log.e('Failed to check event locations after saving routes.');
+    } catch (e) {
+      log.e('Failed to check event locations after saving route: $e');
     }
   }
 

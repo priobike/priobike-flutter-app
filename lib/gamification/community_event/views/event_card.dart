@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/community_event/service/event_service.dart';
@@ -67,25 +68,7 @@ class _EventCardState extends State<EventCard> {
           /// Display card content according to the current events status.
           if (_eventService.activeEvent) ActiveEventView(service: _eventService),
           if (_eventService.waitingForEvent) WaitingForEventView(service: _eventService),
-          if (!_eventService.activeEvent && !_eventService.waitingForEvent)
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.shield,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                    size: 80,
-                  ),
-                  const SmallVSpace(),
-                  Content(
-                    text: 'Das nächste Event findet bald statt!',
-                    context: context,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
+          if (!_eventService.activeEvent && !_eventService.waitingForEvent) NoEventView(service: _eventService),
         ],
       ),
       featureDisabledContent: Padding(
@@ -95,7 +78,7 @@ class _EventCardState extends State<EventCard> {
           children: [
             Expanded(
               child: BoldSubHeader(
-                text: 'PrioBike Wochenendradeln',
+                text: 'Stadtteil\nHopping',
                 context: context,
                 textAlign: TextAlign.center,
               ),
@@ -129,12 +112,23 @@ class _EventCardState extends State<EventCard> {
                     ),
                   ),
                   Align(
-                    alignment: Alignment.center,
+                    alignment: Alignment.topLeft,
                     child: Transform.rotate(
                       angle: 0,
                       child: const Icon(
-                        Icons.groups,
-                        size: 80,
+                        Icons.shield,
+                        size: 56,
+                        color: LevelColors.silver,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Transform.rotate(
+                      angle: 0,
+                      child: const Icon(
+                        Icons.location_city,
+                        size: 72,
                         color: CI.blue,
                       ),
                     ),
@@ -261,6 +255,48 @@ class ActiveEventView extends StatelessWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class NoEventView extends StatelessWidget {
+  final EventService service;
+
+  const NoEventView({Key? key, required this.service}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SmallVSpace(),
+        Icon(
+          Icons.shield,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+          size: 80,
+        ),
+        const SmallVSpace(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: BoldContent(
+            text: 'Das nächste Event findet bald statt!',
+            context: context,
+            textAlign: TextAlign.center,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+          ),
+        ),
+        const SmallVSpace(),
+        if (service.userBadges.isNotEmpty)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              BoldSmall(
+                  text: 'Abzeichensammlung',
+                  context: context,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
+              const Icon(Icons.redo)
+            ],
+          ),
       ],
     );
   }

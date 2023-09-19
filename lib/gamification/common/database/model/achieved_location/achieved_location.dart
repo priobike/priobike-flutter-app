@@ -10,7 +10,6 @@ class AchievedLocations extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get locationId => integer()();
   IntColumn get eventId => integer()();
-  IntColumn get color => integer()();
   TextColumn get title => text()();
   DateTimeColumn get timestamp => dateTime()();
 }
@@ -36,7 +35,6 @@ class AchievedLocationDao extends DatabaseDao<AchievedLocation> with _$AchievedL
       AchievedLocationsCompanion.insert(
         locationId: location.id,
         eventId: event.id,
-        color: event.colorValue,
         title: location.title,
         timestamp: DateTime.now(),
       ),
