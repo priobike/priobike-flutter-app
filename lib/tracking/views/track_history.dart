@@ -174,7 +174,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
             children: [
               const SizedBox(width: 42),
               BoldContent(
-                text: "Vorherige Fahrten",
+                text: "Letzte Fahrten",
                 context: context,
               ),
               Expanded(child: Container()),
