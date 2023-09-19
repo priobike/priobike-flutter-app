@@ -227,7 +227,7 @@ class ActiveEventView extends StatelessWidget {
                 color: CI.blue,
                 size: 64,
                 icon: service.event!.icon,
-                achieved: true,
+                achieved: service.wasCurrentEventAchieved,
               ),
             ),
           ],

@@ -11,10 +11,10 @@ import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/confirm_button.dart';
 import 'package:priobike/gamification/community_event/model/event.dart';
 import 'package:priobike/gamification/community_event/model/location.dart';
+import 'package:priobike/gamification/community_event/model/shortcut_event_location.dart';
 import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/gamification/community_event/views/badge.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_event_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
@@ -432,12 +432,19 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                   context: context,
                                   textAlign: TextAlign.center,
                                 )
-                              : BoldContent(
-                                  text:
-                                      'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole dir das Abzeichen der Woche!',
-                                  context: context,
-                                  textAlign: TextAlign.center,
-                                  color: CI.blue,
+                              : Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: CI.blue,
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  child: BoldContent(
+                                    text:
+                                        'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole dir das Abzeichen der Woche!',
+                                    context: context,
+                                    textAlign: TextAlign.center,
+                                    color: Colors.white,
+                                  ),
                                 ),
                         ),
                         Expanded(child: Container()),
