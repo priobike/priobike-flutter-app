@@ -172,7 +172,9 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.withOpacity(0.5),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.white.withOpacity(0.75)
+                    : Colors.black.withOpacity(0.25),
               ),
               child: Padding(
                 padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
@@ -193,9 +195,9 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                     const SmallHSpace(),
                     Text(
                       '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white,
+                        color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 3,
