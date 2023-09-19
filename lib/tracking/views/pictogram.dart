@@ -208,8 +208,8 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
           ),
         //Mapbox Attribution Logo
         const MapboxAttribution(
-          top: 10,
-          right: 10,
+          top: 12,
+          right: 8,
         ),
       ],
     );

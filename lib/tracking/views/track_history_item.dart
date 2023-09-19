@@ -204,8 +204,8 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                   Text(
                     "$day.",
                     style: TextStyle(
-                      fontSize: 32,
-                      color: colorMode == ColorMode.light ? CI.blue : CI.blueLight,
+                      fontSize: 28,
+                      color: colorMode == ColorMode.light ? CI.blue : Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -221,7 +221,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                         style: TextStyle(
                           fontSize: 10,
                           height: 0.98,
-                          color: colorMode == ColorMode.light ? CI.blue : CI.blueLight,
+                          color: colorMode == ColorMode.light ? CI.blue : Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -230,7 +230,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                         style: TextStyle(
                           fontSize: 10,
                           height: 0.98,
-                          color: colorMode == ColorMode.light ? CI.blue : CI.blueLight,
+                          color: colorMode == ColorMode.light ? CI.blue : Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
