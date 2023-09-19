@@ -264,7 +264,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                   Content(
                     text: lastTrackDateFormatted,
                     context: context,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
+                    color: Theme.of(context).colorScheme.onBackground,
                     textAlign: TextAlign.center,
                   ),
                 ],
