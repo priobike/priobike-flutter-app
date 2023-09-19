@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart';
 
@@ -40,7 +41,7 @@ class MapboxMapProjection {
     double? maxLon;
     double? maxLat;
 
-    for (final position in coordinates) {
+    for (final LatLng position in coordinates) {
       if (minLon == null || position.longitude < minLon) minLon = position.longitude;
       if (minLat == null || position.latitude < minLat) minLat = position.latitude;
       if (maxLon == null || position.longitude > maxLon) maxLon = position.longitude;
@@ -50,7 +51,9 @@ class MapboxMapProjection {
     if (minLon == null || minLat == null || maxLon == null || maxLat == null) return null;
     if (minLon == maxLon || minLat == maxLat) return null;
 
-    const double mapPadding = 0.0025;
+    // Calculate the padding for the background image.
+    final vectorLength = sqrt(pow(maxLon - minLon, 2) + pow(maxLat - minLat, 2));
+    final mapPadding = vectorLength * 0.45;
     minLon -= mapPadding;
     minLat -= mapPadding;
     maxLon += mapPadding;
