@@ -357,7 +357,7 @@ class Settings with ChangeNotifier {
   }
 
   static const enableGamificationKey = "priobike.settings.enableGamification";
-  static const defaultEnableGamification = false;
+  static const defaultEnableGamification = true;
 
   Future<bool> setEnableGamification(bool enableGamification, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();

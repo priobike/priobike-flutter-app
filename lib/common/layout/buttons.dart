@@ -70,12 +70,12 @@ class AppBackButton extends StatelessWidget {
   final IconData icon;
 
   /// The callback that is executed when the button is pressed.
-  final void Function() onPressed;
+  final void Function()? onPressed;
   final double? elevation;
 
   const AppBackButton({
     this.icon = Icons.chevron_left,
-    required this.onPressed,
+    this.onPressed,
     this.elevation,
     Key? key,
   }) : super(key: key);
@@ -114,7 +114,7 @@ class BigButton extends StatelessWidget {
   final String label;
 
   /// The callback that is executed when the button was pressed.
-  final void Function() onPressed;
+  final void Function()? onPressed;
 
   /// The optional fill color of the button.
   final Color? fillColor;
@@ -135,7 +135,7 @@ class BigButton extends StatelessWidget {
     Key? key,
     this.icon,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
     this.fillColor,
     this.splashColor,
     this.iconColor,

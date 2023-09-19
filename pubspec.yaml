@@ -70,6 +70,10 @@ dependencies:
   url_launcher: ^6.1.10 # Used to open URLs
   in_app_review: ^2.0.6 # Used to rate the app
   proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
+  drift: ^2.8.0 # Used for the local database
+  sqlite3_flutter_libs: ^0.5.0 # Needed for the drift database which is based on sqlite
+  path: ^1.8.2 # Used to determine the database file location
+  fl_chart: ^0.62.0 # Used to display the ride statistics in the gamification views
 
 dev_dependencies:
   flutter_launcher_icons: ^0.11.0 # Generate app icons
@@ -82,6 +86,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.1
+  drift_dev: ^2.8.0 # Used for the sqlite database
+  build_runner: ^2.3.0 # Used to generate code with the drift package
 
 # Configuration of the splash screens.
 flutter_native_splash:
@@ -113,6 +119,9 @@ flutter:
         - asset: assets/fonts/HamburgSans-BoldItalic.ttf
           weight: 700
           style: italic
+    - family:  CustomGameIcons
+      fonts:
+        - asset: assets/fonts/CustomGameIcons.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -146,7 +155,6 @@ flutter:
     # Map symbols & Navigation icons
     - assets/images/
     - assets/images/trafficlights/
-
 
     # Screenshots
     - assets/images/screenshots/

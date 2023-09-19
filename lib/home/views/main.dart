@@ -7,6 +7,8 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
+import 'package:priobike/gamification/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -28,8 +30,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
-import 'package:priobike/statistics/services/statistics.dart';
-import 'package:priobike/statistics/views/total.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -75,9 +75,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
-  /// The associated statistics service, which is injected by the provider.
-  late Statistics statistics;
-
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
@@ -107,7 +104,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     ride = getIt<Ride>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
-    statistics = getIt<Statistics>();
 
     // Check if app should be rated.
     if (askRateAppList.contains(settings.useCounter)) {
@@ -207,8 +203,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    final waypoints = shortcut.getWaypoints();
-    routing.selectWaypoints(waypoints);
+    routing.selectShortcut(shortcut);
 
     pushRoutingView();
   }
@@ -255,6 +250,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
+          await getIt<EventService>().fetchData();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),
@@ -343,18 +339,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     delay: Duration(milliseconds: 750),
                     child: ProfileView(),
                   ),
-                  if (settings.enableGamification)
-                    Column(children: const [
-                      SizedBox(height: 48),
-                      BlendIn(
-                        delay: Duration(milliseconds: 1000),
-                        child: TotalStatisticsView(),
-                      ),
-                      SizedBox(height: 48),
-                    ]),
                   const VSpace(),
                   const TrackHistoryView(),
-                  const VSpace(),
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -363,8 +349,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         end: Alignment.bottomCenter,
                         colors: [
                           Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.surface.withOpacity(0),
+                          Theme.of(context).colorScheme.background.withOpacity(0.8),
+                          Theme.of(context).colorScheme.background.withOpacity(0.6),
+                          Theme.of(context).colorScheme.background.withOpacity(0.4),
+                          Theme.of(context).colorScheme.background.withOpacity(0.2),
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surface,
                         ],
                       ),
                       borderRadius: const BorderRadius.only(
@@ -374,6 +364,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     ),
                     child: Column(
                       children: [
+                        if (settings.enableGamification)
+                          const BlendIn(
+                            duration: Duration(milliseconds: 1250),
+                            child: GameView(),
+                          ),
                         const BlendIn(
                           delay: Duration(milliseconds: 1250),
                           child: WikiView(),

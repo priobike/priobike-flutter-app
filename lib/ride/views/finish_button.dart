@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -67,6 +68,9 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // Calculate a summary of the ride.
     final statistics = getIt<Statistics>();
     await statistics.calculateSummary();
+
+    // If there is an active event, check if the user passed some of the event locations.
+    await getIt<EventService>().checkLocations();
 
     // Disconnect from the mqtt broker.
     final datastream = getIt<Datastream>();

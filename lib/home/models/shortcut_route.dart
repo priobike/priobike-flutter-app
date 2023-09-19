@@ -6,6 +6,10 @@ import 'package:priobike/routing/services/boundary.dart';
 
 /// The shortcut represents a saved route with a name.
 class ShortcutRoute implements Shortcut {
+  /// The unique id of the shortcut.
+  @override
+  final String id;
+
   /// The type of the shortcut.
   @override
   final String type = "ShortcutRoute";
@@ -17,10 +21,11 @@ class ShortcutRoute implements Shortcut {
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
 
-  ShortcutRoute({required this.name, required this.waypoints});
+  ShortcutRoute({required this.name, required this.waypoints, required this.id});
 
   factory ShortcutRoute.fromJson(Map<String, dynamic> json) {
     return ShortcutRoute(
+      id: json['id'],
       name: json['name'],
       waypoints: (json['waypoints'] as List).map((e) => Waypoint.fromJson(e)).toList(),
     );
@@ -29,6 +34,7 @@ class ShortcutRoute implements Shortcut {
   @override
   Map<String, dynamic> toJson() => {
         'type': type,
+        'id': id,
         'name': name,
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),
       };
@@ -68,6 +74,7 @@ class ShortcutRoute implements Shortcut {
   /// Trim the addresses of the waypoints, if a factor < 1 is given.
   @override
   ShortcutRoute trim(double factor) => ShortcutRoute(
+        id: id,
         name: name,
         waypoints: waypoints.map(
           (e) {

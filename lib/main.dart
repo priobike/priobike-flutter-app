@@ -6,7 +6,14 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
+import 'package:priobike/gamification/challenges/services/challenge_service.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
@@ -87,7 +94,15 @@ Future<void> main() async {
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<StatusHistory>(StatusHistory());
+  getIt.registerSingleton<GamificationUserService>(GamificationUserService());
   getIt.registerSingleton<POI>(POI());
+  getIt.registerSingleton<StatisticService>(StatisticService());
+  getIt.registerSingleton<DailyChallengeService>(DailyChallengeService());
+  getIt.registerSingleton<WeeklyChallengeService>(WeeklyChallengeService());
+  getIt.registerSingleton<GoalsService>(GoalsService());
+  getIt.registerSingleton<ChallengesProfileService>(ChallengesProfileService());
+  getIt.registerSingleton<EvaluationDataService>(EvaluationDataService());
+  getIt.registerSingleton<EventService>(EventService());
 
   runZonedGuarded(() async {
     runApp(const App());

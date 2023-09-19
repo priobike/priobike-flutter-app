@@ -8,6 +8,9 @@ class Tile extends StatelessWidget {
   /// A callback that is fired when the tile was tapped.
   final void Function()? onPressed;
 
+  /// A callback that is fired when the tile is long pressed.
+  final void Function()? onLongPressed;
+
   /// The fill color of the tile.
   final Color? fill;
 
@@ -32,10 +35,17 @@ class Tile extends StatelessWidget {
   /// The gradient of the tile.
   final Gradient? gradient;
 
+  /// The color of the border.
+  final Color? borderColor;
+
+  /// The width of the border
+  final double borderWidth;
+
   const Tile({
     Key? key,
     required this.content,
     this.onPressed,
+    this.onLongPressed,
     this.fill,
     this.splash = Colors.grey,
     this.shadow = Colors.black,
@@ -43,6 +53,8 @@ class Tile extends StatelessWidget {
     this.showShadow = true,
     this.padding = const EdgeInsets.all(16),
     this.gradient,
+    this.borderColor,
+    this.borderWidth = 1.0,
     this.borderRadius = const BorderRadius.all(
       Radius.circular(24),
     ),
@@ -50,6 +62,10 @@ class Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var bColor = borderColor ??
+        (Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.07)
+            : Colors.black.withOpacity(0.07));
     return Container(
       decoration: BoxDecoration(
         color: fill,
@@ -65,9 +81,8 @@ class Tile extends StatelessWidget {
               ]
             : null,
         border: Border.all(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white.withOpacity(0.07)
-              : Colors.black.withOpacity(0.07),
+          width: borderWidth,
+          color: bColor,
         ),
       ),
       child: onPressed == null
@@ -79,6 +94,7 @@ class Tile extends StatelessWidget {
                 borderRadius: borderRadius,
                 splashColor: splash,
                 onTap: onPressed,
+                onLongPress: onLongPressed,
                 child: Padding(padding: padding, child: content),
               ),
             ),
