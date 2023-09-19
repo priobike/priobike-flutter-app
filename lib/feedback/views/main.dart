@@ -150,11 +150,11 @@ class FeedbackViewState extends State<FeedbackView> {
   @override
   Widget build(BuildContext context) {
     if (feedback.isSendingFeedback) return renderLoadingIndicator();
-    if (tracking.previousTracks == null) return Container();
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return Container();
 
     // get street names
-    final start = routing.selectedWaypoints?.first.address!.split(",")[0] ?? "";
-    final end = routing.selectedWaypoints?.last.address!.split(",")[0] ?? "";
+    final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
+    final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
 
     const bottomSheetHeight = 228.0;
 
