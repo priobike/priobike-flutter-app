@@ -286,7 +286,8 @@ class NoEventView extends StatelessWidget {
           ),
         ),
         const SmallVSpace(),
-        if (service.userBadges.isNotEmpty)
+        if (service.userBadges.isNotEmpty) ...[
+          const SmallVSpace(),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -297,6 +298,7 @@ class NoEventView extends StatelessWidget {
               const Icon(Icons.redo)
             ],
           ),
+        ],
       ],
     );
   }

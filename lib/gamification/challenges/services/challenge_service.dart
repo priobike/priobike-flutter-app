@@ -181,28 +181,6 @@ abstract class ChallengeService with ChangeNotifier {
     startChallengeStream();
   }
 
-  /// TODO helper function
-  void deleteCurrentChallenge() {
-    if (_currentChallenge == null) return;
-    _dao.deleteObject(currentChallenge!);
-  }
-
-  /// TODO helper function
-  void finishChallenge() {
-    if (_currentChallenge == null) return;
-    var modified = _currentChallenge!.copyWith(progress: (_currentChallenge!.target * 1.25).toInt());
-    _dao.updateObject(modified);
-  }
-
-  /// TODO helper function
-  void increaseChallengeProgress() {
-    if (_currentChallenge == null) return;
-    var modified = _currentChallenge!.copyWith(
-      progress: _currentChallenge!.progress + (_currentChallenge!.target * 0.2).toInt(),
-    );
-    _dao.updateObject(modified);
-  }
-
   /// Send a given completed challenge to the backend.
   Future<void> sendChallengeDataToBackend(Challenge challenge) async {
     Map<String, dynamic> challengeData = {

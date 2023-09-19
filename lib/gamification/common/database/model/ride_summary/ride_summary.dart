@@ -27,12 +27,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
   /// The logger for this service.
   final logger = Logger("RideDAO");
 
-  RideSummaryDao(AppDatabase attachedDatabase) : super(attachedDatabase) {
-    // Fill the database with mocks, if it is empty - TODO remove
-    getAllObjects().then((result) {
-      if (result.isEmpty) _createMocks();
-    });
-  }
+  RideSummaryDao(AppDatabase attachedDatabase) : super(attachedDatabase);
 
   @override
   TableInfo<Table, dynamic> get table => rideSummaries;
@@ -125,38 +120,5 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
     var firstDay = DateTime(year, month, 1);
     var lastDay = DateTime(isDecember ? year + 1 : year, (isDecember ? 0 : month + 1), 0);
     return getRidesInInterval(firstDay, lastDay);
-  }
-
-  /// Generate random mock rides for the last 6 months.
-  void _createMocks() async {
-    var today = DateTime.now();
-    for (int i = 1; i < 30 * 2; i++) {
-      var day = today.subtract(Duration(days: i));
-      var rides = 4 - sqrt(Random().nextInt(24)).floorToDouble();
-      for (int e = 0; e < rides; e++) {
-        await _createMock(day);
-      }
-    }
-    logger.i('Generated mock rides');
-  }
-
-  /// Generate random mock on a given day.
-  Future _createMock(DateTime day) async {
-    var duration = Random().nextDouble() * 1800;
-    var distance = duration * 5 * (1 + 0.3 * Random().nextDouble());
-    var gain = Random().nextDouble() * 400;
-    var loss = Random().nextDouble() * 400;
-    var hour = Random().nextInt(16) + 6;
-    var minute = Random().nextInt(60);
-    var start = day.copyWith(hour: hour, minute: minute);
-    await createObject(
-      RideSummariesCompanion.insert(
-          distanceMetres: distance,
-          durationSeconds: duration,
-          elevationGainMetres: gain,
-          elevationLossMetres: loss,
-          startTime: start,
-          averageSpeedKmh: (distance / duration) * 3.6),
-    );
   }
 }

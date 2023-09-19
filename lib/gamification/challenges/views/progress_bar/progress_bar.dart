@@ -177,107 +177,102 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
 
   /// This widget returns the progress bar corresponding to the challenge state.
   Widget _getProgressBar() {
-    return GestureDetector(
-      onTap: (_deactivateTap) ? null : _handleTap,
-      onLongPress: () => _service.deleteCurrentChallenge(),
-      onHorizontalDragEnd: (_) => _service.increaseChallengeProgress(),
-      child: SizedBox.fromSize(
-        size: const Size.fromHeight(48),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              child: OnTapAnimation(
-                scaleFactor: 0.95,
-                onPressed: (_deactivateTap) ? null : _handleTap,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(32)),
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Container(
-                          decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(32))),
-                          clipBehavior: Clip.antiAlias,
-                          alignment: Alignment.centerLeft,
-                          child: FractionallySizedBox(
-                            widthFactor: _isCompleted ? 1 : _progressPercentage,
-                            child: Container(
-                              color: _challenge == null ? _barColor.withOpacity(_deactivateTap ? 0.2 : 0.5) : _barColor,
+    return SizedBox.fromSize(
+      size: const Size.fromHeight(48),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: OnTapAnimation(
+              scaleFactor: 0.95,
+              onPressed: (_deactivateTap) ? null : _handleTap,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(32)),
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Container(
+                        decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(32))),
+                        clipBehavior: Clip.antiAlias,
+                        alignment: Alignment.centerLeft,
+                        child: FractionallySizedBox(
+                          widthFactor: _isCompleted ? 1 : _progressPercentage,
+                          child: Container(
+                            color: _challenge == null ? _barColor.withOpacity(_deactivateTap ? 0.2 : 0.5) : _barColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (!_deactivateTap)
+                      BlinkAnimation(
+                        animate: _isCompleted,
+                        scaleFactor: 1.025,
+                        child: FractionallySizedBox(
+                          widthFactor: _isCompleted ? 1 : _progressPercentage,
+                          heightFactor: 1,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(32)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _barColor.withOpacity(_isCompleted ? 0.8 : 0.3),
+                                  blurRadius: 15,
+                                  spreadRadius: 0,
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                      if (!_deactivateTap)
-                        BlinkAnimation(
-                          animate: _isCompleted,
-                          scaleFactor: 1.025,
-                          child: FractionallySizedBox(
-                            widthFactor: _isCompleted ? 1 : _progressPercentage,
-                            heightFactor: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(Radius.circular(32)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: _barColor.withOpacity(_isCompleted ? 0.8 : 0.3),
-                                    blurRadius: 15,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                              ),
+                    Center(
+                      child: BlinkAnimation(
+                        animate: _isCompleted,
+                        scaleFactor: 1.1,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              (_challenge == null)
+                                  ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
+                                  : getChallengeIcon(_challenge!),
+                              size: 32,
+                              color: _isCompleted
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                             ),
-                          ),
-                        ),
-                      Center(
-                        child: BlinkAnimation(
-                          animate: _isCompleted,
-                          scaleFactor: 1.1,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                (_challenge == null)
-                                    ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
-                                    : getChallengeIcon(_challenge!),
-                                size: 32,
-                                color: _isCompleted
-                                    ? Colors.white
-                                    : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                              ),
-                              BoldContent(
-                                text: _challenge == null
-                                    ? _deactivateTap
-                                        ? 'Challenge Abgeschlossen'
-                                        : (widget.isWeekly ? 'Neue Wochenchallenge' : 'Neue Tageschallenge')
-                                    : _isCompleted
-                                        ? 'Belohnung Abholen'
-                                        : '${StringFormatter.getRoundStrByChallengeType(
-                                            _challenge!.progress,
-                                            challengeType,
-                                          )}/${StringFormatter.getRoundStrByChallengeType(
-                                            _challenge!.target,
-                                            challengeType,
-                                          )} ${StringFormatter.getLabelForChallengeType(challengeType)}',
-                                context: context,
-                                color: _isCompleted
-                                    ? Colors.white
-                                    : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                              ),
-                            ],
-                          ),
+                            BoldContent(
+                              text: _challenge == null
+                                  ? _deactivateTap
+                                      ? 'Challenge Abgeschlossen'
+                                      : (widget.isWeekly ? 'Neue Wochenchallenge' : 'Neue Tageschallenge')
+                                  : _isCompleted
+                                      ? 'Belohnung Abholen'
+                                      : '${StringFormatter.getRoundStrByChallengeType(
+                                          _challenge!.progress,
+                                          challengeType,
+                                        )}/${StringFormatter.getRoundStrByChallengeType(
+                                          _challenge!.target,
+                                          challengeType,
+                                        )} ${StringFormatter.getLabelForChallengeType(challengeType)}',
+                              context: context,
+                              color: _isCompleted
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
