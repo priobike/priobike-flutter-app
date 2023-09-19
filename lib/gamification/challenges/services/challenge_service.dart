@@ -7,11 +7,14 @@ import 'package:priobike/gamification/common/database/model/challenges/challenge
 import 'package:priobike/gamification/challenges/utils/challenge_validator.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 
 /// This class is to be extended by a service, which manages only challenges in a certain timeframe, such as
 /// weekly or daily challenges.
 abstract class ChallengeService with ChangeNotifier {
+  final log = Logger('ChallengeService');
+
   /// DAO to access the challenges in the database.
   final ChallengeDao _dao = AppDatabase.instance.challengeDao;
 
@@ -113,6 +116,11 @@ abstract class ChallengeService with ChangeNotifier {
       challenge.closingTime,
     );
     await ChallengeValidator(challenge: challenge, startStream: false).validate(rides);
+    try {
+      challenge = (await AppDatabase.instance.challengeDao.getObjectByPrimaryKey(challenge.id))!;
+    } catch (e) {
+      log.e('Failed to validate open challenge');
+    }
     var isCompleted = challenge.progress / challenge.target >= 1;
 
     // If an open challenge was not completed and the time did run out, close the challenge and send it to the backend.
@@ -171,28 +179,6 @@ abstract class ChallengeService with ChangeNotifier {
     // Start the validator and observe changes in the challenge.
     _validator = ChallengeValidator(challenge: _currentChallenge!);
     startChallengeStream();
-  }
-
-  /// TODO helper function
-  void deleteCurrentChallenge() {
-    if (_currentChallenge == null) return;
-    _dao.deleteObject(currentChallenge!);
-  }
-
-  /// TODO helper function
-  void finishChallenge() {
-    if (_currentChallenge == null) return;
-    var modified = _currentChallenge!.copyWith(progress: (_currentChallenge!.target * 1.25).toInt());
-    _dao.updateObject(modified);
-  }
-
-  /// TODO helper function
-  void increaseChallengeProgress() {
-    if (_currentChallenge == null) return;
-    var modified = _currentChallenge!.copyWith(
-      progress: _currentChallenge!.progress + (_currentChallenge!.target * 0.2).toInt(),
-    );
-    _dao.updateObject(modified);
   }
 
   /// Send a given completed challenge to the backend.

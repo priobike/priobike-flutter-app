@@ -49,7 +49,7 @@ class IntroPage extends StatelessWidget {
         const SmallVSpace(),
         IconItem(
           icon: Icons.query_stats,
-          text: 'Erhalte einen detaillierten Überblick über die von dir zurückgelegten Strecken.',
+          text: 'Erhalte einen detaillierten Überblick über die von dir aufgezeichneten Daten.',
           context: context,
         ),
         const SmallVSpace(),
@@ -66,15 +66,22 @@ class IntroPage extends StatelessWidget {
           context: context,
         ),
         const SmallVSpace(),
-        /*
         IconItem(
           icon: Icons.shield,
-          text: 'Nimm an wöchentlichen Events Teil und sammel .',
+          text:
+              'Nimm an den wöchentlichen Stadtteil-Hopping teil und sammel individuelle Abzeichen, indem du Orte in Hamburg besuchst.',
           context: context,
         ),
-        const SmallVSpace(),*/
-        SubHeader(
-          text: '',
+        const VSpace(),
+        Content(
+          text:
+              'Ab jetzt kannst du die neuen Beta-Features der PrioBike-App ausprobieren! Hierbei handelt es sich um eine Reihe von Funktionen, die es dir ermöglichen, noch mehr über deine Fahrradfahrten zu erfahren, dir Ziele zu setzen und deine Fahrten mit virtuellen Spielmechaniken zu verbinden.',
+          context: context,
+        ),
+        const SmallVSpace(),
+        Content(
+          text:
+              ' Die Beta-Features wurden im Rahmen eines studentischen Projektes entwickelt. Da zu diesem Projekt auch eine Evaluation gehört, werden deine Interaktionen mit den Features aufgezeichnet und anonymisiert an einen Server geschickt und dort ausgewertet.',
           context: context,
         ),
         const SizedBox(height: 82),

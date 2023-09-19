@@ -48,7 +48,7 @@ class _EventCardState extends State<EventCard> {
       onEnabled: () {},
       featurePage: _eventService.activeEvent
           ? const CommunityEventPage()
-          : (_eventService.waitingForEvent && _eventService.userBadges.isNotEmpty
+          : (!_eventService.eventStarted && _eventService.userBadges.isNotEmpty
               ? BadgeCollection(badges: _eventService.userBadges)
               : null),
       featureEnabledContent: Column(
@@ -286,7 +286,8 @@ class NoEventView extends StatelessWidget {
           ),
         ),
         const SmallVSpace(),
-        if (service.userBadges.isNotEmpty)
+        if (service.userBadges.isNotEmpty) ...[
+          const SmallVSpace(),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -297,6 +298,7 @@ class NoEventView extends StatelessWidget {
               const Icon(Icons.redo)
             ],
           ),
+        ],
       ],
     );
   }

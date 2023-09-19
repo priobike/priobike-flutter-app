@@ -1,5 +1,6 @@
 import 'package:priobike/gamification/common/models/evaluation_data.dart';
 import 'package:priobike/http.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -8,6 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// This service handles sending data relevant for the evaluation of the gamification functionality to the backend.
 class EvaluationDataService {
+  final log = Logger("EvaluationDataService");
+
   /// Shared prefs key to store unsent elements.
   static const String unsentElementsKey = 'priobike.gamification.evaluation.unsentElements';
 
@@ -59,17 +62,13 @@ class EvaluationDataService {
       final postUrl = "$baseUrl${data.address}";
       final postProfileEndpoint = Uri.parse(postUrl);
 
-      log.i("Sending gamification data to $postUrl");
+      log.i('sending gamification evaluation data: ${data.jsonData}');
 
       // Try to send json data to url of the gamification service.
       final response = await Http.post(postProfileEndpoint, body: data.jsonData).timeout(const Duration(seconds: 4));
 
-      if (response.statusCode == 200) {
-        log.i("Sending of gamification data successful: $postUrl");
-        return true;
-      } else {
-        log.e("Failed to send gamification data: ${response.statusCode} ${response.body}");
-      }
+      if (response.statusCode == 200) return true;
+      log.e("Failed to send gamification data: ${response.statusCode} ${response.body}");
     } catch (e) {
       final hint = "Failed to load gamification service response: $e";
       log.e(hint);

@@ -316,49 +316,19 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    OnTapAnimation(
-                      onPressed: () => AppDatabase.instance.challengeDao.createObject(
-                        ChallengesCompanion.insert(
-                          xp: 25,
-                          startTime: DateTime(2023),
-                          closingTime: DateTime(2023),
-                          description: '',
-                          target: 0,
-                          progress: 100,
-                          isWeekly: false,
-                          isOpen: false,
-                          type: 0,
-                        ),
-                      ),
-                      child: _getRewardCounter(
-                        _profile!.medals,
-                        CustomGameIcons.blank_medal,
-                        _getAnimation(_medalsController),
-                        _profileService.medalsChanged,
-                        ringDimensions * 0.375,
-                      ),
+                    _getRewardCounter(
+                      _profile!.medals,
+                      CustomGameIcons.blank_medal,
+                      _getAnimation(_medalsController),
+                      _profileService.medalsChanged,
+                      ringDimensions * 0.375,
                     ),
-                    OnTapAnimation(
-                      onPressed: () => AppDatabase.instance.challengeDao.createObject(
-                        ChallengesCompanion.insert(
-                          xp: 100,
-                          startTime: DateTime(2023),
-                          closingTime: DateTime(2023),
-                          description: '',
-                          target: 0,
-                          progress: 100,
-                          isWeekly: true,
-                          isOpen: false,
-                          type: 0,
-                        ),
-                      ),
-                      child: _getRewardCounter(
-                        _profile!.trophies,
-                        CustomGameIcons.blank_trophy,
-                        _getAnimation(_trophiesController),
-                        _profileService.trophiesChanged,
-                        ringDimensions * 0.375,
-                      ),
+                    _getRewardCounter(
+                      _profile!.trophies,
+                      CustomGameIcons.blank_trophy,
+                      _getAnimation(_trophiesController),
+                      _profileService.trophiesChanged,
+                      ringDimensions * 0.375,
                     ),
                   ],
                 ),

@@ -11,6 +11,7 @@ import 'package:priobike/gamification/common/services/evaluation_data_service.da
 import 'package:priobike/gamification/community_event/model/event.dart';
 import 'package:priobike/gamification/community_event/model/location.dart';
 import 'package:priobike/http.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -18,6 +19,8 @@ import 'package:priobike/settings/services/settings.dart';
 
 /// This service manages the weekend events and pulls all necessary data from the backend.
 class EventService with ChangeNotifier {
+  final log = Logger("EventService");
+
   String get baseUrl => 'https://${getIt<Settings>().backend.path}/game-service/community/';
 
   /// Threshold within which a user needs to pass a location to achieve it.
@@ -148,6 +151,7 @@ class EventService with ChangeNotifier {
   Future<void> fetchWeekendEvent() async {
     var url = '${baseUrl}get-open-event/';
     final endpoint = Uri.parse(url);
+    log.i('fetching community event...');
     try {
       // Try to retreive the current open event.
       http.Response response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
@@ -177,7 +181,7 @@ class EventService with ChangeNotifier {
   Future<void> fetchEventLocations() async {
     var url = '${baseUrl}get-locations/';
     final endpoint = Uri.parse(url);
-
+    log.i('fetching community event locations...');
     try {
       // Try to retrieve list of lcoations for the current event from the gamification service.
       http.Response response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
@@ -210,7 +214,7 @@ class EventService with ChangeNotifier {
   Future<void> fetchEventStatus() async {
     var url = '${baseUrl}get-event-status/';
     final endpoint = Uri.parse(url);
-
+    log.i('fetching community event status...');
     try {
       // Try to retrieve status of the current event from the gamification service.
       http.Response response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
