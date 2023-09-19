@@ -11,7 +11,6 @@ import 'package:priobike/gamification/challenges/views/profile/lvl_up_dialog.dar
 import 'package:priobike/gamification/challenges/views/profile/multiple_upgrades_lvl_up.dart.dart';
 import 'package:priobike/gamification/challenges/views/profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
-import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/views/blink_animation.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/progress_ring.dart';

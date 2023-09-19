@@ -13,7 +13,7 @@ class ProgressRing extends StatefulWidget {
   /// The size of the ring. The icon size also depends on this value.
   final double ringSize;
 
-  /// The widget to be displayed inside of the ring. 
+  /// The widget to be displayed inside of the ring.
   final Widget? content;
 
   /// Whether to show a border around the level ring.

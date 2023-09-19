@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 /// This widget displays a badge with a given size, a given color and with a given icon to display on top of it.

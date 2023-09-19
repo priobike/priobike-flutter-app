@@ -9,7 +9,7 @@ class RouteGoals {
   /// A bool which should hold 7 bool values, which determine whether the users wants to drive the route on a day.
   List<bool> weekdays;
 
-  /// Returns the number of weekdays where the goals are activated. 
+  /// Returns the number of weekdays where the goals are activated.
   int get numOfDays => weekdays.where((day) => day).length;
 
   RouteGoals(this.routeID, this.routeName, this.weekdays);
