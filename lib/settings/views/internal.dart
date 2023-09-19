@@ -5,6 +5,9 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
@@ -309,6 +312,26 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Umfrage zurücksetzen",
                     icon: Icons.recycling,
                     callback: () => getIt<Settings>().setDismissedSurvey(false),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    callback: () => getIt<ChallengesProfileService>().resetChallenges(),
+                    title: 'Challenges zurücksetzen',
+                    icon: Icons.recycling,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Game-Profil zurücksetzen",
+                    icon: Icons.recycling,
+                    callback: () async {
+                      await getIt<GamificationUserService>().reset();
+                      await getIt<ChallengesProfileService>().reset();
+                      await getIt<GoalsService>().reset();
+                    },
                   ),
                 ),
                 Padding(

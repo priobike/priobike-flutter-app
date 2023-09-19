@@ -8,6 +8,8 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -20,7 +22,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -66,7 +67,6 @@ class LoaderState extends State<Loader> {
       // Load local stuff.
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
-      await getIt<Statistics>().loadStatistics();
       await getIt<Layers>().loadPreferences();
       await getIt<MapDesigns>().loadPreferences();
       final tracking = getIt<Tracking>();
@@ -87,6 +87,8 @@ class LoaderState extends State<Loader> {
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
       settings.incrementUseCounter();
+      await getIt<EventService>().fetchData();
+      getIt<EvaluationDataService>().sendUnsentElements();
     } catch (e) {
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);

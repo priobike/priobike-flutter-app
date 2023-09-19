@@ -60,7 +60,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             icon: Icons.save_rounded,
             label: "Speichern",
             onPressed: () {
-              ShortcutRoute shortcutRoute = ShortcutRoute(name: "", waypoints: lastRoute);
+              ShortcutRoute shortcutRoute = ShortcutRoute(id: UniqueKey().toString(), name: "", waypoints: lastRoute);
               // Set waypoints and load ride view.
               Navigator.pop(context);
               showSaveShortcutSheet(context, shortcut: shortcutRoute);
