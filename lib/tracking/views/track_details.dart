@@ -285,9 +285,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                         key: ValueKey(widget.track.sessionId),
                         track: positions,
                         colors: const [
-                          ui.Color.fromARGB(255, 64, 240, 170),
                           CI.blue,
-                          Color.fromARGB(255, 138, 35, 135),
                           CI.red,
                         ],
                         blurRadius: 2,
