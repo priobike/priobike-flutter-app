@@ -14,16 +14,19 @@ import 'package:priobike/settings/services/settings.dart';
 /// and lines between the waypoints. The coordinates of the waypoints
 /// are normalized to the size of the pictogram.
 class ShortcutRoutePictogram extends StatefulWidget {
+  /// The shortcut to display.
   final ShortcutRoute shortcut;
+
+  /// The height of the pictogram. The height is also the width, because the pictogram is a square.
   final double height;
-  final double width;
+
+  /// The color of the pictogram.
   final Color color;
 
   const ShortcutRoutePictogram({
     Key? key,
     required this.shortcut,
     this.height = 200,
-    this.width = 200,
     this.color = Colors.black,
   }) : super(key: key);
 
@@ -35,12 +38,15 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The future of the background image.
+  Future? backgroundImageFuture;
+
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    MapboxTileImageCache.requestTile(
+    backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList(),
       brightness: Theme.of(context).brightness,
     ).then((value) {
@@ -63,6 +69,7 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   @override
   void dispose() {
     settings.removeListener(update);
+    backgroundImageFuture?.ignore();
     super.dispose();
   }
 
@@ -70,8 +77,8 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   Widget build(BuildContext context) {
     return SizedBox(
       // width = height, because the map is a square
-      width: widget.width,
-      height: widget.width,
+      width: widget.height,
+      height: widget.height,
       child: Stack(
         alignment: Alignment.center,
         fit: StackFit.expand,
@@ -169,16 +176,19 @@ class ShortcutRoutePainter extends CustomPainter {
 }
 
 class ShortcutLocationPictogram extends StatefulWidget {
+  /// The shortcut to display.
   final ShortcutLocation shortcut;
+
+  /// The height of the pictogram. The height is also the width, because the pictogram is a square.
   final double height;
-  final double width;
+
+  /// The color of the pictogram.
   final Color color;
 
   const ShortcutLocationPictogram({
     Key? key,
     required this.shortcut,
     this.height = 200,
-    this.width = 200,
     this.color = Colors.black,
   }) : super(key: key);
 
@@ -190,12 +200,15 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The future of the background image.
+  Future? backgroundImageFuture;
+
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    MapboxTileImageCache.requestTile(
+    backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: [
         LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
         LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
@@ -221,6 +234,7 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   @override
   void dispose() {
     settings.removeListener(update);
+    backgroundImageFuture?.ignore();
     super.dispose();
   }
 
@@ -228,8 +242,8 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   Widget build(BuildContext context) {
     return SizedBox(
       // width = height, because the map is a square
-      width: widget.width,
-      height: widget.width,
+      width: widget.height,
+      height: widget.height,
       child: Stack(
         alignment: Alignment.center,
         fit: StackFit.expand,
@@ -248,7 +262,7 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
                 : Container(),
           ),
           Transform.translate(
-            offset: const Offset(0, -28),
+            offset: const Offset(0, -26),
             child: Icon(
               Icons.location_on,
               color: widget.color,

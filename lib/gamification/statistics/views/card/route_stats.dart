@@ -122,18 +122,20 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
           ),
         ),
         if (_routeShortcut != null && _routeShortcut is ShortcutRoute)
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              color: Theme.of(context).colorScheme.background,
-            ),
-            padding: const EdgeInsets.all(4),
-            child: ShortcutRoutePictogram(
-              key: ValueKey(_routeShortcut!.hashCode),
-              shortcut: _routeShortcut as ShortcutRoute,
-              height: 128,
-              width: 128,
-              color: CI.blue,
+          Positioned(
+            top: 24,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                color: Theme.of(context).colorScheme.background,
+              ),
+              padding: const EdgeInsets.all(4),
+              child: ShortcutRoutePictogram(
+                key: ValueKey(_routeShortcut!.hashCode),
+                shortcut: _routeShortcut as ShortcutRoute,
+                height: 112,
+                color: CI.blue,
+              ),
             ),
           ),
       ],

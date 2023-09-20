@@ -63,7 +63,6 @@ class ShortcutView extends StatelessWidget {
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutRoute,
                   height: height - 4,
-                  width: width - 4,
                   color: CI.blue,
                 ),
               )
@@ -78,7 +77,6 @@ class ShortcutView extends StatelessWidget {
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutLocation,
                   height: height - 4,
-                  width: width - 4,
                   color: CI.blue,
                 ),
               ),
@@ -105,24 +103,17 @@ class ShortcutView extends StatelessWidget {
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                             )
-                          : Container(
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 6, left: 8, right: 8),
-                                child: Text(
-                                  shortcut!.name,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                                  ),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
+                          : Padding(
+                              padding: const EdgeInsets.only(top: 6, left: 8, right: 8),
+                              child: Text(
+                                shortcut!.name,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
                                 ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                     ),

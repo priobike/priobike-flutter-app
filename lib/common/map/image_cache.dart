@@ -22,7 +22,7 @@ class MapboxTileImageCache {
   static Future<MemoryImage?> requestTile({required List<LatLng> coords, required Brightness brightness}) async {
     final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
     if (bbox == null) return null;
-    var brightnessKey = brightness == Brightness.light ? "light" : "dark";
+    final brightnessKey = brightness == Brightness.light ? "light" : "dark";
     final imageName = "${bbox.minLon}_${bbox.minLat}_${bbox.maxLon}_${bbox.maxLat}+$brightnessKey";
 
     // Check if we are currently already fetching the image.

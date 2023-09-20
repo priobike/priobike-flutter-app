@@ -54,7 +54,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         await loadTrack();
-        setState(() {});
+        if (mounted) setState(() {});
       },
     );
   }
