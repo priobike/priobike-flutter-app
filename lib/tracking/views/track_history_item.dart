@@ -9,6 +9,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/track.dart';
@@ -131,10 +132,23 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
 
   @override
   Widget build(BuildContext context) {
-    // Parse the date.
-    final day = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime).day;
-    final monthName = DateFormat.MMMM('de').format(DateTime.fromMillisecondsSinceEpoch(widget.track.startTime));
-    final year = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime).year;
+    // Calculate the relative date
+    var relativeTime = "";
+    final now = DateTime.now();
+    final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+    final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
+    if (isToday) {
+      relativeTime = "Heute";
+    } else {
+      final yesterday = now.subtract(const Duration(days: 1));
+      if (trackDate.day == yesterday.day && trackDate.month == yesterday.month && trackDate.year == yesterday.year) {
+        relativeTime = "Gestern";
+      } else {
+        relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
+      }
+    }
+    // Add the time.
+    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
 
     // Determine the duration.
     final secondsDriven =
@@ -171,87 +185,46 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                   startImage: widget.startImage,
                   destinationImage: widget.destinationImage,
                   blurRadius: 0,
-                  showSpeed: false,
+                  showSpeedLegend: false,
                 ),
               ),
             Positioned(
-              top: 10,
-              left: 10,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    "$day.",
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Theme.of(context).colorScheme.brightness == Brightness.light ? CI.blue : Colors.white,
-                      fontWeight: FontWeight.bold,
+                top: 12,
+                left: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BoldContent(
+                      text: relativeTime,
+                      context: context,
                     ),
-                  ),
-                  const SizedBox(width: 2),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    verticalDirection: VerticalDirection.up,
-                    children: [
-                      Text(
-                        year.toString(),
-                        style: TextStyle(
-                          fontSize: 10,
-                          height: 0.98,
-                          color: Theme.of(context).colorScheme.brightness == Brightness.light ? CI.blue : Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        monthName,
-                        style: TextStyle(
-                          fontSize: 10,
-                          height: 0.98,
-                          color: Theme.of(context).colorScheme.brightness == Brightness.light ? CI.blue : Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+                    Small(
+                      text: clock,
+                      context: context,
+                    )
+                  ],
+                )),
             if (trackDurationFormatted != null)
               Positioned(
-                bottom: 10,
-                left: 10,
+                bottom: 12,
+                left: 12,
                 child: Container(
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).brightness == Brightness.light
-                        ? Colors.white.withOpacity(0.75)
-                        : Colors.black.withOpacity(0.25),
-                  ),
                   child: Padding(
                     padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
-                    child: Text(
-                      trackDurationFormatted,
-                      style: TextStyle(
-                        fontSize: 11,
-                        height: 1.2,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                      ),
+                    child: Small(
+                      text: trackDurationFormatted,
+                      context: context,
                     ),
                   ),
                 ),
               ),
             Positioned(
-              right: 10,
-              bottom: 10,
+              right: 12,
+              bottom: 12,
               child: Container(
-                height: 33,
-                width: 33,
+                height: 42,
+                width: 42,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -264,7 +237,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                   visualDensity: VisualDensity.compact,
                   icon: Icon(
                     Icons.delete_rounded,
-                    size: 22,
+                    size: 24,
                     color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
                   ),
                   style: ButtonStyle(

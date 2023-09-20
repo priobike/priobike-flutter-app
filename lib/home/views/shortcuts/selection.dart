@@ -86,7 +86,7 @@ class ShortcutView extends StatelessWidget {
               height: height,
               width: width,
               child: Padding(
-                padding: const EdgeInsets.only(left: 16, bottom: 12),
+                padding: const EdgeInsets.only(left: 12, bottom: 12, right: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -109,14 +109,11 @@ class ShortcutView extends StatelessWidget {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                color: Theme.of(context).brightness == Brightness.light
-                                    ? Colors.white.withOpacity(0.75)
-                                    : Colors.black.withOpacity(0.25),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
+                                padding: const EdgeInsets.only(top: 6, left: 8, right: 8),
                                 child: Text(
-                                  shortcut!.linebreakedName,
+                                  shortcut!.name,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,

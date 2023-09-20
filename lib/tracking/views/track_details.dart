@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
@@ -277,16 +278,24 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(24),
               child: positions.isNotEmpty
-                  ? TrackPictogram(
-                      key: ValueKey(widget.track.sessionId),
-                      track: positions,
-                      minSpeedColor: CI.blue,
-                      maxSpeedColor: CI.blueLight,
-                      blurRadius: 2,
-                      startImage: widget.startImage,
-                      destinationImage: widget.destinationImage,
-                      iconSize: 16,
-                      lineWidth: 6,
+                  ? Tile(
+                      padding: const EdgeInsets.all(0),
+                      borderRadius: BorderRadius.circular(20),
+                      content: TrackPictogram(
+                        key: ValueKey(widget.track.sessionId),
+                        track: positions,
+                        colors: const [
+                          ui.Color.fromARGB(255, 64, 240, 170),
+                          CI.blue,
+                          Color.fromARGB(255, 138, 35, 135),
+                          CI.red,
+                        ],
+                        blurRadius: 2,
+                        startImage: widget.startImage,
+                        destinationImage: widget.destinationImage,
+                        iconSize: 16,
+                        lineWidth: 6,
+                      ),
                     )
                   : Center(
                       child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),

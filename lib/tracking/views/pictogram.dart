@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -16,11 +18,8 @@ class TrackPictogram extends StatefulWidget {
   /// The Positions of the track.
   final List<Position> track;
 
-  /// The color of the line for the minimum speed.
-  final Color minSpeedColor;
-
-  /// The color of the line for the maximum speed.
-  final Color maxSpeedColor;
+  /// The list of colors for the speed gradient.
+  final List<Color> colors;
 
   /// The blur radius of the line.
   final double blurRadius;
@@ -38,19 +37,18 @@ class TrackPictogram extends StatefulWidget {
   final double iconSize;
 
   /// If the speed should be displayed.
-  final bool showSpeed;
+  final bool showSpeedLegend;
 
   const TrackPictogram({
     Key? key,
     required this.track,
     required this.blurRadius,
-    this.minSpeedColor = Colors.green,
-    this.maxSpeedColor = Colors.red,
+    this.colors = const [CI.blue, CI.red],
     this.startImage,
     this.destinationImage,
     this.lineWidth = 3.0,
     this.iconSize = 10,
-    this.showSpeed = true,
+    this.showSpeedLegend = true,
   }) : super(key: key);
 
   @override
@@ -74,14 +72,16 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => // Load the background image
-      backgroundImageFuture =
-          MapboxTileImageCache.requestTile(coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList())
-              .then((value) {
-        setState(() {
-          backgroundImage = value;
-        });
+  void update() {
+    backgroundImageFuture = MapboxTileImageCache.requestTile(
+      coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList(),
+      brightness: Theme.of(context).brightness,
+    ).then((value) {
+      setState(() {
+        backgroundImage = value;
       });
+    });
+  }
 
   @override
   void initState() {
@@ -107,14 +107,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
       }
     }
 
-    // Load the background image
-    backgroundImageFuture =
-        MapboxTileImageCache.requestTile(coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList())
-            .then((value) {
-      setState(() {
-        backgroundImage = value;
-      });
-    });
+    SchedulerBinding.instance.addPostFrameCallback((_) => update());
   }
 
   @override
@@ -151,20 +144,19 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             fraction: fraction,
             track: widget.track,
             blurRadius: 0,
-            minSpeedColor: widget.minSpeedColor,
-            maxSpeedColor: widget.maxSpeedColor,
+            colors: widget.colors,
             maxSpeed: maxSpeed,
             minSpeed: minSpeed,
             startImage: widget.startImage,
             destinationImage: widget.destinationImage,
             lineWidth: widget.lineWidth,
             iconSize: widget.iconSize,
-            showSpeed: widget.showSpeed,
+            showSpeed: true,
           ),
         ),
 
         // Legend
-        if (widget.showSpeed)
+        if (widget.showSpeedLegend)
           Positioned(
             bottom: 8,
             left: 12,
@@ -178,25 +170,25 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               ),
               child: Padding(
                 padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
-                child: Row(
+                child: Column(
                   children: [
                     Container(
-                      width: 32,
+                      width: 64,
                       height: 8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         gradient: LinearGradient(
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
-                          colors: [widget.minSpeedColor, widget.maxSpeedColor],
+                          colors: widget.colors,
                         ),
                       ),
                     ),
                     const SmallHSpace(),
                     Text(
-                      '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h',
+                      '0 bis ${((maxSpeed ?? 0) * 3.6).toInt()} km/h',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 8,
                         color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -222,8 +214,7 @@ class TrackPainter extends CustomPainter {
   final double fraction;
   final double blurRadius;
   final List<Position> track;
-  final Color minSpeedColor;
-  final Color maxSpeedColor;
+  final List<Color> colors;
   double? maxSpeed;
   double? minSpeed;
   final ui.Image? startImage;
@@ -236,8 +227,7 @@ class TrackPainter extends CustomPainter {
     required this.fraction,
     required this.blurRadius,
     required this.track,
-    required this.minSpeedColor,
-    required this.maxSpeedColor,
+    required this.colors,
     required this.lineWidth,
     required this.iconSize,
     required this.showSpeed,
@@ -259,15 +249,15 @@ class TrackPainter extends CustomPainter {
 
     // If the track is too long, it will slow down the app.
     // Therefore, we need to reduce the number of points.
-    // If the number of points is > 500, we reduce it to 500.
+    // If the number of points is > threshold, we reduce it to threshold.
     // We do this by applying the following pattern:
-    // - If n_points ~ or < 500, we keep all points
-    // - If n_points < 1000, we keep every second point
-    // - If n_points < 1500, we keep every third point
+    // - If n_points ~ or < threshold, we keep all points
+    // - If n_points < 2x threshold, we keep every second point
+    // - If n_points < 3x threshold, we keep every third point
     // ...
     // Note: 1000 points is roughly 1000 seconds, which is 16 minutes of GPS.
     final List<Position> trackToDraw = [];
-    const threshold = 500;
+    const threshold = 300;
     if (track.length > threshold) {
       final step = track.length ~/ threshold;
       for (var i = 0; (i + step) < track.length; i += step) {
@@ -296,7 +286,15 @@ class TrackPainter extends CustomPainter {
 
       var color = CI.blue;
       if (showSpeed && minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
-        color = Color.lerp(minSpeedColor, maxSpeedColor, (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
+        if (colors.length < 2) {
+          throw Exception('The colors list must have at least two colors.');
+        }
+        final frac = (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!);
+        var index = (frac * (colors.length - 1)).toInt();
+        index = min(index, colors.length - 2);
+        // Normalize the fraction between the two colors
+        final fracIndex = frac * (colors.length - 1) - index;
+        color = Color.lerp(colors[index], colors[index + 1], fracIndex)!;
       }
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint..color = color);
     }
@@ -315,7 +313,16 @@ class TrackPainter extends CustomPainter {
 
       var color = CI.blue;
       if (showSpeed && minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
-        color = Color.lerp(minSpeedColor, maxSpeedColor, (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
+        // Calculate the fraction based on a power function
+        // This makes the color change more visible for lower speeds
+        if (colors.length < 2) {
+          throw Exception('The colors list must have at least two colors.');
+        }
+        final frac = (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!);
+        var index = (frac * (colors.length - 1)).toInt();
+        index = min(index, colors.length - 2);
+        final fracIndex = frac * (colors.length - 1) - index;
+        color = Color.lerp(colors[index], colors[index + 1], fracIndex)!;
       }
       canvas.drawLine(Offset(x1, y1), Offset(x2i, y2i), paint..color = color);
     }

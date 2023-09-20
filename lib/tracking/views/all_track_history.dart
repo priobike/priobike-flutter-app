@@ -136,7 +136,8 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    final shortcutWidth = MediaQuery.of(context).size.width / 2.4;
+    const double shortcutRightPad = 16;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,

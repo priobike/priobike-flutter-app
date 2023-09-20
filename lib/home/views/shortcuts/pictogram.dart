@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
@@ -38,13 +39,16 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() =>
-      MapboxTileImageCache.requestTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
-          .then((value) {
-        setState(() {
-          backgroundImage = value;
-        });
+  void update() {
+    MapboxTileImageCache.requestTile(
+      coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList(),
+      brightness: Theme.of(context).brightness,
+    ).then((value) {
+      setState(() {
+        backgroundImage = value;
       });
+    });
+  }
 
   @override
   void initState() {
@@ -53,13 +57,7 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
     settings = getIt<Settings>();
     settings.addListener(update);
 
-    // Load the background image
-    MapboxTileImageCache.requestTile(coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList())
-        .then((value) {
-      setState(() {
-        backgroundImage = value;
-      });
-    });
+    SchedulerBinding.instance.addPostFrameCallback((_) => update());
   }
 
   @override
@@ -196,14 +194,19 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => MapboxTileImageCache.requestTile(coords: [
+  void update() {
+    MapboxTileImageCache.requestTile(
+      coords: [
         LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
         LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
-      ]).then((value) {
-        setState(() {
-          backgroundImage = value;
-        });
+      ],
+      brightness: Theme.of(context).brightness,
+    ).then((value) {
+      setState(() {
+        backgroundImage = value;
       });
+    });
+  }
 
   @override
   void initState() {
@@ -212,15 +215,7 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
     settings = getIt<Settings>();
     settings.addListener(update);
 
-    // Load the background image
-    MapboxTileImageCache.requestTile(coords: [
-      LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
-      LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
-    ]).then((value) {
-      setState(() {
-        backgroundImage = value;
-      });
-    });
+    SchedulerBinding.instance.addPostFrameCallback((_) => update());
   }
 
   @override

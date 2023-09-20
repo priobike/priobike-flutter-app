@@ -22,9 +22,6 @@ class TrackHistoryView extends StatefulWidget {
 }
 
 class TrackHistoryViewState extends State<TrackHistoryView> {
-  /// The left padding.
-  double leftPad = 24;
-
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
@@ -108,8 +105,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    final shortcutWidth = MediaQuery.of(context).size.width / 2.4;
-
+    const double shortcutRightPad = 12;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
     if (startImage == null || destinationImage == null) return Container();
     if (newestTracks.isEmpty) return Container();
 
@@ -117,7 +114,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
       AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOutCubic,
-        padding: EdgeInsets.only(left: leftPad),
+        padding: const EdgeInsets.only(left: 12),
       ),
     ];
 
@@ -149,6 +146,9 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         ),
       );
     }
+
+    // Pad a bit more to the right
+    views.add(const SizedBox(width: 4));
 
     List<Widget> animatedViews = views
         .asMap()
@@ -189,13 +189,13 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                 onPressed: () =>
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
               ),
-              const SizedBox(width: 32),
+              const SizedBox(width: 24),
             ],
           ),
         ),
         const VSpace(),
         SingleChildScrollView(
-          // Padding is nessessary for Shadow in LightMode
+          // Padding is necessary for Shadow in LightMode
           padding: const EdgeInsets.only(bottom: 18),
           scrollDirection: Axis.horizontal,
           child: Row(
