@@ -167,7 +167,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   if (wasAchieved)
                     Container(
                       width: shortcutWidth - 16,
-                      height: shortcutHeight + 40,
+                      height: shortcutHeight + 34,
                       decoration: BoxDecoration(
                         color: CI.blue.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(24),
@@ -418,7 +418,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                           child: RewardBadge(
                             color: CI.blue,
                             size: 96,
-                            icon: _event!.icon,
+                            iconIndex: _event!.iconValue,
                             achieved: _eventService.wasCurrentEventAchieved,
                           ),
                         ),
@@ -471,78 +471,3 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
     );
   }
 }
-/*            Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 4, left: 8),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 3,
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                        ),
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          BoldContent(text: 'Community', context: context),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Column(
-                                children: [
-                                  const Icon(
-                                    Icons.groups,
-                                    size: 48,
-                                    color: CI.blue,
-                                  ),
-                                  BoldSubHeader(
-                                    text: '${_eventService.numOfActiveUsers}',
-                                    context: context,
-                                    height: 1,
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 8, left: 4),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 3,
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                        ),
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          BoldContent(
-                            text: 'Deine Abzeichen',
-                            context: context,
-                            textAlign: TextAlign.center,
-                          ),
-                          RewardBadge(
-                            color: CI.blue,
-                            size: 64,
-                            icon: null,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),*/
