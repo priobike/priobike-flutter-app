@@ -156,7 +156,7 @@ class WaitingForEventView extends StatelessWidget {
         const RewardBadge(
           color: CI.blue,
           size: 64,
-          icon: Icons.question_mark,
+          iconIndex: 100,
           achieved: true,
         ),
         const SmallVSpace(),
@@ -226,7 +226,7 @@ class ActiveEventView extends StatelessWidget {
               child: RewardBadge(
                 color: CI.blue,
                 size: 64,
-                icon: service.event!.icon,
+                iconIndex: service.event!.iconValue,
                 achieved: service.wasCurrentEventAchieved,
               ),
             ),

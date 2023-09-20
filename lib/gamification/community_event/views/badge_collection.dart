@@ -62,11 +62,7 @@ class BadgeCollection extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            RewardBadge(
-                                color: CI.blue,
-                                size: 64,
-                                icon: IconData(badge.icon, fontFamily: 'MaterialIcons'),
-                                achieved: true),
+                            RewardBadge(color: CI.blue, size: 64, iconIndex: badge.icon, achieved: true),
                             Expanded(
                               child: Column(
                                 children: [
