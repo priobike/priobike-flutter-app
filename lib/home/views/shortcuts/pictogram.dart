@@ -6,8 +6,6 @@ import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/main.dart';
-import 'package:priobike/settings/services/settings.dart';
 
 /// A pictogram of a shortcut.
 /// The pictogram contains circles where the waypoints are located,
@@ -41,11 +39,9 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   /// The future of the background image.
   Future? backgroundImageFuture;
 
-  /// The associated settings service, which is injected by the provider.
-  late Settings settings;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
+  /// Loads the background image.
+  void loadBackgroundImage() {
+    backgroundImageFuture?.ignore();
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList(),
       brightness: Theme.of(context).brightness,
@@ -57,18 +53,19 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   }
 
   @override
+  void didUpdateWidget(covariant ShortcutRoutePictogram oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    loadBackgroundImage();
+  }
+
+  @override
   void initState() {
     super.initState();
-
-    settings = getIt<Settings>();
-    settings.addListener(update);
-
-    SchedulerBinding.instance.addPostFrameCallback((_) => update());
+    SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());
   }
 
   @override
   void dispose() {
-    settings.removeListener(update);
     backgroundImageFuture?.ignore();
     super.dispose();
   }
@@ -203,11 +200,9 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   /// The future of the background image.
   Future? backgroundImageFuture;
 
-  /// The associated settings service, which is injected by the provider.
-  late Settings settings;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
+  /// Loads the background image.
+  void loadBackgroundImage() {
+    backgroundImageFuture?.ignore();
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: [
         LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
@@ -222,18 +217,19 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   }
 
   @override
+  void didUpdateWidget(covariant ShortcutLocationPictogram oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    loadBackgroundImage();
+  }
+
+  @override
   void initState() {
     super.initState();
-
-    settings = getIt<Settings>();
-    settings.addListener(update);
-
-    SchedulerBinding.instance.addPostFrameCallback((_) => update());
+    SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());
   }
 
   @override
   void dispose() {
-    settings.removeListener(update);
     backgroundImageFuture?.ignore();
     super.dispose();
   }
