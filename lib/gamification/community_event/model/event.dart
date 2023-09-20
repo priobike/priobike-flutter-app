@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /// This object holds information about a weekend event pulled from the server.
 class WeekendEvent {
   /// Unique id of the event.
@@ -19,8 +17,6 @@ class WeekendEvent {
 
   /// Color corresponding to the event as an int.
   final int iconValue;
-
-  IconData get icon => IconData(iconValue, fontFamily: 'MaterialIcons');
 
   WeekendEvent(this.id, this.title, this.description, this.startTime, this.endTime, this.iconValue);
 
