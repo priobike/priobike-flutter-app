@@ -128,6 +128,8 @@ class MapDesigns with ChangeNotifier {
         if (mapDesignStr != null) {
           final decode = jsonDecode(mapDesignStr);
           mapDesign = MapDesign.fromJson(decode);
+        } else {
+          throw Exception("No map design found in preferences.");
         }
       } catch (e) {
         await setMapDesign(MapDesign.standard);
