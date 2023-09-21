@@ -130,7 +130,11 @@ class MapboxTileImageCache {
       final stat = await file.stat();
       final lastAccessed = stat.accessed.millisecondsSinceEpoch;
       if ((lastFetch - lastAccessed) > (7 * 24 * 60 * 60 * 1000)) {
-        await file.delete();
+        try {
+          await file.delete();
+        } catch (e) {
+          log.e("Tried to delete unused image from $path, but failed: $e");
+        }
         log.i("Deleted unused image from $path");
       }
     }

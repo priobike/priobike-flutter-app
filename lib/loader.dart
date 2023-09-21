@@ -60,49 +60,51 @@ class LoaderState extends State<Loader> {
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
+    hasError = false;
+
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Load all other services.
-    try {
-      // Load local stuff.
-      await getIt<Profile>().loadProfile();
-      await getIt<Shortcuts>().loadShortcuts();
-      await getIt<Layers>().loadPreferences();
-      await getIt<MapDesigns>().loadPreferences();
-      final tracking = getIt<Tracking>();
-      await tracking.loadPreviousTracks();
-      await tracking.runUploadRoutine();
-      await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
-      // Load stuff from the server.
-      final news = getIt<News>();
-      await news.getArticles();
-      if (!news.hasLoaded) log.i("Could not load news");
-      final predictionStatusSummary = getIt<PredictionStatusSummary>();
-      await predictionStatusSummary.fetch();
-      if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final statusHistory = getIt<StatusHistory>();
-      await statusHistory.fetch();
-      final weather = getIt<Weather>();
-      await weather.fetch();
-      await getIt<Boundary>().loadBoundaryCoordinates();
-      await getIt<Ride>().loadLastRoute();
-      settings.incrementUseCounter();
-      await getIt<EventService>().fetchData();
-      getIt<EvaluationDataService>().sendUnsentElements();
-    } catch (e) {
+    // Every of the following functions should handle and log their own errors.
+    await getIt<Profile>().loadProfile();
+    await getIt<Shortcuts>().loadShortcuts();
+    await getIt<Layers>().loadPreferences();
+    await getIt<MapDesigns>().loadPreferences();
+
+    final tracking = getIt<Tracking>();
+    await tracking.loadPreviousTracks();
+    await tracking.runUploadRoutine();
+    await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
+
+    final news = getIt<News>();
+    await news.getArticles();
+    if (news.hadError) hasError = true;
+
+    final predictionStatusSummary = getIt<PredictionStatusSummary>();
+    await predictionStatusSummary.fetch();
+    if (predictionStatusSummary.hadError) hasError = true;
+
+    final statusHistory = getIt<StatusHistory>();
+    await statusHistory.fetch();
+    if (statusHistory.hadError) hasError = true;
+
+    final weather = getIt<Weather>();
+    await weather.fetch();
+    if (weather.hadError) hasError = true;
+
+    await getIt<Boundary>().loadBoundaryCoordinates();
+    await getIt<Ride>().loadLastRoute();
+    await getIt<EventService>().fetchData();
+    await MapboxTileImageCache.pruneUnusedImages();
+    getIt<EvaluationDataService>().sendUnsentElements();
+
+    settings.incrementUseCounter();
+
+    if (hasError) {
       HapticFeedback.heavyImpact();
-      setState(() => hasError = true);
+      setState(() {});
       settings.incrementConnectionErrorCounter();
       return;
-    }
-
-    // FIXME: There was a bug where the app would not load anymore and we suspected this to be the cause.
-    // If the bug does not occur anymore, we can move this to the try-catch-block above.
-    try {
-      await MapboxTileImageCache.pruneUnusedImages();
-    } catch (e) {
-      log.e("Error while pruning unused images: $e");
     }
 
     // Finish loading.

@@ -15,6 +15,9 @@ class Weather with ChangeNotifier {
   /// If the weather has been loaded.
   bool hasLoaded = false;
 
+  /// If an error occurred while loading the weather.
+  bool hadError = false;
+
   /// The weather forecast.
   List<WeatherForecast>? forecast;
 
@@ -58,9 +61,11 @@ class Weather with ChangeNotifier {
       decoded = jsonDecode(response.body);
       log.i("Fetched current weather.");
       current = CurrentWeatherResponse.fromJson(decoded).weather;
+      hadError = false;
     } catch (e, stacktrace) {
       final hint = "Failed to fetch weather: $e $stacktrace";
       log.e(hint);
+      hadError = true;
     }
 
     hasLoaded = true;

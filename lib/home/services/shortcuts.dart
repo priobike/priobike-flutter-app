@@ -130,7 +130,7 @@ class Shortcuts with ChangeNotifier {
       // Init shortcuts.
       shortcuts = [];
       // Loop through all json Shortcuts and add correct shortcuts to shortcuts.
-      for (var e in jsonDecode(jsonStr) as List) {
+      for (final e in jsonDecode(jsonStr) as List) {
         if (e["type"] != null) {
           switch (e["type"]) {
             case "ShortcutLocation":
@@ -145,16 +145,11 @@ class Shortcuts with ChangeNotifier {
           }
         } else {
           // Only for backwards compatibility.
-          if (e["waypoint"] != null) {
-            shortcuts?.add(ShortcutLocation.fromJson(e));
-          }
-          if (e["waypoints"] != null) {
-            shortcuts?.add(ShortcutRoute.fromJson(e));
-          }
+          if (e["waypoint"] != null) shortcuts?.add(ShortcutLocation.fromJson(e));
+          if (e["waypoints"] != null) shortcuts?.add(ShortcutRoute.fromJson(e));
         }
       }
     }
-
     notifyListeners();
   }
 
