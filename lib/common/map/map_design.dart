@@ -50,8 +50,10 @@ class MapDesign {
   Map<String, dynamic> toJson() => {
         'name': name,
         'lightStyle': lightStyle,
+        'lightStyleNoText': lightStyleNoText,
         'lightScreenshot': lightScreenshot,
         'darkStyle': darkStyle,
+        'darkStyleNoText': darkStyleNoText,
         'darkScreenshot': darkScreenshot,
       };
 
@@ -121,11 +123,14 @@ class MapDesigns with ChangeNotifier {
     if (systemMemory != null && systemMemory >= memoryThreshold) {
       designCanBeChanged = true;
 
-      final mapDesignStr = storage.getString("priobike.layers.style");
-      if (mapDesignStr != null) {
-        mapDesign = MapDesign.fromJson(jsonDecode(mapDesignStr));
-      } else {
-        mapDesign = MapDesign.standard;
+      try {
+        final String? mapDesignStr = storage.getString("priobike.layers.style");
+        if (mapDesignStr != null) {
+          final decode = jsonDecode(mapDesignStr);
+          mapDesign = MapDesign.fromJson(decode);
+        }
+      } catch (e) {
+        await setMapDesign(MapDesign.standard);
       }
     }
     notifyListeners();
