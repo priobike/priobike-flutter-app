@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -107,16 +106,6 @@ class ShortcutLocation implements Shortcut {
   @override
   String getShortInfo() {
     return waypoint.address ?? "";
-  }
-
-  /// Returns a Widget with a representation of the shortcut.
-  @override
-  Widget getRepresentation() {
-    return const Icon(
-      Icons.location_on,
-      color: CI.blue,
-      size: 64,
-    );
   }
 
   /// Returns the icon of the shortcut type.

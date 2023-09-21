@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
 import 'package:priobike/gamification/community_event/service/event_service.dart';
@@ -94,6 +95,14 @@ class LoaderState extends State<Loader> {
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();
       return;
+    }
+
+    // FIXME: There was a bug where the app would not load anymore and we suspected this to be the cause.
+    // If the bug does not occur anymore, we can move this to the try-catch-block above.
+    try {
+      await MapboxTileImageCache.pruneUnusedImages();
+    } catch (e) {
+      log.e("Error while pruning unused images: $e");
     }
 
     // Finish loading.

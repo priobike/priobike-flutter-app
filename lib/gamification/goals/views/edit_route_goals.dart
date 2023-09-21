@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/ci.dart';
@@ -85,7 +83,6 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
     if (_shortcuts.isEmpty) return _noRoutesWidget;
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
-    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
     return CustomDialog(
       horizontalMargin: 16,
       content: Container(
@@ -121,6 +118,7 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
             ),
             const VSpace(),
             SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 8),
               controller: ScrollController(),
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -143,8 +141,9 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
                           }
                         },
                         shortcut: shortcut,
+                        // width == height to make it a square
                         width: shortcutWidth,
-                        height: shortcutHeight,
+                        height: shortcutWidth,
                         rightPad: shortcutRightPad,
                         selected: _selectedShortcut == shortcut,
                         showSplash: false,

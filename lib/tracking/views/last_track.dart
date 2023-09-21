@@ -47,9 +47,7 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
   void getLatestTrack() {
     track = null;
 
-    if (tracking.previousTracks == null || tracking.previousTracks!.isEmpty) {
-      return;
-    }
+    if (tracking.previousTracks == null || tracking.previousTracks!.isEmpty) return;
 
     final backend = getIt<Settings>().backend;
     for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
@@ -102,11 +100,10 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
 
   @override
   Widget build(BuildContext context) {
-    if (track == null || startImage == null || destinationImage == null) {
-      return Container();
-    }
+    if (track == null || startImage == null || destinationImage == null) return Container();
 
     return TrackDetailsView(
+      key: ValueKey(track!.sessionId),
       track: track!,
       startImage: startImage!,
       destinationImage: destinationImage!,

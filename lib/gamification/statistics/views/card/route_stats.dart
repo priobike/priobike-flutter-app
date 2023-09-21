@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/goals/models/route_goals.dart';
@@ -7,7 +8,9 @@ import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/views/route_goals_in_week.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 
 /// A widget displaying the users route stats for a single given week.
@@ -118,7 +121,23 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
             ],
           ),
         ),
-        if (_routeShortcut != null) _routeShortcut!.getRepresentation(),
+        if (_routeShortcut != null && _routeShortcut is ShortcutRoute)
+          Positioned(
+            top: 24,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                color: Theme.of(context).colorScheme.background,
+              ),
+              padding: const EdgeInsets.all(4),
+              child: ShortcutRoutePictogram(
+                key: ValueKey(_routeShortcut!.hashCode),
+                shortcut: _routeShortcut as ShortcutRoute,
+                height: 112,
+                color: CI.blue,
+              ),
+            ),
+          ),
       ],
     );
   }

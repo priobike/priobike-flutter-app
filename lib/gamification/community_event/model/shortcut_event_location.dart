@@ -114,17 +114,6 @@ class ShortcutEventLocation implements Shortcut {
     return waypoint.address ?? "";
   }
 
-  /// Returns a Widget with a representation of the shortcut.
-  @override
-  Widget getRepresentation() {
-    if (achieved) return Container();
-    return const Icon(
-      Icons.location_on,
-      color: Colors.grey,
-      size: 64,
-    );
-  }
-
   /// Returns the icon of the shortcut type.
   @override
   Widget getIcon() {

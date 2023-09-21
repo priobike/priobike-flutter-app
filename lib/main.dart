@@ -41,6 +41,7 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
+import 'package:flutter/rendering.dart';
 
 final log = Logger("main.dart");
 
@@ -50,6 +51,9 @@ final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRout
 final getIt = GetIt.instance;
 
 Future<void> main() async {
+  // Enable this to show the layout bounds.
+  debugPaintSizeEnabled = false;
+
   // Ensure that the widgets binding is initialized.
   // This is required by some plugins and functions.
   WidgetsFlutterBinding.ensureInitialized();

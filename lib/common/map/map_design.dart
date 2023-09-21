@@ -12,11 +12,17 @@ class MapDesign {
   /// The style string for the light map.
   final String lightStyle;
 
+  /// The style string for the light map without text.
+  final String lightStyleNoText;
+
   /// The light screenshot asset path.
   final String lightScreenshot;
 
   /// The style string for the dark map.
   final String darkStyle;
+
+  /// The style string for the dark map without text.
+  final String darkStyleNoText;
 
   /// The dark screenshot asset path.
   final String darkScreenshot;
@@ -24,24 +30,30 @@ class MapDesign {
   const MapDesign({
     required this.name,
     required this.lightStyle,
+    required this.lightStyleNoText,
     required this.lightScreenshot,
     required this.darkStyle,
+    required this.darkStyleNoText,
     required this.darkScreenshot,
   });
 
   factory MapDesign.fromJson(Map<String, dynamic> json) => MapDesign(
         name: json['name'],
         lightStyle: json['lightStyle'],
+        lightStyleNoText: json['lightStyleNoText'],
         lightScreenshot: json['lightScreenshot'],
         darkStyle: json['darkStyle'],
+        darkStyleNoText: json['darkStyleNoText'],
         darkScreenshot: json['darkScreenshot'],
       );
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'lightStyle': lightStyle,
+        'lightStyleNoText': lightStyleNoText,
         'lightScreenshot': lightScreenshot,
         'darkStyle': darkStyle,
+        'darkStyleNoText': darkStyleNoText,
         'darkScreenshot': darkScreenshot,
       };
 
@@ -56,8 +68,10 @@ class MapDesign {
   static const standard = MapDesign(
     name: 'PrioBike',
     lightStyle: 'mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu',
+    lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
     lightScreenshot: 'assets/images/screenshots/standard-light.png',
     darkStyle: 'mapbox://styles/snrmtths/cle4gkymg001t01nwazajfyod',
+    darkStyleNoText: 'mapbox://styles/snrmtths/cllxh6el000j301pj59tu0e1c',
     darkScreenshot: 'assets/images/screenshots/standard-dark.png',
   );
 
@@ -67,8 +81,10 @@ class MapDesign {
     MapDesign(
       name: 'Satellit',
       lightStyle: MapboxStyles.SATELLITE_STREETS,
+      lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
       lightScreenshot: 'assets/images/screenshots/satellite-streets.png',
       darkStyle: MapboxStyles.SATELLITE_STREETS,
+      darkStyleNoText: 'mapbox://styles/snrmtths/cllxh6el000j301pj59tu0e1c',
       darkScreenshot: 'assets/images/screenshots/satellite-streets.png',
     ),
   ];
@@ -107,11 +123,16 @@ class MapDesigns with ChangeNotifier {
     if (systemMemory != null && systemMemory >= memoryThreshold) {
       designCanBeChanged = true;
 
-      final mapDesignStr = storage.getString("priobike.layers.style");
-      if (mapDesignStr != null) {
-        mapDesign = MapDesign.fromJson(jsonDecode(mapDesignStr));
-      } else {
-        mapDesign = MapDesign.standard;
+      try {
+        final String? mapDesignStr = storage.getString("priobike.layers.style");
+        if (mapDesignStr != null) {
+          final decode = jsonDecode(mapDesignStr);
+          mapDesign = MapDesign.fromJson(decode);
+        } else {
+          throw Exception("No map design found in preferences. Setting MapDesign to standard.");
+        }
+      } catch (e) {
+        await setMapDesign(MapDesign.standard);
       }
     }
     notifyListeners();

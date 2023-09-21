@@ -24,6 +24,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 
@@ -317,9 +318,17 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    callback: () => getIt<ChallengesProfileService>().resetChallenges(),
+                    title: "Hintergrundbilder löschen (Neustart notw.)",
+                    icon: Icons.recycling,
+                    callback: () => MapboxTileImageCache.deleteAllImages(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: 'Challenges zurücksetzen',
                     icon: Icons.recycling,
+                    callback: () => getIt<ChallengesProfileService>().resetChallenges(),
                   ),
                 ),
                 Padding(

@@ -1,16 +1,15 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
@@ -26,9 +25,6 @@ class AllTracksHistoryView extends StatefulWidget {
 }
 
 class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
-  /// The distance model.
-  final vincenty = const Distance(roundResult: false);
-
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
@@ -117,15 +113,18 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       }
     }
 
+    // Add the size of alle saved background images.
+    bytes += await MapboxTileImageCache.calculateTotalSize();
+
     // Format the bytes.
     if (bytes < 1000) {
       usedDiskSpace = "${bytes.toStringAsFixed(0)} Byte";
     } else if (bytes < 1000000) {
-      usedDiskSpace = "${(bytes / 1000).toStringAsFixed(0)} KB";
+      usedDiskSpace = "${(bytes / 1000).toStringAsFixed(2)} KB";
     } else if (bytes < 1000000000) {
-      usedDiskSpace = "${(bytes / 1000000).toStringAsFixed(0)} MB";
+      usedDiskSpace = "${(bytes / 1000000).toStringAsFixed(2)} MB";
     } else {
-      usedDiskSpace = "${(bytes / 1000000000).toStringAsFixed(0)} GB";
+      usedDiskSpace = "${(bytes / 1000000000).toStringAsFixed(2)} GB";
     }
   }
 
@@ -137,8 +136,8 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    final shortcutWidth = MediaQuery.of(context).size.width / 2;
-    final shortcutHeight = max(shortcutWidth, 128.0);
+    const double shortcutRightPad = 16;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -160,14 +159,9 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                   if ((tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) &&
                       (startImage != null && destinationImage != null))
                     HPad(
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        crossAxisSpacing: 8,
-                        padding: EdgeInsets.zero,
-                        mainAxisSpacing: 0,
-                        crossAxisCount: 2,
-                        physics: const NeverScrollableScrollPhysics(),
-                        childAspectRatio: 0.85,
+                      child: Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
                         children: previousTracks
                             .asMap()
                             .entries
@@ -177,12 +171,9 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                                 curve: Curves.easeInOutCubic,
                                 delay: Duration(milliseconds: 200 * track.key),
                                 child: TrackHistoryItemView(
-                                  key: UniqueKey(),
+                                  key: ValueKey(track.value.sessionId),
                                   track: track.value,
                                   width: shortcutWidth,
-                                  height: shortcutHeight,
-                                  rightPad: 0,
-                                  vincenty: vincenty,
                                   startImage: startImage!,
                                   destinationImage: destinationImage!,
                                 ),

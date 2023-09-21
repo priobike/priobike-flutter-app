@@ -34,7 +34,6 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status_tabs.dart';
-import 'package:priobike/tracking/views/last_track.dart';
 import 'package:priobike/tracking/views/track_history.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
@@ -340,8 +339,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     delay: Duration(milliseconds: 750),
                     child: ProfileView(),
                   ),
-                  const VSpace(),
-                  const LastTrackView(),
                   const VSpace(),
                   const TrackHistoryView(),
                   Container(

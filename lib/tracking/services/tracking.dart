@@ -532,9 +532,7 @@ class Tracking with ChangeNotifier {
     log.i("Deleting track with id ${track.sessionId}.");
     // Delete the track files.
     final directory = await track.trackDirectory;
-    if (await directory.exists()) {
-      await directory.delete(recursive: true);
-    }
+    if (await directory.exists()) await directory.delete(recursive: true);
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
     await savePreviousTracks();
     notifyListeners();

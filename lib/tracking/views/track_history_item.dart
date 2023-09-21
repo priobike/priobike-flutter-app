@@ -2,38 +2,27 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
-import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/views/route_pictrogram.dart';
+import 'package:priobike/tracking/views/pictogram.dart';
 import 'package:priobike/tracking/views/track_details.dart';
 
 class TrackHistoryItemView extends StatefulWidget {
   /// The track to display.
   final Track track;
 
-  /// The distance model.
-  final Distance vincenty;
-
   /// The width of the view.
   final double width;
-
-  /// The height of the view.
-  final double height;
-
-  /// The right padding of the view.
-  final double rightPad;
 
   /// The image of the route start icon.
   final ui.Image startImage;
@@ -41,35 +30,68 @@ class TrackHistoryItemView extends StatefulWidget {
   /// The image of the route destination icon.
   final ui.Image destinationImage;
 
-  const TrackHistoryItemView(
-      {Key? key,
-      required this.track,
-      required this.vincenty,
-      required this.width,
-      required this.height,
-      required this.rightPad,
-      required this.startImage,
-      required this.destinationImage})
-      : super(key: key);
+  const TrackHistoryItemView({
+    Key? key,
+    required this.track,
+    required this.width,
+    required this.startImage,
+    required this.destinationImage,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemViewState();
 }
 
 class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
-  /// The navigation nodes of the driven route.
-  List<NavigationNode> routeNodes = [];
+  /// The GPS positions of the driven route.
+  List<Position> positions = [];
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
+
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        routeNodes = getPassedNodes(widget.track.routes.values.toList(), widget.vincenty);
-        setState(() {});
+        await loadTrack();
+        if (mounted) setState(() {});
       },
     );
+  }
+
+  /// Load the track.
+  Future<void> loadTrack() async {
+    positions.clear();
+
+    // Try to load the GPS file.
+    // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
+    try {
+      final gpsFile = await widget.track.gpsCSVFile;
+      final gpsFileLines = await gpsFile.readAsLines();
+      // Skip the first line, which is the header.
+      for (var i = 1; i < gpsFileLines.length; i++) {
+        final lineContents = gpsFileLines[i].split(',');
+        final time = int.parse(lineContents[0]);
+        final lon = double.parse(lineContents[1]);
+        final lat = double.parse(lineContents[2]);
+        final speed = double.parse(lineContents[3]);
+        final accuracy = double.parse(lineContents[4]);
+        positions.add(
+          Position(
+            timestamp: DateTime.fromMillisecondsSinceEpoch(time),
+            latitude: lat,
+            longitude: lon,
+            speed: speed,
+            accuracy: accuracy,
+            altitude: 0,
+            heading: 0,
+            speedAccuracy: 0,
+          ),
+        );
+      }
+    } catch (e) {
+      log.w('Could not parse GPS file of last track: $e');
+    }
   }
 
   /// Show a dialog that asks if the track really shoud be deleted.
@@ -110,10 +132,23 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
 
   @override
   Widget build(BuildContext context) {
-    // Parse the date.
-    final day = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime).day;
-    final monthName = DateFormat.MMMM('de').format(DateTime.fromMillisecondsSinceEpoch(widget.track.startTime));
-    final year = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime).year;
+    // Calculate the relative date
+    var relativeTime = "";
+    final now = DateTime.now();
+    final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+    final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
+    if (isToday) {
+      relativeTime = "Heute";
+    } else {
+      final yesterday = now.subtract(const Duration(days: 1));
+      if (trackDate.day == yesterday.day && trackDate.month == yesterday.month && trackDate.year == yesterday.year) {
+        relativeTime = "Gestern";
+      } else {
+        relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
+      }
+    }
+    // Add the time.
+    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
 
     // Determine the duration.
     final secondsDriven =
@@ -122,11 +157,11 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
-    return Container(
-      alignment: Alignment.centerLeft,
+    return SizedBox(
       width: widget.width,
-      padding: EdgeInsets.only(right: widget.rightPad, bottom: 24),
+      height: widget.width,
       child: Tile(
+        borderRadius: BorderRadius.circular(24),
         onPressed: () => showAppSheet(
           context: context,
           isScrollControlled: true,
@@ -135,150 +170,83 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: 0.08,
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(1),
         fill: Theme.of(context).colorScheme.background,
         splash: Theme.of(context).colorScheme.primary,
-        content: SizedBox(
-          height: 160,
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Positioned.fill(
-                child: Container(
-                  foregroundDecoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                          ? [
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background.withOpacity(0.9),
-                              Theme.of(context).colorScheme.background.withOpacity(0.8),
-                              Theme.of(context).colorScheme.background.withOpacity(0.7),
-                            ]
-                          : [
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.background.withOpacity(0.6),
-                              Theme.of(context).colorScheme.background.withOpacity(0.5),
-                              Theme.of(context).colorScheme.background.withOpacity(0.3),
-                            ],
-                    ),
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20.0),
-                    child: Image(
-                      image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                          ? const AssetImage('assets/images/map-dark.png')
-                          : const AssetImage('assets/images/map-light.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+        content: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            if (positions.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(2),
+                child: TrackPictogram(
+                  key: ValueKey(widget.track.sessionId),
+                  track: positions,
+                  startImage: widget.startImage,
+                  destinationImage: widget.destinationImage,
+                  blurRadius: 0,
+                  showSpeedLegend: false,
                 ),
               ),
-              Positioned(
-                top: 13,
-                left: 10,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+            Positioned(
+                top: 12,
+                left: 16,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "$day.",
-                      style: TextStyle(
-                        fontSize: widget.width * 0.17,
-                        fontWeight: FontWeight.bold,
-                        height: 0.9,
-                        foreground: Paint()
-                          ..shader = const LinearGradient(
-                            colors: [
-                              CI.blue,
-                              CI.blueLight,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ).createShader(const Rect.fromLTWH(0.0, 0.0, 90.0, 90.0)),
-                      ),
+                    BoldContent(
+                      text: relativeTime,
+                      context: context,
                     ),
-                    const SmallHSpace(),
-                    SizedBox(
-                      width: widget.width * 0.17,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "$monthName\n${year.toString()}",
-                              style: const TextStyle(
-                                fontSize: 11,
-                                height: 1.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    Small(
+                      text: clock,
+                      context: context,
+                    )
                   ],
-                ),
-              ),
-              if (trackDurationFormatted != null)
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  child: Text(
-                    trackDurationFormatted,
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.2,
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                    ),
-                  ),
-                ),
-              if (routeNodes.isNotEmpty)
-                Positioned(
-                  bottom: 10,
-                  right: 20,
-                  child: SizedBox(
-                    height: widget.width * 0.3,
-                    width: widget.width * 0.3,
-                    child: RoutePictogram(
-                      key: UniqueKey(),
-                      route: routeNodes,
-                      startImage: widget.startImage,
-                      destinationImage: widget.destinationImage,
-                    ),
-                  ),
-                ),
-              const Positioned(
-                bottom: 10,
-                right: 10,
-                child: Text(
-                  "Route",
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.2,
-                    color: CI.blue,
-                  ),
-                ),
-              ),
+                )),
+            if (trackDurationFormatted != null)
               Positioned(
-                right: 0,
-                top: 0,
+                bottom: 12,
+                left: 12,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
+                    child: Small(
+                      text: trackDurationFormatted,
+                      context: context,
+                    ),
+                  ),
+                ),
+              ),
+            Positioned(
+              right: 12,
+              bottom: 12,
+              child: Container(
+                height: 42,
+                width: 42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white.withOpacity(0.75)
+                      : Colors.black.withOpacity(0.25),
+                ),
                 child: IconButton(
                   onPressed: () => showDeleteDialog(context),
+                  visualDensity: VisualDensity.compact,
                   icon: Icon(
                     Icons.delete_rounded,
-                    size: 22,
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                    size: 24,
+                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                  ),
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

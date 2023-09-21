@@ -69,6 +69,7 @@ dependencies:
   qr_code_scanner: ^1.0.1 # Used to scan QR codes
   url_launcher: ^6.1.10 # Used to open URLs
   in_app_review: ^2.0.6 # Used to rate the app
+  proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
   drift: ^2.8.0 # Used for the local database
   sqlite3_flutter_libs: ^0.5.0 # Needed for the drift database which is based on sqlite
   path: ^1.8.2 # Used to determine the database file location

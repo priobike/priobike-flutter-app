@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
@@ -110,17 +108,6 @@ class ShortcutRoute implements Shortcut {
   @override
   String getShortInfo() {
     return "${waypoints.length} Wegpunkte";
-  }
-
-  /// Returns a Widget with a representation of the shortcut.
-  @override
-  Widget getRepresentation() {
-    return ShortcutRoutePictogram(
-      shortcut: this,
-      height: 56,
-      width: 56,
-      color: CI.blue,
-    );
   }
 
   /// Returns the icon of the shortcut type.

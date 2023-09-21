@@ -27,9 +27,6 @@ abstract class Shortcut {
   /// Returns a String with a short info of the shortcut.
   String getShortInfo();
 
-  /// Returns a Widget with a representation of the shortcut.
-  Widget getRepresentation();
-
   /// Returns the icon of the shortcut type.
   Widget getIcon();
 

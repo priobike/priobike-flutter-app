@@ -182,16 +182,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   bottomLeft: Radius.circular(24),
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
+              child: const ClipRRect(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(24),
                   bottomLeft: Radius.circular(24),
-                ),
-                child: Image(
-                  image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                      ? const AssetImage('assets/images/map-dark.png')
-                      : const AssetImage('assets/images/map-light.png'),
-                  fit: BoxFit.cover,
                 ),
               ),
             ),
