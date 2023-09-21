@@ -130,9 +130,10 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
                 color: Theme.of(context).colorScheme.background,
               ),
               padding: const EdgeInsets.all(4),
-              child: ShortcutRoutePictogram(
+              child: ShortcutPictogram(
+                type: ShortcutType.route,
                 key: ValueKey(_routeShortcut!.hashCode),
-                shortcut: _routeShortcut as ShortcutRoute,
+                shortcutRoute: _routeShortcut as ShortcutRoute,
                 height: 112,
                 color: CI.blue,
               ),

@@ -59,9 +59,10 @@ class ShortcutView extends StatelessWidget {
                   color: Theme.of(context).colorScheme.background,
                 ),
                 padding: const EdgeInsets.all(4),
-                child: ShortcutRoutePictogram(
+                child: ShortcutPictogram(
                   key: ValueKey(shortcut!.hashCode),
-                  shortcut: shortcut as ShortcutRoute,
+                  type: ShortcutType.route,
+                  shortcutRoute: shortcut as ShortcutRoute,
                   height: height - 4,
                   color: CI.blue,
                 ),
@@ -73,9 +74,10 @@ class ShortcutView extends StatelessWidget {
                   color: Theme.of(context).colorScheme.background,
                 ),
                 padding: const EdgeInsets.all(4),
-                child: ShortcutLocationPictogram(
+                child: ShortcutPictogram(
                   key: ValueKey(shortcut!.hashCode),
-                  shortcut: shortcut as ShortcutLocation,
+                  type: ShortcutType.location,
+                  shortcutLocation: shortcut as ShortcutLocation,
                   height: height - 4,
                   color: CI.blue,
                 ),

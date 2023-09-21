@@ -7,32 +7,41 @@ import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 
-/// A pictogram of a shortcut.
-/// The pictogram contains circles where the waypoints are located,
-/// and lines between the waypoints. The coordinates of the waypoints
-/// are normalized to the size of the pictogram.
-class ShortcutRoutePictogram extends StatefulWidget {
-  /// The shortcut to display.
-  final ShortcutRoute shortcut;
+enum ShortcutType {
+  route,
+  location,
+}
 
-  /// The height of the pictogram. The height is also the width, because the pictogram is a square.
+class ShortcutPictogram extends StatefulWidget {
+  /// The type of the shortcut: route or location.
+  final ShortcutType type;
+
+  /// The route of the shortcut, if it is a route shortcut.
+  final ShortcutRoute? shortcutRoute;
+
+  /// The location of the shortcut, if it is a location shortcut.
+  final ShortcutLocation? shortcutLocation;
+
+  /// The height of the shortcut (width == height, because the it is a square)
   final double height;
 
-  /// The color of the pictogram.
+  /// The color of the shortcut.
   final Color color;
 
-  const ShortcutRoutePictogram({
+  const ShortcutPictogram({
     Key? key,
-    required this.shortcut,
+    required this.type,
+    this.shortcutRoute,
+    this.shortcutLocation,
     this.height = 200,
     this.color = Colors.black,
   }) : super(key: key);
 
   @override
-  ShortcutRoutePictogramState createState() => ShortcutRoutePictogramState();
+  ShortcutPictogramState createState() => ShortcutPictogramState();
 }
 
-class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
+class ShortcutPictogramState extends State<ShortcutPictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
@@ -48,8 +57,14 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
     if (fetchedBrightness == backgroundImageBrightness) return;
 
     backgroundImageFuture?.ignore();
+    final coords = widget.type == ShortcutType.route
+        ? widget.shortcutRoute!.waypoints.map((e) => LatLng(e.lat, e.lon)).toList()
+        : [
+            LatLng(widget.shortcutLocation!.waypoint.lat - 0.01, widget.shortcutLocation!.waypoint.lon - 0.01),
+            LatLng(widget.shortcutLocation!.waypoint.lat + 0.01, widget.shortcutLocation!.waypoint.lon + 0.01),
+          ];
     backgroundImageFuture = MapboxTileImageCache.requestTile(
-      coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList(),
+      coords: coords,
       brightness: Theme.of(context).brightness,
     ).then((value) {
       if (!mounted) return;
@@ -65,7 +80,7 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   }
 
   @override
-  void didUpdateWidget(covariant ShortcutRoutePictogram oldWidget) {
+  void didUpdateWidget(covariant ShortcutPictogram oldWidget) {
     super.didUpdateWidget(oldWidget);
     loadBackgroundImage();
   }
@@ -73,6 +88,13 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   @override
   void initState() {
     super.initState();
+    if (widget.type == ShortcutType.route && widget.shortcutRoute == null) {
+      throw ArgumentError.notNull('shortcutRoute');
+    }
+    if (widget.type == ShortcutType.location && widget.shortcutLocation == null) {
+      throw ArgumentError.notNull('shortcutLocation');
+    }
+
     SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());
   }
 
@@ -85,7 +107,7 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      // width = height, because the map is a square
+      // width == height, because the map is a square
       width: widget.height,
       height: widget.height,
       child: Stack(
@@ -100,17 +122,29 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
                     child: Image(
                       image: backgroundImage!,
                       fit: BoxFit.contain,
-                      key: ValueKey(widget.shortcut.hashCode),
+                      key: UniqueKey(),
                     ),
                   )
                 : Container(),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: CustomPaint(
-              painter: ShortcutRoutePainter(shortcut: widget.shortcut, color: widget.color),
-            ),
-          ),
+          widget.type == ShortcutType.location
+              ? Transform.translate(
+                  offset: const Offset(0, -26),
+                  child: Icon(
+                    Icons.location_on,
+                    color: widget.color,
+                    size: 64,
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: CustomPaint(
+                    painter: ShortcutRoutePainter(
+                      shortcut: widget.shortcutRoute!,
+                      color: widget.color,
+                    ),
+                  ),
+                ),
           const MapboxAttribution(
             top: 8,
             right: 8,
@@ -182,119 +216,4 @@ class ShortcutRoutePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
-
-class ShortcutLocationPictogram extends StatefulWidget {
-  /// The shortcut to display.
-  final ShortcutLocation shortcut;
-
-  /// The height of the pictogram. The height is also the width, because the pictogram is a square.
-  final double height;
-
-  /// The color of the pictogram.
-  final Color color;
-
-  const ShortcutLocationPictogram({
-    Key? key,
-    required this.shortcut,
-    this.height = 200,
-    this.color = Colors.black,
-  }) : super(key: key);
-
-  @override
-  ShortcutLocationPictogramState createState() => ShortcutLocationPictogramState();
-}
-
-class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
-  /// The background image of the map for the track.
-  MemoryImage? backgroundImage;
-
-  /// The brightness of the background image.
-  Brightness? backgroundImageBrightness;
-
-  /// The future of the background image.
-  Future? backgroundImageFuture;
-
-  /// Loads the background image.
-  void loadBackgroundImage() {
-    final fetchedBrightness = Theme.of(context).brightness;
-    if (fetchedBrightness == backgroundImageBrightness) return;
-
-    backgroundImageFuture?.ignore();
-    backgroundImageFuture = MapboxTileImageCache.requestTile(
-      coords: [
-        LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
-        LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
-      ],
-      brightness: fetchedBrightness,
-    ).then((value) {
-      if (!mounted) return;
-      if (value == null) return;
-      final brightnessNow = Theme.of(context).brightness;
-      if (fetchedBrightness != brightnessNow) return;
-
-      setState(() {
-        backgroundImage = value;
-        backgroundImageBrightness = brightnessNow;
-      });
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant ShortcutLocationPictogram oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    loadBackgroundImage();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());
-  }
-
-  @override
-  void dispose() {
-    backgroundImageFuture?.ignore();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      // width = height, because the map is a square
-      width: widget.height,
-      height: widget.height,
-      child: Stack(
-        alignment: Alignment.center,
-        fit: StackFit.expand,
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 1000),
-            child: backgroundImage != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: Image(
-                      image: backgroundImage!,
-                      fit: BoxFit.contain,
-                      key: ValueKey(widget.shortcut.hashCode),
-                    ),
-                  )
-                : Container(),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -26),
-            child: Icon(
-              Icons.location_on,
-              color: widget.color,
-              size: 64,
-            ),
-          ),
-          const MapboxAttribution(
-            top: 8,
-            right: 8,
-          )
-        ],
-      ),
-    );
-  }
 }
