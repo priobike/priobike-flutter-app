@@ -36,18 +36,30 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The brightness of the background image.
+  Brightness? backgroundImageBrightness;
+
   /// The future of the background image.
   Future? backgroundImageFuture;
 
   /// Loads the background image.
   void loadBackgroundImage() {
+    final fetchedBrightness = Theme.of(context).brightness;
+    if (fetchedBrightness == backgroundImageBrightness) return;
+
     backgroundImageFuture?.ignore();
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList(),
       brightness: Theme.of(context).brightness,
     ).then((value) {
+      if (!mounted) return;
+      if (value == null) return;
+      final brightnessNow = Theme.of(context).brightness;
+      if (fetchedBrightness != brightnessNow) return;
+
       setState(() {
         backgroundImage = value;
+        backgroundImageBrightness = brightnessNow;
       });
     });
   }
@@ -197,21 +209,33 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The brightness of the background image.
+  Brightness? backgroundImageBrightness;
+
   /// The future of the background image.
   Future? backgroundImageFuture;
 
   /// Loads the background image.
   void loadBackgroundImage() {
+    final fetchedBrightness = Theme.of(context).brightness;
+    if (fetchedBrightness == backgroundImageBrightness) return;
+
     backgroundImageFuture?.ignore();
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: [
         LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
         LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
       ],
-      brightness: Theme.of(context).brightness,
+      brightness: fetchedBrightness,
     ).then((value) {
+      if (!mounted) return;
+      if (value == null) return;
+      final brightnessNow = Theme.of(context).brightness;
+      if (fetchedBrightness != brightnessNow) return;
+
       setState(() {
         backgroundImage = value;
+        backgroundImageBrightness = brightnessNow;
       });
     });
   }

@@ -63,26 +63,32 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
+  /// The brightness of the background image.
+  Brightness? backgroundImageBrightness;
+
   /// The future of the background image.
   Future? backgroundImageFuture;
 
   /// Loads the background image.
   void loadBackgroundImage() {
+    final fetchedBrightness = Theme.of(context).brightness;
+    if (fetchedBrightness == backgroundImageBrightness) return;
+
     backgroundImageFuture?.ignore();
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList(),
-      brightness: Theme.of(context).brightness,
+      brightness: fetchedBrightness,
     ).then((value) {
+      if (!mounted) return;
+      if (value == null) return;
+      final brightnessNow = Theme.of(context).brightness;
+      if (fetchedBrightness != brightnessNow) return;
+
       setState(() {
         backgroundImage = value;
+        backgroundImageBrightness = brightnessNow;
       });
     });
-  }
-
-  @override
-  void didUpdateWidget(covariant TrackPictogram oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    loadBackgroundImage();
   }
 
   @override
