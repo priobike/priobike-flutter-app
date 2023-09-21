@@ -22,9 +22,9 @@ PODS:
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/Logger (~> 7.8)
-  - FirebaseCoreInternal (10.5.0):
+  - FirebaseCoreInternal (10.15.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
-  - FirebaseInstallations (10.5.0):
+  - FirebaseInstallations (10.15.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
@@ -48,37 +48,37 @@ PODS:
     - Toast
   - geolocator_apple (1.2.0):
     - Flutter
-  - GoogleDataTransport (9.2.1):
+  - GoogleDataTransport (9.2.5):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/AppDelegateSwizzler (7.11.0):
+  - GoogleUtilities/AppDelegateSwizzler (7.11.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (7.11.0):
+  - GoogleUtilities/Environment (7.11.5):
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.11.0):
+  - GoogleUtilities/Logger (7.11.5):
     - GoogleUtilities/Environment
-  - GoogleUtilities/Network (7.11.0):
+  - GoogleUtilities/Network (7.11.5):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (7.11.0)"
-  - GoogleUtilities/Reachability (7.11.0):
+  - "GoogleUtilities/NSData+zlib (7.11.5)"
+  - GoogleUtilities/Reachability (7.11.5):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (7.11.0):
+  - GoogleUtilities/UserDefaults (7.11.5):
     - GoogleUtilities/Logger
   - in_app_review (0.2.0):
     - Flutter
   - mapbox_maps_flutter (0.4.2):
     - Flutter
     - MapboxMaps (~> 10.10.0)
-  - MapboxCommon (23.2.1)
+  - MapboxCommon (23.2.3)
   - MapboxCoreMaps (10.10.0):
     - MapboxCommon (~> 23.2)
-  - MapboxMaps (10.10.1):
-    - MapboxCommon (= 23.2.1)
+  - MapboxMaps (10.10.2):
+    - MapboxCommon (= 23.2.3)
     - MapboxCoreMaps (= 10.10.0)
     - MapboxMobileEvents (= 1.0.10)
     - Turf (~> 2.0)
@@ -94,7 +94,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - PromisesObjC (2.1.1)
+  - PromisesObjC (2.3.1)
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
@@ -124,7 +124,7 @@ PODS:
   - system_info_plus (0.0.1):
     - Flutter
   - Toast (4.0.0)
-  - Turf (2.6.1)
+  - Turf (2.7.0)
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock (0.0.1):
@@ -229,27 +229,27 @@ SPEC CHECKSUMS:
   firebase_core: f95c8bbe65213d406d592573ad42a12d64849cb8
   firebase_messaging: 3daef9f9ee5b91de2f282895ec91cc5e5ca78556
   FirebaseCore: 988754646ab3bd4bdcb740f1bfe26b9f6c0d5f2a
-  FirebaseCoreInternal: e463f41bb935cd049505bf7e9a5bdd7dcea90df6
-  FirebaseInstallations: 935bc4abb6f7a035cab7a0c31cb777b2be3dd254
+  FirebaseCoreInternal: 2f4bee5ed00301b5e56da0849268797a2dd31fb4
+  FirebaseInstallations: cae95cab0f965ce05b805189de1d4c70b11c76fb
   FirebaseMessaging: e345b219fd15d325f0cf2fef28cb8ce00d851b3f
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
-  GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
-  GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
+  GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
+  GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
   mapbox_maps_flutter: be1a16ff33006fff69d5c21b1cec8ed82be9c02d
-  MapboxCommon: 235bb9c27a8985d982e17f216795b1f7ab526782
+  MapboxCommon: e7948335faacbe6f8b9b115511fd0dd0354bf565
   MapboxCoreMaps: 4075a9e415b9b3ab6229d09623fef5f791826a5b
-  MapboxMaps: 0c2f7722016bc56aa27b5e6bcf72ae4df7a98670
+  MapboxMaps: d8cf7d214d94ec18790c338f3a3fe59dd4048e97
   MapboxMobileEvents: de50b3a4de180dd129c326e09cd12c8adaaa46d6
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
-  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   sensors_plus: 5717760720f7e6acd96fdbd75b7428f5ad755ec2
@@ -259,10 +259,10 @@ SPEC CHECKSUMS:
   sqlite3_flutter_libs: 04ba0d14a04335a2fbf9a331e8664f401fbccdd5
   system_info_plus: 5393c8da281d899950d751713575fbf91c7709aa
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  Turf: 469ce2c3d22e5e8e4818d5a3b254699a5c89efa4
+  Turf: 13d1a92d969ca0311bbc26e8356cca178ce95da2
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
 
-PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+PODFILE CHECKSUM: 31fb7fe5fd83956b93ad4d47daf649bbb5be1471
 
 COCOAPODS: 1.11.3
