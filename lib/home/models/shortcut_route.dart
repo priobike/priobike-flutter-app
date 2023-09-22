@@ -33,7 +33,7 @@ class ShortcutRoute implements Shortcut {
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
+        'type': type.description(),
         'id': id,
         'name': name,
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),
@@ -113,6 +113,6 @@ class ShortcutRoute implements Shortcut {
   /// Returns the icon of the shortcut type.
   @override
   Widget getIcon() {
-    return const Icon(Icons.route);
+    return type.getIcon();
   }
 }

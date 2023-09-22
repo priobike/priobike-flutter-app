@@ -33,7 +33,7 @@ class ShortcutLocation implements Shortcut {
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': 'ShortcutLocation',
+        'type': type.description(),
         'id': id,
         'name': name,
         'waypoint': waypoint.toJSON(),
@@ -95,9 +95,8 @@ class ShortcutLocation implements Shortcut {
     );
   }
 
-  @override
-
   /// Methods which returns a list of waypoints.
+  @override
   List<Waypoint> getWaypoints() {
     return [waypoint];
   }

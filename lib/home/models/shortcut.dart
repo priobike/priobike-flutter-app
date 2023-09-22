@@ -49,4 +49,13 @@ extension ShortcutTypeDescription on ShortcutType {
         return "ShortcutLocation";
     }
   }
+
+  Icon getIcon() {
+    switch (this) {
+      case ShortcutType.route:
+        return const Icon(Icons.route);
+      case ShortcutType.location:
+        return const Icon(Icons.location_on);
+    }
+  }
 }
