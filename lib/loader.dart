@@ -60,49 +60,45 @@ class LoaderState extends State<Loader> {
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
-    hasError = false;
-
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Every of the following functions should handle and log their own errors.
-    await getIt<Profile>().loadProfile();
-    await getIt<Shortcuts>().loadShortcuts();
-    await getIt<Layers>().loadPreferences();
-    await getIt<MapDesigns>().loadPreferences();
+    // We have 2 types of services:
+    // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
+    // 2. Services that are not critically needed.
+    // Loader-functions for non-critical services should handle their own errors
+    // while critical services should rethrow their errors.
 
-    final tracking = getIt<Tracking>();
-    await tracking.loadPreviousTracks();
-    await tracking.runUploadRoutine();
-    await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
+    try {
+      await getIt<Profile>().loadProfile();
+      await getIt<Shortcuts>().loadShortcuts();
+      await getIt<Layers>().loadPreferences();
+      await getIt<MapDesigns>().loadPreferences();
 
-    final news = getIt<News>();
-    await news.getArticles();
-    if (news.hadError) hasError = true;
+      final tracking = getIt<Tracking>();
+      await tracking.loadPreviousTracks();
+      await tracking.runUploadRoutine();
+      await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
 
-    final predictionStatusSummary = getIt<PredictionStatusSummary>();
-    await predictionStatusSummary.fetch();
-    if (predictionStatusSummary.hadError) hasError = true;
+      await getIt<News>().getArticles();
 
-    final statusHistory = getIt<StatusHistory>();
-    await statusHistory.fetch();
-    if (statusHistory.hadError) hasError = true;
+      final preditionStatusSummary = getIt<PredictionStatusSummary>();
+      await preditionStatusSummary.fetch();
+      if (preditionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
 
-    final weather = getIt<Weather>();
-    await weather.fetch();
-    if (weather.hadError) hasError = true;
+      await getIt<StatusHistory>().fetch();
+      await getIt<Weather>().fetch();
+      await getIt<Boundary>().loadBoundaryCoordinates();
+      await getIt<Ride>().loadLastRoute();
+      await getIt<EventService>().fetchData();
+      await MapboxTileImageCache.pruneUnusedImages();
+      getIt<EvaluationDataService>().sendUnsentElements();
 
-    await getIt<Boundary>().loadBoundaryCoordinates();
-    await getIt<Ride>().loadLastRoute();
-    await getIt<EventService>().fetchData();
-    await MapboxTileImageCache.pruneUnusedImages();
-    getIt<EvaluationDataService>().sendUnsentElements();
-
-    settings.incrementUseCounter();
-
-    if (hasError) {
+      settings.incrementUseCounter();
+    } catch (e, stacktrace) {
+      log.e("Error while loading services $e\n $stacktrace");
       HapticFeedback.heavyImpact();
-      setState(() {});
+      setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();
       return;
     }
