@@ -135,6 +135,7 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
+  /// This variable holds the shortcut from which a route has been created, or null if no shortcut was used.
   Shortcut? selectedShortcut;
 
   Routing({
@@ -199,6 +200,7 @@ class Routing with ChangeNotifier {
       await discomforts.reset();
     }
 
+    /// After the waypoints have changed, check if the route still covers the selected shortcuts waypoints.
     checkShortcutWaypoints();
 
     notifyListeners();
