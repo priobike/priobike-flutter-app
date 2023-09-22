@@ -215,9 +215,9 @@ class Routing with ChangeNotifier {
     var shortestWaypointToIdx = 0;
     for (int i = 0; i < (selectedWaypoints!.length - 1); i++) {
       final w1 = selectedWaypoints![i], w2 = selectedWaypoints![i + 1];
-      final p1 = LatLng(w1.lat, w1.lon), p2 = LatLng(w2.lat, w2.lon);
+      final p1 = LatLngAlt(w1.lat, w1.lon, 0), p2 = LatLngAlt(w2.lat, w2.lon, 0);
       final n = Snapper.calcNearestPoint(userPosLatLng, p1, p2);
-      final d = Snapper.vincenty.distance(userPosLatLng, n);
+      final d = Snapper.vincenty.distance(userPosLatLng, n.latLng);
       if (d < shortestWaypointDistance) {
         shortestWaypointDistance = d;
         shortestWaypointToIdx = i + 1;
