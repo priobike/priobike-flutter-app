@@ -120,11 +120,11 @@ class StatusHistory with ChangeNotifier {
       isLoading = false;
       hadError = false;
       notifyListeners();
-    } catch (e) {
+    } catch (e, stacktrace) {
       isLoading = false;
       hadError = true;
       notifyListeners();
-      final hint = "Error while fetching prediction history status: $e";
+      final hint = "Error while fetching prediction history status: $e $stacktrace";
       log.e(hint);
     }
   }

@@ -63,46 +63,44 @@ class LoaderState extends State<Loader> {
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Load all other services.
+    // We have 2 types of services:
+    // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
+    // 2. Services that are not critically needed.
+    // Loader-functions for non-critical services should handle their own errors
+    // while critical services should throw their errors.
+
     try {
-      // Load local stuff.
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();
       await getIt<MapDesigns>().loadPreferences();
+
       final tracking = getIt<Tracking>();
       await tracking.loadPreviousTracks();
       await tracking.runUploadRoutine();
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
-      // Load stuff from the server.
-      final news = getIt<News>();
-      await news.getArticles();
-      if (!news.hasLoaded) log.i("Could not load news");
-      final predictionStatusSummary = getIt<PredictionStatusSummary>();
-      await predictionStatusSummary.fetch();
-      if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final statusHistory = getIt<StatusHistory>();
-      await statusHistory.fetch();
-      final weather = getIt<Weather>();
-      await weather.fetch();
+
+      await getIt<News>().getArticles();
+
+      final preditionStatusSummary = getIt<PredictionStatusSummary>();
+      await preditionStatusSummary.fetch();
+      if (preditionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
+
+      await getIt<StatusHistory>().fetch();
+      await getIt<Weather>().fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
-      settings.incrementUseCounter();
       await getIt<EventService>().fetchData();
+      await MapboxTileImageCache.pruneUnusedImages();
       getIt<EvaluationDataService>().sendUnsentElements();
-    } catch (e) {
+
+      settings.incrementUseCounter();
+    } catch (e, stacktrace) {
+      log.e("Error while loading services $e\n $stacktrace");
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();
       return;
-    }
-
-    // FIXME: There was a bug where the app would not load anymore and we suspected this to be the cause.
-    // If the bug does not occur anymore, we can move this to the try-catch-block above.
-    try {
-      await MapboxTileImageCache.pruneUnusedImages();
-    } catch (e) {
-      log.e("Error while pruning unused images: $e");
     }
 
     // Finish loading.
