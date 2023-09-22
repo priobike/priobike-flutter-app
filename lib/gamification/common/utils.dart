@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
@@ -101,11 +103,22 @@ class StringFormatter {
 
   /// Round a given value according to a given ride info type.
   static String getRoundedStrByStatType(double value, StatType type) {
-    if ((type == StatType.distance || type == StatType.speed) && value < 100) {
-      return value.toStringAsFixed(1);
-    } else {
-      return value.toStringAsFixed(0);
+    if (type == StatType.distance) {
+      if (value < 1) return truncateToString(value, 2);
+      if (value < 100) return truncateToString(value, 1);
+      return truncateToString(value, 0);
     }
+    if (type == StatType.speed && value < 100) {
+      return truncateToString(value, 1);
+    } else {
+      return truncateToString(value, 0);
+    }
+  }
+
+  /// Truncate value to avoid rounding and then convert to string.
+  static String truncateToString(num value, int fractionalDigits) {
+    var truncated = (value * pow(10, fractionalDigits)).truncate() / pow(10, fractionalDigits);
+    return truncated.toStringAsFixed(fractionalDigits);
   }
 
   /// Returns a fitting string for a given month and year.

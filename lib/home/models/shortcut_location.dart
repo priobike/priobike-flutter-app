@@ -26,7 +26,7 @@ class ShortcutLocation implements Shortcut {
 
   factory ShortcutLocation.fromJson(Map<String, dynamic> json) {
     return ShortcutLocation(
-      id: json['id'],
+      id: json.keys.contains('id') ? json['id'] : UniqueKey().toString(),
       name: json['name'],
       waypoint: Waypoint.fromJson(json["waypoint"]),
     );

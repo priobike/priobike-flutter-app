@@ -79,6 +79,9 @@ class RideViewState extends State<RideView> {
         // Start a new session.
         final ride = getIt<Ride>();
 
+        // Save the shortcut id if there exists a matching shortcut for the selected waypoints.
+        ride.setShortcut(routing.selectedWaypoints!);
+
         // Save current route if the app crashes or the user unintentionally closes it.
         ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
 

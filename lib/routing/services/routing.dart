@@ -135,8 +135,6 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  Shortcut? selectedShortcut;
-
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -199,8 +197,6 @@ class Routing with ChangeNotifier {
       await discomforts.reset();
     }
 
-    checkShortcutWaypoints();
-
     notifyListeners();
   }
 
@@ -230,15 +226,7 @@ class Routing with ChangeNotifier {
 
   // Select waypoints from shortcut and save shortcut.
   Future<void> selectShortcut(Shortcut shortcut) async {
-    selectedShortcut = shortcut;
     selectWaypoints(shortcut.getWaypoints());
-  }
-
-  // Check if all shortcut waypoints are still contained in the selected waypoints and reset shortcut if not.
-  void checkShortcutWaypoints() {
-    if (selectedShortcut == null || selectedWaypoints == null) return;
-    if (selectedShortcut!.getWaypoints().every((waypoint) => selectedWaypoints!.contains(waypoint))) return;
-    selectedShortcut = null;
   }
 
   // Reset the routing service.
@@ -249,7 +237,6 @@ class Routing with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
-    selectedShortcut = null;
     notifyListeners();
   }
 
