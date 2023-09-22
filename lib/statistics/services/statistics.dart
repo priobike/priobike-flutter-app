@@ -7,6 +7,7 @@ import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -130,8 +131,7 @@ class Statistics with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
     if (storage.getBool(GamificationUserService.gamificationEnabledKey) ?? false) {
       // Get the route or location shortcut used for the ride, if there is one.
-      var usedShortcut = getIt<Routing>().selectedShortcut;
-      AppDatabase.instance.rideSummaryDao.createObjectFromSummary(currentSummary!, start, usedShortcut);
+      AppDatabase.instance.rideSummaryDao.createObjectFromSummary(currentSummary!, start, getIt<Ride>().shortcutId);
     }
 
     addSummary(currentSummary!);
