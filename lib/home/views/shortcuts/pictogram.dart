@@ -39,17 +39,25 @@ class ShortcutRoutePictogramState extends State<ShortcutRoutePictogram> {
   /// The future of the background image.
   Future? backgroundImageFuture;
 
+  /// The colormode of the map.
+  Brightness? brightness;
+
   /// Loads the background image.
   void loadBackgroundImage() {
     backgroundImageFuture?.ignore();
-    backgroundImageFuture = MapboxTileImageCache.requestTile(
-      coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList(),
-      brightness: Theme.of(context).brightness,
-    ).then((value) {
-      setState(() {
-        backgroundImage = value;
+    // the only time we have to update the background image is when the brightness changes
+    // or we don't have a background image yet
+    if (brightness == null || brightness != Theme.of(context).brightness) {
+      backgroundImageFuture = MapboxTileImageCache.requestTile(
+        coords: widget.shortcut.waypoints.map((e) => LatLng(e.lat, e.lon)).toList(),
+        brightness: Theme.of(context).brightness,
+      ).then((value) {
+        setState(() {
+          backgroundImage = value;
+          brightness = Theme.of(context).brightness;
+        });
       });
-    });
+    }
   }
 
   @override
@@ -200,20 +208,28 @@ class ShortcutLocationPictogramState extends State<ShortcutLocationPictogram> {
   /// The future of the background image.
   Future? backgroundImageFuture;
 
+  /// The colormode of the map.
+  Brightness? brightness;
+
   /// Loads the background image.
   void loadBackgroundImage() {
     backgroundImageFuture?.ignore();
-    backgroundImageFuture = MapboxTileImageCache.requestTile(
-      coords: [
-        LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
-        LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
-      ],
-      brightness: Theme.of(context).brightness,
-    ).then((value) {
-      setState(() {
-        backgroundImage = value;
+    // the only time we have to update the background image is when the brightness changes
+    // or we don't have a background image yet
+    if (brightness == null || brightness != Theme.of(context).brightness) {
+      backgroundImageFuture = MapboxTileImageCache.requestTile(
+        coords: [
+          LatLng(widget.shortcut.waypoint.lat - 0.01, widget.shortcut.waypoint.lon - 0.01),
+          LatLng(widget.shortcut.waypoint.lat + 0.01, widget.shortcut.waypoint.lon + 0.01),
+        ],
+        brightness: Theme.of(context).brightness,
+      ).then((value) {
+        setState(() {
+          backgroundImage = value;
+          brightness = Theme.of(context).brightness;
+        });
       });
-    });
+    }
   }
 
   @override
