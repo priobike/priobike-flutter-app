@@ -4,13 +4,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-
-enum ShortcutType {
-  route,
-  location,
-}
 
 class ShortcutPictogram extends StatefulWidget {
   /// The type of the shortcut: route or location.
@@ -25,7 +21,7 @@ class ShortcutPictogram extends StatefulWidget {
   /// The height of the shortcut (width == height, because the it is a square)
   final double height;
 
-  /// The color of the shortcut.
+  /// The color of the pictogram.
   final Color color;
 
   const ShortcutPictogram({
@@ -65,7 +61,7 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
           ];
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: coords,
-      brightness: Theme.of(context).brightness,
+      brightness: fetchedBrightness,
     ).then((value) {
       if (!mounted) return;
       if (value == null) return;
@@ -89,10 +85,10 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
   void initState() {
     super.initState();
     if (widget.type == ShortcutType.route && widget.shortcutRoute == null) {
-      throw ArgumentError.notNull('shortcutRoute');
+      throw ArgumentError.notNull('ShortcutType is route, but shortcutRoute is null');
     }
     if (widget.type == ShortcutType.location && widget.shortcutLocation == null) {
-      throw ArgumentError.notNull('shortcutLocation');
+      throw ArgumentError.notNull('ShortcutType is location, but shortcutLocation is null');
     }
 
     SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());

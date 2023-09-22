@@ -7,7 +7,7 @@ abstract class Shortcut {
   final String id;
 
   /// The type of the shortcut.
-  final String type;
+  final ShortcutType type;
 
   /// The name of the shortcut.
   String name;
@@ -33,4 +33,20 @@ abstract class Shortcut {
   Shortcut({required this.type, required this.name, required this.id});
 
   Map<String, dynamic> toJson();
+}
+
+enum ShortcutType {
+  route,
+  location,
+}
+
+extension ShortcutTypeDescription on ShortcutType {
+  String description() {
+    switch (this) {
+      case ShortcutType.route:
+        return "ShortcutRoute";
+      case ShortcutType.location:
+        return "ShortcutLocation";
+    }
+  }
 }

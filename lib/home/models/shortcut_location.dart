@@ -12,7 +12,7 @@ class ShortcutLocation implements Shortcut {
 
   /// The type of the shortcut.
   @override
-  final String type = "ShortcutLocation";
+  final ShortcutType type = ShortcutType.location;
 
   /// The name of the shortcut.
   @override

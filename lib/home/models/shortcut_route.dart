@@ -12,7 +12,7 @@ class ShortcutRoute implements Shortcut {
 
   /// The type of the shortcut.
   @override
-  final String type = "ShortcutRoute";
+  final ShortcutType type = ShortcutType.route;
 
   /// The name of the shortcut.
   @override
