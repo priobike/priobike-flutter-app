@@ -11,7 +11,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
@@ -81,8 +80,11 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   /// The GPS positions of the track.
   List<Position> positions = [];
 
-  /// The track summary.
-  Summary? trackSummary;
+  /// The driven distance in meters.
+  double? distanceMeters;
+
+  /// The duration of the track in seconds.
+  double? durationSeconds;
 
   @override
   void initState() {
@@ -149,17 +151,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     for (var i = 0; i < positions.length - 1; i++) {
       totalDistance += vincenty.distance(coordinates[i], coordinates[i + 1]);
     }
-    // Aggregate the elevation.
-    var totalElevationGain = 0.0;
-    var totalElevationLoss = 0.0;
-    for (var i = 0; i < positions.length - 1; i++) {
-      final elevationChange = positions[i + 1].altitude - positions[i].altitude;
-      if (elevationChange > 0) {
-        totalElevationGain += elevationChange;
-      } else {
-        totalElevationLoss += elevationChange;
-      }
-    }
     // Aggregate the duration.
     final now = positions.last.timestamp;
     final start = positions.first.timestamp;
@@ -167,12 +158,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     final totalDuration = now.difference(start).inMilliseconds;
 
     // Create the summary.
-    trackSummary = Summary(
-      distanceMeters: totalDistance,
-      durationSeconds: totalDuration / 1000,
-      elevationGain: totalElevationGain,
-      elevationLoss: totalElevationLoss,
-    );
+    distanceMeters = totalDistance;
+    durationSeconds = totalDuration / 1000;
   }
 
   @override
@@ -190,8 +177,16 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
     );
 
+    final totalDurationMinutes = durationSeconds == null ? 0 : durationSeconds! / 60;
+    final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
+    final averageSpeedKmH = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
+    const co2PerKm = 0.1187; // Data according to statista.com in KG
+    final savedCo2inG = distanceMeters == null && durationSeconds == null
+        ? 0
+        : (distanceMeters! / 1000) * (durationSeconds! / 3600) * co2PerKm * 1000;
+
     final List<Widget> rideDetails;
-    if (trackSummary != null) {
+    if (distanceMeters != null && durationSeconds != null) {
       rideDetails = [
         Column(
           children: [
@@ -200,7 +195,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               style: headerTextStyle,
             ),
             Text(
-              formatDuration(Duration(seconds: trackSummary!.durationSeconds.toInt())),
+              formatDuration(Duration(seconds: durationSeconds!.toInt())),
               style: cellTextStyle,
             ),
           ],
@@ -212,9 +207,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               style: headerTextStyle,
             ),
             Text(
-              trackSummary!.distanceMeters >= 1000
-                  ? "${(trackSummary!.distanceMeters / 1000).toStringAsFixed(2)} km"
-                  : "${trackSummary!.distanceMeters.toStringAsFixed(0)} m",
+              distanceMeters! >= 1000
+                  ? "${(distanceMeters! / 1000).toStringAsFixed(2)} km"
+                  : "${distanceMeters!.toStringAsFixed(0)} m",
               style: cellTextStyle,
             ),
           ],
@@ -226,7 +221,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               style: headerTextStyle,
             ),
             Text(
-              "Ø ${trackSummary!.averageSpeedKmH.toStringAsFixed(2)} km/h",
+              "Ø ${averageSpeedKmH.toStringAsFixed(2)} km/h",
               style: cellTextStyle,
             ),
           ],
@@ -238,9 +233,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               style: headerTextStyle,
             ),
             Text(
-              trackSummary!.savedCo2inG >= 1000
-                  ? "${(trackSummary!.savedCo2inG / 1000).toStringAsFixed(2)} kg"
-                  : "${trackSummary!.savedCo2inG.toStringAsFixed(2)} g",
+              savedCo2inG >= 1000
+                  ? "${(savedCo2inG / 1000).toStringAsFixed(2)} kg"
+                  : "${savedCo2inG.toStringAsFixed(2)} g",
               style: cellTextStyle,
             ),
           ],
