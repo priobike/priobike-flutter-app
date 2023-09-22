@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -88,8 +87,9 @@ class StatusViewState extends State<StatusView> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6),
+      constraints: const BoxConstraints(minHeight: 128),
       child: Tile(
         fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
         shadowIntensity: isProblem ? 0.2 : 0.05,
@@ -98,12 +98,13 @@ class StatusViewState extends State<StatusView> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 4),
             BoldSmall(
               text: "Jetzt",
               color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
               context: context,
             ),
-            const SmallVSpace(),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,

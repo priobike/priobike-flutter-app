@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -53,6 +54,9 @@ final getIt = GetIt.instance;
 Future<void> main() async {
   // Enable this to show the layout bounds.
   debugPaintSizeEnabled = false;
+
+  // Slow down animations with timeDilation > 1.0.
+  timeDilation = 1.0;
 
   // Ensure that the widgets binding is initialized.
   // This is required by some plugins and functions.

@@ -335,6 +335,25 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     child: YourBikeView(),
                   ),
                   const VSpace(),
+                  BlendIn(
+                    delay: const Duration(milliseconds: 750),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 40),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoldContent(text: "Routing-Profil", context: context),
+                            const SizedBox(height: 4),
+                            Small(text: "Personalisiere deine Routenberechnung", context: context),
+                          ],
+                        ),
+                        Expanded(child: Container()),
+                        const SizedBox(width: 24),
+                      ],
+                    ),
+                  ),
+                  const VSpace(),
                   const BlendIn(
                     delay: Duration(milliseconds: 750),
                     child: ProfileView(),
