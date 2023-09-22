@@ -60,7 +60,7 @@ class _DailyOverviewState extends State<DailyOverview> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ProgressRing(
-          ringColor: CI.blue.withOpacity(progress == 1 ? 1 : 0.5),
+          ringColor: CI.blue.withOpacity(progress >= 1 ? 1 : 0.5),
           ringSize: size,
           progress: progress,
           content: Column(
