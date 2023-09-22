@@ -8,7 +8,6 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

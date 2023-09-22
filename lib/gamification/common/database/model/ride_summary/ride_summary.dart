@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/database_dao.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/statistics/models/summary.dart';
 
