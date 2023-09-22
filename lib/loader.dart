@@ -67,7 +67,7 @@ class LoaderState extends State<Loader> {
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
     // 2. Services that are not critically needed.
     // Loader-functions for non-critical services should handle their own errors
-    // while critical services should rethrow their errors.
+    // while critical services should throw their errors.
 
     try {
       await getIt<Profile>().loadProfile();
