@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:priobike/gamification/common/database/database.dart';
 import 'package:priobike/gamification/common/database/database_dao.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/statistics/models/summary.dart';
 
@@ -36,7 +35,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
   }
 
   /// Store ride summary in database.
-  void createObjectFromSummary(Summary summary, DateTime startTime, Shortcut? shortcut) {
+  void createObjectFromSummary(Summary summary, DateTime startTime, String? shortcutId) {
     createObject(
       RideSummariesCompanion.insert(
         distanceMetres: summary.distanceMeters,
@@ -45,7 +44,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
         elevationLossMetres: summary.elevationLoss,
         averageSpeedKmh: summary.averageSpeedKmH,
         startTime: startTime,
-        shortcutId: Value(shortcut?.id),
+        shortcutId: Value(shortcutId),
       ),
     );
   }
