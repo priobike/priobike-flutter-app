@@ -44,6 +44,8 @@ class WeatherViewState extends State<WeatherView> {
 
   /// Load the weather icon from the weather service.
   Future<void> loadIcon() async {
+    if (weather.current == null || weather.current!.icon == null) return;
+
     switch (weather.current?.icon) {
       case "clear-day":
         icon = const Icon(Icons.wb_sunny_rounded, size: 32, color: Colors.white);
@@ -87,6 +89,8 @@ class WeatherViewState extends State<WeatherView> {
   /// Load the weather summary from the weather service.
   Future<void> loadSummary() async {
     warning = false;
+    if (weather.current == null || weather.current!.temperature == null) return;
+
     summary = "";
     final temp = weather.current?.temperature ?? 0;
     if (temp > 40) {
@@ -213,32 +217,36 @@ class WeatherViewState extends State<WeatherView> {
 
   @override
   Widget build(BuildContext context) {
+    if (!weather.hasLoaded) return Container();
+
     return Expanded(
       child: Row(
         children: [
-          Stack(
-            children: [
-              icon ?? const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
-              if (warning)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      color: CI.red,
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                    ),
-                    child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),
-                  ),
+          weather.hadError
+              ? const Icon(Icons.cloud_off_rounded, size: 32, color: Colors.white)
+              : Stack(
+                  children: [
+                    icon ?? const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
+                    if (warning)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: const BoxDecoration(
+                            color: CI.red,
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                          ),
+                          child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),
+                        ),
+                      ),
+                  ],
                 ),
-            ],
-          ),
           const SmallHSpace(),
           Flexible(
             child: Small(
-              text: summary ?? "Wetterinformationen sind aktuell noch nicht verfügbar.",
+              text: summary ?? "Wetterinformationen sind aktuell nicht verfügbar.",
               color: Colors.white,
               context: context,
             ),
