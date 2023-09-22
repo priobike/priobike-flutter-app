@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/layers.dart';
 
@@ -167,10 +168,19 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
 }
 
 class LayerSelectionItem extends StatelessWidget {
+  /// Whether the item is a screenshot of the map.
   final bool isScreenshot;
+
+  /// The icon of the item.
   final Image icon;
+
+  /// The title of the item.
   final String title;
+
+  /// Whether the item is selected.
   final bool selected;
+
+  /// The callback that will be executed when the item is tapped.
   final void Function() onTap;
 
   const LayerSelectionItem({
@@ -257,6 +267,12 @@ class LayerSelectionItem extends StatelessWidget {
               ),
               child: const Icon(Icons.check, color: Colors.white, size: 16),
             ),
+          ),
+        //Mapbox Attribution Logo
+        if (isScreenshot)
+          const MapboxAttribution(
+            top: 12,
+            right: 12,
           ),
       ],
     );

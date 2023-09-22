@@ -5,19 +5,19 @@ import 'package:priobike/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MapboxAttribution extends StatelessWidget {
-  // The top position of the attribution logo.
+  /// The top position of the attribution logo.
   final double? top;
 
-  // The left position of the attribution logo.
+  /// The left position of the attribution logo.
   final double? left;
 
-  // The right position of the attribution logo.
+  /// The right position of the attribution logo.
   final double? right;
 
-  // The bottom position of the attribution logo.
+  /// The bottom position of the attribution logo.
   final double? bottom;
 
-  // The width of the attribution logo.
+  /// The width of the attribution logo.
   final double width;
 
   const MapboxAttribution({
