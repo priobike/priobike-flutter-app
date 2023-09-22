@@ -7,6 +7,9 @@ class Snap {
   /// The snapped position.
   final LatLng position;
 
+  /// The snapped altitude.
+  final double altitude;
+
   /// The snapped heading in [0°, 360°].
   final double heading;
 
@@ -25,6 +28,7 @@ class Snap {
   const Snap({
     required this.original,
     required this.position,
+    required this.altitude,
     required this.heading,
     required this.bearing,
     required this.distanceToRoute,
