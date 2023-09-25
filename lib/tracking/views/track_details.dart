@@ -1,7 +1,6 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Route;
-import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -90,12 +89,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   void initState() {
     super.initState();
     initializeDateFormatting();
-
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) async {
-        await loadTrack();
-      },
-    );
   }
 
   @override
@@ -135,6 +128,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         );
       }
 
+      await Future.delayed(const Duration(seconds: 1));
       await loadTrackSummary();
 
       setState(() {});
@@ -164,151 +158,162 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   @override
   Widget build(BuildContext context) {
-    final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-    final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
+    return FutureBuilder<void>(
+      future: loadTrack(),
+      builder: (context, snapshot) {
+        final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+        final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
 
-    final headerTextStyle = TextStyle(
-      fontSize: 11,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
-    );
+        final headerTextStyle = TextStyle(
+          fontSize: 11,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+        );
 
-    final cellTextStyle = TextStyle(
-      fontSize: 14,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-    );
+        final cellTextStyle = TextStyle(
+          fontSize: 14,
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+        );
 
-    final totalDurationMinutes = durationSeconds == null ? 0 : durationSeconds! / 60;
-    final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
-    final averageSpeedKmH = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
-    const co2PerKm = 0.1187; // Data according to statista.com in KG
-    final savedCo2inG = distanceMeters == null && durationSeconds == null
-        ? 0
-        : (distanceMeters! / 1000) * (durationSeconds! / 3600) * co2PerKm * 1000;
+        final totalDurationMinutes = durationSeconds == null ? 0 : durationSeconds! / 60;
+        final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
+        final averageSpeedKmH = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
+        const co2PerKm = 0.1187; // Data according to statista.com in KG
+        final savedCo2inG = distanceMeters == null && durationSeconds == null
+            ? 0
+            : (distanceMeters! / 1000) * (durationSeconds! / 3600) * co2PerKm * 1000;
 
-    final List<Widget> rideDetails;
-    if (distanceMeters != null && durationSeconds != null) {
-      rideDetails = [
-        Column(
-          children: [
-            Text(
-              "Dauer",
-              style: headerTextStyle,
-            ),
-            Text(
-              formatDuration(Duration(seconds: durationSeconds!.toInt())),
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              "Distanz",
-              style: headerTextStyle,
-            ),
-            Text(
-              distanceMeters! >= 1000
-                  ? "${(distanceMeters! / 1000).toStringAsFixed(2)} km"
-                  : "${distanceMeters!.toStringAsFixed(0)} m",
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              "Geschwindigkeit",
-              style: headerTextStyle,
-            ),
-            Text(
-              "Ø ${averageSpeedKmH.toStringAsFixed(2)} km/h",
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              "CO2 gespart",
-              style: headerTextStyle,
-            ),
-            Text(
-              savedCo2inG >= 1000
-                  ? "${(savedCo2inG / 1000).toStringAsFixed(2)} kg"
-                  : "${savedCo2inG.toStringAsFixed(2)} g",
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-      ];
-    } else {
-      rideDetails = [];
-    }
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BoldContent(text: "Deine Fahrt vom", context: context),
-                  Content(
-                    text: lastTrackDateFormatted,
-                    context: context,
-                    color: Theme.of(context).colorScheme.onBackground,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            const SmallVSpace(),
-            Container(
-              // use width as height to make it a square
-              height: MediaQuery.of(context).size.width,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.all(24),
-              child: positions.isNotEmpty
-                  ? Tile(
-                      padding: const EdgeInsets.all(0),
-                      borderRadius: BorderRadius.circular(20),
-                      content: TrackPictogram(
-                        key: ValueKey(widget.track.sessionId),
-                        track: positions,
-                        colors: const [
-                          CI.blue,
-                          CI.red,
-                        ],
-                        blurRadius: 2,
-                        startImage: widget.startImage,
-                        destinationImage: widget.destinationImage,
-                        iconSize: 16,
-                        lineWidth: 6,
-                      ),
-                    )
-                  : Center(
-                      child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
-                    ),
-            ),
-            if (rideDetails.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 6,
-                  direction: Axis.horizontal,
-                  alignment: WrapAlignment.center,
-                  runAlignment: WrapAlignment.center,
-                  children: rideDetails,
+        final List<Widget> rideDetails;
+        if (distanceMeters != null && durationSeconds != null) {
+          rideDetails = [
+            Column(
+              children: [
+                Text(
+                  "Dauer",
+                  style: headerTextStyle,
                 ),
-              ),
+                Text(
+                  formatDuration(Duration(seconds: durationSeconds!.toInt())),
+                  style: cellTextStyle,
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Text(
+                  "Distanz",
+                  style: headerTextStyle,
+                ),
+                Text(
+                  distanceMeters! >= 1000
+                      ? "${(distanceMeters! / 1000).toStringAsFixed(2)} km"
+                      : "${distanceMeters!.toStringAsFixed(0)} m",
+                  style: cellTextStyle,
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Text(
+                  "Geschwindigkeit",
+                  style: headerTextStyle,
+                ),
+                Text(
+                  "Ø ${averageSpeedKmH.toStringAsFixed(2)} km/h",
+                  style: cellTextStyle,
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Text(
+                  "CO2 gespart",
+                  style: headerTextStyle,
+                ),
+                Text(
+                  savedCo2inG >= 1000
+                      ? "${(savedCo2inG / 1000).toStringAsFixed(2)} kg"
+                      : "${savedCo2inG.toStringAsFixed(2)} g",
+                  style: cellTextStyle,
+                ),
+              ],
+            ),
+          ];
+        } else {
+          rideDetails = [];
+        }
+
+        Widget content = const CircularProgressIndicator();
+        if (snapshot.connectionState == ConnectionState.done) {
+          content = positions.isNotEmpty
+              ? Tile(
+            padding: const EdgeInsets.all(0),
+            borderRadius: BorderRadius.circular(20),
+            content: TrackPictogram(
+              key: ValueKey(widget.track.sessionId),
+              track: positions,
+              colors: const [
+                CI.blue,
+                CI.red,
+              ],
+              blurRadius: 2,
+              startImage: widget.startImage,
+              destinationImage: widget.destinationImage,
+              iconSize: 16,
+              lineWidth: 6,
+            ),
+          )
+              : Center(
+            child: Small(
+                context: context, text: "Keine GPS-Daten für diesen Track"),
+          );
+        }
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      BoldContent(text: "Deine Fahrt vom", context: context),
+                      Content(
+                        text: lastTrackDateFormatted,
+                        context: context,
+                        color: Theme.of(context).colorScheme.onBackground,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                const SmallVSpace(),
+                Container(
+                  // use width as height to make it a square
+                  height: MediaQuery.of(context).size.width,
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.all(24),
+                  child: content
+                ),
+                if (rideDetails.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 6,
+                      direction: Axis.horizontal,
+                      alignment: WrapAlignment.center,
+                      runAlignment: WrapAlignment.center,
+                      children: rideDetails,
+                    ),
+                  ),
+              ],
+            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }

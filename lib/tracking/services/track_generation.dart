@@ -112,7 +112,7 @@ class TrackGenerationService with ChangeNotifier {
       uploaded: false,
       hasFileData: true,
       startTime: startTime,
-      endTime: null,
+      endTime: startTime + 300000,
       debug: kDebugMode,
       backend: settings.backend,
       positioningMode: settings.positioningMode,
