@@ -105,10 +105,11 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 12;
-    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
     if (startImage == null || destinationImage == null) return Container();
     if (newestTracks.isEmpty) return Container();
+
+    const double shortcutRightPad = 12;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
     List<Widget> views = [
       AnimatedContainer(
