@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:geolocator/geolocator.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 import '../../home/services/profile.dart';
 import '../../main.dart';
@@ -49,7 +51,7 @@ class TrackGenerationService with ChangeNotifier {
     final feature = getIt<Feature>();
 
     // TODO calculate distance
-    double distance = 10;
+    double distance = 1550; // 1.55km
     // TODO calculate time
     int time = 300000; // 5min in milliseconds
     // TODO calculate ascend
@@ -63,14 +65,18 @@ class TrackGenerationService with ChangeNotifier {
         coordinates: coordinates
     );
     // TODO calculate bbox
-    double minLon = 90;
-    double minLat = 90;
-    double maxLon = -90;
-    double maxLat = -90;
+    double minLat = 53.5439;
+    double minLng = 9.9891;
+    double maxLat = 53.5479;
+    double maxLng = 10.0025;
+    // double minLng = 90;
+    // double minLat = 90;
+    // double maxLng = -90;
+    // double maxLat = -90;
     GHBoundingBox bbox = GHBoundingBox(
-        minLon: minLon,
+        minLon: minLng,
         minLat: minLat,
-        maxLon: maxLon,
+        maxLon: maxLng,
         maxLat: maxLat
     );
     // TODO generate path
@@ -150,6 +156,32 @@ class TrackGenerationService with ChangeNotifier {
       file: await track.magnetometerCSVFile,
       maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
     );
+    // generate sensor data
+    double startLat = 53.5439;
+    double startLng = 9.9891;
+    double endLat = 53.5479;
+    double endLng = 10.0025;
+    double endSecond = 300;
+    for (int second = 0; second < endSecond; second++){
+      int timestamp = startTime + second * 1000;
+      AccelerometerEvent acc = AccelerometerEvent(0.0, 0.0, 0.0);
+      Position gps = Position(
+          longitude: startLng + ((endLng - startLng) / endSecond) * second,
+          latitude: startLat + ((endLat - startLat) / endSecond) * second,
+          timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+          accuracy: 1.0,
+          altitude: 0.0,
+          heading: 0.0,
+          speed: 2.0,
+          speedAccuracy: 1.0
+      );
+      GyroscopeEvent gyr = GyroscopeEvent(0.0, 0.0, 0.0);
+      MagnetometerEvent mag = MagnetometerEvent(0.0, 0.0, 0.0);
+      await tracking.accCache?.add("$timestamp,${acc.x},${acc.y},${acc.z}");
+      await tracking.gpsCache?.add("$timestamp,${gps.longitude},${gps.latitude},${gps.speed},${gps.accuracy}");
+      await tracking.gyrCache?.add("$timestamp,${gyr.x},${gyr.y},${gyr.z}");
+      await tracking.magCache?.add("$timestamp,${mag.x},${mag.y},${mag.z}");
+    }
     await tracking.accCache!.flush();
     await tracking.gpsCache!.flush();
     await tracking.gyrCache!.flush();
