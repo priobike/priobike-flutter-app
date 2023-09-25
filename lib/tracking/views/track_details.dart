@@ -128,7 +128,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         );
       }
 
-      await Future.delayed(const Duration(seconds: 1));
       await loadTrackSummary();
 
       setState(() {});
