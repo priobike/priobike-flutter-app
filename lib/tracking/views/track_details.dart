@@ -245,26 +245,25 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
               ? Tile(
-            padding: const EdgeInsets.all(0),
-            borderRadius: BorderRadius.circular(20),
-            content: TrackPictogram(
-              key: ValueKey(widget.track.sessionId),
-              track: positions,
-              colors: const [
-                CI.blue,
-                CI.red,
-              ],
-              blurRadius: 2,
-              startImage: widget.startImage,
-              destinationImage: widget.destinationImage,
-              iconSize: 16,
-              lineWidth: 6,
-            ),
-          )
+                  padding: const EdgeInsets.all(0),
+                  borderRadius: BorderRadius.circular(20),
+                  content: TrackPictogram(
+                    key: ValueKey(widget.track.sessionId),
+                    track: positions,
+                    colors: const [
+                      CI.blue,
+                      CI.red,
+                    ],
+                    blurRadius: 2,
+                    startImage: widget.startImage,
+                    destinationImage: widget.destinationImage,
+                    iconSize: 16,
+                    lineWidth: 6,
+                  ),
+                )
               : Center(
-            child: Small(
-                context: context, text: "Keine GPS-Daten für diesen Track"),
-          );
+                  child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
+                );
         }
 
         return Stack(
@@ -290,12 +289,11 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                 ),
                 const SmallVSpace(),
                 Container(
-                  // use width as height to make it a square
-                  height: MediaQuery.of(context).size.width,
-                  width: MediaQuery.of(context).size.width,
-                  padding: const EdgeInsets.all(24),
-                  child: content
-                ),
+                    // use width as height to make it a square
+                    height: MediaQuery.of(context).size.width,
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.all(24),
+                    child: content),
                 if (rideDetails.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24),

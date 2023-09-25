@@ -24,7 +24,6 @@ import 'package:priobike/routing/models/route.dart' as r;
 class TrackGenerationService with ChangeNotifier {
   TrackGenerationService();
 
-
   Future<void> generate(double deviceWidth, double deviceHeight) async {
     // Get some session- and device-specific data.
     final deviceInfoPlugin = DeviceInfoPlugin();
@@ -60,10 +59,7 @@ class TrackGenerationService with ChangeNotifier {
     double descend = 0; // 0m
     // TODO generate points
     List<GHCoordinate> coordinates = [];
-    GHLineString points = GHLineString(
-        type: "LineString",
-        coordinates: coordinates
-    );
+    GHLineString points = GHLineString(type: "LineString", coordinates: coordinates);
     // TODO calculate bbox
     double minLat = 53.5439;
     double minLng = 9.9891;
@@ -73,26 +69,20 @@ class TrackGenerationService with ChangeNotifier {
     // double minLat = 90;
     // double maxLng = -90;
     // double maxLat = -90;
-    GHBoundingBox bbox = GHBoundingBox(
-        minLon: minLng,
-        minLat: minLat,
-        maxLon: maxLng,
-        maxLat: maxLat
-    );
+    GHBoundingBox bbox = GHBoundingBox(minLon: minLng, minLat: minLat, maxLon: maxLng, maxLat: maxLat);
     // TODO generate path
     GHRouteResponsePath path = GHRouteResponsePath(
-      distance: distance,
-      time: time,
-      ascend: ascend,
-      descend: descend,
-      points: points,
-      snappedWaypoints: points,
-      pointsEncoded: true,
-      bbox: bbox,
-      instructions: [],
-      details: const GHDetails(surface: [], maxSpeed: [], smoothness: [], lanes: [], roadClass: []),
-      pointsOrder: null
-    );
+        distance: distance,
+        time: time,
+        ascend: ascend,
+        descend: descend,
+        points: points,
+        snappedWaypoints: points,
+        pointsEncoded: true,
+        bbox: bbox,
+        instructions: [],
+        details: const GHDetails(surface: [], maxSpeed: [], smoothness: [], lanes: [], roadClass: []),
+        pointsOrder: null);
     // TODO generate waypoints
     List<Waypoint> selectedWaypoints = [];
     // TODO generate navigation Nodes
@@ -105,8 +95,7 @@ class TrackGenerationService with ChangeNotifier {
         signalGroups: [],
         signalGroupsDistancesOnRoute: [],
         crossings: [],
-        crossingsDistancesOnRoute: []
-    );
+        crossingsDistancesOnRoute: []);
 
     Track track = Track(
       uploaded: false,
@@ -162,7 +151,7 @@ class TrackGenerationService with ChangeNotifier {
     double endLat = 53.5479;
     double endLng = 10.0025;
     double endSecond = 300;
-    for (int second = 0; second < endSecond; second++){
+    for (int second = 0; second < endSecond; second++) {
       int timestamp = startTime + second * 1000;
       AccelerometerEvent acc = AccelerometerEvent(0.0, 0.0, 0.0);
       Position gps = Position(
@@ -173,8 +162,7 @@ class TrackGenerationService with ChangeNotifier {
           altitude: 0.0,
           heading: 0.0,
           speed: 2.0,
-          speedAccuracy: 1.0
-      );
+          speedAccuracy: 1.0);
       GyroscopeEvent gyr = GyroscopeEvent(0.0, 0.0, 0.0);
       MagnetometerEvent mag = MagnetometerEvent(0.0, 0.0, 0.0);
       await tracking.accCache?.add("$timestamp,${acc.x},${acc.y},${acc.z}");
