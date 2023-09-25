@@ -18,7 +18,7 @@ class IconItem extends Row {
               height: 64,
               child: Icon(
                 icon,
-                color: Colors.red,
+                color: CI.blue,
                 size: 64,
                 semanticLabel: text,
               ),
@@ -108,7 +108,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       if (!privacyService.hasChanged!) Header(text: "deinen Daten.", color: CI.blue, context: context),
                       if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
                       if (privacyService.hasChanged!)
-                        Header(text: "Datenschutz aktualisiert.", color: Colors.red, context: context),
+                        Header(text: "Datenschutz aktualisiert.", color: CI.blue, context: context),
                       const SmallVSpace(),
                       if (!privacyService.hasChanged!)
                         SubHeader(
