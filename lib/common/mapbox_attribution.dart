@@ -37,8 +37,7 @@ class MapboxAttribution extends StatelessWidget {
   /// (In the battery saving mode the Mapbox native dialog can't be used
   /// because it is outside of the visible display area.)
   static showAttribution(BuildContext context) {
-    final bool satelliteAttributionRequired = getIt<MapDesigns>()
-        .mapDesign.name == 'Satellit';
+    final bool satelliteAttributionRequired = getIt<MapDesigns>().mapDesign.name == 'Satellit';
     final List<Map<String, dynamic>> attributionEntries = [
       {
         'title': 'Mapbox',
@@ -74,22 +73,15 @@ class MapboxAttribution extends StatelessWidget {
                   label: entry['title']!,
                   onPressed: () async {
                     Navigator.pop(context);
-                    await launchUrl(
-                        entry['url']!,
-                        mode: LaunchMode.externalApplication
-                    );
+                    await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
                   },
-                  boxConstraints: BoxConstraints(
-                      minWidth: MediaQuery.of(context).size.width
-                  ),
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
                 ),
               BigButton(
                 label: "Abbrechen",
                 fillColor: CI.blueDark,
                 onPressed: () => Navigator.pop(context),
-                boxConstraints: BoxConstraints
-                  (minWidth: MediaQuery.of(context).size.width
-                ),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),
             ],
           );
