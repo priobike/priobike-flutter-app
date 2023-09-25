@@ -49,7 +49,6 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   /// Load the routes.
   Future<void> loadRoutes() async {
     if (tracking.previousTracks == null) return;
-    if (tracking.previousTracks!.isEmpty) return;
 
     newestTracks.clear();
     totalTracks = 0;
