@@ -531,11 +531,7 @@ class Tracking with ChangeNotifier {
     log.i("Deleting track with id ${track.sessionId}.");
     // Delete the track files.
     final directory = await track.trackDirectory;
-    try {
-      if (await directory.exists()) await directory.delete(recursive: true);
-    } catch (e) {
-      log.e("Error deleting track with id ${track.sessionId}: $e");
-    }
+    if (await directory.exists()) await directory.delete(recursive: true);
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
     await savePreviousTracks();
     notifyListeners();
@@ -547,11 +543,7 @@ class Tracking with ChangeNotifier {
       log.i("Deleting all tracks.");
       for (final Track track in previousTracks!) {
         final directory = await track.trackDirectory;
-        try {
-          if (await directory.exists()) await directory.delete(recursive: true);
-        } catch (e) {
-          log.e("Error deleting track with id ${track.sessionId}: $e");
-        }
+        if (await directory.exists()) await directory.delete(recursive: true);
       }
       previousTracks?.clear();
     }
