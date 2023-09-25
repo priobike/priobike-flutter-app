@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/main.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'layout/buttons.dart';
+import 'layout/ci.dart';
+import 'layout/dialog.dart';
 
 class MapboxAttribution extends StatelessWidget {
   /// The top position of the attribution logo.
@@ -44,7 +46,7 @@ class MapboxAttribution extends StatelessWidget {
         'url': Uri.parse('https://www.openstreetmap.org/copyright'),
       },
       {
-        'title': 'Improve this map',
+        'title': 'Verbessere diese Karte',
         'url': Uri.parse('https://www.mapbox.com/map-feedback/'),
       },
       if (satelliteAttributionRequired)
@@ -57,36 +59,31 @@ class MapboxAttribution extends StatelessWidget {
 
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              BoldContent(
-                text: title,
-                context: context,
-              ),
-              for (final entry in attributionEntries)
-                TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
-                  },
-                  child: Text(entry['title']!),
-                ),
-              const SizedBox(height: 15),
-              TextButton(
-                onPressed: () {
+      builder: (BuildContext context) {
+        return DialogLayout(
+          title: title,
+          text: "",
+          icon: Icons.map,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            for (final entry in attributionEntries)
+              BigButton(
+                label: entry['title']!,
+                onPressed: () async {
                   Navigator.pop(context);
+                  await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
                 },
-                child: const Text('Cancel'),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),
-            ],
-          ),
-        ),
-      ),
+            BigButton(
+              label: "Abbrechen",
+              fillColor: CI.blueDark,
+              onPressed: () => Navigator.pop(context),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+          ],
+        );
+      }
     );
   }
 
