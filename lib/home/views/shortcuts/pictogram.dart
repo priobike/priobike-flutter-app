@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -175,15 +177,31 @@ class ShortcutRoutePainter extends CustomPainter {
       final x2 = (waypoint2.lon - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
       final y2 = (waypoint2.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
-      // Draw a dashed line between the waypoints
-      const dashCount = 5;
-      for (var j = 0; j < dashCount; j++) {
-        final x1_ = x1 + (x2 - x1) / dashCount * j;
-        final y1_ = y1 + (y2 - y1) / dashCount * j;
-        final x2_ = x1 + (x2 - x1) / dashCount * (j + 1);
-        final y2_ = y1 + (y2 - y1) / dashCount * (j + 1);
-
-        if (j % 2 == 0) canvas.drawLine(Offset(x1_, y1_), Offset(x2_, y2_), paint);
+      // Draw a dashed ballistic line between the waypoints
+      // offset
+      final x2Off = x2 - x1;
+      final y2Off = y2 - y1;
+      // rotation
+      double rotX(double x, double y, double alpha){
+        return x * cos(alpha) - y * sin(alpha);
+      }
+      double rotY(double x, double y, double alpha){
+        return x * sin(alpha) + y * cos(alpha);
+      }
+      final alphaOff = atan((y2Off) / (x2Off));
+      final x2Rot = rotX(x2Off, y2Off, -alphaOff);
+      double x1_ = x1;
+      double y1_ = y1;
+      int j = 0;
+      int steps = 20;
+      for (var x = 0.0; x < x2Rot - (x2Rot / steps); x+=(x2Rot / steps)) {
+        double y = 0.02 * (pow(x, 2) - x2Rot * x);
+        double x2_ = rotX(x, y, alphaOff) + x1;
+        double y2_ = rotY(x, y, alphaOff) + y1;
+        if (j % 4 == 0) canvas.drawLine(Offset(x1_, y1_), Offset(x2_, y2_), paint);
+        x1_ = x2_;
+        y1_ = y2_;
+        j++;
       }
     }
 
