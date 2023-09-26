@@ -241,13 +241,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
           rideDetails = [];
         }
 
-        Widget content = const SizedBox(
-          height: 64,
-          width: 64,
-          child: Center(
-            child: CircularProgressIndicator()
-          )
-        );
+        Widget content = const SizedBox(height: 64, width: 64, child: Center(child: CircularProgressIndicator()));
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
               ? Tile(
