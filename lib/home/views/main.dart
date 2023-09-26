@@ -237,6 +237,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   @override
   Widget build(BuildContext context) {
+    if (ride.navigationIsActive == true) return Container();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: RefreshIndicator(
