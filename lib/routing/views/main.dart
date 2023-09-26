@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/main.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -243,9 +244,7 @@ class RoutingViewState extends State<RoutingView> {
                           const VSpace(),
                           BigButton(
                             label: "Zurück zum Hauptmenu",
-                            onPressed: () async {
-                              Navigator.of(context).pop();
-                            },
+                            onPressed: () => _onReturnToHomeView(),
                           ),
                         ],
                       )
@@ -304,81 +303,96 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
+  /// Return to the home view.
+  Future<void> _onReturnToHomeView() async {
+    await Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-      child: Scaffold(
-        body: NotificationListener<DraggableScrollableNotification>(
-          onNotification: (notification) {
-            sheetMovement.add(notification);
-            return false;
-          },
-          child: Stack(
-            children: [
-              RoutingMapView(sheetMovement: sheetMovement.stream),
+      child: WillPopScope(
+        onWillPop: () => _onReturnToHomeView().then(
+          (value) => true,
+        ),
+        child: Scaffold(
+          body: NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              sheetMovement.add(notification);
+              return false;
+            },
+            child: Stack(
+              children: [
+                RoutingMapView(sheetMovement: sheetMovement.stream),
 
-              if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
-              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
+                if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
+                if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
-              // Top Bar
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-                ),
-              ),
-
-              // Side Bar
-              layers.layersCanBeEnabled
-                  ? SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 80, left: 8),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: 58,
-                              height: 58,
-                              child: Tile(
-                                fill: Theme.of(context).colorScheme.background,
-                                onPressed: onLayerSelection,
-                                content: Icon(
-                                  Icons.layers_rounded,
-                                  color: Theme.of(context).colorScheme.onBackground,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                  : Container(),
-
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
-                  child: Column(
-                    children: const [CenterButton(), SmallVSpace(), CompassButton()],
-                  ),
-                ),
-              ),
-
-              const SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
+                // Top Bar
+                SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 124),
-                    child: ShortcutsRow(),
+                    padding: const EdgeInsets.only(top: 8),
+                    child: AppBackButton(
+                      icon: Icons.chevron_left_rounded,
+                      onPressed: () => _onReturnToHomeView(),
+                    ),
                   ),
                 ),
-              ),
 
-              RouteDetailsBottomSheet(
-                onSelectStartButton: onStartRide,
-                onSelectSaveButton: () => showSaveShortcutSheet(context),
-              ),
-            ],
+                // Side Bar
+                layers.layersCanBeEnabled
+                    ? SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 80, left: 8),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: 58,
+                                height: 58,
+                                child: Tile(
+                                  fill: Theme.of(context).colorScheme.background,
+                                  onPressed: onLayerSelection,
+                                  content: Icon(
+                                    Icons.layers_rounded,
+                                    color: Theme.of(context).colorScheme.onBackground,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container(),
+
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
+                    child: Column(
+                      children: const [CenterButton(), SmallVSpace(), CompassButton()],
+                    ),
+                  ),
+                ),
+
+                const SafeArea(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 124),
+                      child: ShortcutsRow(),
+                    ),
+                  ),
+                ),
+
+                RouteDetailsBottomSheet(
+                  onSelectStartButton: onStartRide,
+                  onSelectSaveButton: () => showSaveShortcutSheet(context),
+                ),
+              ],
+            ),
           ),
         ),
       ),
