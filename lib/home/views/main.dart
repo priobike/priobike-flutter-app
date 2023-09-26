@@ -129,14 +129,18 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     if (!await inAppReview.isAvailable()) return;
 
     final prefs = await SharedPreferences.getInstance();
-    final lastAsk = prefs.getInt("priobike.home.lastAskForRating") ?? 0;
     final currentTime = DateTime.now().millisecondsSinceEpoch;
 
-    // only ask once every 7 days
-    const daysToWait = 7;
-    if (currentTime - lastAsk < 1000 * 60 * 60 * 24 * daysToWait) return;
+    // don't ask the user for a rating on first launch
+    final int? lastAsk = prefs.getInt("priobike.home.lastAskForRating");
 
-    inAppReview.requestReview();
+    if (lastAsk != null) {
+      // only ask once every 7 days
+      const daysToWait = 7;
+      if (currentTime - lastAsk < 1000 * 60 * 60 * 24 * daysToWait) return;
+
+      inAppReview.requestReview();
+    }
     await prefs.setInt("priobike.home.lastAskForRating", currentTime);
   }
 
