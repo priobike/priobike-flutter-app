@@ -39,9 +39,7 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
-
-/// List that holds the number of app uses when the rate function should be triggered.
-const List<int> askRateAppList = [5, 10, 20, 40, 60, 100, 150, 200, 300];
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -105,10 +103,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
 
-    // Check if app should be rated.
-    if (askRateAppList.contains(settings.useCounter)) {
-      rateApp();
-    }
+    rateApp();
 
     // Check if the last route finished accordingly.
     if (ride.lastRoute != null) {
@@ -128,13 +123,21 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     }
   }
 
-  /// Function that starts the inAppReview.
+  /// Checks if app should be rated and opens the rating dialog.
   Future<void> rateApp() async {
     final InAppReview inAppReview = InAppReview.instance;
+    if (!await inAppReview.isAvailable()) return;
 
-    if (await inAppReview.isAvailable()) {
-      inAppReview.requestReview();
-    }
+    final prefs = await SharedPreferences.getInstance();
+    final lastAsk = prefs.getInt("priobike.home.lastAskForRating") ?? 0;
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // only ask once every 7 days
+    const daysToWait = 7;
+    if (currentTime - lastAsk < 1000 * 60 * 60 * 24 * daysToWait) return;
+
+    inAppReview.requestReview();
+    await prefs.setInt("priobike.home.lastAskForRating", currentTime);
   }
 
   @override
