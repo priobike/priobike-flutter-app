@@ -182,19 +182,21 @@ class ShortcutRoutePainter extends CustomPainter {
       final x2Off = x2 - x1;
       final y2Off = y2 - y1;
       // rotation
-      double rotX(double x, double y, double alpha){
+      double rotX(double x, double y, double alpha) {
         return x * cos(alpha) - y * sin(alpha);
       }
-      double rotY(double x, double y, double alpha){
+
+      double rotY(double x, double y, double alpha) {
         return x * sin(alpha) + y * cos(alpha);
       }
+
       final alphaOff = atan((y2Off) / (x2Off));
       final x2Rot = rotX(x2Off, y2Off, -alphaOff);
       double x1_ = x1;
       double y1_ = y1;
       int j = 0;
       int steps = 20;
-      for (var x = 0.0; x < x2Rot - (x2Rot / steps); x+=(x2Rot / steps)) {
+      for (var x = 0.0; x < x2Rot - (x2Rot / steps); x += (x2Rot / steps)) {
         double y = 0.02 * (pow(x, 2) - x2Rot * x);
         double x2_ = rotX(x, y, alphaOff) + x1;
         double y2_ = rotY(x, y, alphaOff) + y1;
