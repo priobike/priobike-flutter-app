@@ -1,10 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Route;
+import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -13,6 +17,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
+import 'package:share_plus/share_plus.dart';
 
 class TrackDetailsDialog extends StatelessWidget {
   /// The track to display.
@@ -155,6 +160,25 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     durationSeconds = totalDuration / 1000;
   }
 
+  Future<void> share(GlobalKey globalKey) async {
+    RenderRepaintBoundary boundary = globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+
+    if (boundary.debugNeedsPaint) {
+      await Future.delayed(const Duration(milliseconds: 20));
+      return share(globalKey);
+    }
+
+    ui.Image image = await boundary.toImage();
+    final directory = (await getApplicationDocumentsDirectory()).path;
+    ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    Uint8List pngBytes = byteData!.buffer.asUint8List();
+    File imgFile = File('$directory/shared_track.png');
+    await imgFile.writeAsBytes(pngBytes);
+    await Share.shareXFiles([XFile(imgFile.path)], text: 'shared track');
+  }
+
+  GlobalKey globalKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
@@ -236,6 +260,29 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                 ),
               ],
             ),
+            Container(
+              height: 42,
+              width: 42,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.white.withOpacity(0.75)
+                    : Colors.black.withOpacity(0.25),
+              ),
+              child: IconButton(
+                onPressed: () => share(globalKey),
+                visualDensity: VisualDensity.compact,
+                icon: Icon(
+                  Icons.share_rounded,
+                  size: 24,
+                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                ),
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
+                ),
+              ),
+            ),
           ];
         } else {
           rideDetails = [];
@@ -266,49 +313,52 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                 );
         }
 
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      BoldContent(text: "Deine Fahrt vom", context: context),
-                      Content(
-                        text: lastTrackDateFormatted,
-                        context: context,
-                        color: Theme.of(context).colorScheme.onBackground,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                const SmallVSpace(),
-                Container(
-                    // use width as height to make it a square
-                    height: MediaQuery.of(context).size.width,
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.all(24),
-                    child: content),
-                if (rideDetails.isNotEmpty)
+        return RepaintBoundary(
+          key: globalKey,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 6,
-                      direction: Axis.horizontal,
-                      alignment: WrapAlignment.center,
-                      runAlignment: WrapAlignment.center,
-                      children: rideDetails,
+                    padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        BoldContent(text: "Deine Fahrt vom", context: context),
+                        Content(
+                          text: lastTrackDateFormatted,
+                          context: context,
+                          color: Theme.of(context).colorScheme.onBackground,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
-              ],
-            ),
-          ],
+                  const SmallVSpace(),
+                  Container(
+                    // use width as height to make it a square
+                      height: MediaQuery.of(context).size.width,
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.all(24),
+                      child: content),
+                  if (rideDetails.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Wrap(
+                        spacing: 12,
+                        runSpacing: 6,
+                        direction: Axis.horizontal,
+                        alignment: WrapAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        children: rideDetails,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          )
         );
       },
     );
