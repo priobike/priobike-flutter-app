@@ -55,31 +55,47 @@ abstract class ChallengeService with ChangeNotifier {
   int get _numberOfChoices;
 
   ChallengeService() {
-    () async {
-      await loadOpenChallenges();
+    _setUpService();
+  }
 
-      /// Set the allowNew variable to false, if there already is a challenge in the current timeframe.
-      _dao.streamChallengesInInterval(_intervalStartDay, _intervalLengthInDays).listen((update) {
-        update = update.where((challenge) => challenge.isWeekly == _isWeekly).toList();
-        _allowNew = update.isEmpty;
-      });
-    }();
+  /// Load relevant data for challenges in the services timeframge.
+  Future<void> _setUpService() async {
+    await loadOpenChallenges();
+    // Set the allowNew variable to true, if no challenge has exists for the services challenge timeframe.
+    _allowNew = (await _dao.getChallengesInInterval(_intervalStartDay, _intervalLengthInDays))
+        .where((challenge) => challenge.isWeekly == _isWeekly)
+        .isEmpty;
+    notifyListeners();
+    // Start timer to call set up method again, after the current challenge interval ended.
+    final intervalEnd = DateTime(_intervalStartDay.year, _intervalStartDay.month, _intervalStartDay.day)
+        .add(Duration(days: _intervalLengthInDays));
+    final timeTillChallengeEnd = intervalEnd.difference(DateTime.now());
+    Timer(timeTillChallengeEnd, () {
+      _currentChallengeStream?.cancel();
+      _validator?.dispose();
+      _currentChallenge == null;
+      _setUpService();
+    });
+  }
+
+  // Close a given challenge and send its data to the backend.
+  Future<void> closeChallenge(Challenge challenge) async {
+    var closedChallenge = challenge.copyWith(isOpen: false);
+    var result = await _dao.updateObject(closedChallenge);
+    if (!result) throw Exception("Couldn't save challenge in database!");
+    sendChallengeDataToBackend(closedChallenge);
   }
 
   /// If the current challenge has been completed by the user and this method is called, the challenge is closed.
   void completeChallenge() async {
     if (_currentChallenge == null) return;
     // Do nothing, if the challenge wasn't completed yet.
-    var notCompleted = _currentChallenge!.progress / _currentChallenge!.target < 1;
-    if (notCompleted) return;
+    if (_currentChallenge!.progress < _currentChallenge!.target) return;
 
     // If the challenge has been completed, cancel the challenge stream, dispose the validator, and close it.
     _currentChallengeStream?.cancel();
     _validator?.dispose();
-    var closedChallenge = _currentChallenge!.copyWith(isOpen: false);
-    var result = await _dao.updateObject(closedChallenge);
-    if (!result) throw Exception("Couldn't save challenge in database!");
-    sendChallengeDataToBackend(closedChallenge);
+    closeChallenge(_currentChallenge!);
     _currentChallenge = null;
   }
 
@@ -87,11 +103,12 @@ abstract class ChallengeService with ChangeNotifier {
   void startChallengeStream() {
     if (_currentChallenge == null) return;
     _currentChallengeStream?.cancel();
+    _validator?.dispose();
+    _validator = ChallengeValidator(challenge: _currentChallenge!);
     _currentChallengeStream = _dao.streamObjectByPrimaryKey(_currentChallenge!.id).listen((update) {
       _currentChallenge = update;
       notifyListeners();
-
-      /// Cancel the stream, if the challenge has been deleted for some reason.
+      // Cancel the stream, if the challenge has been deleted for some reason.
       if (update == null) _currentChallengeStream?.cancel();
     });
   }
@@ -99,67 +116,48 @@ abstract class ChallengeService with ChangeNotifier {
   /// This function checks if there are open challenges and either closes them or updates the current challenge.
   Future<void> loadOpenChallenges() async {
     var openChallenges = await _openChallenges;
-    // If no challenges are open, do nothing.
-    if (openChallenges.isEmpty) return;
-
     // If multiple challenges are open, those are already generated challenge choices for the user.
     if (openChallenges.length > 1) {
       _challengeChoices = openChallenges;
       notifyListeners();
-      return;
     }
-
     // If only one challenge is open, validate its progress with the current rides and determine whether it has been completed.
-    var challenge = openChallenges.first;
-    var rides = await AppDatabase.instance.rideSummaryDao.getRidesInInterval(
-      challenge.startTime,
-      challenge.closingTime,
-    );
-    await ChallengeValidator(challenge: challenge, startStream: false).validate(rides);
-    try {
-      challenge = (await AppDatabase.instance.challengeDao.getObjectByPrimaryKey(challenge.id))!;
-    } catch (e) {
-      log.e('Failed to validate open challenge');
+    else if (openChallenges.length == 1) {
+      var challenge = openChallenges.first;
+      var rides = await AppDatabase.instance.rideSummaryDao.getRidesInInterval(
+        challenge.startTime,
+        challenge.closingTime,
+      );
+      await ChallengeValidator(challenge: challenge, startStream: false).validate(rides);
+      try {
+        challenge = (await AppDatabase.instance.challengeDao.getObjectByPrimaryKey(challenge.id))!;
+      } catch (e) {
+        log.e('Failed to validate open challenge');
+      }
+      var isCompleted = challenge.progress / challenge.target >= 1;
+
+      // If an open challenge was not completed and the time did run out, close the challenge and send it to the backend.
+      if (!isCompleted && DateTime.now().isAfter(challenge.closingTime)) {
+        return closeChallenge(challenge);
+      }
+
+      // If a challenge has been completed, or it still can be completed select it as the current challenge.
+      _currentChallenge = challenge;
+      startChallengeStream();
     }
-    var isCompleted = challenge.progress / challenge.target >= 1;
-
-    // If an open challenge was not completed and the time did run out, close the challenge and send it to the backend.
-    if (!isCompleted && !currentlyActive(challenge)) {
-      var closedChallenge = challenge.copyWith(isOpen: false);
-      var result = await _dao.updateObject(closedChallenge);
-      if (result) sendChallengeDataToBackend(closedChallenge);
-      return;
-    }
-
-    // If a challenge has been completed, or it still can be completed select it as the current challenge.
-    _currentChallenge = challenge;
-    _validator = ChallengeValidator(challenge: challenge);
-    startChallengeStream();
-  }
-
-  /// Check, if a challenge is still active, which means the current timepoint is in the challenge interval.
-  bool currentlyActive(Challenge challenge) {
-    var now = DateTime.now();
-    return now.isBefore(challenge.closingTime);
   }
 
   /// If the current challenge is null, generate new challenges.
   Future<List<Challenge>?> generateChallengeChoices() async {
     if (_currentChallenge != null) return null;
     _challengeChoices.clear();
+    // Block the user from generating new challenges.
+    _allowNew = false;
     // Generate as many challenges, as choices are allowed for the user.
     var newChallenges = _generator.generateChallenges(_numberOfChoices);
     for (var c in newChallenges) {
       var challenge = await _dao.createObject(c);
-      if (challenge != null) _challengeChoices.add(challenge);
-    }
-    // If something went wrong, delete generated challenges and return null.
-    if (_challengeChoices.length != _numberOfChoices) {
-      for (var c in _challengeChoices) {
-        await _dao.deleteObject(c);
-      }
-      _challengeChoices.clear();
-      return null;
+      _challengeChoices.add(challenge!);
     }
     // Return challenge choices to user.
     return _challengeChoices;
@@ -167,7 +165,7 @@ abstract class ChallengeService with ChangeNotifier {
 
   /// Select a challenge out of the available choices and start it. Delete the other choices.
   void selectAndStartChallenge(int choiceIndex) {
-    if (_currentChallenge != null) return;
+    if (_currentChallenge != null || _challengeChoices.length < choiceIndex + 1) return;
     // Save selected challenge as current challenge.
     _currentChallenge = _challengeChoices.elementAt(choiceIndex);
     _challengeChoices.remove(_currentChallenge);
@@ -177,7 +175,6 @@ abstract class ChallengeService with ChangeNotifier {
     }
     _challengeChoices.clear();
     // Start the validator and observe changes in the challenge.
-    _validator = ChallengeValidator(challenge: _currentChallenge!);
     startChallengeStream();
   }
 

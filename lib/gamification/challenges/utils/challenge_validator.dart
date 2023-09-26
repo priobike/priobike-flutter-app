@@ -107,7 +107,7 @@ class ChallengeValidator {
       // End while loop, if the user reached the target value.
       if (streak >= _challenge.target) break;
       // End while loop, if the current day is checked, since future dates do not need to be checked.
-      if (today.isAfter(start)) break;
+      if (today.isAfter(start) && today.isBefore(end)) break;
       // Reset streak, if the checked date is not the current date and there are no rides on the route.
       if (ridesInInterval.isEmpty) streak = 0;
       // Increase the checked date.
