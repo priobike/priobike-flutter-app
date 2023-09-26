@@ -94,19 +94,23 @@ class ChallengeValidator {
     var start = DateTime(_challenge.startTime.year, _challenge.startTime.month, _challenge.startTime.day);
     var end = start.add(const Duration(days: 1));
 
+    var streak = 0;
+    final today = DateTime.now();
     // Iterate through all the days of the challenge interval, till the end of the interval or the current time
     // and increase the streak value accordingly.
-    var streak = 0;
-    while (!(end.isAfter(_challenge.closingTime) || start.isAfter(DateTime.now()))) {
+    while (end.isBefore(_challenge.closingTime)) {
       var ridesInInterval = ridesWithShortcut.where(
         (ride) => ride.startTime.isAfter(start) && ride.startTime.isBefore(end),
       );
-      if (ridesInInterval.isEmpty) {
-        streak = 0;
-      } else {
-        streak++;
-      }
+      // Update streak, if user drove the route on the checked day.
+      if (ridesInInterval.isNotEmpty) streak++;
+      // End while loop, if the user reached the target value.
       if (streak >= _challenge.target) break;
+      // End while loop, if the current day is checked, since future dates do not need to be checked.
+      if (today.isAfter(start)) break;
+      // Reset streak, if the checked date is not the current date and there are no rides on the route.
+      if (ridesInInterval.isEmpty) streak = 0;
+      // Increase the checked date.
       start = start.add(const Duration(days: 1));
       end = end.add(const Duration(days: 1));
     }
