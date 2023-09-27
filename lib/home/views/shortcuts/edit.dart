@@ -270,7 +270,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
               // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
               if (context.mounted) {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const RoutingView())).then(
                   (comingNotFromRoutingView) {
                     if (comingNotFromRoutingView == null) {
                       routing.reset();
