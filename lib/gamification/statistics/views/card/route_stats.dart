@@ -8,7 +8,6 @@ import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/views/route_goals_in_week.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
@@ -121,7 +120,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
             ],
           ),
         ),
-        if (_routeShortcut != null && _routeShortcut is ShortcutRoute)
+        if (_routeShortcut != null)
           Positioned(
             top: 24,
             child: Container(
@@ -132,7 +131,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
               padding: const EdgeInsets.all(4),
               child: ShortcutPictogram(
                 key: ValueKey(_routeShortcut!.hashCode),
-                shortcut: _routeShortcut as ShortcutRoute,
+                shortcut: _routeShortcut,
                 height: 112,
                 color: CI.blue,
               ),
