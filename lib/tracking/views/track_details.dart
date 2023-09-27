@@ -152,14 +152,34 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       totalDistance += vincenty.distance(coordinates[i], coordinates[i + 1]);
     }
     // Aggregate the duration.
-    final now = positions.last.timestamp;
     final start = positions.first.timestamp;
-    if (now == null || start == null) return;
-    final totalDuration = now.difference(start).inMilliseconds;
+    final end = positions.last.timestamp;
+    if (end == null || start == null) return;
+    final totalDuration = end.difference(start).inMilliseconds;
 
     // Create the summary.
     distanceMeters = totalDistance;
     durationSeconds = totalDuration / 1000;
+  }
+
+  /// Helper method to format the duration of the track.
+  String? _formatDuration() {
+    if (durationSeconds == null) return null;
+    if (durationSeconds! < 60) {
+      // Show only seconds.
+      final seconds = durationSeconds!.floor();
+      return "${seconds}s";
+    } else if (durationSeconds! < 3600) {
+      // Show minutes and seconds.
+      final minutes = (durationSeconds! / 60).floor();
+      final seconds = (durationSeconds! - (minutes * 60)).floor();
+      return "${minutes}min ${seconds}s";
+    } else {
+      // Show only hours and minutes.
+      final hours = (durationSeconds! / 3600).floor();
+      final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
+      return "${hours}h ${minutes}min";
+    }
   }
 
   @override
@@ -177,16 +197,19 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
     );
 
-    final totalDurationMinutes = durationSeconds == null ? 0 : durationSeconds! / 60;
+    final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
     final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
-    final averageSpeedKmH = totalDurationMinutes == 0 ? 0 : (totalDistanceKilometres / totalDurationMinutes) * 3.6;
+    final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+
+    String? timeToDisplay = _formatDuration();
+
     const co2PerKm = 0.1187; // Data according to statista.com in KG
     final savedCo2inG = distanceMeters == null && durationSeconds == null
         ? 0
         : (distanceMeters! / 1000) * (durationSeconds! / 3600) * co2PerKm * 1000;
 
     final List<Widget> rideDetails;
-    if (distanceMeters != null && durationSeconds != null) {
+    if (distanceMeters != null && durationSeconds != null && timeToDisplay != null) {
       rideDetails = [
         Column(
           children: [
@@ -195,7 +218,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               style: headerTextStyle,
             ),
             Text(
-              formatDuration(Duration(seconds: durationSeconds!.toInt())),
+              timeToDisplay,
               style: cellTextStyle,
             ),
           ],
