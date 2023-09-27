@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
+import 'package:priobike/home/views/main.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 
 /// Show a dialog if the location provider was denied.
@@ -20,6 +21,15 @@ void showLocationAccessDeniedDialog(BuildContext context, PositionSource? positi
           BigButton(
             label: 'Einstellungen öffnen',
             onPressed: () => positionSource?.openLocationSettings(),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+          ),
+          BigButton(
+            label: "Zum Startbildschirm",
+            onPressed: () => {
+              // pop all views and return to home view
+              Navigator.of(context).popUntil((route) => route.isFirst),
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomeView())),
+            },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           ),
         ],
