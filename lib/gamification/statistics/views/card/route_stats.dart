@@ -121,7 +121,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
             ],
           ),
         ),
-        if (_routeShortcut != null && _routeShortcut is ShortcutRoute)
+        if (_routeShortcut != null)
           Positioned(
             top: 24,
             child: Container(
@@ -132,7 +132,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
               padding: const EdgeInsets.all(4),
               child: ShortcutPictogram(
                 key: ValueKey(_routeShortcut!.hashCode),
-                shortcut: _routeShortcut as ShortcutRoute,
+                shortcut: _routeShortcut,
                 height: 112,
                 color: CI.blue,
               ),
