@@ -105,7 +105,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the track.
   Future<void> loadTrack() async {
-    if (positions.isNotEmpty) return;
+    positions.clear();
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
@@ -134,7 +134,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         );
       }
 
-      await loadTrackSummary();
+      loadTrackSummary();
 
       setState(() {});
     } catch (e) {
@@ -142,7 +142,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     }
   }
 
-  Future<void> loadTrackSummary() async {
+  /// Load the track summary and calculate the driven distance & duration.
+  void loadTrackSummary() {
     if (positions.isEmpty) return;
 
     final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
@@ -200,15 +201,14 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
     final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-    String? timeToDisplay = _formatDuration();
+    String? formattedTime = _formatDuration();
 
     const co2PerKm = 0.1187; // Data according to statista.com in KG
-    final savedCo2inG = distanceMeters == null && durationSeconds == null
-        ? 0
-        : (distanceMeters! / 1000) * (durationSeconds! / 3600) * co2PerKm * 1000;
+    final savedCo2inG =
+        distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
 
     final List<Widget> rideDetails;
-    if (distanceMeters != null && durationSeconds != null && timeToDisplay != null) {
+    if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
       rideDetails = [
         Column(
           children: [
@@ -217,7 +217,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
               style: headerTextStyle,
             ),
             Text(
-              timeToDisplay,
+              formattedTime,
               style: cellTextStyle,
             ),
           ],
