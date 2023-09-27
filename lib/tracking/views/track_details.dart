@@ -11,7 +11,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
 
