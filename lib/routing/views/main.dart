@@ -304,6 +304,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Return to the home view.
   Future<void> _onReturnToHomeView() async {
+    Navigator.of(context).popUntil((route) => route.isFirst);
     await Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
     );

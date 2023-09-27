@@ -112,6 +112,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
 
               if (context.mounted) {
                 // Return to the home view.
+                Navigator.of(context).popUntil((route) => route.isFirst);
                 await Navigator.of(context).pushReplacement(
                   MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
                 );
