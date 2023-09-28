@@ -143,9 +143,9 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   @override
   Widget build(BuildContext context) {
     if (widget.type == TrackHistoryItemType.tile) {
-      return _buildTile(context);
+      return _renderAsTile(context);
     } else if (widget.type == TrackHistoryItemType.details) {
-      return _buildDetails(context);
+      return _renderAsDetails(context);
     } else {
       throw Exception("Unknown view type: ${widget.type}");
     }
@@ -212,7 +212,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     }
   }
 
-  Widget _buildTile(BuildContext context) {
+  Widget _renderAsTile(BuildContext context) {
     // Calculate the relative date
     var relativeTime = "";
     final now = DateTime.now();
@@ -335,7 +335,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
-  Widget _buildDetails(BuildContext context) {
+  Widget _renderAsDetails(BuildContext context) {
     final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
     final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
 
