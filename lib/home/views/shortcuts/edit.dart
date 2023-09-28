@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -17,6 +19,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Show a sheet to edit the current shortcuts name.
 void showEditShortcutSheet(context, int idx) {
@@ -148,6 +151,20 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     showEditShortcutSheet(context, idx);
   }
 
+  /// A callback that is executed when a shortcut should be shared.
+  Future<void> onShareShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
+    final Shortcut shortcut = shortcuts.shortcuts!.toList()[idx];
+    final Map<String, dynamic> shortcutJson = shortcut.toJson();
+    final str = json.encode(shortcutJson);
+    final bytes = utf8.encode(str);
+    final base64Str = base64.encode(bytes);
+    const scheme = 'https';
+    const host = 'www.priobike.de';
+    const route = 'import-shortcut';
+    await Share.share('$scheme://$host/$route/$base64Str', subject: 'shared shortcut');
+  }
+
   /// Widget that displays a shortcut.
   Widget shortcutListItem(Shortcut shortcut, int key) {
     return Container(
@@ -221,6 +238,14 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 Row(
                   children: [
                     const HSpace(),
+                    !editMode
+                        ? SmallIconButton(
+                            icon: Icons.share_rounded,
+                            onPressed: () => onShareShortcut(key),
+                            fill: Theme.of(context).colorScheme.background,
+                          )
+                        : Container(),
+                    const SmallHSpace(),
                     editMode
                         ? SmallIconButton(
                             icon: Icons.edit,
