@@ -10,7 +10,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/home/views/main.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -132,12 +131,17 @@ class RoutingViewState extends State<RoutingView> {
     // We need to send a result (true) to inform the result handler in the HomeView that we do not want to reset
     // the services. This is only wanted when we pop the routing view in case of a back navigation (e.g. by back button)
     // from the routing view to the home view.
-    void startRide() => Navigator.pushReplacement<void, bool>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => const RideView(),
-        ),
-        result: true);
+    void startRide() {
+      // pop the routing view first so pushReplacement removes the home view from the widget tree
+      // otherwise pushReplacement only removes the routing view and the home view is still in the widget tree
+      Navigator.of(context).pop(true);
+      Navigator.pushReplacement<void, bool>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => const RideView(),
+          ),
+          result: true);
+    }
 
     final settings = getIt<Settings>();
     if (settings.didViewWarning) {
@@ -243,7 +247,7 @@ class RoutingViewState extends State<RoutingView> {
                           const VSpace(),
                           BigButton(
                             label: "Zurück zum Hauptmenu",
-                            onPressed: () => _onReturnToHomeView(),
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
                         ],
                       )
@@ -302,23 +306,13 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
-  /// Return to the home view.
-  Future<void> _onReturnToHomeView() async {
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: WillPopScope(
-        onWillPop: () => _onReturnToHomeView().then(
-          (value) => true,
-        ),
+        onWillPop: () => Future.value(true),
         child: Scaffold(
           body: NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
@@ -338,7 +332,7 @@ class RoutingViewState extends State<RoutingView> {
                     padding: const EdgeInsets.only(top: 8),
                     child: AppBackButton(
                       icon: Icons.chevron_left_rounded,
-                      onPressed: () => _onReturnToHomeView(),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
                 ),

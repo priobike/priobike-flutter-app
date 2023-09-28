@@ -226,7 +226,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
   /// If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
   void pushRoutingView() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           routing.reset();

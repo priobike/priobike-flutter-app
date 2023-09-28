@@ -92,8 +92,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
     }
     // Select shortcut for routing.
     getIt<Routing>().selectShortcut(shortcut);
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           getIt<Routing>().reset();

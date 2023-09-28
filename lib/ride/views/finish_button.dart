@@ -87,8 +87,11 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final position = getIt<Positioning>();
     await position.stopGeolocation();
 
+    // Show the feedback dialog.
     if (mounted) {
-      // Show the feedback dialog.
+      // Pop everything until ride view is reached and then replace it with the feedback view.
+      // Otherwise the ride view stays in the widget tree and is shown for a split seconds after closing the feedback view.
+      Navigator.of(context).popUntil((route) => route.isFirst);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => FeedbackView(
@@ -112,7 +115,6 @@ class FinishRideButtonState extends State<FinishRideButton> {
 
               if (context.mounted) {
                 // Return to the home view.
-                Navigator.of(context).popUntil((route) => route.isFirst);
                 await Navigator.of(context).pushReplacement(
                   MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
                 );
