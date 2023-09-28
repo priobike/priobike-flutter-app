@@ -237,7 +237,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 ),
                 if (startImage != null && destinationImage != null)
                   TrackHistoryItemView(
-                    type: TrackHistoryItemViewType.details,
+                    type: TrackHistoryItemType.details,
                     track: tracking.previousTracks!.last,
                     startImage: startImage!,
                     destinationImage: destinationImage!,

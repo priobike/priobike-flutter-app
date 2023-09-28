@@ -18,7 +18,7 @@ import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
 
-enum TrackHistoryItemViewType {
+enum TrackHistoryItemType {
   /// The history item is displayed as a tile.
   tile,
 
@@ -28,7 +28,7 @@ enum TrackHistoryItemViewType {
 
 class TrackHistoryItemView extends StatefulWidget {
   /// The type of the view.
-  final TrackHistoryItemViewType type;
+  final TrackHistoryItemType type;
 
   /// The track to display.
   final Track track;
@@ -142,9 +142,9 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.type == TrackHistoryItemViewType.tile) {
+    if (widget.type == TrackHistoryItemType.tile) {
       return _buildTile(context);
-    } else if (widget.type == TrackHistoryItemViewType.details) {
+    } else if (widget.type == TrackHistoryItemType.details) {
       return _buildDetails(context);
     } else {
       throw Exception("Unknown view type: ${widget.type}");
@@ -153,7 +153,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
 
   /// Show a dialog that asks if the track really shoud be deleted.
   void _showDeleteDialog(BuildContext context) {
-    if (widget.type != TrackHistoryItemViewType.tile) throw Exception("Can only delete tracks from the tile view.");
+    if (widget.type != TrackHistoryItemType.tile) throw Exception("Can only delete tracks from the tile view.");
 
     showGeneralDialog(
       context: context,
@@ -191,7 +191,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
 
   /// Helper method to format the duration of the track.
   String? _formatDuration() {
-    if (widget.type != TrackHistoryItemViewType.details) {
+    if (widget.type != TrackHistoryItemType.details) {
       throw Exception("Can only format the duration in details view.");
     }
     if (durationSeconds == null) return null;
@@ -245,7 +245,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
           context: context,
           isScrollControlled: true,
           builder: (context) => TrackHistoryItemView(
-            type: TrackHistoryItemViewType.details,
+            type: TrackHistoryItemType.details,
             track: widget.track,
             startImage: widget.startImage,
             destinationImage: widget.destinationImage,
