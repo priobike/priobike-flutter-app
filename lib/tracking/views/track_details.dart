@@ -105,7 +105,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the track.
   Future<void> loadTrack() async {
-    positions.clear();
+    if (positions.isNotEmpty) return;
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
@@ -168,17 +168,17 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     if (durationSeconds! < 60) {
       // Show only seconds.
       final seconds = durationSeconds!.floor();
-      return "${seconds}s";
+      return "$seconds s";
     } else if (durationSeconds! < 3600) {
       // Show minutes and seconds.
       final minutes = (durationSeconds! / 60).floor();
       final seconds = (durationSeconds! - (minutes * 60)).floor();
-      return "${minutes}min ${seconds}s";
+      return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
     } else {
       // Show only hours and minutes.
       final hours = (durationSeconds! / 3600).floor();
       final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
-      return "${hours}h ${minutes}min";
+      return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
     }
   }
 
