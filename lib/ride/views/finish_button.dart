@@ -89,7 +89,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
 
     if (mounted) {
       // Show the feedback dialog.
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => FeedbackView(
             onSubmitted: (context) async {
