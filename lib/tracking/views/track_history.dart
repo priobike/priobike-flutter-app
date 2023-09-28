@@ -122,6 +122,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         .map(
           (track) => TrackHistoryItemView(
             key: UniqueKey(),
+            type: TrackHistoryItemViewType.tile,
             track: track,
             width: shortcutWidth,
             startImage: startImage!,

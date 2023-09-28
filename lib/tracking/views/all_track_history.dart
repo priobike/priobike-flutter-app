@@ -172,6 +172,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                                 delay: Duration(milliseconds: 200 * track.key),
                                 child: TrackHistoryItemView(
                                   key: ValueKey(track.value.sessionId),
+                                  type: TrackHistoryItemViewType.tile,
                                   track: track.value,
                                   width: shortcutWidth,
                                   startImage: startImage!,

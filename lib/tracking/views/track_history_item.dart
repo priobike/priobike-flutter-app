@@ -10,20 +10,31 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
-import 'package:priobike/tracking/views/track_details.dart';
+
+enum TrackHistoryItemViewType {
+  /// The history item is displayed as a tile.
+  tile,
+
+  /// The history item is displayed as a detailed view.
+  details,
+}
 
 class TrackHistoryItemView extends StatefulWidget {
+  /// The type of the view.
+  final TrackHistoryItemViewType type;
+
   /// The track to display.
   final Track track;
 
   /// The width of the view.
-  final double width;
+  final double? width;
 
   /// The image of the route start icon.
   final ui.Image startImage;
@@ -33,10 +44,11 @@ class TrackHistoryItemView extends StatefulWidget {
 
   const TrackHistoryItemView({
     Key? key,
+    required this.type,
     required this.track,
-    required this.width,
     required this.startImage,
     required this.destinationImage,
+    this.width,
   }) : super(key: key);
 
   @override
@@ -63,14 +75,14 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        await loadTrack();
+        await _loadTrack();
         if (mounted) setState(() {});
       },
     );
   }
 
   /// Load the track.
-  Future<void> loadTrack() async {
+  Future<void> _loadTrack() async {
     if (positions.isNotEmpty) return;
 
     // Try to load the GPS file.
@@ -100,7 +112,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         );
       }
 
-      loadTrackSummary();
+      _loadTrackSummary();
 
       setState(() {});
     } catch (e) {
@@ -109,7 +121,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   }
 
   /// Load the track summary and calculate the driven distance & duration.
-  void loadTrackSummary() {
+  void _loadTrackSummary() {
     if (positions.isEmpty) return;
 
     final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
@@ -128,8 +140,21 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     durationSeconds = (totalDuration / 1000).floorToDouble().toInt();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    if (widget.type == TrackHistoryItemViewType.tile) {
+      return _buildTile(context);
+    } else if (widget.type == TrackHistoryItemViewType.details) {
+      return _buildDetails(context);
+    } else {
+      throw Exception("Unknown view type: ${widget.type}");
+    }
+  }
+
   /// Show a dialog that asks if the track really shoud be deleted.
-  void showDeleteDialog(BuildContext context) {
+  void _showDeleteDialog(BuildContext context) {
+    if (widget.type != TrackHistoryItemViewType.tile) throw Exception("Can only delete tracks from the tile view.");
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -164,8 +189,30 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  /// Helper method to format the duration of the track.
+  String? _formatDuration() {
+    if (widget.type != TrackHistoryItemViewType.details) {
+      throw Exception("Can only format the duration in details view.");
+    }
+    if (durationSeconds == null) return null;
+    if (durationSeconds! < 60) {
+      // Show only seconds.
+      final seconds = durationSeconds!.floor();
+      return "$seconds s";
+    } else if (durationSeconds! < 3600) {
+      // Show minutes and seconds.
+      final minutes = (durationSeconds! / 60).floor();
+      final seconds = (durationSeconds! - (minutes * 60)).floor();
+      return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
+    } else {
+      // Show only hours and minutes.
+      final hours = (durationSeconds! / 3600).floor();
+      final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
+      return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
+    }
+  }
+
+  Widget _buildTile(BuildContext context) {
     // Calculate the relative date
     var relativeTime = "";
     final now = DateTime.now();
@@ -197,8 +244,12 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         onPressed: () => showAppSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => TrackDetailsDialog(
-              track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
+          builder: (context) => TrackHistoryItemView(
+            type: TrackHistoryItemViewType.details,
+            track: widget.track,
+            startImage: widget.startImage,
+            destinationImage: widget.destinationImage,
+          ),
         ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: 0.08,
@@ -265,7 +316,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                       : Colors.black.withOpacity(0.25),
                 ),
                 child: IconButton(
-                  onPressed: () => showDeleteDialog(context),
+                  onPressed: () => _showDeleteDialog(context),
                   visualDensity: VisualDensity.compact,
                   icon: Icon(
                     Icons.delete_rounded,
@@ -281,6 +332,166 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDetails(BuildContext context) {
+    final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+    final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
+
+    final headerTextStyle = TextStyle(
+      fontSize: 11,
+      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+    );
+
+    final cellTextStyle = TextStyle(
+      fontSize: 14,
+      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+    );
+
+    final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
+    final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
+    final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+
+    String? formattedTime = _formatDuration();
+
+    const co2PerKm = 0.1187; // Data according to statista.com in KG
+    final savedCo2inG =
+        distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+
+    final List<Widget> rideDetails;
+    if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
+      rideDetails = [
+        Column(
+          children: [
+            Text(
+              "Dauer",
+              style: headerTextStyle,
+            ),
+            Text(
+              formattedTime,
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              "Distanz",
+              style: headerTextStyle,
+            ),
+            Text(
+              distanceMeters! >= 1000
+                  ? "${(distanceMeters! / 1000).toStringAsFixed(2)} km"
+                  : "${distanceMeters!.toStringAsFixed(0)} m",
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              "Geschwindigkeit",
+              style: headerTextStyle,
+            ),
+            Text(
+              "Ø ${averageSpeedKmH.toStringAsFixed(2)} km/h",
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              "CO2 gespart",
+              style: headerTextStyle,
+            ),
+            Text(
+              savedCo2inG >= 1000
+                  ? "${(savedCo2inG / 1000).toStringAsFixed(2)} kg"
+                  : "${savedCo2inG.toStringAsFixed(2)} g",
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+      ];
+    } else {
+      rideDetails = [];
+    }
+
+    return Wrap(
+      children: [
+        Column(
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          BoldContent(text: "Deine Fahrt vom", context: context),
+                          Content(
+                            text: lastTrackDateFormatted,
+                            context: context,
+                            color: Theme.of(context).colorScheme.onBackground,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SmallVSpace(),
+                    Container(
+                      // use width as height to make it a square
+                      height: MediaQuery.of(context).size.width,
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.all(24),
+                      child: positions.isNotEmpty
+                          ? Tile(
+                              padding: const EdgeInsets.all(0),
+                              borderRadius: BorderRadius.circular(20),
+                              content: TrackPictogram(
+                                key: ValueKey(widget.track.sessionId),
+                                track: positions,
+                                colors: const [
+                                  CI.blue,
+                                  CI.red,
+                                ],
+                                blurRadius: 2,
+                                startImage: widget.startImage,
+                                destinationImage: widget.destinationImage,
+                                iconSize: 16,
+                                lineWidth: 6,
+                              ),
+                            )
+                          : Center(
+                              child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
+                            ),
+                    ),
+                    if (rideDetails.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 6,
+                          direction: Axis.horizontal,
+                          alignment: WrapAlignment.center,
+                          runAlignment: WrapAlignment.center,
+                          children: rideDetails,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+            const VSpace(),
+          ],
+        ),
+      ],
     );
   }
 }
