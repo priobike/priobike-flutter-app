@@ -310,6 +310,7 @@ class RouteSearchState extends State<RouteSearch> {
       (_) async {
         await positioning.requestSingleLocation(
           onNoPermission: () {
+            Navigator.of(context).pop();
             showLocationAccessDeniedDialog(context, positioning.positionSource);
           },
         );

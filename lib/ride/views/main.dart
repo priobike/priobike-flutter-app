@@ -96,6 +96,7 @@ class RideViewState extends State<RideView> {
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           onNoPermission: () {
+            Navigator.of(context).pop();
             showLocationAccessDeniedDialog(context, positioning.positionSource);
           },
           onNewPosition: () async {
