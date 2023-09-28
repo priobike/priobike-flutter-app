@@ -105,7 +105,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
   /// Load the track.
   Future<void> loadTrack() async {
-    positions.clear();
+    if (positions.isNotEmpty) return;
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
