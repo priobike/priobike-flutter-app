@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
@@ -44,6 +46,7 @@ import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:flutter/rendering.dart';
+import 'home/models/shortcut_route.dart';
 
 final log = Logger("main.dart");
 
@@ -133,10 +136,30 @@ class App extends StatelessWidget {
         final settings = GetIt.instance.get<Settings>();
         settings.addListener(() => setState(() {}));
 
-        return MaterialApp(
+        return MaterialApp.router(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
-          navigatorObservers: [routeObserver],
+          // navigatorObservers: [routeObserver],
+          routerConfig: GoRouter(routes: [
+            GoRoute(
+              path: '/',
+              builder: (_, __) => const PrivacyPolicyView(child: Loader()),
+            ),
+            GoRoute(
+              path: '/import/:shortcut',
+              builder: (context, state) {
+                final shortcutBase64 = state.pathParameters['shortcut'];
+                if (shortcutBase64 == null) return const PrivacyPolicyView(child: Loader());
+                final shortcutBytes = base64.decode(shortcutBase64);
+                final shortcutUTF8 = utf8.decode(shortcutBytes);
+                final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
+                shortcutJson['id'] = UniqueKey().toString();
+                final shortcut = ShortcutRoute.fromJson(shortcutJson);
+                getIt<Shortcuts>().saveNewShortcutObject(shortcut);
+                return const PrivacyPolicyView(child: Loader());
+              },
+            ),
+          ]),
           theme: ThemeData(
             dialogBackgroundColor: const Color(0xFFFFFFFF),
             fontFamily: 'HamburgSans',
@@ -257,8 +280,7 @@ class App extends StatelessWidget {
                   // Fallback to the system preference.
                   : ThemeMode.system,
           // The navigator key is used to access the app's build context.
-          navigatorKey: navigatorKey,
-          home: const PrivacyPolicyView(child: Loader()),
+          // navigatorKey: navigatorKey,
         );
       },
     );

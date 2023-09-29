@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -92,14 +91,14 @@ class LoaderState extends State<Loader> {
       await getIt<Ride>().loadLastRoute();
       await getIt<EventService>().fetchData();
       await MapboxTileImageCache.pruneUnusedImages();
-      getIt<EvaluationDataService>().sendUnsentElements();
+      await getIt<EvaluationDataService>().sendUnsentElements();
 
-      settings.incrementUseCounter();
+      // settings.incrementUseCounter();
     } catch (e, stacktrace) {
       log.e("Error while loading services $e\n $stacktrace");
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
-      settings.incrementConnectionErrorCounter();
+      // settings.incrementConnectionErrorCounter();
       return;
     }
 
@@ -107,14 +106,18 @@ class LoaderState extends State<Loader> {
     setState(() {
       shouldMorph = true;
       hasError = false;
-      settings.resetConnectionErrorCounter();
     });
+    // settings.resetConnectionErrorCounter();
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
-    setState(() => isLoading = false);
+    setState(() {
+      isLoading = false;
+    });
     // Make this an additional step so that the animation is smooth.
     await Future.delayed(const Duration(milliseconds: 10));
-    setState(() => shouldBlendIn = true);
+    setState(() {
+      shouldBlendIn = true;
+    });
   }
 
   @override
@@ -122,16 +125,7 @@ class LoaderState extends State<Loader> {
     super.initState();
 
     settings = getIt<Settings>();
-    settings.addListener(update);
-
-    // Init the view once the app is ready.
-    SchedulerBinding.instance.addPostFrameCallback((_) => init());
-  }
-
-  @override
-  void dispose() {
-    settings.removeListener(update);
-    super.dispose();
+    init();
   }
 
   _resetData() async {

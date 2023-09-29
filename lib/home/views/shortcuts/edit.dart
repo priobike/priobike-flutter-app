@@ -160,8 +160,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     final bytes = utf8.encode(str);
     final base64Str = base64.encode(bytes);
     const scheme = 'https';
-    const host = 'www.priobike.de';
-    const route = 'import-shortcut';
+    const host = 'priobike.example.test';
+    const route = 'import';
     await Share.share('$scheme://$host/$route/$base64Str', subject: 'shared shortcut');
   }
 

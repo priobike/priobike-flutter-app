@@ -314,52 +314,51 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         }
 
         return RepaintBoundary(
-          key: globalKey,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        BoldContent(text: "Deine Fahrt vom", context: context),
-                        Content(
-                          text: lastTrackDateFormatted,
-                          context: context,
-                          color: Theme.of(context).colorScheme.onBackground,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SmallVSpace(),
-                  Container(
-                    // use width as height to make it a square
-                      height: MediaQuery.of(context).size.width,
-                      width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.all(24),
-                      child: content),
-                  if (rideDetails.isNotEmpty)
+            key: globalKey,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 6,
-                        direction: Axis.horizontal,
-                        alignment: WrapAlignment.center,
-                        runAlignment: WrapAlignment.center,
-                        children: rideDetails,
+                      padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          BoldContent(text: "Deine Fahrt vom", context: context),
+                          Content(
+                            text: lastTrackDateFormatted,
+                            context: context,
+                            color: Theme.of(context).colorScheme.onBackground,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
-                ],
-              ),
-            ],
-          )
-        );
+                    const SmallVSpace(),
+                    Container(
+                        // use width as height to make it a square
+                        height: MediaQuery.of(context).size.width,
+                        width: MediaQuery.of(context).size.width,
+                        padding: const EdgeInsets.all(24),
+                        child: content),
+                    if (rideDetails.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 6,
+                          direction: Axis.horizontal,
+                          alignment: WrapAlignment.center,
+                          runAlignment: WrapAlignment.center,
+                          children: rideDetails,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ));
       },
     );
   }
