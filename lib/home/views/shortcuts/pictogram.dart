@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -165,6 +167,24 @@ class ShortcutRoutePainter extends CustomPainter {
     final bbox = MapboxMapProjection.mercatorBoundingBox(waypoints.map((e) => LatLng(e.lat, e.lon)).toList());
     if (bbox == null) return;
 
+    List<double> distances = [];
+    double maxDistance = 0.0;
+    for (var i = 0; i < waypointCount - 1; i++) {
+      final waypoint1 = waypoints[i];
+      final waypoint2 = waypoints[i + 1];
+      final distance = sqrt(pow(waypoint2.lat - waypoint1.lat, 2) + pow(waypoint2.lon - waypoint1.lon, 2));
+      if (distance > maxDistance) maxDistance = distance;
+      distances.add(distance);
+    }
+
+    // #steps heuristic
+    List<int> steps = [];
+    final distancesCount = distances.length;
+    for (var i = 0; i < distancesCount; i++) {
+      final step = (15 * distances[i] / maxDistance).ceil();
+      steps.add(step);
+    }
+
     // Draw the lines between the waypoints
     for (var i = 0; i < waypointCount - 1; i++) {
       final waypoint1 = waypoints[i];
@@ -175,15 +195,32 @@ class ShortcutRoutePainter extends CustomPainter {
       final x2 = (waypoint2.lon - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
       final y2 = (waypoint2.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
-      // Draw a dashed line between the waypoints
-      const dashCount = 5;
-      for (var j = 0; j < dashCount; j++) {
-        final x1_ = x1 + (x2 - x1) / dashCount * j;
-        final y1_ = y1 + (y2 - y1) / dashCount * j;
-        final x2_ = x1 + (x2 - x1) / dashCount * (j + 1);
-        final y2_ = y1 + (y2 - y1) / dashCount * (j + 1);
+      // Draw a dashed ballistic line between the waypoints
+      // offset
+      final x2Off = x2 - x1;
+      final y2Off = y2 - y1;
+      // rotation
+      double rotX(double x, double y, double alpha) {
+        return x * cos(alpha) - y * sin(alpha);
+      }
 
-        if (j % 2 == 0) canvas.drawLine(Offset(x1_, y1_), Offset(x2_, y2_), paint);
+      double rotY(double x, double y, double alpha) {
+        return x * sin(alpha) + y * cos(alpha);
+      }
+
+      final alphaOff = atan((y2Off) / (x2Off));
+      final x2Rot = rotX(x2Off, y2Off, -alphaOff);
+      double x1_ = x1;
+      double y1_ = y1;
+      int j = 0;
+      for (var x = 0.0; x.abs() < (x2Rot - (x2Rot / steps[i])).abs(); x += x2Rot / steps[i]) {
+        double y = 0.02 * (pow(x, 2) - x2Rot * x);
+        double x2_ = rotX(x, y, alphaOff) + x1;
+        double y2_ = rotY(x, y, alphaOff) + y1;
+        if (j % 4 == 0) canvas.drawLine(Offset(x1_, y1_), Offset(x2_, y2_), paint);
+        x1_ = x2_;
+        y1_ = y2_;
+        j++;
       }
     }
 
