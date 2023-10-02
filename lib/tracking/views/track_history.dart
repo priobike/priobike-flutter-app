@@ -120,7 +120,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
     views += newestTracks
         .map(
-          (track) => TrackHistoryItemView(
+          (track) => TrackHistoryItemTileView(
             key: UniqueKey(),
             track: track,
             width: shortcutWidth,

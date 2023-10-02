@@ -15,7 +15,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/views/track_details.dart';
+import 'package:priobike/tracking/views/track_history_item.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -236,7 +236,7 @@ class FeedbackViewState extends State<FeedbackView> {
                   }(),
                 ),
                 if (startImage != null && destinationImage != null)
-                  TrackDetailsView(
+                  TrackHistoryItemDetailView(
                     track: tracking.previousTracks!.last,
                     startImage: startImage!,
                     destinationImage: destinationImage!,
