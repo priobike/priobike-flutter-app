@@ -5,7 +5,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -44,14 +43,8 @@ class TrackHistoryItemView extends StatefulWidget {
 }
 
 class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
-  /// The distance model.
-  final vincenty = const Distance(roundResult: false);
-
   /// The GPS positions of the driven route.
   List<Position> positions = [];
-
-  /// The driven distance in meters.
-  double? distanceMeters;
 
   /// The duration of the track in seconds.
   int? durationSeconds;
@@ -112,19 +105,12 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   void loadTrackSummary() {
     if (positions.isEmpty) return;
 
-    final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
-    var totalDistance = 0.0;
-    for (var i = 0; i < positions.length - 1; i++) {
-      totalDistance += vincenty.distance(coordinates[i], coordinates[i + 1]);
-    }
     // Aggregate the duration.
     final start = positions.first.timestamp;
     final end = positions.last.timestamp;
     if (end == null || start == null) return;
     final totalDuration = end.difference(start).inMilliseconds;
 
-    // Create the summary.
-    distanceMeters = totalDistance;
     durationSeconds = (totalDuration / 1000).floorToDouble().toInt();
   }
 
