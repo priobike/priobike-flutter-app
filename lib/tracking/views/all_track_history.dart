@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
@@ -113,7 +115,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       }
     }
 
-    // Add the size of alle saved background images.
+    // Add the size of all saved background images.
     bytes += await MapboxTileImageCache.calculateTotalSize();
 
     // Format the bytes.
@@ -132,6 +134,43 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   void dispose() {
     tracking.removeListener(update);
     super.dispose();
+  }
+
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Alle Fahrten löschen',
+          text: "Bitte bestätige, dass du die gespeicherten Fahrten löschen möchtest.",
+          icon: Icons.delete_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_forever_rounded,
+              fillColor: CI.red,
+              label: "Löschen",
+              onPressed: () {
+                tracking.deleteAllTracks();
+                update();
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+            BigButton(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -153,6 +192,15 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                       AppBackButton(onPressed: () => Navigator.pop(context)),
                       const HSpace(),
                       SubHeader(text: "Alle Fahrten", context: context),
+                      const Spacer(),
+                      if (previousTracks.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: shortcutRightPad),
+                          child: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => showDeleteDialog(context),
+                          ),
+                        ),
                     ],
                   ),
                   const VSpace(),
@@ -170,7 +218,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                                 duration: const Duration(milliseconds: 500),
                                 curve: Curves.easeInOutCubic,
                                 delay: Duration(milliseconds: 200 * track.key),
-                                child: TrackHistoryItemView(
+                                child: TrackHistoryItemTileView(
                                   key: ValueKey(track.value.sessionId),
                                   track: track.value,
                                   width: shortcutWidth,

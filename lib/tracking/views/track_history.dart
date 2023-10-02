@@ -49,7 +49,6 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   /// Load the routes.
   Future<void> loadRoutes() async {
     if (tracking.previousTracks == null) return;
-    if (tracking.previousTracks!.isEmpty) return;
 
     newestTracks.clear();
     totalTracks = 0;
@@ -105,10 +104,11 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 12;
-    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
     if (startImage == null || destinationImage == null) return Container();
     if (newestTracks.isEmpty) return Container();
+
+    const double shortcutRightPad = 12;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
     List<Widget> views = [
       AnimatedContainer(
@@ -120,7 +120,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
     views += newestTracks
         .map(
-          (track) => TrackHistoryItemView(
+          (track) => TrackHistoryItemTileView(
             key: UniqueKey(),
             track: track,
             width: shortcutWidth,

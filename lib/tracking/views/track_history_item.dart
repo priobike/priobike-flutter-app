@@ -5,68 +5,40 @@ import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
-import 'package:priobike/tracking/views/track_details.dart';
 
-class TrackHistoryItemView extends StatefulWidget {
-  /// The track to display.
-  final Track track;
+mixin TrackHistoryItem {
+  /// The distance model.
+  final vincenty = const Distance(roundResult: false);
 
-  /// The width of the view.
-  final double width;
-
-  /// The image of the route start icon.
-  final ui.Image startImage;
-
-  /// The image of the route destination icon.
-  final ui.Image destinationImage;
-
-  const TrackHistoryItemView({
-    Key? key,
-    required this.track,
-    required this.width,
-    required this.startImage,
-    required this.destinationImage,
-  }) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => TrackHistoryItemViewState();
-}
-
-class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   /// The GPS positions of the driven route.
   List<Position> positions = [];
 
-  @override
-  void initState() {
-    super.initState();
-    initializeDateFormatting();
+  /// The driven distance in meters.
+  double? distanceMeters;
 
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) async {
-        await loadTrack();
-        if (mounted) setState(() {});
-      },
-    );
-  }
+  /// The duration of the track in seconds.
+  int? durationSeconds;
 
   /// Load the track.
-  Future<void> loadTrack() async {
-    positions.clear();
+  Future<void> _loadTrack(Track track) async {
+    if (positions.isNotEmpty) return;
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
     try {
-      final gpsFile = await widget.track.gpsCSVFile;
+      final gpsFile = await track.gpsCSVFile;
       final gpsFileLines = await gpsFile.readAsLines();
       // Skip the first line, which is the header.
       for (var i = 1; i < gpsFileLines.length; i++) {
@@ -89,43 +61,69 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
           ),
         );
       }
+
+      _loadTrackSummary();
     } catch (e) {
       log.w('Could not parse GPS file of last track: $e');
     }
   }
 
-  /// Show a dialog that asks if the track really shoud be deleted.
-  void showDeleteDialog(BuildContext context) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.4),
-      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        return DialogLayout(
-          title: 'Fahrt löschen',
-          text: "Bitte bestätige, dass du diese Fahrt löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
-          actions: [
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
-              label: "Löschen",
-              onPressed: () {
-                getIt<Tracking>().deleteTrack(widget.track);
-                Navigator.of(context).pop();
-              },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            ),
-            BigButton(
-              label: "Abbrechen",
-              onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            ),
-          ],
-        );
+  /// Load the track summary and calculate the driven distance & duration.
+  void _loadTrackSummary() {
+    if (positions.isEmpty) return;
+
+    final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    var totalDistance = 0.0;
+    for (var i = 0; i < positions.length - 1; i++) {
+      totalDistance += vincenty.distance(coordinates[i], coordinates[i + 1]);
+    }
+    // Aggregate the duration.
+    final start = positions.first.timestamp;
+    final end = positions.last.timestamp;
+    if (end == null || start == null) return;
+    final totalDuration = end.difference(start).inMilliseconds;
+
+    // Create the summary.
+    distanceMeters = totalDistance;
+    durationSeconds = (totalDuration / 1000).floorToDouble().toInt();
+  }
+}
+
+class TrackHistoryItemTileView extends StatefulWidget {
+  /// The track to display.
+  final Track track;
+
+  /// The width of the view.
+  final double? width;
+
+  /// The image of the route start icon.
+  final ui.Image startImage;
+
+  /// The image of the route destination icon.
+  final ui.Image destinationImage;
+
+  const TrackHistoryItemTileView({
+    Key? key,
+    required this.track,
+    required this.startImage,
+    required this.destinationImage,
+    this.width,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => TrackHistoryItemTileViewState();
+}
+
+class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with TrackHistoryItem {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) async {
+        await _loadTrack(widget.track);
+        if (mounted) setState(() {});
       },
     );
   }
@@ -151,10 +149,8 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
 
     // Determine the duration.
-    final secondsDriven =
-        widget.track.endTime != null ? (widget.track.endTime! - widget.track.startTime) ~/ 1000 : null;
-    final trackDurationFormatted = secondsDriven != null
-        ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
+    final trackDurationFormatted = durationSeconds != null
+        ? '${(durationSeconds! ~/ 60).toString().padLeft(2, '0')}:${(durationSeconds! % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
     return SizedBox(
@@ -165,8 +161,11 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         onPressed: () => showAppSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => TrackDetailsDialog(
-              track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
+          builder: (context) => TrackHistoryItemDetailView(
+            track: widget.track,
+            startImage: widget.startImage,
+            destinationImage: widget.destinationImage,
+          ),
         ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: 0.08,
@@ -233,7 +232,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                       : Colors.black.withOpacity(0.25),
                 ),
                 child: IconButton(
-                  onPressed: () => showDeleteDialog(context),
+                  onPressed: () => _showDeleteDialog(context),
                   visualDensity: VisualDensity.compact,
                   icon: Icon(
                     Icons.delete_rounded,
@@ -250,5 +249,262 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ),
       ),
     );
+  }
+
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void _showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt löschen',
+          text: "Bitte bestätige, dass du diese Fahrt löschen möchtest.",
+          icon: Icons.delete_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_forever_rounded,
+              fillColor: CI.red,
+              label: "Löschen",
+              onPressed: () {
+                getIt<Tracking>().deleteTrack(widget.track);
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+            BigButton(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class TrackHistoryItemDetailView extends StatefulWidget {
+  /// The track to display.
+  final Track track;
+
+  /// The width of the view.
+  final double? width;
+
+  /// The image of the route start icon.
+  final ui.Image startImage;
+
+  /// The image of the route destination icon.
+  final ui.Image destinationImage;
+
+  const TrackHistoryItemDetailView({
+    Key? key,
+    required this.track,
+    required this.startImage,
+    required this.destinationImage,
+    this.width,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => TrackHistoryItemDetailViewState();
+}
+
+class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> with TrackHistoryItem {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) async {
+        await _loadTrack(widget.track);
+        if (mounted) setState(() {});
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+    final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
+
+    final headerTextStyle = TextStyle(
+      fontSize: 11,
+      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+    );
+
+    final cellTextStyle = TextStyle(
+      fontSize: 14,
+      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+    );
+
+    final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
+    final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
+    final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+
+    String? formattedTime = _formatDuration();
+
+    const co2PerKm = 0.1187; // Data according to statista.com in KG
+    final savedCo2inG =
+        distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+
+    final List<Widget> rideDetails;
+    if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
+      rideDetails = [
+        Column(
+          children: [
+            Text(
+              "Dauer",
+              style: headerTextStyle,
+            ),
+            Text(
+              formattedTime,
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              "Distanz",
+              style: headerTextStyle,
+            ),
+            Text(
+              distanceMeters! >= 1000
+                  ? "${(distanceMeters! / 1000).toStringAsFixed(2)} km"
+                  : "${distanceMeters!.toStringAsFixed(0)} m",
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              "Geschwindigkeit",
+              style: headerTextStyle,
+            ),
+            Text(
+              "Ø ${averageSpeedKmH.toStringAsFixed(2)} km/h",
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              "CO2 gespart",
+              style: headerTextStyle,
+            ),
+            Text(
+              savedCo2inG >= 1000
+                  ? "${(savedCo2inG / 1000).toStringAsFixed(2)} kg"
+                  : "${savedCo2inG.toStringAsFixed(2)} g",
+              style: cellTextStyle,
+            ),
+          ],
+        ),
+      ];
+    } else {
+      rideDetails = [];
+    }
+
+    return Wrap(
+      children: [
+        Column(
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          BoldContent(text: "Deine Fahrt vom", context: context),
+                          Content(
+                            text: lastTrackDateFormatted,
+                            context: context,
+                            color: Theme.of(context).colorScheme.onBackground,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SmallVSpace(),
+                    Container(
+                      // use width as height to make it a square
+                      height: MediaQuery.of(context).size.width,
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.all(24),
+                      child: positions.isNotEmpty
+                          ? Tile(
+                              padding: const EdgeInsets.all(0),
+                              borderRadius: BorderRadius.circular(20),
+                              content: TrackPictogram(
+                                key: ValueKey(widget.track.sessionId),
+                                track: positions,
+                                colors: const [
+                                  CI.blue,
+                                  CI.red,
+                                ],
+                                blurRadius: 2,
+                                startImage: widget.startImage,
+                                destinationImage: widget.destinationImage,
+                                iconSize: 16,
+                                lineWidth: 6,
+                              ),
+                            )
+                          : Center(
+                              child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
+                            ),
+                    ),
+                    if (rideDetails.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 6,
+                          direction: Axis.horizontal,
+                          alignment: WrapAlignment.center,
+                          runAlignment: WrapAlignment.center,
+                          children: rideDetails,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+            const VSpace(),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Helper method to format the duration of the track.
+  String? _formatDuration() {
+    if (durationSeconds == null) return null;
+    if (durationSeconds! < 60) {
+      // Show only seconds.
+      final seconds = durationSeconds!.floor();
+      return "$seconds s";
+    } else if (durationSeconds! < 3600) {
+      // Show minutes and seconds.
+      final minutes = (durationSeconds! / 60).floor();
+      final seconds = (durationSeconds! - (minutes * 60)).floor();
+      return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
+    } else {
+      // Show only hours and minutes.
+      final hours = (durationSeconds! / 3600).floor();
+      final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
+      return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
+    }
   }
 }

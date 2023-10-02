@@ -15,7 +15,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/views/track_details.dart';
+import 'package:priobike/tracking/views/track_history_item.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -158,89 +158,91 @@ class FeedbackViewState extends State<FeedbackView> {
 
     const bottomSheetHeight = 228.0;
 
-    return Scaffold(
-      bottomSheet: Container(
-        width: MediaQuery.of(context).size.width,
-        height: bottomSheetHeight,
-        color: Theme.of(context).colorScheme.primary,
-        child: Column(
-          children: [
-            const VSpace(),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              child: StarRatingView(text: "Dein Feedback zur App"),
-            ),
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.check,
-              fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-              label: "Fertig",
-              onPressed: () => submit(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-            ),
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.save_rounded,
-              fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-              label: "Strecke speichern",
-              onPressed: () => showSaveShortcutSheet(context),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-            ),
-            const VSpace(),
-          ],
-        ),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height - bottomSheetHeight,
-        child: SingleChildScrollView(
-          key: const ValueKey("feedback_scroll_view"),
+    return SafeArea(
+      child: Scaffold(
+        bottomSheet: Container(
+          width: MediaQuery.of(context).size.width,
+          height: bottomSheetHeight,
+          color: Theme.of(context).colorScheme.primary,
           child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 48, 24, 0),
-                child: () {
-                  if (start == "" || end == "") {
-                    return BoldContent(
-                      text: "Fahrt",
-                      context: context,
-                      textAlign: TextAlign.center,
-                    );
-                  } else {
-                    return Wrap(
-                      alignment: WrapAlignment.center,
-                      runAlignment: WrapAlignment.center,
-                      direction: Axis.horizontal,
-                      runSpacing: 8,
-                      children: [
-                        Content(
-                          text: "Von ",
-                          context: context,
-                        ),
-                        Content(
-                          text: start,
-                          context: context,
-                        ),
-                        Content(
-                          text: " nach ",
-                          context: context,
-                        ),
-                        Content(
-                          text: end,
-                          context: context,
-                        )
-                      ],
-                    );
-                  }
-                }(),
+              const VSpace(),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: StarRatingView(text: "Dein Feedback zur App"),
               ),
-              if (startImage != null && destinationImage != null)
-                TrackDetailsView(
-                  track: tracking.previousTracks!.last,
-                  startImage: startImage!,
-                  destinationImage: destinationImage!,
-                ),
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.check,
+                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                label: "Fertig",
+                onPressed: () => submit(),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+              ),
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.save_rounded,
+                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                label: "Strecke speichern",
+                onPressed: () => showSaveShortcutSheet(context),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+              ),
+              const VSpace(),
             ],
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: SizedBox(
+          height: MediaQuery.of(context).size.height - bottomSheetHeight,
+          child: SingleChildScrollView(
+            key: const ValueKey("feedback_scroll_view"),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 24, 24, 0),
+                  child: () {
+                    if (start == "" || end == "") {
+                      return BoldContent(
+                        text: "Fahrt",
+                        context: context,
+                        textAlign: TextAlign.center,
+                      );
+                    } else {
+                      return Wrap(
+                        alignment: WrapAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        direction: Axis.horizontal,
+                        runSpacing: 8,
+                        children: [
+                          Content(
+                            text: "Von ",
+                            context: context,
+                          ),
+                          Content(
+                            text: start,
+                            context: context,
+                          ),
+                          Content(
+                            text: " nach ",
+                            context: context,
+                          ),
+                          Content(
+                            text: end,
+                            context: context,
+                          )
+                        ],
+                      );
+                    }
+                  }(),
+                ),
+                if (startImage != null && destinationImage != null)
+                  TrackHistoryItemDetailView(
+                    track: tracking.previousTracks!.last,
+                    startImage: startImage!,
+                    destinationImage: destinationImage!,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
