@@ -20,6 +20,7 @@ class GamificationFeatureCard extends StatefulWidget {
   /// The content of the card, if the feature is enabled.
   final Widget featureEnabledContent;
 
+  /// Function that is called, when the feature is enabled by the user.
   final Function() onEnabled;
 
   /// The page, the card navigates to, if the feature is enabled.
@@ -90,6 +91,7 @@ class DisabledFeatureCard extends StatelessWidget {
   /// The key of the corresponding feature.
   final String featureKey;
 
+  /// Function that is called, when the feature is enabled by the user.
   final Function() onEnabled;
 
   const DisabledFeatureCard({

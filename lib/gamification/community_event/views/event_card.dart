@@ -44,13 +44,10 @@ class _EventCardState extends State<EventCard> {
   Widget build(BuildContext context) {
     return GamificationFeatureCard(
       featureKey: GamificationUserService.communityFeatureKey,
-      // If the feature is enabled, show progress bars of the users challenges and the profile view.
       onEnabled: () {},
       featurePage: _eventService.activeEvent
           ? const CommunityEventPage()
-          : (!_eventService.eventStarted && _eventService.userBadges.isNotEmpty
-              ? BadgeCollection(badges: _eventService.userBadges)
-              : null),
+          : (_eventService.userBadges.isNotEmpty ? BadgeCollection(badges: _eventService.userBadges) : null),
       featureEnabledContent: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

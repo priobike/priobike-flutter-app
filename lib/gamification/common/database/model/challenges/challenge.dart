@@ -49,13 +49,13 @@ class ChallengeDao extends DatabaseDao<Challenge> with _$ChallengeDaoMixin {
   }
 
   /// Stream all challenges which can be completed in a certain given interval.
-  Stream<List<Challenge>> streamChallengesInInterval(DateTime startDay, int lengthInDays) {
+  Future<List<Challenge>> getChallengesInInterval(DateTime startDay, int lengthInDays) {
     var start = DateTime(startDay.year, startDay.month, startDay.day);
     var end = start.add(Duration(days: lengthInDays));
     return (select(challenges)
           ..where(
             (tbl) => tbl.startTime.isBetweenValues(start, end) & tbl.closingTime.isBetweenValues(start, end),
           ))
-        .watch();
+        .get();
   }
 }
