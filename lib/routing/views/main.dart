@@ -132,12 +132,15 @@ class RoutingViewState extends State<RoutingView> {
     // We need to send a result (true) to inform the result handler in the HomeView that we do not want to reset
     // the services. This is only wanted when we pop the routing view in case of a back navigation (e.g. by back button)
     // from the routing view to the home view.
-    void startRide() => Navigator.pushReplacement<void, bool>(
+    void startRide() {
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => const RideView(),
         ),
-        result: true);
+        (route) => false,
+      ).whenComplete(() => true);
+    }
 
     final settings = getIt<Settings>();
     if (settings.didViewWarning) {
@@ -243,9 +246,7 @@ class RoutingViewState extends State<RoutingView> {
                           const VSpace(),
                           BigButton(
                             label: "Zurück zum Hauptmenu",
-                            onPressed: () async {
-                              Navigator.of(context).pop();
-                            },
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
                         ],
                       )
@@ -326,7 +327,10 @@ class RoutingViewState extends State<RoutingView> {
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+                  child: AppBackButton(
+                    icon: Icons.chevron_left_rounded,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
               ),
 

@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/gamification/community_event/service/event_service.dart';
+import 'package:priobike/home/views/main.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -86,39 +87,42 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final position = getIt<Positioning>();
     await position.stopGeolocation();
 
+    // Show the feedback dialog.
     if (mounted) {
-      // Show the feedback dialog.
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => WillPopScope(
-            onWillPop: () async => false,
-            child: FeedbackView(
-              onSubmitted: (context) async {
-                // Reset the statistics.
-                await statistics.reset();
+      // Pop everything until ride view is reached and then replace it with the feedback view.
+      // Otherwise the ride view stays in the widget tree and is shown for a split seconds after closing the feedback view.
 
-                // Reset the ride service.
-                await ride.reset();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => FeedbackView(
+            onSubmitted: (context) async {
+              // Reset the statistics.
+              await statistics.reset();
 
-                // Reset the position service.
-                await position.reset();
+              // Reset the ride service.
+              await ride.reset();
 
-                // Reset the route service.
-                final routing = getIt<Routing>();
-                await routing.reset();
+              // Reset the position service.
+              await position.reset();
 
-                // Reset the prediction sg status.
-                final predictionSGStatus = getIt<PredictionSGStatus>();
-                await predictionSGStatus.reset();
+              // Reset the route service.
+              final routing = getIt<Routing>();
+              await routing.reset();
 
-                if (context.mounted) {
-                  // Leave the feedback view.
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
-            ),
+              // Reset the prediction sg status.
+              final predictionSGStatus = getIt<PredictionSGStatus>();
+              await predictionSGStatus.reset();
+
+              if (context.mounted) {
+                // Return to the home view.
+                await Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
+                );
+              }
+            },
           ),
         ),
+        (route) => false,
       );
     }
   }
