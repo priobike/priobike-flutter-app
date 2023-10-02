@@ -204,8 +204,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
     String? formattedTime = _formatDuration();
 
     const co2PerKm = 0.1187; // Data according to statista.com in KG
-    final savedCo2inG =
-        distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+    final savedCo2inG = distanceMeters == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
 
     final List<Widget> rideDetails;
     if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
