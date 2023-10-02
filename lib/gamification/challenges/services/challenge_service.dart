@@ -78,7 +78,7 @@ abstract class ChallengeService with ChangeNotifier {
     });
   }
 
-  // Close a given challenge and send its data to the backend.
+  /// Close a given challenge and send its data to the backend.
   Future<void> closeChallenge(Challenge challenge) async {
     var closedChallenge = challenge.copyWith(isOpen: false);
     var result = await _dao.updateObject(closedChallenge);
