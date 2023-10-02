@@ -40,7 +40,6 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/tracking/services/track_generation.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -111,7 +110,6 @@ Future<void> main() async {
   getIt.registerSingleton<ChallengesProfileService>(ChallengesProfileService());
   getIt.registerSingleton<EvaluationDataService>(EvaluationDataService());
   getIt.registerSingleton<EventService>(EventService());
-  getIt.registerSingleton<TrackGenerationService>(TrackGenerationService());
 
   runZonedGuarded(() async {
     runApp(const App());
