@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A pictogram of a track.
-class RideDetails extends StatefulWidget {
+class RideDetails extends StatelessWidget {
   final String? formattedTime;
   final double? distanceMeters;
   final num? averageSpeedKmH;
@@ -16,16 +16,6 @@ class RideDetails extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  RideDetailsState createState() => RideDetailsState();
-}
-
-class RideDetailsState extends State<RideDetails> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final headerTextStyle = TextStyle(
       fontSize: 11,
@@ -38,20 +28,20 @@ class RideDetailsState extends State<RideDetails> {
     );
 
     String timeText = '--- s';
-    if (widget.formattedTime != null) timeText = widget.formattedTime!;
+    if (formattedTime != null) timeText = formattedTime!;
     String distanceText = '--- m';
-    if (widget.distanceMeters != null) {
-      distanceText = widget.distanceMeters! >= 1000
-          ? '${(widget.distanceMeters! / 1000).toStringAsFixed(2)} km'
-          : '${widget.distanceMeters!.toStringAsFixed(0)} m';
+    if (distanceMeters != null) {
+      distanceText = distanceMeters! >= 1000
+          ? '${(distanceMeters! / 1000).toStringAsFixed(2)} km'
+          : '${distanceMeters!.toStringAsFixed(0)} m';
     }
     String speedText = 'Ø --- km/h';
-    if (widget.averageSpeedKmH != null) speedText = 'Ø ${widget.averageSpeedKmH!.toStringAsFixed(2)} km/h';
+    if (averageSpeedKmH != null) speedText = 'Ø ${averageSpeedKmH!.toStringAsFixed(2)} km/h';
     String co2Text = '--- g';
-    if (widget.savedCo2inG != null) {
-      co2Text = widget.savedCo2inG! >= 1000
-          ? "${(widget.savedCo2inG! / 1000).toStringAsFixed(2)} kg"
-          : "${widget.savedCo2inG!.toStringAsFixed(2)} g";
+    if (savedCo2inG != null) {
+      co2Text = savedCo2inG! >= 1000
+          ? "${(savedCo2inG! / 1000).toStringAsFixed(2)} kg"
+          : "${savedCo2inG!.toStringAsFixed(2)} g";
     }
     return Wrap(
         spacing: 12,
