@@ -133,15 +133,13 @@ class RoutingViewState extends State<RoutingView> {
     // the services. This is only wanted when we pop the routing view in case of a back navigation (e.g. by back button)
     // from the routing view to the home view.
     void startRide() {
-      // pop the routing view first so pushReplacement removes the home view from the widget tree
-      // otherwise pushReplacement only removes the routing view and the home view is still in the widget tree
-      Navigator.of(context).pop(true);
-      Navigator.pushReplacement<void, bool>(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => const RideView(),
-          ),
-          result: true);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => const RideView(),
+        ),
+        (route) => false,
+      ).whenComplete(() => true);
     }
 
     final settings = getIt<Settings>();

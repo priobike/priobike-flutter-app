@@ -91,8 +91,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
     if (mounted) {
       // Pop everything until ride view is reached and then replace it with the feedback view.
       // Otherwise the ride view stays in the widget tree and is shown for a split seconds after closing the feedback view.
-      Navigator.of(context).popUntil((route) => route.isFirst);
-      Navigator.of(context).pushReplacement(
+
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => FeedbackView(
             onSubmitted: (context) async {
@@ -122,6 +122,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
             },
           ),
         ),
+        (route) => false,
       );
     }
   }

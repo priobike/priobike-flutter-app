@@ -37,12 +37,12 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
                 await routing.switchToRoute(lastRouteID);
               }
               if (context.mounted && routing.selectedRoute != null) {
-                Navigator.of(context).pop();
-                Navigator.pushReplacement(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) => const RideView(),
                   ),
+                  (route) => false,
                 );
               } else {
                 // In case there is any error fetching the route.
