@@ -17,6 +17,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
+import 'package:priobike/tracking/views/track_stats.dart';
 
 mixin TrackHistoryItem {
   /// The distance model.
@@ -329,163 +330,107 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
 
   @override
   Widget build(BuildContext context) {
-    final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-    final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
+    return FutureBuilder<void>(
+        future: _loadTrack(widget.track),
+        builder: (context, snapshot) {
+          final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+          final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
 
-    final headerTextStyle = TextStyle(
-      fontSize: 11,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
-    );
+          final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
+          final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
+          final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-    final cellTextStyle = TextStyle(
-      fontSize: 14,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-    );
+          String? formattedTime = _formatDuration();
 
-    final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
-    final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
-    final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+          const co2PerKm = 0.1187; // Data according to statista.com in KG
+          final savedCo2inG =
+              distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
 
-    String? formattedTime = _formatDuration();
+          final Widget trackStats;
+          if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
+            trackStats = TrackStats(
+              formattedTime: formattedTime,
+              distanceMeters: distanceMeters,
+              averageSpeedKmH: averageSpeedKmH,
+              savedCo2inG: savedCo2inG,
+            );
+          } else {
+            trackStats = const TrackStats();
+          }
 
-    const co2PerKm = 0.1187; // Data according to statista.com in KG
-    final savedCo2inG =
-        distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+          Widget content = Tile(
+              padding: const EdgeInsets.all(0),
+              borderRadius: BorderRadius.circular(20),
+              content: const SizedBox(height: 64, width: 64, child: Center(child: CircularProgressIndicator())));
+          if (snapshot.connectionState == ConnectionState.done) {
+            content = positions.isNotEmpty
+                ? Tile(
+                    padding: const EdgeInsets.all(0),
+                    borderRadius: BorderRadius.circular(20),
+                    content: TrackPictogram(
+                      key: ValueKey(widget.track.sessionId),
+                      track: positions,
+                      colors: const [
+                        CI.blue,
+                        CI.red,
+                      ],
+                      blurRadius: 2,
+                      startImage: widget.startImage,
+                      destinationImage: widget.destinationImage,
+                      iconSize: 16,
+                      lineWidth: 6,
+                    ))
+                : Center(
+                    child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
+                  );
+          }
 
-    final List<Widget> rideDetails;
-    if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
-      rideDetails = [
-        Column(
-          children: [
-            Text(
-              "Dauer",
-              style: headerTextStyle,
-            ),
-            Text(
-              formattedTime,
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              "Distanz",
-              style: headerTextStyle,
-            ),
-            Text(
-              distanceMeters! >= 1000
-                  ? "${(distanceMeters! / 1000).toStringAsFixed(2)} km"
-                  : "${distanceMeters!.toStringAsFixed(0)} m",
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              "Geschwindigkeit",
-              style: headerTextStyle,
-            ),
-            Text(
-              "Ø ${averageSpeedKmH.toStringAsFixed(2)} km/h",
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              "CO2 gespart",
-              style: headerTextStyle,
-            ),
-            Text(
-              savedCo2inG >= 1000
-                  ? "${(savedCo2inG / 1000).toStringAsFixed(2)} kg"
-                  : "${savedCo2inG.toStringAsFixed(2)} g",
-              style: cellTextStyle,
-            ),
-          ],
-        ),
-      ];
-    } else {
-      rideDetails = [];
-    }
-
-    return Wrap(
-      children: [
-        Column(
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Wrap(
+            children: [
+              Column(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          BoldContent(text: "Deine Fahrt vom", context: context),
-                          Content(
-                            text: lastTrackDateFormatted,
-                            context: context,
-                            color: Theme.of(context).colorScheme.onBackground,
-                            textAlign: TextAlign.center,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                BoldContent(text: "Deine Fahrt vom", context: context),
+                                Content(
+                                  text: lastTrackDateFormatted,
+                                  context: context,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
+                          const SmallVSpace(),
+                          Container(
+                              // use width as height to make it a square
+                              height: MediaQuery.of(context).size.width,
+                              width: MediaQuery.of(context).size.width,
+                              padding: const EdgeInsets.all(24),
+                              child: content),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: trackStats,
+                          )
                         ],
                       ),
-                    ),
-                    const SmallVSpace(),
-                    Container(
-                      // use width as height to make it a square
-                      height: MediaQuery.of(context).size.width,
-                      width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.all(24),
-                      child: positions.isNotEmpty
-                          ? Tile(
-                              padding: const EdgeInsets.all(0),
-                              borderRadius: BorderRadius.circular(20),
-                              content: TrackPictogram(
-                                key: ValueKey(widget.track.sessionId),
-                                track: positions,
-                                colors: const [
-                                  CI.blue,
-                                  CI.red,
-                                ],
-                                blurRadius: 2,
-                                startImage: widget.startImage,
-                                destinationImage: widget.destinationImage,
-                                iconSize: 16,
-                                lineWidth: 6,
-                              ),
-                            )
-                          : Center(
-                              child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
-                            ),
-                    ),
-                    if (rideDetails.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: Wrap(
-                          spacing: 12,
-                          runSpacing: 6,
-                          direction: Axis.horizontal,
-                          alignment: WrapAlignment.center,
-                          runAlignment: WrapAlignment.center,
-                          children: rideDetails,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-            const VSpace(),
-          ],
-        ),
-      ],
-    );
+                    ],
+                  ),
+                  const VSpace(),
+                ],
+              ),
+            ],
+          );
+        });
   }
 
   /// Helper method to format the duration of the track.
