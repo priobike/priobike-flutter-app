@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 /// A pictogram of a track.
-class RideDetails extends StatelessWidget {
+class TrackStats extends StatelessWidget {
   final String? formattedTime;
   final double? distanceMeters;
   final num? averageSpeedKmH;
   final num? savedCo2inG;
 
-  const RideDetails({
+  const TrackStats({
     Key? key,
     this.formattedTime,
     this.distanceMeters,

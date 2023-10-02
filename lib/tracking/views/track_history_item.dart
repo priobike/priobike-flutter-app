@@ -17,7 +17,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
-import 'package:priobike/tracking/views/ride_details.dart';
+import 'package:priobike/tracking/views/track_stats.dart';
 
 mixin TrackHistoryItem {
   /// The distance model.
@@ -346,16 +346,16 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
           final savedCo2inG =
               distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
 
-          final Widget rideDetails;
+          final Widget trackStats;
           if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
-            rideDetails = RideDetails(
+            trackStats = TrackStats(
               formattedTime: formattedTime,
               distanceMeters: distanceMeters,
               averageSpeedKmH: averageSpeedKmH,
               savedCo2inG: savedCo2inG,
             );
           } else {
-            rideDetails = const RideDetails();
+            trackStats = const TrackStats();
           }
 
           Widget content = Tile(
@@ -419,7 +419,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                               child: content),
                           Padding(
                             padding: const EdgeInsets.only(bottom: 24),
-                            child: rideDetails,
+                            child: trackStats,
                           )
                         ],
                       ),
