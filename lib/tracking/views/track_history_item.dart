@@ -63,7 +63,6 @@ mixin TrackHistoryItem {
         );
       }
 
-      await Future.delayed(const Duration(seconds: 2));
       _loadTrackSummary();
     } catch (e) {
       log.w('Could not parse GPS file of last track: $e');
