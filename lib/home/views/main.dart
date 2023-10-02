@@ -40,9 +40,6 @@ import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
 
-/// List that holds the number of app uses when the rate function should be triggered.
-const List<int> askRateAppList = [5, 10, 20, 40, 60, 100, 150, 200, 300];
-
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
@@ -105,10 +102,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
 
-    // Check if app should be rated.
-    if (askRateAppList.contains(settings.useCounter)) {
-      rateApp();
-    }
+    /// List that holds the number of app uses when the rate function should be triggered.
+    const List<int> askRateAppList = [5, 20, 40, 60, 100, 150, 200, 300];
+    if (askRateAppList.contains(settings.useCounter)) rateApp();
 
     // Check if the last route finished accordingly.
     if (ride.lastRoute != null) {
@@ -131,10 +127,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// Function that starts the inAppReview.
   Future<void> rateApp() async {
     final InAppReview inAppReview = InAppReview.instance;
+    if (!await inAppReview.isAvailable()) return;
 
-    if (await inAppReview.isAvailable()) {
-      inAppReview.requestReview();
-    }
+    inAppReview.requestReview();
+    // increment use counter to avoid asking again when we recreate the home view.
+    settings.incrementUseCounter();
   }
 
   @override
