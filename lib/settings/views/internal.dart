@@ -27,7 +27,6 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import '../../tracking/services/track_generation.dart';
 
 class InternalSettingsView extends StatefulWidget {
   const InternalSettingsView({Key? key}) : super(key: key);
@@ -350,18 +349,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Gamification",
                     icon: settings.enableGamification ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnableGamification(!settings.enableGamification),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Zufälligen Track hinzufügen",
-                    icon: Icons.add,
-                    callback: () async {
-                      final deviceWidth = MediaQuery.of(context).size.width;
-                      final deviceHeight = MediaQuery.of(context).size.height;
-                      await getIt<TrackGenerationService>().generate(deviceWidth, deviceHeight);
-                    },
                   ),
                 ),
                 const SmallVSpace(),
