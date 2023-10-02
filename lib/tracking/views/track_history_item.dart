@@ -18,44 +18,7 @@ import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
 
-enum TrackHistoryItemType {
-  /// The history item is displayed as a tile.
-  tile,
-
-  /// The history item is displayed as a detailed view.
-  details,
-}
-
-class TrackHistoryItemView extends StatefulWidget {
-  /// The type of the view.
-  final TrackHistoryItemType type;
-
-  /// The track to display.
-  final Track track;
-
-  /// The width of the view.
-  final double? width;
-
-  /// The image of the route start icon.
-  final ui.Image startImage;
-
-  /// The image of the route destination icon.
-  final ui.Image destinationImage;
-
-  const TrackHistoryItemView({
-    Key? key,
-    required this.type,
-    required this.track,
-    required this.startImage,
-    required this.destinationImage,
-    this.width,
-  }) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => TrackHistoryItemViewState();
-}
-
-class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
+mixin TrackHistoryItem {
   /// The distance model.
   final vincenty = const Distance(roundResult: false);
 
@@ -68,27 +31,14 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   /// The duration of the track in seconds.
   int? durationSeconds;
 
-  @override
-  void initState() {
-    super.initState();
-    initializeDateFormatting();
-
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) async {
-        await _loadTrack();
-        if (mounted) setState(() {});
-      },
-    );
-  }
-
   /// Load the track.
-  Future<void> _loadTrack() async {
+  Future<void> _loadTrack(Track track) async {
     if (positions.isNotEmpty) return;
 
     // Try to load the GPS file.
     // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
     try {
-      final gpsFile = await widget.track.gpsCSVFile;
+      final gpsFile = await track.gpsCSVFile;
       final gpsFileLines = await gpsFile.readAsLines();
       // Skip the first line, which is the header.
       for (var i = 1; i < gpsFileLines.length; i++) {
@@ -113,8 +63,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
       }
 
       _loadTrackSummary();
-
-      setState(() {});
     } catch (e) {
       log.w('Could not parse GPS file of last track: $e');
     }
@@ -139,80 +87,49 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     distanceMeters = totalDistance;
     durationSeconds = (totalDuration / 1000).floorToDouble().toInt();
   }
+}
+
+class TrackHistoryItemTileView extends StatefulWidget {
+  /// The track to display.
+  final Track track;
+
+  /// The width of the view.
+  final double? width;
+
+  /// The image of the route start icon.
+  final ui.Image startImage;
+
+  /// The image of the route destination icon.
+  final ui.Image destinationImage;
+
+  const TrackHistoryItemTileView({
+    Key? key,
+    required this.track,
+    required this.startImage,
+    required this.destinationImage,
+    this.width,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    if (widget.type == TrackHistoryItemType.tile) {
-      return _renderAsTile(context);
-    } else if (widget.type == TrackHistoryItemType.details) {
-      return _renderAsDetails(context);
-    } else {
-      throw Exception("Unknown view type: ${widget.type}");
-    }
-  }
+  State<StatefulWidget> createState() => TrackHistoryItemTileViewState();
+}
 
-  /// Show a dialog that asks if the track really shoud be deleted.
-  void _showDeleteDialog(BuildContext context) {
-    if (widget.type != TrackHistoryItemType.tile) throw Exception("Can only delete tracks from the tile view.");
+class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with TrackHistoryItem {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
 
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.4),
-      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        return DialogLayout(
-          title: 'Fahrt löschen',
-          text: "Bitte bestätige, dass du diese Fahrt löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
-          actions: [
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
-              label: "Löschen",
-              onPressed: () {
-                getIt<Tracking>().deleteTrack(widget.track);
-                Navigator.of(context).pop();
-              },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            ),
-            BigButton(
-              label: "Abbrechen",
-              onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            ),
-          ],
-        );
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) async {
+        await _loadTrack(widget.track);
+        if (mounted) setState(() {});
       },
     );
   }
 
-  /// Helper method to format the duration of the track.
-  String? _formatDuration() {
-    if (widget.type != TrackHistoryItemType.details) {
-      throw Exception("Can only format the duration in details view.");
-    }
-    if (durationSeconds == null) return null;
-    if (durationSeconds! < 60) {
-      // Show only seconds.
-      final seconds = durationSeconds!.floor();
-      return "$seconds s";
-    } else if (durationSeconds! < 3600) {
-      // Show minutes and seconds.
-      final minutes = (durationSeconds! / 60).floor();
-      final seconds = (durationSeconds! - (minutes * 60)).floor();
-      return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
-    } else {
-      // Show only hours and minutes.
-      final hours = (durationSeconds! / 3600).floor();
-      final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
-      return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
-    }
-  }
-
-  Widget _renderAsTile(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     // Calculate the relative date
     var relativeTime = "";
     final now = DateTime.now();
@@ -244,8 +161,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         onPressed: () => showAppSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => TrackHistoryItemView(
-            type: TrackHistoryItemType.details,
+          builder: (context) => TrackHistoryItemDetailView(
             track: widget.track,
             startImage: widget.startImage,
             destinationImage: widget.destinationImage,
@@ -335,7 +251,84 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
-  Widget _renderAsDetails(BuildContext context) {
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void _showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt löschen',
+          text: "Bitte bestätige, dass du diese Fahrt löschen möchtest.",
+          icon: Icons.delete_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_forever_rounded,
+              fillColor: CI.red,
+              label: "Löschen",
+              onPressed: () {
+                getIt<Tracking>().deleteTrack(widget.track);
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+            BigButton(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class TrackHistoryItemDetailView extends StatefulWidget {
+  /// The track to display.
+  final Track track;
+
+  /// The width of the view.
+  final double? width;
+
+  /// The image of the route start icon.
+  final ui.Image startImage;
+
+  /// The image of the route destination icon.
+  final ui.Image destinationImage;
+
+  const TrackHistoryItemDetailView({
+    Key? key,
+    required this.track,
+    required this.startImage,
+    required this.destinationImage,
+    this.width,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => TrackHistoryItemDetailViewState();
+}
+
+class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> with TrackHistoryItem {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) async {
+        await _loadTrack(widget.track);
+        if (mounted) setState(() {});
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
     final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
 
@@ -493,5 +486,25 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ),
       ],
     );
+  }
+
+  /// Helper method to format the duration of the track.
+  String? _formatDuration() {
+    if (durationSeconds == null) return null;
+    if (durationSeconds! < 60) {
+      // Show only seconds.
+      final seconds = durationSeconds!.floor();
+      return "$seconds s";
+    } else if (durationSeconds! < 3600) {
+      // Show minutes and seconds.
+      final minutes = (durationSeconds! / 60).floor();
+      final seconds = (durationSeconds! - (minutes * 60)).floor();
+      return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
+    } else {
+      // Show only hours and minutes.
+      final hours = (durationSeconds! / 3600).floor();
+      final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
+      return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
+    }
   }
 }
