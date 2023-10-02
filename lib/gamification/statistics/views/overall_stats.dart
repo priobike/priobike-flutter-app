@@ -3,8 +3,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/main.dart';
 
@@ -45,7 +45,7 @@ class _OverallStatisticsState extends State<OverallStatistics> {
           Icon(
             icon,
             size: 24,
-            color: CI.blue.withOpacity(1),
+            color: CI.radkulturRed.withOpacity(1),
           ),
           BoldContent(
             text: StringFormatter.getRoundedStrByStatType(value, type),

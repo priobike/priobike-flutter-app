@@ -189,7 +189,7 @@ class RideViewState extends State<RideView> {
                     icon: const Icon(
                       Icons.info_outline_rounded,
                       size: 25,
-                      color: CI.blue,
+                      color: CI.radkulturRed,
                     ),
                   ),
                 ),

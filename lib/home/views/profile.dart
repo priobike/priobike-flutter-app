@@ -35,7 +35,7 @@ class ProfileElementButton extends StatelessWidget {
       builder: (context, constraints) {
         return Tile(
           fill: backgroundColor ?? theme.colorScheme.background,
-          splash: touchColor ?? CI.blue,
+          splash: touchColor ?? CI.radkulturRed,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           padding: const EdgeInsets.all(8),
           showShadow: false,
@@ -212,7 +212,7 @@ class ProfileViewState extends State<ProfileView> {
                               icon: profileService.bikeType!.icon(),
                               title: profileService.bikeType!.description(),
                               color: Colors.white,
-                              backgroundColor: CI.blue,
+                              backgroundColor: CI.radkulturRed,
                               touchColor: Colors.white,
                               onPressed: toggleBikeSelection,
                             ),
@@ -236,7 +236,7 @@ class ProfileViewState extends State<ProfileView> {
                               icon: profileService.preferenceType!.icon(),
                               title: profileService.preferenceType!.description(),
                               color: Colors.white,
-                              backgroundColor: CI.blue,
+                              backgroundColor: CI.radkulturRed,
                               touchColor: Colors.white,
                               onPressed: togglePreferenceSelection,
                             ),
@@ -260,7 +260,7 @@ class ProfileViewState extends State<ProfileView> {
                               icon: profileService.activityType!.icon(),
                               title: profileService.activityType!.description(),
                               color: Colors.white,
-                              backgroundColor: CI.blue,
+                              backgroundColor: CI.radkulturRed,
                               touchColor: Colors.white,
                               onPressed: toggleActivitySelection,
                             ),
@@ -342,7 +342,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: bikeType.icon(),
                       title: bikeType.description(),
                       color: Colors.white,
-                      backgroundColor: CI.blue,
+                      backgroundColor: CI.radkulturRed,
                       touchColor: Colors.white,
                       onPressed: () {
                         profileService.bikeType = bikeType;
@@ -411,7 +411,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: preferenceType.icon(),
                       title: preferenceType.description(),
                       color: Colors.white,
-                      backgroundColor: CI.blue,
+                      backgroundColor: CI.radkulturRed,
                       touchColor: Colors.white,
                       onPressed: () {
                         profileService.preferenceType = preferenceType;
@@ -482,7 +482,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: activityType.icon(),
                       title: activityType.description(),
                       color: Colors.white,
-                      backgroundColor: CI.blue,
+                      backgroundColor: CI.radkulturRed,
                       touchColor: Colors.white,
                       onPressed: () {
                         profileService.activityType = activityType;

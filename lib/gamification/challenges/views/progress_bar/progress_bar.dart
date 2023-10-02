@@ -9,12 +9,12 @@ import 'package:priobike/gamification/challenges/services/challenges_profile_ser
 import 'package:priobike/gamification/challenges/utils/challenge_generator.dart';
 import 'package:priobike/gamification/challenges/views/progress_bar/challenge_reward_dialog.dart';
 import 'package:priobike/gamification/challenges/views/progress_bar/challenge_selection_dialog.dart';
-import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/countdown_timer.dart';
 import 'package:priobike/gamification/challenges/views/progress_bar/single_challenge_dialog.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
 import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/blink_animation.dart';
+import 'package:priobike/gamification/common/views/countdown_timer.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/main.dart';
 
@@ -53,7 +53,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
   bool get _deactivateTap => _challenge == null && !_service.allowNew && _service.challengeChoices.isEmpty;
 
   /// The color representing the current level of the user.
-  Color get _barColor => CI.blue; //levels.elementAt(_profileService.profile?.level ?? 0).color;
+  Color get _barColor => CI.radkulturRed; //levels.elementAt(_profileService.profile?.level ?? 0).color;
 
   /// Time where the challenge ends.
   DateTime get _endTime {

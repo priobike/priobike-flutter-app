@@ -27,7 +27,7 @@ void showInvalidShortcutSheet(context) {
         text:
             "Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${backend.region} liegen.\nPrioBike wird aktuell nur innerhalb von ${backend.region} unterstützt.",
         icon: Icons.warning_rounded,
-        iconColor: CI.red,
+        iconColor: CI.orange,
         actions: [
           BigButton(
             label: 'Schließen',

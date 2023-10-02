@@ -82,7 +82,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
         padding: const EdgeInsets.only(top: 8),
         child: TabPageSelector(
           controller: tabController,
-          selectedColor: CI.blue,
+          selectedColor: CI.radkulturRed,
           indicatorSize: 12,
           borderStyle: BorderStyle.none,
           color: Theme.of(context).colorScheme.primary.withOpacity(0.25),

@@ -91,9 +91,9 @@ class StatusViewState extends State<StatusView> {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       constraints: const BoxConstraints(minHeight: 128),
       child: Tile(
-        fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
+        fill: isProblem ? CI.orange : Theme.of(context).colorScheme.background,
         shadowIntensity: isProblem ? 0.2 : 0.05,
-        shadow: isProblem ? CI.red : Colors.black,
+        shadow: isProblem ? CI.orange : Colors.black,
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,17 +144,17 @@ class StatusViewState extends State<StatusView> {
                           value: predictionStatusSummary.isLoading ? null : goodPct,
                           strokeWidth: 6,
                           backgroundColor:
-                              isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
+                              isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.radkulturGreen.withOpacity(0.2),
                           valueColor: isProblem
                               ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                              : const AlwaysStoppedAnimation<Color>(CI.green),
+                              : const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
                         ),
                       ),
                       Opacity(
                         opacity: 0.2,
                         child: Icon(
                           Icons.chevron_right_rounded,
-                          color: isProblem ? Colors.white : CI.green,
+                          color: isProblem ? Colors.white : CI.radkulturGreen,
                           size: 42,
                         ),
                       ),

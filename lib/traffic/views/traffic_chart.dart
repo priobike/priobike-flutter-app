@@ -51,7 +51,7 @@ class TrafficChartState extends State<TrafficChart> {
       // Show the current score in a shimmering animation.
       final scaledTrafficFlowNow = min(1, max(0, (((trafficService.scoreNow!) - 0.94) / (0.05))));
       final nowHeight = availableHeight * (1 - scaledTrafficFlowNow);
-      final color = trafficService.trafficColor ?? CI.blue;
+      final color = trafficService.trafficColor ?? CI.radkulturRed;
       wrapper = (widget) => Stack(
             alignment: Alignment.bottomCenter,
             children: [

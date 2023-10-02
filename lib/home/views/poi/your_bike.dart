@@ -32,7 +32,7 @@ class YourBikeElementButton extends StatelessWidget {
       builder: (context, constraints) {
         return Tile(
           fill: backgroundColor ?? theme.colorScheme.background,
-          splash: touchColor ?? CI.blue,
+          splash: touchColor ?? CI.radkulturRed,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           padding: const EdgeInsets.all(8),
           content: Row(

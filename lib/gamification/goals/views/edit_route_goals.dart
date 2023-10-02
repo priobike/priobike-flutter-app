@@ -9,9 +9,9 @@ import 'package:priobike/gamification/goals/models/route_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/goals/views/weekday_button.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/home/services/shortcuts.dart';
 
 /// Dialog to edit the route goals set by the user.
 class EditRouteGoalsDialog extends StatefulWidget {
@@ -174,7 +174,7 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
                     getIt<GoalsService>().updateRouteGoals(goals);
                     Navigator.of(context).pop();
                   },
-                  color: CI.blue,
+                  color: CI.radkulturRed,
                 ),
                 const SmallHSpace(),
               ],

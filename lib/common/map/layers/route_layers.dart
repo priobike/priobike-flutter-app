@@ -125,7 +125,7 @@ class SelectedRouteLayer {
       // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
       if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
       // Interpolate between green and blue, by the prediction quality.
-      color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
+      color = "rgb(${(0 * q + 250 * (1 - q)).round()}, ${255 * q + 30 * (1 - q)}, ${106 * q + 65 * (1 - q)})";
       if (currentFeature == null || currentFeature["color"] != color) {
         if (currentFeature != null) {
           currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);

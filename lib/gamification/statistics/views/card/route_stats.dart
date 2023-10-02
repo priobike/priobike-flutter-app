@@ -133,7 +133,7 @@ class _FancyRouteStatsForWeekState extends State<FancyRouteStatsForWeek> {
                 key: ValueKey(_routeShortcut!.hashCode),
                 shortcut: _routeShortcut,
                 height: 112,
-                color: CI.blue,
+                color: CI.radkulturRed,
               ),
             ),
           ),

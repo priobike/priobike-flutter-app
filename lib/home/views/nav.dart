@@ -50,7 +50,7 @@ class NavBarView extends StatelessWidget {
                 0.1,
                 0.9,
               ],
-              colors: [CI.blueLight, CI.blue],
+              colors: [CI.radkulturRed, CI.radkulturRedDark],
             ),
           ),
           child: Column(

@@ -31,7 +31,7 @@ class ShortcutView extends StatelessWidget {
     this.onLongPressed,
     this.selected = false,
     this.showSplash = true,
-    this.selectionColor = CI.blue,
+    this.selectionColor = CI.radkulturRed,
   }) : super(key: key);
 
   @override
@@ -42,7 +42,7 @@ class ShortcutView extends StatelessWidget {
       child: Tile(
         onLongPressed: onLongPressed,
         onPressed: onPressed,
-        shadow: shortcut == null ? CI.blue : const Color.fromARGB(255, 0, 0, 0),
+        shadow: shortcut == null ? CI.radkulturRed : const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: shortcut == null ? 0.3 : 0.08,
         padding: const EdgeInsets.all(0),
         content: Stack(
@@ -63,7 +63,7 @@ class ShortcutView extends StatelessWidget {
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutRoute,
                   height: height - 4,
-                  color: CI.blue,
+                  color: CI.radkulturRed,
                 ),
               )
             else if (shortcut is ShortcutLocation)
@@ -77,7 +77,7 @@ class ShortcutView extends StatelessWidget {
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutLocation,
                   height: height - 4,
-                  color: CI.blue,
+                  color: CI.radkulturRed,
                 ),
               ),
             SizedBox(

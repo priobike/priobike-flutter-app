@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/main.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'layout/buttons.dart';
 import 'layout/ci.dart';
 import 'layout/dialog.dart';
@@ -79,7 +80,7 @@ class MapboxAttribution extends StatelessWidget {
                 ),
               BigButton(
                 label: "Abbrechen",
-                fillColor: CI.blueDark,
+                fillColor: CI.radkulturRedDark,
                 onPressed: () => Navigator.pop(context),
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),

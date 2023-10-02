@@ -38,7 +38,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           tileMode: TileMode.mirror,
           colors: [
             Colors.white.withOpacity(0.0),
-            CI.blue.withOpacity(0.2),
+            CI.radkulturRed.withOpacity(0.2),
           ],
           stops: const [0.75, 1.0],
           transform: const GradientRotation(startAngle),
@@ -128,7 +128,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     );
 
     final paint = Paint()
-      ..color = CI.blue
+      ..color = CI.radkulturRed
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1);
 
     canvas.drawRRect(

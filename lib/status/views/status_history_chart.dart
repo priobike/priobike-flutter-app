@@ -232,12 +232,12 @@ class StatusHistoryPainter extends CustomPainter {
   /// Draws the lines of the chart.
   void drawLines() {
     Paint paintLine = Paint()
-      ..color = isProblem ? Colors.white : CI.blue
+      ..color = isProblem ? Colors.white : CI.radkulturRed
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
     Paint paintCircle = Paint()
-      ..color = isProblem ? Colors.white : CI.blue
+      ..color = isProblem ? Colors.white : CI.radkulturRed
       ..strokeWidth = 3
       ..style = PaintingStyle.fill;
 

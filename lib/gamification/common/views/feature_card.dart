@@ -1,16 +1,16 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/animation.dart';
-import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/common/views/dialog_button.dart';
-import 'package:priobike/main.dart';
-import 'package:collection/collection.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
+import 'package:priobike/gamification/common/views/dialog_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
+import 'package:priobike/main.dart';
 
 /// A card to display the state of a given gamification feature on the home screen.
 class GamificationFeatureCard extends StatefulWidget {
@@ -135,7 +135,7 @@ class DisabledFeatureCard extends StatelessWidget {
                         getIt<GamificationUserService>().enableFeature(featureKey);
                         Navigator.of(context).pop();
                       },
-                      color: CI.blue,
+                      color: CI.radkulturRed,
                     ),
                   ],
                 ),
@@ -234,7 +234,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                     CustomDialogButton(
                       label: 'Abbrechen',
                       onPressed: () => Navigator.of(context).pop(),
-                      color: CI.blue,
+                      color: CI.radkulturRed,
                     ),
                     const SmallHSpace(),
                     CustomDialogButton(
@@ -243,7 +243,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                         _userService.disableFeature(widget.featureKey);
                         Navigator.of(context).pop();
                       },
-                      color: CI.red,
+                      color: CI.orange,
                     ),
                   ],
                 ),
