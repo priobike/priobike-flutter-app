@@ -132,32 +132,36 @@ class App extends StatelessWidget {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
         final settings = GetIt.instance.get<Settings>();
-        settings.addListener(() => setState(() {}));
+        // settings.addListener(() => setState(() {})); leads to init of Loader looping
 
         return MaterialApp.router(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
           // navigatorObservers: [routeObserver],
-          routerConfig: GoRouter(routes: [
-            GoRoute(
-              path: '/',
-              builder: (_, __) => const PrivacyPolicyView(child: Loader()),
-            ),
-            GoRoute(
-              path: '/import/:shortcut',
-              builder: (context, state) {
-                final shortcutBase64 = state.pathParameters['shortcut'];
-                if (shortcutBase64 == null) return const PrivacyPolicyView(child: Loader());
-                final shortcutBytes = base64.decode(shortcutBase64);
-                final shortcutUTF8 = utf8.decode(shortcutBytes);
-                final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
-                shortcutJson['id'] = UniqueKey().toString();
-                final shortcut = ShortcutRoute.fromJson(shortcutJson);
-                getIt<Shortcuts>().saveNewShortcutObject(shortcut);
-                return const PrivacyPolicyView(child: Loader());
-              },
-            ),
-          ]),
+          routerConfig: GoRouter(
+              routes: [
+                GoRoute(
+                  path: '/',
+                  builder: (_, __) => const PrivacyPolicyView(child: Loader()),
+                ),
+                GoRoute(
+                  path: '/import/:shortcut',
+                  builder: (context, state) {
+                    final shortcutBase64 = state.pathParameters['shortcut'];
+                    if (shortcutBase64 == null) return const PrivacyPolicyView(child: Loader());
+                    final shortcutBytes = base64.decode(shortcutBase64);
+                    final shortcutUTF8 = utf8.decode(shortcutBytes);
+                    final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
+                    shortcutJson['id'] = UniqueKey().toString();
+                    final shortcut = ShortcutRoute.fromJson(shortcutJson);
+                    getIt<Shortcuts>().saveNewShortcutObject(shortcut);
+                    return const PrivacyPolicyView(child: Loader());
+                  },
+                ),
+              ],
+              navigatorKey: navigatorKey,
+              observers: [routeObserver]
+          ),
           theme: ThemeData(
             dialogBackgroundColor: const Color(0xFFFFFFFF),
             fontFamily: 'HamburgSans',

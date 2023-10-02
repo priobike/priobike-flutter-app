@@ -93,12 +93,12 @@ class LoaderState extends State<Loader> {
       await MapboxTileImageCache.pruneUnusedImages();
       await getIt<EvaluationDataService>().sendUnsentElements();
 
-      // settings.incrementUseCounter();
+      settings.incrementUseCounter();
     } catch (e, stacktrace) {
       log.e("Error while loading services $e\n $stacktrace");
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
-      // settings.incrementConnectionErrorCounter();
+      settings.incrementConnectionErrorCounter();
       return;
     }
 
@@ -107,7 +107,7 @@ class LoaderState extends State<Loader> {
       shouldMorph = true;
       hasError = false;
     });
-    // settings.resetConnectionErrorCounter();
+    settings.resetConnectionErrorCounter();
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
     setState(() {
@@ -123,9 +123,15 @@ class LoaderState extends State<Loader> {
   @override
   void initState() {
     super.initState();
-
     settings = getIt<Settings>();
+    settings.addListener(update);
     init();
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   _resetData() async {
