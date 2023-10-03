@@ -137,7 +137,6 @@ class App extends StatelessWidget {
         return MaterialApp.router(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
-          // navigatorObservers: [routeObserver],
           routerConfig: GoRouter(
               routes: [
                 GoRoute(
@@ -159,9 +158,9 @@ class App extends StatelessWidget {
                   },
                 ),
               ],
+              // The navigator key is used to access the app's build context.
               navigatorKey: navigatorKey,
-              observers: [routeObserver]
-          ),
+              observers: [routeObserver]),
           theme: ThemeData(
             dialogBackgroundColor: const Color(0xFFFFFFFF),
             fontFamily: 'HamburgSans',
@@ -281,8 +280,6 @@ class App extends StatelessWidget {
                   ? ThemeMode.dark
                   // Fallback to the system preference.
                   : ThemeMode.system,
-          // The navigator key is used to access the app's build context.
-          // navigatorKey: navigatorKey,
         );
       },
     );
