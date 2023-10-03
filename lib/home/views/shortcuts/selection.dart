@@ -42,15 +42,15 @@ class ShortcutView extends StatelessWidget {
       child: Tile(
         onLongPressed: onLongPressed,
         onPressed: onPressed,
-        shadow: shortcut == null ? CI.radkulturRed : const Color.fromARGB(255, 0, 0, 0),
-        shadowIntensity: shortcut == null ? 0.3 : 0.08,
+        shadow: const Color.fromARGB(255, 0, 0, 0),
+        shadowIntensity: 0.08,
         padding: const EdgeInsets.all(0),
         content: Stack(
           children: [
             if (shortcut == null)
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Icon(Icons.map_rounded, size: 64, color: Colors.white),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Icon(Icons.map_rounded, size: 64, color: Theme.of(context).colorScheme.onBackground),
               )
             else if (shortcut is ShortcutRoute)
               Container(
@@ -63,7 +63,7 @@ class ShortcutView extends StatelessWidget {
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutRoute,
                   height: height - 4,
-                  color: CI.radkulturRed,
+                  color: Theme.of(context).colorScheme.onBackground,
                 ),
               )
             else if (shortcut is ShortcutLocation)
@@ -77,7 +77,7 @@ class ShortcutView extends StatelessWidget {
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutLocation,
                   height: height - 4,
-                  color: CI.radkulturRed,
+                  color: Theme.of(context).colorScheme.onBackground,
                 ),
               ),
             SizedBox(
@@ -98,7 +98,6 @@ class ShortcutView extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
                               ),
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
@@ -110,7 +109,6 @@ class ShortcutView extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
                                 ),
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
@@ -123,7 +121,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ],
         ),
-        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.background,
+        fill: Theme.of(context).colorScheme.background,
         splash:
             showSplash ? (shortcut == null ? Colors.white : Theme.of(context).colorScheme.primary) : Colors.transparent,
       ),

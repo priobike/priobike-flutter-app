@@ -235,7 +235,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: RefreshIndicator(
         edgeOffset: 128 + MediaQuery.of(context).padding.top,
         color: Colors.white,
@@ -286,9 +286,17 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BoldContent(text: "Navigation", context: context),
+                            BoldContent(
+                              text: "Navigation",
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              context: context,
+                            ),
                             const SizedBox(height: 4),
-                            Small(text: "Deine Strecken und Orte", context: context),
+                            Small(
+                              text: "Deine Strecken und Orte",
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              context: context,
+                            ),
                           ],
                         ),
                         Expanded(child: Container()),
@@ -299,13 +307,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           ),
                           icon: Icons.add_rounded,
                           fill: Theme.of(context).colorScheme.background,
-                          splash: Colors.white,
+                          splash: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 8),
                         SmallIconButton(
                           icon: Icons.list_rounded,
                           fill: Theme.of(context).colorScheme.background,
-                          splash: Colors.white,
+                          splash: Theme.of(context).colorScheme.primary,
                           onPressed: onOpenShortcutEditView,
                         ),
                         const SizedBox(width: 24),
@@ -340,9 +348,17 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BoldContent(text: "Routing-Profil", context: context),
+                            BoldContent(
+                              text: "Routing-Profil",
+                              context: context,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                             const SizedBox(height: 4),
-                            Small(text: "Personalisiere deine Routenberechnung", context: context),
+                            Small(
+                              text: "Personalisiere deine Routenberechnung",
+                              context: context,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ],
                         ),
                         Expanded(child: Container()),

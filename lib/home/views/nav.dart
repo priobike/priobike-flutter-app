@@ -22,12 +22,11 @@ class NavBarView extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = getIt<Settings>();
     return SliverAppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Theme.of(context).colorScheme.background,
       pinned: true,
       snap: false,
       floating: false,
-      shadowColor: const Color.fromARGB(26, 0, 37, 100),
+      shadowColor: Color.fromARGB(26, 0, 0, 0),
       expandedHeight: 128,
       collapsedHeight: 73,
       flexibleSpace: FlexibleSpaceBar(
@@ -42,17 +41,6 @@ class NavBarView extends StatelessWidget {
             bottom: 32,
             top: MediaQuery.of(context).padding.top + 14,
           ),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              stops: [
-                0.1,
-                0.9,
-              ],
-              colors: [CI.radkulturRed, CI.radkulturRedDark],
-            ),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -60,18 +48,16 @@ class NavBarView extends StatelessWidget {
                 children: [
                   BoldContent(
                     text: "PrioBike",
-                    color: Colors.white,
                     context: context,
                   ),
                   Flexible(
                     fit: FlexFit.tight,
                     child: Content(
                       text: settings.backend == Backend.staging ? " DD" : " HH",
-                      color: Colors.white,
                       context: context,
                     ),
                   ),
-                  BoldContent(text: "Moin!", color: Colors.white, context: context),
+                  BoldContent(text: "Moin!", context: context),
                 ],
               ),
               const SmallVSpace(),
@@ -93,9 +79,6 @@ class NavBarView extends StatelessWidget {
               const SmallHSpace(),
               SmallIconButton(
                 icon: Icons.settings_rounded,
-                color: Colors.white,
-                splash: Colors.white,
-                fill: const Color.fromARGB(50, 255, 255, 255),
                 onPressed: () {
                   onTapSettingsButton?.call();
                 },

@@ -48,40 +48,40 @@ class WeatherViewState extends State<WeatherView> {
 
     switch (weather.current?.icon) {
       case "clear-day":
-        icon = const Icon(Icons.wb_sunny_rounded, size: 32, color: Colors.white);
+        icon = const Icon(Icons.wb_sunny_rounded, size: 32);
         break;
       case "clear-night":
-        icon = const Icon(Icons.nights_stay, size: 32, color: Colors.white);
+        icon = const Icon(Icons.nights_stay, size: 32);
         break;
       case "partly-cloudy-day":
-        icon = const Icon(Icons.wb_cloudy_rounded, size: 32, color: Colors.white);
+        icon = const Icon(Icons.wb_cloudy_rounded, size: 32);
         break;
       case "partly-cloudy-night":
-        icon = const Icon(Icons.wb_cloudy_rounded, size: 32, color: Colors.white);
+        icon = const Icon(Icons.wb_cloudy_rounded, size: 32);
         break;
       case "cloudy":
-        icon = const Icon(Icons.wb_cloudy_rounded, size: 32, color: Colors.white);
+        icon = const Icon(Icons.wb_cloudy_rounded, size: 32);
         break;
       case "fog":
-        icon = const Icon(Icons.foggy, size: 32, color: Colors.white);
+        icon = const Icon(Icons.foggy, size: 32);
         break;
       case "wind":
-        icon = const Icon(Icons.air, size: 32, color: Colors.white);
+        icon = const Icon(Icons.air, size: 32);
         break;
       case "rain":
-        icon = const Icon(Icons.umbrella_rounded, size: 32, color: Colors.white);
+        icon = const Icon(Icons.umbrella_rounded, size: 32);
         break;
       case "sleet":
-        icon = const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white);
+        icon = const Icon(Icons.cloudy_snowing, size: 32);
         break;
       case "snow":
-        icon = const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white);
+        icon = const Icon(Icons.cloudy_snowing, size: 32);
         break;
       case "hail":
-        icon = const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white);
+        icon = const Icon(Icons.cloudy_snowing, size: 32);
         break;
       case "thunderstorm":
-        icon = const Icon(Icons.bolt, size: 32, color: Colors.white);
+        icon = const Icon(Icons.bolt, size: 32);
         break;
     }
   }
@@ -223,10 +223,10 @@ class WeatherViewState extends State<WeatherView> {
       child: Row(
         children: [
           weather.hadError
-              ? const Icon(Icons.cloud_off_rounded, size: 32, color: Colors.white)
+              ? const Icon(Icons.cloud_off_rounded, size: 32)
               : Stack(
                   children: [
-                    icon ?? const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
+                    icon ?? const Icon(Icons.cloudy_snowing, size: 32),
                     if (warning)
                       Positioned(
                         top: 0,
@@ -234,11 +234,11 @@ class WeatherViewState extends State<WeatherView> {
                         child: Container(
                           width: 16,
                           height: 16,
-                          decoration: const BoxDecoration(
-                            color: CI.orange,
-                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: const BorderRadius.all(Radius.circular(4)),
                           ),
-                          child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),
+                          child: const Icon(Icons.warning_rounded, size: 12),
                         ),
                       ),
                   ],
@@ -247,7 +247,6 @@ class WeatherViewState extends State<WeatherView> {
           Flexible(
             child: Small(
               text: summary ?? "Wetterinformationen sind aktuell nicht verfügbar.",
-              color: Colors.white,
               context: context,
             ),
           ),

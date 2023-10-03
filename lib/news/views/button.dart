@@ -60,8 +60,6 @@ class NewsButtonState extends State<NewsButton> {
       children: [
         SmallIconButton(
           icon: Icons.notifications_rounded,
-          color: Colors.white,
-          splash: Colors.white,
           fill: const Color.fromARGB(50, 255, 255, 255),
           onPressed: widget.onPressed,
         ),
@@ -70,9 +68,9 @@ class NewsButtonState extends State<NewsButton> {
             height: 18,
             width: 18,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: CI.orange,
+              color: Theme.of(context).colorScheme.primary,
             ),
             child: Small(text: "$unread", color: Colors.white, context: context),
           ),

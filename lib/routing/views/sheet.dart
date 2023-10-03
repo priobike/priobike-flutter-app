@@ -240,9 +240,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: BigButton(
-        iconColor: Colors.white,
+        iconColor: Theme.of(context).colorScheme.onBackground,
         label: "Losfahren",
         onPressed: widget.onSelectStartButton,
+        fillColor: Theme.of(context).colorScheme.background,
         boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
       ),
     );
@@ -275,7 +276,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         builder: (BuildContext context, ScrollController controller) {
           return Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
             ),
