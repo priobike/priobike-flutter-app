@@ -159,12 +159,17 @@ class FeedbackViewState extends State<FeedbackView> {
     final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light.copyWith(
-        systemNavigationBarColor: Theme.of(context).colorScheme.primary,
-        systemNavigationBarIconBrightness:
-            Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-        statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-      ),
+      value: Theme.of(context).brightness == Brightness.light
+          ? SystemUiOverlayStyle.light.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.primary,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.primary,
+              systemNavigationBarIconBrightness: Brightness.light,
+              statusBarIconBrightness: Brightness.light,
+            ),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SizedBox(

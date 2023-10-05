@@ -255,13 +255,19 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
         },
         child: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.light.copyWith(
-            systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-            systemNavigationBarIconBrightness:
-                Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-            // status bar is always light, no matter if dark or light theme is used
-            statusBarIconBrightness: Brightness.light,
-          ),
+          value: Theme.of(context).brightness == Brightness.light
+              ? SystemUiOverlayStyle.light.copyWith(
+                  systemNavigationBarColor: Theme.of(context).colorScheme.surface,
+                  systemNavigationBarIconBrightness: Brightness.dark,
+                  // status bar is always light, no matter if dark or light theme is used
+                  statusBarIconBrightness: Brightness.light,
+                )
+              : SystemUiOverlayStyle.dark.copyWith(
+                  systemNavigationBarColor: Theme.of(context).colorScheme.surface,
+                  systemNavigationBarIconBrightness: Brightness.light,
+                  // status bar is always light, no matter if dark or light theme is used
+                  statusBarIconBrightness: Brightness.light,
+                ),
           child: CustomScrollView(
             slivers: <Widget>[
               NavBarView(

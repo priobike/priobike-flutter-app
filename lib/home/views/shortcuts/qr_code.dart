@@ -61,12 +61,17 @@ class QRCodeViewState extends State<QRCodeView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light.copyWith(
-        systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-        systemNavigationBarIconBrightness:
-            Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-        statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-      ),
+      value: Theme.of(context).brightness == Brightness.light
+          ? SystemUiOverlayStyle.light.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.surface,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.surface,
+              systemNavigationBarIconBrightness: Brightness.light,
+              statusBarIconBrightness: Brightness.light,
+            ),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(

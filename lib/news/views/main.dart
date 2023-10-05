@@ -40,12 +40,17 @@ class NewsViewState extends State<NewsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light.copyWith(
-        systemNavigationBarColor: Theme.of(context).colorScheme.background,
-        systemNavigationBarIconBrightness:
-            Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-        statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-      ),
+      value: Theme.of(context).brightness == Brightness.light
+          ? SystemUiOverlayStyle.light.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.background,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.background,
+              systemNavigationBarIconBrightness: Brightness.light,
+              statusBarIconBrightness: Brightness.light,
+            ),
       child: Scaffold(
         body: Fade(
           child: RefreshIndicator(

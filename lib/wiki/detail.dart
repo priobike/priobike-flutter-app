@@ -187,11 +187,17 @@ class WikiDetailViewState extends State<WikiDetailView> {
     final frame = MediaQuery.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light.copyWith(
-        systemNavigationBarColor: Theme.of(context).colorScheme.primary,
-        systemNavigationBarIconBrightness: Brightness.light,
-        statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-      ),
+      value: Theme.of(context).brightness == Brightness.light
+          ? SystemUiOverlayStyle.light.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.primary,
+              systemNavigationBarIconBrightness: Brightness.light,
+              statusBarIconBrightness: Brightness.dark,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.primary,
+              systemNavigationBarIconBrightness: Brightness.light,
+              statusBarIconBrightness: Brightness.light,
+            ),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Stack(
