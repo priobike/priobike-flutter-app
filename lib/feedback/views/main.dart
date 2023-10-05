@@ -156,102 +156,99 @@ class FeedbackViewState extends State<FeedbackView> {
     final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
     final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
 
-    const bottomSheetHeight = 228.0;
+    final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
-    return SafeArea(
-      top: false,
-      bottom: true,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            systemNavigationBarColor: Theme.of(context).colorScheme.primary,
-          ),
-          toolbarHeight: 0,
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Theme.of(context).colorScheme.primary,
         ),
-        body: SizedBox(
-          height: MediaQuery.of(context).size.height - bottomSheetHeight,
-          child: SingleChildScrollView(
-            key: const ValueKey("feedback_scroll_view"),
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 24, 24, 0),
-                  child: () {
-                    if (start == "" || end == "") {
-                      return BoldContent(
-                        text: "Fahrt",
-                        context: context,
-                        textAlign: TextAlign.center,
-                      );
-                    } else {
-                      return Wrap(
-                        alignment: WrapAlignment.center,
-                        runAlignment: WrapAlignment.center,
-                        direction: Axis.horizontal,
-                        runSpacing: 8,
-                        children: [
-                          Content(
-                            text: "Von ",
-                            context: context,
-                          ),
-                          Content(
-                            text: start,
-                            context: context,
-                          ),
-                          Content(
-                            text: " nach ",
-                            context: context,
-                          ),
-                          Content(
-                            text: end,
-                            context: context,
-                          )
-                        ],
-                      );
-                    }
-                  }(),
-                ),
-                if (startImage != null && destinationImage != null)
-                  TrackHistoryItemDetailView(
-                    track: tracking.previousTracks!.last,
-                    startImage: startImage!,
-                    destinationImage: destinationImage!,
-                  ),
-              ],
-            ),
-          ),
-        ),
-        bottomSheet: Container(
-          width: MediaQuery.of(context).size.width,
-          height: bottomSheetHeight,
-          color: Theme.of(context).colorScheme.primary,
+        toolbarHeight: 0,
+      ),
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height - bottomSheetHeight,
+        child: SingleChildScrollView(
+          key: const ValueKey("feedback_scroll_view"),
           child: Column(
             children: [
+              Container(
+                padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 24, 24, 0),
+                child: () {
+                  if (start == "" || end == "") {
+                    return BoldContent(
+                      text: "Fahrt",
+                      context: context,
+                      textAlign: TextAlign.center,
+                    );
+                  } else {
+                    return Wrap(
+                      alignment: WrapAlignment.center,
+                      runAlignment: WrapAlignment.center,
+                      direction: Axis.horizontal,
+                      runSpacing: 8,
+                      children: [
+                        Content(
+                          text: "Von ",
+                          context: context,
+                        ),
+                        Content(
+                          text: start,
+                          context: context,
+                        ),
+                        Content(
+                          text: " nach ",
+                          context: context,
+                        ),
+                        Content(
+                          text: end,
+                          context: context,
+                        )
+                      ],
+                    );
+                  }
+                }(),
+              ),
               const VSpace(),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
-                child: StarRatingView(text: "Dein Feedback zur App"),
-              ),
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.check,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Fertig",
-                onPressed: () => submit(),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-              ),
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.save_rounded,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Strecke speichern",
-                onPressed: () => showSaveShortcutSheet(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-              ),
+              if (startImage != null && destinationImage != null)
+                TrackHistoryItemDetailView(
+                  track: tracking.previousTracks!.last,
+                  startImage: startImage!,
+                  destinationImage: destinationImage!,
+                ),
             ],
           ),
+        ),
+      ),
+      bottomSheet: Container(
+        width: MediaQuery.of(context).size.width,
+        height: bottomSheetHeight,
+        color: Theme.of(context).colorScheme.primary,
+        child: Column(
+          children: [
+            const VSpace(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: StarRatingView(text: "Dein Feedback zur App"),
+            ),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.check,
+              fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+              label: "Fertig",
+              onPressed: () => submit(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+            ),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.save_rounded,
+              fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+              label: "Strecke speichern",
+              onPressed: () => showSaveShortcutSheet(context),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+            ),
+          ],
         ),
       ),
     );
