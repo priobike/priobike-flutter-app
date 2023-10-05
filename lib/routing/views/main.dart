@@ -310,7 +310,6 @@ class RoutingViewState extends State<RoutingView> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
         systemNavigationBarColor: Theme.of(context).colorScheme.background,
-        // use opposite colors on status bar and navigation bar icons
         systemNavigationBarIconBrightness:
             Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
         statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,

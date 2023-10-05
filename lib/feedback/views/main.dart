@@ -159,7 +159,6 @@ class FeedbackViewState extends State<FeedbackView> {
     final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      // make the bottom navigation bar (mainly for Android) transparent/black
       value: SystemUiOverlayStyle.light.copyWith(
         systemNavigationBarColor: Theme.of(context).colorScheme.primary,
         systemNavigationBarIconBrightness:

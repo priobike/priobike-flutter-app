@@ -255,7 +255,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
         },
         child: AnnotatedRegion<SystemUiOverlayStyle>(
-          // make the bottom navigation bar (mainly for Android) transparent/black
           value: SystemUiOverlayStyle.light.copyWith(
             systemNavigationBarColor: Theme.of(context).colorScheme.surface,
             systemNavigationBarIconBrightness:
