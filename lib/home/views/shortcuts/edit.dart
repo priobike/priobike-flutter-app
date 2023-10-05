@@ -291,7 +291,12 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      value: SystemUiOverlayStyle.light.copyWith(
+        systemNavigationBarColor: Theme.of(context).colorScheme.background,
+        systemNavigationBarIconBrightness:
+            Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
+        statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
+      ),
       child: Scaffold(
         body: SingleChildScrollView(
           child: SafeArea(

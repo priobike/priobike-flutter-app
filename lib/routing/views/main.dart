@@ -308,8 +308,13 @@ class RoutingViewState extends State<RoutingView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+      value: SystemUiOverlayStyle.light.copyWith(
+        systemNavigationBarColor: Theme.of(context).colorScheme.background,
+        // use opposite colors on status bar and navigation bar icons
+        systemNavigationBarIconBrightness:
+            Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
+        statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
+      ),
       child: Scaffold(
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {
