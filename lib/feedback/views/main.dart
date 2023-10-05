@@ -147,6 +147,41 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
+  Widget _renderTitle(String start, String end) {
+    if (start == "" || end == "") {
+      return BoldContent(
+        text: "Fahrt",
+        context: context,
+        textAlign: TextAlign.center,
+      );
+    } else {
+      return Wrap(
+        alignment: WrapAlignment.center,
+        runAlignment: WrapAlignment.center,
+        direction: Axis.horizontal,
+        runSpacing: 8,
+        children: [
+          Content(
+            text: "Von ",
+            context: context,
+          ),
+          Content(
+            text: start,
+            context: context,
+          ),
+          Content(
+            text: " nach ",
+            context: context,
+          ),
+          Content(
+            text: end,
+            context: context,
+          )
+        ],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (feedback.isSendingFeedback) return renderLoadingIndicator();
@@ -159,7 +194,40 @@ class FeedbackViewState extends State<FeedbackView> {
     const bottomSheetHeight = 228.0;
 
     return SafeArea(
+      top: false,
+      bottom: true,
       child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: Theme.of(context).colorScheme.primary,
+          ),
+          title: _renderTitle(start, end),
+          centerTitle: true,
+        ),
+        body:
+            // AnnotatedRegion<SystemUiOverlayStyle>(
+            //   value: Theme.of(context).brightness == Brightness.light
+            //       ? SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent)
+            //       : SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
+            //   child:
+            SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - bottomSheetHeight,
+            child: SingleChildScrollView(
+              key: const ValueKey("feedback_scroll_view"),
+              child: (startImage != null && destinationImage != null)
+                  ? TrackHistoryItemDetailView(
+                      track: tracking.previousTracks!.last,
+                      startImage: startImage!,
+                      destinationImage: destinationImage!,
+                    )
+                  : Container(),
+            ),
+          ),
+          // ),
+        ),
         bottomSheet: Container(
           width: MediaQuery.of(context).size.width,
           height: bottomSheetHeight,
@@ -179,70 +247,18 @@ class FeedbackViewState extends State<FeedbackView> {
                 onPressed: () => submit(),
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
               ),
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.save_rounded,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Strecke speichern",
-                onPressed: () => showSaveShortcutSheet(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-              ),
-              const VSpace(),
-            ],
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SizedBox(
-          height: MediaQuery.of(context).size.height - bottomSheetHeight,
-          child: SingleChildScrollView(
-            key: const ValueKey("feedback_scroll_view"),
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 24, 24, 0),
-                  child: () {
-                    if (start == "" || end == "") {
-                      return BoldContent(
-                        text: "Fahrt",
-                        context: context,
-                        textAlign: TextAlign.center,
-                      );
-                    } else {
-                      return Wrap(
-                        alignment: WrapAlignment.center,
-                        runAlignment: WrapAlignment.center,
-                        direction: Axis.horizontal,
-                        runSpacing: 8,
-                        children: [
-                          Content(
-                            text: "Von ",
-                            context: context,
-                          ),
-                          Content(
-                            text: start,
-                            context: context,
-                          ),
-                          Content(
-                            text: " nach ",
-                            context: context,
-                          ),
-                          Content(
-                            text: end,
-                            context: context,
-                          )
-                        ],
-                      );
-                    }
-                  }(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 0),
+                child: BigButton(
+                  iconColor: Colors.white,
+                  icon: Icons.save_rounded,
+                  fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                  label: "Strecke speichern",
+                  onPressed: () => showSaveShortcutSheet(context),
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
                 ),
-                if (startImage != null && destinationImage != null)
-                  TrackHistoryItemDetailView(
-                    track: tracking.previousTracks!.last,
-                    startImage: startImage!,
-                    destinationImage: destinationImage!,
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
