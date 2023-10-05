@@ -156,7 +156,7 @@ class FeedbackViewState extends State<FeedbackView> {
     final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
     final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
 
-    final bottomSheetHeight = 220.0 + MediaQuery.of(context).padding.bottom;
+    final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // make the bottom navigation bar (mainly for Android) transparent/black
@@ -164,8 +164,7 @@ class FeedbackViewState extends State<FeedbackView> {
         systemNavigationBarColor: Theme.of(context).colorScheme.primary,
         systemNavigationBarIconBrightness:
             Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
-        // status bar is always light, no matter if dark or light theme is used
-        statusBarIconBrightness: Brightness.light,
+        statusBarIconBrightness: Theme.of(context).brightness == Brightness.light ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -176,7 +175,7 @@ class FeedbackViewState extends State<FeedbackView> {
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 24, 24, 0),
+                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 48, 24, 0),
                   child: () {
                     if (start == "" || end == "") {
                       return BoldContent(
