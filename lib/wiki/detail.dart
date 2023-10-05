@@ -192,11 +192,13 @@ class WikiDetailViewState extends State<WikiDetailView> {
               systemNavigationBarColor: Theme.of(context).colorScheme.primary,
               systemNavigationBarIconBrightness: Brightness.light,
               statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.dark,
             )
           : SystemUiOverlayStyle.dark.copyWith(
               systemNavigationBarColor: Theme.of(context).colorScheme.primary,
               systemNavigationBarIconBrightness: Brightness.light,
               statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.light,
             ),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,

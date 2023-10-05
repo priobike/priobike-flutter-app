@@ -184,11 +184,13 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
               systemNavigationBarColor: Theme.of(context).colorScheme.background,
               systemNavigationBarIconBrightness: Brightness.dark,
               statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.dark,
             )
           : SystemUiOverlayStyle.dark.copyWith(
               systemNavigationBarColor: Theme.of(context).colorScheme.background,
               systemNavigationBarIconBrightness: Brightness.light,
               statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.light,
             ),
       child: Scaffold(
         body: Fade(

@@ -261,12 +261,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   systemNavigationBarIconBrightness: Brightness.dark,
                   // status bar is always light, no matter if dark or light theme is used
                   statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.light,
                 )
               : SystemUiOverlayStyle.dark.copyWith(
                   systemNavigationBarColor: Theme.of(context).colorScheme.surface,
                   systemNavigationBarIconBrightness: Brightness.light,
                   // status bar is always light, no matter if dark or light theme is used
                   statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.light,
                 ),
           child: CustomScrollView(
             slivers: <Widget>[

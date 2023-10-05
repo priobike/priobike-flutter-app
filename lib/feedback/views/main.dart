@@ -164,11 +164,13 @@ class FeedbackViewState extends State<FeedbackView> {
               systemNavigationBarColor: Theme.of(context).colorScheme.primary,
               systemNavigationBarIconBrightness: Brightness.dark,
               statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.dark,
             )
           : SystemUiOverlayStyle.dark.copyWith(
               systemNavigationBarColor: Theme.of(context).colorScheme.primary,
               systemNavigationBarIconBrightness: Brightness.light,
               statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.light,
             ),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
