@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -125,7 +126,7 @@ class LoaderState extends State<Loader> {
     super.initState();
     settings = getIt<Settings>();
     settings.addListener(update);
-    init();
+    SchedulerBinding.instance.addPostFrameCallback((_) => init());
   }
 
   @override

@@ -132,12 +132,13 @@ class App extends StatelessWidget {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
         final settings = GetIt.instance.get<Settings>();
-        // settings.addListener(() => setState(() {})); leads to init of Loader looping
+        settings.addListener(() => setState(() {}));
 
         return MaterialApp.router(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
           routerConfig: GoRouter(
+              initialLocation: '/',
               routes: [
                 GoRoute(
                   path: '/',
