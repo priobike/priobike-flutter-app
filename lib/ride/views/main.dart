@@ -155,16 +155,39 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    final displayHeight = MediaQuery.of(context).size.height;
-    final heightToPuck = displayHeight / 2;
-    final heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
+    final Alignment alignmentSpeedometer;
+    final EdgeInsets paddingCenterButton;
+    final double heightToPuckBoundingBox;
+    final EdgeInsets paddingSpeedometerRight;
+
+    final orientation = MediaQuery.of(context).orientation;
+
+    if (orientation == Orientation.portrait) {
+      final displayHeight = MediaQuery.of(context).size.height;
+      final heightToPuck = displayHeight / 2;
+      heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
+      alignmentSpeedometer = Alignment.bottomCenter;
+      paddingCenterButton = EdgeInsets.only(
+        bottom: heightToPuckBoundingBox < MediaQuery.of(context).size.width
+            ? heightToPuckBoundingBox - 35
+            : MediaQuery.of(context).size.width - 35,
+      );
+      paddingSpeedometerRight = const EdgeInsets.only(right: 0);
+    } else {
+      final displayWidth = MediaQuery.of(context).size.width;
+      final heightToPuck = displayWidth / 2;
+      heightToPuckBoundingBox = heightToPuck - (displayWidth * 0.05);
+      alignmentSpeedometer = Alignment.bottomRight;
+      paddingCenterButton = const EdgeInsets.only(bottom: 80, right: 540); // TODO: Rework this.
+      paddingSpeedometerRight = const EdgeInsets.only(right: 25); // TODO: Rework this.
+    }
 
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
         body: ScreenTrackingView(
           child: Stack(
-            alignment: Alignment.bottomCenter,
+            alignment: alignmentSpeedometer,
             clipBehavior: Clip.none,
             children: [
               RideMapView(
@@ -193,18 +216,17 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                 ),
-              RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
+              Padding(
+                padding: paddingSpeedometerRight,
+                child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
+              ),
               const DatastreamView(),
               const FinishRideButton(),
               if (!cameraFollowsUserLocation)
                 SafeArea(
                   bottom: true,
                   child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: heightToPuckBoundingBox < MediaQuery.of(context).size.width
-                          ? heightToPuckBoundingBox - 35
-                          : MediaQuery.of(context).size.width - 35,
-                    ),
+                    padding: paddingCenterButton,
                     child: BigButton(
                       icon: Icons.navigation_rounded,
                       iconColor: Colors.white,
