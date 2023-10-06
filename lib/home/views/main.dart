@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/services.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:priobike/common/animation.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -254,20 +255,10 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           );
           HapticFeedback.lightImpact();
         },
-        child: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: Theme.of(context).brightness == Brightness.dark
-              ? SystemUiOverlayStyle.light.copyWith(
-                  systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-                  systemNavigationBarIconBrightness: Brightness.light,
-                  // status bar is always light, no matter if dark or light theme is used
-                  statusBarIconBrightness: Brightness.light,
-                )
-              : SystemUiOverlayStyle.dark.copyWith(
-                  systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-                  systemNavigationBarIconBrightness: Brightness.dark,
-                  // status bar is always light, no matter if dark or light theme is used
-                  statusBarIconBrightness: Brightness.light,
-                ),
+        child: AnnotatedRegionPrioBike(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          brightness: Theme.of(context).brightness,
+          statusBarIconBrightness: Brightness.light,
           child: CustomScrollView(
             slivers: <Widget>[
               NavBarView(

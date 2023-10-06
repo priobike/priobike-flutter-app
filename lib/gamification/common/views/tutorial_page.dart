@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/gamification/common/utils.dart';
@@ -70,18 +70,9 @@ class _TutorialPageState extends State<TutorialPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark
-          ? SystemUiOverlayStyle.light.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-              systemNavigationBarIconBrightness: Brightness.light,
-              statusBarIconBrightness: Brightness.light,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-              systemNavigationBarIconBrightness: Brightness.dark,
-              statusBarIconBrightness: Brightness.dark,
-            ),
+    return AnnotatedRegionPrioBike(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(

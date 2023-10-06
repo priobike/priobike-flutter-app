@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -186,18 +186,9 @@ class WikiDetailViewState extends State<WikiDetailView> {
 
     final frame = MediaQuery.of(context);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark
-          ? SystemUiOverlayStyle.light.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.primary,
-              systemNavigationBarIconBrightness: Brightness.light,
-              statusBarIconBrightness: Brightness.light,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.primary,
-              systemNavigationBarIconBrightness: Brightness.light,
-              statusBarIconBrightness: Brightness.dark,
-            ),
+    return AnnotatedRegionPrioBike(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Stack(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -290,18 +291,9 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   @override
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark
-          ? SystemUiOverlayStyle.light.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.background,
-              systemNavigationBarIconBrightness: Brightness.light,
-              statusBarIconBrightness: Brightness.light,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.background,
-              systemNavigationBarIconBrightness: Brightness.dark,
-              statusBarIconBrightness: Brightness.dark,
-            ),
+    return AnnotatedRegionPrioBike(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(
           child: SafeArea(
