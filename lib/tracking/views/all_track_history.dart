@@ -179,18 +179,16 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.light
+      value: Theme.of(context).brightness == Brightness.dark
           ? SystemUiOverlayStyle.light.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.background,
-              systemNavigationBarIconBrightness: Brightness.dark,
-              statusBarIconBrightness: Brightness.dark,
-              statusBarBrightness: Brightness.dark,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
               systemNavigationBarColor: Theme.of(context).colorScheme.background,
               systemNavigationBarIconBrightness: Brightness.light,
               statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.background,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
             ),
       child: Scaffold(
         body: Fade(

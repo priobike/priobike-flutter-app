@@ -71,18 +71,16 @@ class _TutorialPageState extends State<TutorialPage> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.light
+      value: Theme.of(context).brightness == Brightness.dark
           ? SystemUiOverlayStyle.light.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-              systemNavigationBarIconBrightness: Brightness.dark,
-              statusBarIconBrightness: Brightness.dark,
-              statusBarBrightness: Brightness.dark,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
               systemNavigationBarColor: Theme.of(context).colorScheme.surface,
               systemNavigationBarIconBrightness: Brightness.light,
               statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              systemNavigationBarColor: Theme.of(context).colorScheme.surface,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
             ),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
