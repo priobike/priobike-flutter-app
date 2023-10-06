@@ -172,7 +172,7 @@ class FeedbackViewState extends State<FeedbackView> {
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 36, 24, 0),
+                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 24, 24, 0),
                   child: () {
                     if (start == "" || end == "") {
                       return BoldContent(
