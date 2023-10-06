@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// The annotated region sets the colors for the operation system top status bar and bottom navigation bar
 class AnnotatedRegionPrioBike extends StatelessWidget {
   /// The background color used for the navigation bar (Android).
   final Color backgroundColor;
