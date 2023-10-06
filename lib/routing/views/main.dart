@@ -307,26 +307,26 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.light.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.background,
-              systemNavigationBarIconBrightness: Brightness.dark,
-              statusBarIconBrightness: Brightness.dark,
-              statusBarBrightness: Brightness.dark,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
-              systemNavigationBarColor: Theme.of(context).colorScheme.background,
-              systemNavigationBarIconBrightness: Brightness.light,
-              statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.light,
-            ),
-      child: Scaffold(
-        body: NotificationListener<DraggableScrollableNotification>(
-          onNotification: (notification) {
-            sheetMovement.add(notification);
-            return false;
-          },
+    return Scaffold(
+      body: NotificationListener<DraggableScrollableNotification>(
+        onNotification: (notification) {
+          sheetMovement.add(notification);
+          return false;
+        },
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: Theme.of(context).brightness == Brightness.light
+              ? SystemUiOverlayStyle.light.copyWith(
+                  systemNavigationBarColor: Theme.of(context).colorScheme.background,
+                  systemNavigationBarIconBrightness: Brightness.dark,
+                  statusBarIconBrightness: Brightness.dark,
+                  statusBarBrightness: Brightness.dark,
+                )
+              : SystemUiOverlayStyle.dark.copyWith(
+                  systemNavigationBarColor: Theme.of(context).colorScheme.background,
+                  systemNavigationBarIconBrightness: Brightness.light,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.light,
+                ),
           child: Stack(
             children: [
               RoutingMapView(sheetMovement: sheetMovement.stream),
