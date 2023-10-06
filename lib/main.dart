@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
@@ -134,34 +133,30 @@ class App extends StatelessWidget {
         final settings = GetIt.instance.get<Settings>();
         settings.addListener(() => setState(() {}));
 
-        return MaterialApp.router(
+        return MaterialApp(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
-          routerConfig: GoRouter(
-              initialLocation: '/',
-              routes: [
-                GoRoute(
-                  path: '/',
-                  builder: (_, __) => const PrivacyPolicyView(child: Loader()),
-                ),
-                GoRoute(
-                  path: '/import/:shortcut',
-                  builder: (context, state) {
-                    final shortcutBase64 = state.pathParameters['shortcut'];
-                    if (shortcutBase64 == null) return const PrivacyPolicyView(child: Loader());
-                    final shortcutBytes = base64.decode(shortcutBase64);
-                    final shortcutUTF8 = utf8.decode(shortcutBytes);
-                    final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
-                    shortcutJson['id'] = UniqueKey().toString();
-                    final shortcut = ShortcutRoute.fromJson(shortcutJson);
-                    getIt<Shortcuts>().saveNewShortcutObject(shortcut);
-                    return const PrivacyPolicyView(child: Loader());
-                  },
-                ),
-              ],
-              // The navigator key is used to access the app's build context.
-              navigatorKey: navigatorKey,
-              observers: [routeObserver]),
+          onGenerateRoute: (routeSettings) {
+            String url = routeSettings.name!;
+            List<String> subUrls = url.split('/');
+            if (subUrls.length == 3 && subUrls[1] == 'import'){
+              return MaterialPageRoute(builder: (context) {
+                final shortcutBase64 = subUrls.last;
+                final shortcutBytes = base64.decode(shortcutBase64);
+                final shortcutUTF8 = utf8.decode(shortcutBytes);
+                final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
+                shortcutJson['id'] = UniqueKey().toString();
+                final shortcut = ShortcutRoute.fromJson(shortcutJson);
+                getIt<Shortcuts>().saveNewShortcutObject(shortcut);
+                return const PrivacyPolicyView(child: Loader());
+              });
+            }
+            return MaterialPageRoute(builder: (context) => const PrivacyPolicyView(child: Loader()));
+
+          },
+          // The navigator key is used to access the app's build context.
+          navigatorKey: navigatorKey,
+          navigatorObservers: [routeObserver],
           theme: ThemeData(
             dialogBackgroundColor: const Color(0xFFFFFFFF),
             fontFamily: 'HamburgSans',
