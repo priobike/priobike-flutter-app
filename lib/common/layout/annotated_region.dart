@@ -39,7 +39,7 @@ class AnnotatedRegionPrioBike extends StatelessWidget {
             )
           : SystemUiOverlayStyle.dark.copyWith(
               systemNavigationBarColor: backgroundColor,
-              systemNavigationBarIconBrightness: Brightness.light,
+              systemNavigationBarIconBrightness: Brightness.dark,
               statusBarIconBrightness: statusBarIconBrightness ?? Brightness.dark,
             ),
       child: child,
