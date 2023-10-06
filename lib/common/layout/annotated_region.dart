@@ -15,12 +15,16 @@ class AnnotatedRegionPrioBike extends StatelessWidget {
   /// The brightness of the text of the top status bar (Android).
   final Brightness? statusBarIconBrightness;
 
+  /// The brightness of the text of the bottom navigation bar (Android).
+  final Brightness? systemNavigationBarIconBrightness;
+
   const AnnotatedRegionPrioBike({
     Key? key,
     required this.backgroundColor,
     required this.brightness,
     required this.child,
     this.statusBarIconBrightness,
+    this.systemNavigationBarIconBrightness,
   }) : super(key: key);
 
   @override
@@ -32,14 +36,14 @@ class AnnotatedRegionPrioBike extends StatelessWidget {
               systemNavigationBarColor: backgroundColor,
 
               // The text on the navigation bar on Android.
-              systemNavigationBarIconBrightness: Brightness.light,
+              systemNavigationBarIconBrightness: systemNavigationBarIconBrightness ?? Brightness.light,
 
               // The text on the status bar on top on Android.
               statusBarIconBrightness: statusBarIconBrightness ?? Brightness.light,
             )
           : SystemUiOverlayStyle.dark.copyWith(
               systemNavigationBarColor: backgroundColor,
-              systemNavigationBarIconBrightness: Brightness.dark,
+              systemNavigationBarIconBrightness: systemNavigationBarIconBrightness ?? Brightness.dark,
               statusBarIconBrightness: statusBarIconBrightness ?? Brightness.dark,
             ),
       child: child,

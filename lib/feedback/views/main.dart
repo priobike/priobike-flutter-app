@@ -162,6 +162,7 @@ class FeedbackViewState extends State<FeedbackView> {
     return AnnotatedRegionPrioBike(
       backgroundColor: Theme.of(context).colorScheme.primary,
       brightness: Theme.of(context).brightness,
+      systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SizedBox(
