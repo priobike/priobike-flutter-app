@@ -231,210 +231,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     positioning.setDebugSpeed(speed / 3.6);
   }
 
-  /// Render the speedometer in portrait mode.
-  Widget _renderPortraitMode(
-      {required double speedkmh,
-      required double remainingDistance,
-      required DateTime timeOfArrival,
-      required Size size,
-      required double originalSpeedometerHeight,
-      required double originalSpeedometerWidth,
-      required bool showAlert}) {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        Container(
-          height: originalSpeedometerHeight,
-          width: originalSpeedometerWidth,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                  ? [
-                      Colors.black.withOpacity(0),
-                      Colors.black.withOpacity(0.5),
-                      Colors.black,
-                    ]
-                  : [
-                      Colors.black.withOpacity(0.0),
-                      Colors.black.withOpacity(0.1),
-                      Colors.black,
-                    ],
-              stops: Theme.of(context).colorScheme.brightness == Brightness.dark
-                  ? const [0.1, 0.3, 0.5] // Dark theme
-                  : const [0.0, 0.1, 0.8], // Light theme
-            ),
-          ),
-        ),
-        SafeArea(
-          bottom: true,
-          child: SizedBox(
-            height: widget.puckHeight,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: SizedBox(
-                height: originalSpeedometerHeight,
-                width: originalSpeedometerWidth,
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    if (showAlert)
-                      Transform.translate(
-                        offset: const Offset(0, 42),
-                        child: Center(
-                          child: SpeedometerAlert(size: size),
-                        ),
-                      ),
-                    Transform.translate(
-                      offset: const Offset(0, 42),
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        // When the user taps on the speedometer, we want to set the speed to the tapped speed.
-                        onTapUp: (details) {
-                          // Get the center of the speedometer
-                          final xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
-                          final yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
-                          // Transform the angle of the tapped position into an intuitive angle system:
-                          // 0 deg is south, 90 deg is west, 180 deg is north, 270 deg is east.
-                          final angleDeg = atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
-                          final headingDeg = angleDeg > 0 ? angleDeg : 360 + angleDeg;
-                          // Interpolate the heading to a speed.
-                          const minDeg = 45.0, maxDeg = 315.0;
-                          var speed = (headingDeg - minDeg) / (maxDeg - minDeg) * (maxSpeed - minSpeed) + minSpeed;
-                          speed = max(minSpeed, min(maxSpeed, speed));
-                          onTapSpeedometer(speed);
-                        },
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            CustomPaint(painter: SpeedometerCoverPainter()),
-                            CustomPaint(
-                              size: size,
-                              painter: SpeedometerBackgroundPainter(
-                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                              ),
-                            ),
-                            CustomPaint(
-                              painter: SpeedometerTicksPainter(
-                                minSpeed: minSpeed,
-                                maxSpeed: maxSpeed,
-                              ),
-                            ),
-                            if (!showAlert)
-                              CustomPaint(
-                                painter: SpeedometerPredictionArcPainter(
-                                  minSpeed: minSpeed,
-                                  maxSpeed: maxSpeed,
-                                  colors: gaugeColors,
-                                  stops: gaugeStops,
-                                  isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                                ),
-                              ),
-                            CustomPaint(
-                              painter: SpeedometerLabelsPainter(
-                                minSpeed: minSpeed,
-                                maxSpeed: maxSpeed,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (!showAlert)
-                      Transform.translate(
-                        offset: const Offset(0, 42),
-                        child: Center(
-                          child: RideTrafficLightView(
-                            size: size,
-                          ),
-                        ),
-                      ),
-                    if (!showAlert)
-                      Transform.translate(
-                        offset: const Offset(0, 42),
-                        child: RideCenterButtonsView(
-                          size: size,
-                        ),
-                      ),
-                    IgnorePointer(
-                      child: Transform.translate(
-                        offset: const Offset(0, 42),
-                        child: CustomPaint(
-                          size: size,
-                          painter: SpeedometerSpeedArcPainter(
-                            minSpeed: minSpeed,
-                            maxSpeed: maxSpeed,
-                            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                            // Scale the animation pct between minSpeed and maxSpeed
-                            speed: speedkmh,
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (ride.userSelectedSG == null) ...[
-                      if (!showAlert)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 62),
-                          child: BoldContent(
-                            text:
-                                "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
-                            context: context,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 26),
-                        child: Text(
-                          '${speedkmh.toStringAsFixed(0)} km/h',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 18),
-                      child: Text(
-                        'PrioBike App - Work in Progress.',
-                        style: Theme.of(context).textTheme.displaySmall!.merge(
-                              TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: 8,
-                              ),
-                            ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: ride.predictionComponent?.currentMode == PredictionMode.usePredictor
-                            // Display a small dot to indicate that the fallback is active.
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                width: 4,
-                                height: 4,
-                              )
-                            : const SizedBox(width: 4, height: 4),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   /// Render the speedometer in landscape mode.
   Widget _renderLandscapeMode(
       {required double speedkmh,
@@ -655,26 +451,232 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
     final orientation = MediaQuery.of(context).orientation;
 
+    final double originalSpeedometerHeight;
+    final double originalSpeedometerWidth;
+    final Size size;
+    final Gradient speedometerGradient;
+
     if (orientation == Orientation.portrait) {
-      return _renderPortraitMode(
-        speedkmh: speedkmh,
-        remainingDistance: remainingDistance,
-        timeOfArrival: timeOfArrival,
-        size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width),
-        originalSpeedometerHeight: MediaQuery.of(context).size.width,
-        originalSpeedometerWidth: MediaQuery.of(context).size.width,
-        showAlert: showAlert,
+      originalSpeedometerHeight = MediaQuery.of(context).size.width;
+      originalSpeedometerWidth = MediaQuery.of(context).size.width;
+      size = Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width);
+      speedometerGradient = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: Theme.of(context).colorScheme.brightness == Brightness.dark
+            ? [
+                Colors.black.withOpacity(0),
+                Colors.black.withOpacity(0.5),
+                Colors.black,
+              ]
+            : [
+                Colors.black.withOpacity(0.0),
+                Colors.black.withOpacity(0.1),
+                Colors.black,
+              ],
+        stops: Theme.of(context).colorScheme.brightness == Brightness.dark
+            ? const [0.1, 0.3, 0.5] // Dark theme
+            : const [0.0, 0.1, 0.8], // Light theme
       );
     } else {
-      return _renderLandscapeMode(
-        speedkmh: speedkmh,
-        remainingDistance: remainingDistance,
-        timeOfArrival: timeOfArrival,
-        size: Size(MediaQuery.of(context).size.height, MediaQuery.of(context).size.height),
-        originalSpeedometerHeight: MediaQuery.of(context).size.height,
-        originalSpeedometerWidth: MediaQuery.of(context).size.height,
-        showAlert: showAlert,
+      originalSpeedometerHeight = MediaQuery.of(context).size.height;
+      originalSpeedometerWidth = MediaQuery.of(context).size.height;
+      size = Size(MediaQuery.of(context).size.height, MediaQuery.of(context).size.height);
+      speedometerGradient = RadialGradient(
+        radius: 1.0,
+        center: const Alignment(0, 0.27),
+        colors: Theme.of(context).colorScheme.brightness == Brightness.dark
+            ? [
+                Colors.black.withOpacity(1),
+                Colors.black.withOpacity(0.8),
+                Colors.black.withOpacity(0),
+              ]
+            : [
+                Colors.black.withOpacity(1.0),
+                Colors.black.withOpacity(0.9),
+                Colors.black.withOpacity(0.0),
+              ],
+        stops: Theme.of(context).colorScheme.brightness == Brightness.dark
+            ? const [0.1, 0.3, 0.5] // Dark theme
+            : const [0.0, 0.1, 0.8], // Light theme
       );
     }
+
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Container(
+          height: originalSpeedometerHeight,
+          width: originalSpeedometerWidth,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            gradient: speedometerGradient,
+          ),
+        ),
+        SafeArea(
+          bottom: true,
+          child: SizedBox(
+            height: widget.puckHeight,
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: SizedBox(
+                height: originalSpeedometerHeight,
+                width: originalSpeedometerWidth,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    if (showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: SpeedometerAlert(size: size),
+                        ),
+                      ),
+                    Transform.translate(
+                      offset: const Offset(0, 42),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        // When the user taps on the speedometer, we want to set the speed to the tapped speed.
+                        onTapUp: (details) {
+                          // Get the center of the speedometer
+                          final xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
+                          final yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
+                          // Transform the angle of the tapped position into an intuitive angle system:
+                          // 0 deg is south, 90 deg is west, 180 deg is north, 270 deg is east.
+                          final angleDeg = atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
+                          final headingDeg = angleDeg > 0 ? angleDeg : 360 + angleDeg;
+                          // Interpolate the heading to a speed.
+                          const minDeg = 45.0, maxDeg = 315.0;
+                          var speed = (headingDeg - minDeg) / (maxDeg - minDeg) * (maxSpeed - minSpeed) + minSpeed;
+                          speed = max(minSpeed, min(maxSpeed, speed));
+                          onTapSpeedometer(speed);
+                        },
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CustomPaint(painter: SpeedometerCoverPainter()),
+                            CustomPaint(
+                              size: size,
+                              painter: SpeedometerBackgroundPainter(
+                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                              ),
+                            ),
+                            CustomPaint(
+                              painter: SpeedometerTicksPainter(
+                                minSpeed: minSpeed,
+                                maxSpeed: maxSpeed,
+                              ),
+                            ),
+                            if (!showAlert)
+                              CustomPaint(
+                                painter: SpeedometerPredictionArcPainter(
+                                  minSpeed: minSpeed,
+                                  maxSpeed: maxSpeed,
+                                  colors: gaugeColors,
+                                  stops: gaugeStops,
+                                  isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                                ),
+                              ),
+                            CustomPaint(
+                              painter: SpeedometerLabelsPainter(
+                                minSpeed: minSpeed,
+                                maxSpeed: maxSpeed,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (!showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: RideTrafficLightView(
+                            size: size,
+                          ),
+                        ),
+                      ),
+                    if (!showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: RideCenterButtonsView(
+                          size: size,
+                        ),
+                      ),
+                    IgnorePointer(
+                      child: Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: CustomPaint(
+                          size: size,
+                          painter: SpeedometerSpeedArcPainter(
+                            minSpeed: minSpeed,
+                            maxSpeed: maxSpeed,
+                            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                            // Scale the animation pct between minSpeed and maxSpeed
+                            speed: speedkmh,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (ride.userSelectedSG == null) ...[
+                      if (!showAlert)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 62),
+                          child: BoldContent(
+                            text:
+                                "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
+                            context: context,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 26),
+                        child: Text(
+                          '${speedkmh.toStringAsFixed(0)} km/h',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Text(
+                        'PrioBike App - Work in Progress.',
+                        style: Theme.of(context).textTheme.displaySmall!.merge(
+                              TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                                fontSize: 8,
+                              ),
+                            ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: ride.predictionComponent?.currentMode == PredictionMode.usePredictor
+                            // Display a small dot to indicate that the fallback is active.
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                width: 4,
+                                height: 4,
+                              )
+                            : const SizedBox(width: 4, height: 4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
