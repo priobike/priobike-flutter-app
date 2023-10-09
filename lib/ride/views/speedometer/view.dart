@@ -16,6 +16,7 @@ import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
+import 'package:priobike/ride/views/speedometer/speedometer_shadow.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -231,59 +232,20 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final showAlert = routing.hadErrorDuringFetch;
 
     final orientation = MediaQuery.of(context).orientation;
+    final bool landscapeMode = MediaQuery.of(context).orientation == Orientation.landscape;
 
     final double originalSpeedometerHeight;
     final double originalSpeedometerWidth;
     final Size size;
-    final Gradient speedometerGradient;
-    final bool showTriangleAtTheBottom;
 
     if (orientation == Orientation.portrait) {
       originalSpeedometerHeight = MediaQuery.of(context).size.width;
       originalSpeedometerWidth = MediaQuery.of(context).size.width;
-      size = Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.width);
-      speedometerGradient = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-            ? [
-                Colors.black.withOpacity(0),
-                Colors.black.withOpacity(0.5),
-                Colors.black,
-              ]
-            : [
-                Colors.black.withOpacity(0.0),
-                Colors.black.withOpacity(0.1),
-                Colors.black,
-              ],
-        stops: Theme.of(context).colorScheme.brightness == Brightness.dark
-            ? const [0.1, 0.3, 0.5] // Dark theme
-            : const [0.0, 0.1, 0.8], // Light theme
-      );
-      showTriangleAtTheBottom = true;
+      size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
     } else {
       originalSpeedometerHeight = MediaQuery.of(context).size.height;
       originalSpeedometerWidth = MediaQuery.of(context).size.height;
-      size = Size(MediaQuery.of(context).size.height, MediaQuery.of(context).size.height);
-      speedometerGradient = RadialGradient(
-        radius: 1.0,
-        center: const Alignment(0, 0.27),
-        colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-            ? [
-                Colors.black.withOpacity(1),
-                Colors.black.withOpacity(0.8),
-                Colors.black.withOpacity(0),
-              ]
-            : [
-                Colors.black.withOpacity(1.0),
-                Colors.black.withOpacity(0.9),
-                Colors.black.withOpacity(0.0),
-              ],
-        stops: Theme.of(context).colorScheme.brightness == Brightness.dark
-            ? const [0.1, 0.3, 0.5] // Dark theme
-            : const [0.0, 0.1, 0.8], // Light theme
-      );
-      showTriangleAtTheBottom = false;
+      size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
     }
 
     return Stack(
@@ -293,9 +255,28 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
           height: originalSpeedometerHeight,
           width: originalSpeedometerWidth,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            gradient: speedometerGradient,
-          ),
+          decoration: landscapeMode
+              ? null
+              : BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? [
+                            Colors.black.withOpacity(0),
+                            Colors.black.withOpacity(0.5),
+                            Colors.black,
+                          ]
+                        : [
+                            Colors.black.withOpacity(0.0),
+                            Colors.black.withOpacity(0.1),
+                            Colors.black,
+                          ],
+                    stops: Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? const [0.1, 0.3, 0.5] // Dark theme
+                        : const [0.0, 0.1, 0.8], // Light theme
+                  ),
+                ),
         ),
         SafeArea(
           bottom: true,
@@ -309,6 +290,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
+                    if (landscapeMode)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: SpeedometerShadow(size: size),
+                        ),
+                      ),
                     if (showAlert)
                       Transform.translate(
                         offset: const Offset(0, 42),
@@ -338,7 +326,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            if (showTriangleAtTheBottom) CustomPaint(painter: SpeedometerCoverPainter()),
+                            if (!landscapeMode) CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               size: size,
                               painter: SpeedometerBackgroundPainter(
