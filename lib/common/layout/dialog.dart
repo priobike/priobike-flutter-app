@@ -208,6 +208,8 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
     // Initial state of the bottom padding.
     paddingBottom = MediaQuery.of(context).viewInsets.bottom;
 
+    final orientation = MediaQuery.of(context).orientation;
+
     return AnimatedPadding(
       padding: EdgeInsets.only(bottom: paddingBottom),
       duration: const Duration(milliseconds: 200),
@@ -220,39 +222,43 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
             child: Material(
               color: Colors.transparent,
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
+                width: orientation == Orientation.portrait
+                    ? MediaQuery.of(context).size.width * 0.8
+                    : MediaQuery.of(context).size.width * 0.6,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(24)),
                   color: Theme.of(context).colorScheme.background.withOpacity(0.6),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.icon != null)
-                      Icon(
-                        widget.icon!,
-                        color: widget.iconColor ?? Theme.of(context).colorScheme.primary,
-                        size: 36,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (widget.icon != null)
+                        Icon(
+                          widget.icon!,
+                          color: widget.iconColor ?? Theme.of(context).colorScheme.primary,
+                          size: 36,
+                        ),
+                      if (widget.icon != null) const SmallVSpace(),
+                      BoldSubHeader(
+                        context: context,
+                        text: widget.title,
+                        textAlign: TextAlign.center,
                       ),
-                    if (widget.icon != null) const SmallVSpace(),
-                    BoldSubHeader(
-                      context: context,
-                      text: widget.title,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SmallVSpace(),
-                    Content(
-                      context: context,
-                      text: widget.text,
-                      textAlign: TextAlign.center,
-                    ),
-                    if (widget.actions != null) ...[
                       const SmallVSpace(),
-                      ...actions,
-                    ]
-                  ],
+                      Content(
+                        context: context,
+                        text: widget.text,
+                        textAlign: TextAlign.center,
+                      ),
+                      if (widget.actions != null) ...[
+                        const SmallVSpace(),
+                        ...actions,
+                      ]
+                    ],
+                  ),
                 ),
               ),
             ),
