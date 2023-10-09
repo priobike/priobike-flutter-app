@@ -119,14 +119,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     ride.addListener(updateLayout);
 
     updateSpeedometer();
-
-    // Allow user to rotate the screen.
-    // Landscape-Mode needs to be removed with FinishRideButton when going to FeedbackView.
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-    ]);
   }
 
   @override

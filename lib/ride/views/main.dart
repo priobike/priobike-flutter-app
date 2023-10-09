@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/lock.dart';
@@ -131,6 +132,14 @@ class RideViewState extends State<RideView> {
 
         // Start tracking once the `sessionId` is set and the positioning stream is available.
         await tracking.start(deviceWidth, deviceHeight);
+
+        // Allow user to rotate the screen.
+        // Landscape-Mode needs to be removed in dispose().
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.landscapeRight,
+          DeviceOrientation.landscapeLeft,
+        ]);
       },
     );
   }
@@ -145,8 +154,13 @@ class RideViewState extends State<RideView> {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     settings.removeListener(update);
+
+    // Allows only portrait mode again.
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     super.dispose();
   }
 

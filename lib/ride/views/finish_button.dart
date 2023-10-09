@@ -88,16 +88,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final position = getIt<Positioning>();
     await position.stopGeolocation();
 
-    // Allows only portrait mode again.
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
-
-    // Show the feedback dialog.
+    // Show the feedback view.
     if (mounted) {
-      // Pop everything until ride view is reached and then replace it with the feedback view.
-      // Otherwise the ride view stays in the widget tree and is shown for a split seconds after closing the feedback view.
-
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => FeedbackView(
