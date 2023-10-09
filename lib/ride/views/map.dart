@@ -185,6 +185,24 @@ class RideMapViewState extends State<RideMapView> {
 
     const vincenty = Distance(roundResult: false);
 
+    // Portrait/landscape mode
+    final orientation = MediaQuery.of(context).orientation;
+    final mapbox.MbxEdgeInsets padding;
+    if (orientation == Orientation.portrait) {
+      padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0);
+    } else {
+      // Landscape-Mode: Set user to the left and a little down
+      // The padding must be different if battery save mode is enabled by user because the map is rendered differently
+      final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
+      final deviceWidth = MediaQuery.of(context).size.width;
+      final deviceHeight = MediaQuery.of(context).size.height;
+      if (isBatterySaveModeEnabled) {
+        padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.3, left: 0, bottom: 0, right: deviceWidth * 0.37);
+      } else {
+        padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * 0.9);
+      }
+    }
+
     if (routing.hadErrorDuringFetch) {
       // If there was an error during fetching, we don't have a route and thus also can't snap the position.
       // We can only try to display the real user position.
@@ -198,6 +216,7 @@ class RideMapViewState extends State<RideMapView> {
             bearing: userPos.heading,
             zoom: 16,
             pitch: 60,
+            padding: padding,
           ),
           mapbox.MapAnimationOptions(duration: 1500));
       await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
@@ -258,6 +277,7 @@ class RideMapViewState extends State<RideMapView> {
             bearing: cameraHeading,
             zoom: zoom,
             pitch: 60,
+            padding: padding,
           ),
           mapbox.MapAnimationOptions(duration: 1500));
     }
