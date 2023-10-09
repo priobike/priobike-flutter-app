@@ -84,8 +84,11 @@ class Shortcuts with ChangeNotifier {
   Future<void> saveNewShortcutObject(Shortcut shortcut) async {
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
-    for (var existingShortcut in shortcuts!){
-      if (existingShortcut.name == shortcut.name) return;
+    for (var existingShortcut in shortcuts!) {
+      if (existingShortcut.name == shortcut.name) {
+        ToastMessage.showError("Route existiert bereits!");
+        return;
+      }
     }
     shortcuts = [shortcut] + shortcuts!;
     await storeShortcuts();

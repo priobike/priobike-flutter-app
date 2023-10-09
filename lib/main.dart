@@ -139,20 +139,16 @@ class App extends StatelessWidget {
           onGenerateRoute: (routeSettings) {
             String url = routeSettings.name!;
             List<String> subUrls = url.split('/');
-            if (subUrls.length == 3 && subUrls[1] == 'import'){
-              return MaterialPageRoute(builder: (context) {
-                final shortcutBase64 = subUrls.last;
-                final shortcutBytes = base64.decode(shortcutBase64);
-                final shortcutUTF8 = utf8.decode(shortcutBytes);
-                final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
-                shortcutJson['id'] = UniqueKey().toString();
-                final shortcut = ShortcutRoute.fromJson(shortcutJson);
-                getIt<Shortcuts>().saveNewShortcutObject(shortcut);
-                return const PrivacyPolicyView(child: Loader());
-              });
+            if (subUrls.length == 3 && subUrls[1] == 'import') {
+              final shortcutBase64 = subUrls.last;
+              final shortcutBytes = base64.decode(shortcutBase64);
+              final shortcutUTF8 = utf8.decode(shortcutBytes);
+              final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
+              shortcutJson['id'] = UniqueKey().toString();
+              final shortcut = ShortcutRoute.fromJson(shortcutJson);
+              getIt<Shortcuts>().saveNewShortcutObject(shortcut);
             }
             return MaterialPageRoute(builder: (context) => const PrivacyPolicyView(child: Loader()));
-
           },
           // The navigator key is used to access the app's build context.
           navigatorKey: navigatorKey,
