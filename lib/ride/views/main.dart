@@ -184,67 +184,70 @@ class RideViewState extends State<RideView> {
 
     return WillPopScope(
       onWillPop: () async => false,
-      child: Scaffold(
-        body: ScreenTrackingView(
-          child: Stack(
-            alignment: alignmentSpeedometer,
-            clipBehavior: Clip.none,
-            children: [
-              RideMapView(
-                onMapMoved: onMapMoved,
-                cameraFollowUserLocation: cameraFollowsUserLocation,
-              ),
-              if (settings.saveBatteryModeEnabled)
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.07,
-                  left: 10,
-                  child: const Image(
-                    width: 100,
-                    image: AssetImage('assets/images/mapbox-logo-transparent.png'),
-                  ),
+      child: SafeArea(
+        child: Scaffold(
+          body: ScreenTrackingView(
+            child: Stack(
+              alignment: alignmentSpeedometer,
+              clipBehavior: Clip.none,
+              children: [
+                RideMapView(
+                  onMapMoved: onMapMoved,
+                  cameraFollowUserLocation: cameraFollowsUserLocation,
                 ),
-              if (settings.saveBatteryModeEnabled)
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.05,
-                  right: 10,
-                  child: IconButton(
-                    onPressed: () => MapboxAttribution.showAttribution(context),
-                    icon: const Icon(
-                      Icons.info_outline_rounded,
-                      size: 25,
-                      color: CI.radkulturRed,
+                if (settings.saveBatteryModeEnabled)
+                  const Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Image(
+                      width: 100,
+                      image: AssetImage('assets/images/mapbox-logo-transparent.png'),
                     ),
                   ),
-                ),
-              Padding(
-                padding: paddingSpeedometerRight,
-                child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
-              ),
-              const DatastreamView(),
-              const FinishRideButton(),
-              if (!cameraFollowsUserLocation)
-                SafeArea(
-                  bottom: true,
-                  child: Padding(
-                    padding: paddingCenterButton,
-                    child: BigButton(
-                      icon: Icons.navigation_rounded,
-                      iconColor: Colors.white,
-                      fillColor: Theme.of(context).colorScheme.primary,
-                      label: "Zentrieren",
-                      elevation: 20,
-                      onPressed: () {
-                        final ride = getIt<Ride>();
-                        if (ride.userSelectedSG != null) ride.unselectSG();
-                        setState(() {
-                          cameraFollowsUserLocation = true;
-                        });
-                      },
-                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                if (settings.saveBatteryModeEnabled)
+                  Positioned(
+                    top: 5,
+                    right: 10,
+                    child: IconButton(
+                      onPressed: () => MapboxAttribution.showAttribution(context),
+                      icon: const Icon(
+                        Icons.info_outline_rounded,
+                        size: 25,
+                        color: CI.blue,
+                      ),
                     ),
                   ),
+                Padding(
+                  padding: paddingSpeedometerRight,
+                  child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
                 ),
-            ],
+                const DatastreamView(),
+                const FinishRideButton(),
+                if (!cameraFollowsUserLocation)
+                  SafeArea(
+                    bottom: true,
+                    child: Padding(
+                      padding: paddingCenterButton,
+                      child: BigButton(
+                        icon: Icons.navigation_rounded,
+                        iconColor: Colors.white,
+                        fillColor: Theme.of(context).colorScheme.primary,
+                        label: "Zentrieren",
+                        elevation: 20,
+                        onPressed: () {
+                          final ride = getIt<Ride>();
+                          if (ride.userSelectedSG != null) ride.unselectSG();
+                          setState(() {
+                            cameraFollowsUserLocation = true;
+                          });
+                        },
+                        boxConstraints:
+                            BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

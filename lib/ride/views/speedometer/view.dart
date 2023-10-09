@@ -231,9 +231,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   Widget build(BuildContext context) {
     final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
 
-    // final originalSpeedometerHeight = MediaQuery.of(context).size.width;
-    // final originalSpeedometerWidth = MediaQuery.of(context).size.width;
-
     final remainingDistance =
         (((ride.route?.path.distance ?? 0.0) - (positioning.snap?.distanceOnRoute ?? 0.0)) / 1000).abs();
     final remainingMinutes = remainingDistance / (18 / 60);
