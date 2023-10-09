@@ -94,6 +94,11 @@ class LoaderState extends State<Loader> {
       await MapboxTileImageCache.pruneUnusedImages();
       getIt<EvaluationDataService>().sendUnsentElements();
 
+      // Only allow portrait mode.
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+
       settings.incrementUseCounter();
     } catch (e, stacktrace) {
       log.e("Error while loading services $e\n $stacktrace");
