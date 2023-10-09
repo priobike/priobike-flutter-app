@@ -178,8 +178,8 @@ class RideViewState extends State<RideView> {
       final heightToPuck = displayWidth / 2;
       heightToPuckBoundingBox = heightToPuck - (displayWidth * 0.05);
       alignmentSpeedometer = Alignment.bottomRight;
-      paddingCenterButton = const EdgeInsets.only(bottom: 80, right: 540); // TODO: Rework this.
-      paddingSpeedometerRight = const EdgeInsets.only(right: 25); // TODO: Rework this.
+      paddingCenterButton = const EdgeInsets.only(bottom: 70, right: 470);
+      paddingSpeedometerRight = const EdgeInsets.only(right: 25);
     }
 
     return WillPopScope(

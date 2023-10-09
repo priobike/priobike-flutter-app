@@ -244,6 +244,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final double originalSpeedometerWidth;
     final Size size;
     final Gradient speedometerGradient;
+    final bool showTriangleAtTheBottom;
 
     if (orientation == Orientation.portrait) {
       originalSpeedometerHeight = MediaQuery.of(context).size.width;
@@ -267,6 +268,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
             ? const [0.1, 0.3, 0.5] // Dark theme
             : const [0.0, 0.1, 0.8], // Light theme
       );
+      showTriangleAtTheBottom = true;
     } else {
       originalSpeedometerHeight = MediaQuery.of(context).size.height;
       originalSpeedometerWidth = MediaQuery.of(context).size.height;
@@ -289,6 +291,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
             ? const [0.1, 0.3, 0.5] // Dark theme
             : const [0.0, 0.1, 0.8], // Light theme
       );
+      showTriangleAtTheBottom = false;
     }
 
     return Stack(
@@ -343,7 +346,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            CustomPaint(painter: SpeedometerCoverPainter()),
+                            if (showTriangleAtTheBottom) CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               size: size,
                               painter: SpeedometerBackgroundPainter(
