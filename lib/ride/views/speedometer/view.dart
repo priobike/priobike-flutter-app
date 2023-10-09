@@ -120,7 +120,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
     updateSpeedometer();
 
-    // Allow user to rotate the screen. Landscape-Mode needs to be removed in dispose.
+    // Allow user to rotate the screen.
+    // Landscape-Mode needs to be removed with FinishRideButton when going to FeedbackView.
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.landscapeRight,
@@ -134,11 +135,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     positioning.removeListener(updateSpeedometer);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
-
-    // Allows only portrait mode again.
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
     super.dispose();
   }
 

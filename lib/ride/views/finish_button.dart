@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -86,6 +87,11 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // Stop the geolocation.
     final position = getIt<Positioning>();
     await position.stopGeolocation();
+
+    // Allows only portrait mode again.
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
 
     // Show the feedback dialog.
     if (mounted) {
