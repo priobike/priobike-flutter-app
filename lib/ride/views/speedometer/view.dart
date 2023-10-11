@@ -232,17 +232,19 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final showAlert = routing.hadErrorDuringFetch;
 
     final orientation = MediaQuery.of(context).orientation;
-    final bool landscapeMode = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscapeMode = MediaQuery.of(context).orientation == Orientation.landscape;
 
     final double originalSpeedometerHeight;
     final double originalSpeedometerWidth;
     final Size size;
 
     if (orientation == Orientation.portrait) {
+      // Portrait mode
       originalSpeedometerHeight = MediaQuery.of(context).size.width;
       originalSpeedometerWidth = MediaQuery.of(context).size.width;
       size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
     } else {
+      // Landscape mode
       originalSpeedometerHeight = MediaQuery.of(context).size.height;
       originalSpeedometerWidth = MediaQuery.of(context).size.height;
       size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
@@ -251,13 +253,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        Container(
-          height: originalSpeedometerHeight,
-          width: originalSpeedometerWidth,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: landscapeMode
-              ? null
-              : BoxDecoration(
+        isLandscapeMode
+            ? Container()
+            : Container(
+                height: originalSpeedometerHeight,
+                width: originalSpeedometerWidth,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -277,7 +279,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         : const [0.0, 0.1, 0.8], // Light theme
                   ),
                 ),
-        ),
+              ),
         SafeArea(
           bottom: true,
           child: SizedBox(
@@ -290,7 +292,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
-                    if (landscapeMode)
+                    if (isLandscapeMode)
                       Transform.translate(
                         offset: const Offset(0, 42),
                         child: Center(
@@ -326,7 +328,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            if (!landscapeMode) CustomPaint(painter: SpeedometerCoverPainter()),
+                            if (!isLandscapeMode) CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               size: size,
                               painter: SpeedometerBackgroundPainter(

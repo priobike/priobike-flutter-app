@@ -169,31 +169,30 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    final Alignment alignmentSpeedometer;
     final EdgeInsets paddingCenterButton;
     final double heightToPuckBoundingBox;
-    final EdgeInsets paddingSpeedometerRight;
+    final double positionSpeedometerRight;
 
     final orientation = MediaQuery.of(context).orientation;
 
     if (orientation == Orientation.portrait) {
+      // Portrait mode
       final displayHeight = MediaQuery.of(context).size.height;
       final heightToPuck = displayHeight / 2;
       heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
-      alignmentSpeedometer = Alignment.bottomCenter;
       paddingCenterButton = EdgeInsets.only(
         bottom: heightToPuckBoundingBox < MediaQuery.of(context).size.width
             ? heightToPuckBoundingBox - 35
             : MediaQuery.of(context).size.width - 35,
       );
-      paddingSpeedometerRight = const EdgeInsets.only(right: 0);
+      positionSpeedometerRight = 0.0;
     } else {
+      // Landscape mode
       final displayWidth = MediaQuery.of(context).size.width;
       final heightToPuck = displayWidth / 2;
       heightToPuckBoundingBox = heightToPuck - (displayWidth * 0.05);
-      alignmentSpeedometer = Alignment.bottomRight;
       paddingCenterButton = const EdgeInsets.only(bottom: 70, right: 470);
-      paddingSpeedometerRight = EdgeInsets.only(right: displayWidth * 0.05);
+      positionSpeedometerRight = 42.0;
     }
 
     return WillPopScope(
@@ -202,7 +201,7 @@ class RideViewState extends State<RideView> {
         child: Scaffold(
           body: ScreenTrackingView(
             child: Stack(
-              alignment: alignmentSpeedometer,
+              alignment: Alignment.bottomCenter,
               clipBehavior: Clip.none,
               children: [
                 RideMapView(
@@ -231,8 +230,8 @@ class RideViewState extends State<RideView> {
                       ),
                     ),
                   ),
-                Padding(
-                  padding: paddingSpeedometerRight,
+                Positioned(
+                  right: positionSpeedometerRight,
                   child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
                 ),
                 const DatastreamView(),

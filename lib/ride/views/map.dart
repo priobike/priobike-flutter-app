@@ -191,7 +191,7 @@ class RideMapViewState extends State<RideMapView> {
     if (orientation == Orientation.portrait) {
       padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0);
     } else {
-      // Landscape-Mode: Set user to the left and a little down
+      // Landscape-Mode: Set user-puk to the left and a little down
       // The padding must be different if battery save mode is enabled by user because the map is rendered differently
       final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
       final deviceWidth = MediaQuery.of(context).size.width;
