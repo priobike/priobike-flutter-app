@@ -232,23 +232,21 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final showAlert = routing.hadErrorDuringFetch;
 
     final orientation = MediaQuery.of(context).orientation;
-    final isLandscapeMode = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscapeMode = orientation == Orientation.landscape;
 
     final double originalSpeedometerHeight;
     final double originalSpeedometerWidth;
-    final Size size;
 
     if (orientation == Orientation.portrait) {
       // Portrait mode
       originalSpeedometerHeight = MediaQuery.of(context).size.width;
       originalSpeedometerWidth = MediaQuery.of(context).size.width;
-      size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
     } else {
       // Landscape mode
       originalSpeedometerHeight = MediaQuery.of(context).size.height;
       originalSpeedometerWidth = MediaQuery.of(context).size.height;
-      size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
     }
+    final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
 
     return Stack(
       alignment: Alignment.bottomCenter,
