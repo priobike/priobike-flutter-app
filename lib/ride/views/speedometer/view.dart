@@ -233,18 +233,23 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
     final orientation = MediaQuery.of(context).orientation;
     final isLandscapeMode = orientation == Orientation.landscape;
-
     final double originalSpeedometerHeight;
     final double originalSpeedometerWidth;
+    final double sizedBoxHeight;
+    final double? sizedBoxWidth;
 
     if (orientation == Orientation.portrait) {
       // Portrait mode
       originalSpeedometerHeight = MediaQuery.of(context).size.width;
       originalSpeedometerWidth = MediaQuery.of(context).size.width;
+      sizedBoxHeight = widget.puckHeight;
+      sizedBoxWidth = null;
     } else {
       // Landscape mode
       originalSpeedometerHeight = MediaQuery.of(context).size.height;
       originalSpeedometerWidth = MediaQuery.of(context).size.height;
+      sizedBoxHeight = originalSpeedometerHeight;
+      sizedBoxWidth = originalSpeedometerWidth;
     }
     final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
 
@@ -281,7 +286,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
         SafeArea(
           bottom: true,
           child: SizedBox(
-            height: widget.puckHeight,
+            height: sizedBoxHeight,
+            width: sizedBoxWidth,
             child: FittedBox(
               fit: BoxFit.contain,
               child: SizedBox(

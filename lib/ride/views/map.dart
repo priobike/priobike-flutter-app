@@ -196,10 +196,13 @@ class RideMapViewState extends State<RideMapView> {
       final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
       final deviceWidth = MediaQuery.of(context).size.width;
       final deviceHeight = MediaQuery.of(context).size.height;
+      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
       if (isBatterySaveModeEnabled) {
-        padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * 0.45);
+        padding =
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.18);
       } else {
-        padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * 1.15);
+        padding =
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.40);
       }
     }
 

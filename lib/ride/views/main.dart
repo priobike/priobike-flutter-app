@@ -192,8 +192,8 @@ class RideViewState extends State<RideView> {
       final displayHeight = MediaQuery.of(context).size.height;
       final heightToPuck = displayWidth / 2;
       heightToPuckBoundingBox = heightToPuck - (displayWidth * 0.05);
-      paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.45);
-      positionSpeedometerRight = 42.0;
+      paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.42);
+      positionSpeedometerRight = 6.0;
     }
 
     return WillPopScope(
