@@ -199,7 +199,7 @@ class RideMapViewState extends State<RideMapView> {
       if (isBatterySaveModeEnabled) {
         padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * 0.45);
       } else {
-        padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * 0.9);
+        padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * 1.15);
       }
     }
 

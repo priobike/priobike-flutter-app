@@ -189,9 +189,10 @@ class RideViewState extends State<RideView> {
     } else {
       // Landscape mode
       final displayWidth = MediaQuery.of(context).size.width;
+      final displayHeight = MediaQuery.of(context).size.height;
       final heightToPuck = displayWidth / 2;
       heightToPuckBoundingBox = heightToPuck - (displayWidth * 0.05);
-      paddingCenterButton = const EdgeInsets.only(bottom: 70, right: 470);
+      paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.45);
       positionSpeedometerRight = 42.0;
     }
 
