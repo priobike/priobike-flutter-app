@@ -126,17 +126,24 @@ class FinishRideButtonState extends State<FinishRideButton> {
 
   @override
   Widget build(BuildContext context) {
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscapeMode = orientation == Orientation.landscape;
+
     return Stack(
       children: [
         Positioned(
           top: 48, // Below the MapBox attribution.
-          right: 0,
+          // Button is on the right in portrait mode and on the left in landscape mode.
+          right: isLandscapeMode ? null : 0,
+          left: isLandscapeMode ? 0 : null,
           child: SafeArea(
             child: Tile(
               onPressed: () => showAskForConfirmationDialog(context),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                bottomLeft: Radius.circular(24),
+              borderRadius: BorderRadius.only(
+                topLeft: isLandscapeMode ? const Radius.circular(0) : const Radius.circular(24),
+                bottomLeft: isLandscapeMode ? const Radius.circular(0) : const Radius.circular(24),
+                topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
+                bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
               ),
               padding: const EdgeInsets.all(4),
               fill: Colors.black.withOpacity(0.4),
