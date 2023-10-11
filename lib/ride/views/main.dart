@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -196,6 +198,17 @@ class RideViewState extends State<RideView> {
       positionSpeedometerRight = 6.0;
     }
 
+    final double topPositionMapboxLogo;
+    final double topPositionAttribution;
+    // On Android the positions must be adjusted because of the top safe area.
+    if (Platform.isAndroid) {
+      topPositionMapboxLogo = 10;
+      topPositionAttribution = 5;
+    } else {
+      topPositionMapboxLogo = MediaQuery.of(context).size.height * 0.07;
+      topPositionAttribution = MediaQuery.of(context).size.height * 0.05;
+    }
+
     return WillPopScope(
       onWillPop: () async => false,
       child: SafeArea(
@@ -210,17 +223,17 @@ class RideViewState extends State<RideView> {
                   cameraFollowUserLocation: cameraFollowsUserLocation,
                 ),
                 if (settings.saveBatteryModeEnabled)
-                  const Positioned(
-                    top: 10,
+                  Positioned(
+                    top: topPositionMapboxLogo,
                     left: 10,
-                    child: Image(
+                    child: const Image(
                       width: 100,
                       image: AssetImage('assets/images/mapbox-logo-transparent.png'),
                     ),
                   ),
                 if (settings.saveBatteryModeEnabled)
                   Positioned(
-                    top: 5,
+                    top: topPositionAttribution,
                     right: 10,
                     child: IconButton(
                       onPressed: () => MapboxAttribution.showAttribution(context),
