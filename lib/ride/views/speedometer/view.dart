@@ -313,8 +313,15 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         // When the user taps on the speedometer, we want to set the speed to the tapped speed.
                         onTapUp: (details) {
                           // Get the center of the speedometer
-                          final xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
-                          final yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
+                          final double xRel;
+                          final double yRel;
+                          if (isLandscapeMode) {
+                            xRel = details.localPosition.dx / MediaQuery.of(context).size.height;
+                            yRel = details.localPosition.dy / MediaQuery.of(context).size.height;
+                          } else {
+                            xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
+                            yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
+                          }
                           // Transform the angle of the tapped position into an intuitive angle system:
                           // 0 deg is south, 90 deg is west, 180 deg is north, 270 deg is east.
                           final angleDeg = atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
