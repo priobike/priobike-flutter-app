@@ -198,20 +198,10 @@ class RideViewState extends State<RideView> {
       positionSpeedometerRight = 6.0;
     }
 
-    final double topPositionMapboxLogo;
-    final double topPositionAttribution;
-    // On Android the positions must be adjusted because of the top safe area.
-    if (Platform.isAndroid) {
-      topPositionMapboxLogo = 10;
-      topPositionAttribution = 5;
-    } else {
-      topPositionMapboxLogo = MediaQuery.of(context).size.height * 0.07;
-      topPositionAttribution = MediaQuery.of(context).size.height * 0.05;
-    }
-
     return WillPopScope(
       onWillPop: () async => false,
       child: SafeArea(
+        top: Platform.isAndroid ? true : false,
         child: Scaffold(
           body: ScreenTrackingView(
             child: Stack(
@@ -224,7 +214,8 @@ class RideViewState extends State<RideView> {
                 ),
                 if (settings.saveBatteryModeEnabled)
                   Positioned(
-                    top: topPositionMapboxLogo,
+                    // needs to be different on Android because of SafeArea
+                    top: Platform.isAndroid ? 10 : MediaQuery.of(context).size.height * 0.07,
                     left: 10,
                     child: const Image(
                       width: 100,
@@ -233,7 +224,7 @@ class RideViewState extends State<RideView> {
                   ),
                 if (settings.saveBatteryModeEnabled)
                   Positioned(
-                    top: topPositionAttribution,
+                    top: Platform.isAndroid ? 5 : MediaQuery.of(context).size.height * 0.05,
                     right: 10,
                     child: IconButton(
                       onPressed: () => MapboxAttribution.showAttribution(context),
