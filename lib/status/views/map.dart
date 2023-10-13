@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -277,9 +277,9 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.blue),
     ];
     final ppi = MediaQuery.of(context).devicePixelRatio * 0.9;
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: Stack(
           children: [

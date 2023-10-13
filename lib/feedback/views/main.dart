@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -156,41 +157,13 @@ class FeedbackViewState extends State<FeedbackView> {
     final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
     final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
 
-    const bottomSheetHeight = 228.0;
+    final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
-    return SafeArea(
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      brightness: Theme.of(context).brightness,
+      systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
-        bottomSheet: Container(
-          width: MediaQuery.of(context).size.width,
-          height: bottomSheetHeight,
-          color: Theme.of(context).colorScheme.primary,
-          child: Column(
-            children: [
-              const VSpace(),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
-                child: StarRatingView(text: "Dein Feedback zur App"),
-              ),
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.check,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Fertig",
-                onPressed: () => submit(),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-              ),
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.save_rounded,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Strecke speichern",
-                onPressed: () => showSaveShortcutSheet(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-              ),
-              const VSpace(),
-            ],
-          ),
-        ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SizedBox(
           height: MediaQuery.of(context).size.height - bottomSheetHeight,
@@ -235,6 +208,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     }
                   }(),
                 ),
+                const SmallVSpace(),
                 if (startImage != null && destinationImage != null)
                   TrackHistoryItemDetailView(
                     track: tracking.previousTracks!.last,
@@ -243,6 +217,36 @@ class FeedbackViewState extends State<FeedbackView> {
                   ),
               ],
             ),
+          ),
+        ),
+        bottomSheet: Container(
+          width: MediaQuery.of(context).size.width,
+          height: bottomSheetHeight,
+          color: Theme.of(context).colorScheme.primary,
+          child: Column(
+            children: [
+              const VSpace(),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: StarRatingView(text: "Dein Feedback zur App"),
+              ),
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.check,
+                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                label: "Fertig",
+                onPressed: () => submit(),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+              ),
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.save_rounded,
+                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                label: "Strecke speichern",
+                onPressed: () => showSaveShortcutSheet(context),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+              ),
+            ],
           ),
         ),
       ),
