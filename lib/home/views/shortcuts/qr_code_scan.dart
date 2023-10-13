@@ -124,7 +124,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
           const SmallVSpace(),
           Content(
             text: 'Gib der PrioBike App bitte die Kamera-Berechtigung, um QR-Codes zu scannen. '
-                'Du kannst die Berechtigung jederzeit in den Einstellungen deines Handys ändern.',
+                'Du kannst die Berechtigung jederzeit in den Einstellungen Deines Handys ändern.',
             context: context,
             textAlign: TextAlign.center,
           ),

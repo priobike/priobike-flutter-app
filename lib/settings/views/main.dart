@@ -350,7 +350,7 @@ class SettingsViewState extends State<SettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
+                        "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell Du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf Deine Umgebung und passe Deine Geschwindigkeit den Verhältnissen an.",
                     context: context,
                   ),
                 ),
@@ -418,7 +418,7 @@ class SettingsViewState extends State<SettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Es öffnet sich das E-Mail-Programm deines Geräts. Bitte beschreibe die Umstände, unter denen der Fehler aufgetreten ist, so genau wie möglich. Wir werden uns schnellstmöglich um das Problem kümmern. Vielen Dank für die Unterstützung!",
+                        "Es öffnet sich das E-Mail-Programm Deines Geräts. Bitte beschreibe die Umstände, unter denen der Fehler aufgetreten ist, so genau wie möglich. Wir werden uns schnellstmöglich um das Problem kümmern. Vielen Dank für die Unterstützung!",
                     context: context,
                   ),
                 ),

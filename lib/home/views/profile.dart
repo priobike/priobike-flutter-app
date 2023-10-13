@@ -178,7 +178,7 @@ class ProfileViewState extends State<ProfileView> {
           const TutorialView(
             id: "priobike.tutorial.configure-profile",
             text:
-                'Unten kannst du dein Profil konfigurieren. Diese Informationen werden für die Berechnung der Route verwendet. Du kannst sie jederzeit ändern.',
+                'Unten kannst Du Dein Profil konfigurieren. Diese Informationen werden für die Berechnung der Route verwendet. Du kannst sie jederzeit ändern.',
             padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
           ),
           Tile(
@@ -315,7 +315,7 @@ class ProfileViewState extends State<ProfileView> {
                   Content(text: "Radtyp", context: context),
                   const SmallVSpace(),
                   Small(
-                      text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt.",
+                      text: "Dein Rad ist so individuell wie Du. Wähle den Radtyp, der am besten zu Deinem Rad passt.",
                       context: context),
                 ],
               ),
@@ -384,7 +384,7 @@ class ProfileViewState extends State<ProfileView> {
                   Content(text: "Routenpräferenz", context: context),
                   const SmallVSpace(),
                   Small(
-                      text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen.", context: context),
+                      text: "Wir werden Dir Routen vorschlagen, die Deinen Präferenzen entsprechen.", context: context),
                 ],
               ),
             ),
@@ -454,7 +454,7 @@ class ProfileViewState extends State<ProfileView> {
                   const SmallVSpace(),
                   Small(
                       text:
-                          "Vermeide Anstiege oder fahre lieber bergauf? Wähle die Option, die am besten zu dir passt.",
+                          "Vermeide Anstiege oder fahre lieber bergauf? Wähle die Option, die am besten zu Dir passt.",
                       context: context),
                 ],
               ),

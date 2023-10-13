@@ -309,7 +309,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
                     const TutorialView(
                       id: "priobike.tutorial.draw-waypoints",
-                      text: "Durch langes Drücken auf die Karte kannst du direkt einen Wegpunkt platzieren.",
+                      text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
                       padding: EdgeInsets.only(left: 18),
                     ),
                   const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),

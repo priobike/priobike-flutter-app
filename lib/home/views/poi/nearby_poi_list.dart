@@ -65,8 +65,8 @@ class NearbyResultsList extends StatelessWidget {
                   if (poi.distance != null)
                     poi.distance! >= 1000
                         ? (Small(
-                            text: "${(poi.distance! / 1000).toStringAsFixed(1)} km von dir entfernt", context: context))
-                        : (Small(text: "${poi.distance!.toStringAsFixed(0)} m von dir entfernt", context: context)),
+                            text: "${(poi.distance! / 1000).toStringAsFixed(1)} km von Dir entfernt", context: context))
+                        : (Small(text: "${poi.distance!.toStringAsFixed(0)} m von Dir entfernt", context: context)),
                 ],
               ),
               Icon(

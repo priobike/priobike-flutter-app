@@ -105,7 +105,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     children: [
                       const SizedBox(height: 164),
                       if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!privacyService.hasChanged!) Header(text: "deinen Daten.", color: CI.blue, context: context),
+                      if (!privacyService.hasChanged!) Header(text: "Deinen Daten.", color: CI.blue, context: context),
                       if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
                       if (privacyService.hasChanged!)
                         Header(text: "Datenschutz aktualisiert.", color: CI.blue, context: context),
@@ -113,21 +113,21 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       if (!privacyService.hasChanged!)
                         SubHeader(
                             text:
-                                "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:",
+                                "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen. Das Wichtigste zuerst:",
                             context: context),
                       if (privacyService.hasChanged!)
-                        SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
+                        SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
                       IconItem(
                           icon: Icons.route,
                           text:
-                              "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort.",
+                              "Wir speichern Deine Positionsdaten, aber nur anonymisiert und ohne Deinen Start- und Zielort.",
                           context: context),
                       const SmallVSpace(),
                       IconItem(
                           icon: Icons.lock,
                           text:
-                              "Wenn du die App personalisierst, indem du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
+                              "Wenn Du die App personalisierst, indem Du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
                           context: context),
                       const SmallVSpace(),
                       IconItem(

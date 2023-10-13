@@ -33,7 +33,7 @@ List<ProfileUpgrade> getUpgradesForLevel(int level) {
   if (level == 1) {
     return [
       ProfileUpgrade(
-        'Du hast 3 neue Arten von Tageschallenges freigeschaltet! Setze dir persönliche Tages- und Routenziele, um sie auszuprobieren.',
+        'Du hast 3 neue Arten von Tageschallenges freigeschaltet! Setze Dir persönliche Tages- und Routenziele, um sie auszuprobieren.',
         ProfileUpgradeType.moreChallengeTypes,
       )
     ];
@@ -47,21 +47,21 @@ List<ProfileUpgrade> getUpgradesForLevel(int level) {
   } else if (level == 3) {
     return [
       ProfileUpgrade(
-        'Ab jetzt kannst du deine Tageschallenge aus 2 Vorschlägen auswählen.',
+        'Ab jetzt kannst Du Deine Tageschallenge aus 2 Vorschlägen auswählen.',
         ProfileUpgradeType.addDailyChoice,
       )
     ];
   } else if (level == 4) {
     return [
       ProfileUpgrade(
-        'Ab jetzt kannst du deine Wochenchallenge aus 2 Vorschlägen auswählen.',
+        'Ab jetzt kannst Du Deine Wochenchallenge aus 2 Vorschlägen auswählen.',
         ProfileUpgradeType.addWeeklyChoice,
       )
     ];
   } else if (level == levels.length - 1) {
     return [
       ProfileUpgrade(
-        'Herzlichen Glückwunsch, du hast das höchste Level erreich!',
+        'Herzlichen Glückwunsch, Du hast das höchste Level erreich!',
         ProfileUpgradeType.highestLevel,
       ),
     ];

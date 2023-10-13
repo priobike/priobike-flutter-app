@@ -235,7 +235,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
                     child: BoldSmall(
-                      text: 'Du kannst auch mehrere Orte gleichzeitig auswählen, indem du ein Element gedrückt hältst.',
+                      text: 'Du kannst auch mehrere Orte gleichzeitig auswählen, indem Du ein Element gedrückt hältst.',
                       context: context,
                       textAlign: TextAlign.center,
                     ),
@@ -429,7 +429,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                           child: _eventService.wasCurrentEventAchieved
                               ? BoldSubHeader(
                                   text:
-                                      'Super, du hast ${_event!.title} besucht und das dieswöchige Abzeichen erhalten!',
+                                      'Super, Du hast ${_event!.title} besucht und das dieswöchige Abzeichen erhalten!',
                                   context: context,
                                   textAlign: TextAlign.center,
                                 )
@@ -441,7 +441,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                   ),
                                   child: BoldContent(
                                     text:
-                                        'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole dir das Abzeichen der Woche!',
+                                        'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole Dir das Abzeichen der Woche!',
                                     context: context,
                                     textAlign: TextAlign.center,
                                     color: Colors.white,

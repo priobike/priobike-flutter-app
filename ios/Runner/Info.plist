@@ -63,7 +63,7 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Diese App nutzt TCP-Netzwerkdienste, um Verbindungen zu Ampeln herzustellen, und braucht hierfür deine Erlaubnis.</string>
+	<string>Diese App nutzt TCP-Netzwerkdienste, um Verbindungen zu Ampeln herzustellen, und braucht hierfür Deine Erlaubnis.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>mqtt.tcp</string>

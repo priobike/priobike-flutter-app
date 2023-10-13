@@ -149,7 +149,7 @@ class LoaderState extends State<Loader> {
         return DialogLayout(
           title: 'Persönliche Daten zurücksetzen',
           text:
-              "Sind sie sich sicher, dass sie ihre persönlichen Daten zurücksetzen wollen? Nach dem Bestätigen werden ihre Daten unwiderruflich verworfen. Dazu gehören unter Anderem ihre erstellten Routen.",
+              "Bist Du Dir sicher, dass Du Deine persönlichen Daten zurücksetzen willst? Nach dem Bestätigen werden Deine Daten unwiderruflich verworfen. Dazu gehören unter anderem Deine erstellten Routen.",
           icon: Icons.delete_forever_rounded,
           iconColor: CI.red,
           actions: [
@@ -245,7 +245,7 @@ class LoaderState extends State<Loader> {
                             textAlign: TextAlign.center,
                           ),
                           Content(
-                            text: "Prüfe deine Verbindung und versuche es später erneut.",
+                            text: "Prüfe Deine Verbindung und versuche es später erneut.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),

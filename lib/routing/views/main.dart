@@ -156,7 +156,7 @@ class RoutingViewState extends State<RoutingView> {
           return DialogLayout(
             title: 'Hinweis',
             text:
-                'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                'Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
@@ -289,7 +289,7 @@ class RoutingViewState extends State<RoutingView> {
         return DialogLayout(
           title: 'Hinweis',
           text:
-              'Deine GPS-Position scheint ungenau zu sein. Solltest du während der Fahrt Probleme mit der Ortung feststellen, prüfe deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
+              'Deine GPS-Position scheint ungenau zu sein. Solltest Du während der Fahrt Probleme mit der Ortung feststellen, prüfe Deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
           icon: Icons.info_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
