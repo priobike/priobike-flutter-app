@@ -16,7 +16,7 @@ import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
-import 'package:priobike/ride/views/speedometer/speedometer_shadow.dart';
+import 'package:priobike/ride/views/speedometer/shadow.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -258,31 +258,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
       children: [
         isLandscapeMode
             ? Container()
-            : Container(
-                height: originalSpeedometerHeight,
-                width: originalSpeedometerWidth,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                        ? [
-                            Colors.black.withOpacity(0),
-                            Colors.black.withOpacity(0.5),
-                            Colors.black,
-                          ]
-                        : [
-                            Colors.black.withOpacity(0.0),
-                            Colors.black.withOpacity(0.1),
-                            Colors.black,
-                          ],
-                    stops: Theme.of(context).colorScheme.brightness == Brightness.dark
-                        ? const [0.1, 0.3, 0.5] // Dark theme
-                        : const [0.0, 0.1, 0.8], // Light theme
-                  ),
-                ),
-              ),
+            : SpeedometerLinearShadow(
+                originalSpeedometerHeight: originalSpeedometerHeight,
+                originalSpeedometerWidth: originalSpeedometerWidth),
         SafeArea(
           bottom: true,
           child: SizedBox(
@@ -300,7 +278,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                       Transform.translate(
                         offset: const Offset(0, 42),
                         child: Center(
-                          child: SpeedometerShadow(size: size),
+                          child: SpeedometerRadialShadow(size: size),
                         ),
                       ),
                     if (showAlert)
