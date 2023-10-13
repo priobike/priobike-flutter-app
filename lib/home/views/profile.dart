@@ -315,7 +315,7 @@ class ProfileViewState extends State<ProfileView> {
                   Content(text: "Radtyp", context: context),
                   const SmallVSpace(),
                   Small(
-                      text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt.",
+                      text: "Dein Rad ist so individuell wie Du. Wähle den Radtyp, der am besten zu Deinem Rad passt.",
                       context: context),
                 ],
               ),

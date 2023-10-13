@@ -245,7 +245,7 @@ class LoaderState extends State<Loader> {
                             textAlign: TextAlign.center,
                           ),
                           Content(
-                            text: "Prüfe deine Verbindung und versuche es später erneut.",
+                            text: "Prüfe Deine Verbindung und versuche es später erneut.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),

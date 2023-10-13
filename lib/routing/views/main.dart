@@ -156,7 +156,7 @@ class RoutingViewState extends State<RoutingView> {
           return DialogLayout(
             title: 'Hinweis',
             text:
-                'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                'Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [

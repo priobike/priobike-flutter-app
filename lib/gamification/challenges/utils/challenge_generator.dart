@@ -139,11 +139,11 @@ class DailyChallengeGenerator extends ChallengeGenerator {
     if (type == DailyChallengeType.distance) {
       return 'Fahre eine Strecke von ${value / 1000} Kilometern!';
     } else if (type == DailyChallengeType.duration) {
-      return 'Verbringe mindestens $value Minuten auf deinem Sattel!';
+      return 'Verbringe mindestens $value Minuten auf Deinem Sattel!';
     } else if (type == DailyChallengeType.dailyGoals) {
-      return 'Erreiche deine Tagesziele!';
+      return 'Erreiche Deine Tagesziele!';
     } else if (type == DailyChallengeType.routeGoal) {
-      return 'Fahre mindestens einmal deine Route "${_routeGoals!.routeName}"';
+      return 'Fahre mindestens einmal Deine Route "${_routeGoals!.routeName}"';
     }
     return '';
   }
@@ -218,7 +218,7 @@ class WeeklyChallengeGenerator extends ChallengeGenerator {
     } else if (type == WeeklyChallengeType.routeStreakInWeek) {
       return 'Fahre diese Woche an $value Tagen hintereinander die Route "$routeLabel!"';
     } else if (type == WeeklyChallengeType.daysWithGoalsCompleted) {
-      return 'Erreiche diese Woche $value mal deine Tagesziele';
+      return 'Erreiche diese Woche $value mal Deine Tagesziele';
     }
     return '';
   }

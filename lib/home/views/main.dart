@@ -347,7 +347,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             children: [
                               BoldContent(text: "Routing-Profil", context: context),
                               const SizedBox(height: 4),
-                              Small(text: "Personalisiere deine Routenberechnung", context: context),
+                              Small(text: "Personalisiere Deine Routenberechnung", context: context),
                             ],
                           ),
                           Expanded(child: Container()),

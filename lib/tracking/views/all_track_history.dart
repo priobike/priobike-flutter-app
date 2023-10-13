@@ -240,7 +240,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                         curve: Curves.easeInOutCubic,
                         delay: Duration(milliseconds: 200 * previousTracks.length),
                         child: Content(
-                          text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
+                          text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                           textAlign: TextAlign.center,

@@ -54,7 +54,7 @@ List<ProfileUpgrade> getUpgradesForLevel(int level) {
   } else if (level == 4) {
     return [
       ProfileUpgrade(
-        'Ab jetzt kannst Du deine Wochenchallenge aus 2 Vorschlägen auswählen.',
+        'Ab jetzt kannst Du Deine Wochenchallenge aus 2 Vorschlägen auswählen.',
         ProfileUpgradeType.addWeeklyChoice,
       )
     ];
