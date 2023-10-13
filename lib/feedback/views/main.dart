@@ -221,7 +221,16 @@ class FeedbackViewState extends State<FeedbackView> {
         bottomSheet: Container(
           width: MediaQuery.of(context).size.width,
           height: bottomSheetHeight,
-          color: Theme.of(context).colorScheme.primary,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
           child: Column(
             children: [
               const VSpace(),

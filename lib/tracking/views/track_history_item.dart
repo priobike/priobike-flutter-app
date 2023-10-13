@@ -332,102 +332,111 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
-        future: _loadTrack(widget.track),
-        builder: (context, snapshot) {
-          final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-          final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
+      future: _loadTrack(widget.track),
+      builder: (context, snapshot) {
+        final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+        final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
 
-          final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
-          final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
-          final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+        final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
+        final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
+        final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-          String? formattedTime = _formatDuration();
+        String? formattedTime = _formatDuration();
 
-          const co2PerKm = 0.1187; // Data according to statista.com in KG
-          final savedCo2inG =
-              distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+        const co2PerKm = 0.1187; // Data according to statista.com in KG
+        final savedCo2inG =
+            distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
 
-          final Widget trackStats;
-          if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
-            trackStats = TrackStats(
-              formattedTime: formattedTime,
-              distanceMeters: distanceMeters,
-              averageSpeedKmH: averageSpeedKmH,
-              savedCo2inG: savedCo2inG,
-            );
-          } else {
-            trackStats = const TrackStats();
-          }
-
-          Widget content = Tile(
-              padding: const EdgeInsets.all(0),
-              borderRadius: BorderRadius.circular(20),
-              content: const SizedBox(height: 64, width: 64, child: Center(child: CircularProgressIndicator())));
-          if (snapshot.connectionState == ConnectionState.done) {
-            content = positions.isNotEmpty
-                ? Tile(
-                    padding: const EdgeInsets.all(0),
-                    borderRadius: BorderRadius.circular(20),
-                    content: TrackPictogram(
-                      key: ValueKey(widget.track.sessionId),
-                      track: positions,
-                      blurRadius: 2,
-                      startImage: widget.startImage,
-                      destinationImage: widget.destinationImage,
-                      iconSize: 16,
-                      lineWidth: 6,
-                    ))
-                : Center(
-                    child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
-                  );
-          }
-
-          return Wrap(
-            children: [
-              Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                BoldContent(text: "Deine Fahrt vom", context: context),
-                                Content(
-                                  text: lastTrackDateFormatted,
-                                  context: context,
-                                  color: Theme.of(context).colorScheme.onBackground,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SmallVSpace(),
-                          Container(
-                              // use width as height to make it a square
-                              height: MediaQuery.of(context).size.width,
-                              width: MediaQuery.of(context).size.width,
-                              padding: const EdgeInsets.all(24),
-                              child: content),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 24),
-                            child: trackStats,
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                  const VSpace(),
-                ],
-              ),
-            ],
+        final Widget trackStats;
+        if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
+          trackStats = TrackStats(
+            formattedTime: formattedTime,
+            distanceMeters: distanceMeters,
+            averageSpeedKmH: averageSpeedKmH,
+            savedCo2inG: savedCo2inG,
           );
-        });
+        } else {
+          trackStats = const TrackStats();
+        }
+
+        Widget content = Tile(
+          padding: const EdgeInsets.all(0),
+          borderRadius: BorderRadius.circular(20),
+          content: const SizedBox(
+            height: 64,
+            width: 64,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        );
+        if (snapshot.connectionState == ConnectionState.done) {
+          content = positions.isNotEmpty
+              ? Tile(
+                  padding: const EdgeInsets.all(0),
+                  borderRadius: BorderRadius.circular(20),
+                  content: TrackPictogram(
+                    key: ValueKey(widget.track.sessionId),
+                    track: positions,
+                    blurRadius: 2,
+                    startImage: widget.startImage,
+                    destinationImage: widget.destinationImage,
+                    iconSize: 16,
+                    lineWidth: 6,
+                  ),
+                )
+              : Center(
+                  child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
+                );
+        }
+
+        return Wrap(
+          children: [
+            Column(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              BoldContent(text: "Deine Fahrt vom", context: context),
+                              Content(
+                                text: lastTrackDateFormatted,
+                                context: context,
+                                color: Theme.of(context).colorScheme.onBackground,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SmallVSpace(),
+                        Container(
+                            // use width as height to make it a square
+                            height: MediaQuery.of(context).size.width,
+                            width: MediaQuery.of(context).size.width,
+                            padding: const EdgeInsets.all(24),
+                            child: content),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: trackStats,
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+                const VSpace(),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Helper method to format the duration of the track.
