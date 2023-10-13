@@ -156,11 +156,11 @@ class RideViewState extends State<RideView> {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     settings.removeListener(update);
 
     // Allows only portrait mode again.
-    SystemChrome.setPreferredOrientations([
+    await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
     super.dispose();
@@ -174,6 +174,8 @@ class RideViewState extends State<RideView> {
     final EdgeInsets paddingCenterButton;
     final double heightToPuckBoundingBox;
     final double positionSpeedometerRight;
+    final double topPositionMapboxLogo;
+    final double topPositionMapboxButton;
 
     final orientation = MediaQuery.of(context).orientation;
 
@@ -188,6 +190,13 @@ class RideViewState extends State<RideView> {
             : MediaQuery.of(context).size.width - 35,
       );
       positionSpeedometerRight = 0.0;
+      if (Platform.isAndroid) {
+        topPositionMapboxLogo = 10;
+        topPositionMapboxButton = 5;
+      } else {
+        topPositionMapboxLogo = MediaQuery.of(context).size.height * 0.07;
+        topPositionMapboxButton = MediaQuery.of(context).size.height * 0.05;
+      }
     } else {
       // Landscape mode
       final displayWidth = MediaQuery.of(context).size.width;
@@ -196,12 +205,19 @@ class RideViewState extends State<RideView> {
       heightToPuckBoundingBox = heightToPuck - (displayWidth * 0.05);
       paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.42);
       positionSpeedometerRight = 6.0;
+      if (Platform.isAndroid) {
+        topPositionMapboxLogo = 10;
+        topPositionMapboxButton = 5;
+      } else {
+        topPositionMapboxLogo = MediaQuery.of(context).size.height * 0.04;
+        topPositionMapboxButton = MediaQuery.of(context).size.height * 0.02;
+      }
     }
 
     return WillPopScope(
       onWillPop: () async => false,
       child: SafeArea(
-        top: Platform.isAndroid ? true : false,
+        top: (Platform.isAndroid) ? true : false,
         child: Scaffold(
           body: ScreenTrackingView(
             child: Stack(
@@ -215,7 +231,7 @@ class RideViewState extends State<RideView> {
                 if (settings.saveBatteryModeEnabled)
                   Positioned(
                     // needs to be different on Android because of SafeArea
-                    top: Platform.isAndroid ? 10 : MediaQuery.of(context).size.height * 0.07,
+                    top: topPositionMapboxLogo,
                     left: 10,
                     child: const Image(
                       width: 100,
@@ -224,7 +240,7 @@ class RideViewState extends State<RideView> {
                   ),
                 if (settings.saveBatteryModeEnabled)
                   Positioned(
-                    top: Platform.isAndroid ? 5 : MediaQuery.of(context).size.height * 0.05,
+                    top: topPositionMapboxButton,
                     right: 10,
                     child: IconButton(
                       onPressed: () => MapboxAttribution.showAttribution(context),

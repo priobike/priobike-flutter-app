@@ -198,11 +198,16 @@ class RideMapViewState extends State<RideMapView> {
       final deviceHeight = MediaQuery.of(context).size.height;
       final pixelRatio = MediaQuery.of(context).devicePixelRatio;
       if (isBatterySaveModeEnabled) {
-        padding =
-            mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.18);
+        if (Platform.isAndroid) {
+          padding = mapbox.MbxEdgeInsets(
+              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.18);
+        } else {
+          padding =
+              mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
+        }
       } else {
         padding =
-            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.40);
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
       }
     }
 
@@ -476,10 +481,10 @@ class RideMapViewState extends State<RideMapView> {
     // If this is fixed in an upcoming version of the Mapbox plugin, we may be able to remove those workaround adjustments
     // below.
     double marginYLogo = frame.padding.top;
-    double marginYAttribution = 0.0;
+    final double marginYAttribution;
     if (Platform.isAndroid) {
       final ppi = frame.devicePixelRatio;
-      marginYLogo = marginYLogo * ppi;
+      marginYLogo = marginYLogo * ppi + 40;
       marginYAttribution = marginYLogo;
     } else {
       marginYLogo = marginYLogo * 0.7;
