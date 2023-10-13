@@ -67,7 +67,7 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
             children: [
               Expanded(
                 child: SubHeader(
-                  text: 'Du kannst dir eigene Routenziele setzen, sobald du deine erste eigene Route erstellt hast.',
+                  text: 'Du kannst Dir eigene Routenziele setzen, sobald Du Deine erste eigene Route erstellt hast.',
                   context: context,
                   textAlign: TextAlign.center,
                   color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
@@ -92,7 +92,7 @@ class _EditRouteGoalsDialogState extends State<EditRouteGoalsDialog> {
           children: [
             const SmallVSpace(),
             BoldSubHeader(
-              text: 'Möchtest du dir vornehmen eine deiner Routen regelmäßig zu fahren?',
+              text: 'Möchtest Du Dir vornehmen eine Deiner Routen regelmäßig zu fahren?',
               context: context,
               textAlign: TextAlign.center,
             ),

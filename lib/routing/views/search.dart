@@ -384,7 +384,7 @@ class RouteSearchState extends State<RouteSearch> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Gesamten Suchverlauf löschen',
-          text: 'Möchtest du den Suchverlauf wirklich löschen?',
+          text: 'Möchtest Du den Suchverlauf wirklich löschen?',
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [

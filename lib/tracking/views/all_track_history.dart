@@ -147,7 +147,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Alle Fahrten löschen',
-          text: "Bitte bestätige, dass du die gespeicherten Fahrten löschen möchtest.",
+          text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [

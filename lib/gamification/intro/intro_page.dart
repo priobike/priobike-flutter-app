@@ -49,39 +49,39 @@ class IntroPage extends StatelessWidget {
         const SmallVSpace(),
         IconItem(
           icon: Icons.query_stats,
-          text: 'Erhalte einen detaillierten Überblick über die von dir aufgezeichneten Daten.',
+          text: 'Erhalte einen detaillierten Überblick über die von Dir aufgezeichneten Daten.',
           context: context,
         ),
         const SmallVSpace(),
         IconItem(
           icon: CustomGameIcons.goals,
-          text: 'Setze dir individuelle tägliche Ziele und verfolge deinen Fortschritt.',
+          text: 'Setze Dir individuelle tägliche Ziele und verfolge Deinen Fortschritt.',
           context: context,
         ),
         const SmallVSpace(),
         IconItem(
           icon: CustomGameIcons.blank_trophy,
           text:
-              'Verbinde deine Fahrten mit täglichen und wöchentlichen Challenges, steige Level auf und sammel virtuelle Belohnungen.',
+              'Verbinde Deine Fahrten mit täglichen und wöchentlichen Challenges, steige Level auf und sammel virtuelle Belohnungen.',
           context: context,
         ),
         const SmallVSpace(),
         IconItem(
           icon: Icons.shield,
           text:
-              'Nimm an den wöchentlichen Stadtteil-Hopping teil und sammel individuelle Abzeichen, indem du Orte in Hamburg besuchst.',
+              'Nimm an den wöchentlichen Stadtteil-Hopping teil und sammel individuelle Abzeichen, indem Du Orte in Hamburg besuchst.',
           context: context,
         ),
         const VSpace(),
         Content(
           text:
-              'Ab jetzt kannst du die neuen Beta-Features der PrioBike-App ausprobieren! Hierbei handelt es sich um eine Reihe von Funktionen, die es dir ermöglichen, noch mehr über deine Fahrradfahrten zu erfahren, dir Ziele zu setzen und deine Fahrten mit virtuellen Spielmechaniken zu verbinden.',
+              'Ab jetzt kannst Du die neuen Beta-Features der PrioBike-App ausprobieren! Hierbei handelt es sich um eine Reihe von Funktionen, die es Dir ermöglichen, noch mehr über Deine Fahrradfahrten zu erfahren, Dir Ziele zu setzen und Deine Fahrten mit virtuellen Spielmechaniken zu verbinden.',
           context: context,
         ),
         const SmallVSpace(),
         Content(
           text:
-              ' Die Beta-Features wurden im Rahmen eines studentischen Projektes entwickelt. Da zu diesem Projekt auch eine Evaluation gehört, werden deine Interaktionen mit den Features aufgezeichnet und anonymisiert an einen Server geschickt und dort ausgewertet.',
+              ' Die Beta-Features wurden im Rahmen eines studentischen Projektes entwickelt. Da zu diesem Projekt auch eine Evaluation gehört, werden Deine Interaktionen mit den Features aufgezeichnet und anonymisiert an einen Server geschickt und dort ausgewertet.',
           context: context,
         ),
         const SizedBox(height: 82),

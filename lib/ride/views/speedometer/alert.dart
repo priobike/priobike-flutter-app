@@ -47,14 +47,14 @@ class SpeedometerAlert extends StatelessWidget {
             if (getIt<Routing>().waypointsOutOfBoundaries)
               BoldContent(
                 textAlign: TextAlign.center,
-                text: "Du befindest dich jetzt außerhalb der Stadtgrenze\n",
+                text: "Du befindest Dich jetzt außerhalb der Stadtgrenze\n",
                 color: Colors.white,
                 context: context,
               ),
             if (getIt<Routing>().waypointsOutOfBoundaries)
               Content(
                 textAlign: TextAlign.center,
-                text: "Dir wird wieder eine Route berechnet, sobald du wieder in der Stadt bist.",
+                text: "Dir wird wieder eine Route berechnet, sobald Du wieder in der Stadt bist.",
                 color: Colors.white,
                 context: context,
               ),

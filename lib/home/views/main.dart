@@ -325,7 +325,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           const TutorialView(
                             id: "priobike.tutorial.select-shortcut",
                             text:
-                                'Fährst du eine Route häufiger? Du kannst neue Strecken erstellen, indem du eine Route planst und dann auf "Strecke speichern" klickst.',
+                                'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
                             padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
                           ),
                           ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
