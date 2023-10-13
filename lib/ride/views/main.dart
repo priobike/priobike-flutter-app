@@ -156,11 +156,11 @@ class RideViewState extends State<RideView> {
   }
 
   @override
-  void dispose() async {
+  void dispose() {
     settings.removeListener(update);
 
     // Allows only portrait mode again.
-    await SystemChrome.setPreferredOrientations([
+    SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
     super.dispose();
