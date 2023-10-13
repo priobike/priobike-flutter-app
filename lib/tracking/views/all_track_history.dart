@@ -154,7 +154,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
             BigButton(
               iconColor: Colors.white,
               icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
               label: "Löschen",
               onPressed: () {
                 tracking.deleteAllTracks();

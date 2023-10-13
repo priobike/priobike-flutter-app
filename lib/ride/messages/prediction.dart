@@ -45,7 +45,7 @@ extension PhaseColor on Phase {
       case Phase.dark:
         return const Color(0xFF000000);
       case Phase.red:
-        return CI.red;
+        return CI.radkulturYellow;
       case Phase.amber:
         return const Color.fromARGB(255, 255, 251, 0);
       case Phase.green:

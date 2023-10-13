@@ -47,7 +47,7 @@ class RouteGoalsInWeek extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _ridesOnDay(i) > 0 && isGoal
-                        ? CI.blue
+                        ? CI.radkulturRed
                         : Theme.of(context).colorScheme.onBackground.withOpacity(isGoal ? 0.1 : 0.05),
                   ),
                   child: Center(

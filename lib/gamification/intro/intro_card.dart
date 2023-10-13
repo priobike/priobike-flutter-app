@@ -36,9 +36,9 @@ class GameIntroCard extends StatelessWidget {
               end: Alignment.topRight,
               stops: const [0, 0.5, 1],
               colors: [
-                Color.alphaBlend(CI.blue.withOpacity(0.5), Colors.white),
-                CI.blue.withOpacity(0.8),
-                Color.alphaBlend(CI.blue.withOpacity(0.5), Colors.white),
+                Color.alphaBlend(CI.radkulturRed.withOpacity(0.5), Colors.white),
+                CI.radkulturRed.withOpacity(0.8),
+                Color.alphaBlend(CI.radkulturRed.withOpacity(0.5), Colors.white),
               ],
             ),
           ),

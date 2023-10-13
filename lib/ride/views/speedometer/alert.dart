@@ -26,7 +26,7 @@ class SpeedometerAlert extends StatelessWidget {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                color: CI.red,
+                color: CI.radkulturYellow,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(

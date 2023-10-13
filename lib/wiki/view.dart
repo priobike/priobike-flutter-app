@@ -48,12 +48,14 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
               text: "Wie funktioniert PrioBike?",
               context: context,
               textAlign: TextAlign.center,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             const SizedBox(height: 4),
             Small(
               text: "Erfahre mehr über die App.",
               context: context,
               textAlign: TextAlign.center,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),
@@ -82,7 +84,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
         padding: const EdgeInsets.only(top: 8),
         child: TabPageSelector(
           controller: tabController,
-          selectedColor: CI.blue,
+          selectedColor: CI.radkulturRed,
           indicatorSize: 12,
           borderStyle: BorderStyle.none,
           color: Theme.of(context).colorScheme.primary.withOpacity(0.25),

@@ -3,8 +3,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
-import 'package:priobike/gamification/common/views/tutorial_page.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/common/views/tutorial_page.dart';
 import 'package:priobike/main.dart';
 
 /// A list item with icon.
@@ -18,7 +18,7 @@ class IconItem extends Row {
               height: 56,
               child: Icon(
                 icon,
-                color: CI.blue,
+                color: CI.radkulturRed,
                 size: 56,
                 semanticLabel: text,
               ),

@@ -269,7 +269,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
             BigButton(
               iconColor: Colors.white,
               icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
               label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
@@ -371,8 +371,8 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                       key: ValueKey(widget.track.sessionId),
                       track: positions,
                       colors: const [
-                        CI.blue,
-                        CI.red,
+                        CI.radkulturRed,
+                        CI.radkulturYellow,
                       ],
                       blurRadius: 2,
                       startImage: widget.startImage,

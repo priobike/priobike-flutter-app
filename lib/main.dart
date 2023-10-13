@@ -1,20 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/challenges/services/challenge_service.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
@@ -42,7 +43,6 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:flutter/rendering.dart';
 
 final log = Logger("main.dart");
 
@@ -139,10 +139,12 @@ class App extends StatelessWidget {
             dialogBackgroundColor: const Color(0xFFFFFFFF),
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.light(
-              background: Color(0xFFFFFFFF),
-              primary: CI.blue,
-              secondary: CI.blueLight,
-              surface: Color(0xFFF6F6FF),
+              primary: CI.radkulturRed,
+              secondary: CI.radkulturRedDark,
+              surface: CI.radkulturRed,
+              background: Colors.white,
+              onSurface: Color(0xFFFFFFFF),
+              onBackground: Color(0xFF000000),
               brightness: Brightness.light,
             ),
             textTheme: const TextTheme(
@@ -196,10 +198,10 @@ class App extends StatelessWidget {
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.dark(
               background: Color.fromARGB(255, 31, 31, 31),
-              primary: CI.blue,
-              secondary: CI.blueLight,
-              surface: Color.fromARGB(255, 42, 42, 42),
-              surfaceTint: Color.fromARGB(255, 42, 42, 42),
+              primary: CI.radkulturRedDark,
+              secondary: CI.radkulturRed,
+              surface: CI.radkulturRedDark,
+              surfaceTint: CI.radkulturRedDark,
               brightness: Brightness.dark,
             ),
             textTheme: const TextTheme(

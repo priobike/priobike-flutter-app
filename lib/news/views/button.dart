@@ -72,7 +72,7 @@ class NewsButtonState extends State<NewsButton> {
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: CI.red,
+              color: CI.radkulturYellow,
             ),
             child: Small(text: "$unread", color: Colors.white, context: context),
           ),

@@ -41,7 +41,7 @@ class TrackPictogram extends StatefulWidget {
     Key? key,
     required this.track,
     required this.blurRadius,
-    this.colors = const [CI.blue, CI.red],
+    this.colors = const [CI.radkulturRed, CI.radkulturYellow],
     this.startImage,
     this.destinationImage,
     this.lineWidth = 3.0,
@@ -288,7 +288,7 @@ class TrackPainter extends CustomPainter {
       final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
       final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
-      var color = CI.blue;
+      var color = CI.radkulturRed;
       if (showSpeed && minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
         if (colors.length < 2) {
           throw Exception('The colors list must have at least two colors.');
@@ -315,7 +315,7 @@ class TrackPainter extends CustomPainter {
       final x2i = x1 + (x2 - x1) * pct;
       final y2i = y1 + (y2 - y1) * pct;
 
-      var color = CI.blue;
+      var color = CI.radkulturRed;
       if (showSpeed && minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
         // Calculate the fraction based on a power function
         // This makes the color change more visible for lower speeds

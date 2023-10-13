@@ -132,7 +132,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
               return Stack(
                 children: [
                   ShortcutView(
-                    selectionColor: CI.blue,
+                    selectionColor: CI.radkulturRed,
                     onLongPressed: wasAchieved
                         ? null
                         : () {
@@ -169,13 +169,13 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                       width: shortcutWidth - 16,
                       height: shortcutHeight + 34,
                       decoration: BoxDecoration(
-                        color: CI.blue.withOpacity(0.25),
+                        color: CI.radkulturRed.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: const Center(
                         child: Icon(
                           Icons.done_rounded,
-                          color: CI.blue,
+                          color: CI.radkulturRed,
                           size: 96,
                         ),
                       ),
@@ -205,7 +205,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   key: const ValueKey('ConfirmButton'),
                   padding: const EdgeInsets.only(bottom: 8),
                   child: ConfirmButton(
-                    color: CI.blue,
+                    color: CI.radkulturRed,
                     label: 'Route anzeigen ($_numOfSelected)',
                     onPressed: _itemsSelected
                         ? () {
@@ -326,7 +326,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                     decoration: BoxDecoration(
                                       color: _showCommunity
                                           ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
-                                          : CI.blue,
+                                          : CI.radkulturRed,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
@@ -352,7 +352,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                     height: 4,
                                     decoration: BoxDecoration(
                                       color: _showCommunity
-                                          ? CI.blue
+                                          ? CI.radkulturRed
                                           : Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -375,7 +375,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                 const Icon(
                                   Icons.group,
                                   size: 56,
-                                  color: CI.blue,
+                                  color: CI.radkulturRed,
                                 ),
                                 Header(
                                   text: '${_eventService.numOfActiveUsers}',
@@ -389,7 +389,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                 const Icon(
                                   Icons.location_on,
                                   size: 56,
-                                  color: CI.blue,
+                                  color: CI.radkulturRed,
                                 ),
                                 Header(
                                   text: '${_eventService.numOfAchievedLocations}',
@@ -417,7 +417,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                         Expanded(child: Container()),
                         Center(
                           child: RewardBadge(
-                            color: CI.blue,
+                            color: CI.radkulturRed,
                             size: 96,
                             iconIndex: _event!.iconValue,
                             achieved: _eventService.wasCurrentEventAchieved,
@@ -436,7 +436,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                               : Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: CI.blue,
+                                    color: CI.radkulturRed,
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: BoldContent(

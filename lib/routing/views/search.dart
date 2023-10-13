@@ -391,7 +391,7 @@ class RouteSearchState extends State<RouteSearch> {
             BigButton(
               iconColor: Colors.white,
               icon: Icons.delete_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
               label: "Löschen",
               onPressed: () {
                 geosearch.deleteSearchHistory();
@@ -512,7 +512,7 @@ class RouteSearchState extends State<RouteSearch> {
                           ToastMessage.showSuccess("Eintrag gelöscht");
                         },
                         direction: DismissDirection.endToStart,
-                        background: Container(color: CI.red),
+                        background: Container(color: CI.radkulturYellow),
                         child: HistoryItem(
                           waypoint: waypointWithDistance.key,
                           distance: waypointWithDistance.value,

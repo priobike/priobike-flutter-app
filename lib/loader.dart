@@ -151,12 +151,12 @@ class LoaderState extends State<Loader> {
           text:
               "Sind sie sich sicher, dass sie ihre persönlichen Daten zurücksetzen wollen? Nach dem Bestätigen werden ihre Daten unwiderruflich verworfen. Dazu gehören unter Anderem ihre erstellten Routen.",
           icon: Icons.delete_forever_rounded,
-          iconColor: CI.red,
+          iconColor: CI.radkulturYellow,
           actions: [
             BigButton(
               iconColor: Colors.white,
               icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
               label: "Zurücksetzen",
               onPressed: () async {
                 await _resetData();
@@ -201,7 +201,7 @@ class LoaderState extends State<Loader> {
                         0.1,
                         0.9,
                       ],
-                      colors: [CI.blueLight, CI.blue],
+                      colors: [CI.radkulturRed, CI.radkulturRedDark],
                     ),
                   )
                 : const BoxDecoration(
@@ -212,7 +212,7 @@ class LoaderState extends State<Loader> {
                         0.1,
                         0.9,
                       ],
-                      colors: [CI.blue, CI.blue],
+                      colors: [CI.radkulturRed, CI.radkulturRed],
                     ),
                   ),
           ),

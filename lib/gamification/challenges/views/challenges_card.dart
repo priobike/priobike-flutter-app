@@ -9,8 +9,8 @@ import 'package:priobike/gamification/challenges/views/profile/profile_view.dart
 import 'package:priobike/gamification/challenges/views/progress_bar/progress_bar.dart';
 import 'package:priobike/gamification/common/colors.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
-import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information about the users
@@ -63,7 +63,7 @@ class ChallengesCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: CI.blue.withOpacity(0.05),
+                            color: CI.radkulturRed.withOpacity(0.05),
                             blurRadius: 24,
                             spreadRadius: 24,
                           ),
@@ -96,7 +96,7 @@ class ChallengesCard extends StatelessWidget {
                       child: const Icon(
                         CustomGameIcons.distance_medal,
                         size: 64,
-                        color: CI.blue,
+                        color: CI.radkulturRed,
                       ),
                     ),
                   ),

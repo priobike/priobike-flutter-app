@@ -57,7 +57,7 @@ class SettingsElement extends StatelessWidget {
                 children: [
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null) Content(text: subtitle!, color: CI.blue, context: context),
+                  if (subtitle != null) Content(text: subtitle!, color: CI.radkulturRed, context: context),
                 ],
               ),
             ),

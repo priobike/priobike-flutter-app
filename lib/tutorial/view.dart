@@ -126,6 +126,7 @@ class TutorialViewState extends State<TutorialView> {
                     child: BoldSmall(
                       text: widget.text,
                       context: context,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   Padding(
