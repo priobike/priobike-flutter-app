@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -62,6 +63,11 @@ class FinishRideButtonState extends State<FinishRideButton> {
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap() async {
+    // Allows only portrait mode again when leaving the ride view.
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
     // End the tracking and collect the data.
     final tracking = getIt<Tracking>();
     await tracking.end(); // Performs all needed resets.

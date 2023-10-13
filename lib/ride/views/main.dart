@@ -135,8 +135,8 @@ class RideViewState extends State<RideView> {
         // Start tracking once the `sessionId` is set and the positioning stream is available.
         await tracking.start(deviceWidth, deviceHeight);
 
-        // Allow user to rotate the screen.
-        // Landscape-Mode needs to be removed in dispose().
+        // Allow user to rotate the screen in ride view.
+        // Landscape-Mode will be removed in FinishRideButton.
         await SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
           DeviceOrientation.landscapeRight,
@@ -159,10 +159,6 @@ class RideViewState extends State<RideView> {
   void dispose() {
     settings.removeListener(update);
 
-    // Allows only portrait mode again.
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
     super.dispose();
   }
 
