@@ -192,7 +192,7 @@ class RideViewState extends State<RideView> {
       positionSpeedometerRight = 0.0;
       if (Platform.isAndroid) {
         topPositionMapboxLogo = 10;
-        topPositionMapboxButton = 5;
+        topPositionMapboxButton = 3;
       } else {
         topPositionMapboxLogo = MediaQuery.of(context).size.height * 0.07;
         topPositionMapboxButton = MediaQuery.of(context).size.height * 0.05;
