@@ -255,7 +255,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           );
           HapticFeedback.lightImpact();
         },
-        child: AnnotatedRegionPrioBike(
+        child: AnnotatedRegionWrapper(
           backgroundColor: Theme.of(context).colorScheme.surface,
           brightness: Theme.of(context).brightness,
           statusBarIconBrightness: Brightness.light,

@@ -247,7 +247,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
   @override
   Widget build(BuildContext context) {
     if (_event == null) return Container();
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surface,
       brightness: Theme.of(context).brightness,
       child: Scaffold(

@@ -159,7 +159,7 @@ class FeedbackViewState extends State<FeedbackView> {
 
     final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.primary,
       brightness: Theme.of(context).brightness,
       systemNavigationBarIconBrightness: Brightness.light,

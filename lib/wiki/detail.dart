@@ -186,7 +186,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
 
     final frame = MediaQuery.of(context);
 
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.primary,
       brightness: Theme.of(context).brightness,
       systemNavigationBarIconBrightness: Brightness.light,

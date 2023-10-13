@@ -277,7 +277,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.blue),
     ];
     final ppi = MediaQuery.of(context).devicePixelRatio * 0.9;
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(

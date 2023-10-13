@@ -16,7 +16,7 @@ class BadgeCollection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(

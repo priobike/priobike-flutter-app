@@ -291,7 +291,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   @override
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(

@@ -179,7 +179,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     const double shortcutRightPad = 16;
     final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(

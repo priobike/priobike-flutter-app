@@ -241,7 +241,7 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surface,
       brightness: Theme.of(context).brightness,
       child: Scaffold(

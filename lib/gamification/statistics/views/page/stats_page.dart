@@ -99,7 +99,7 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegionPrioBike(
+    return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: WillPopScope(
