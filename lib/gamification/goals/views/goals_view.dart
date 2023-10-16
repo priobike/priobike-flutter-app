@@ -71,7 +71,7 @@ class CustomIconButton extends StatelessWidget {
       child: OnTapAnimation(
         onPressed: onPressed,
         child: Tile(
-          fill: Colors.transparent,
+          fill: Theme.of(context).colorScheme.surface,
           padding: const EdgeInsets.all(8),
           borderRadius: BorderRadius.circular(24),
           showShadow: false,
@@ -81,13 +81,13 @@ class CustomIconButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 24,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               const SmallHSpace(),
               BoldContent(
                 text: label,
                 context: context,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1,
               ),
             ],

@@ -71,12 +71,12 @@ class _TutorialPageState extends State<TutorialPage> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.background,
           child: Stack(
             children: [
               Align(

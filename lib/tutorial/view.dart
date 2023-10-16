@@ -15,9 +15,13 @@ class TutorialView extends StatefulWidget {
   /// The optional padding of the tutorial.
   final EdgeInsetsGeometry? padding;
 
+  /// The color of the tutorial (text and buttons).
+  final Color? color;
+
   const TutorialView({
     required this.id,
     required this.text,
+    this.color,
     this.padding,
     Key? key,
   }) : super(key: key);
@@ -126,7 +130,7 @@ class TutorialViewState extends State<TutorialView> {
                     child: BoldSmall(
                       text: widget.text,
                       context: context,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: widget.color ?? Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
                   Padding(
@@ -135,11 +139,11 @@ class TutorialViewState extends State<TutorialView> {
                       icon: _checkmarkIsShown
                           ? Icon(
                               Icons.check,
-                              color: Theme.of(context).colorScheme.onBackground,
+                              color: widget.color ?? Theme.of(context).colorScheme.onBackground,
                             )
                           : Icon(
                               Icons.close,
-                              color: Theme.of(context).colorScheme.onBackground,
+                              color: widget.color ?? Theme.of(context).colorScheme.onBackground,
                             ),
                       // The following call will trigger `notifyListeners()`.
                       onPressed: () => tutorial.complete(widget.id),

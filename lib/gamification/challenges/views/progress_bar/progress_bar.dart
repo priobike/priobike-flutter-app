@@ -261,7 +261,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                               context: context,
                               color: _isCompleted
                                   ? Colors.white
-                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
                             ),
                           ],
                         ),

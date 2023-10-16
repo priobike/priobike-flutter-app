@@ -198,7 +198,7 @@ class EditGoalWidget extends StatelessWidget {
                 BoldSmall(
                   text: title,
                   context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(onChanged == null ? 0.1 : 0.2),
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(onChanged == null ? 0.3 : 0.5),
                 )
               ],
             ),

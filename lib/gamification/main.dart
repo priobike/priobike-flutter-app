@@ -32,6 +32,7 @@ class _GameViewState extends State<GameView> {
           id: 'priobike.gamification.challenges.tutorial',
           text:
               'Erfülle tägliche Challenges, steige Level auf und lass dich überraschen, vor was für Herausforderungen du dabei sonst noch gestellt wirst...',
+          color: Colors.white,
         ),
         ChallengesCard(),
       ],
@@ -43,6 +44,7 @@ class _GameViewState extends State<GameView> {
           id: 'priobike.gamification.statistics.tutorial',
           text:
               'Erhalte einen genaueren Überblick über deine zurückgelegten Fahrten, durch tägliche, wöchentliche und monatliche Statistik-Überblicke.',
+          color: Colors.white,
         ),
         RideStatisticsCard(),
       ],
@@ -54,6 +56,7 @@ class _GameViewState extends State<GameView> {
           id: 'priobike.gamification.community.tutorial',
           text:
               'Besuche jedes Wochenende einen anderen Stadtteil von Hamburg und sammel dabei unterschiedliche Abzeichen.',
+          color: Colors.white,
         ),
         EventCard(),
       ],
