@@ -19,12 +19,12 @@ class GoalsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const TutorialView(
-            padding: EdgeInsets.fromLTRB(32, 0, 32, 24),
-            id: 'priobike.gamification.goals.tutorial',
-            text:
-                'Setze dir tägliche Ziele. Die Ziele die du für dich festlegst, werden in deine Statistiken integriert und bestimmen die Schwierigkeit der für dich generierten Challenges.',
-          ),
+          TutorialView(
+              padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
+              id: 'priobike.gamification.goals.tutorial',
+              text:
+                  'Setze dir tägliche Ziele. Die Ziele die du für dich festlegst, werden in deine Statistiken integriert und bestimmen die Schwierigkeit der für dich generierten Challenges.',
+              color: Theme.of(context).colorScheme.onSurface),
           Row(
             mainAxisSize: MainAxisSize.max,
             children: [

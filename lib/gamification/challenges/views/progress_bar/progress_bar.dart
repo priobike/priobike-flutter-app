@@ -240,9 +240,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                   ? (widget.isWeekly ? CustomGameIcons.blank_trophy : CustomGameIcons.blank_medal)
                                   : getChallengeIcon(_challenge!),
                               size: 32,
-                              color: _isCompleted
-                                  ? Colors.white
-                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                              color: _isCompleted ? Colors.white : Theme.of(context).colorScheme.onBackground,
                             ),
                             BoldContent(
                               text: _challenge == null
@@ -259,9 +257,7 @@ class _ChallengeProgressBarState extends State<ChallengeProgressBar> with Single
                                           challengeType,
                                         )} ${StringFormatter.getLabelForChallengeType(challengeType)}',
                               context: context,
-                              color: _isCompleted
-                                  ? Colors.white
-                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                              color: _isCompleted ? Colors.white : Theme.of(context).colorScheme.onBackground,
                             ),
                           ],
                         ),

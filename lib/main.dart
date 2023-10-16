@@ -167,16 +167,46 @@ class App extends StatelessWidget {
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
+              headlineLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF000000),
+              ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
+              headlineSmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
               bodyLarge: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 16,
                 fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              bodyMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              bodySmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              titleLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               titleMedium: TextStyle(
@@ -226,16 +256,46 @@ class App extends StatelessWidget {
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
+              headlineLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFFFFF),
+              ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
+              headlineSmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
               bodyLarge: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 16,
                 fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              bodyMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              bodySmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              titleLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               titleMedium: TextStyle(
