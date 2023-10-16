@@ -126,18 +126,20 @@ class TutorialViewState extends State<TutorialView> {
                     child: BoldSmall(
                       text: widget.text,
                       context: context,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 6),
                     child: IconButton(
                       icon: _checkmarkIsShown
-                          ? const Icon(
+                          ? Icon(
                               Icons.check,
+                              color: Theme.of(context).colorScheme.onBackground,
                             )
-                          : const Icon(
+                          : Icon(
                               Icons.close,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
                       // The following call will trigger `notifyListeners()`.
                       onPressed: () => tutorial.complete(widget.id),

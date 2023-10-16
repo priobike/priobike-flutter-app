@@ -41,7 +41,10 @@ class TrackPictogram extends StatefulWidget {
     Key? key,
     required this.track,
     required this.blurRadius,
-    this.colors = const [CI.radkulturRed, CI.radkulturYellow],
+    this.colors = const [
+      CI.radkulturRedDark,
+      Color.fromARGB(255, 0, 115, 255),
+    ],
     this.startImage,
     this.destinationImage,
     this.lineWidth = 3.0,

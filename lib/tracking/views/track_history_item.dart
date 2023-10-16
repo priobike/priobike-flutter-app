@@ -370,10 +370,6 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                     content: TrackPictogram(
                       key: ValueKey(widget.track.sessionId),
                       track: positions,
-                      colors: const [
-                        CI.radkulturGreen,
-                        CI.radkulturYellow,
-                      ],
                       blurRadius: 2,
                       startImage: widget.startImage,
                       destinationImage: widget.destinationImage,

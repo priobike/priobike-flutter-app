@@ -188,15 +188,13 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Expanded(
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: const Center(
-          child: SizedBox(
-            height: 48,
-            width: 48,
-            child: CircularProgressIndicator(),
-          ),
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      child: const Center(
+        child: SizedBox(
+          height: 48,
+          width: 48,
+          child: CircularProgressIndicator(),
         ),
       ),
     );
