@@ -124,10 +124,20 @@ class MapDesigns with ChangeNotifier {
       designCanBeChanged = true;
 
       try {
-        final String? mapDesignStr = storage.getString("priobike.layers.style");
-        if (mapDesignStr != null) {
-          final decode = jsonDecode(mapDesignStr);
-          mapDesign = MapDesign.fromJson(decode);
+        final String? mapDesignName = storage.getString("priobike.layers.styleName");
+        if (mapDesignName != null) {
+          // Load the map design from the preferences.
+          bool found = false;
+          for (final design in MapDesign.designs) {
+            if (design.name == mapDesignName) {
+              mapDesign = design;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            throw Exception("Unknown map design in shared prefs: $mapDesignName. Setting MapDesign to standard.");
+          }
         } else {
           throw Exception("No map design found in preferences. Setting MapDesign to standard.");
         }
@@ -142,7 +152,7 @@ class MapDesigns with ChangeNotifier {
   Future<void> storePreferences() async {
     final storage = await SharedPreferences.getInstance();
 
-    await storage.setString("priobike.layers.style", jsonEncode(mapDesign.toJson()));
+    await storage.setString("priobike.layers.styleName", jsonEncode(mapDesign.name));
 
     notifyListeners();
   }
