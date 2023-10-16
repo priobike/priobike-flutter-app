@@ -217,8 +217,6 @@ class WeatherViewState extends State<WeatherView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!weather.hasLoaded) return Container();
-
     return Expanded(
       child: Row(
         children: [
