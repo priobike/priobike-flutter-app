@@ -546,13 +546,13 @@ class TrafficLayer {
                 "heavy",
                 ["get", "congestion"]
               ],
-              "#ee4e8b",
+              "#FFDC00",
               [
                 "==",
                 "severe",
                 ["get", "congestion"]
               ],
-              "#b43b71",
+              "#FFDC00",
               "#000000"
             ],
           ));

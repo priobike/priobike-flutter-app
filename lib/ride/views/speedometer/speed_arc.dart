@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 
 class SpeedometerSpeedArcPainter extends CustomPainter {
   final double minSpeed;
@@ -38,7 +37,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           tileMode: TileMode.mirror,
           colors: [
             Colors.white.withOpacity(0.0),
-            CI.radkulturRed.withOpacity(0.2),
+            Colors.white.withOpacity(0.2),
           ],
           stops: const [0.75, 1.0],
           transform: const GradientRotation(startAngle),
@@ -128,7 +127,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     );
 
     final paint = Paint()
-      ..color = CI.radkulturRed
+      ..color = Colors.grey
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1);
 
     canvas.drawRRect(

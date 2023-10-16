@@ -117,7 +117,7 @@ class RouteWaypointItem extends StatelessWidget {
             height: 42,
             width: frame.size.width - 106,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               borderRadius: const BorderRadius.all(Radius.circular(16)),
               border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
             ),

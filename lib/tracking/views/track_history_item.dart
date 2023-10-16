@@ -371,7 +371,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                       key: ValueKey(widget.track.sessionId),
                       track: positions,
                       colors: const [
-                        CI.radkulturRed,
+                        CI.radkulturGreen,
                         CI.radkulturYellow,
                       ],
                       blurRadius: 2,
