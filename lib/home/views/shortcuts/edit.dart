@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -226,7 +227,9 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         ? SmallIconButton(
                             icon: Icons.edit,
                             onPressed: () => onEditShortcut(key),
+                            color: Theme.of(context).colorScheme.onSurface,
                             fill: Theme.of(context).colorScheme.surface,
+                            splash: Theme.of(context).colorScheme.primary,
                           )
                         : SmallIconButton(
                             icon: Icons.qr_code_2_rounded,
@@ -244,7 +247,9 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                           ? SmallIconButton(
                               icon: Icons.delete,
                               onPressed: () => onDeleteShortcut(key),
-                              fill: Theme.of(context).colorScheme.surface,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fill: CI.radkulturYellow,
+                              splash: Theme.of(context).colorScheme.primary,
                             )
                           : const Padding(
                               padding: EdgeInsets.all(12),
@@ -312,7 +317,9 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         builder: (context) => const ImportShortcutDialog(),
                       ),
                       icon: Icons.add_rounded,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fill: Theme.of(context).colorScheme.surface,
+                      splash: Theme.of(context).colorScheme.primary,
                     ),
                     const SmallHSpace(),
                     AnimatedSwitcher(
@@ -321,12 +328,16 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                           ? SmallIconButton(
                               icon: Icons.check_rounded,
                               onPressed: () => setState(() => editMode = false),
-                              fill: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fill: CI.radkulturGreen,
+                              splash: Theme.of(context).colorScheme.primary,
                             )
                           : SmallIconButton(
                               icon: Icons.edit_rounded,
                               onPressed: () => setState(() => editMode = true),
+                              color: Theme.of(context).colorScheme.onSurface,
                               fill: Theme.of(context).colorScheme.surface,
+                              splash: Theme.of(context).colorScheme.primary,
                             ),
                     ),
                     const SizedBox(width: 18),

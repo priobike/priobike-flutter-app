@@ -255,7 +255,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
         },
         child: AnnotatedRegionWrapper(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).colorScheme.background,
           brightness: Theme.of(context).brightness,
           statusBarIconBrightness: Brightness.light,
           child: CustomScrollView(
@@ -307,8 +307,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                               context: context,
                               builder: (context) => const ImportShortcutDialog(),
                             ),
-                            color: Theme.of(context).colorScheme.onSurface,
                             icon: Icons.add_rounded,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fill: Theme.of(context).colorScheme.surface,
                             splash: Theme.of(context).colorScheme.primary,
                           ),

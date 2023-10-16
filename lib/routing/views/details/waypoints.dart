@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -34,7 +35,7 @@ class SearchWaypointItem extends StatelessWidget {
                 children: [
                   Flexible(
                     child: BoldContent(
-                      color: Colors.grey,
+                      color: Colors.white,
                       text: "Adresse suchen",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -62,7 +63,7 @@ class SearchWaypointItem extends StatelessWidget {
                 onTap: onSelect,
                 child: const Padding(
                   padding: EdgeInsets.all(4),
-                  child: Icon(Icons.search_rounded, color: Colors.grey),
+                  child: Icon(Icons.search_rounded, color: Colors.white),
                 ),
               ),
             ),
@@ -116,7 +117,7 @@ class RouteWaypointItem extends StatelessWidget {
             height: 42,
             width: frame.size.width - 106,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
               borderRadius: const BorderRadius.all(Radius.circular(16)),
               border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
             ),
@@ -143,7 +144,7 @@ class RouteWaypointItem extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: CI.radkulturYellow,
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                 border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
               ),
@@ -155,7 +156,7 @@ class RouteWaypointItem extends StatelessWidget {
                   onTap: onDelete,
                   child: const Padding(
                     padding: EdgeInsets.all(4),
-                    child: Icon(Icons.close, color: Colors.grey),
+                    child: Icon(Icons.close, color: Colors.black),
                   ),
                 ),
               ),

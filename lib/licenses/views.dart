@@ -18,9 +18,27 @@ class LicenseView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        appBarTheme: const AppBarTheme(
+        appBarTheme: AppBarTheme(
           elevation: 0,
-          titleTextStyle: TextStyle(fontSize: 20),
+          titleTextStyle: const TextStyle(fontSize: 20, color: Colors.black),
+          toolbarTextStyle: const TextStyle(fontSize: 20, color: Colors.black),
+          color: Theme.of(context).colorScheme.background,
+          iconTheme: const IconThemeData(color: Colors.black),
+        ),
+        cardColor: Theme.of(context).colorScheme.background,
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(color: Colors.black),
+          titleSmall: TextStyle(color: Colors.black),
+          titleMedium: TextStyle(color: Colors.black),
+          headlineSmall: TextStyle(color: Colors.black),
+          headlineMedium: TextStyle(color: Colors.black),
+          headlineLarge: TextStyle(color: Colors.black),
+          bodyLarge: TextStyle(color: Colors.black),
+          bodySmall: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(color: Colors.black),
+          labelLarge: TextStyle(color: Colors.black),
+          labelSmall: TextStyle(color: Colors.black),
+          labelMedium: TextStyle(color: Colors.black),
         ),
       ),
       child: LicensePage(

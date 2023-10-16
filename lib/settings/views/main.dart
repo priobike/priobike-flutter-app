@@ -242,10 +242,9 @@ class SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SingleChildScrollView(
           child: SafeArea(
             child: Column(
@@ -256,7 +255,8 @@ class SettingsViewState extends State<SettingsView> {
                   children: [
                     AppBackButton(onPressed: () => Navigator.pop(context)),
                     const HSpace(),
-                    SubHeader(text: "Einstellungen", context: context),
+                    SubHeader(
+                        text: "Einstellungen", context: context, color: Theme.of(context).colorScheme.onBackground),
                   ],
                 ),
                 const SmallVSpace(),

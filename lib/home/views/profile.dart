@@ -382,10 +382,12 @@ class ProfileViewState extends State<ProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Content(text: "Routenpräferenz", context: context),
+                  Content(text: "Routenpräferenz", context: context, color: Theme.of(context).colorScheme.onSurface),
                   const SmallVSpace(),
                   Small(
-                      text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen.", context: context),
+                      text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen.",
+                      context: context,
+                      color: Theme.of(context).colorScheme.onSurface),
                 ],
               ),
             ),
@@ -451,12 +453,13 @@ class ProfileViewState extends State<ProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Content(text: "Anstieg", context: context),
+                  Content(text: "Anstieg", context: context, color: Theme.of(context).colorScheme.onSurface),
                   const SmallVSpace(),
                   Small(
                       text:
                           "Vermeide Anstiege oder fahre lieber bergauf? Wähle die Option, die am besten zu dir passt.",
-                      context: context),
+                      context: context,
+                      color: Theme.of(context).colorScheme.onSurface),
                 ],
               ),
             ),

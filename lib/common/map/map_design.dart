@@ -67,10 +67,10 @@ class MapDesign {
   /// The standard map design.
   static const standard = MapDesign(
     name: 'PrioBike',
-    lightStyle: 'mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu',
+    lightStyle: 'mapbox://styles/snrmtths/clnsn1qcm00j601qyf67tekyh',
     lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
     lightScreenshot: 'assets/images/screenshots/standard-light.png',
-    darkStyle: 'mapbox://styles/snrmtths/cle4gkymg001t01nwazajfyod',
+    darkStyle: 'mapbox://styles/snrmtths/clnsn1qdk00it01o309z89n70',
     darkStyleNoText: 'mapbox://styles/snrmtths/cllxh6el000j301pj59tu0e1c',
     darkScreenshot: 'assets/images/screenshots/standard-dark.png',
   );
