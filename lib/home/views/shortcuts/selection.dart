@@ -42,8 +42,8 @@ class ShortcutView extends StatelessWidget {
       child: Tile(
         onLongPressed: onLongPressed,
         onPressed: onPressed,
-        shadow: shortcut == null ? CI.radkulturRedDark : const Color.fromARGB(255, 0, 0, 0),
-        shadowIntensity: shortcut == null ? 0.3 : 0.08,
+        shadow: shortcut == null ? CI.radkulturRedDark : const Color.fromARGB(255, 45, 45, 45),
+        shadowIntensity: shortcut == null ? 0.3 : 0.1,
         padding: const EdgeInsets.all(0),
         content: Stack(
           children: [
@@ -123,7 +123,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ],
         ),
-        fill: shortcut == null || selected ? selectionColor : Colors.white,
+        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.background,
         splash:
             showSplash ? (shortcut == null ? Colors.white : Theme.of(context).colorScheme.primary) : Colors.transparent,
       ),

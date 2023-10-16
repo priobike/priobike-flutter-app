@@ -91,8 +91,8 @@ dev_dependencies:
 
 # Configuration of the splash screens.
 flutter_native_splash:
-  color: "#0073ff" # Color in light mode
-  color_dark: "#0073ff" # Color in dark mode
+  color: "#FA1E41" # Color in light mode
+  color_dark: "#FA1E41" # Color in dark mode
   image: assets/splash.png # Icon to display in the center
   image_dark: assets/splash.png # be default this should be equal to 'image' ... but for some reason it's not.
   android_12: #The Android 12 splash screen requires an app icon without an icon background, which should be 1152×1152 pixels in size and fit into a circle 768 pixels in diameter.

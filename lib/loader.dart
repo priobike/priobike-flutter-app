@@ -192,29 +192,7 @@ class LoaderState extends State<Loader> {
             margin: shouldMorph
                 ? EdgeInsets.only(bottom: frame.size.height - frame.padding.top - 128)
                 : const EdgeInsets.only(top: 0),
-            decoration: shouldMorph
-                ? const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                      stops: [
-                        0.1,
-                        0.9,
-                      ],
-                      colors: [CI.radkulturRed, CI.radkulturRedDark],
-                    ),
-                  )
-                : const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                      stops: [
-                        0.1,
-                        0.9,
-                      ],
-                      colors: [CI.radkulturRed, CI.radkulturRed],
-                    ),
-                  ),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         AnimatedSwitcher(
