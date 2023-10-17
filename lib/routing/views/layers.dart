@@ -30,7 +30,11 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   /// The future of the background images by map design name.
   Map<String, Future<MemoryImage?>> screenshotFutures = {};
 
+  /// The background images by map design.
   Map<MapDesign, MemoryImage> screenshots = {};
+
+  /// How many screenshots we have already fetched (if counter is same as count of designs we have finished loading).
+  int loadingCounter = 0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -62,6 +66,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
         if (image == null) return;
         setState(() {
           screenshots[design] = image;
+          loadingCounter++;
         });
       });
 
@@ -195,21 +200,31 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
               physics: const NeverScrollableScrollPhysics(),
-              children: MapDesign.designs
-                  .map(
-                    (design) => LayerSelectionItem(
-                      isScreenshot: true,
-                      icon: !screenshots.containsKey(design) || screenshots[design] == null
-                          ? Theme.of(context).colorScheme.brightness == Brightness.light
-                              ? Image.asset(design.fallbackLightScreenshot)
-                              : Image.asset(design.fallbackDarkScreenshot)
-                          : Image.memory(screenshots[design]!.bytes),
-                      title: design.name,
-                      selected: mapDesigns.mapDesign == design,
-                      onTap: () => mapDesigns.setMapDesign(design),
-                    ),
-                  )
-                  .toList(),
+              children: loadingCounter >= MapDesign.designs.length
+                  ? MapDesign.designs
+                      .map(
+                        (design) => LayerSelectionItem(
+                          isScreenshot: true,
+                          icon: !screenshots.containsKey(design) || screenshots[design] == null
+                              ? Theme.of(context).colorScheme.brightness == Brightness.light
+                                  ? Image.asset(design.fallbackLightScreenshot)
+                                  : Image.asset(design.fallbackDarkScreenshot)
+                              : Image.memory(screenshots[design]!.bytes),
+                          title: design.name,
+                          selected: mapDesigns.mapDesign == design,
+                          onTap: () => mapDesigns.setMapDesign(design),
+                        ),
+                      )
+                      .toList()
+                  : [
+                      LayerSelectionItem(
+                        isScreenshot: false,
+                        icon: const SizedBox(),
+                        title: "Lädt..",
+                        selected: false,
+                        onTap: () => {},
+                      )
+                    ],
             ),
             const VSpace(),
           ],
@@ -224,7 +239,7 @@ class LayerSelectionItem extends StatelessWidget {
   final bool isScreenshot;
 
   /// The icon of the item.
-  final Image icon;
+  final Widget icon;
 
   /// The title of the item.
   final String title;
