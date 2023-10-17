@@ -102,6 +102,7 @@ class StatusViewState extends State<StatusView> {
             BoldSmall(
               text: "Jetzt",
               context: context,
+              color: isProblem ? Colors.black : null,
             ),
             const SizedBox(height: 12),
             Row(
@@ -114,13 +115,18 @@ class StatusViewState extends State<StatusView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       isProblem
-                          ? BoldContent(text: "Vorübergehende Störung", context: context)
+                          ? BoldContent(
+                              text: "Vorübergehende Störung",
+                              context: context,
+                              color: Colors.black,
+                            )
                           : BoldContent(text: "Datenverfügbarkeit", context: context),
                       const SizedBox(height: 6),
                       isProblem
                           ? Small(
                               text: text ?? "Lade Daten...",
                               context: context,
+                              color: Colors.black,
                             )
                           : Small(
                               text: text ?? "Lade Daten...",
@@ -158,6 +164,7 @@ class StatusViewState extends State<StatusView> {
                       BoldSmall(
                         text: "${((goodPct ?? 0) * 100).round()}%",
                         context: context,
+                        color: isProblem ? Colors.black : null,
                       ),
                     ],
                   ),

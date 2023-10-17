@@ -15,7 +15,6 @@ class ProfileElementButton extends StatelessWidget {
   final String title;
   final Color? color;
   final Color? backgroundColor;
-  final Color? touchColor;
   final void Function()? onPressed;
 
   const ProfileElementButton({
@@ -24,7 +23,6 @@ class ProfileElementButton extends StatelessWidget {
     required this.title,
     this.color,
     this.backgroundColor,
-    this.touchColor,
     this.onPressed,
   }) : super(key: key);
 
@@ -34,8 +32,8 @@ class ProfileElementButton extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Tile(
-          fill: backgroundColor ?? theme.colorScheme.background,
-          splash: touchColor ?? CI.radkulturRed,
+          fill: backgroundColor ?? theme.colorScheme.surface,
+          splash: theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           padding: const EdgeInsets.all(8),
           showShadow: false,
@@ -183,7 +181,8 @@ class ProfileViewState extends State<ProfileView> {
           ),
           Tile(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            fill: Theme.of(context).colorScheme.secondary,
+            fill: Theme.of(context).colorScheme.background,
+            borderColor: Colors.grey.withOpacity(0.2),
             content: Column(
               children: [
                 const SizedBox(height: 16),
@@ -204,8 +203,8 @@ class ProfileViewState extends State<ProfileView> {
                               key: const ValueKey<String>("None"),
                               icon: Icons.electric_bike_rounded,
                               title: "Radtyp",
-                              color: Theme.of(context).colorScheme.onBackground,
-                              backgroundColor: Theme.of(context).colorScheme.background,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                               onPressed: toggleBikeSelection)
                           : ProfileElementButton(
                               key: ValueKey<String>(profileService.bikeType!.description()),
@@ -213,7 +212,6 @@ class ProfileViewState extends State<ProfileView> {
                               title: profileService.bikeType!.description(),
                               color: Colors.white,
                               backgroundColor: CI.radkulturRed,
-                              touchColor: Colors.white,
                               onPressed: toggleBikeSelection,
                             ),
                     ),
@@ -227,8 +225,8 @@ class ProfileViewState extends State<ProfileView> {
                               key: const ValueKey<String>("None"),
                               icon: Icons.thumbs_up_down_rounded,
                               title: "Präferenz",
-                              color: Theme.of(context).colorScheme.onBackground,
-                              backgroundColor: Theme.of(context).colorScheme.background,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                               onPressed: togglePreferenceSelection,
                             )
                           : ProfileElementButton(
@@ -237,7 +235,6 @@ class ProfileViewState extends State<ProfileView> {
                               title: profileService.preferenceType!.description(),
                               color: Colors.white,
                               backgroundColor: CI.radkulturRed,
-                              touchColor: Colors.white,
                               onPressed: togglePreferenceSelection,
                             ),
                     ),
@@ -251,8 +248,8 @@ class ProfileViewState extends State<ProfileView> {
                               key: const ValueKey<String>("None"),
                               icon: Icons.landscape,
                               title: "Anstieg",
-                              color: Theme.of(context).colorScheme.onBackground,
-                              backgroundColor: Theme.of(context).colorScheme.background,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                               onPressed: toggleActivitySelection,
                             )
                           : ProfileElementButton(
@@ -261,7 +258,6 @@ class ProfileViewState extends State<ProfileView> {
                               title: profileService.activityType!.description(),
                               color: Colors.white,
                               backgroundColor: CI.radkulturRed,
-                              touchColor: Colors.white,
                               onPressed: toggleActivitySelection,
                             ),
                     ),
@@ -312,12 +308,12 @@ class ProfileViewState extends State<ProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Content(text: "Radtyp", context: context, color: Theme.of(context).colorScheme.onSurface),
+                  Content(text: "Radtyp", context: context, color: Theme.of(context).colorScheme.onBackground),
                   const SmallVSpace(),
                   Small(
                       text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt.",
                       context: context,
-                      color: Theme.of(context).colorScheme.onSurface),
+                      color: Theme.of(context).colorScheme.onBackground),
                 ],
               ),
             ),
@@ -344,7 +340,6 @@ class ProfileViewState extends State<ProfileView> {
                       title: bikeType.description(),
                       color: Colors.white,
                       backgroundColor: CI.radkulturRed,
-                      touchColor: Colors.white,
                       onPressed: () {
                         profileService.bikeType = bikeType;
                         profileService.store();
@@ -357,9 +352,8 @@ class ProfileViewState extends State<ProfileView> {
                 ProfileElementButton(
                   icon: Icons.delete_rounded,
                   title: "Löschen",
-                  color: Colors.black,
-                  backgroundColor: CI.radkulturYellow,
-                  touchColor: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                   onPressed: () {
                     profileService.bikeType = null;
                     profileService.store();
@@ -382,12 +376,12 @@ class ProfileViewState extends State<ProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Content(text: "Routenpräferenz", context: context, color: Theme.of(context).colorScheme.onSurface),
+                  Content(text: "Routenpräferenz", context: context, color: Theme.of(context).colorScheme.onBackground),
                   const SmallVSpace(),
                   Small(
                       text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen.",
                       context: context,
-                      color: Theme.of(context).colorScheme.onSurface),
+                      color: Theme.of(context).colorScheme.onBackground),
                 ],
               ),
             ),
@@ -415,7 +409,6 @@ class ProfileViewState extends State<ProfileView> {
                       title: preferenceType.description(),
                       color: Colors.white,
                       backgroundColor: CI.radkulturRed,
-                      touchColor: Colors.white,
                       onPressed: () {
                         profileService.preferenceType = preferenceType;
                         profileService.store();
@@ -428,9 +421,8 @@ class ProfileViewState extends State<ProfileView> {
                 ProfileElementButton(
                   icon: Icons.delete_rounded,
                   title: "Löschen",
-                  color: Colors.black,
-                  backgroundColor: CI.radkulturYellow,
-                  touchColor: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                   onPressed: () {
                     profileService.preferenceType = null;
                     profileService.store();
@@ -453,13 +445,13 @@ class ProfileViewState extends State<ProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Content(text: "Anstieg", context: context, color: Theme.of(context).colorScheme.onSurface),
+                  Content(text: "Anstieg", context: context, color: Theme.of(context).colorScheme.onBackground),
                   const SmallVSpace(),
                   Small(
                       text:
                           "Vermeide Anstiege oder fahre lieber bergauf? Wähle die Option, die am besten zu dir passt.",
                       context: context,
-                      color: Theme.of(context).colorScheme.onSurface),
+                      color: Theme.of(context).colorScheme.onBackground),
                 ],
               ),
             ),
@@ -487,7 +479,6 @@ class ProfileViewState extends State<ProfileView> {
                       title: activityType.description(),
                       color: Colors.white,
                       backgroundColor: CI.radkulturRed,
-                      touchColor: Colors.white,
                       onPressed: () {
                         profileService.activityType = activityType;
                         profileService.store();
@@ -500,9 +491,8 @@ class ProfileViewState extends State<ProfileView> {
                 ProfileElementButton(
                   icon: Icons.delete_rounded,
                   title: "Löschen",
-                  color: Colors.black,
-                  backgroundColor: CI.radkulturYellow,
-                  touchColor: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                   onPressed: () {
                     profileService.activityType = null;
                     profileService.store();

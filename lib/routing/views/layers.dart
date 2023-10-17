@@ -1,12 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 
 class LayerSelectionView extends StatefulWidget {
@@ -23,8 +27,47 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   /// The map designs service, which is injected by the provider.
   late MapDesigns mapDesigns;
 
+  /// The future of the background images by map design name.
+  Map<String, Future<MemoryImage?>> screenshotFutures = {};
+
+  Map<MapDesign, MemoryImage> screenshots = {};
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
+
+  void loadScreenshots() {
+    for (final design in MapDesign.designs) {
+      Future<MemoryImage?>? screenshotFuture = screenshotFutures[design.name];
+      if (screenshotFuture != null) {
+        screenshotFuture.ignore();
+      }
+
+      List<LatLng> coords;
+      final boundingBox = getIt<Boundary>().getRoughBoundingBox();
+      final latDiff = boundingBox["maxLat"]! - boundingBox["minLat"]!;
+      final lonDiff = boundingBox["maxLon"]! - boundingBox["minLon"]!;
+      const zoomFactor = 0.495;
+      coords = [
+        LatLng(boundingBox["minLat"]! + latDiff * zoomFactor, boundingBox["minLon"]! + lonDiff * zoomFactor),
+        LatLng(boundingBox["maxLat"]! - latDiff * zoomFactor, boundingBox["maxLon"]! - lonDiff * zoomFactor),
+      ];
+
+      final styleUri = Theme.of(context).brightness == Brightness.light ? design.lightStyle : design.darkStyle;
+
+      final future = MapboxTileImageCache.requestTile(
+        coords: coords,
+        brightness: Theme.of(context).brightness,
+        styleUri: styleUri,
+      ).then((image) {
+        if (image == null) return;
+        setState(() {
+          screenshots[design] = image;
+        });
+      });
+
+      screenshotFutures[design.name] = future;
+    }
+  }
 
   @override
   void initState() {
@@ -34,12 +77,19 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
     layers.addListener(update);
     mapDesigns = getIt<MapDesigns>();
     mapDesigns.addListener(update);
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      loadScreenshots();
+    });
   }
 
   @override
   void dispose() {
     layers.removeListener(update);
     mapDesigns.removeListener(update);
+    for (final future in screenshotFutures.values) {
+      future.ignore();
+    }
     super.dispose();
   }
 
@@ -149,9 +199,11 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   .map(
                     (design) => LayerSelectionItem(
                       isScreenshot: true,
-                      icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                          ? Image.asset(design.lightScreenshot)
-                          : Image.asset(design.darkScreenshot),
+                      icon: !screenshots.containsKey(design) || screenshots[design] == null
+                          ? Theme.of(context).colorScheme.brightness == Brightness.light
+                              ? Image.asset(design.fallbackLightScreenshot)
+                              : Image.asset(design.fallbackDarkScreenshot)
+                          : Image.memory(screenshots[design]!.bytes),
                       title: design.name,
                       selected: mapDesigns.mapDesign == design,
                       onTap: () => mapDesigns.setMapDesign(design),
@@ -199,8 +251,8 @@ class LayerSelectionItem extends StatelessWidget {
         Tile(
           padding: const EdgeInsets.all(0),
           borderRadius: BorderRadius.circular(26),
-          splash: Theme.of(context).colorScheme.primary,
-          fill: Theme.of(context).colorScheme.background,
+          splash: Theme.of(context).colorScheme.surfaceTint,
+          fill: Theme.of(context).colorScheme.surfaceVariant,
           onPressed: onTap,
           content: Container(
             width: double.infinity,

@@ -395,7 +395,8 @@ class RouteSearchState extends State<RouteSearch> {
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButton(
-              iconColor: Colors.white,
+              iconColor: Colors.black,
+              textColor: Colors.black,
               icon: Icons.delete_rounded,
               fillColor: CI.radkulturYellow,
               label: "Löschen",

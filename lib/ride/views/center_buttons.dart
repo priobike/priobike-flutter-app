@@ -225,7 +225,7 @@ class CenterButton extends StatelessWidget {
         fillColor: Theme.of(context).brightness == Brightness.light
             ? Colors.black.withOpacity(0.25)
             : Colors.white.withOpacity(0.1),
-        splashColor: CI.radkulturRedDark,
+        splashColor: Theme.of(context).colorScheme.surfaceTint,
         highlightColor: CI.radkulturRed,
         elevation: 0,
         child: Transform.rotate(

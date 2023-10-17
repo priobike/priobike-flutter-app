@@ -22,7 +22,7 @@ class NearbyResultsList extends StatelessWidget {
       color: Theme.of(context).colorScheme.background,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        splashColor: Theme.of(context).colorScheme.primary,
+        splashColor: Theme.of(context).colorScheme.surfaceTint,
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),

@@ -12,4 +12,7 @@ class CI {
 
   /// The secondary green color of the CI. Used for success.
   static const Color radkulturGreen = Color.fromARGB(255, 40, 205, 80);
+
+  /// The color for the route in the app.
+  static const Color route = Color.fromARGB(255, 0, 115, 255);
 }

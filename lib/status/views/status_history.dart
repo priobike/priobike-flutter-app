@@ -57,7 +57,6 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isProblem = predictionStatusSummary.getProblem() == null ? false : true;
-
     return Container(
       height: 130,
       width: MediaQuery.of(context).size.width,

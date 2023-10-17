@@ -140,12 +140,23 @@ class App extends StatelessWidget {
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.light(
               primary: CI.radkulturRed,
+              onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
+              onSecondary: Colors.white,
+              // For container/tiles/buttons/...
               surface: CI.radkulturRed,
-              surfaceVariant: Color(0xFFE7E7E7),
-              background: Colors.white,
+              // For content on surfaces (color with high contrast).
               onSurface: Color(0xFFFFFFFF),
+              // Neutral alternative for surface.
+              surfaceVariant: Color(0xFFFFFFFF),
+              // For content on the alternative surface (color with high contrast).
+              onSurfaceVariant: Color(0xFF000000),
+              // For the background of complete views/pages.
+              background: Colors.white,
+              // For content on the background (color with high contrast).
               onBackground: Color(0xFF000000),
+              // For the splash effect on buttons.
+              surfaceTint: Color(0x6BFFFFFF),
               brightness: Brightness.light,
             ),
             textTheme: const TextTheme(
@@ -229,12 +240,23 @@ class App extends StatelessWidget {
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.dark(
               primary: CI.radkulturRed,
+              onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
+              onSecondary: Colors.white,
+              // For container/tiles/buttons/...
               surface: CI.radkulturRed,
-              surfaceVariant: Color(0xFF131313),
-              background: Colors.black,
+              // For content on surfaces (color with high contrast).
               onSurface: Color(0xFFFFFFFF),
+              // Neutral alternative for surface.
+              surfaceVariant: Color(0xFF131313),
+              // For content on the alternative surface (color with high contrast).
+              onSurfaceVariant: Color(0xFFFFFFFF),
+              // For the background of complete views/pages.
+              background: Colors.black,
+              // For content on the background (color with high contrast).
               onBackground: Color(0xFFFFFFFF),
+              // For the splash effect on buttons.
+              surfaceTint: Color(0x6B232323),
               brightness: Brightness.dark,
             ),
             textTheme: const TextTheme(

@@ -82,8 +82,8 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
               height: 48,
               child: SmallIconButton(
                 icon: Icons.info_outline_rounded,
-                fill: Theme.of(context).colorScheme.background,
-                splash: Colors.white,
+                fill: Theme.of(context).colorScheme.surfaceVariant,
+                splash: Theme.of(context).colorScheme.surfaceTint,
                 onPressed: () => renderInfoDialogBox(context),
               ),
             ),

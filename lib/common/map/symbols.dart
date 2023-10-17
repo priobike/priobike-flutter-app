@@ -26,8 +26,6 @@ class SymbolLoader {
     await add("trafficlightonlineamberlight", "assets/images/trafficlights/online-amber-light.png", 400, 400);
     await add("trafficlightonlinedarkdark", "assets/images/trafficlights/online-dark-dark.png", 400, 400);
     await add("trafficlightonlinedarklight", "assets/images/trafficlights/online-dark-light.png", 400, 400);
-    await add("trafficlightgreenwavedark", "assets/images/green-wave-dark.png", 400, 400);
-    await add("trafficlightgreenwavelight", "assets/images/green-wave-light.png", 400, 400);
 
     await add("trafficlighttouchindicatordark", "assets/images/trafficlights/touch-indicator-dark.png", 400, 400);
     await add("trafficlighttouchindicatorlight", "assets/images/trafficlights/touch-indicator-light.png", 400, 400);
@@ -53,6 +51,8 @@ class SymbolLoader {
     await add("repairlight", "assets/images/repair-light.png", 200, 200);
     await add("accidentdark", "assets/images/accident-dark.png", 200, 200);
     await add("accidentlight", "assets/images/accident-light.png", 200, 200);
+    await add("greenwavedark", "assets/images/green-wave-dark.png", 200, 200);
+    await add("greenwavelight", "assets/images/green-wave-light.png", 200, 200);
 
     await add("route-label-primary-left", "assets/images/route-label-primary-left.png", 201, 63);
     await add("route-label-primary-right", "assets/images/route-label-primary-right.png", 201, 63);

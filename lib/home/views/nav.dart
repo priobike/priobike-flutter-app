@@ -82,7 +82,7 @@ class NavBarView extends StatelessWidget {
               SmallIconButton(
                 icon: Icons.settings_rounded,
                 color: Colors.white,
-                splash: Colors.white,
+                splash: Theme.of(context).colorScheme.surfaceTint,
                 fill: const Color.fromARGB(50, 255, 255, 255),
                 onPressed: () {
                   onTapSettingsButton?.call();

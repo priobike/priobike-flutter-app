@@ -154,7 +154,8 @@ class LoaderState extends State<Loader> {
           iconColor: CI.radkulturYellow,
           actions: [
             BigButton(
-              iconColor: Colors.white,
+              iconColor: Colors.black,
+              textColor: Colors.black,
               icon: Icons.delete_forever_rounded,
               fillColor: CI.radkulturYellow,
               label: "Zurücksetzen",

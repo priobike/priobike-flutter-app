@@ -56,7 +56,7 @@ class ShortcutView extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
                 ),
                 padding: const EdgeInsets.all(4),
                 child: ShortcutPictogram(
@@ -70,7 +70,7 @@ class ShortcutView extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
                 ),
                 padding: const EdgeInsets.all(4),
                 child: ShortcutPictogram(
@@ -124,8 +124,7 @@ class ShortcutView extends StatelessWidget {
           ],
         ),
         fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.background,
-        splash:
-            showSplash ? (shortcut == null ? Colors.white : Theme.of(context).colorScheme.primary) : Colors.transparent,
+        splash: showSplash ? Theme.of(context).colorScheme.surfaceTint : Colors.transparent,
       ),
     );
   }

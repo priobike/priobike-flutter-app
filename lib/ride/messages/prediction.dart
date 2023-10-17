@@ -49,13 +49,13 @@ extension PhaseColor on Phase {
       case Phase.amber:
         return CI.radkulturYellow;
       case Phase.green:
-        return CI.radkulturGreen;
+        return const Color.fromARGB(255, 0, 255, 106);
       case Phase.redAmber:
         return CI.radkulturYellow;
       case Phase.amberFlashing:
         return CI.radkulturYellow;
       case Phase.greenFlashing:
-        return CI.radkulturGreen;
+        return const Color.fromARGB(255, 0, 255, 106);
     }
   }
 }

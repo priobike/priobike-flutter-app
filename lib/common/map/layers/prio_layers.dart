@@ -29,7 +29,7 @@ class GreenWaveLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.15, at = 0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -39,7 +39,7 @@ class GreenWaveLayer {
           mapbox.SymbolLayer(
             sourceId: sourceId,
             id: layerId,
-            iconImage: isDark ? "trafficlightgreenwavedark" : "trafficlightgreenwavelight",
+            iconImage: isDark ? "greenwavedark" : "greenwavelight",
             iconSize: iconSize,
             iconOpacity: 0,
             iconAllowOverlap: true,

@@ -180,8 +180,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
               Expanded(child: Container()),
               IconTextButton(
                 label: "Alle anzeigen",
-                fillColor: Theme.of(context).colorScheme.background,
-                splashColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                splashColor: Theme.of(context).colorScheme.surfaceTint,
                 borderColor: Theme.of(context).brightness == Brightness.dark
                     ? Colors.white.withOpacity(0.08)
                     : Colors.black.withOpacity(0.08),

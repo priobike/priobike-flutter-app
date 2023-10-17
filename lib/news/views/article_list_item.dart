@@ -49,7 +49,7 @@ class ArticleListItem extends StatelessWidget {
                   color: CI.radkulturYellow,
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: const Text("NEU", style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: const Text("NEU", style: TextStyle(fontSize: 16, color: Colors.black)),
               ),
             if (category != null)
               Container(
