@@ -54,7 +54,7 @@ class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
           children: [
             const SmallVSpace(),
             BoldSubHeader(
-              text: 'Möchtest du dir an bestimmten Tagen eine Distanz oder Zeit vornehmen?',
+              text: 'Möchtest Du Dir an bestimmten Tagen eine Distanz oder Zeit vornehmen?',
               context: context,
               textAlign: TextAlign.center,
             ),

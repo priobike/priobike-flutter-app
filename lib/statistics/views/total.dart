@@ -50,7 +50,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
         return DialogLayout(
           title: 'Fahrtstatistiken',
           text:
-              "Beim gezeigten CO2-Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
+              "Beim gezeigten CO2-Wert handelt es sich um eine Schätzung anhand Deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
           icon: Icons.update_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: const [],

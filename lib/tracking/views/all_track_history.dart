@@ -147,7 +147,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Alle Fahrten löschen',
-          text: "Bitte bestätige, dass du die gespeicherten Fahrten löschen möchtest.",
+          text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
@@ -241,7 +241,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                         curve: Curves.easeInOutCubic,
                         delay: Duration(milliseconds: 200 * previousTracks.length),
                         child: Content(
-                          text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
+                          text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                           textAlign: TextAlign.center,

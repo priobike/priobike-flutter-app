@@ -115,7 +115,7 @@ class DisabledFeatureCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 BoldSubHeader(
-                  text: 'Möchtest du dieses Feature aktivieren?',
+                  text: 'Möchtest Du dieses Feature aktivieren?',
                   context: context,
                   textAlign: TextAlign.center,
                 ),
@@ -224,7 +224,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 BoldSubHeader(
-                  text: 'Möchtest du dieses Feature wirklich deaktivieren?',
+                  text: 'Möchtest Du dieses Feature wirklich deaktivieren?',
                   context: context,
                   textAlign: TextAlign.center,
                 ),

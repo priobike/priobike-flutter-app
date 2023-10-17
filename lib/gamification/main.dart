@@ -31,7 +31,7 @@ class _GameViewState extends State<GameView> {
           padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
           id: 'priobike.gamification.challenges.tutorial',
           text:
-              'Erfülle tägliche Challenges, steige Level auf und lass dich überraschen, vor was für Herausforderungen du dabei sonst noch gestellt wirst...',
+              'Erfülle tägliche Challenges, steige Level auf und lass Dich überraschen, vor was für Herausforderungen Du dabei sonst noch gestellt wirst...',
           color: Colors.white,
         ),
         ChallengesCard(),
@@ -43,7 +43,7 @@ class _GameViewState extends State<GameView> {
           padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
           id: 'priobike.gamification.statistics.tutorial',
           text:
-              'Erhalte einen genaueren Überblick über deine zurückgelegten Fahrten, durch tägliche, wöchentliche und monatliche Statistik-Überblicke.',
+              'Erhalte einen genaueren Überblick über Deine zurückgelegten Fahrten, durch tägliche, wöchentliche und monatliche Statistik-Überblicke.',
           color: Colors.white,
         ),
         RideStatisticsCard(),

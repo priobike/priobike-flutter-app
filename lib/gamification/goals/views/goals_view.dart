@@ -23,7 +23,7 @@ class GoalsView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
               id: 'priobike.gamification.goals.tutorial',
               text:
-                  'Setze dir tägliche Ziele. Die Ziele die du für dich festlegst, werden in deine Statistiken integriert und bestimmen die Schwierigkeit der für dich generierten Challenges.',
+                  'Setze Dir tägliche Ziele. Die Ziele die Du für Dich festlegst, werden in Deine Statistiken integriert und bestimmen die Schwierigkeit der für Dich generierten Challenges.',
               color: Theme.of(context).colorScheme.onSurface),
           Row(
             mainAxisSize: MainAxisSize.max,

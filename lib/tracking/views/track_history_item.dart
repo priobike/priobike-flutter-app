@@ -262,7 +262,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Fahrt löschen',
-          text: "Bitte bestätige, dass du diese Fahrt löschen möchtest.",
+          text: "Bitte bestätige, dass Du diese Fahrt löschen möchtest.",
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [

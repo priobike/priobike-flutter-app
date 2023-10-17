@@ -19,7 +19,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
       return DialogLayout(
         title: 'Fahrt abgebrochen',
         text:
-            "Die letzte Fahrt wurde unerwartet beendet. Willst du die Navigation der Route fortsetzen oder die Route speichern?",
+            "Die letzte Fahrt wurde unerwartet beendet. Willst Du die Navigation der Route fortsetzen oder die Route speichern?",
         icon: Icons.warning_rounded,
         iconColor: Theme.of(context).colorScheme.primary,
         actions: [

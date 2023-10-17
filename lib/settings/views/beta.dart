@@ -98,7 +98,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Innerhalb von Hamburg kannst du das DRN-Routing auswählen. Im Digitalen Radverkehrsnetz (DRN) sind alle Radwege oder durch das Rad befahrbare Straßen in Hamburg enthalten. Die Routenberechnung ist aber noch in Entwicklung und kann derzeit auch zu falschen Routen führen.",
+                        "Innerhalb von Hamburg kannst Du das DRN-Routing auswählen. Im Digitalen Radverkehrsnetz (DRN) sind alle Radwege oder durch das Rad befahrbare Straßen in Hamburg enthalten. Die Routenberechnung ist aber noch in Entwicklung und kann derzeit auch zu falschen Routen führen.",
                     context: context,
                   ),
                 ),
@@ -114,7 +114,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Wenn du Probleme mit der App hast, kannst du uns gerne die Logs schicken. Dann können wir genau sehen, was bei dir kaputt ist.",
+                        "Wenn Du Probleme mit der App hast, kannst Du uns gerne die Logs schicken. Dann können wir genau sehen, was bei Dir kaputt ist.",
                     context: context,
                   ),
                 ),
@@ -141,7 +141,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Wenn du Probleme mit der Auswahl der Ampeln entlang der Route hast, kannst du diese Einstellung wechseln.",
+                        "Wenn Du Probleme mit der Auswahl der Ampeln entlang der Route hast, kannst Du diese Einstellung wechseln.",
                     context: context,
                   ),
                 ),
