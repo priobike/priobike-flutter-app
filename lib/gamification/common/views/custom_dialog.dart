@@ -58,8 +58,7 @@ class _CustomDialogState extends State<CustomDialog> with SingleTickerProviderSt
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: widget.horizontalMargin),
           decoration: BoxDecoration(
-            color: widget.backgroundColor ??
-                (lightmode ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.background),
+            color: widget.backgroundColor ?? Theme.of(context).colorScheme.surfaceVariant,
             borderRadius: const BorderRadius.all(Radius.circular(24)),
             boxShadow: widget.withGlow
                 ? [
