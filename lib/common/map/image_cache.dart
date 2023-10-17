@@ -8,7 +8,6 @@ import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MapboxTileImageCache {
@@ -62,8 +61,8 @@ class MapboxTileImageCache {
         styleId = styleUri.replaceFirst("mapbox://styles/", "");
       } else {
         styleId = brightness == Brightness.dark
-            ? getIt<MapDesigns>().mapDesign.darkStyle.replaceFirst("mapbox://styles/", "")
-            : getIt<MapDesigns>().mapDesign.lightStyle.replaceFirst("mapbox://styles/", "");
+            ? MapDesign.standard.darkStyle.replaceFirst("mapbox://styles/", "")
+            : MapDesign.standard.lightStyle.replaceFirst("mapbox://styles/", "");
       }
       final bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
       // we display the logo and attribution, so we can hide it in the image
