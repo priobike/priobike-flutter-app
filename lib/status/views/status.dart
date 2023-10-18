@@ -91,9 +91,9 @@ class StatusViewState extends State<StatusView> {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       constraints: const BoxConstraints(minHeight: 128),
       child: Tile(
-        fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
+        fill: isProblem ? CI.radkulturYellow : Theme.of(context).colorScheme.surfaceVariant,
         shadowIntensity: isProblem ? 0.2 : 0.05,
-        shadow: isProblem ? CI.red : Colors.black,
+        shadow: isProblem ? CI.radkulturYellow : Colors.black,
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,8 +101,8 @@ class StatusViewState extends State<StatusView> {
             const SizedBox(height: 4),
             BoldSmall(
               text: "Jetzt",
-              color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
               context: context,
+              color: isProblem ? Colors.black : null,
             ),
             const SizedBox(height: 12),
             Row(
@@ -115,14 +115,18 @@ class StatusViewState extends State<StatusView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       isProblem
-                          ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
+                          ? BoldContent(
+                              text: "Vorübergehende Störung",
+                              context: context,
+                              color: Colors.black,
+                            )
                           : BoldContent(text: "Datenverfügbarkeit", context: context),
                       const SizedBox(height: 6),
                       isProblem
                           ? Small(
                               text: text ?? "Lade Daten...",
                               context: context,
-                              color: Colors.white,
+                              color: Colors.black,
                             )
                           : Small(
                               text: text ?? "Lade Daten...",
@@ -143,25 +147,24 @@ class StatusViewState extends State<StatusView> {
                         child: CircularProgressIndicator(
                           value: predictionStatusSummary.isLoading ? null : goodPct,
                           strokeWidth: 6,
-                          backgroundColor:
-                              isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
+                          backgroundColor: isProblem ? Colors.black : CI.radkulturGreen.withOpacity(0.2),
                           valueColor: isProblem
                               ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                              : const AlwaysStoppedAnimation<Color>(CI.green),
+                              : const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
                         ),
                       ),
                       Opacity(
                         opacity: 0.2,
                         child: Icon(
                           Icons.chevron_right_rounded,
-                          color: isProblem ? Colors.white : CI.green,
+                          color: isProblem ? Colors.white : CI.radkulturGreen,
                           size: 42,
                         ),
                       ),
                       BoldSmall(
                         text: "${((goodPct ?? 0) * 100).round()}%",
                         context: context,
-                        color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
+                        color: isProblem ? Colors.black : null,
                       ),
                     ],
                   ),

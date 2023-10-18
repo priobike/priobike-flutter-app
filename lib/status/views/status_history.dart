@@ -57,15 +57,14 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isProblem = predictionStatusSummary.getProblem() == null ? false : true;
-
     return Container(
       height: 130,
       width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Tile(
-        fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
+        fill: isProblem ? CI.radkulturYellow : Theme.of(context).colorScheme.surfaceVariant,
         shadowIntensity: isProblem ? 0.2 : 0.05,
-        shadow: isProblem ? CI.red : Colors.black,
+        shadow: isProblem ? CI.radkulturYellow : Colors.black,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
@@ -74,7 +73,7 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
             BoldContent(
                 text: "Datenverfügbarkeit - ${widget.time.name()}",
                 context: context,
-                color: isProblem || isDark ? Colors.white : Colors.black),
+                color: isProblem || !isDark ? Colors.black : Colors.white),
             const SizedBox(height: 4),
             if (statusHistory.isLoading)
               Expanded(

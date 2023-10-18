@@ -26,7 +26,7 @@ class RideStatsGraph extends StatefulWidget {
     required this.getTitlesX,
     required this.displayedStats,
     required this.barWidth,
-    this.barColor = CI.blue,
+    this.barColor = CI.radkulturRed,
   }) : super(key: key);
 
   @override

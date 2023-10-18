@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
@@ -24,7 +25,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 
@@ -168,7 +168,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SingleChildScrollView(
           child: SafeArea(
             child: Column(

@@ -88,7 +88,7 @@ class _RideGraphsPageViewState extends State<RideGraphsPageView> {
             height: 4,
             width: 40,
             decoration: BoxDecoration(
-              color: _statsService.selectedType == type ? CI.blue : Colors.transparent,
+              color: _statsService.selectedType == type ? CI.radkulturRed : Colors.transparent,
               borderRadius: const BorderRadius.all(Radius.circular(4)),
             ),
           ),

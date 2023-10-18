@@ -19,12 +19,12 @@ class GoalsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const TutorialView(
-            padding: EdgeInsets.fromLTRB(32, 0, 32, 24),
-            id: 'priobike.gamification.goals.tutorial',
-            text:
-                'Setze Dir tägliche Ziele. Die Ziele die Du für Dich festlegst, werden in Deine Statistiken integriert und bestimmen die Schwierigkeit der für Dich generierten Challenges.',
-          ),
+          TutorialView(
+              padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
+              id: 'priobike.gamification.goals.tutorial',
+              text:
+                  'Setze Dir tägliche Ziele. Die Ziele die Du für Dich festlegst, werden in Deine Statistiken integriert und bestimmen die Schwierigkeit der für Dich generierten Challenges.',
+              color: Theme.of(context).colorScheme.onSurface),
           Row(
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -71,7 +71,7 @@ class CustomIconButton extends StatelessWidget {
       child: OnTapAnimation(
         onPressed: onPressed,
         child: Tile(
-          fill: Colors.transparent,
+          fill: Theme.of(context).colorScheme.surface,
           padding: const EdgeInsets.all(8),
           borderRadius: BorderRadius.circular(24),
           showShadow: false,
@@ -81,13 +81,13 @@ class CustomIconButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 24,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               const SmallHSpace(),
               BoldContent(
                 text: label,
                 context: context,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1,
               ),
             ],

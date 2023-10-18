@@ -18,7 +18,7 @@ class IconItem extends Row {
               height: 64,
               child: Icon(
                 icon,
-                color: CI.blue,
+                color: CI.radkulturRed,
                 size: 64,
                 semanticLabel: text,
               ),
@@ -93,7 +93,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     return Scaffold(
       body: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.background,
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -105,10 +105,11 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     children: [
                       const SizedBox(height: 164),
                       if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!privacyService.hasChanged!) Header(text: "Deinen Daten.", color: CI.blue, context: context),
+                      if (!privacyService.hasChanged!)
+                        Header(text: "Deinen Daten.", color: CI.radkulturRed, context: context),
                       if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
                       if (privacyService.hasChanged!)
-                        Header(text: "Datenschutz aktualisiert.", color: CI.blue, context: context),
+                        Header(text: "Datenschutz aktualisiert.", color: CI.radkulturRed, context: context),
                       const SmallVSpace(),
                       if (!privacyService.hasChanged!)
                         SubHeader(

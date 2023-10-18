@@ -124,7 +124,7 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderLoadingIndicator() {
     return Scaffold(
       body: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.background,
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -160,11 +160,10 @@ class FeedbackViewState extends State<FeedbackView> {
     final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       brightness: Theme.of(context).brightness,
       systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SizedBox(
           height: MediaQuery.of(context).size.height - bottomSheetHeight,
           child: SingleChildScrollView(

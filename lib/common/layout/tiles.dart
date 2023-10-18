@@ -15,7 +15,7 @@ class Tile extends StatelessWidget {
   final Color? fill;
 
   /// The splash of the tile, if the tile is tappable (a callback is passed).
-  final Color splash;
+  final Color? splash;
 
   /// The color of the shadow in light mode.
   final Color shadow;
@@ -47,7 +47,7 @@ class Tile extends StatelessWidget {
     this.onPressed,
     this.onLongPressed,
     this.fill,
-    this.splash = Colors.grey,
+    this.splash,
     this.shadow = Colors.black,
     this.shadowIntensity = 0.05,
     this.showShadow = true,
@@ -92,7 +92,7 @@ class Tile extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: borderRadius,
-                splashColor: splash,
+                splashColor: splash ?? Theme.of(context).colorScheme.surfaceTint,
                 onTap: onPressed,
                 onLongPress: onLongPressed,
                 child: Padding(padding: padding, child: content),

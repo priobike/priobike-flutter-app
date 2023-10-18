@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -104,7 +105,7 @@ class RentalStationsLayer {
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
-          textColor: const Color(0xFF0075FF).value,
+          textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
         ),
@@ -193,7 +194,7 @@ class BikeShopLayer {
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
-          textColor: const Color(0xFF0075FF).value,
+          textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
         ),
@@ -287,7 +288,7 @@ class BikeAirStationLayer {
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
-          textColor: const Color(0xFF0075FF).value,
+          textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
         ),
@@ -452,7 +453,7 @@ class AccidentHotspotsLayer {
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
-          textColor: const Color(0xFFFF4757).value,
+          textColor: CI.radkulturYellow.value,
           textAllowOverlap: true,
           textOpacity: 0,
         ),
@@ -546,13 +547,13 @@ class TrafficLayer {
                 "heavy",
                 ["get", "congestion"]
               ],
-              "#ee4e8b",
+              "#FFDC00",
               [
                 "==",
                 "severe",
                 ["get", "congestion"]
               ],
-              "#b43b71",
+              "#FFDC00",
               "#000000"
             ],
           ));

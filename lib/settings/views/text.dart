@@ -17,7 +17,7 @@ class AssetTextView extends StatelessWidget {
         future: DefaultAssetBundle.of(context).loadString(asset),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           return Container(
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.background,
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: [

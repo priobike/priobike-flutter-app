@@ -188,28 +188,15 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Tile(
-            fill: Theme.of(context).colorScheme.surface,
-            content: Center(
-              child: SizedBox(
-                height: 86,
-                width: 256,
-                child: Column(
-                  children: [
-                    const CircularProgressIndicator(),
-                    const VSpace(),
-                    BoldContent(text: "Lade...", maxLines: 1, context: context),
-                  ],
-                ),
-              ),
-            ),
-          ),
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      child: const Center(
+        child: SizedBox(
+          height: 48,
+          width: 48,
+          child: CircularProgressIndicator(),
         ),
-      ],
+      ),
     );
   }
 
@@ -221,7 +208,7 @@ class RoutingViewState extends State<RoutingView> {
       children: [
         Expanded(
           child: Tile(
-            fill: Theme.of(context).colorScheme.surface,
+            fill: Theme.of(context).colorScheme.background,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

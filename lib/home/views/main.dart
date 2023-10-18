@@ -236,7 +236,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       body: RefreshIndicator(
         edgeOffset: 128 + MediaQuery.of(context).padding.top,
         color: Colors.white,
@@ -256,7 +255,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
         },
         child: AnnotatedRegionWrapper(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).colorScheme.background,
           brightness: Theme.of(context).brightness,
           statusBarIconBrightness: Brightness.light,
           child: CustomScrollView(
@@ -291,9 +290,15 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              BoldContent(text: "Navigation", context: context),
+                              BoldContent(
+                                text: "Navigation",
+                                context: context,
+                              ),
                               const SizedBox(height: 4),
-                              Small(text: "Deine Strecken und Orte", context: context),
+                              Small(
+                                text: "Deine Strecken und Orte",
+                                context: context,
+                              ),
                             ],
                           ),
                           Expanded(child: Container()),
@@ -303,14 +308,16 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                               builder: (context) => const ImportShortcutDialog(),
                             ),
                             icon: Icons.add_rounded,
-                            fill: Theme.of(context).colorScheme.background,
-                            splash: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fill: Theme.of(context).colorScheme.surface,
+                            splash: Theme.of(context).colorScheme.surfaceTint,
                           ),
                           const SizedBox(width: 8),
                           SmallIconButton(
                             icon: Icons.list_rounded,
-                            fill: Theme.of(context).colorScheme.background,
-                            splash: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fill: Theme.of(context).colorScheme.surface,
+                            splash: Theme.of(context).colorScheme.surfaceTint,
                             onPressed: onOpenShortcutEditView,
                           ),
                           const SizedBox(width: 24),
@@ -345,9 +352,15 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              BoldContent(text: "Routing-Profil", context: context),
+                              BoldContent(
+                                text: "Routing-Profil",
+                                context: context,
+                              ),
                               const SizedBox(height: 4),
-                              Small(text: "Personalisiere Deine Routenberechnung", context: context),
+                              Small(
+                                text: "Personalisiere Deine Routenberechnung",
+                                context: context,
+                              ),
                             ],
                           ),
                           Expanded(child: Container()),
@@ -365,19 +378,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Theme.of(context).colorScheme.background,
-                            Theme.of(context).colorScheme.background.withOpacity(0.8),
-                            Theme.of(context).colorScheme.background.withOpacity(0.6),
-                            Theme.of(context).colorScheme.background.withOpacity(0.4),
-                            Theme.of(context).colorScheme.background.withOpacity(0.2),
-                            Theme.of(context).colorScheme.surface,
-                            Theme.of(context).colorScheme.surface,
-                          ],
-                        ),
+                        color: Theme.of(context).colorScheme.secondary,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(32),
                           topRight: Radius.circular(32),
@@ -398,6 +399,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           BoldSmall(
                             text: "radkultur hamburg",
                             context: context,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           const SizedBox(height: 32),
                         ],

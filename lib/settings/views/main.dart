@@ -46,7 +46,7 @@ class SettingsElement extends StatelessWidget {
       child: Tile(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-        fill: Theme.of(context).colorScheme.background,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: callback,
         content: Row(
           children: [
@@ -57,7 +57,7 @@ class SettingsElement extends StatelessWidget {
                 children: [
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null) Content(text: subtitle!, color: CI.blue, context: context),
+                  if (subtitle != null) Content(text: subtitle!, color: CI.radkulturRed, context: context),
                 ],
               ),
             ),
@@ -242,10 +242,9 @@ class SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SingleChildScrollView(
           child: SafeArea(
             child: Column(
@@ -256,7 +255,8 @@ class SettingsViewState extends State<SettingsView> {
                   children: [
                     AppBackButton(onPressed: () => Navigator.pop(context)),
                     const HSpace(),
-                    SubHeader(text: "Einstellungen", context: context),
+                    SubHeader(
+                        text: "Einstellungen", context: context, color: Theme.of(context).colorScheme.onBackground),
                   ],
                 ),
                 const SmallVSpace(),

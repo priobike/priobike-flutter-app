@@ -5,17 +5,17 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/models/challenges_profile.dart';
+import 'package:priobike/gamification/challenges/models/level.dart';
 import 'package:priobike/gamification/challenges/models/profile_upgrade.dart';
 import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
 import 'package:priobike/gamification/challenges/views/profile/lvl_up_dialog.dart';
 import 'package:priobike/gamification/challenges/views/profile/multiple_upgrades_lvl_up.dart.dart';
 import 'package:priobike/gamification/challenges/views/profile/single_upgrade_lvl_up.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/views/blink_animation.dart';
 import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/progress_ring.dart';
-import 'package:priobike/gamification/challenges/models/level.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/main.dart';
 
 /// This view displays the users game state for the challenge feature and provides them with the option to
@@ -142,7 +142,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: CI.blue.withOpacity(animate ? 0.2 : 0),
+                  color: CI.radkulturRed.withOpacity(animate ? 0.2 : 0),
                   blurRadius: 12,
                 ),
               ],
@@ -150,7 +150,7 @@ class _GameProfileViewState extends State<GameProfileView> with TickerProviderSt
             child: Icon(
               icon,
               size: size,
-              color: animate ? CI.blue : Color.alphaBlend(Colors.white.withOpacity(0.2), CI.blue),
+              color: animate ? CI.radkulturRed : Color.alphaBlend(Colors.white.withOpacity(0.2), CI.radkulturRed),
             ),
           ),
         ),

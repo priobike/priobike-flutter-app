@@ -149,7 +149,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         height: (routing.selectedWaypoints?.length ?? 0) * 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: CI.blue,
+          color: CI.route,
         ),
       ),
       Column(
@@ -216,10 +216,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   ),
                   TextSpan(
                     text: textTrafficLights,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.brightness == Brightness.dark
-                          ? const Color.fromARGB(255, 0, 255, 106)
-                          : const Color.fromARGB(255, 0, 220, 92),
+                    style: const TextStyle(
+                      color: CI.radkulturGreen,
                     ),
                   ),
                 ]),

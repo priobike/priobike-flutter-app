@@ -60,7 +60,7 @@ class _DailyOverviewState extends State<DailyOverview> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ProgressRing(
-          ringColor: CI.blue.withOpacity(progress >= 1 ? 1 : 0.5),
+          ringColor: CI.radkulturRed.withOpacity(progress >= 1 ? 1 : 0.5),
           ringSize: size,
           progress: progress,
           content: Column(
@@ -141,7 +141,7 @@ class _DailyOverviewState extends State<DailyOverview> {
                   color: !_hasRouteGoal
                       ? Theme.of(context).colorScheme.onBackground.withOpacity(0.1)
                       : (_ridesOnRouteGoal >= 1
-                          ? CI.blue.withOpacity(1)
+                          ? CI.radkulturRed.withOpacity(1)
                           : Theme.of(context).colorScheme.onBackground.withOpacity(0.1)),
                 ),
                 child: BoldContent(

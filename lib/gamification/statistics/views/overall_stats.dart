@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/custom_game_icons.dart';
-import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
 import 'package:priobike/main.dart';
 
@@ -45,18 +44,18 @@ class _OverallStatisticsState extends State<OverallStatistics> {
           Icon(
             icon,
             size: 24,
-            color: CI.blue.withOpacity(1),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           BoldContent(
             text: StringFormatter.getRoundedStrByStatType(value, type),
             context: context,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             height: 1,
           ),
           BoldSmall(
             text: StringFormatter.getLabelForStatType(type),
             context: context,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
             height: 1,
           ),
         ],
@@ -73,14 +72,15 @@ class _OverallStatisticsState extends State<OverallStatistics> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 16),
-          BoldContent(text: 'Beta-Features', context: context, height: 1),
+          BoldContent(
+              text: 'Beta-Features', context: context, height: 1, color: Theme.of(context).colorScheme.onSurface),
           Text(
             'aktiviert am ${StringFormatter.getDateStr(_userService.profile!.joinDate)}',
             style: TextStyle(
               fontFamily: 'HamburgSans',
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
               height: 1,
             ),
           ),

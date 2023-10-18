@@ -27,7 +27,7 @@ void showInvalidShortcutSheet(context) {
         text:
             "Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${backend.region} liegen.\nPrioBike wird aktuell nur innerhalb von ${backend.region} unterstützt.",
         icon: Icons.warning_rounded,
-        iconColor: CI.red,
+        iconColor: CI.radkulturYellow,
         actions: [
           BigButton(
             label: 'Schließen',
@@ -61,14 +61,20 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
             maxLength: 20,
             decoration: InputDecoration(
               hintText: "Heimweg, Zur Arbeit, ...",
-              fillColor: Theme.of(context).colorScheme.surface,
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 borderSide: BorderSide.none,
               ),
-              suffixIcon: const Icon(Icons.bookmark),
+              suffixIcon: Icon(
+                Icons.bookmark,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              counterStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+              ),
             ),
           ),
           BigButton(

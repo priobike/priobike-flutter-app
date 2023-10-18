@@ -171,8 +171,8 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         shadow: const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: 0.08,
         padding: const EdgeInsets.all(1),
-        fill: Theme.of(context).colorScheme.background,
-        splash: Theme.of(context).colorScheme.primary,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
+        splash: Theme.of(context).colorScheme.surfaceTint,
         content: Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -267,9 +267,10 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButton(
-              iconColor: Colors.white,
+              iconColor: Colors.black,
+              textColor: Colors.black,
               icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
               label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
@@ -370,10 +371,6 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                     content: TrackPictogram(
                       key: ValueKey(widget.track.sessionId),
                       track: positions,
-                      colors: const [
-                        CI.blue,
-                        CI.red,
-                      ],
                       blurRadius: 2,
                       startImage: widget.startImage,
                       destinationImage: widget.destinationImage,
