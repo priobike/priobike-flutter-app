@@ -41,14 +41,20 @@ void showEditShortcutSheet(context, int idx) {
             maxLength: 20,
             decoration: InputDecoration(
               hintText: "Heimweg, Zur Arbeit, ...",
-              fillColor: Theme.of(context).colorScheme.surface,
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 borderSide: BorderSide.none,
               ),
-              suffixIcon: const Icon(Icons.bookmark),
+              suffixIcon: Icon(
+                Icons.bookmark,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              counterStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+              ),
             ),
           ),
           BigButton(
