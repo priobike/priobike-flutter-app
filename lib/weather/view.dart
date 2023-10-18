@@ -30,16 +30,25 @@ class WeatherViewState extends State<WeatherView> {
   void initState() {
     super.initState();
     weather = getIt<Weather>();
-    weather.addListener(() {
-      setState(() {});
-    });
+    weather.addListener(updateWeather);
+  }
+
+  @override
+  void dispose() {
+    weather.removeListener(updateWeather);
+    super.dispose();
   }
 
   @override
   void didChangeDependencies() {
-    loadIcon();
-    loadSummary();
+    updateWeather();
     super.didChangeDependencies();
+  }
+
+  Future<void> updateWeather() async {
+    await loadIcon();
+    await loadSummary();
+    setState(() {});
   }
 
   /// Load the weather icon from the weather service.
