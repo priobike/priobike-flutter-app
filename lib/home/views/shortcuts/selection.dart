@@ -58,7 +58,7 @@ class ShortcutView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                   color: Theme.of(context).colorScheme.surfaceVariant,
                 ),
-                padding: const EdgeInsets.all(4),
+                margin: const EdgeInsets.all(4),
                 child: ShortcutPictogram(
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutRoute,
@@ -72,7 +72,7 @@ class ShortcutView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                   color: Theme.of(context).colorScheme.surfaceVariant,
                 ),
-                padding: const EdgeInsets.all(4),
+                margin: const EdgeInsets.all(4),
                 child: ShortcutPictogram(
                   key: ValueKey(shortcut!.hashCode),
                   shortcut: shortcut as ShortcutLocation,
