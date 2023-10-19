@@ -320,13 +320,6 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
   void initState() {
     super.initState();
     initializeDateFormatting();
-
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) async {
-        await _loadTrack(widget.track);
-        if (mounted) setState(() {});
-      },
-    );
   }
 
   @override
