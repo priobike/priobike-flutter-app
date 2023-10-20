@@ -170,8 +170,6 @@ class RideViewState extends State<RideView> {
     final EdgeInsets paddingCenterButton;
     final double heightToPuckBoundingBox;
     final double positionSpeedometerRight;
-    final double topPositionMapboxLogo;
-    final double topPositionMapboxButton;
 
     final orientation = MediaQuery.of(context).orientation;
 
@@ -186,13 +184,6 @@ class RideViewState extends State<RideView> {
             : MediaQuery.of(context).size.width - 35,
       );
       positionSpeedometerRight = 0.0;
-      if (Platform.isAndroid) {
-        topPositionMapboxLogo = 50;
-        topPositionMapboxButton = 40;
-      } else {
-        topPositionMapboxLogo = MediaQuery.of(context).size.height * 0.07;
-        topPositionMapboxButton = MediaQuery.of(context).size.height * 0.05;
-      }
     } else {
       // Landscape mode
       final displayWidth = MediaQuery.of(context).size.width;
@@ -201,13 +192,6 @@ class RideViewState extends State<RideView> {
       heightToPuckBoundingBox = heightToPuck - (displayWidth * 0.05);
       paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.42);
       positionSpeedometerRight = 6.0;
-      if (Platform.isAndroid) {
-        topPositionMapboxLogo = 40;
-        topPositionMapboxButton = 30;
-      } else {
-        topPositionMapboxLogo = MediaQuery.of(context).size.height * 0.04;
-        topPositionMapboxButton = MediaQuery.of(context).size.height * 0.02;
-      }
     }
 
     return WillPopScope(
@@ -226,8 +210,7 @@ class RideViewState extends State<RideView> {
                 ),
                 if (settings.saveBatteryModeEnabled)
                   Positioned(
-                    // needs to be different on Android because of SafeArea
-                    top: topPositionMapboxLogo,
+                    top: MediaQuery.of(context).padding.top + 15,
                     left: 10,
                     child: const Image(
                       width: 100,
@@ -236,7 +219,7 @@ class RideViewState extends State<RideView> {
                   ),
                 if (settings.saveBatteryModeEnabled)
                   Positioned(
-                    top: topPositionMapboxButton,
+                    top: MediaQuery.of(context).padding.top + 5,
                     right: 10,
                     child: IconButton(
                       onPressed: () => MapboxAttribution.showAttribution(context),

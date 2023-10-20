@@ -515,7 +515,7 @@ class RideMapViewState extends State<RideMapView> {
     final double marginYAttribution;
     if (Platform.isAndroid) {
       final ppi = frame.devicePixelRatio;
-      marginYLogo = marginYLogo * ppi + 40;
+      marginYLogo = marginYLogo * ppi;
       marginYAttribution = marginYLogo;
     } else {
       marginYLogo = marginYLogo * 0.7;
