@@ -138,6 +138,7 @@ class RideViewState extends State<RideView> {
         // Allow user to rotate the screen in ride view.
         // Landscape-Mode will be removed in FinishRideButton.
         await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
           DeviceOrientation.landscapeRight,
           DeviceOrientation.landscapeLeft,
         ]);
