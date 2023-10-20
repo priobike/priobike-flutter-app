@@ -305,6 +305,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                         behavior: HitTestBehavior.opaque,
                         // When the user taps on the speedometer, we want to set the speed to the tapped speed.
                         onTapUp: (details) {
+                          if (getIt<Settings>().enableSimulatorMode) return;
+
                           // Get the center of the speedometer
                           final double xRel;
                           final double yRel;
@@ -377,21 +379,23 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                           size: size,
                         ),
                       ),
-                    IgnorePointer(
-                      child: Transform.translate(
-                        offset: const Offset(0, 42),
-                        child: CustomPaint(
-                          size: size,
-                          painter: SpeedometerSpeedArcPainter(
-                            minSpeed: minSpeed,
-                            maxSpeed: maxSpeed,
-                            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                            // Scale the animation pct between minSpeed and maxSpeed
-                            speed: speedkmh,
+                    // The speed arc is disabled in simulator mode.
+                    if (!getIt<Settings>().enableSimulatorMode)
+                      IgnorePointer(
+                        child: Transform.translate(
+                          offset: const Offset(0, 42),
+                          child: CustomPaint(
+                            size: size,
+                            painter: SpeedometerSpeedArcPainter(
+                              minSpeed: minSpeed,
+                              maxSpeed: maxSpeed,
+                              isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                              // Scale the animation pct between minSpeed and maxSpeed
+                              speed: speedkmh,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     if (ride.userSelectedSG == null) ...[
                       if (!showAlert)
                         Padding(

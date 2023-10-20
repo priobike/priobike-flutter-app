@@ -88,6 +88,8 @@ class Settings with ChangeNotifier {
 
   /// If the user had migrate background images.
   bool didMigrateBackgroundImages = false;
+  /// Enable simulator mode for app.
+  bool enableSimulatorMode;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -405,6 +407,17 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set didViewUserTransfer to $didViewUserTransfer");
       this.didViewUserTransfer = prev;
+  static const simulatorModeKey = "priobike.settings.enableSimulatorMode";
+  static const defaultSimulatorMode = false;
+
+  Future<bool> setSimulatorMode(bool enableSimulatorMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableSimulatorMode;
+    this.enableSimulatorMode = enableSimulatorMode;
+    final bool success = await storage.setBool(simulatorModeKey, enableSimulatorMode);
+    if (!success) {
+      log.e("Failed to set enableSimulatorMode to $enableSimulatorMode");
+      this.enableSimulatorMode = prev;
     } else {
       notifyListeners();
     }
@@ -446,7 +459,9 @@ class Settings with ChangeNotifier {
       this.dismissedSurvey = defaultDismissedSurvey,
       this.enableGamification = defaultEnableGamification,
       this.didViewUserTransfer = defaultDidViewUserTransfer,
-      this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages});
+      this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
+    this.enableSimulatorMode = defaultSimulatorMode,
+  });
 
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
@@ -490,6 +505,7 @@ class Settings with ChangeNotifier {
     }
 
     enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
+    enableSimulatorMode = storage.getBool(simulatorModeKey) ?? defaultSimulatorMode;
   }
 
   /// Load the stored settings.
@@ -603,6 +619,7 @@ class Settings with ChangeNotifier {
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
-        "enableGamification": enableGamification
+        "enableGamification": enableGamification,
+        "enableSimulatorMode": enableSimulatorMode
       };
 }
