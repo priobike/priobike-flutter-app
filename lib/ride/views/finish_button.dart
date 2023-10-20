@@ -146,8 +146,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
             child: Tile(
               onPressed: () => showAskForConfirmationDialog(context),
               borderRadius: BorderRadius.only(
-                topLeft: isLandscapeMode ? const Radius.circular(0) : const Radius.circular(24),
-                bottomLeft: isLandscapeMode ? const Radius.circular(0) : const Radius.circular(24),
+                topLeft: const Radius.circular(24),
+                bottomLeft: const Radius.circular(24),
                 topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
                 bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
               ),
