@@ -9,6 +9,7 @@ import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/card/stats_card.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/gamification/survey_card.dart';
 import 'package:priobike/tutorial/view.dart';
 
 /// This view displays the gamification functionality according to the user settings.
@@ -92,6 +93,16 @@ class _GameViewState extends State<GameView> {
 
   @override
   Widget build(BuildContext context) {
+    // Show card which gives the user the option to participate in the evaluation survey.
+    return Column(
+      children: [
+        const SizedBox(height: 24),
+        GameSurveyCard(),
+        const SizedBox(height: 16),
+      ],
+    );
+    // Disable all gamification features for now, after the evaluation phase has finished.
+    // ignore: dead_code
     return Column(
       children: (!_userService.hasProfile)
           ? [
