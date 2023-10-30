@@ -160,9 +160,14 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     final bytes = utf8.encode(str);
     final base64Str = base64.encode(bytes);
     const scheme = 'https';
-    const host = 'priobike.example.test';
+    const host = 'priobike.inf.tu-dresden.de';
     const route = 'import';
-    await Share.share('$scheme://$host/$route/$base64Str', subject: 'shared shortcut');
+    const text = 'Probiere meine Route/meinen Ort in der PrioBike-App aus:';
+    final shareLink = '$scheme://$host/$route/$base64Str';
+    const getAppText = 'Falls du die Priobike App noch nicht hast, kannst du sie die hier holen:';
+    const playStoreLink = ''; // TODO
+    const appStoreLink = ''; // TODO
+    await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink', subject: 'shared shortcut');
   }
 
   /// Widget that displays a shortcut.

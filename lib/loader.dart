@@ -92,7 +92,7 @@ class LoaderState extends State<Loader> {
       await getIt<Ride>().loadLastRoute();
       await getIt<EventService>().fetchData();
       await MapboxTileImageCache.pruneUnusedImages();
-      await getIt<EvaluationDataService>().sendUnsentElements();
+      getIt<EvaluationDataService>().sendUnsentElements();
 
       settings.incrementUseCounter();
     } catch (e, stacktrace) {
@@ -111,21 +111,20 @@ class LoaderState extends State<Loader> {
     settings.resetConnectionErrorCounter();
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
-    setState(() {
-      isLoading = false;
-    });
+    setState(() => isLoading = false);
     // Make this an additional step so that the animation is smooth.
     await Future.delayed(const Duration(milliseconds: 10));
-    setState(() {
-      shouldBlendIn = true;
-    });
+    setState(() => shouldBlendIn = true);
   }
 
   @override
   void initState() {
     super.initState();
+
     settings = getIt<Settings>();
     settings.addListener(update);
+
+    // Init the view once the app is ready.
     SchedulerBinding.instance.addPostFrameCallback((_) => init());
   }
 
