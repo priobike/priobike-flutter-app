@@ -79,6 +79,8 @@
       <string>https</string>
       <string>mailto</string>
     </array>
+    <key>FlutterDeepLinkingEnabled</key>
+    <true/>
 </dict>
 </plist>
 

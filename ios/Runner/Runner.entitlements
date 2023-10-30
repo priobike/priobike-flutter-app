@@ -4,5 +4,13 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.associated-domains</key>
+    <array>
+        <string>webcredentials:priobike.inf.tu-dresden.de</string>
+        <string>applinks:priobike.inf.tu-dresden.de</string>
+        <string>https:priobike.inf.tu-dresden.de</string>
+        <string>http:priobike.inf.tu-dresden.de</string>
+        <string>priobike:priobike.inf.tu-dresden.de</string>
+    </array>
 </dict>
 </plist>

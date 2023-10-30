@@ -148,7 +148,7 @@ class App extends StatelessWidget {
               final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
               shortcutJson['id'] = UniqueKey().toString();
               Shortcut shortcut;
-              if (shortcutJson['type'] == "ShortcutLocation"){
+              if (shortcutJson['type'] == "ShortcutLocation") {
                 shortcut = ShortcutLocation.fromJson(shortcutJson);
               } else {
                 shortcut = ShortcutRoute.fromJson(shortcutJson);

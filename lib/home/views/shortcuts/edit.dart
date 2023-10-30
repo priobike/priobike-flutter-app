@@ -169,7 +169,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     const getAppText = 'Falls du die Priobike App noch nicht hast, kannst du sie die hier holen:';
     const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
     const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
-    await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink', subject: 'shared shortcut');
+    await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink',
+        subject: 'shared shortcut');
   }
 
   /// Widget that displays a shortcut.
