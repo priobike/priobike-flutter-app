@@ -44,6 +44,8 @@ import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:flutter/rendering.dart';
+import 'home/models/shortcut.dart';
+import 'home/models/shortcut_location.dart';
 import 'home/models/shortcut_route.dart';
 
 final log = Logger("main.dart");
@@ -145,7 +147,12 @@ class App extends StatelessWidget {
               final shortcutUTF8 = utf8.decode(shortcutBytes);
               final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
               shortcutJson['id'] = UniqueKey().toString();
-              final shortcut = ShortcutRoute.fromJson(shortcutJson);
+              Shortcut shortcut;
+              if (shortcutJson['type'] == "ShortcutLocation"){
+                shortcut = ShortcutLocation.fromJson(shortcutJson);
+              } else {
+                shortcut = ShortcutRoute.fromJson(shortcutJson);
+              }
               getIt<Shortcuts>().saveNewShortcutObject(shortcut);
             }
             return MaterialPageRoute(builder: (context) => const PrivacyPolicyView(child: Loader()));
