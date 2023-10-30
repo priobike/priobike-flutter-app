@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 class CI {
-  /// A red color that is used for errors and the speedometer.
-  static const Color red = Color.fromARGB(255, 246, 0, 50);
+  /// The primary red color of the CI.
+  static const Color radkulturRed = Color.fromARGB(255, 250, 30, 65);
 
-  /// A green color that is used for success messages and the speedometer.
-  static const Color green = Color.fromARGB(255, 35, 255, 7);
+  /// The second primary red color of CI,.
+  static const Color radkulturRedDark = Color.fromARGB(255, 140, 0, 65);
 
-  /// A blue color from the CI.
-  static const Color blue = Color.fromARGB(255, 0, 115, 255);
+  /// The secondary yellow color of the CI. Used for warnings.
+  static const Color radkulturYellow = Color.fromARGB(255, 255, 220, 0);
 
-  /// The default red color of this app, but lighter.
-  static const Color blueLight = Color.fromARGB(255, 64, 192, 240);
+  /// The secondary green color of the CI. Used for success.
+  static const Color radkulturGreen = Color.fromARGB(255, 40, 205, 80);
 
-  /// The default red color of this app, but darker.
-  static const Color blueDark = Color.fromARGB(255, 0, 48, 100);
+  /// The color for the route in the app.
+  static const Color route = Color.fromARGB(255, 0, 115, 255);
 }

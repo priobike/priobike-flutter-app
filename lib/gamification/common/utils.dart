@@ -97,7 +97,7 @@ class StringFormatter {
     if (type == DailyChallengeType.duration) return 'min';
     if (type == WeeklyChallengeType.daysWithGoalsCompleted) return 'Tage';
     if (type == WeeklyChallengeType.routeRidesPerWeek) return 'Fahrten';
-    if (type == WeeklyChallengeType.routeStreakInWeek) return 'Fahrten';
+    if (type == WeeklyChallengeType.routeStreakInWeek) return 'Tage';
     return '';
   }
 

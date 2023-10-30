@@ -8,7 +8,6 @@ import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MapboxTileImageCache {
@@ -19,18 +18,22 @@ class MapboxTileImageCache {
   static Map<String, Future<MemoryImage?>> ongoingFetches = {};
 
   /// Requests the tile.
-  static Future<MemoryImage?> requestTile({required List<LatLng> coords, required Brightness brightness}) async {
+  static Future<MemoryImage?> requestTile({
+    required List<LatLng> coords,
+    required Brightness brightness,
+    String? styleUri,
+  }) async {
     final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
     if (bbox == null) return null;
-    final brightnessKey = brightness == Brightness.light ? "light" : "dark";
-    final imageName = "${bbox.minLon}_${bbox.minLat}_${bbox.maxLon}_${bbox.maxLat}+$brightnessKey";
+    final imageName = _getImageName(bbox, brightness, styleUri);
 
     // Check if we are currently already fetching the image.
     if (MapboxTileImageCache.ongoingFetches.containsKey(imageName)) {
       return MapboxTileImageCache.ongoingFetches[imageName];
     } else {
       // Fetch the image.
-      final Future<MemoryImage?> fetch = MapboxTileImageCache._fetchTile(bbox: bbox, brightness: brightness);
+      final Future<MemoryImage?> fetch =
+          MapboxTileImageCache._fetchTile(bbox: bbox, brightness: brightness, styleUri: styleUri);
       MapboxTileImageCache.ongoingFetches[imageName] = fetch;
       final MemoryImage? image = await fetch;
       MapboxTileImageCache.ongoingFetches.remove(imageName);
@@ -42,19 +45,25 @@ class MapboxTileImageCache {
   static Future<MemoryImage?> _fetchTile({
     required MapboxMapProjectionBoundingBox bbox,
     required Brightness brightness,
+    String? styleUri,
   }) async {
     // Check if the image exists, and if so, return it.
-    final path = await _getImagePath(bbox, brightness);
+    final path = await _getImagePath(bbox, brightness, styleUri);
     if (await File(path).exists()) return MemoryImage(await File(path).readAsBytes());
 
     try {
       // See: https://docs.mapbox.com/api/maps/static-images/
       const accessToken =
           "access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
-      final String styleId = brightness == Brightness.dark
-          // remove prefix "mapbox://styles/" from the styles
-          ? getIt<MapDesigns>().mapDesign.darkStyle.replaceFirst("mapbox://styles/", "")
-          : getIt<MapDesigns>().mapDesign.lightStyle.replaceFirst("mapbox://styles/", "");
+      String styleId = "";
+      // remove prefix "mapbox://styles/" from the styles
+      if (styleUri != null) {
+        styleId = styleUri.replaceFirst("mapbox://styles/", "");
+      } else {
+        styleId = brightness == Brightness.dark
+            ? MapDesign.standard.darkStyle.replaceFirst("mapbox://styles/", "")
+            : MapDesign.standard.lightStyle.replaceFirst("mapbox://styles/", "");
+      }
       final bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
       // we display the logo and attribution, so we can hide it in the image
       final url =
@@ -68,7 +77,7 @@ class MapboxTileImageCache {
       final MemoryImage image = MemoryImage(response.bodyBytes);
 
       log.i("Fetched background image from Mapbox: $url");
-      await saveImage(bbox, image, brightness);
+      await saveImage(bbox, image, brightness, styleUri);
 
       // save timestamp of last fetch to shared preferences, used in pruning of old images
       final prefs = await SharedPreferences.getInstance();
@@ -87,17 +96,28 @@ class MapboxTileImageCache {
   }
 
   /// Helper function to get the path to the background images on local storage.
-  static Future<String> _getImagePath(MapboxMapProjectionBoundingBox bbox, Brightness brightness) async {
-    final brightnessKey = brightness == Brightness.light ? "light" : "dark";
+  static Future<String> _getImagePath(
+      MapboxMapProjectionBoundingBox bbox, Brightness brightness, String? styleUri) async {
     final dirPath = await _getImageDir();
     final imagesDir = Directory(dirPath);
     if (!await imagesDir.exists()) await imagesDir.create();
-    return "$dirPath/${bbox.minLat}_${bbox.minLon}_${bbox.maxLat}_${bbox.maxLon}+$brightnessKey.png";
+    return "$dirPath/${_getImageName(bbox, brightness, styleUri)}";
+  }
+
+  /// Helper function to get the image name.
+  static String _getImageName(MapboxMapProjectionBoundingBox bbox, Brightness brightness, String? styleUri) {
+    final brightnessKey = brightness == Brightness.light ? "light" : "dark";
+    if (styleUri != null) {
+      final styleId = styleUri.replaceFirst("mapbox://styles/", "").replaceAll("/", "");
+      return "${bbox.minLat}_${bbox.minLon}_${bbox.maxLat}_${bbox.maxLon}+$brightnessKey+$styleId.png";
+    }
+    return "${bbox.minLat}_${bbox.minLon}_${bbox.maxLat}_${bbox.maxLon}+$brightnessKey.png";
   }
 
   /// Saves the given image to the cache and the local storage.
-  static Future<void> saveImage(MapboxMapProjectionBoundingBox bbox, MemoryImage image, Brightness brightness) async {
-    final path = await _getImagePath(bbox, brightness);
+  static Future<void> saveImage(
+      MapboxMapProjectionBoundingBox bbox, MemoryImage image, Brightness brightness, String? styleUri) async {
+    final path = await _getImagePath(bbox, brightness, styleUri);
     final file = File(path);
     await file.writeAsBytes(image.bytes);
     log.i("Saved image $path to local storage.");

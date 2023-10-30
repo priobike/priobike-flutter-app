@@ -30,16 +30,25 @@ class WeatherViewState extends State<WeatherView> {
   void initState() {
     super.initState();
     weather = getIt<Weather>();
-    weather.addListener(() {
-      setState(() {});
-    });
+    weather.addListener(updateWeather);
+  }
+
+  @override
+  void dispose() {
+    weather.removeListener(updateWeather);
+    super.dispose();
   }
 
   @override
   void didChangeDependencies() {
-    loadIcon();
-    loadSummary();
+    updateWeather();
     super.didChangeDependencies();
+  }
+
+  Future<void> updateWeather() async {
+    await loadIcon();
+    await loadSummary();
+    setState(() {});
   }
 
   /// Load the weather icon from the weather service.
@@ -217,8 +226,6 @@ class WeatherViewState extends State<WeatherView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!weather.hasLoaded) return Container();
-
     return Expanded(
       child: Row(
         children: [
@@ -235,7 +242,7 @@ class WeatherViewState extends State<WeatherView> {
                           width: 16,
                           height: 16,
                           decoration: const BoxDecoration(
-                            color: CI.red,
+                            color: CI.radkulturYellow,
                             borderRadius: BorderRadius.all(Radius.circular(4)),
                           ),
                           child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),

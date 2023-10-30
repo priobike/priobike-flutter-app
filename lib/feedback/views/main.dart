@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -123,7 +124,7 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderLoadingIndicator() {
     return Scaffold(
       body: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.background,
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -156,42 +157,13 @@ class FeedbackViewState extends State<FeedbackView> {
     final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
     final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
 
-    const bottomSheetHeight = 228.0;
+    final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
-    return SafeArea(
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      brightness: Theme.of(context).brightness,
+      systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
-        bottomSheet: Container(
-          width: MediaQuery.of(context).size.width,
-          height: bottomSheetHeight,
-          color: Theme.of(context).colorScheme.primary,
-          child: Column(
-            children: [
-              const VSpace(),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
-                child: StarRatingView(text: "Dein Feedback zur App"),
-              ),
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.check,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Fertig",
-                onPressed: () => submit(),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-              ),
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.save_rounded,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Strecke speichern",
-                onPressed: () => showSaveShortcutSheet(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
-              ),
-              const VSpace(),
-            ],
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SizedBox(
           height: MediaQuery.of(context).size.height - bottomSheetHeight,
           child: SingleChildScrollView(
@@ -235,6 +207,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     }
                   }(),
                 ),
+                const SmallVSpace(),
                 if (startImage != null && destinationImage != null)
                   TrackHistoryItemDetailView(
                     track: tracking.previousTracks!.last,
@@ -243,6 +216,45 @@ class FeedbackViewState extends State<FeedbackView> {
                   ),
               ],
             ),
+          ),
+        ),
+        bottomSheet: Container(
+          width: MediaQuery.of(context).size.width,
+          height: bottomSheetHeight,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              const VSpace(),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: StarRatingView(text: "Dein Feedback zur App"),
+              ),
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.check,
+                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                label: "Fertig",
+                onPressed: () => submit(),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+              ),
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.save_rounded,
+                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                label: "Strecke speichern",
+                onPressed: () => showSaveShortcutSheet(context),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+              ),
+            ],
           ),
         ),
       ),

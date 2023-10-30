@@ -2,14 +2,14 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
 import 'package:priobike/gamification/common/views/dialog_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/goals/models/daily_goals.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/gamification/goals/views/weekday_button.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 
 /// This dialog enables the user to edit their daily goals.
 class EditDailyGoalsDialog extends StatefulWidget {
@@ -54,7 +54,7 @@ class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
           children: [
             const SmallVSpace(),
             BoldSubHeader(
-              text: 'Möchtest du dir an bestimmten Tagen eine Distanz oder Zeit vornehmen?',
+              text: 'Möchtest Du Dir an bestimmten Tagen eine Distanz oder Zeit vornehmen?',
               context: context,
               textAlign: TextAlign.center,
             ),
@@ -114,7 +114,7 @@ class _EditDailyGoalsDialogState extends State<EditDailyGoalsDialog> {
                     getIt<GoalsService>().updateDailyGoals(goals);
                     Navigator.of(context).pop();
                   },
-                  color: CI.blue,
+                  color: CI.radkulturRed,
                 ),
                 const SmallHSpace(),
               ],
@@ -198,7 +198,7 @@ class EditGoalWidget extends StatelessWidget {
                 BoldSmall(
                   text: title,
                   context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(onChanged == null ? 0.1 : 0.2),
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(onChanged == null ? 0.3 : 0.5),
                 )
               ],
             ),

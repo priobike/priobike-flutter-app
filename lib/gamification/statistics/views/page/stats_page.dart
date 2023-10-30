@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -7,9 +7,9 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/utils.dart';
 import 'package:priobike/gamification/statistics/models/ride_stats.dart';
 import 'package:priobike/gamification/statistics/models/stat_type.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/gamification/statistics/services/stats_view_model.dart';
 import 'package:priobike/gamification/statistics/views/page/ride_graphs_page_view.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/main.dart';
 
 /// This view provides the user with detailed statistics about their ride history.
@@ -99,8 +99,9 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: WillPopScope(
         onWillPop: () async {
           _resetGraphs();
@@ -240,7 +241,7 @@ class _IntervalSelectionButtonState extends State<IntervalSelectionButton> {
                 height: 4,
                 decoration: BoxDecoration(
                   color: widget.selected
-                      ? CI.blue
+                      ? CI.radkulturRed
                       : Theme.of(context).colorScheme.onBackground.withOpacity(_tapDown ? 0.01 : 0.05),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
                 ),

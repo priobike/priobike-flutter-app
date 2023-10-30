@@ -28,7 +28,8 @@ class WeekdayButton extends StatelessWidget {
         width: 40,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: selected ? CI.blue : Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.05 : 0.1),
+          color:
+              selected ? CI.radkulturRed : Theme.of(context).colorScheme.onBackground.withOpacity(disable ? 0.05 : 0.1),
         ),
         child: Center(
           child: BoldSmall(

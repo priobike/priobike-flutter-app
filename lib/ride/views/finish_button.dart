@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -36,7 +37,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Fahrt wirklich beenden?',
-          text: "Wenn du die Fahrt beendest, musst du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
+          text: "Wenn Du die Fahrt beendest, musst Du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
           icon: Icons.question_mark_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
@@ -62,6 +63,11 @@ class FinishRideButtonState extends State<FinishRideButton> {
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap() async {
+    // Allows only portrait mode again when leaving the ride view.
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
     // End the tracking and collect the data.
     final tracking = getIt<Tracking>();
     await tracking.end(); // Performs all needed resets.
@@ -87,11 +93,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final position = getIt<Positioning>();
     await position.stopGeolocation();
 
-    // Show the feedback dialog.
+    // Show the feedback view.
     if (mounted) {
-      // Pop everything until ride view is reached and then replace it with the feedback view.
-      // Otherwise the ride view stays in the widget tree and is shown for a split seconds after closing the feedback view.
-
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => FeedbackView(
@@ -129,17 +132,24 @@ class FinishRideButtonState extends State<FinishRideButton> {
 
   @override
   Widget build(BuildContext context) {
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscapeMode = orientation == Orientation.landscape;
+
     return Stack(
       children: [
         Positioned(
           top: 48, // Below the MapBox attribution.
-          right: 0,
+          // Button is on the right in portrait mode and on the left in landscape mode.
+          right: isLandscapeMode ? null : 0,
+          left: isLandscapeMode ? 0 : null,
           child: SafeArea(
             child: Tile(
               onPressed: () => showAskForConfirmationDialog(context),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                bottomLeft: Radius.circular(24),
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(24),
+                bottomLeft: const Radius.circular(24),
+                topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
+                bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
               ),
               padding: const EdgeInsets.all(4),
               fill: Colors.black.withOpacity(0.4),

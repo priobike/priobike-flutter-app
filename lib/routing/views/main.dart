@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -155,7 +156,7 @@ class RoutingViewState extends State<RoutingView> {
           return DialogLayout(
             title: 'Hinweis',
             text:
-                'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                'Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
@@ -187,28 +188,15 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Tile(
-            fill: Theme.of(context).colorScheme.surface,
-            content: Center(
-              child: SizedBox(
-                height: 86,
-                width: 256,
-                child: Column(
-                  children: [
-                    const CircularProgressIndicator(),
-                    const VSpace(),
-                    BoldContent(text: "Lade...", maxLines: 1, context: context),
-                  ],
-                ),
-              ),
-            ),
-          ),
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      child: const Center(
+        child: SizedBox(
+          height: 48,
+          width: 48,
+          child: CircularProgressIndicator(),
         ),
-      ],
+      ),
     );
   }
 
@@ -220,7 +208,7 @@ class RoutingViewState extends State<RoutingView> {
       children: [
         Expanded(
           child: Tile(
-            fill: Theme.of(context).colorScheme.surface,
+            fill: Theme.of(context).colorScheme.background,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -288,7 +276,7 @@ class RoutingViewState extends State<RoutingView> {
         return DialogLayout(
           title: 'Hinweis',
           text:
-              'Deine GPS-Position scheint ungenau zu sein. Solltest du während der Fahrt Probleme mit der Ortung feststellen, prüfe deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
+              'Deine GPS-Position scheint ungenau zu sein. Solltest Du während der Fahrt Probleme mit der Ortung feststellen, prüfe Deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
           icon: Icons.info_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
@@ -307,9 +295,9 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {

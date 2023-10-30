@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 
@@ -61,7 +60,7 @@ class NewsButtonState extends State<NewsButton> {
         SmallIconButton(
           icon: Icons.notifications_rounded,
           color: Colors.white,
-          splash: Colors.white,
+          splash: Theme.of(context).colorScheme.surfaceTint,
           fill: const Color.fromARGB(50, 255, 255, 255),
           onPressed: widget.onPressed,
         ),
@@ -72,9 +71,8 @@ class NewsButtonState extends State<NewsButton> {
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: CI.red,
+              color: CI.radkulturYellow,
             ),
-            child: Small(text: "$unread", color: Colors.white, context: context),
           ),
       ],
     );

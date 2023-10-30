@@ -7,10 +7,10 @@ final Article articleDataFailures = Article(
   "3 min.",
   "assets/images/wiki/wiki-datenausfaelle-icon.png",
   [
-    "Wir bei PrioBike möchten sicherstellen, dass du immer sicher und schnell durch die Stadt radeln kannst. Deshalb arbeiten wir unter Hochdruck daran, unsere Geschwindigkeitsempfehlungen so zuverlässig wie möglich zu machen. Das klappt aber nicht immer.",
+    "Wir bei PrioBike möchten sicherstellen, dass Du immer sicher und schnell durch die Stadt radeln kannst. Deshalb arbeiten wir unter Hochdruck daran, unsere Geschwindigkeitsempfehlungen so zuverlässig wie möglich zu machen. Das klappt aber nicht immer.",
     "Unsere Geschwindigkeitsempfehungen basieren auf den Echtzeitdaten, die uns Ampeln in Hamburg senden. Anhand der Echtzeitdaten können wir dann die Schaltprogramme der Ampeln rekonstruieren, und daraus die Geschwindigkeitsempfehlung berechnen. Manchmal kommt es aber vor, dass die Daten der Ampeln ausfallen oder nicht ganz zuverlässig sind.",
     "Hinter dem System versteckt sich ein kompliziertes Netzwerk aus Ampeln und Verkehrsrechnern, in dem Ausfälle nicht ausgeschlossen sind. Im besten Fall erhalten wir über 10.000 Nachrichten der Ampeln in Hamburg jede Minute - eine riesige Menge Daten! Die müssen auch erstmal durch die Internetleitung passen. Wir tun alles dafür, dass Ausfälle in Zukunft so selten sind wie möglich. Ja, wirklich!",
-    "Wenn es dann doch mal nicht so gut klappt, kannst du das aber schon im Voraus über die angezeigte Datenverfügbarkeit in der App sehen. Diese errechnet sich aus dem Anteil von Ampeln, die gerade Daten senden, in Relation zu den insgesamt ans System angebundenen Ampeln. Damit weißt du immer voll bescheid.",
+    "Wenn es dann doch mal nicht so gut klappt, kannst Du das aber schon im Voraus über die angezeigte Datenverfügbarkeit in der App sehen. Diese errechnet sich aus dem Anteil von Ampeln, die gerade Daten senden, in Relation zu den insgesamt ans System angebundenen Ampeln. Damit weißt Du immer voll bescheid.",
   ],
   [
     "assets/images/wiki/wiki-datenausfaelle-1.png",
@@ -27,11 +27,11 @@ final Article articleSwitchingPrograms = Article(
   "4 min.",
   "assets/images/wiki/wiki-tanz-mit-den-ampeln-icon.png",
   [
-    "Hast du schon mal versucht, eine Ampel zu überlisten, indem du schneller fährst, als es das Gelblicht erlaubt? Ich meine, wer hat das nicht schon mal gemacht, oder? Aber wusstest du, dass es einen großen Unterschied zwischen statischen und dynamischen Ampelprogrammen gibt und dass das deine Fähigkeit, eine Ampel zu überlisten, beeinflussen kann?",
-    "Bei statischen Ampelprogrammen weißt du genau, wann das Grünlicht kommt und wie lange es dauert. Das bedeutet, dass du mit der PrioBike-App genau berechnen kannst, wie schnell du fahren musst, um die Ampel bei Grün zu erreichen. Es ist wie ein perfekter Tanz, bei dem du genau weißt, wann du die Schritte machen musst.",
-    "Aber bei dynamischen Ampelprogrammen ist das Ganze viel schwieriger. Denn hier weißt du nicht immer genau, wann das Grünlicht kommt. Manchmal ändert sich die Dauer der Grünphase aufgrund von Bussen oder anderen Verkehrsteilnehmern, die die Ampel anfordern. Es ist wie eine unvorhersehbare Tanzparty, bei der du nie weißt, wann das Lied endet oder wer als nächstes tanzen wird.",
-    "Und das macht es schwieriger für die PrioBike-App, dir genaue Geschwindigkeitsempfehlungen zu geben. Auch wenn es dem allgemeinen Verkehrsfluss hilft - je dynamischer die Ampelschaltung ist, desto unsicherer wird die Vorhersage. Das bedeutet, dass die Farbe im Tacho dunkler wird, je unsicherer sich die App ist, dass du die Ampel bei Grün passierst.",
-    "Aber lass dich nicht entmutigen, denn das bedeutet nicht, dass du die App nicht mehr nutzen sollst. Nach dieser Ampel kommt die nächste, die dann wieder besser funktioniert. Und wenn das nicht klappt, dann kannst du immer noch versuchen, ein paar Breakdance-Moves auf dem Fahrrad zu machen und hoffen, dass das die Ampel beeindruckt.",
+    "Hast Du schon mal versucht, eine Ampel zu überlisten, indem Du schneller fährst, als es das Gelblicht erlaubt? Ich meine, wer hat das nicht schon mal gemacht, oder? Aber wusstest Du, dass es einen großen Unterschied zwischen statischen und dynamischen Ampelprogrammen gibt und dass das Deine Fähigkeit, eine Ampel zu überlisten, beeinflussen kann?",
+    "Bei statischen Ampelprogrammen weißt Du genau, wann das Grünlicht kommt und wie lange es dauert. Das bedeutet, dass Du mit der PrioBike-App genau berechnen kannst, wie schnell Du fahren musst, um die Ampel bei Grün zu erreichen. Es ist wie ein perfekter Tanz, bei dem Du genau weißt, wann Du die Schritte machen musst.",
+    "Aber bei dynamischen Ampelprogrammen ist das Ganze viel schwieriger. Denn hier weißt Du nicht immer genau, wann das Grünlicht kommt. Manchmal ändert sich die Dauer der Grünphase aufgrund von Bussen oder anderen Verkehrsteilnehmern, die die Ampel anfordern. Es ist wie eine unvorhersehbare Tanzparty, bei der Du nie weißt, wann das Lied endet oder wer als nächstes tanzen wird.",
+    "Und das macht es schwieriger für die PrioBike-App, Dir genaue Geschwindigkeitsempfehlungen zu geben. Auch wenn es dem allgemeinen Verkehrsfluss hilft - je dynamischer die Ampelschaltung ist, desto unsicherer wird die Vorhersage. Das bedeutet, dass die Farbe im Tacho dunkler wird, je unsicherer sich die App ist, dass Du die Ampel bei Grün passierst.",
+    "Aber lass Dich nicht entmutigen, denn das bedeutet nicht, dass Du die App nicht mehr nutzen sollst. Nach dieser Ampel kommt die nächste, die dann wieder besser funktioniert. Und wenn das nicht klappt, dann kannst Du immer noch versuchen, ein paar Breakdance-Moves auf dem Fahrrad zu machen und hoffen, dass das die Ampel beeindruckt.",
   ],
   [
     "assets/images/wiki/wiki-tanz-mit-den-ampeln-1.png",
@@ -45,7 +45,7 @@ final Article articleSwitchingPrograms = Article(
 /// Article about the SG selector.
 final Article articleSGSelector = Article(
   "Die Ampel-Fee",
-  "Wie unsere App die richtigen Ampeln für dich auswählt",
+  "Wie unsere App die richtigen Ampeln für Dich auswählt",
   "2 min.",
   "assets/images/wiki/wiki-sg-selektor-icon.png",
   [
@@ -53,7 +53,7 @@ final Article articleSGSelector = Article(
     "Hier kommt unser spezielles Machine-Learning-Verfahren zum Einsatz, welches automatisch die passenden Ampeln auswählt. Dabei nutzen wir immer die Radfahrerampeln, um euch die bestmöglichen Empfehlungen zu geben. Den Rest erledigt künstliche Intelligenz für uns.",
     "Aber Vorsicht: Solltet ihr mal auf der Straße statt dem Fahrradweg fahren, kann es sein, dass ihr Empfehlungen für die daneben stehende Fahrradfahrerampel bekommt. Kein Grund zur Panik, das ist kein Fehler - wir wollen schließlich sicherstellen, dass ihr immer auf dem richtigen Weg seid.",
     "Und ja, manchmal kann es passieren, dass eine falsche Ampel ausgewählt wird. Aber keine Sorge, wir tun unser Bestes, um solche Fehler möglichst gering zu halten. Immerhin sind wir ja nicht perfekt, wir haben nur ein super Team und coole Technologie.",
-    "Also, wenn ihr mal eine ungewöhnliche Empfehlung bekommt, dann könnt ihr ja immer noch sagen: \"Ampel, ich habe dich nicht bestellt!\"",
+    "Also, wenn ihr mal eine ungewöhnliche Empfehlung bekommt, dann könnt ihr ja immer noch sagen: \"Ampel, ich habe Dich nicht bestellt!\"",
   ],
   [
     "assets/images/wiki/wiki-sg-selektor-1.png",

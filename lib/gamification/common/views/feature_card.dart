@@ -1,16 +1,16 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/animation.dart';
-import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/common/views/dialog_button.dart';
-import 'package:priobike/main.dart';
-import 'package:collection/collection.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/common/utils.dart';
-import 'package:priobike/gamification/common/views/on_tap_animation.dart';
 import 'package:priobike/gamification/common/views/custom_dialog.dart';
+import 'package:priobike/gamification/common/views/dialog_button.dart';
+import 'package:priobike/gamification/common/views/on_tap_animation.dart';
+import 'package:priobike/main.dart';
 
 /// A card to display the state of a given gamification feature on the home screen.
 class GamificationFeatureCard extends StatefulWidget {
@@ -20,6 +20,7 @@ class GamificationFeatureCard extends StatefulWidget {
   /// The content of the card, if the feature is enabled.
   final Widget featureEnabledContent;
 
+  /// Function that is called, when the feature is enabled by the user.
   final Function() onEnabled;
 
   /// The page, the card navigates to, if the feature is enabled.
@@ -90,6 +91,7 @@ class DisabledFeatureCard extends StatelessWidget {
   /// The key of the corresponding feature.
   final String featureKey;
 
+  /// Function that is called, when the feature is enabled by the user.
   final Function() onEnabled;
 
   const DisabledFeatureCard({
@@ -113,7 +115,7 @@ class DisabledFeatureCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 BoldSubHeader(
-                  text: 'Möchtest du dieses Feature aktivieren?',
+                  text: 'Möchtest Du dieses Feature aktivieren?',
                   context: context,
                   textAlign: TextAlign.center,
                 ),
@@ -135,7 +137,7 @@ class DisabledFeatureCard extends StatelessWidget {
                         getIt<GamificationUserService>().enableFeature(featureKey);
                         Navigator.of(context).pop();
                       },
-                      color: CI.blue,
+                      color: CI.radkulturRed,
                     ),
                   ],
                 ),
@@ -222,7 +224,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 BoldSubHeader(
-                  text: 'Möchtest du dieses Feature wirklich deaktivieren?',
+                  text: 'Möchtest Du dieses Feature wirklich deaktivieren?',
                   context: context,
                   textAlign: TextAlign.center,
                 ),
@@ -234,7 +236,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                     CustomDialogButton(
                       label: 'Abbrechen',
                       onPressed: () => Navigator.of(context).pop(),
-                      color: CI.blue,
+                      color: CI.radkulturRed,
                     ),
                     const SmallHSpace(),
                     CustomDialogButton(
@@ -243,7 +245,7 @@ class _EnabledFeatureCardState extends State<EnabledFeatureCard> {
                         _userService.disableFeature(widget.featureKey);
                         Navigator.of(context).pop();
                       },
-                      color: CI.red,
+                      color: CI.radkulturYellow,
                     ),
                   ],
                 ),

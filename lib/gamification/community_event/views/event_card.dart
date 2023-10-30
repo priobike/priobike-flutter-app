@@ -3,13 +3,13 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/common/colors.dart';
-import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/common/views/countdown_timer.dart';
+import 'package:priobike/gamification/common/views/feature_card.dart';
 import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/gamification/community_event/views/badge.dart';
 import 'package:priobike/gamification/community_event/views/badge_collection.dart';
 import 'package:priobike/gamification/community_event/views/event_page.dart';
-import 'package:priobike/gamification/common/views/countdown_timer.dart';
 import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information about the users participation in the weekend events.
@@ -44,13 +44,10 @@ class _EventCardState extends State<EventCard> {
   Widget build(BuildContext context) {
     return GamificationFeatureCard(
       featureKey: GamificationUserService.communityFeatureKey,
-      // If the feature is enabled, show progress bars of the users challenges and the profile view.
       onEnabled: () {},
       featurePage: _eventService.activeEvent
           ? const CommunityEventPage()
-          : (!_eventService.eventStarted && _eventService.userBadges.isNotEmpty
-              ? BadgeCollection(badges: _eventService.userBadges)
-              : null),
+          : (_eventService.userBadges.isNotEmpty ? BadgeCollection(badges: _eventService.userBadges) : null),
       featureEnabledContent: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -98,7 +95,7 @@ class _EventCardState extends State<EventCard> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: CI.blue.withOpacity(0.05),
+                            color: CI.radkulturRed.withOpacity(0.05),
                             blurRadius: 24,
                             spreadRadius: 24,
                           ),
@@ -129,7 +126,7 @@ class _EventCardState extends State<EventCard> {
                       child: const Icon(
                         Icons.location_city,
                         size: 72,
-                        color: CI.blue,
+                        color: CI.radkulturRed,
                       ),
                     ),
                   ),
@@ -154,7 +151,7 @@ class WaitingForEventView extends StatelessWidget {
       children: [
         const SmallVSpace(),
         const RewardBadge(
-          color: CI.blue,
+          color: CI.radkulturRed,
           size: 64,
           iconIndex: 100,
           achieved: true,
@@ -224,7 +221,7 @@ class ActiveEventView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: RewardBadge(
-                color: CI.blue,
+                color: CI.radkulturRed,
                 size: 64,
                 iconIndex: service.event!.iconValue,
                 achieved: service.wasCurrentEventAchieved,

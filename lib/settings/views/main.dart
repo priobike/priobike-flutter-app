@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:flutter/services.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -46,7 +46,7 @@ class SettingsElement extends StatelessWidget {
       child: Tile(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-        fill: Theme.of(context).colorScheme.background,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: callback,
         content: Row(
           children: [
@@ -57,7 +57,7 @@ class SettingsElement extends StatelessWidget {
                 children: [
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null) Content(text: subtitle!, color: CI.blue, context: context),
+                  if (subtitle != null) Content(text: subtitle!, color: CI.radkulturRed, context: context),
                 ],
               ),
             ),
@@ -241,11 +241,10 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SingleChildScrollView(
           child: SafeArea(
             child: Column(
@@ -256,7 +255,8 @@ class SettingsViewState extends State<SettingsView> {
                   children: [
                     AppBackButton(onPressed: () => Navigator.pop(context)),
                     const HSpace(),
-                    SubHeader(text: "Einstellungen", context: context),
+                    SubHeader(
+                        text: "Einstellungen", context: context, color: Theme.of(context).colorScheme.onBackground),
                   ],
                 ),
                 const SmallVSpace(),
@@ -350,7 +350,7 @@ class SettingsViewState extends State<SettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
+                        "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell Du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf Deine Umgebung und passe Deine Geschwindigkeit den Verhältnissen an.",
                     context: context,
                   ),
                 ),
@@ -418,7 +418,7 @@ class SettingsViewState extends State<SettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Es öffnet sich das E-Mail-Programm deines Geräts. Bitte beschreibe die Umstände, unter denen der Fehler aufgetreten ist, so genau wie möglich. Wir werden uns schnellstmöglich um das Problem kümmern. Vielen Dank für die Unterstützung!",
+                        "Es öffnet sich das E-Mail-Programm Deines Geräts. Bitte beschreibe die Umstände, unter denen der Fehler aufgetreten ist, so genau wie möglich. Wir werden uns schnellstmöglich um das Problem kümmern. Vielen Dank für die Unterstützung!",
                     context: context,
                   ),
                 ),

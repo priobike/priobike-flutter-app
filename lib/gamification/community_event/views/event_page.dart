@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -132,7 +132,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
               return Stack(
                 children: [
                   ShortcutView(
-                    selectionColor: CI.blue,
+                    selectionColor: CI.radkulturRed,
                     onLongPressed: wasAchieved
                         ? null
                         : () {
@@ -169,13 +169,13 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                       width: shortcutWidth - 16,
                       height: shortcutHeight + 34,
                       decoration: BoxDecoration(
-                        color: CI.blue.withOpacity(0.25),
+                        color: CI.radkulturRed.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: const Center(
                         child: Icon(
                           Icons.done_rounded,
-                          color: CI.blue,
+                          color: CI.radkulturRed,
                           size: 96,
                         ),
                       ),
@@ -205,7 +205,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   key: const ValueKey('ConfirmButton'),
                   padding: const EdgeInsets.only(bottom: 8),
                   child: ConfirmButton(
-                    color: CI.blue,
+                    color: CI.radkulturRed,
                     label: 'Route anzeigen ($_numOfSelected)',
                     onPressed: _itemsSelected
                         ? () {
@@ -235,7 +235,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
                     child: BoldSmall(
-                      text: 'Du kannst auch mehrere Orte gleichzeitig auswählen, indem du ein Element gedrückt hältst.',
+                      text: 'Du kannst auch mehrere Orte gleichzeitig auswählen, indem Du ein Element gedrückt hältst.',
                       context: context,
                       textAlign: TextAlign.center,
                     ),
@@ -247,8 +247,9 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
   @override
   Widget build(BuildContext context) {
     if (_event == null) return Container();
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
@@ -325,7 +326,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                     decoration: BoxDecoration(
                                       color: _showCommunity
                                           ? Theme.of(context).colorScheme.onBackground.withOpacity(0.25)
-                                          : CI.blue,
+                                          : CI.radkulturRed,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
@@ -351,7 +352,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                     height: 4,
                                     decoration: BoxDecoration(
                                       color: _showCommunity
-                                          ? CI.blue
+                                          ? CI.radkulturRed
                                           : Theme.of(context).colorScheme.onBackground.withOpacity(0.25),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -374,7 +375,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                 const Icon(
                                   Icons.group,
                                   size: 56,
-                                  color: CI.blue,
+                                  color: CI.radkulturRed,
                                 ),
                                 Header(
                                   text: '${_eventService.numOfActiveUsers}',
@@ -388,7 +389,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                                 const Icon(
                                   Icons.location_on,
                                   size: 56,
-                                  color: CI.blue,
+                                  color: CI.radkulturRed,
                                 ),
                                 Header(
                                   text: '${_eventService.numOfAchievedLocations}',
@@ -416,7 +417,7 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                         Expanded(child: Container()),
                         Center(
                           child: RewardBadge(
-                            color: CI.blue,
+                            color: CI.radkulturRed,
                             size: 96,
                             iconIndex: _event!.iconValue,
                             achieved: _eventService.wasCurrentEventAchieved,
@@ -428,19 +429,19 @@ class _CommunityEventPageState extends State<CommunityEventPage> {
                           child: _eventService.wasCurrentEventAchieved
                               ? BoldSubHeader(
                                   text:
-                                      'Super, du hast ${_event!.title} besucht und das dieswöchige Abzeichen erhalten!',
+                                      'Super, Du hast ${_event!.title} besucht und das dieswöchige Abzeichen erhalten!',
                                   context: context,
                                   textAlign: TextAlign.center,
                                 )
                               : Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: CI.blue,
+                                    color: CI.radkulturRed,
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: BoldContent(
                                     text:
-                                        'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole dir das Abzeichen der Woche!',
+                                        'Besuche einen oder mehrere der unten aufgelisteten Orte in ${_event!.title} und hole Dir das Abzeichen der Woche!',
                                     context: context,
                                     textAlign: TextAlign.center,
                                     color: Colors.white,

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/gamification/challenges/views/challenges_card.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/community_event/views/event_card.dart';
 import 'package:priobike/gamification/goals/views/goals_view.dart';
 import 'package:priobike/gamification/intro/intro_card.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/gamification/statistics/views/card/stats_card.dart';
+import 'package:priobike/gamification/statistics/views/overall_stats.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tutorial/view.dart';
 
@@ -31,7 +31,8 @@ class _GameViewState extends State<GameView> {
           padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
           id: 'priobike.gamification.challenges.tutorial',
           text:
-              'Erfülle tägliche Challenges, steige Level auf und lass dich überraschen, vor was für Herausforderungen du dabei sonst noch gestellt wirst...',
+              'Erfülle tägliche Challenges, steige Level auf und lass Dich überraschen, vor was für Herausforderungen Du dabei sonst noch gestellt wirst...',
+          color: Colors.white,
         ),
         ChallengesCard(),
       ],
@@ -42,7 +43,8 @@ class _GameViewState extends State<GameView> {
           padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
           id: 'priobike.gamification.statistics.tutorial',
           text:
-              'Erhalte einen genaueren Überblick über deine zurückgelegten Fahrten, durch tägliche, wöchentliche und monatliche Statistik-Überblicke.',
+              'Erhalte einen genaueren Überblick über Deine zurückgelegten Fahrten, durch tägliche, wöchentliche und monatliche Statistik-Überblicke.',
+          color: Colors.white,
         ),
         RideStatisticsCard(),
       ],
@@ -54,6 +56,7 @@ class _GameViewState extends State<GameView> {
           id: 'priobike.gamification.community.tutorial',
           text:
               'Besuche jedes Wochenende einen anderen Stadtteil von Hamburg und sammel dabei unterschiedliche Abzeichen.',
+          color: Colors.white,
         ),
         EventCard(),
       ],
@@ -105,12 +108,14 @@ class _GameViewState extends State<GameView> {
                       text: "Da geht doch noch mehr!",
                       context: context,
                       textAlign: TextAlign.center,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     const SizedBox(height: 4),
                     Small(
                       text: "Probiere neue Funktionen aus.",
                       context: context,
                       textAlign: TextAlign.center,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ],
                 ),

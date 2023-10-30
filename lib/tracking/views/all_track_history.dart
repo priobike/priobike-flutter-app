@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -146,14 +147,15 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Alle Fahrten löschen',
-          text: "Bitte bestätige, dass du die gespeicherten Fahrten löschen möchtest.",
+          text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButton(
-              iconColor: Colors.white,
+              iconColor: Colors.black,
               icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
+              textColor: Colors.black,
               label: "Löschen",
               onPressed: () {
                 tracking.deleteAllTracks();
@@ -178,8 +180,9 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     const double shortcutRightPad = 16;
     final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: Fade(
           child: SingleChildScrollView(
@@ -238,7 +241,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                         curve: Curves.easeInOutCubic,
                         delay: Duration(milliseconds: 200 * previousTracks.length),
                         child: Content(
-                          text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
+                          text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                           textAlign: TextAlign.center,
