@@ -697,6 +697,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     // Convert x and y into a lat/lon.
     final point = ScreenCoordinate(x: x, y: y);
+    await addWaypoint(point);
+  }
+
+  onDragWaypint(BuildContext context, double x, double y) async {
+    // TODO: alten Wegpunkt entfernen
+    // TODO: neuen Wegpunkt hinzufügen
+    // TODO: alten Wegpunkt aus History entfernen
+    // TODO: neuen Wegpunkt in History hinzufügen
+    // TODO: im BottomSheet anpassen
+    // TODO: erst nachdem man loslässt Route neuberechnen (weil rechenintensiv)
+  }
+
+  Future<void> addWaypoint(ScreenCoordinate point) async {
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
@@ -912,6 +925,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           onLongPressEnd: (details) {
             animationController.reverse();
+            // TODO: check if there is a waypoint or not and decide which callback to call
+            // if there is a waypoint, call onDragWaypoint
             onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
           },
           behavior: HitTestBehavior.translucent,
