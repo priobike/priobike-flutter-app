@@ -94,13 +94,13 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           -1,
           "#000000",
           0,
-          "rgb(0, 115, 255)",
+          "rgb(140, 0, 65)",
           1,
           "rgb(40, 205, 80)",
         ],
         // Otherwise, show that the prediction is bad.
         600,
-        "rgb(0, 115, 255)",
+        "rgb(140, 0, 65)",
       ]
     ];
 
@@ -273,7 +273,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   Widget build(BuildContext context) {
     final legend = [
       SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-      SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", CI.route),
+      SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", CI.radkulturRedDark),
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.radkulturGreen),
     ];
     final ppi = MediaQuery.of(context).devicePixelRatio * 0.9;
