@@ -9,7 +9,7 @@ import 'package:priobike/main.dart';
 
 /// Widget to display the overall statistics of the users registered rides since enabling the gamification.
 class OverallStatistics extends StatefulWidget {
-  const OverallStatistics({Key? key}) : super(key: key);
+  const OverallStatistics({super.key});
 
   @override
   State<OverallStatistics> createState() => _OverallStatisticsState();

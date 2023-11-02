@@ -14,7 +14,7 @@ import 'package:priobike/main.dart';
 
 /// This view provides the user with detailed statistics about their ride history.
 class StatisticsView extends StatefulWidget {
-  const StatisticsView({Key? key}) : super(key: key);
+  const StatisticsView({super.key});
 
   @override
   State<StatisticsView> createState() => _StatisticsViewState();
@@ -192,11 +192,11 @@ class IntervalSelectionButton extends StatefulWidget {
   final Function() onTap;
 
   const IntervalSelectionButton({
-    Key? key,
+    super.key,
     required this.interval,
     required this.onTap,
     required this.selected,
-  }) : super(key: key);
+  });
 
   @override
   State<IntervalSelectionButton> createState() => _IntervalSelectionButtonState();

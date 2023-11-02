@@ -4,7 +4,7 @@ import 'package:priobike/gamification/common/database/database.dart';
 /// Abstract database access object (DAO) class to be extendet by actual DAOs with corresponding [Table].
 /// T specifies the [DataClass] held by the table.
 abstract class DatabaseDao<T extends DataClass> extends DatabaseAccessor<AppDatabase> {
-  DatabaseDao(AppDatabase attachedDatabase) : super(attachedDatabase);
+  DatabaseDao(super.attachedDatabase);
 
   /// Table corresponding to DAOs extending this class. Needs to be implemented.
   TableInfo get table;

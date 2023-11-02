@@ -173,11 +173,11 @@ extension BackendRegion on Backend {
   LatLng get center {
     switch (this) {
       case Backend.production:
-        return LatLng(53.551086, 9.993682);
+        return const LatLng(53.551086, 9.993682);
       case Backend.staging:
-        return LatLng(51.050407, 13.737262);
+        return const LatLng(51.050407, 13.737262);
       case Backend.release:
-        return LatLng(53.551086, 9.993682);
+        return const LatLng(53.551086, 9.993682);
     }
   }
 

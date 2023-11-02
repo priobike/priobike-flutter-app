@@ -9,7 +9,7 @@ import 'package:priobike/main.dart';
 /// This tutorial page gives the user a brief introduction to the challenges feature
 /// and gives them the option to activate it.
 class ChallengesTutorial extends StatelessWidget {
-  const ChallengesTutorial({Key? key}) : super(key: key);
+  const ChallengesTutorial({super.key});
 
   @override
   Widget build(BuildContext context) {

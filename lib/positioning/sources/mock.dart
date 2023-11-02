@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+
 // l is an alias to not clash with MapBox's dependency.
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
@@ -63,10 +64,13 @@ class StaticMockPositionSource extends PositionSource {
             longitude: position.longitude,
             altitude: 0,
             speed: 0,
-            heading: heading, // Not 0, since 0 indicates an error.
+            heading: heading,
+            // Not 0, since 0 indicates an error.
             accuracy: 1,
             speedAccuracy: 1,
             timestamp: DateTime.now().toUtc(),
+            altitudeAccuracy: 1,
+            headingAccuracy: 1,
           ),
         );
       },
@@ -84,10 +88,13 @@ class StaticMockPositionSource extends PositionSource {
       longitude: position.longitude,
       altitude: 0,
       speed: 0,
-      heading: heading, // Not 0, since 0 indicates an error.
+      heading: heading,
+      // Not 0, since 0 indicates an error.
       accuracy: 1,
       speedAccuracy: 1,
       timestamp: DateTime.now().toUtc(),
+      altitudeAccuracy: 1,
+      headingAccuracy: 1,
     );
   }
 
@@ -137,6 +144,8 @@ class RecordedMockPositionSource extends PositionSource {
           accuracy: checkDouble(json[i]['accuracy']),
           speedAccuracy: 0.0,
           timestamp: DateTime.fromMillisecondsSinceEpoch(json[i]['timeUnixMillis']),
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
         ),
       );
     }
@@ -192,15 +201,16 @@ class RecordedMockPositionSource extends PositionSource {
           var p = positions[index];
           // Map the position to the current time.
           var pNow = Position(
-            latitude: p.latitude,
-            longitude: p.longitude,
-            altitude: p.altitude,
-            speed: p.speed,
-            heading: p.heading,
-            accuracy: p.accuracy,
-            speedAccuracy: p.speedAccuracy,
-            timestamp: DateTime.now().toUtc(),
-          );
+              latitude: p.latitude,
+              longitude: p.longitude,
+              altitude: p.altitude,
+              speed: p.speed,
+              heading: p.heading,
+              accuracy: p.accuracy,
+              speedAccuracy: p.speedAccuracy,
+              timestamp: DateTime.now().toUtc(),
+              altitudeAccuracy: p.altitudeAccuracy,
+              headingAccuracy: p.headingAccuracy);
           streamController.add(pNow);
           index++;
         }
@@ -327,10 +337,13 @@ class PathMockPositionSource extends PositionSource {
         longitude: currentLocation.longitude,
         altitude: 0,
         speed: speed,
-        heading: heading, // Not 0, since 0 indicates an error.
+        heading: heading,
+        // Not 0, since 0 indicates an error.
         accuracy: 1,
         speedAccuracy: 1,
         timestamp: DateTime.now().toUtc(),
+        altitudeAccuracy: 1,
+        headingAccuracy: 1,
       );
       streamController.add(lastPosition!);
 
@@ -356,6 +369,8 @@ class PathMockPositionSource extends PositionSource {
         accuracy: 1,
         speedAccuracy: 1,
         timestamp: DateTime.now().toUtc(),
+        altitudeAccuracy: 1,
+        headingAccuracy: 1,
       );
     }
     return lastPosition!;

@@ -195,9 +195,7 @@ class WeekStats extends ListOfRideStats<DayStats> {
   final DateTime mondayDate;
 
   /// Get stats from list of days of the week.
-  WeekStats(List<DayStats> days)
-      : mondayDate = days.first.date,
-        super(days);
+  WeekStats(super.days) : mondayDate = days.first.date;
 
   @override
   String getTimeDescription(int? index) {
@@ -218,10 +216,9 @@ class MonthStats extends ListOfRideStats<DayStats> {
   final int month;
 
   /// Get stats from list of days of the month.
-  MonthStats(List<DayStats> days)
+  MonthStats(super.days)
       : year = days.first.date.year,
-        month = days.first.date.month,
-        super(days);
+        month = days.first.date.month;
 
   @override
   String getTimeDescription(int? index) {

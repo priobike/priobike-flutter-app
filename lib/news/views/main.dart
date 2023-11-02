@@ -11,7 +11,7 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/article_list_item.dart';
 
 class NewsView extends StatefulWidget {
-  const NewsView({Key? key}) : super(key: key);
+  const NewsView({super.key});
 
   @override
   NewsViewState createState() => NewsViewState();

@@ -19,11 +19,11 @@ class ChallengeSelectionDialog extends StatefulWidget {
   final Color color;
 
   const ChallengeSelectionDialog({
-    Key? key,
+    super.key,
     required this.challenges,
     required this.isWeekly,
     required this.color,
-  }) : super(key: key);
+  });
   @override
   State<ChallengeSelectionDialog> createState() => _ChallengeSelectionDialogState();
 }
@@ -76,12 +76,12 @@ class ChallengeWidget extends StatelessWidget {
   final Color color;
 
   const ChallengeWidget({
-    Key? key,
+    super.key,
     required this.challenge,
     required this.onTap,
     this.visible = true,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -16,12 +16,12 @@ class CustomDialog extends StatefulWidget {
   final double horizontalMargin;
 
   const CustomDialog({
-    Key? key,
+    super.key,
     required this.content,
     this.backgroundColor,
     this.withGlow = false,
     this.horizontalMargin = 32,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomDialog> createState() => _CustomDialogState();

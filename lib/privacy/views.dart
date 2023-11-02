@@ -9,9 +9,8 @@ import 'package:priobike/privacy/services.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
-  IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
+  IconItem({super.key, required IconData icon, required String text, required BuildContext context})
       : super(
-          key: key,
           children: [
             SizedBox(
               width: 64,
@@ -36,7 +35,7 @@ class PrivacyPolicyView extends StatefulWidget {
   final Widget? child;
 
   /// Create the privacy proxy view with the wrapped view.
-  const PrivacyPolicyView({this.child, Key? key}) : super(key: key);
+  const PrivacyPolicyView({this.child, super.key});
 
   @override
   PrivacyPolicyViewState createState() => PrivacyPolicyViewState();

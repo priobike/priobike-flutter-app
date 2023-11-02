@@ -15,7 +15,7 @@ class QRCodeView extends StatefulWidget {
   /// The shortcut for which a QR code should be shown.
   final Shortcut? shortcut;
 
-  const QRCodeView({Key? key, this.shortcut}) : super(key: key);
+  const QRCodeView({super.key, this.shortcut});
 
   @override
   QRCodeViewState createState() => QRCodeViewState();

@@ -9,7 +9,7 @@ class MultipleWeeksStatsGraph extends StatelessWidget {
   /// The week stats corresponding to the weeks to be displayed.
   final List<WeekStats> weeks;
 
-  const MultipleWeeksStatsGraph({Key? key, required this.weeks}) : super(key: key);
+  const MultipleWeeksStatsGraph({super.key, required this.weeks});
 
   /// Label the x axis by adding the monday date to each week bar.
   Widget _getTitlesX(double value, TitleMeta meta, TextStyle style) {

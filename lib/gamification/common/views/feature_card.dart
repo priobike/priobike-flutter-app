@@ -30,13 +30,13 @@ class GamificationFeatureCard extends StatefulWidget {
   final Widget featureDisabledContent;
 
   const GamificationFeatureCard({
-    Key? key,
+    super.key,
     required this.featureKey,
     required this.featureEnabledContent,
     required this.featureDisabledContent,
     this.featurePage,
     required this.onEnabled,
-  }) : super(key: key);
+  });
 
   @override
   State<GamificationFeatureCard> createState() => _GamificationFeatureCardState();
@@ -95,11 +95,11 @@ class DisabledFeatureCard extends StatelessWidget {
   final Function() onEnabled;
 
   const DisabledFeatureCard({
-    Key? key,
+    super.key,
     required this.content,
     required this.featureKey,
     required this.onEnabled,
-  }) : super(key: key);
+  });
 
   /// A dialog which is opened, if the user presses the card to enable a feature.
   void _enableFeatureDialog(var context) {
@@ -188,11 +188,11 @@ class EnabledFeatureCard extends StatefulWidget {
   final String featureKey;
 
   const EnabledFeatureCard({
-    Key? key,
+    super.key,
     required this.content,
     required this.featureKey,
     this.featurePage,
-  }) : super(key: key);
+  });
   @override
   State<EnabledFeatureCard> createState() => _EnabledFeatureCardState();
 }

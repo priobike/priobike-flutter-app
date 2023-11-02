@@ -13,7 +13,7 @@ import 'package:priobike/tutorial/view.dart';
 
 /// This view displays the gamification functionality according to the user settings.
 class GameView extends StatefulWidget {
-  const GameView({Key? key}) : super(key: key);
+  const GameView({super.key});
 
   @override
   State<GameView> createState() => _GameViewState();
@@ -25,8 +25,8 @@ class _GameViewState extends State<GameView> {
 
   /// The gamification features mapped to their corresponding cards.
   final Map<String, Widget> _featureCards = {
-    GamificationUserService.challengesFeatureKey: Column(
-      children: const [
+    GamificationUserService.challengesFeatureKey: const Column(
+      children: [
         TutorialView(
           padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
           id: 'priobike.gamification.challenges.tutorial',
@@ -37,8 +37,8 @@ class _GameViewState extends State<GameView> {
         ChallengesCard(),
       ],
     ),
-    GamificationUserService.statisticsFeatureKey: Column(
-      children: const [
+    GamificationUserService.statisticsFeatureKey: const Column(
+      children: [
         TutorialView(
           padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
           id: 'priobike.gamification.statistics.tutorial',
@@ -49,8 +49,8 @@ class _GameViewState extends State<GameView> {
         RideStatisticsCard(),
       ],
     ),
-    GamificationUserService.communityFeatureKey: Column(
-      children: const [
+    GamificationUserService.communityFeatureKey: const Column(
+      children: [
         TutorialView(
           padding: EdgeInsets.fromLTRB(48, 16, 48, 8),
           id: 'priobike.gamification.community.tutorial',

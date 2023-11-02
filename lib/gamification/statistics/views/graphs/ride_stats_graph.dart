@@ -22,12 +22,12 @@ class RideStatsGraph extends StatefulWidget {
   final Color barColor;
 
   const RideStatsGraph({
-    Key? key,
+    super.key,
     required this.getTitlesX,
     required this.displayedStats,
     required this.barWidth,
     this.barColor = CI.radkulturRed,
-  }) : super(key: key);
+  });
 
   @override
   State<RideStatsGraph> createState() => _RideStatsGraphState();
@@ -136,8 +136,8 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
               touchExtraThreshold: const EdgeInsets.all(8)),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -161,7 +161,7 @@ class _RideStatsGraphState extends State<RideStatsGraph> {
             ),
           ),
           maxY: _getRoundedMax(),
-          gridData: FlGridData(drawVerticalLine: false),
+          gridData: const FlGridData(drawVerticalLine: false),
           barGroups: _getBars(),
         ),
         swapAnimationDuration: Duration.zero,

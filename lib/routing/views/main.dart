@@ -30,7 +30,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RoutingView extends StatefulWidget {
-  const RoutingView({Key? key}) : super(key: key);
+  const RoutingView({super.key});
 
   @override
   State<StatefulWidget> createState() => RoutingViewState();
@@ -350,8 +350,8 @@ class RoutingViewState extends State<RoutingView> {
               SafeArea(
                 child: Padding(
                   padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
-                  child: Column(
-                    children: const [CenterButton(), SmallVSpace(), CompassButton()],
+                  child: const Column(
+                    children: [CenterButton(), SmallVSpace(), CompassButton()],
                   ),
                 ),
               ),

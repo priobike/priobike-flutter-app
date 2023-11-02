@@ -19,7 +19,7 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
 class FinishRideButton extends StatefulWidget {
-  const FinishRideButton({Key? key}) : super(key: key);
+  const FinishRideButton({super.key});
 
   @override
   FinishRideButtonState createState() => FinishRideButtonState();

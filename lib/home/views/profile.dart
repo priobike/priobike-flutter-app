@@ -18,13 +18,13 @@ class ProfileElementButton extends StatelessWidget {
   final void Function()? onPressed;
 
   const ProfileElementButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     this.color,
     this.backgroundColor,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class ProfileElementButton extends StatelessWidget {
 }
 
 class ProfileView extends StatefulWidget {
-  const ProfileView({Key? key}) : super(key: key);
+  const ProfileView({super.key});
 
   @override
   ProfileViewState createState() => ProfileViewState();
@@ -146,7 +146,7 @@ class ProfileViewState extends State<ProfileView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return HPad(
+    return const HPad(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -156,7 +156,7 @@ class ProfileViewState extends State<ProfileView> {
                 height: 86,
                 width: 86,
                 child: Column(
-                  children: const [
+                  children: [
                     CircularProgressIndicator(),
                   ],
                 ),

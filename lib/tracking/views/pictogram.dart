@@ -38,7 +38,7 @@ class TrackPictogram extends StatefulWidget {
   final bool showSpeedLegend;
 
   const TrackPictogram({
-    Key? key,
+    super.key,
     required this.track,
     required this.blurRadius,
     this.colors = const [
@@ -50,7 +50,7 @@ class TrackPictogram extends StatefulWidget {
     this.lineWidth = 3.0,
     this.iconSize = 10,
     this.showSpeedLegend = true,
-  }) : super(key: key);
+  });
 
   @override
   TrackPictogramState createState() => TrackPictogramState();

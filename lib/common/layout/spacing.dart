@@ -2,37 +2,35 @@ import 'package:flutter/material.dart';
 
 /// A regular vertical padding.
 class VPad extends Padding {
-  const VPad({Key? key, required Widget child})
-      : super(key: key, padding: const EdgeInsets.symmetric(vertical: 24), child: child);
+  const VPad({super.key, required Widget super.child}) : super(padding: const EdgeInsets.symmetric(vertical: 24));
 }
 
 /// A regular horizontal padding.
 class HPad extends Padding {
-  const HPad({Key? key, required Widget child})
-      : super(key: key, padding: const EdgeInsets.symmetric(horizontal: 24), child: child);
+  const HPad({super.key, required Widget super.child}) : super(padding: const EdgeInsets.symmetric(horizontal: 24));
 }
 
 /// A regular padding.
 class Pad extends Padding {
-  const Pad({Key? key, required Widget child}) : super(key: key, padding: const EdgeInsets.all(32), child: child);
+  const Pad({super.key, required Widget super.child}) : super(padding: const EdgeInsets.all(32));
 }
 
 /// A regular vertical space.
 class VSpace extends SizedBox {
-  const VSpace({Key? key}) : super(key: key, height: 24);
+  const VSpace({super.key}) : super(height: 24);
 }
 
 /// A small vertical space.
 class SmallVSpace extends SizedBox {
-  const SmallVSpace({Key? key}) : super(key: key, height: 8);
+  const SmallVSpace({super.key}) : super(height: 8);
 }
 
 /// A regular horizontal space.
 class HSpace extends SizedBox {
-  const HSpace({Key? key}) : super(key: key, width: 24);
+  const HSpace({super.key}) : super(width: 24);
 }
 
 /// A small horizontal space.
 class SmallHSpace extends SizedBox {
-  const SmallHSpace({Key? key}) : super(key: key, width: 8);
+  const SmallHSpace({super.key}) : super(width: 8);
 }

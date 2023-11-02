@@ -8,7 +8,7 @@ class MonthStatsGraph extends StatelessWidget {
   /// The stats of the given month.
   final MonthStats month;
 
-  const MonthStatsGraph({Key? key, required this.month}) : super(key: key);
+  const MonthStatsGraph({super.key, required this.month});
 
   /// Label the x axis by adding the day value to every fifth day.
   Widget _getTitlesX(double value, TitleMeta meta, TextStyle style) {

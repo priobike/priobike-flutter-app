@@ -13,7 +13,7 @@ class StatusHistoryView extends StatefulWidget {
   /// Which time period to display.
   final StatusHistoryTime time;
 
-  const StatusHistoryView({Key? key, required this.time}) : super(key: key);
+  const StatusHistoryView({super.key, required this.time});
 
   @override
   State<StatusHistoryView> createState() => StatusHistoryViewState();

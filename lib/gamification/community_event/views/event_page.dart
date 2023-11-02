@@ -25,7 +25,7 @@ import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class CommunityEventPage extends StatefulWidget {
-  const CommunityEventPage({Key? key}) : super(key: key);
+  const CommunityEventPage({super.key});
 
   @override
   State<CommunityEventPage> createState() => _CommunityEventPageState();

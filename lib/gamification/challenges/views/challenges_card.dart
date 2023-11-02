@@ -16,7 +16,7 @@ import 'package:priobike/main.dart';
 /// This card is displayed on the home view and holds all information about the users
 /// game state regarding the challenges feature.
 class ChallengesCard extends StatelessWidget {
-  const ChallengesCard({Key? key}) : super(key: key);
+  const ChallengesCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +27,8 @@ class ChallengesCard extends StatelessWidget {
         await getIt<ChallengesProfileService>().createProfile();
         await getIt<GamificationUserService>().enableFeature(GamificationUserService.challengesFeatureKey);
       },
-      featureEnabledContent: Column(
-        children: const [
+      featureEnabledContent: const Column(
+        children: [
           GameProfileView(),
           SmallVSpace(),
           SmallVSpace(),

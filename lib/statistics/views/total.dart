@@ -10,7 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 
 class TotalStatisticsView extends StatefulWidget {
-  const TotalStatisticsView({Key? key}) : super(key: key);
+  const TotalStatisticsView({super.key});
 
   @override
   State<TotalStatisticsView> createState() => TotalStatisticsViewState();
