@@ -16,7 +16,7 @@ class NavBarView extends StatelessWidget {
   /// A callback that is fired when the notification button was pressed.
   final void Function()? onTapNotificationButton;
 
-  const NavBarView({this.onTapSettingsButton, this.onTapNotificationButton, Key? key}) : super(key: key);
+  const NavBarView({this.onTapSettingsButton, this.onTapNotificationButton, super.key});
 
   @override
   Widget build(BuildContext context) {

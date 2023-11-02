@@ -87,8 +87,8 @@ class SearchItem extends StatelessWidget {
     required this.waypoint,
     required this.onTapped,
     this.distance,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,8 +152,8 @@ class HistoryItem extends StatefulWidget {
     required this.waypoint,
     required this.onTapped,
     this.distance,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => HistoryItemState();
@@ -239,8 +239,8 @@ class CurrentPosition extends StatelessWidget {
 
   const CurrentPosition({
     required this.onTapped,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +277,7 @@ class RouteSearch extends StatefulWidget {
   /// current user position should be a suggested waypoint.
   final bool showCurrentPositionAsWaypoint;
 
-  const RouteSearch({Key? key, required this.showCurrentPositionAsWaypoint}) : super(key: key);
+  const RouteSearch({super.key, required this.showCurrentPositionAsWaypoint});
 
   @override
   RouteSearchState createState() => RouteSearchState();

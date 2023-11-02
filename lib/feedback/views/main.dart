@@ -23,7 +23,7 @@ class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
   final Future<void> Function(BuildContext context) onSubmitted;
 
-  const FeedbackView({required this.onSubmitted, Key? key}) : super(key: key);
+  const FeedbackView({required this.onSubmitted, super.key});
 
   @override
   FeedbackViewState createState() => FeedbackViewState();

@@ -18,13 +18,13 @@ class ShortcutView extends StatelessWidget {
   final double rightPad;
 
   const ShortcutView({
-    Key? key,
+    super.key,
     this.shortcut,
     required this.onPressed,
     required this.width,
     required this.height,
     required this.rightPad,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,8 +122,8 @@ class ShortcutsView extends StatefulWidget {
   const ShortcutsView({
     required this.onSelectShortcut,
     required this.onStartFreeRouting,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => ShortcutsViewState();

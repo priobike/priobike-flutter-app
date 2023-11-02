@@ -67,6 +67,8 @@ class StaticMockPositionSource extends PositionSource {
             accuracy: 1,
             speedAccuracy: 1,
             timestamp: DateTime.now().toUtc(),
+            altitudeAccuracy: 0,
+            headingAccuracy: 0,
           ),
         );
       },
@@ -88,6 +90,8 @@ class StaticMockPositionSource extends PositionSource {
       accuracy: 1,
       speedAccuracy: 1,
       timestamp: DateTime.now().toUtc(),
+      altitudeAccuracy: 0,
+      headingAccuracy: 0,
     );
   }
 
@@ -137,6 +141,8 @@ class RecordedMockPositionSource extends PositionSource {
           accuracy: checkDouble(json[i]['accuracy']),
           speedAccuracy: 0.0,
           timestamp: DateTime.fromMillisecondsSinceEpoch(json[i]['timeUnixMillis']),
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
         ),
       );
     }
@@ -200,6 +206,8 @@ class RecordedMockPositionSource extends PositionSource {
             accuracy: p.accuracy,
             speedAccuracy: p.speedAccuracy,
             timestamp: DateTime.now().toUtc(),
+            altitudeAccuracy: 0,
+            headingAccuracy: 0,
           );
           streamController.add(pNow);
           index++;
@@ -331,6 +339,8 @@ class PathMockPositionSource extends PositionSource {
         accuracy: 1,
         speedAccuracy: 1,
         timestamp: DateTime.now().toUtc(),
+        altitudeAccuracy: 0,
+        headingAccuracy: 0,
       );
       streamController.add(lastPosition!);
 
@@ -356,6 +366,8 @@ class PathMockPositionSource extends PositionSource {
         accuracy: 1,
         speedAccuracy: 1,
         timestamp: DateTime.now().toUtc(),
+        altitudeAccuracy: 0,
+        headingAccuracy: 0,
       );
     }
     return lastPosition!;

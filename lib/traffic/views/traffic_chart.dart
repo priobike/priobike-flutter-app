@@ -7,7 +7,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 
 class TrafficChart extends StatefulWidget {
-  const TrafficChart({Key? key}) : super(key: key);
+  const TrafficChart({super.key});
   @override
   TrafficChartState createState() => TrafficChartState();
 }

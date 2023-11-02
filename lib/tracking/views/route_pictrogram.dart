@@ -22,13 +22,13 @@ class RoutePictogram extends StatefulWidget {
   final double iconSize;
 
   const RoutePictogram({
-    Key? key,
+    super.key,
     required this.route,
     required this.startImage,
     required this.destinationImage,
     this.lineWidth = 3.0,
     this.iconSize = 10,
-  }) : super(key: key);
+  });
 
   @override
   RoutePictogramState createState() => RoutePictogramState();

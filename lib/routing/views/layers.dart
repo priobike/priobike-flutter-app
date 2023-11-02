@@ -9,7 +9,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/layers.dart';
 
 class LayerSelectionView extends StatefulWidget {
-  const LayerSelectionView({Key? key}) : super(key: key);
+  const LayerSelectionView({super.key});
 
   @override
   State<StatefulWidget> createState() => LayerSelectionViewState();
@@ -179,8 +179,8 @@ class LayerSelectionItem extends StatelessWidget {
     required this.title,
     required this.selected,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

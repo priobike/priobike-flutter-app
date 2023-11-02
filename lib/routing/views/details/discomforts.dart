@@ -6,7 +6,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class DiscomfortsChart extends StatefulWidget {
-  const DiscomfortsChart({Key? key}) : super(key: key);
+  const DiscomfortsChart({super.key});
 
   @override
   DiscomfortsChartState createState() => DiscomfortsChartState();

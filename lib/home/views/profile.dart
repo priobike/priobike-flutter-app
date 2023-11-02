@@ -19,14 +19,14 @@ class ProfileElementButton extends StatelessWidget {
   final void Function()? onPressed;
 
   const ProfileElementButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     this.color,
     this.backgroundColor,
     this.touchColor,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class ProfileElementButton extends StatelessWidget {
 }
 
 class ProfileView extends StatefulWidget {
-  const ProfileView({Key? key}) : super(key: key);
+  const ProfileView({super.key});
 
   @override
   ProfileViewState createState() => ProfileViewState();

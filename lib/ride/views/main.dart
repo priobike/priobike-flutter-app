@@ -24,7 +24,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock/wakelock.dart';
 
 class RideView extends StatefulWidget {
-  const RideView({Key? key}) : super(key: key);
+  const RideView({super.key});
 
   @override
   State<StatefulWidget> createState() => RideViewState();

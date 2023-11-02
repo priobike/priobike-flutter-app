@@ -11,7 +11,7 @@ class StarRatingView extends StatefulWidget {
   /// The text of the question.
   final String text;
 
-  const StarRatingView({required this.text, Key? key}) : super(key: key);
+  const StarRatingView({required this.text, super.key});
 
   @override
   StarRatingViewState createState() => StarRatingViewState();

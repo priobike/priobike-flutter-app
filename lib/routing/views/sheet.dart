@@ -25,8 +25,7 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// A callback that is executed when a shortcut should be saved.
   final void Function() onSelectSaveButton;
 
-  const RouteDetailsBottomSheet({required this.onSelectStartButton, required this.onSelectSaveButton, Key? key})
-      : super(key: key);
+  const RouteDetailsBottomSheet({required this.onSelectStartButton, required this.onSelectSaveButton, super.key});
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();

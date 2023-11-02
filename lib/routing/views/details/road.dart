@@ -54,7 +54,7 @@ final roadClassColor = {
 };
 
 class RoadClassChart extends StatefulWidget {
-  const RoadClassChart({Key? key}) : super(key: key);
+  const RoadClassChart({super.key});
 
   @override
   RoadClassChartState createState() => RoadClassChartState();

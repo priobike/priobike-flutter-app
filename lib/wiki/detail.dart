@@ -8,7 +8,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/wiki/models/article.dart';
 
 class WikiDetailView extends StatefulWidget {
-  const WikiDetailView({Key? key, required this.article}) : super(key: key);
+  const WikiDetailView({super.key, required this.article});
 
   /// The article to be displayed.
   final Article article;

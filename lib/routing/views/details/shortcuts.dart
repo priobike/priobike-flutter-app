@@ -8,7 +8,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutsRow extends StatefulWidget {
-  const ShortcutsRow({Key? key}) : super(key: key);
+  const ShortcutsRow({super.key});
 
   @override
   ShortcutsState createState() => ShortcutsState();

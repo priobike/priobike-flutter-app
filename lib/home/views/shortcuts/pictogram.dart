@@ -12,12 +12,12 @@ class ShortcutRoutePictogram extends StatelessWidget {
   final Color color;
 
   const ShortcutRoutePictogram({
-    Key? key,
+    super.key,
     required this.shortcut,
     this.height = 200,
     this.width = 200,
     this.color = Colors.black,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

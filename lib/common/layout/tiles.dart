@@ -33,7 +33,7 @@ class Tile extends StatelessWidget {
   final Gradient? gradient;
 
   const Tile({
-    Key? key,
+    super.key,
     required this.content,
     this.onPressed,
     this.fill,
@@ -46,7 +46,7 @@ class Tile extends StatelessWidget {
     this.borderRadius = const BorderRadius.all(
       Radius.circular(24),
     ),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

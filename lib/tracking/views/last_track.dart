@@ -12,7 +12,7 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_details.dart';
 
 class LastTrackView extends StatefulWidget {
-  const LastTrackView({Key? key}) : super(key: key);
+  const LastTrackView({super.key});
 
   @override
   LastTrackViewState createState() => LastTrackViewState();

@@ -42,15 +42,14 @@ class TrackHistoryItemView extends StatefulWidget {
   final ui.Image destinationImage;
 
   const TrackHistoryItemView(
-      {Key? key,
+      {super.key,
       required this.track,
       required this.vincenty,
       required this.width,
       required this.height,
       required this.rightPad,
       required this.startImage,
-      required this.destinationImage})
-      : super(key: key);
+      required this.destinationImage});
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemViewState();

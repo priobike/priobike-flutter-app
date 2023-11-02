@@ -7,7 +7,7 @@ import 'package:priobike/weather/messages.dart';
 import 'package:priobike/weather/service.dart';
 
 class WeatherView extends StatefulWidget {
-  const WeatherView({Key? key}) : super(key: key);
+  const WeatherView({super.key});
 
   @override
   WeatherViewState createState() => WeatherViewState();

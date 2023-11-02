@@ -25,7 +25,7 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 
 class InternalSettingsView extends StatefulWidget {
-  const InternalSettingsView({Key? key}) : super(key: key);
+  const InternalSettingsView({super.key});
 
   @override
   InternalSettingsViewState createState() => InternalSettingsViewState();

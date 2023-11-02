@@ -291,7 +291,7 @@ class StatusHistoryChart extends StatefulWidget {
   /// If the card should be highlighted as a problematic.
   final bool isProblem;
 
-  const StatusHistoryChart({Key? key, required this.time, required this.isProblem}) : super(key: key);
+  const StatusHistoryChart({super.key, required this.time, required this.isProblem});
 
   @override
   StatusHistoryChartState createState() => StatusHistoryChartState();

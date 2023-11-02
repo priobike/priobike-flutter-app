@@ -14,7 +14,7 @@ import 'package:priobike/status/services/sg.dart';
 class NearbyResultsList extends StatelessWidget {
   final List<POIElement> results;
 
-  const NearbyResultsList({Key? key, required this.results}) : super(key: key);
+  const NearbyResultsList({super.key, required this.results});
 
   /// A POI list element.
   Widget poiListElement(BuildContext context, POIElement poi) {

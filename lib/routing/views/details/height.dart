@@ -9,7 +9,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RouteHeightChart extends StatefulWidget {
-  const RouteHeightChart({Key? key}) : super(key: key);
+  const RouteHeightChart({super.key});
 
   @override
   RouteHeightChartState createState() => RouteHeightChartState();

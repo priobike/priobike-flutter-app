@@ -40,7 +40,7 @@ final surfaceTypeColor = {
 };
 
 class SurfaceTypeChart extends StatefulWidget {
-  const SurfaceTypeChart({Key? key}) : super(key: key);
+  const SurfaceTypeChart({super.key});
 
   @override
   SurfaceTypeChartState createState() => SurfaceTypeChartState();

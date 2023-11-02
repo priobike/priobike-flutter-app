@@ -5,7 +5,7 @@ import 'package:priobike/wiki/articles.dart';
 import 'package:priobike/wiki/widgets/wiki_card.dart';
 
 class WikiView extends StatefulWidget {
-  const WikiView({Key? key}) : super(key: key);
+  const WikiView({super.key});
 
   @override
   WikiViewState createState() => WikiViewState();

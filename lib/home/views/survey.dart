@@ -10,7 +10,7 @@ class SurveyView extends StatefulWidget {
 
   final BorderRadius? borderRadius;
 
-  const SurveyView({Key? key, required this.dismissible, this.borderRadius}) : super(key: key);
+  const SurveyView({super.key, required this.dismissible, this.borderRadius});
 
   @override
   State<StatefulWidget> createState() => SurveyViewState();

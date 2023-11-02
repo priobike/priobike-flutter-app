@@ -99,7 +99,7 @@ class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {

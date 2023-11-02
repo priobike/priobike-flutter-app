@@ -11,8 +11,8 @@ class LicenseView extends StatelessWidget {
   const LicenseView({
     this.appName,
     this.appVersion,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

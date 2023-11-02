@@ -29,7 +29,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RoutingView extends StatefulWidget {
-  const RoutingView({Key? key}) : super(key: key);
+  const RoutingView({super.key});
 
   @override
   State<StatefulWidget> createState() => RoutingViewState();

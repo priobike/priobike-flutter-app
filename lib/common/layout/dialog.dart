@@ -119,13 +119,13 @@ class DialogLayout extends StatefulWidget {
   final List<Widget>? actions;
 
   const DialogLayout({
-    Key? key,
+    super.key,
     required this.title,
     required this.text,
     required this.actions,
     this.icon,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => DialogLayoutState();

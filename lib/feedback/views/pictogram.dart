@@ -11,12 +11,12 @@ class TrackPictogram extends StatefulWidget {
   final double blurRadius;
 
   const TrackPictogram({
-    Key? key,
+    super.key,
     required this.track,
     required this.blurRadius,
     this.minSpeedColor = Colors.green,
     this.maxSpeedColor = Colors.red,
-  }) : super(key: key);
+  });
 
   @override
   TrackPictogramState createState() => TrackPictogramState();

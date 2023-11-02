@@ -45,7 +45,7 @@ import 'package:priobike/wiki/view.dart';
 const List<int> askRateAppList = [5, 10, 20, 40, 60, 100, 150, 200, 300];
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   HomeViewState createState() => HomeViewState();

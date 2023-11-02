@@ -35,11 +35,11 @@ class TrackDetailsDialog extends StatelessWidget {
   final ui.Image destinationImage;
 
   const TrackDetailsDialog({
-    Key? key,
+    super.key,
     required this.track,
     required this.startImage,
     required this.destinationImage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +71,11 @@ class TrackDetailsView extends StatefulWidget {
   final ui.Image destinationImage;
 
   const TrackDetailsView({
-    Key? key,
+    super.key,
     required this.track,
     required this.startImage,
     required this.destinationImage,
-  }) : super(key: key);
+  });
 
   @override
   TrackDetailsViewState createState() => TrackDetailsViewState();
@@ -156,6 +156,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
             altitude: 0,
             heading: 0,
             speedAccuracy: 0,
+            altitudeAccuracy: 0,
+            headingAccuracy: 0,
           ),
         );
       }

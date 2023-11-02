@@ -16,7 +16,7 @@ class ScanQRCodeView extends StatefulWidget {
   /// Called when a QR code has been scanned.
   final void Function(Shortcut shortcut) onScan;
 
-  const ScanQRCodeView({Key? key, required this.onScan}) : super(key: key);
+  const ScanQRCodeView({super.key, required this.onScan});
 
   @override
   ScanQRCodeViewState createState() => ScanQRCodeViewState();

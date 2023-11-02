@@ -24,7 +24,7 @@ class RideMapView extends StatefulWidget {
   /// If the map should follow the user location.
   final bool cameraFollowUserLocation;
 
-  const RideMapView({Key? key, required this.onMapMoved, required this.cameraFollowUserLocation}) : super(key: key);
+  const RideMapView({super.key, required this.onMapMoved, required this.cameraFollowUserLocation});
 
   @override
   State<StatefulWidget> createState() => RideMapViewState();

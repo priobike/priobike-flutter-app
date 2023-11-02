@@ -27,8 +27,8 @@ class SmallIconButton extends StatelessWidget {
     this.fill,
     this.splash,
     this.withBorder = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +77,8 @@ class AppBackButton extends StatelessWidget {
     this.icon = Icons.chevron_left,
     required this.onPressed,
     this.elevation,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +132,7 @@ class BigButton extends StatelessWidget {
   final double elevation;
 
   const BigButton({
-    Key? key,
+    super.key,
     this.icon,
     required this.label,
     required this.onPressed,
@@ -141,7 +141,7 @@ class BigButton extends StatelessWidget {
     this.iconColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +230,7 @@ class IconTextButton extends StatelessWidget {
   final Color? textColor;
 
   const IconTextButton({
-    Key? key,
+    super.key,
     this.icon,
     required this.label,
     required this.onPressed,
@@ -240,7 +240,7 @@ class IconTextButton extends StatelessWidget {
     this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
     this.borderColor,
     this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
