@@ -148,7 +148,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         height: (routing.selectedWaypoints?.length ?? 0) * 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: CI.blue,
+          color: CI.route,
         ),
       ),
       Column(
@@ -215,10 +215,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   ),
                   TextSpan(
                     text: textTrafficLights,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.brightness == Brightness.dark
-                          ? const Color.fromARGB(255, 0, 255, 106)
-                          : const Color.fromARGB(255, 0, 220, 92),
+                    style: const TextStyle(
+                      color: CI.radkulturGreen,
                     ),
                   ),
                 ]),
@@ -308,7 +306,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
                     const TutorialView(
                       id: "priobike.tutorial.draw-waypoints",
-                      text: "Durch langes Drücken auf die Karte kannst du direkt einen Wegpunkt platzieren.",
+                      text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
                       padding: EdgeInsets.only(left: 18),
                     ),
                   const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),

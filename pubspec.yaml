@@ -66,6 +66,11 @@ dependencies:
   qr_code_scanner: ^1.0.1 # Used to scan QR codes
   url_launcher: ^6.1.10 # Used to open URLs
   in_app_review: ^2.0.6 # Used to rate the app
+  proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
+  drift: ^2.8.0 # Used for the local database
+  sqlite3_flutter_libs: ^0.5.0 # Needed for the drift database which is based on sqlite
+  path: ^1.8.2 # Used to determine the database file location
+  fl_chart: ^0.64.0 # Used to display the ride statistics in the gamification views
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Generate app icons
@@ -78,16 +83,18 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
+  drift_dev: ^2.8.0 # Used for the sqlite database
+  build_runner: ^2.3.0 # Used to generate code with the drift package
 
 # Configuration of the splash screens.
 flutter_native_splash:
-  color: "#0073ff" # Color in light mode
-  color_dark: "#0073ff" # Color in dark mode
+  color: "#FA1E41" # Color in light mode
+  color_dark: "#FA1E41" # Color in dark mode
   image: assets/splash.png # Icon to display in the center
   image_dark: assets/splash.png # be default this should be equal to 'image' ... but for some reason it's not.
   android_12: #The Android 12 splash screen requires an app icon without an icon background, which should be 1152×1152 pixels in size and fit into a circle 768 pixels in diameter.
-    image: assets/splash_android_12.png # Icon to display in the center
-    image_dark: assets/splash_android_12.png # be default this should be equal to 'image' ... but for some reason it's not.
+    image: assets/splash.png # Icon to display in the center
+    image_dark: assets/splash.png # be default this should be equal to 'image' ... but for some reason it's not.
 
 # Configuration of the app icons.
 flutter_icons:
@@ -109,6 +116,9 @@ flutter:
         - asset: assets/fonts/HamburgSans-BoldItalic.ttf
           weight: 700
           style: italic
+    - family:  CustomGameIcons
+      fonts:
+        - asset: assets/fonts/CustomGameIcons.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -142,7 +152,6 @@ flutter:
     # Map symbols & Navigation icons
     - assets/images/
     - assets/images/trafficlights/
-
 
     # Screenshots
     - assets/images/screenshots/

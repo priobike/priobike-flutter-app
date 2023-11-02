@@ -22,7 +22,7 @@ class NearbyResultsList extends StatelessWidget {
       color: Theme.of(context).colorScheme.background,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        splashColor: Theme.of(context).colorScheme.primary,
+        splashColor: Theme.of(context).colorScheme.surfaceTint,
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -65,8 +65,8 @@ class NearbyResultsList extends StatelessWidget {
                   if (poi.distance != null)
                     poi.distance! >= 1000
                         ? (Small(
-                            text: "${(poi.distance! / 1000).toStringAsFixed(1)} km von dir entfernt", context: context))
-                        : (Small(text: "${poi.distance!.toStringAsFixed(0)} m von dir entfernt", context: context)),
+                            text: "${(poi.distance! / 1000).toStringAsFixed(1)} km von Dir entfernt", context: context))
+                        : (Small(text: "${poi.distance!.toStringAsFixed(0)} m von Dir entfernt", context: context)),
                 ],
               ),
               Icon(

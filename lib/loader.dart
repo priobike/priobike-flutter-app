@@ -7,7 +7,10 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -20,7 +23,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -61,33 +63,45 @@ class LoaderState extends State<Loader> {
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Load all other services.
+    // We have 2 types of services:
+    // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
+    // 2. Services that are not critically needed.
+    // Loader-functions for non-critical services should handle their own errors
+    // while critical services should throw their errors.
+
     try {
-      // Load local stuff.
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
-      await getIt<Statistics>().loadStatistics();
       await getIt<Layers>().loadPreferences();
       await getIt<MapDesigns>().loadPreferences();
+
       final tracking = getIt<Tracking>();
       await tracking.loadPreviousTracks();
       await tracking.runUploadRoutine();
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
-      // Load stuff from the server.
-      final news = getIt<News>();
-      await news.getArticles();
-      if (!news.hasLoaded) log.i("Could not load news");
-      final predictionStatusSummary = getIt<PredictionStatusSummary>();
-      await predictionStatusSummary.fetch();
-      if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final statusHistory = getIt<StatusHistory>();
-      await statusHistory.fetch();
-      final weather = getIt<Weather>();
-      await weather.fetch();
+
+      await getIt<News>().getArticles();
+
+      final preditionStatusSummary = getIt<PredictionStatusSummary>();
+      await preditionStatusSummary.fetch();
+      if (preditionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
+
+      await getIt<StatusHistory>().fetch();
+      await getIt<Weather>().fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
+      await getIt<EventService>().fetchData();
+      await MapboxTileImageCache.pruneUnusedImages();
+      getIt<EvaluationDataService>().sendUnsentElements();
+
+      // Only allow portrait mode.
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+
       settings.incrementUseCounter();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      log.e("Error while loading services $e\n $stacktrace");
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();
@@ -140,14 +154,15 @@ class LoaderState extends State<Loader> {
         return DialogLayout(
           title: 'Persönliche Daten zurücksetzen',
           text:
-              "Sind sie sich sicher, dass sie ihre persönlichen Daten zurücksetzen wollen? Nach dem Bestätigen werden ihre Daten unwiderruflich verworfen. Dazu gehören unter Anderem ihre erstellten Routen.",
+              "Bist Du Dir sicher, dass Du Deine persönlichen Daten zurücksetzen willst? Nach dem Bestätigen werden Deine Daten unwiderruflich verworfen. Dazu gehören unter anderem Deine erstellten Routen.",
           icon: Icons.delete_forever_rounded,
-          iconColor: CI.red,
+          iconColor: CI.radkulturYellow,
           actions: [
             BigButton(
-              iconColor: Colors.white,
+              iconColor: Colors.black,
+              textColor: Colors.black,
               icon: Icons.delete_forever_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
               label: "Zurücksetzen",
               onPressed: () async {
                 await _resetData();
@@ -183,29 +198,7 @@ class LoaderState extends State<Loader> {
             margin: shouldMorph
                 ? EdgeInsets.only(bottom: frame.size.height - frame.padding.top - 128)
                 : const EdgeInsets.only(top: 0),
-            decoration: shouldMorph
-                ? const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                      stops: [
-                        0.1,
-                        0.9,
-                      ],
-                      colors: [CI.blueLight, CI.blue],
-                    ),
-                  )
-                : const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                      stops: [
-                        0.1,
-                        0.9,
-                      ],
-                      colors: [CI.blue, CI.blue],
-                    ),
-                  ),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         AnimatedSwitcher(
@@ -236,7 +229,7 @@ class LoaderState extends State<Loader> {
                             textAlign: TextAlign.center,
                           ),
                           Content(
-                            text: "Prüfe deine Verbindung und versuche es später erneut.",
+                            text: "Prüfe Deine Verbindung und versuche es später erneut.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),

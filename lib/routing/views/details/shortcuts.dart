@@ -44,8 +44,7 @@ class ShortcutsState extends State<ShortcutsRow> {
 
   /// Load route from shortcuts.
   _loadShortcutsRoute(Shortcut shortcut) async {
-    final waypoints = shortcut.getWaypoints();
-    routing.selectWaypoints(waypoints);
+    routing.selectShortcut(shortcut);
     await routing.loadRoutes();
   }
 
@@ -54,8 +53,8 @@ class ShortcutsState extends State<ShortcutsRow> {
       margin: const EdgeInsets.only(left: 8),
       child: Tile(
         onPressed: () => _loadShortcutsRoute(shortcut),
-        fill: Theme.of(context).colorScheme.background,
-        splash: Theme.of(context).brightness == Brightness.light ? Colors.grey : Colors.white,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
+        splash: Theme.of(context).colorScheme.surfaceTint,
         shadowIntensity: 0,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         borderRadius: BorderRadius.circular(12),

@@ -1,11 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 
 class LayerSelectionView extends StatefulWidget {
@@ -22,8 +27,52 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   /// The map designs service, which is injected by the provider.
   late MapDesigns mapDesigns;
 
+  /// The future of the background images by map design name.
+  Map<String, Future<MemoryImage?>> screenshotFutures = {};
+
+  /// The background images by map design.
+  Map<MapDesign, MemoryImage> screenshots = {};
+
+  /// How many screenshots we have already fetched (if counter is same as count of designs we have finished loading).
+  int loadingCounter = 0;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
+
+  void loadScreenshots() {
+    for (final design in MapDesign.designs) {
+      Future<MemoryImage?>? screenshotFuture = screenshotFutures[design.name];
+      if (screenshotFuture != null) {
+        screenshotFuture.ignore();
+      }
+
+      List<LatLng> coords;
+      final boundingBox = getIt<Boundary>().getRoughBoundingBox();
+      final latDiff = boundingBox["maxLat"]! - boundingBox["minLat"]!;
+      final lonDiff = boundingBox["maxLon"]! - boundingBox["minLon"]!;
+      const zoomFactor = 0.495;
+      coords = [
+        LatLng(boundingBox["minLat"]! + latDiff * zoomFactor, boundingBox["minLon"]! + lonDiff * zoomFactor),
+        LatLng(boundingBox["maxLat"]! - latDiff * zoomFactor, boundingBox["maxLon"]! - lonDiff * zoomFactor),
+      ];
+
+      final styleUri = Theme.of(context).brightness == Brightness.light ? design.lightStyle : design.darkStyle;
+
+      final future = MapboxTileImageCache.requestTile(
+        coords: coords,
+        brightness: Theme.of(context).brightness,
+        styleUri: styleUri,
+      ).then((image) {
+        if (image == null) return;
+        setState(() {
+          screenshots[design] = image;
+          loadingCounter++;
+        });
+      });
+
+      screenshotFutures[design.name] = future;
+    }
+  }
 
   @override
   void initState() {
@@ -33,12 +82,19 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
     layers.addListener(update);
     mapDesigns = getIt<MapDesigns>();
     mapDesigns.addListener(update);
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      loadScreenshots();
+    });
   }
 
   @override
   void dispose() {
     layers.removeListener(update);
     mapDesigns.removeListener(update);
+    for (final future in screenshotFutures.values) {
+      future.ignore();
+    }
     super.dispose();
   }
 
@@ -144,19 +200,31 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
               physics: const NeverScrollableScrollPhysics(),
-              children: MapDesign.designs
-                  .map(
-                    (design) => LayerSelectionItem(
-                      isScreenshot: true,
-                      icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                          ? Image.asset(design.lightScreenshot)
-                          : Image.asset(design.darkScreenshot),
-                      title: design.name,
-                      selected: mapDesigns.mapDesign == design,
-                      onTap: () => mapDesigns.setMapDesign(design),
-                    ),
-                  )
-                  .toList(),
+              children: loadingCounter >= MapDesign.designs.length
+                  ? MapDesign.designs
+                      .map(
+                        (design) => LayerSelectionItem(
+                          isScreenshot: true,
+                          icon: !screenshots.containsKey(design) || screenshots[design] == null
+                              ? Theme.of(context).colorScheme.brightness == Brightness.light
+                                  ? Image.asset(design.fallbackLightScreenshot)
+                                  : Image.asset(design.fallbackDarkScreenshot)
+                              : Image.memory(screenshots[design]!.bytes),
+                          title: design.name,
+                          selected: mapDesigns.mapDesign == design,
+                          onTap: () => mapDesigns.setMapDesign(design),
+                        ),
+                      )
+                      .toList()
+                  : [
+                      LayerSelectionItem(
+                        isScreenshot: false,
+                        icon: const SizedBox(),
+                        title: "Lädt..",
+                        selected: false,
+                        onTap: () => {},
+                      )
+                    ],
             ),
             const VSpace(),
           ],
@@ -167,10 +235,19 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
 }
 
 class LayerSelectionItem extends StatelessWidget {
+  /// Whether the item is a screenshot of the map.
   final bool isScreenshot;
-  final Image icon;
+
+  /// The icon of the item.
+  final Widget icon;
+
+  /// The title of the item.
   final String title;
+
+  /// Whether the item is selected.
   final bool selected;
+
+  /// The callback that will be executed when the item is tapped.
   final void Function() onTap;
 
   const LayerSelectionItem({
@@ -189,8 +266,8 @@ class LayerSelectionItem extends StatelessWidget {
         Tile(
           padding: const EdgeInsets.all(0),
           borderRadius: BorderRadius.circular(26),
-          splash: Theme.of(context).colorScheme.primary,
-          fill: Theme.of(context).colorScheme.surface,
+          splash: Theme.of(context).colorScheme.surfaceTint,
+          fill: Theme.of(context).colorScheme.surfaceVariant,
           onPressed: onTap,
           content: Container(
             width: double.infinity,
@@ -257,6 +334,12 @@ class LayerSelectionItem extends StatelessWidget {
               ),
               child: const Icon(Icons.check, color: Colors.white, size: 16),
             ),
+          ),
+        //Mapbox Attribution Logo
+        if (isScreenshot)
+          const MapboxAttribution(
+            top: 12,
+            right: 12,
           ),
       ],
     );

@@ -164,7 +164,6 @@ class Tracking with ChangeNotifier {
   /// Save the previous tracks to the shared preferences.
   Future<void> savePreviousTracks() async {
     if (previousTracks == null) return;
-    if (previousTracks!.isEmpty) return; // Avoid deleting all tracks.
     final prefs = await SharedPreferences.getInstance();
     final json = previousTracks!.map((e) => jsonEncode(e.toJson())).toList();
     await prefs.setStringList("priobike.tracking.tracks", json);
@@ -532,10 +531,22 @@ class Tracking with ChangeNotifier {
     log.i("Deleting track with id ${track.sessionId}.");
     // Delete the track files.
     final directory = await track.trackDirectory;
-    if (await directory.exists()) {
-      await directory.delete(recursive: true);
-    }
+    if (await directory.exists()) await directory.delete(recursive: true);
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
+    await savePreviousTracks();
+    notifyListeners();
+  }
+
+  /// Delete all tracks.
+  Future<void> deleteAllTracks() async {
+    if (previousTracks != null || previousTracks!.isNotEmpty) {
+      log.i("Deleting all tracks.");
+      for (final Track track in previousTracks!) {
+        final directory = await track.trackDirectory;
+        if (await directory.exists()) await directory.delete(recursive: true);
+      }
+      previousTracks?.clear();
+    }
     await savePreviousTracks();
     notifyListeners();
   }

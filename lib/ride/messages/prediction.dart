@@ -45,16 +45,15 @@ extension PhaseColor on Phase {
       case Phase.dark:
         return const Color(0xFF000000);
       case Phase.red:
-        return CI.red;
+        return CI.radkulturRed;
       case Phase.amber:
-        return const Color.fromARGB(255, 255, 251, 0);
+        return CI.radkulturYellow;
       case Phase.green:
-        // Don't use the CI green here.
         return const Color.fromARGB(255, 0, 255, 106);
       case Phase.redAmber:
-        return const Color.fromARGB(255, 255, 251, 0);
+        return CI.radkulturYellow;
       case Phase.amberFlashing:
-        return const Color.fromARGB(255, 255, 251, 0);
+        return CI.radkulturYellow;
       case Phase.greenFlashing:
         return const Color.fromARGB(255, 0, 255, 106);
     }

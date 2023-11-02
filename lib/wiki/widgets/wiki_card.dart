@@ -59,7 +59,7 @@ class WikiCardState extends State<WikiCard> {
               height: 8,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(4)),
-                color: CI.blue,
+                color: CI.radkulturRed,
               ),
             ),
           ],

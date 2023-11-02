@@ -19,7 +19,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
       return DialogLayout(
         title: 'Fahrt abgebrochen',
         text:
-            "Die letzte Fahrt wurde unerwartet beendet. Willst du die Navigation der Route fortsetzen oder die Route speichern?",
+            "Die letzte Fahrt wurde unerwartet beendet. Willst Du die Navigation der Route fortsetzen oder die Route speichern?",
         icon: Icons.warning_rounded,
         iconColor: Theme.of(context).colorScheme.primary,
         actions: [
@@ -37,11 +37,12 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
                 await routing.switchToRoute(lastRouteID);
               }
               if (context.mounted && routing.selectedRoute != null) {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) => const RideView(),
                   ),
+                  (route) => false,
                 );
               } else {
                 // In case there is any error fetching the route.
@@ -60,7 +61,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             icon: Icons.save_rounded,
             label: "Speichern",
             onPressed: () {
-              ShortcutRoute shortcutRoute = ShortcutRoute(name: "", waypoints: lastRoute);
+              ShortcutRoute shortcutRoute = ShortcutRoute(id: UniqueKey().toString(), name: "", waypoints: lastRoute);
               // Set waypoints and load ride view.
               Navigator.pop(context);
               showSaveShortcutSheet(context, shortcut: shortcutRoute);

@@ -185,6 +185,32 @@ class RideMapViewState extends State<RideMapView> {
 
     const vincenty = Distance(roundResult: false);
 
+    // Portrait/landscape mode
+    final orientation = MediaQuery.of(context).orientation;
+    final mapbox.MbxEdgeInsets padding;
+    if (orientation == Orientation.portrait) {
+      padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0);
+    } else {
+      // Landscape-Mode: Set user-puk to the left and a little down
+      // The padding must be different if battery save mode is enabled by user because the map is rendered differently
+      final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
+      final deviceWidth = MediaQuery.of(context).size.width;
+      final deviceHeight = MediaQuery.of(context).size.height;
+      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+      if (isBatterySaveModeEnabled) {
+        if (Platform.isAndroid) {
+          padding = mapbox.MbxEdgeInsets(
+              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.18);
+        } else {
+          padding =
+              mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
+        }
+      } else {
+        padding =
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
+      }
+    }
+
     if (routing.hadErrorDuringFetch) {
       // If there was an error during fetching, we don't have a route and thus also can't snap the position.
       // We can only try to display the real user position.
@@ -198,6 +224,7 @@ class RideMapViewState extends State<RideMapView> {
             bearing: userPos.heading,
             zoom: 16,
             pitch: 60,
+            padding: padding,
           ),
           mapbox.MapAnimationOptions(duration: 1500));
       await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
@@ -258,6 +285,7 @@ class RideMapViewState extends State<RideMapView> {
             bearing: cameraHeading,
             zoom: zoom,
             pitch: 60,
+            padding: padding,
           ),
           mapbox.MapAnimationOptions(duration: 1500));
     }
@@ -435,13 +463,44 @@ class RideMapViewState extends State<RideMapView> {
         if (!mounted) return;
         final isDark = Theme.of(context).brightness == Brightness.dark;
         await TrafficLightLayer(isDark).update(mapController!);
-        await mapController?.flyTo(
-          mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
-            padding: mapbox.MbxEdgeInsets(bottom: 200, top: 0, left: 0, right: 0),
-          ),
-          mapbox.MapAnimationOptions(duration: 200),
-        );
+
+        if (mounted) {
+          // Portrait/landscape mode
+          final orientation = MediaQuery.of(context).orientation;
+          final mapbox.MbxEdgeInsets padding;
+
+          if (orientation == Orientation.portrait) {
+            padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 200, right: 0);
+          } else {
+            // Landscape-Mode: Set user-puk to the left and a little down
+            // The padding must be different if battery save mode is enabled by user because the map is rendered differently
+            final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
+            final deviceWidth = MediaQuery.of(context).size.width;
+            final deviceHeight = MediaQuery.of(context).size.height;
+            final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+            if (isBatterySaveModeEnabled) {
+              if (Platform.isAndroid) {
+                padding = mapbox.MbxEdgeInsets(
+                    top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.165);
+              } else {
+                padding = mapbox.MbxEdgeInsets(
+                    top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.42);
+              }
+            } else {
+              padding = mapbox.MbxEdgeInsets(
+                  top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.42);
+            }
+          }
+
+          await mapController?.flyTo(
+            mapbox.CameraOptions(
+              center:
+                  mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+              padding: padding,
+            ),
+            mapbox.MapAnimationOptions(duration: 200),
+          );
+        }
       }
     }
   }
@@ -453,7 +512,7 @@ class RideMapViewState extends State<RideMapView> {
     // If this is fixed in an upcoming version of the Mapbox plugin, we may be able to remove those workaround adjustments
     // below.
     double marginYLogo = frame.padding.top;
-    double marginYAttribution = 0.0;
+    final double marginYAttribution;
     if (Platform.isAndroid) {
       final ppi = frame.devicePixelRatio;
       marginYLogo = marginYLogo * ppi;

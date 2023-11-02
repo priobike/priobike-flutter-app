@@ -1,16 +1,18 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
@@ -26,9 +28,6 @@ class AllTracksHistoryView extends StatefulWidget {
 }
 
 class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
-  /// The distance model.
-  final vincenty = const Distance(roundResult: false);
-
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
@@ -117,15 +116,18 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       }
     }
 
+    // Add the size of all saved background images.
+    bytes += await MapboxTileImageCache.calculateTotalSize();
+
     // Format the bytes.
     if (bytes < 1000) {
       usedDiskSpace = "${bytes.toStringAsFixed(0)} Byte";
     } else if (bytes < 1000000) {
-      usedDiskSpace = "${(bytes / 1000).toStringAsFixed(0)} KB";
+      usedDiskSpace = "${(bytes / 1000).toStringAsFixed(2)} KB";
     } else if (bytes < 1000000000) {
-      usedDiskSpace = "${(bytes / 1000000).toStringAsFixed(0)} MB";
+      usedDiskSpace = "${(bytes / 1000000).toStringAsFixed(2)} MB";
     } else {
-      usedDiskSpace = "${(bytes / 1000000000).toStringAsFixed(0)} GB";
+      usedDiskSpace = "${(bytes / 1000000000).toStringAsFixed(2)} GB";
     }
   }
 
@@ -135,13 +137,52 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     super.dispose();
   }
 
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Alle Fahrten löschen',
+          text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
+          icon: Icons.delete_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            BigButton(
+              iconColor: Colors.black,
+              icon: Icons.delete_forever_rounded,
+              fillColor: CI.radkulturYellow,
+              textColor: Colors.black,
+              label: "Löschen",
+              onPressed: () {
+                tracking.deleteAllTracks();
+                update();
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+            BigButton(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final shortcutWidth = MediaQuery.of(context).size.width / 2;
-    final shortcutHeight = max(shortcutWidth, 128.0);
+    const double shortcutRightPad = 16;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: Fade(
           child: SingleChildScrollView(
@@ -154,20 +195,24 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                       AppBackButton(onPressed: () => Navigator.pop(context)),
                       const HSpace(),
                       SubHeader(text: "Alle Fahrten", context: context),
+                      const Spacer(),
+                      if (previousTracks.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: shortcutRightPad),
+                          child: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => showDeleteDialog(context),
+                          ),
+                        ),
                     ],
                   ),
                   const VSpace(),
                   if ((tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) &&
                       (startImage != null && destinationImage != null))
                     HPad(
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        crossAxisSpacing: 8,
-                        padding: EdgeInsets.zero,
-                        mainAxisSpacing: 0,
-                        crossAxisCount: 2,
-                        physics: const NeverScrollableScrollPhysics(),
-                        childAspectRatio: 0.85,
+                      child: Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
                         children: previousTracks
                             .asMap()
                             .entries
@@ -176,13 +221,10 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                                 duration: const Duration(milliseconds: 500),
                                 curve: Curves.easeInOutCubic,
                                 delay: Duration(milliseconds: 200 * track.key),
-                                child: TrackHistoryItemView(
-                                  key: UniqueKey(),
+                                child: TrackHistoryItemTileView(
+                                  key: ValueKey(track.value.sessionId),
                                   track: track.value,
                                   width: shortcutWidth,
-                                  height: shortcutHeight,
-                                  rightPad: 0,
-                                  vincenty: vincenty,
                                   startImage: startImage!,
                                   destinationImage: destinationImage!,
                                 ),
@@ -199,7 +241,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                         curve: Curves.easeInOutCubic,
                         delay: Duration(milliseconds: 200 * previousTracks.length),
                         child: Content(
-                          text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
+                          text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                           textAlign: TextAlign.center,

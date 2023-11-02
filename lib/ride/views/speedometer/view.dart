@@ -16,6 +16,7 @@ import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
+import 'package:priobike/ride/views/speedometer/shadow.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -223,50 +224,48 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   Widget build(BuildContext context) {
     final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
 
-    final originalSpeedometerHeight = MediaQuery.of(context).size.width;
-    final originalSpeedometerWidth = MediaQuery.of(context).size.width;
-
     final remainingDistance =
         (((ride.route?.path.distance ?? 0.0) - (positioning.snap?.distanceOnRoute ?? 0.0)) / 1000).abs();
     final remainingMinutes = remainingDistance / (18 / 60);
     final timeOfArrival = DateTime.now().add(Duration(minutes: remainingMinutes.toInt()));
 
-    final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
-
     final showAlert = routing.hadErrorDuringFetch;
+
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscapeMode = orientation == Orientation.landscape;
+    final double originalSpeedometerHeight;
+    final double originalSpeedometerWidth;
+    final double sizedBoxHeight;
+    final double? sizedBoxWidth;
+
+    if (orientation == Orientation.portrait) {
+      // Portrait mode
+      originalSpeedometerHeight = MediaQuery.of(context).size.width;
+      originalSpeedometerWidth = MediaQuery.of(context).size.width;
+      sizedBoxHeight = widget.puckHeight;
+      sizedBoxWidth = null;
+    } else {
+      // Landscape mode
+      originalSpeedometerHeight = MediaQuery.of(context).size.height;
+      originalSpeedometerWidth = MediaQuery.of(context).size.height;
+      sizedBoxHeight = originalSpeedometerHeight;
+      sizedBoxWidth = originalSpeedometerWidth;
+    }
+    final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
 
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        Container(
-          height: originalSpeedometerHeight,
-          width: originalSpeedometerWidth,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                  ? [
-                      Colors.black.withOpacity(0),
-                      Colors.black.withOpacity(0.5),
-                      Colors.black,
-                    ]
-                  : [
-                      Colors.black.withOpacity(0.0),
-                      Colors.black.withOpacity(0.1),
-                      Colors.black,
-                    ],
-              stops: Theme.of(context).colorScheme.brightness == Brightness.dark
-                  ? const [0.1, 0.3, 0.5] // Dark theme
-                  : const [0.0, 0.1, 0.8], // Light theme
-            ),
-          ),
-        ),
+        isLandscapeMode
+            ? Container()
+            : SpeedometerLinearShadow(
+                originalSpeedometerHeight: originalSpeedometerHeight,
+                originalSpeedometerWidth: originalSpeedometerWidth),
         SafeArea(
           bottom: true,
           child: SizedBox(
-            height: widget.puckHeight,
+            height: sizedBoxHeight,
+            width: sizedBoxWidth,
             child: FittedBox(
               fit: BoxFit.contain,
               child: SizedBox(
@@ -275,6 +274,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
+                    if (isLandscapeMode)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: SpeedometerRadialShadow(size: size),
+                        ),
+                      ),
                     if (showAlert)
                       Transform.translate(
                         offset: const Offset(0, 42),
@@ -289,8 +295,15 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         // When the user taps on the speedometer, we want to set the speed to the tapped speed.
                         onTapUp: (details) {
                           // Get the center of the speedometer
-                          final xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
-                          final yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
+                          final double xRel;
+                          final double yRel;
+                          if (isLandscapeMode) {
+                            xRel = details.localPosition.dx / MediaQuery.of(context).size.height;
+                            yRel = details.localPosition.dy / MediaQuery.of(context).size.height;
+                          } else {
+                            xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
+                            yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
+                          }
                           // Transform the angle of the tapped position into an intuitive angle system:
                           // 0 deg is south, 90 deg is west, 180 deg is north, 270 deg is east.
                           final angleDeg = atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
@@ -304,7 +317,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            CustomPaint(painter: SpeedometerCoverPainter()),
+                            if (!isLandscapeMode) CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               size: size,
                               painter: SpeedometerBackgroundPainter(

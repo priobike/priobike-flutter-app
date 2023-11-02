@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -23,7 +22,7 @@ class NavBarView extends StatelessWidget {
     final settings = getIt<Settings>();
     return SliverAppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.secondary,
+      foregroundColor: Colors.white,
       pinned: true,
       snap: false,
       floating: false,
@@ -41,17 +40,6 @@ class NavBarView extends StatelessWidget {
             right: 24,
             bottom: 32,
             top: MediaQuery.of(context).padding.top + 14,
-          ),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              stops: [
-                0.1,
-                0.9,
-              ],
-              colors: [CI.blueLight, CI.blue],
-            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +82,7 @@ class NavBarView extends StatelessWidget {
               SmallIconButton(
                 icon: Icons.settings_rounded,
                 color: Colors.white,
-                splash: Colors.white,
+                splash: Theme.of(context).colorScheme.surfaceTint,
                 fill: const Color.fromARGB(50, 255, 255, 255),
                 onPressed: () {
                   onTapSettingsButton?.call();

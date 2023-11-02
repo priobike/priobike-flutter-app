@@ -1,10 +1,8 @@
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -24,12 +22,6 @@ class TrackHistoryView extends StatefulWidget {
 }
 
 class TrackHistoryViewState extends State<TrackHistoryView> {
-  /// The distance model.
-  final vincenty = const Distance(roundResult: false);
-
-  /// The left padding.
-  double leftPad = 24;
-
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
@@ -56,18 +48,13 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   /// Load the routes.
   Future<void> loadRoutes() async {
-    if (tracking.previousTracks == null) {
-      return;
-    }
-    if (tracking.previousTracks!.isEmpty) {
-      return;
-    }
+    if (tracking.previousTracks == null) return;
 
     newestTracks.clear();
     totalTracks = 0;
 
     // Get max. 10 newest tracks
-    var i = tracking.previousTracks!.length - 2;
+    var i = tracking.previousTracks!.length - 1;
     final backend = getIt<Settings>().backend;
     while (i >= 0) {
       if (tracking.previousTracks![i].backend == backend) {
@@ -117,35 +104,26 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
-    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
-    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+    if (startImage == null || destinationImage == null) return Container();
+    if (newestTracks.isEmpty) return Container();
 
-    if (startImage == null || destinationImage == null) {
-      return Container();
-    }
-
-    if (newestTracks.isEmpty) {
-      return Container();
-    }
+    const double shortcutRightPad = 12;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
 
     List<Widget> views = [
       AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOutCubic,
-        padding: EdgeInsets.only(left: leftPad),
+        padding: const EdgeInsets.only(left: 12),
       ),
     ];
 
     views += newestTracks
         .map(
-          (track) => TrackHistoryItemView(
+          (track) => TrackHistoryItemTileView(
             key: UniqueKey(),
             track: track,
             width: shortcutWidth,
-            height: shortcutHeight,
-            rightPad: shortcutRightPad,
-            vincenty: vincenty,
             startImage: startImage!,
             destinationImage: destinationImage!,
           ),
@@ -153,8 +131,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         .toList();
 
     // Show a hint for the other tracks if there are more than 10.
-    // We need "+ 1" because the newest track in the larger view above is not in the newestTracks list.
-    if ((newestTracks.length + 1) < totalTracks) {
+    if (newestTracks.length < totalTracks) {
       views.add(
         Align(
           alignment: Alignment.center,
@@ -170,15 +147,21 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
       );
     }
 
+    // Pad a bit more to the right
+    views.add(const SizedBox(width: 4));
+
     List<Widget> animatedViews = views
         .asMap()
         .entries
         .map(
-          (e) => BlendIn(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOutCubic,
-            delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
-            child: e.value,
+          (e) => Padding(
+            padding: const EdgeInsets.only(right: 12.0),
+            child: BlendIn(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
+              delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
+              child: e.value,
+            ),
           ),
         )
         .toList();
@@ -191,14 +174,14 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
             children: [
               const SizedBox(width: 42),
               BoldContent(
-                text: "Vorherige Fahrten",
+                text: "Letzte Fahrten",
                 context: context,
               ),
               Expanded(child: Container()),
               IconTextButton(
                 label: "Alle anzeigen",
-                fillColor: Theme.of(context).colorScheme.background,
-                splashColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                splashColor: Theme.of(context).colorScheme.surfaceTint,
                 borderColor: Theme.of(context).brightness == Brightness.dark
                     ? Colors.white.withOpacity(0.08)
                     : Colors.black.withOpacity(0.08),
@@ -206,14 +189,18 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                 onPressed: () =>
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
               ),
-              const SizedBox(width: 32),
+              const SizedBox(width: 24),
             ],
           ),
         ),
         const VSpace(),
         SingleChildScrollView(
+          // Padding is necessary for Shadow in LightMode
+          padding: const EdgeInsets.only(bottom: 18),
           scrollDirection: Axis.horizontal,
-          child: Row(children: animatedViews),
+          child: Row(
+            children: animatedViews,
+          ),
         ),
         const VSpace(),
       ],

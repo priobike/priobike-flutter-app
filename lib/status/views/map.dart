@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -94,13 +94,13 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           -1,
           "#000000",
           0,
-          "rgb(230, 51, 40)",
+          "rgb(140, 0, 65)",
           1,
-          "rgb(0, 115, 255)",
+          "rgb(40, 205, 80)",
         ],
         // Otherwise, show that the prediction is bad.
         600,
-        "rgb(230, 51, 40)",
+        "rgb(140, 0, 65)",
       ]
     ];
 
@@ -273,13 +273,13 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   Widget build(BuildContext context) {
     final legend = [
       SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-      SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", const Color.fromARGB(255, 230, 51, 40)),
-      SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.blue),
+      SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", CI.radkulturRedDark),
+      SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.radkulturGreen),
     ];
     final ppi = MediaQuery.of(context).devicePixelRatio * 0.9;
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: Stack(
           children: [

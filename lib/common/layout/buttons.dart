@@ -48,15 +48,15 @@ class SmallIconButton extends StatelessWidget {
       ),
       child: RawMaterialButton(
         elevation: 0, // Hide ugly material shadows.
-        fillColor: fill ?? Theme.of(context).colorScheme.background,
-        splashColor: splash ?? Colors.grey,
+        fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
+        splashColor: splash ?? Theme.of(context).colorScheme.surfaceTint,
         onPressed: onPressed,
         shape: const CircleBorder(),
         child: Padding(
           padding: const EdgeInsets.all(11),
           child: Icon(
             icon,
-            color: color ?? Theme.of(context).colorScheme.onBackground,
+            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -70,12 +70,12 @@ class AppBackButton extends StatelessWidget {
   final IconData icon;
 
   /// The callback that is executed when the button is pressed.
-  final void Function() onPressed;
+  final void Function()? onPressed;
   final double? elevation;
 
   const AppBackButton({
     this.icon = Icons.chevron_left,
-    required this.onPressed,
+    this.onPressed,
     this.elevation,
     super.key,
   });
@@ -87,8 +87,8 @@ class AppBackButton extends StatelessWidget {
       height: 64,
       child: RawMaterialButton(
         elevation: elevation ?? 0,
-        fillColor: Theme.of(context).colorScheme.background,
-        splashColor: Theme.of(context).colorScheme.surface,
+        fillColor: Theme.of(context).colorScheme.surfaceVariant,
+        splashColor: Theme.of(context).colorScheme.surfaceTint,
         onPressed: onPressed,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
@@ -98,6 +98,7 @@ class AppBackButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 32,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -114,7 +115,7 @@ class BigButton extends StatelessWidget {
   final String label;
 
   /// The callback that is executed when the button was pressed.
-  final void Function() onPressed;
+  final void Function()? onPressed;
 
   /// The optional fill color of the button.
   final Color? fillColor;
@@ -124,6 +125,9 @@ class BigButton extends StatelessWidget {
 
   /// The optional icon color of the button.
   final Color? iconColor;
+
+  /// The optional text color of the button.
+  final Color? textColor;
 
   /// The constraints to define a specific size for the button.
   final BoxConstraints boxConstraints;
@@ -135,10 +139,11 @@ class BigButton extends StatelessWidget {
     super.key,
     this.icon,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
     this.fillColor,
     this.splashColor,
     this.iconColor,
+    this.textColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
   });
@@ -146,8 +151,8 @@ class BigButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
-      splashColor: splashColor ?? Theme.of(context).colorScheme.secondary,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
       constraints: boxConstraints,
       // Hide ugly material shadows.
       elevation: elevation,
@@ -185,8 +190,8 @@ class BigButton extends StatelessWidget {
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: textColor ?? Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -245,8 +250,8 @@ class IconTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
-      splashColor: splashColor ?? Theme.of(context).colorScheme.secondary,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
       constraints: boxConstraints,
       // Hide ugly material shadows.
       elevation: 0,

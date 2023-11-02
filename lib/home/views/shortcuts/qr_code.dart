@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -60,11 +60,11 @@ class QRCodeViewState extends State<QRCodeView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,13 +103,7 @@ class QRCodeViewState extends State<QRCodeView> {
                       duration: const Duration(milliseconds: 1000),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topRight,
-                          end: Alignment.bottomLeft,
-                          stops: const [0.3, 0.9],
-                          colors:
-                              state == QRCodeViewMode.scanning ? [Colors.grey, Colors.grey] : [CI.blueLight, CI.blue],
-                        ),
+                        color: state == QRCodeViewMode.scanning ? Colors.grey : CI.radkulturRed,
                         borderRadius: BorderRadius.circular(48),
                         boxShadow: state == QRCodeViewMode.scanning
                             ? [
@@ -122,7 +116,7 @@ class QRCodeViewState extends State<QRCodeView> {
                               ]
                             : [
                                 BoxShadow(
-                                  color: CI.blue.withOpacity(0.3),
+                                  color: CI.radkulturRed.withOpacity(0.3),
                                   spreadRadius: 4,
                                   blurRadius: 32,
                                   offset: const Offset(0, 24), // changes position of shadow

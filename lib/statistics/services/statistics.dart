@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/gamification/common/database/database.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -88,7 +91,8 @@ class Statistics with ChangeNotifier {
     // Get the positioning service.
     final positioning = getIt<Positioning>();
     final positions = positioning.positions;
-    if (positions.isEmpty) return;
+    final snaps = positioning.snaps;
+    if (positions.isEmpty || snaps.isEmpty) return;
 
     // Calculate the summary.
     final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
@@ -101,12 +105,15 @@ class Statistics with ChangeNotifier {
     // Aggregate the elevation.
     var totalElevationGain = 0.0;
     var totalElevationLoss = 0.0;
-    for (var i = 0; i < positions.length - 1; i++) {
-      final elevationChange = positions[i + 1].altitude - positions[i].altitude;
+    for (var i = 0; i < snaps.length - 1; i++) {
+      // We cannot use the GPS position here, since it is not accurate enough.
+      // Using GPS position will aggregate a lot of noise, leading to a wrong elevation gain/loss.
+      // Thus, we calculate the elevation change based on the snapped positions.
+      final elevationChange = snaps[i + 1].altitude - snaps[i].altitude;
       if (elevationChange > 0) {
         totalElevationGain += elevationChange;
       } else {
-        totalElevationLoss += elevationChange;
+        totalElevationLoss -= elevationChange;
       }
     }
     // Aggregate the duration.
@@ -122,6 +129,14 @@ class Statistics with ChangeNotifier {
       elevationGain: totalElevationGain,
       elevationLoss: totalElevationLoss,
     );
+
+    // Store summary in database, if a user profile exists.
+    final storage = await SharedPreferences.getInstance();
+    if (storage.getBool(GamificationUserService.gamificationEnabledKey) ?? false) {
+      // Get the route or location shortcut used for the ride, if there is one.
+      AppDatabase.instance.rideSummaryDao.createObjectFromSummary(currentSummary!, start, getIt<Ride>().shortcutId);
+    }
+
     addSummary(currentSummary!);
   }
 

@@ -13,7 +13,7 @@ void showLocationAccessDeniedDialog(BuildContext context, PositionSource? positi
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       return DialogLayout(
         title: "Zugriff auf Standort verweigert.",
-        text: "Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen.",
+        text: "Bitte erlaube den Zugriff auf Deinen Standort in den Einstellungen.",
         icon: Icons.location_off_rounded,
         iconColor: Theme.of(context).colorScheme.primary,
         actions: [

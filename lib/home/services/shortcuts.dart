@@ -42,7 +42,11 @@ class Shortcuts with ChangeNotifier {
       }
     }
 
-    final newShortcut = ShortcutRoute(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
+    final newShortcut = ShortcutRoute(
+      id: UniqueKey().toString(),
+      name: name,
+      waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList(),
+    );
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
@@ -53,7 +57,7 @@ class Shortcuts with ChangeNotifier {
 
   /// Save a new location shortcut.
   Future<void> saveNewShortcutLocation(String name, Waypoint waypoint) async {
-    final newShortcut = ShortcutLocation(name: name, waypoint: waypoint);
+    final newShortcut = ShortcutLocation(id: UniqueKey().toString(), name: name, waypoint: waypoint);
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
@@ -121,11 +125,12 @@ class Shortcuts with ChangeNotifier {
 
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
+      await storeShortcuts();
     } else {
       // Init shortcuts.
       shortcuts = [];
       // Loop through all json Shortcuts and add correct shortcuts to shortcuts.
-      for (var e in jsonDecode(jsonStr) as List) {
+      for (final e in jsonDecode(jsonStr) as List) {
         if (e["type"] != null) {
           switch (e["type"]) {
             case "ShortcutLocation":
@@ -140,16 +145,11 @@ class Shortcuts with ChangeNotifier {
           }
         } else {
           // Only for backwards compatibility.
-          if (e["waypoint"] != null) {
-            shortcuts?.add(ShortcutLocation.fromJson(e));
-          }
-          if (e["waypoints"] != null) {
-            shortcuts?.add(ShortcutRoute.fromJson(e));
-          }
+          if (e["waypoint"] != null) shortcuts?.add(ShortcutLocation.fromJson(e));
+          if (e["waypoints"] != null) shortcuts?.add(ShortcutRoute.fromJson(e));
         }
       }
     }
-
     notifyListeners();
   }
 

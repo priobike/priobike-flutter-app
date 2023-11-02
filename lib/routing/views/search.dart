@@ -39,14 +39,20 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
             maxLength: 20,
             decoration: InputDecoration(
               hintText: "Zuhause, Arbeit, ...",
-              fillColor: Theme.of(context).colorScheme.surface,
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 borderSide: BorderSide.none,
               ),
-              suffixIcon: const Icon(Icons.bookmark),
+              suffixIcon: Icon(
+                Icons.bookmark,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              counterStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+              ),
             ),
           ),
           BigButton(
@@ -384,14 +390,15 @@ class RouteSearchState extends State<RouteSearch> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Gesamten Suchverlauf löschen',
-          text: 'Möchtest du den Suchverlauf wirklich löschen?',
+          text: 'Möchtest Du den Suchverlauf wirklich löschen?',
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButton(
-              iconColor: Colors.white,
+              iconColor: Colors.black,
+              textColor: Colors.black,
               icon: Icons.delete_rounded,
-              fillColor: CI.red,
+              fillColor: CI.radkulturYellow,
               label: "Löschen",
               onPressed: () {
                 geosearch.deleteSearchHistory();
@@ -444,7 +451,7 @@ class RouteSearchState extends State<RouteSearch> {
                     onChanged: onSearchUpdated,
                     decoration: InputDecoration(
                       hintText: "Suche",
-                      fillColor: Theme.of(context).colorScheme.surface,
+                      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
                       filled: true,
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -452,7 +459,7 @@ class RouteSearchState extends State<RouteSearch> {
                       ),
                       suffixIcon: geosearch.isFetchingAddress
                           ? const Padding(padding: EdgeInsets.all(4), child: CircularProgressIndicator())
-                          : const Icon(Icons.search),
+                          : Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
                   ),
@@ -491,11 +498,13 @@ class RouteSearchState extends State<RouteSearch> {
                           BoldSmall(
                             text: "Letzte Suchergebnisse",
                             context: context,
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                           IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.delete,
                               size: 20,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
                             onPressed: () => deleteWholeSearchHistoryDialog(),
                           ),
@@ -512,7 +521,7 @@ class RouteSearchState extends State<RouteSearch> {
                           ToastMessage.showSuccess("Eintrag gelöscht");
                         },
                         direction: DismissDirection.endToStart,
-                        background: Container(color: CI.red),
+                        background: Container(color: CI.radkulturYellow),
                         child: HistoryItem(
                           waypoint: waypointWithDistance.key,
                           distance: waypointWithDistance.value,

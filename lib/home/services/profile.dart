@@ -3,7 +3,8 @@ import 'package:priobike/home/models/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile with ChangeNotifier {
-  var hasLoaded = false;
+  /// Whether the profile has already been loaded.
+  bool hasLoaded = false;
 
   /// The selected type of bike.
   BikeType? bikeType;

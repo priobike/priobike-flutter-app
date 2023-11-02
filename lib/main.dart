@@ -1,11 +1,21 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/gamification/challenges/services/challenge_service.dart';
+import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
+import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
+import 'package:priobike/gamification/common/services/user_service.dart';
+import 'package:priobike/gamification/community_event/service/event_service.dart';
+import 'package:priobike/gamification/goals/services/goals_service.dart';
+import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -43,6 +53,12 @@ final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRout
 final getIt = GetIt.instance;
 
 Future<void> main() async {
+  // Enable this to show the layout bounds.
+  debugPaintSizeEnabled = false;
+
+  // Slow down animations with timeDilation > 1.0.
+  timeDilation = 1.0;
+
   runZonedGuarded(() async {
     // Ensure that the widgets binding is initialized.
     // This is required by some plugins and functions.
@@ -84,9 +100,18 @@ Future<void> main() async {
     getIt.registerSingleton<Traffic>(Traffic());
     getIt.registerSingleton<Boundary>(Boundary());
     getIt.registerSingleton<StatusHistory>(StatusHistory());
+    getIt.registerSingleton<GamificationUserService>(GamificationUserService());
     getIt.registerSingleton<POI>(POI());
+    getIt.registerSingleton<StatisticService>(StatisticService());
+    getIt.registerSingleton<DailyChallengeService>(DailyChallengeService());
+    getIt.registerSingleton<WeeklyChallengeService>(WeeklyChallengeService());
+    getIt.registerSingleton<GoalsService>(GoalsService());
+    getIt.registerSingleton<ChallengesProfileService>(ChallengesProfileService());
+    getIt.registerSingleton<EvaluationDataService>(EvaluationDataService());
+    getIt.registerSingleton<EventService>(EventService());
 
     runApp(const App());
+
   }, (error, stack) async {
     // Log the error to the console.
     log.e(error.toString());
@@ -99,7 +124,7 @@ class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  const App({super.key});
+  const App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -116,10 +141,24 @@ class App extends StatelessWidget {
             dialogBackgroundColor: const Color(0xFFFFFFFF),
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.light(
-              background: Color(0xFFFFFFFF),
-              primary: CI.blue,
-              secondary: CI.blueLight,
-              surface: Color(0xFFF6F6FF),
+              primary: CI.radkulturRed,
+              onPrimary: Colors.white,
+              secondary: CI.radkulturRedDark,
+              onSecondary: Colors.white,
+              // For container/tiles/buttons/...
+              surface: CI.radkulturRed,
+              // For content on surfaces (color with high contrast).
+              onSurface: Color(0xFFFFFFFF),
+              // Neutral alternative for surface.
+              surfaceVariant: Color(0xFFFFFFFF),
+              // For content on the alternative surface (color with high contrast).
+              onSurfaceVariant: Color(0xFF000000),
+              // For the background of complete views/pages.
+              background: Colors.white,
+              // For content on the background (color with high contrast).
+              onBackground: Color(0xFF000000),
+              // For the splash effect on buttons.
+              surfaceTint: Color(0x6BFFFFFF),
               brightness: Brightness.light,
             ),
             textTheme: const TextTheme(
@@ -141,16 +180,46 @@ class App extends StatelessWidget {
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
+              headlineLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF000000),
+              ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
+              headlineSmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
               bodyLarge: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 16,
                 fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              bodyMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              bodySmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              titleLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               titleMedium: TextStyle(
@@ -172,11 +241,24 @@ class App extends StatelessWidget {
             dialogBackgroundColor: const Color(0xFF232323),
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.dark(
-              background: Color.fromARGB(255, 31, 31, 31),
-              primary: CI.blue,
-              secondary: CI.blueLight,
-              surface: Color.fromARGB(255, 42, 42, 42),
-              surfaceTint: Color.fromARGB(255, 42, 42, 42),
+              primary: CI.radkulturRed,
+              onPrimary: Colors.white,
+              secondary: CI.radkulturRedDark,
+              onSecondary: Colors.white,
+              // For container/tiles/buttons/...
+              surface: CI.radkulturRed,
+              // For content on surfaces (color with high contrast).
+              onSurface: Color(0xFFFFFFFF),
+              // Neutral alternative for surface.
+              surfaceVariant: Color(0xFF131313),
+              // For content on the alternative surface (color with high contrast).
+              onSurfaceVariant: Color(0xFFFFFFFF),
+              // For the background of complete views/pages.
+              background: Colors.black,
+              // For content on the background (color with high contrast).
+              onBackground: Color(0xFFFFFFFF),
+              // For the splash effect on buttons.
+              surfaceTint: Color(0x6B232323),
               brightness: Brightness.dark,
             ),
             textTheme: const TextTheme(
@@ -198,16 +280,46 @@ class App extends StatelessWidget {
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
+              headlineLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFFFFF),
+              ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
+              headlineSmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
               bodyLarge: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 16,
                 fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              bodyMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              bodySmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              titleLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               titleMedium: TextStyle(
@@ -228,9 +340,9 @@ class App extends StatelessWidget {
           themeMode: settings.colorMode == ColorMode.light
               ? ThemeMode.light
               : settings.colorMode == ColorMode.dark
-                  ? ThemeMode.dark
-                  // Fallback to the system preference.
-                  : ThemeMode.system,
+              ? ThemeMode.dark
+          // Fallback to the system preference.
+              : ThemeMode.system,
           // The navigator key is used to access the app's build context.
           navigatorKey: navigatorKey,
           home: const PrivacyPolicyView(child: Loader()),

@@ -37,6 +37,9 @@ class Positioning with ChangeNotifier {
   /// The current route, for snapping.
   Route? route;
 
+  /// The recorded snapped positions of the user.
+  final snaps = List<Snap>.empty(growable: true);
+
   /// The current position snapped to the route.
   Snap? snap;
 
@@ -51,6 +54,7 @@ class Positioning with ChangeNotifier {
     positionSource = null;
     positionSubscription = null;
     positions.clear();
+    snaps.clear();
     lastPosition = null;
     route = null;
     snap = null;
@@ -209,6 +213,7 @@ class Positioning with ChangeNotifier {
             position: LatLng(position.latitude, position.longitude),
             nodes: route!.route,
           ).snap();
+          snaps.add(snap!);
         }
         onNewPosition();
         notifyListeners();
