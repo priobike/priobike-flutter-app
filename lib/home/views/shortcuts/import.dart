@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -7,6 +9,8 @@ import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+
+import 'package:priobike/home/models/shortcut_location.dart';
 
 class ImportShortcutDialog<E> extends StatefulWidget {
   const ImportShortcutDialog({key}) : super(key: key);
@@ -49,8 +53,27 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
       }
       return;
     }
-
-    ToastMessage.showError("Kein valider Routen-Link: ${data.text!.substring(0, 20)}...");
+    if (data.text!.contains("priobike") && data.text!.contains("/import/")) {
+      try {
+        String str = data.text!;
+        String shortcutBase64 = str.split('/').last;
+        final shortcutBytes = base64.decode(shortcutBase64);
+        final shortcutUTF8 = utf8.decode(shortcutBytes);
+        final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
+        shortcutJson['id'] = UniqueKey().toString();
+        if (shortcutJson['type'] == "ShortcutLocation") {
+          ShortcutLocation shortcut = ShortcutLocation.fromJson(shortcutJson);
+          if (mounted) showSaveShortcutSheet(context, shortcut: shortcut);
+        } else {
+          ShortcutRoute shortcut = ShortcutRoute.fromJson(shortcutJson);
+          if (mounted) showSaveShortcutSheet(context, shortcut: shortcut);
+        }
+      } catch (e) {
+        ToastMessage.showError(
+            "Keine valider Shortcut: ${data.text!.substring(0, data.text!.length > 20 ? 20 : data.text!.length)}...");
+      }
+      return;
+    }
   }
 
   @override
@@ -90,6 +113,37 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
             padding: const EdgeInsets.all(8),
             child: Tile(
               fill: Theme.of(context).colorScheme.surfaceVariant,
+              onPressed: loadFromClipboard,
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Content(
+                          text: "Aus Zwischenablage laden",
+                          context: context,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                        const SizedBox(height: 4),
+                        Small(
+                          text: "Kopiere eine geteilte Strecke und füge sie über die Zwischenablage ein.",
+                          context: context,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 48, height: 48, child: Icon(Icons.content_paste_rounded)),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Tile(
+              fill: Theme.of(context).colorScheme.background,
               onPressed: loadFromClipboard,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

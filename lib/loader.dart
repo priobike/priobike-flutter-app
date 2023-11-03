@@ -112,8 +112,8 @@ class LoaderState extends State<Loader> {
     setState(() {
       shouldMorph = true;
       hasError = false;
-      settings.resetConnectionErrorCounter();
     });
+    settings.resetConnectionErrorCounter();
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
     setState(() => isLoading = false);
