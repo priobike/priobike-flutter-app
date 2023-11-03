@@ -179,8 +179,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
     String subject = '';
     shortcut.type == "ShortcutLocation" ? subject = 'Ort teilen' : subject = 'Route teilen';
-    await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink',
-        subject: subject);
+    await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink', subject: subject);
   }
 
   /// Widget that displays a shortcut.
