@@ -162,7 +162,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// A callback that is executed when a shortcut should be shared.
   Future<void> onShareShortcut(int idx) async {
     if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
-    final Shortcut shortcut = shortcuts.shortcuts!.toList()[idx];
+    final Shortcut shortcut = shortcuts.shortcuts![idx];
     final Map<String, dynamic> shortcutJson = shortcut.toJson();
     final str = json.encode(shortcutJson);
     final bytes = utf8.encode(str);
