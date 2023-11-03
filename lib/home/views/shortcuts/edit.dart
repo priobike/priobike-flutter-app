@@ -174,7 +174,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
     final text = 'Probiere $shortcutTypeText in der PrioBike-App aus:';
     final shareLink = '$scheme://$host/$route/$base64Str';
-    const getAppText = 'Falls du die Priobike App noch nicht hast, kannst du sie die hier holen:';
+    const getAppText = 'Falls Du die Priobike App noch nicht hast, kannst Du sie die hier holen:';
     const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
     const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
     await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink',
