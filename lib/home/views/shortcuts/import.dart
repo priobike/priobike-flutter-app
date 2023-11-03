@@ -10,7 +10,7 @@ import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
-import '../../models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
 
 class ImportShortcutDialog<E> extends StatefulWidget {
   const ImportShortcutDialog({key}) : super(key: key);

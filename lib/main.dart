@@ -44,9 +44,9 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'home/models/shortcut.dart';
-import 'home/models/shortcut_location.dart';
-import 'home/models/shortcut_route.dart';
+import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 
 final log = Logger("main.dart");
 
