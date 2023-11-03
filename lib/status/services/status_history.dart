@@ -44,9 +44,7 @@ class StatusHistory with ChangeNotifier {
     final Map<double, double> percentages = {};
     double maxSubscriptions = 0;
 
-    const predictionsKey =
-        "prediction_service_prediction_quality_distribution_bucket"; // TODO: remove after change in backend
-    // const predictionsKey = "prediction_service_good_prediction_total"; // TODO: uncomment after change in backend
+    const predictionsKey = "prediction_service_good_prediction_total";
     const subscriptionsKey = "prediction_service_subscription_count_total";
 
     // Parse into maps and get max number of subscriptions.
