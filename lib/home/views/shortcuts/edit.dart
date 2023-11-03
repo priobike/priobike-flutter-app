@@ -168,7 +168,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     final bytes = utf8.encode(str);
     final base64Str = base64.encode(bytes);
     const scheme = 'https';
-    const host = 'priobike.inf.tu-dresden.de';
+    const host = 'priobike.vkw.tu-dresden.de';
     const route = 'import';
     String shortcutTypeText = '';
     shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
