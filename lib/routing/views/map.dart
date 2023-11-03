@@ -756,6 +756,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
+    // TODO: remove - this sets the waypoint in the map
     await routing.addWaypoint(waypoint);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
     await routing.loadRoutes();
@@ -912,6 +913,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // create mapbox gl marker
+    // final marker
+
     return Stack(
       children: [
         // Show the map.
