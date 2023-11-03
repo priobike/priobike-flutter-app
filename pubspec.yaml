@@ -74,6 +74,8 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.0 # Needed for the drift database which is based on sqlite
   path: ^1.8.2 # Used to determine the database file location
   fl_chart: ^0.62.0 # Used to display the ride statistics in the gamification views
+  file_picker: ^5.2.10 # Used to open GPX files
+  gpx: ^2.2.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.11.0 # Generate app icons

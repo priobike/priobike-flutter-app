@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:gpx/gpx.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -24,6 +27,26 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (BuildContext context) => const QRCodeView(),
     ));
+  }
+
+  Future<void> loadFromGPX() async {
+    // pick and parse gpx file
+    List<Wpt> points = [];
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      String gpxString = file.readAsStringSync();
+      Gpx gpx = GpxReader().fromString(gpxString);
+      Trk trk = gpx.trks[0];
+      Trkseg seg = trk.trksegs[0];
+      points = seg.trkpts;
+    } else {
+      // TODO handle user canceled the picker
+    }
+    if (points.isEmpty) return;
+    // TODO reduce number of waypoints
+
+    // TODO create shortcut from waypoints
   }
 
   /// Load text from clipboard and check if it contains a supported route link.
@@ -113,7 +136,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
             padding: const EdgeInsets.all(8),
             child: Tile(
               fill: Theme.of(context).colorScheme.surfaceVariant,
-              onPressed: loadFromClipboard,
+              onPressed: loadFromGPX,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -122,24 +145,25 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Content(
-                          text: "Aus Zwischenablage laden",
+                          text: "Aus GPX Datei laden",
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground,
                         ),
                         const SizedBox(height: 4),
                         Small(
-                          text: "Kopiere eine geteilte Strecke und füge sie über die Zwischenablage ein.",
+                          text: "Lade eine Route aus einer GPX Datei.",
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 48, height: 48, child: Icon(Icons.content_paste_rounded)),
+                  const SizedBox(width: 48, height: 48, child: Icon(Icons.folder_open_rounded)),
                 ],
               ),
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(
