@@ -9,11 +9,14 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/routing/services/routing.dart';
 
 class ImportShortcutDialog<E> extends StatefulWidget {
   const ImportShortcutDialog({key}) : super(key: key);
@@ -23,6 +26,14 @@ class ImportShortcutDialog<E> extends StatefulWidget {
 }
 
 class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
+  late Routing routing;
+
+  @override
+  void initState() {
+    super.initState();
+    routing = getIt<Routing>();
+  }
+
   void openQRScanner() {
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (BuildContext context) => const QRCodeView(),
@@ -41,12 +52,19 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
       Trkseg seg = trk.trksegs[0];
       points = seg.trkpts;
     } else {
-      // TODO handle user canceled the picker
+      return;
     }
     if (points.isEmpty) return;
-    // TODO reduce number of waypoints
-
-    // TODO create shortcut from waypoints
+    List<Waypoint> waypoints = await reduceWpts(points, routing);
+    if (mounted) {
+      showSaveShortcutSheet(context,
+          shortcut: ShortcutRoute(
+            id: UniqueKey().toString(),
+            name: "Strecke aus GPX",
+            waypoints: waypoints,
+          ));
+    }
+    return;
   }
 
   /// Load text from clipboard and check if it contains a supported route link.
@@ -163,7 +181,6 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(
