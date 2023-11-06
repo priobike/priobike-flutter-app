@@ -159,11 +159,10 @@ class Routing with ChangeNotifier {
   /// Remove a new waypoint at index.
   Future<void> removeWaypointAt(int index) async {
     if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
-
     final removedWaypoints = selectedWaypoints!.toList();
     removedWaypoints.removeAt(index);
 
-    selectWaypoints(removedWaypoints);
+    await selectWaypoints(removedWaypoints);
 
     if (selectedWaypoints!.length < 2) {
       selectedRoute = null;
@@ -177,12 +176,18 @@ class Routing with ChangeNotifier {
         hadErrorDuringFetch = false;
         waypointsOutOfBoundaries = false;
       }
-
       notifyListeners();
       return;
     }
+    await loadRoutes();
+  }
 
-    loadRoutes();
+  /// Remove a new waypoint at index.
+  Future<void> removeWaypoint(Waypoint waypoint) async {
+    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
+    // get index of waypoint
+    final index = selectedWaypoints!.indexWhere((element) => element == waypoint);
+    if (index != -1) await removeWaypointAt(index);
   }
 
   /// Select new waypoints.

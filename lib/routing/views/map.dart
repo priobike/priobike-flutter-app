@@ -88,6 +88,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Where the user is currently tapping.
   Offset? tapPosition;
 
+  Offset? longTapPosition;
+
   /// The animation controller for the on-tap animation.
   late AnimationController animationController;
 
@@ -117,6 +119,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A bool indicating whether the Mapbox internal map layers have finished loading.
   var mapLayersFinishedLoading = false;
+
+  Waypoint? waypointTapped;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -491,6 +495,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
+    // TODO: remove - this sets the waypoints
     await WaypointsLayer().install(
       mapController!,
       iconSize: 0.2,
@@ -700,13 +705,41 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await addWaypoint(point);
   }
 
-  onDragWaypint(BuildContext context, double x, double y) async {
-    // TODO: alten Wegpunkt entfernen
-    // TODO: neuen Wegpunkt hinzufügen
-    // TODO: alten Wegpunkt aus History entfernen
-    // TODO: neuen Wegpunkt in History hinzufügen
-    // TODO: im BottomSheet anpassen
-    // TODO: erst nachdem man loslässt Route neuberechnen (weil rechenintensiv)
+  /// Helper method to check if there is a waypoint at a certain position for dragging of waypoints.
+  Future<Waypoint?> checkIfWaypointIsAtPosition({required double x, required double y}) async {
+    if (mapController == null) return null;
+    if (routing.selectedWaypoints == null) return null;
+
+    // Convert x and y into a lat/lon.
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    // On android, we need to multiply by the ppi.
+    if (Platform.isAndroid) {
+      x *= ppi;
+      y *= ppi;
+    }
+    final tapPosition = ScreenCoordinate(x: x, y: y);
+
+    final foundWaypoints = <Waypoint, double>{};
+    for (Waypoint waypoint in routing.selectedWaypoints!) {
+      final ScreenCoordinate coordsOnScreenWaypoint = await mapController!.pixelForCoordinate({
+        "coordinates": [waypoint.lon, waypoint.lat]
+      });
+      final distance = math.sqrt(math.pow(coordsOnScreenWaypoint.x - tapPosition.x, 2) +
+          math.pow(coordsOnScreenWaypoint.y - tapPosition.y, 2));
+
+      if (distance < 100) {
+        foundWaypoints[waypoint] = distance;
+      }
+    }
+    if (foundWaypoints.length == 1) {
+      return foundWaypoints.keys.first;
+    }
+    // if more than one waypoint is found, return the one with the smallest distance
+    if (foundWaypoints.length >= 2) {
+      final sortedWaypoints = foundWaypoints.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
+      return sortedWaypoints.first.key;
+    }
+    return null;
   }
 
   Future<void> addWaypoint(ScreenCoordinate point) async {
@@ -914,25 +947,69 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // create mapbox gl marker
-    // final marker
-
     return Stack(
       children: [
         // Show the map.
         GestureDetector(
-          onLongPressDown: (details) {
-            tapPosition = details.localPosition;
-            animationController.forward();
+          onLongPressDown: (details) async {
+            // check if user long pressed on map or waypoint
+            // if on map, create new waypoint
+            // if on waypoint, drag waypoint
+            waypointTapped =
+                await checkIfWaypointIsAtPosition(x: details.localPosition.dx, y: details.localPosition.dy);
+            if (waypointTapped == null) {
+              tapPosition = details.localPosition;
+              animationController.forward();
+              waypointTapped = null;
+            } else {
+              longTapPosition = details.localPosition;
+            }
           },
           onLongPressCancel: () {
             animationController.reverse();
+            longTapPosition = null;
+            waypointTapped = null;
           },
-          onLongPressEnd: (details) {
+          onLongPressMoveUpdate: (details) async {
+            // if user pressed on map, reverse pin animation
+            // if user pressed on waypoint, drag waypoint
+            if (waypointTapped == null) {
+              animationController.reverse();
+              return;
+            }
+
+            if (waypointTapped != null) {
+              longTapPosition = details.localPosition;
+            }
+            setState(() {});
+          },
+          onLongPressEnd: (details) async {
             animationController.reverse();
-            // TODO: check if there is a waypoint or not and decide which callback to call
-            // if there is a waypoint, call onDragWaypoint
-            onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+            longTapPosition = null;
+
+            if (!mounted) return;
+            if (waypointTapped != null) {
+              await routing.removeWaypoint(waypointTapped!);
+              // drag waypoint
+              // add new waypoint
+              double x = details.localPosition.dx;
+              double y = details.localPosition.dy;
+
+              // Convert x and y into a lat/lon.
+              final ppi = MediaQuery.of(context).devicePixelRatio;
+              // On android, we need to multiply by the ppi.
+              if (Platform.isAndroid) {
+                x *= ppi;
+                y *= ppi;
+              }
+              final point = ScreenCoordinate(x: x, y: y);
+              await addWaypoint(point);
+
+              waypointTapped = null;
+            } else {
+              // add waypoint
+              onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+            }
           },
           behavior: HitTestBehavior.translucent,
           child: AppMap(
@@ -1019,6 +1096,28 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               ],
             ),
           ),
+        // for dragging waypoints
+        if (longTapPosition != null)
+          Stack(
+            children: [
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 30),
+                left: longTapPosition!.dx,
+                top: longTapPosition!.dy,
+                child: SizedBox(
+                  width: 34,
+                  height: 34,
+                  child: Image.asset(
+                    routing.selectedWaypoints!.last == waypointTapped!
+                        ? 'assets/images/destination.drawio.png'
+                        : 'assets/images/waypoint.drawio.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
         if (!mapLayersFinishedLoading)
           Center(
             child: Tile(
