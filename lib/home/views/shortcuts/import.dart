@@ -1,22 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:gpx/gpx.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
+import 'package:priobike/home/views/shortcuts/import_gpx.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-
 import 'package:priobike/home/models/shortcut_location.dart';
-import 'package:priobike/routing/services/routing.dart';
 
 class ImportShortcutDialog<E> extends StatefulWidget {
   const ImportShortcutDialog({key}) : super(key: key);
@@ -26,12 +19,9 @@ class ImportShortcutDialog<E> extends StatefulWidget {
 }
 
 class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
-  late Routing routing;
-
   @override
   void initState() {
     super.initState();
-    routing = getIt<Routing>();
   }
 
   void openQRScanner() {
@@ -40,31 +30,10 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
     ));
   }
 
-  Future<void> loadFromGPX() async {
-    // pick and parse gpx file
-    List<Wpt> points = [];
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      String gpxString = file.readAsStringSync();
-      Gpx gpx = GpxReader().fromString(gpxString);
-      Trk trk = gpx.trks[0];
-      Trkseg seg = trk.trksegs[0];
-      points = seg.trkpts;
-    } else {
-      return;
-    }
-    if (points.isEmpty) return;
-    List<Waypoint> waypoints = await reduceWpts(points, routing);
-    if (mounted) {
-      showSaveShortcutSheet(context,
-          shortcut: ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "Strecke aus GPX",
-            waypoints: waypoints,
-          ));
-    }
-    return;
+  void openImportGpxView() {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (BuildContext context) => const ImportGpxView(),
+    ));
   }
 
   /// Load text from clipboard and check if it contains a supported route link.
@@ -154,7 +123,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
             padding: const EdgeInsets.all(8),
             child: Tile(
               fill: Theme.of(context).colorScheme.surfaceVariant,
-              onPressed: loadFromGPX,
+              onPressed: openImportGpxView,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/map/map_projection.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -173,6 +174,8 @@ int argMax(List<double> list) {
 }
 
 Future<List<Waypoint>> reduceWpts(List<Wpt> wpts, routing) async {
+  // check if all waypoints are within Hamburg
+  ToastMessage.showError('Ein oder mehrere Punkte der GPX Datei liegen nicht in Hamburg.');
   List<double> gpxXs = [];
   List<double> gpxYs = [];
   for (Wpt wpt in wpts) {
