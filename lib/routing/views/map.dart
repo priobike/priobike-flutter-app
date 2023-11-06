@@ -88,6 +88,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Where the user is currently tapping.
   Offset? tapPosition;
 
+  /// Where the user is currently long tapping, used for dragging waypoints.
   Offset? longTapPosition;
 
   /// The animation controller for the on-tap animation.
@@ -120,7 +121,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A bool indicating whether the Mapbox internal map layers have finished loading.
   var mapLayersFinishedLoading = false;
 
-  Waypoint? waypointTapped;
+  /// When the user long presses on a waypoint, this is the waypoint that is being dragged.
+  Waypoint? waypointDragged;
+
+  /// The index of the dragged waypoint to determine if the waypoint is a destination or a waypoint in the middle.
+  int? indexWaypointDragged;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -706,7 +711,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Helper method to check if there is a waypoint at a certain position for dragging of waypoints.
-  Future<Waypoint?> checkIfWaypointIsAtPosition({required double x, required double y}) async {
+  Future<Waypoint?> checkIfWaypointIsAtTappedPosition({required double x, required double y}) async {
     if (mapController == null) return null;
     if (routing.selectedWaypoints == null) return null;
 
@@ -727,7 +732,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final distance = math.sqrt(math.pow(coordsOnScreenWaypoint.x - tapPosition.x, 2) +
           math.pow(coordsOnScreenWaypoint.y - tapPosition.y, 2));
 
-      if (distance < 100) {
+      if (distance < 130) {
         foundWaypoints[waypoint] = distance;
       }
     }
@@ -789,8 +794,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
-    // TODO: remove - this sets the waypoint in the map
-    await routing.addWaypoint(waypoint);
+    int index;
+    // if the wayPointTapped isn't null, the user is dragging a waypoint
+    // otherwise the user is adding a waypoint by tapping on the map
+    if (waypointDragged != null && indexWaypointDragged != null) {
+      index = indexWaypointDragged!;
+    } else {
+      index = routing.selectedWaypoints!.length;
+    }
+    await routing.addWaypoint(waypoint, index);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
     await routing.loadRoutes();
   }
@@ -955,12 +967,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // check if user long pressed on map or waypoint
             // if on map, create new waypoint
             // if on waypoint, drag waypoint
-            waypointTapped =
-                await checkIfWaypointIsAtPosition(x: details.localPosition.dx, y: details.localPosition.dy);
-            if (waypointTapped == null) {
+            waypointDragged =
+                await checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
+            if (waypointDragged == null) {
               tapPosition = details.localPosition;
               animationController.forward();
-              waypointTapped = null;
             } else {
               longTapPosition = details.localPosition;
             }
@@ -968,33 +979,35 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           onLongPressCancel: () {
             animationController.reverse();
             longTapPosition = null;
-            waypointTapped = null;
+            waypointDragged = null;
           },
           onLongPressMoveUpdate: (details) async {
             // if user pressed on map, reverse pin animation
             // if user pressed on waypoint, drag waypoint
-            if (waypointTapped == null) {
+            if (waypointDragged == null) {
               animationController.reverse();
               return;
             }
 
-            if (waypointTapped != null) {
-              longTapPosition = details.localPosition;
-            }
+            longTapPosition = details.localPosition;
             setState(() {});
           },
           onLongPressEnd: (details) async {
             animationController.reverse();
             longTapPosition = null;
 
-            if (!mounted) return;
-            if (waypointTapped != null) {
-              await routing.removeWaypoint(waypointTapped!);
-              // drag waypoint
-              // add new waypoint
+            if (waypointDragged != null) {
+              if (routing.selectedWaypoints == null) return;
+
+              indexWaypointDragged = routing.getIndexOfWaypoint(waypointDragged!);
+
+              // remove old waypoint
+              await routing.removeWaypoint(waypointDragged!);
+
               double x = details.localPosition.dx;
               double y = details.localPosition.dy;
 
+              if (!mounted) return;
               // Convert x and y into a lat/lon.
               final ppi = MediaQuery.of(context).devicePixelRatio;
               // On android, we need to multiply by the ppi.
@@ -1003,11 +1016,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 y *= ppi;
               }
               final point = ScreenCoordinate(x: x, y: y);
+              // add new waypoint at tapped position.
+              // If the old waypoint was a destination, the new waypoint should be a destination as well
+              // i.e. it should be added at the end of the list
               await addWaypoint(point);
 
-              waypointTapped = null;
+              // reset variables
+              waypointDragged = null;
+              longTapPosition = null;
+              indexWaypointDragged = null;
             } else {
-              // add waypoint
+              // if the user pressed on the map, add a waypoint
               onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
             }
           },
@@ -1108,7 +1127,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   width: 34,
                   height: 34,
                   child: Image.asset(
-                    routing.selectedWaypoints!.last == waypointTapped!
+                    routing.selectedWaypoints!.last == waypointDragged!
                         ? 'assets/images/destination.drawio.png'
                         : 'assets/images/waypoint.drawio.png',
                     fit: BoxFit.contain,

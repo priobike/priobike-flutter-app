@@ -142,18 +142,26 @@ class Routing with ChangeNotifier {
     this.allRoutes,
   });
 
-  /// Add a new waypoint.
-  Future<void> addWaypoint(Waypoint waypoint) async {
+  /// Add a new waypoint. If index is provided, insert it at this index, otherwise append it at the end.
+  Future<void> addWaypoint(Waypoint waypoint, [int? index]) async {
     if (selectedWaypoints == null) {
       selectedWaypoints = [waypoint];
     } else {
-      selectedWaypoints!.add(waypoint);
+      index ??= selectedWaypoints!.length;
+      selectedWaypoints!.insert(index, waypoint);
+
       // Reset the previously generated route(s) and fetched waypoints.
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
     }
     notifyListeners();
+  }
+
+  /// Get the index of a waypoint in the selected waypoints.
+  int getIndexOfWaypoint(Waypoint waypoint) {
+    if (selectedWaypoints == null) return 0;
+    return selectedWaypoints!.indexWhere((element) => element == waypoint);
   }
 
   /// Remove a new waypoint at index.
