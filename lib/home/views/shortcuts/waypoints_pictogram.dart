@@ -2,20 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/dialog.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
 import 'package:priobike/home/views/shortcuts/waypoints_painter.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 
-class RecWptsModel with ChangeNotifier{
+class RecWptsModel with ChangeNotifier {
   List<Wpt> _recWpts = [];
   List<Wpt> get recWpts => _recWpts;
 
@@ -35,11 +29,14 @@ class WaypointsPictogram extends StatefulWidget {
   /// The color of the pictogram.
   final Color color;
 
+  final RecWptsModel recWptsModel;
+
   const WaypointsPictogram({
     Key? key,
     required this.wpts,
     this.height = 400,
     this.color = CI.radkulturRedDark,
+    required this.recWptsModel,
   }) : super(key: key);
 
   @override
@@ -57,8 +54,6 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
   Future? backgroundImageFuture;
 
   late Routing routing;
-
-  RecWptsModel recWptsNotifier = RecWptsModel();
 
   /// Loads the background image.
   void loadBackgroundImage() {
@@ -85,20 +80,6 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
     });
   }
 
-  Future<void> convertGpxToWaypoints(List<Wpt> points) async {
-    if (points.isEmpty) return;
-    List<Waypoint> waypoints = await reduceWpts(points, routing, (List<Wpt> newWpts) => {recWptsNotifier.updateWpts(newWpts)});
-    if (mounted) {
-      showSaveShortcutSheet(context,
-        shortcut: ShortcutRoute(
-          id: UniqueKey().toString(),
-          name: "Strecke aus GPX",
-          waypoints: waypoints,
-        ));
-    }
-    return;
-  }
-
   @override
   void didUpdateWidget(covariant WaypointsPictogram oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -120,52 +101,34 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(children: [
-        SizedBox(
-          // width == height, because the map is a square
-          width: widget.height,
-          height: widget.height,
-          child: Stack(
-            alignment: Alignment.center,
-            fit: StackFit.expand,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 1000),
-                child: backgroundImage != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Image(
-                    image: backgroundImage!,
-                    fit: BoxFit.contain,
-                    key: UniqueKey(),
-                  ),
-                )
-                    : Container(),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: WaypointsPaint(
-                  wpts: widget.wpts,
-                  listenable: recWptsNotifier
-                )
-              ),
-              const MapboxAttribution(
-                top: 8,
-                right: 8,
-              ),
-            ],
+    return SizedBox(
+      // width == height, because the map is a square
+      width: widget.height,
+      height: widget.height,
+      child: Stack(
+        alignment: Alignment.center,
+        fit: StackFit.expand,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 1000),
+            child: backgroundImage != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(32),
+                    child: Image(
+                      image: backgroundImage!,
+                      fit: BoxFit.contain,
+                      key: UniqueKey(),
+                    ),
+                  )
+                : Container(),
           ),
-        ),
-        const Tile(content: Text('Die konvertierte Route kann von der GPX Datei abweichen.')),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: BigButton(
-          label: 'Konvertieren',
-          onPressed: () async => await convertGpxToWaypoints(widget.wpts),
-        ))
-      ],
-    ));
+          WaypointsPaint(wpts: widget.wpts, listenable: widget.recWptsModel),
+          const MapboxAttribution(
+            top: 8,
+            right: 8,
+          ),
+        ],
+      ),
+    );
   }
 }

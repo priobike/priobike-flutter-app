@@ -22,7 +22,7 @@ class WaypointsPaint extends StatefulWidget {
     Key? key,
     required this.wpts,
     this.gpxColor = CI.radkulturRed,
-    this.approxColor = CI.radkulturGreen,
+    this.approxColor = CI.route,
     required this.listenable,
   }) : super(key: key);
 
@@ -46,24 +46,14 @@ class WaypointsPaintState extends State<WaypointsPaint> {
 
   @override
   Widget build(BuildContext context) {
-    MapboxMapProjectionBoundingBox? bbox = MapboxMapProjection.mercatorBoundingBox(widget.wpts.map((e) => LatLng(e.lat!, e.lon!)).toList());
+    MapboxMapProjectionBoundingBox? bbox =
+        MapboxMapProjection.mercatorBoundingBox(widget.wpts.map((e) => LatLng(e.lat!, e.lon!)).toList());
     return CustomPaint(
-      painter: WaypointsPainter(
-        wpts: widget.wpts,
-        color: widget.gpxColor,
-        bbox: bbox
-      ),
-      child: CustomPaint(
-        painter: WaypointsPainter(
-          wpts: recWpts,
-          color: widget.approxColor,
-          bbox: bbox
-        )
-      ),
+      painter: WaypointsPainter(wpts: widget.wpts, color: widget.gpxColor, bbox: bbox),
+      child: CustomPaint(painter: WaypointsPainter(wpts: recWpts, color: widget.approxColor, bbox: bbox)),
     );
   }
 }
-
 
 class WaypointsPainter extends CustomPainter {
   final List<Wpt> wpts;

@@ -63,7 +63,7 @@ Future<List> reconstructRoute(List<double> approxXs, List<double> approxYs, Rout
     approxLats.add(latLng.latitude);
     approxLngs.add(latLng.longitude);
   }
-  int maxWaypoints = 200; // max number of waypoints for gh is 238
+  // int maxWaypoints = 200; // max number of waypoints for gh is 238
   List<Waypoint> waypoints = [];
   for (int i = 0; i < approxLngs.length; i++) {
     waypoints.add(Waypoint(approxLats[i], approxLngs[i]));
@@ -109,7 +109,8 @@ List cost(List<double> gpxXs, List<double> gpxYs, List<double> recXs, List<doubl
   return [ds, averageD];
 }
 
-Future<List> iterativelyImproveApprox(List<double> gpxXs, List<double> gpxYs, Routing routing, ValueSetter<List<Wpt>> callback) async {
+Future<List> iterativelyImproveApprox(
+    List<double> gpxXs, List<double> gpxYs, Routing routing, ValueSetter<List<Wpt>> callback) async {
   List<double> approxXs, approxYs;
   List<int> gpxIndices;
 
@@ -163,9 +164,9 @@ Future<List> iterativelyImproveApprox(List<double> gpxXs, List<double> gpxYs, Ro
   return [approxXs, approxYs];
 }
 
-void emitProgress(List<double> xs, List<double> ys, ValueSetter<List<Wpt>> callback){
+void emitProgress(List<double> xs, List<double> ys, ValueSetter<List<Wpt>> callback) {
   List<Wpt> wpts = [];
-  for(int j = 0; j < xs.length; j++){
+  for (int j = 0; j < xs.length; j++) {
     LatLng latLng = MapboxMapProjection.convertMercatorToLatLon(xs[j], ys[j]);
     wpts.add(Wpt(lat: latLng.latitude, lon: latLng.longitude));
   }
@@ -192,7 +193,7 @@ Future<List<Waypoint>> reduceWpts(List<Wpt> wpts, Routing routing, ValueSetter<L
   for (int i = 0; i < wpts.length; i++) {
     initWaypoints.add(Waypoint(wpts[i].lat!, wpts[i].lon!));
   }
-  if (!routing.inCityBoundary(initWaypoints)){
+  if (!routing.inCityBoundary(initWaypoints)) {
     ToastMessage.showError('Ein oder mehrere Punkte der GPX Datei liegen nicht in Hamburg.');
   }
   List<double> gpxXs = [];
