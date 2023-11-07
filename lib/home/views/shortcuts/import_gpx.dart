@@ -33,11 +33,18 @@ class ImportGpxViewState extends State<ImportGpxView> {
   ValueNotifier<bool> startedConvertNotifier = ValueNotifier(false);
   ValueNotifier<bool> convertingNotifier = ValueNotifier(false);
   late Routing routing;
+  List<Wpt> points = [];
+
+  void initGpx() async {
+    List<Wpt> newPoints = await loadGpxFile();
+    setState(() => points = newPoints);
+  }
 
   @override
   void initState() {
     super.initState();
     routing = getIt<Routing>();
+    initGpx();
   }
 
   Future<List<Wpt>> loadGpxFile() async {
@@ -83,8 +90,7 @@ class ImportGpxViewState extends State<ImportGpxView> {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
             children: [
               const SizedBox(height: 8),
               Row(
@@ -94,78 +100,71 @@ class ImportGpxViewState extends State<ImportGpxView> {
                 ],
               ),
               const SizedBox(height: 16),
-              FutureBuilder<List<Wpt>>(
-                  future: loadGpxFile(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) return Text(snapshot.error.toString());
-                    if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-                    List<Wpt> points = snapshot.data!;
-                    return Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 48),
-                            child: SizedBox(
-                              height: 48,
-                              child: FittedBox(
-                                // Scale the text to fit the width.
-                                fit: BoxFit.fitWidth,
-                                child: SubHeader(
-                                  text: "Strecke aus einer GPX Datei importieren",
-                                  context: context,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
+              if (points.isNotEmpty)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 48),
+                      child: SizedBox(
+                        height: 48,
+                        child: FittedBox(
+                          // Scale the text to fit the width.
+                          fit: BoxFit.fitWidth,
+                          child: SubHeader(
+                            text: "Strecke aus einer GPX Datei importieren",
+                            context: context,
+                            textAlign: TextAlign.center,
                           ),
-                          const VSpace(),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 1000),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: CI.radkulturRed,
-                              borderRadius: BorderRadius.circular(48),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  spreadRadius: 4,
-                                  blurRadius: 32,
-                                  offset: const Offset(0, 20), // changes position of shadow
-                                )
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Tile(
-                                fill: Theme.of(context).colorScheme.background,
-                                shadowIntensity: 0.05,
-                                shadow: Colors.black,
-                                borderRadius: BorderRadius.circular(32),
-                                padding: const EdgeInsets.all(0),
-                                content: SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.8,
-                                  height: MediaQuery.of(context).size.width * 0.8,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: WaypointsPictogram(
-                                      wpts: points,
-                                      recWptsModel: recWptsNotifier,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const VSpace(),
-                          ImportGpxInfo(
-                              convertCallback: () async => await convertGpxToWaypoints(points),
-                              startedConvertNotifier: startedConvertNotifier,
-                              convertingNotifier: convertingNotifier)
+                        ),
+                      ),
+                    ),
+                    const VSpace(),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 1000),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: CI.radkulturRed,
+                        borderRadius: BorderRadius.circular(48),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 4,
+                            blurRadius: 32,
+                            offset: const Offset(0, 20), // changes position of shadow
+                          )
                         ],
                       ),
-                    );
-                  }),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Tile(
+                          fill: Theme.of(context).colorScheme.background,
+                          shadowIntensity: 0.05,
+                          shadow: Colors.black,
+                          borderRadius: BorderRadius.circular(32),
+                          padding: const EdgeInsets.all(0),
+                          content: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.width * 0.8,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: WaypointsPictogram(
+                                wpts: points,
+                                recWptsModel: recWptsNotifier,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const VSpace(),
+                    ImportGpxInfo(
+                      convertCallback: () async => await convertGpxToWaypoints(points),
+                      startedConvertNotifier: startedConvertNotifier,
+                      convertingNotifier: convertingNotifier,
+                    )
+                  ],
+                ),
             ],
           ),
         ),
