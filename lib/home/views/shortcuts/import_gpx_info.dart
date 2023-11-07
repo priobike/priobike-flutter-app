@@ -2,32 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
 
 class ImportGpxInfo extends StatefulWidget {
-  const ImportGpxInfo(
-      {Key? key, required this.convertCallback, required this.startedConvertNotifier, required this.convertingNotifier})
-      : super(key: key);
+  const ImportGpxInfo({Key? key, required this.convertCallback, required this.gpxConversionNotifier}) : super(key: key);
 
   final VoidCallback convertCallback;
-  final ValueNotifier<bool> startedConvertNotifier;
-  final ValueNotifier<bool> convertingNotifier;
+  final GpxConversion gpxConversionNotifier;
 
   @override
   ImportGpxInfoState createState() => ImportGpxInfoState();
 }
 
 class ImportGpxInfoState extends State<ImportGpxInfo> {
-  bool startedConvert = false;
-  bool converting = false;
+  GpxConversionState loadingState = GpxConversionState.init;
 
   @override
   void initState() {
     super.initState();
-    widget.startedConvertNotifier.addListener(() {
-      setState(() => startedConvert = widget.startedConvertNotifier.value);
-    });
-    widget.convertingNotifier.addListener(() {
-      setState(() => converting = widget.convertingNotifier.value);
+    widget.gpxConversionNotifier.addListener(() {
+      setState(() => loadingState = widget.gpxConversionNotifier.loadingState);
     });
   }
 
@@ -45,13 +39,12 @@ class ImportGpxInfoState extends State<ImportGpxInfo> {
             textAlign: TextAlign.center,
           ),
           const VSpace(),
-          !startedConvert
-              ? BigButton(
-                  label: 'Konvertieren',
-                  onPressed: () => widget.convertCallback.call(),
-                )
-              : const SizedBox.shrink(),
-          converting ? const Center(child: CircularProgressIndicator()) : const SizedBox.shrink(),
+          if (loadingState == GpxConversionState.init)
+            BigButton(
+              label: 'Konvertieren',
+              onPressed: () => widget.convertCallback.call(),
+            ),
+          if (loadingState == GpxConversionState.loading) const Center(child: CircularProgressIndicator())
         ],
       ),
     );

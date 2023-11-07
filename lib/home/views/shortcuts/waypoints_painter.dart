@@ -5,14 +5,15 @@ import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_projection.dart';
-import 'package:priobike/home/views/shortcuts/waypoints_pictogram.dart';
+import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class WaypointsPaint extends StatefulWidget {
   /// waypoints from a gpx
   final List<Wpt> wpts;
-  final RecWptsModel listenable;
+
+  final GpxConversion gpxConversionNotifier;
 
   /// The color of the pictogram.
   final Color gpxColor;
@@ -23,7 +24,7 @@ class WaypointsPaint extends StatefulWidget {
     required this.wpts,
     this.gpxColor = CI.radkulturRed,
     this.approxColor = CI.route,
-    required this.listenable,
+    required this.gpxConversionNotifier,
   }) : super(key: key);
 
   @override
@@ -38,8 +39,8 @@ class WaypointsPaintState extends State<WaypointsPaint> {
   void initState() {
     super.initState();
     routing = getIt<Routing>();
-    widget.listenable.addListener(() {
-      recWpts = widget.listenable.recWpts;
+    widget.gpxConversionNotifier.addListener(() {
+      recWpts = widget.gpxConversionNotifier.wpts;
       setState(() {});
     });
   }

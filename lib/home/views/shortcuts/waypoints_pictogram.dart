@@ -3,21 +3,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
+import 'package:priobike/common/shimmer.dart';
+import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
 import 'package:priobike/home/views/shortcuts/waypoints_painter.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
-
-class RecWptsModel with ChangeNotifier {
-  List<Wpt> _recWpts = [];
-  List<Wpt> get recWpts => _recWpts;
-
-  void updateWpts(List<Wpt> newWpts) {
-    _recWpts = newWpts;
-    notifyListeners();
-  }
-}
 
 class WaypointsPictogram extends StatefulWidget {
   /// waypoints from a gpx
@@ -29,14 +22,14 @@ class WaypointsPictogram extends StatefulWidget {
   /// The color of the pictogram.
   final Color color;
 
-  final RecWptsModel recWptsModel;
+  final GpxConversion gpxConversionNotifier;
 
   const WaypointsPictogram({
     Key? key,
     required this.wpts,
     this.height = 400,
     this.color = CI.radkulturRedDark,
-    required this.recWptsModel,
+    required this.gpxConversionNotifier,
   }) : super(key: key);
 
   @override
@@ -54,6 +47,8 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
   Future? backgroundImageFuture;
 
   late Routing routing;
+
+  GpxConversionState gpxConversionState = GpxConversionState.init;
 
   /// Loads the background image.
   void loadBackgroundImage() {
@@ -90,6 +85,9 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
   void initState() {
     super.initState();
     routing = getIt<Routing>();
+    widget.gpxConversionNotifier.addListener(() {
+      setState(() => gpxConversionState = widget.gpxConversionNotifier.loadingState);
+    });
     SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());
   }
 
@@ -101,34 +99,95 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      // width == height, because the map is a square
-      width: widget.height,
-      height: widget.height,
-      child: Stack(
-        alignment: Alignment.center,
-        fit: StackFit.expand,
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 1000),
-            child: backgroundImage != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(32),
-                    child: Image(
-                      image: backgroundImage!,
-                      fit: BoxFit.contain,
-                      key: UniqueKey(),
-                    ),
-                  )
-                : Container(),
+    return Stack(children: [
+      AnimatedContainer(
+        duration: const Duration(milliseconds: 1000),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: CI.radkulturRed,
+          borderRadius: BorderRadius.circular(48),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 4,
+              blurRadius: 32,
+              offset: const Offset(0, 20), // changes position of shadow
+            )
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Tile(
+            fill: Theme.of(context).colorScheme.background,
+            shadowIntensity: 0.05,
+            shadow: Colors.black,
+            borderRadius: BorderRadius.circular(32),
+            padding: const EdgeInsets.all(0),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: SizedBox(
+                  // width == height, because the map is a square
+                  width: widget.height,
+                  height: widget.height,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    fit: StackFit.expand,
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 1000),
+                        child: backgroundImage != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(32),
+                                child: Image(
+                                  image: backgroundImage!,
+                                  fit: BoxFit.contain,
+                                  key: UniqueKey(),
+                                ),
+                              )
+                            : Container(),
+                      ),
+                      WaypointsPaint(wpts: widget.wpts, gpxConversionNotifier: widget.gpxConversionNotifier),
+                      const MapboxAttribution(
+                        top: 8,
+                        right: 8,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-          WaypointsPaint(wpts: widget.wpts, listenable: widget.recWptsModel),
-          const MapboxAttribution(
-            top: 8,
-            right: 8,
-          ),
-        ],
+        ),
       ),
-    );
+      Shimmer(
+        linearGradient: const LinearGradient(
+          colors: [
+            CI.radkulturRed,
+            Colors.white,
+            CI.radkulturRed,
+          ],
+          stops: [0, 0.3, 0.35],
+          begin: Alignment(0.0, -1.0),
+          end: Alignment(1.0, 2.0),
+          tileMode: TileMode.clamp,
+        ),
+        child: ShimmerLoading(
+          isLoading: gpxConversionState == GpxConversionState.loading,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(48),
+              border: Border.all(
+                color: CI.radkulturRed,
+                width: 4,
+              ),
+              color: Colors.white.withOpacity(0.05),
+            ),
+          ),
+        ),
+      )
+    ]);
   }
 }
