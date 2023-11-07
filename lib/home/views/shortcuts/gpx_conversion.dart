@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/map/map_projection.dart';
@@ -108,7 +109,7 @@ List cost(List<double> gpxXs, List<double> gpxYs, List<double> recXs, List<doubl
   return [ds, averageD];
 }
 
-Future<List> iterativelyImproveApprox(List<double> gpxXs, List<double> gpxYs, routing) async {
+Future<List> iterativelyImproveApprox(List<double> gpxXs, List<double> gpxYs, Routing routing, ValueSetter<List<Wpt>> callback) async {
   List<double> approxXs, approxYs;
   List<int> gpxIndices;
 
@@ -121,6 +122,7 @@ Future<List> iterativelyImproveApprox(List<double> gpxXs, List<double> gpxYs, ro
   List reconstruction = await reconstructRoute(approxXs, approxYs, routing);
   recXs = reconstruction[0];
   recYs = reconstruction[1];
+  emitProgress(recXs, recYs, callback);
 
   List<double> cs;
   double lastCost, totalCost;
@@ -155,8 +157,19 @@ Future<List> iterativelyImproveApprox(List<double> gpxXs, List<double> gpxYs, ro
     costVal = cost(gpxXs, gpxYs, recXs, recYs);
     if (totalCost == lastCost) dThreshLocal = dThreshLocal / 2;
     lastCost = totalCost;
+
+    emitProgress(recXs, recYs, callback);
   }
   return [approxXs, approxYs];
+}
+
+void emitProgress(List<double> xs, List<double> ys, ValueSetter<List<Wpt>> callback){
+  List<Wpt> wpts = [];
+  for(int j = 0; j < xs.length; j++){
+    LatLng latLng = MapboxMapProjection.convertMercatorToLatLon(xs[j], ys[j]);
+    wpts.add(Wpt(lat: latLng.latitude, lon: latLng.longitude));
+  }
+  callback.call(wpts);
 }
 
 int argMax(List<double> list) {
@@ -173,9 +186,15 @@ int argMax(List<double> list) {
   return maxI;
 }
 
-Future<List<Waypoint>> reduceWpts(List<Wpt> wpts, routing) async {
+Future<List<Waypoint>> reduceWpts(List<Wpt> wpts, Routing routing, ValueSetter<List<Wpt>> callback) async {
   // check if all waypoints are within Hamburg
-  ToastMessage.showError('Ein oder mehrere Punkte der GPX Datei liegen nicht in Hamburg.');
+  List<Waypoint> initWaypoints = [];
+  for (int i = 0; i < wpts.length; i++) {
+    initWaypoints.add(Waypoint(wpts[i].lat!, wpts[i].lon!));
+  }
+  if (!routing.inCityBoundary(initWaypoints)){
+    ToastMessage.showError('Ein oder mehrere Punkte der GPX Datei liegen nicht in Hamburg.');
+  }
   List<double> gpxXs = [];
   List<double> gpxYs = [];
   for (Wpt wpt in wpts) {
@@ -189,7 +208,7 @@ Future<List<Waypoint>> reduceWpts(List<Wpt> wpts, routing) async {
   }
   List<double> approxXs = [];
   List<double> approxYs = [];
-  List approx = await iterativelyImproveApprox(gpxXs, gpxYs, routing);
+  List approx = await iterativelyImproveApprox(gpxXs, gpxYs, routing, callback);
   approxXs = approx[0];
   approxYs = approx[1];
   List<Waypoint> waypoints = [];

@@ -1,22 +1,18 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/dialog.dart';
-import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
+import 'package:priobike/home/views/shortcuts/waypoints_pictogram.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class WaypointsPaint extends StatefulWidget {
   /// waypoints from a gpx
   final List<Wpt> wpts;
+  final RecWptsModel listenable;
 
   /// The color of the pictogram.
   final Color gpxColor;
@@ -27,6 +23,7 @@ class WaypointsPaint extends StatefulWidget {
     required this.wpts,
     this.gpxColor = CI.radkulturRed,
     this.approxColor = CI.radkulturGreen,
+    required this.listenable,
   }) : super(key: key);
 
   @override
@@ -34,87 +31,34 @@ class WaypointsPaint extends StatefulWidget {
 }
 
 class WaypointsPaintState extends State<WaypointsPaint> {
-  /// The background image of the map for the track.
-  MemoryImage? backgroundImage;
-
-  /// The brightness of the background image.
-  Brightness? backgroundImageBrightness;
-
-  /// The future of the background image.
-  Future? backgroundImageFuture;
-
   late Routing routing;
 
-  /// Loads the background image.
-  void loadBackgroundImage() {
-    final fetchedBrightness = Theme.of(context).brightness;
-    if (fetchedBrightness == backgroundImageBrightness) return;
-
-    backgroundImageFuture?.ignore();
-    List<LatLng> coords;
-    List<Wpt> wpts = widget.wpts;
-    coords = wpts.map((Wpt e) => LatLng(e.lat!, e.lon!)).toList();
-    backgroundImageFuture = MapboxTileImageCache.requestTile(
-      coords: coords,
-      brightness: fetchedBrightness,
-    ).then((value) {
-      if (!mounted) return;
-      if (value == null) return;
-      final brightnessNow = Theme.of(context).brightness;
-      if (fetchedBrightness != brightnessNow) return;
-
-      setState(() {
-        backgroundImage = value;
-        backgroundImageBrightness = brightnessNow;
-      });
-    });
-  }
-
-  Future<void> convertGpxToWaypoints(List<Wpt> points) async {
-    if (points.isEmpty) return;
-    List<Waypoint> waypoints = await reduceWpts(points, routing);
-    if (mounted) {
-      showSaveShortcutSheet(context,
-        shortcut: ShortcutRoute(
-          id: UniqueKey().toString(),
-          name: "Strecke aus GPX",
-          waypoints: waypoints,
-        ));
-    }
-    return;
-  }
-
-  @override
-  void didUpdateWidget(covariant WaypointsPaint oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    loadBackgroundImage();
-  }
-
+  List<Wpt> recWpts = [];
   @override
   void initState() {
     super.initState();
     routing = getIt<Routing>();
-    SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());
-  }
-
-  @override
-  void dispose() {
-    backgroundImageFuture?.ignore();
-    super.dispose();
+    widget.listenable.addListener(() {
+      recWpts = widget.listenable.recWpts;
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    MapboxMapProjectionBoundingBox? bbox = MapboxMapProjection.mercatorBoundingBox(widget.wpts.map((e) => LatLng(e.lat!, e.lon!)).toList());
     return CustomPaint(
       painter: WaypointsPainter(
-      wpts: widget.wpts,
+        wpts: widget.wpts,
         color: widget.gpxColor,
+        bbox: bbox
       ),
       child: CustomPaint(
         painter: WaypointsPainter(
-          wpts: widget.wpts.sublist(0, 400),
+          wpts: recWpts,
           color: widget.approxColor,
-        ),
+          bbox: bbox
+        )
       ),
     );
   }
@@ -124,8 +68,9 @@ class WaypointsPaintState extends State<WaypointsPaint> {
 class WaypointsPainter extends CustomPainter {
   final List<Wpt> wpts;
   final Color color;
+  MapboxMapProjectionBoundingBox? bbox;
 
-  WaypointsPainter({required this.wpts, required this.color});
+  WaypointsPainter({required this.wpts, required this.color, this.bbox});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -138,8 +83,7 @@ class WaypointsPainter extends CustomPainter {
     final waypoints = wpts;
     final waypointCount = waypoints.length;
 
-    final bbox = MapboxMapProjection.mercatorBoundingBox(waypoints.map((e) => LatLng(e.lat!, e.lon!)).toList());
-    if (bbox == null) return;
+    bbox ??= MapboxMapProjection.mercatorBoundingBox(waypoints.map((e) => LatLng(e.lat!, e.lon!)).toList());
 
     List<double> distances = [];
     double maxDistance = 0.0;
@@ -164,10 +108,10 @@ class WaypointsPainter extends CustomPainter {
       final waypoint1 = waypoints[i];
       final waypoint2 = waypoints[i + 1];
 
-      final x1 = (waypoint1.lon! - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-      final y1 = (waypoint1.lat! - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
-      final x2 = (waypoint2.lon! - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-      final y2 = (waypoint2.lat! - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+      final x1 = (waypoint1.lon! - bbox!.minLon) / (bbox!.maxLon - bbox!.minLon) * size.width;
+      final y1 = (waypoint1.lat! - bbox!.maxLat) / (bbox!.minLat - bbox!.maxLat) * size.height;
+      final x2 = (waypoint2.lon! - bbox!.minLon) / (bbox!.maxLon - bbox!.minLon) * size.width;
+      final y2 = (waypoint2.lat! - bbox!.maxLat) / (bbox!.minLat - bbox!.maxLat) * size.height;
 
       // Draw a dashed ballistic line between the waypoints
       // offset
@@ -202,8 +146,8 @@ class WaypointsPainter extends CustomPainter {
     for (var i = 0; i < waypointCount; i++) {
       final waypoint = waypoints[i];
 
-      final x = (waypoint.lon! - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-      final y = (waypoint.lat! - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+      final x = (waypoint.lon! - bbox!.minLon) / (bbox!.maxLon - bbox!.minLon) * size.width;
+      final y = (waypoint.lat! - bbox!.maxLat) / (bbox!.minLat - bbox!.maxLat) * size.height;
 
       if (i == 0) {
         canvas.drawCircle(Offset(x, y), 3, paint);
