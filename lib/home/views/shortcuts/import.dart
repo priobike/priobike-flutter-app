@@ -19,11 +19,6 @@ class ImportShortcutDialog<E> extends StatefulWidget {
 }
 
 class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void openQRScanner() {
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (BuildContext context) => const QRCodeView(),
