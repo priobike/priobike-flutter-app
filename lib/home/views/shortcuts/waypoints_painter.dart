@@ -35,14 +35,22 @@ class WaypointsPaintState extends State<WaypointsPaint> {
   late Routing routing;
 
   List<Wpt> recWpts = [];
+
+  void updateRecWpts() {
+    setState(() => recWpts = widget.gpxConversionNotifier.wpts);
+  }
+
   @override
   void initState() {
     super.initState();
     routing = getIt<Routing>();
-    widget.gpxConversionNotifier.addListener(() {
-      recWpts = widget.gpxConversionNotifier.wpts;
-      setState(() {});
-    });
+    widget.gpxConversionNotifier.addListener(updateRecWpts);
+  }
+
+  @override
+  void dispose() {
+    widget.gpxConversionNotifier.removeListener(updateRecWpts);
+    super.dispose();
   }
 
   @override

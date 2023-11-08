@@ -81,19 +81,22 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
     loadBackgroundImage();
   }
 
+  void updateGpxConversionState() {
+    setState(() => gpxConversionState = widget.gpxConversionNotifier.gpxConversionState);
+  }
+
   @override
   void initState() {
     super.initState();
     routing = getIt<Routing>();
-    widget.gpxConversionNotifier.addListener(() {
-      setState(() => gpxConversionState = widget.gpxConversionNotifier.loadingState);
-    });
+    widget.gpxConversionNotifier.addListener(updateGpxConversionState);
     SchedulerBinding.instance.addPostFrameCallback((_) => loadBackgroundImage());
   }
 
   @override
   void dispose() {
     backgroundImageFuture?.ignore();
+    widget.gpxConversionNotifier.removeListener(updateGpxConversionState);
     super.dispose();
   }
 

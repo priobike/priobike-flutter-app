@@ -142,12 +142,12 @@ int argMax(List<double> list) {
 }
 
 class GpxConversion with ChangeNotifier {
-  GpxConversionState loadingState = GpxConversionState.init;
+  GpxConversionState gpxConversionState = GpxConversionState.init;
   List<Wpt> wpts = [];
 
   /// Go to next gpx conversion state (init -> loading -> finished)
   void nextState() {
-    loadingState = GpxConversionState.values[min(loadingState.index + 1, 2)];
+    gpxConversionState = GpxConversionState.values[min(gpxConversionState.index + 1, 2)];
     notifyListeners();
   }
 

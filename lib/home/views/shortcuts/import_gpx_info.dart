@@ -15,14 +15,22 @@ class ImportGpxInfo extends StatefulWidget {
 }
 
 class ImportGpxInfoState extends State<ImportGpxInfo> {
-  GpxConversionState loadingState = GpxConversionState.init;
+  GpxConversionState gpxConversionState = GpxConversionState.init;
+
+  void updateGpxConversionState() {
+    setState(() => gpxConversionState = widget.gpxConversionNotifier.gpxConversionState);
+  }
 
   @override
   void initState() {
     super.initState();
-    widget.gpxConversionNotifier.addListener(() {
-      setState(() => loadingState = widget.gpxConversionNotifier.loadingState);
-    });
+    widget.gpxConversionNotifier.addListener(updateGpxConversionState);
+  }
+
+  @override
+  void dispose() {
+    widget.gpxConversionNotifier.removeListener(updateGpxConversionState);
+    super.dispose();
   }
 
   @override
@@ -39,12 +47,12 @@ class ImportGpxInfoState extends State<ImportGpxInfo> {
             textAlign: TextAlign.center,
           ),
           const VSpace(),
-          if (loadingState == GpxConversionState.init)
+          if (gpxConversionState == GpxConversionState.init)
             BigButton(
               label: 'Konvertieren',
               onPressed: () => widget.convertCallback.call(),
             ),
-          if (loadingState == GpxConversionState.loading) const Center(child: CircularProgressIndicator())
+          if (gpxConversionState == GpxConversionState.loading) const Center(child: CircularProgressIndicator())
         ],
       ),
     );
