@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:path/path.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -24,6 +27,8 @@ class Simulator {
   /// The timer that is used to periodically calculate the prediction.
   Timer? calcTimer;
 
+  double currentSpeed = 20.0;
+
   /// How often the current speed should be sent to the simulator.
   final Duration sendInterval = const Duration(seconds: 1);
 
@@ -40,7 +45,18 @@ class Simulator {
 
     const topic = "simulation";
     const qualityOfService = MqttQos.exactlyOnce;
-    final String message = (27.3).toString(); // FIXME: dummy data
+
+    // Debug-Feature: Set the current speed to a random value between 20 and 40.
+    final oldSpeed = currentSpeed;
+    double newSpeed = 0.0;
+    const minSpeed = 20.0;
+    const maxSpeed = 40.0;
+    while (newSpeed > 40 || newSpeed < 20 || (newSpeed - oldSpeed).abs() > 2) {
+      newSpeed = minSpeed + Random().nextDouble() * (maxSpeed - minSpeed);
+    }
+    currentSpeed = newSpeed;
+
+    final String message = currentSpeed.toStringAsFixed(2); // FIXME: dummy data
 
     // convert message to byte array
     final Uint8List data = Uint8List.fromList(utf8.encode(message));
