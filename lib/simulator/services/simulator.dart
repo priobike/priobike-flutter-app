@@ -9,6 +9,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:path/path.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -30,7 +31,7 @@ class Simulator {
   double currentSpeed = 20.0;
 
   /// How often the current speed should be sent to the simulator.
-  final Duration sendInterval = const Duration(seconds: 1);
+  final Duration sendInterval = const Duration(seconds: 3);
 
   askForPermission() {
     // TODO: implement askForPermission
@@ -51,10 +52,12 @@ class Simulator {
     double newSpeed = 0.0;
     const minSpeed = 20.0;
     const maxSpeed = 40.0;
-    while (newSpeed > 40 || newSpeed < 20 || (newSpeed - oldSpeed).abs() > 2) {
+    while (newSpeed > maxSpeed || newSpeed < minSpeed || (newSpeed - oldSpeed).abs() > 2) {
       newSpeed = minSpeed + Random().nextDouble() * (maxSpeed - minSpeed);
     }
     currentSpeed = newSpeed;
+    final positioning = getIt<Positioning>();
+    positioning.setDebugSpeed(currentSpeed / 3.6);
 
     final String message = currentSpeed.toStringAsFixed(2); // FIXME: dummy data
 
