@@ -65,6 +65,7 @@ dependencies:
   proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
   file_picker: ^6.1.1 # Used to open GPX files
   gpx: ^2.2.1
+  typed_data: ^1.3.2 # Used for encoding messages to send via MQTT for simulator
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Generate app icons

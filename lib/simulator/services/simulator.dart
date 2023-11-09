@@ -35,7 +35,7 @@ class Simulator {
     // TODO: implement conntectWithDevice
   }
 
-  Future<void> sendCurrentSpeed() async {
+  Future<void> sendCurrentSpeedToMQTT() async {
     if (client == null) await connectMQTTClient();
 
     const topic = "simulation";
@@ -97,7 +97,7 @@ class Simulator {
 
       // Start the timer that updates the prediction once per second.
       calcTimer = Timer.periodic(sendInterval, (timer) {
-        sendCurrentSpeed();
+        sendCurrentSpeedToMQTT();
       });
     } catch (e, stacktrace) {
       client = null;
