@@ -1,4 +1,4 @@
-name: Dist / Android / Closed
+name: Dist / Android / Release
 
 on:
   push:
