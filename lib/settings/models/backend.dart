@@ -292,7 +292,7 @@ extension Simulator on Backend {
     }
   }
 
-  String get simulatorMQTTPubPassword {
+  String get simulatorMQTTPublishPassword {
     switch (this) {
       case Backend.production:
         return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
@@ -303,7 +303,7 @@ extension Simulator on Backend {
     }
   }
 
-  String get simulatorMQTTPubUser {
+  String get simulatorMQTTPublishUsername {
     switch (this) {
       case Backend.production:
         return "app";
