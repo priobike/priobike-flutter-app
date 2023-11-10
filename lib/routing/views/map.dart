@@ -877,6 +877,29 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
+  void dragWaypoint({required double x, required double y}) {
+    // check if the user dragged the waypoint to the edge of the screen
+    final screenEdge = getDragScreenEdge(x: x, y: y, context: context);
+
+    if (screenEdge != ScreenEdge.none) {
+      if (draggedWaypointLongitude == null || draggedWaypointLatitude == null) {
+        draggedWaypointLongitude = positioning.lastPosition!.longitude;
+        draggedWaypointLatitude = positioning.lastPosition!.latitude;
+      }
+
+      // determine how to move the map
+      final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
+
+      mapController?.moveBy(
+        ScreenCoordinate(
+          x: cameraMovement['x'] ?? 0,
+          y: cameraMovement['y'] ?? 0,
+        ),
+        MapAnimationOptions(duration: 0),
+      );
+    }
+  }
+
   /// Calculates the coordinates for the route labels.
   Future<List<Map>> getCoordinatesForRouteLabels() async {
     if (mapController == null) return [];
@@ -1002,31 +1025,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               dragPosition = details.localPosition;
             });
 
-            final draggedToX = details.localPosition.dx;
-            final draggedToY = details.localPosition.dy;
-            // check if the user dragged the waypoint to the edge of the screen
-            final screenEdge = getDragScreenEdge(x: draggedToX, y: draggedToY, context: context);
-
-            if (screenEdge != ScreenEdge.none) {
-              if (draggedWaypointLongitude == null || draggedWaypointLatitude == null) {
-                draggedWaypointLongitude = positioning.lastPosition!.longitude;
-                draggedWaypointLatitude = positioning.lastPosition!.latitude;
-              }
-
-              // determine how to move the map
-              final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
-
-              // TODO: die Lösung des Problems ist, dass diese Methode nur aufgerufen wird, wenn man den Finger bewegt.
-              // Es müsste aber auch aufgerufen werden, wenn man nur runterdrückt und den Finger nicht bewegt.
-
-              mapController?.moveBy(
-                ScreenCoordinate(
-                  x: cameraMovement['x'] ?? 0,
-                  y: cameraMovement['y'] ?? 0,
-                ),
-                MapAnimationOptions(duration: 0),
-              );
-            }
+            dragWaypoint(
+              x: details.localPosition.dx,
+              y: details.localPosition.dy,
+            );
           },
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
