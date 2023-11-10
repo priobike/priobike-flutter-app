@@ -132,12 +132,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The type of the dragged waypoint to determine the icon.
   WaypointType? draggedWaypointType;
 
-  /// The updated longitude if the user is dragging a waypoint to the edge of the screen.
-  double? draggedWaypointLongitude;
-
-  /// The updated latitude if the user is dragging a waypoint to the edge of the screen.
-  double? draggedWaypointLatitude;
-
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -886,11 +880,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final screenEdge = getDragScreenEdge(x: x, y: y, context: context);
 
     if (screenEdge != ScreenEdge.none) {
-      if (draggedWaypointLongitude == null || draggedWaypointLatitude == null) {
-        draggedWaypointLongitude = positioning.lastPosition!.longitude;
-        draggedWaypointLatitude = positioning.lastPosition!.latitude;
-      }
-
       // determine how to move the map
       final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
 
