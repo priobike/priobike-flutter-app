@@ -1043,14 +1043,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
               draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
 
-              // remove old waypoint
+              // remove old waypoint from routing and search history
               await routing.removeWaypoint(draggedWaypoint!);
+              getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
 
+              // get the position when the user released the waypoint
               double x = details.localPosition.dx;
               double y = details.localPosition.dy;
 
               if (!mounted) return;
-              // Convert x and y into a lat/lon.
               final ppi = MediaQuery.of(context).devicePixelRatio;
               // On android, we need to multiply by the ppi.
               if (Platform.isAndroid) {
@@ -1058,9 +1059,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 y *= ppi;
               }
               final point = ScreenCoordinate(x: x, y: y);
+
               // add new waypoint at tapped position.
-              // If the old waypoint was a destination, the new waypoint should be a destination as well
-              // i.e. it should be added at the end of the list
               await addWaypoint(point);
             } else {
               animationController.reverse();
