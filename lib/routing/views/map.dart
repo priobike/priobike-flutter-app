@@ -717,7 +717,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Check if user tapped on an existing waypoint and return the waypoint if found.
-  Future<Waypoint?> checkIfWaypointIsAtTappedPosition({required double x, required double y}) async {
+  Future<Waypoint?> _checkIfWaypointIsAtTappedPosition({required double x, required double y}) async {
     if (mapController == null) return null;
     if (routing.selectedWaypoints == null) return null;
 
@@ -963,25 +963,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return chosenCoordinates;
   }
 
-  // Check if the user dragged a waypoint to the edge of the screen
-  ScreenEdge _dragToScreenEdge({required double x, required double y}) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // the area of the screen that is considered the edge of the screen
-    // the bottom area needs to be bigger because of the bottom sheet
-    final minEdgeHeight = screenHeight * 0.15;
-    final maxEdgeHeight = screenHeight * 0.75;
-    final minEdgeWidth = screenWidth * 0.15;
-    final maxEdgeWidth = screenWidth * 0.85;
-
-    if (x <= minEdgeWidth) return ScreenEdge.left;
-    if (x >= maxEdgeWidth) return ScreenEdge.right;
-    if (y <= minEdgeHeight) return ScreenEdge.top;
-    if (y >= maxEdgeHeight) return ScreenEdge.bottom;
-    return ScreenEdge.none;
-  }
-
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
@@ -995,10 +976,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // if on map, create new waypoint
             // if on waypoint, drag waypoint
             draggedWaypoint =
-                await checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
-            print("Charly ${draggedWaypoint?.address}");
+                await _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
             if (draggedWaypoint == null) {
               tapPosition = details.localPosition;
+              dragPosition = null;
               animationController.forward();
             } else {
               dragPosition = details.localPosition;
@@ -1007,7 +988,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           onLongPressCancel: () {
             animationController.reverse();
             dragPosition = null;
-            draggedWaypoint = null;
           },
           onLongPressMoveUpdate: (details) async {
             // if user pressed on map, reverse pin animation
@@ -1022,49 +1002,27 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               dragPosition = details.localPosition;
             });
 
-            // check if the user dragged the waypoint to the edge of the screen
             final draggedToX = details.localPosition.dx;
             final draggedToY = details.localPosition.dy;
-            final hitEdge = _dragToScreenEdge(x: draggedToX, y: draggedToY);
+            // check if the user dragged the waypoint to the edge of the screen
+            final screenEdge = getDragScreenEdge(x: draggedToX, y: draggedToY, context: context);
 
-            if (hitEdge != ScreenEdge.none) {
+            if (screenEdge != ScreenEdge.none) {
               if (draggedWaypointLongitude == null || draggedWaypointLatitude == null) {
                 draggedWaypointLongitude = positioning.lastPosition!.longitude;
                 draggedWaypointLatitude = positioning.lastPosition!.latitude;
               }
-              // determines how fast the map moves when dragging a waypoint to the edge of the screen
-              const moveSpeed = 15.0;
-              switch (hitEdge) {
-                case ScreenEdge.bottom:
-                  draggedWaypointLatitude = draggedWaypointLatitude! - moveSpeed;
-                  break;
-                case ScreenEdge.top:
-                  draggedWaypointLatitude = draggedWaypointLatitude! + moveSpeed;
-                  break;
-                case ScreenEdge.right:
-                  draggedWaypointLongitude = draggedWaypointLongitude! + moveSpeed;
-                  break;
-                case ScreenEdge.left:
-                  draggedWaypointLongitude = draggedWaypointLongitude! - moveSpeed;
-                  break;
-                default:
-                  break;
-              }
+
+              // determine how to move the map
+              final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
+
               // TODO: die Lösung des Problems ist, dass diese Methode nur aufgerufen wird, wenn man den Finger bewegt.
               // Es müsste aber auch aufgerufen werden, wenn man nur runterdrückt und den Finger nicht bewegt.
 
               mapController?.moveBy(
                 ScreenCoordinate(
-                  x: hitEdge == ScreenEdge.right
-                      ? -moveSpeed
-                      : hitEdge == ScreenEdge.left
-                          ? moveSpeed
-                          : 0,
-                  y: hitEdge == ScreenEdge.bottom
-                      ? -moveSpeed
-                      : hitEdge == ScreenEdge.top
-                          ? moveSpeed
-                          : 0,
+                  x: cameraMovement['x'] ?? 0,
+                  y: cameraMovement['y'] ?? 0,
                 ),
                 MapAnimationOptions(duration: 0),
               );
