@@ -22,6 +22,7 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/drag_waypoint.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/screen_edge.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -127,6 +128,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The index of the dragged waypoint to determine if the waypoint is a destination or a waypoint in the middle.
   int? draggedWaypointIndex;
+
+  /// The type of the dragged waypoint to determine the icon.
+  WaypointType? draggedWaypointType;
 
   /// The updated longitude if the user is dragging a waypoint to the edge of the screen.
   double? draggedWaypointLongitude;
@@ -997,15 +1001,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           onLongPressDown: (details) async {
             // check if user long pressed on map or waypoint
             // if on map, create new waypoint
-            // if on waypoint, drag waypoint
+            // if on waypoint, start dragging waypoint
             draggedWaypoint =
                 await _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
             if (draggedWaypoint == null) {
               tapPosition = details.localPosition;
               dragPosition = null;
+              draggedWaypointType = null;
               animationController.forward();
             } else {
+              if (routing.selectedWaypoints == null) return;
               dragPosition = details.localPosition;
+              draggedWaypointType = getWaypointType(routing.selectedWaypoints!, draggedWaypoint!);
             }
           },
           onLongPressCancel: () {
@@ -1062,9 +1069,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
             }
             // reset variables
-            draggedWaypoint = null;
             dragPosition = null;
+            draggedWaypoint = null;
             draggedWaypointIndex = null;
+            draggedWaypointType = null;
           },
           behavior: HitTestBehavior.translucent,
           child: AppMap(
@@ -1152,7 +1160,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ),
           ),
         // for dragging waypoints
-        if (dragPosition != null)
+        if (dragPosition != null && draggedWaypointType != null)
           Stack(
             children: [
               AnimatedPositioned(
@@ -1164,9 +1172,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   width: 24 * 1.5,
                   height: 24 * 1.5,
                   child: Image.asset(
-                    routing.selectedWaypoints!.last == draggedWaypoint!
-                        ? 'assets/images/destination.drawio.png'
-                        : 'assets/images/waypoint.drawio.png',
+                    draggedWaypointType!.iconPath,
                     fit: BoxFit.contain,
                   ),
                 ),
