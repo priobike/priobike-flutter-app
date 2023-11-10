@@ -202,6 +202,8 @@ class Positioning with ChangeNotifier {
       locationSettings: locationSettings,
     );
 
+    // TODO: Hier MQTT einbauen
+
     positionSubscription = positionStream.listen(
       (Position position) {
         if (!isGeolocating) return;

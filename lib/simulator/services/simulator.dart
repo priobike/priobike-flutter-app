@@ -30,8 +30,10 @@ class Simulator {
 
   double currentSpeed = 20.0;
 
+  final deviceId = UniqueKey().toString();
+
   /// How often the current speed should be sent to the simulator.
-  final Duration sendInterval = const Duration(seconds: 3);
+  final Duration sendInterval = const Duration(seconds: 1);
 
   askForPermission() {
     // TODO: implement askForPermission
@@ -41,13 +43,17 @@ class Simulator {
     // TODO: implement conntectWithDevice
   }
 
+  sendReadyToPair() {
+    // TODO:
+  }
+
   Future<void> sendCurrentSpeedToMQTT() async {
     if (client == null) await connectMQTTClient();
 
     const topic = "simulation";
-    const qualityOfService = MqttQos.exactlyOnce;
+    const qualityOfService = MqttQos.atMostOnce;
 
-    // Debug-Feature: Set the current speed to a random value between 20 and 40.
+    // Debug-Feature: Set the current speed to a random value between 20 and 40 and set Debug-Speed.
     final oldSpeed = currentSpeed;
     double newSpeed = 0.0;
     const minSpeed = 20.0;
@@ -59,13 +65,13 @@ class Simulator {
     final positioning = getIt<Positioning>();
     positioning.setDebugSpeed(currentSpeed / 3.6);
 
-    final String message = currentSpeed.toStringAsFixed(2); // FIXME: dummy data
+    final String message = "$deviceId ${currentSpeed.toStringAsFixed(2)}";
 
     // convert message to byte array
     final Uint8List data = Uint8List.fromList(utf8.encode(message));
     Uint8Buffer dataBuffer = Uint8Buffer();
     dataBuffer.addAll(data);
-    log.i("Sending $message to simulator.");
+    log.i("Sending $message from $deviceId to simulator.");
 
     // publish message
     try {
@@ -78,7 +84,7 @@ class Simulator {
   Future<void> connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
-    final clientId = 'priobike-app-${UniqueKey().toString()}';
+    final clientId = 'priobike-app-${deviceId.toString()}';
     try {
       client = MqttServerClient(
         settings.backend.simulatorMQTTPath,
