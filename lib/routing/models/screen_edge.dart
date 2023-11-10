@@ -41,41 +41,41 @@ ScreenEdge getDragScreenEdge({required double x, required double y, required Bui
 // Calculates how the map should move when dragging a waypoint to the edge of the screen
 Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge screenEdge}) {
   // determines how fast the map moves when dragging a waypoint to the edge of the screen
-  const moveSpeed = 15.0;
+  const mapMoveSpeed = 15.0;
   final double moveCameraX;
   final double moveCameraY;
   switch (screenEdge) {
     case ScreenEdge.bottom:
       moveCameraX = 0.0;
-      moveCameraY = -moveSpeed;
+      moveCameraY = -mapMoveSpeed;
       break;
     case ScreenEdge.top:
       moveCameraX = 0.0;
-      moveCameraY = moveSpeed;
+      moveCameraY = mapMoveSpeed;
       break;
     case ScreenEdge.right:
-      moveCameraX = -moveSpeed;
+      moveCameraX = -mapMoveSpeed;
       moveCameraY = 0.0;
       break;
     case ScreenEdge.left:
-      moveCameraX = moveSpeed;
+      moveCameraX = mapMoveSpeed;
       moveCameraY = 0.0;
       break;
     case ScreenEdge.topleft:
-      moveCameraX = moveSpeed;
-      moveCameraY = moveSpeed;
+      moveCameraX = mapMoveSpeed;
+      moveCameraY = mapMoveSpeed;
       break;
     case ScreenEdge.topright:
-      moveCameraX = -moveSpeed;
-      moveCameraY = moveSpeed;
+      moveCameraX = -mapMoveSpeed;
+      moveCameraY = mapMoveSpeed;
       break;
     case ScreenEdge.bottomleft:
-      moveCameraX = moveSpeed;
-      moveCameraY = -moveSpeed;
+      moveCameraX = mapMoveSpeed;
+      moveCameraY = -mapMoveSpeed;
       break;
     case ScreenEdge.bottomright:
-      moveCameraX = -moveSpeed;
-      moveCameraY = -moveSpeed;
+      moveCameraX = -mapMoveSpeed;
+      moveCameraY = -mapMoveSpeed;
       break;
 
     default:
