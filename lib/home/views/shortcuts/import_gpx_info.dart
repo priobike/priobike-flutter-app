@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
+import 'package:priobike/home/services/gpx_conversion.dart';
 
 class ImportGpxInfo extends StatefulWidget {
   const ImportGpxInfo({Key? key, required this.convertCallback, required this.gpxConversionNotifier}) : super(key: key);

@@ -7,12 +7,12 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/common/shimmer.dart';
-import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
-import 'package:priobike/home/views/shortcuts/waypoints_painter.dart';
+import 'package:priobike/home/services/gpx_conversion.dart';
+import 'package:priobike/home/views/shortcuts/gpx_conversion_waypoints_paint.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
-class WaypointsPictogram extends StatefulWidget {
+class GpxConversionWaypointsPictogram extends StatefulWidget {
   /// waypoints from a gpx
   final List<Wpt> wpts;
 
@@ -24,7 +24,7 @@ class WaypointsPictogram extends StatefulWidget {
 
   final GpxConversion gpxConversionNotifier;
 
-  const WaypointsPictogram({
+  const GpxConversionWaypointsPictogram({
     Key? key,
     required this.wpts,
     this.height = 400,
@@ -33,10 +33,10 @@ class WaypointsPictogram extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  WaypointsPictogramState createState() => WaypointsPictogramState();
+  GpxConversionWaypointsPictogramState createState() => GpxConversionWaypointsPictogramState();
 }
 
-class WaypointsPictogramState extends State<WaypointsPictogram> {
+class GpxConversionWaypointsPictogramState extends State<GpxConversionWaypointsPictogram> {
   /// The background image of the map for the track.
   MemoryImage? backgroundImage;
 
@@ -76,7 +76,7 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
   }
 
   @override
-  void didUpdateWidget(covariant WaypointsPictogram oldWidget) {
+  void didUpdateWidget(covariant GpxConversionWaypointsPictogram oldWidget) {
     super.didUpdateWidget(oldWidget);
     loadBackgroundImage();
   }
@@ -152,7 +152,8 @@ class WaypointsPictogramState extends State<WaypointsPictogram> {
                               )
                             : Container(),
                       ),
-                      WaypointsPaint(wpts: widget.wpts, gpxConversionNotifier: widget.gpxConversionNotifier),
+                      GPXConversionWaypointsPaint(
+                          wpts: widget.wpts, gpxConversionNotifier: widget.gpxConversionNotifier),
                       const MapboxAttribution(
                         top: 8,
                         right: 8,

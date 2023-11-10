@@ -5,11 +5,11 @@ import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_projection.dart';
-import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
+import 'package:priobike/home/services/gpx_conversion.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
-class WaypointsPaint extends StatefulWidget {
+class GPXConversionWaypointsPaint extends StatefulWidget {
   /// waypoints from a gpx
   final List<Wpt> wpts;
 
@@ -19,7 +19,7 @@ class WaypointsPaint extends StatefulWidget {
   final Color gpxColor;
   final Color approxColor;
 
-  const WaypointsPaint({
+  const GPXConversionWaypointsPaint({
     Key? key,
     required this.wpts,
     this.gpxColor = CI.radkulturRed,
@@ -28,10 +28,10 @@ class WaypointsPaint extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  WaypointsPaintState createState() => WaypointsPaintState();
+  GPXConversionWaypointsPaintState createState() => GPXConversionWaypointsPaintState();
 }
 
-class WaypointsPaintState extends State<WaypointsPaint> {
+class GPXConversionWaypointsPaintState extends State<GPXConversionWaypointsPaint> {
   late Routing routing;
 
   List<Wpt> recWpts = [];

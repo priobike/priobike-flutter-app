@@ -9,9 +9,9 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/home/views/shortcuts/gpx_conversion.dart';
+import 'package:priobike/home/services/gpx_conversion.dart';
 import 'package:priobike/home/views/shortcuts/import_gpx_info.dart';
-import 'package:priobike/home/views/shortcuts/waypoints_pictogram.dart';
+import 'package:priobike/home/views/shortcuts/gpx_conversion_waypoints_pictogram.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -129,7 +129,8 @@ class ImportGpxViewState extends State<ImportGpxView> {
                     SizedBox(
                         width: MediaQuery.of(context).size.width * 0.8,
                         height: MediaQuery.of(context).size.width * 0.8,
-                        child: WaypointsPictogram(wpts: points, gpxConversionNotifier: gpxConversionNotifier)),
+                        child: GpxConversionWaypointsPictogram(
+                            wpts: points, gpxConversionNotifier: gpxConversionNotifier)),
                     const VSpace(),
                     ImportGpxInfo(
                       convertCallback: () async => await convertGpxToWaypoints(points),
