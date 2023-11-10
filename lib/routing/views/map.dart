@@ -875,22 +875,35 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
+  ScreenEdge currentScreenEdge = ScreenEdge.none;
+
   void dragWaypoint({required double x, required double y}) {
     // check if the user dragged the waypoint to the edge of the screen
-    final screenEdge = getDragScreenEdge(x: x, y: y, context: context);
+    ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
 
     if (screenEdge != ScreenEdge.none) {
-      // determine how to move the map
-      final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
-
-      mapController?.moveBy(
-        ScreenCoordinate(
-          x: cameraMovement['x'] ?? 0,
-          y: cameraMovement['y'] ?? 0,
-        ),
-        MapAnimationOptions(duration: 0),
-      );
+      if (screenEdge != currentScreenEdge) {
+        currentScreenEdge = screenEdge;
+        animateCameraScreenEdge(screenEdge);
+      }
+    } else {
+      currentScreenEdge = ScreenEdge.none;
     }
+  }
+
+  Future<void> animateCameraScreenEdge(ScreenEdge screenEdge) async {
+    // determine how to move the map
+    final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
+
+    await mapController?.moveBy(
+      ScreenCoordinate(
+        x: cameraMovement['x'] ?? 0,
+        y: cameraMovement['y'] ?? 0,
+      ),
+      MapAnimationOptions(duration: 0),
+    );
+
+    if (currentScreenEdge != ScreenEdge.none && currentScreenEdge == screenEdge) animateCameraScreenEdge(screenEdge);
   }
 
   /// Calculates the coordinates for the route labels.
