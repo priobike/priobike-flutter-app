@@ -29,7 +29,6 @@ class Simulator {
     // TODO: implement conntectWithDevice
   }
 
-  /// Sends a ready pair request to the simulator via MQTT.
   Future<void> sendReadyPairRequest() async {
     if (client == null) await connectMQTTClient();
 
@@ -48,6 +47,26 @@ class Simulator {
       qualityOfService: qualityOfService,
     );
     // TODO: muss ich hier noch irgendwie auf eine Antwort warten??
+  }
+
+  /// Sends a start ride message to the simulator via MQTT.
+  Future<void> sendStartRide() async {
+    if (client == null) await connectMQTTClient();
+
+    const topic = "simulation";
+    const qualityOfService = MqttQos.atLeastOnce;
+
+    Map<String, String> json = {};
+    json['type'] = 'StartRide';
+    json['deviceID'] = deviceId;
+
+    final String message = jsonEncode(json);
+
+    await sendViaMQTT(
+      message: message,
+      topic: topic,
+      qualityOfService: qualityOfService,
+    );
   }
 
   /// Sends a ready pair request to the simulator via MQTT.
@@ -162,7 +181,7 @@ class Simulator {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
 
-      await sendReadyPairRequest();
+      await sendStartRide();
       // TODO: implement MQTT handshake
     } catch (e, stacktrace) {
       client = null;
