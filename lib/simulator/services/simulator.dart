@@ -112,7 +112,7 @@ class Simulator {
     final Uint8List data = Uint8List.fromList(utf8.encode(message));
     Uint8Buffer dataBuffer = Uint8Buffer();
     dataBuffer.addAll(data);
-    log.i("Sending $message from $deviceId to simulator.");
+    log.i("Sending to simulator: $message");
 
     // publish message
     try {
