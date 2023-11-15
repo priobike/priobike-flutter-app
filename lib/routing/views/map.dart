@@ -728,7 +728,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     final tapPosition = ScreenCoordinate(x: x, y: y);
 
-    final foundWaypoints = <Waypoint, double>{};
+    Waypoint? foundWaypoint;
+    double? foundWaypointDistance;
+
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       final ScreenCoordinate coordsOnScreenWaypoint = await mapController!.pixelForCoordinate({
         "coordinates": [waypoint.lon, waypoint.lat]
@@ -737,18 +739,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           math.pow(coordsOnScreenWaypoint.y - tapPosition.y, 2));
 
       if (distance < 150) {
-        foundWaypoints[waypoint] = distance;
+        // get closest waypoint if there are multiple waypoints at the same position
+        if (foundWaypointDistance == null || distance < foundWaypointDistance) {
+          foundWaypoint = waypoint;
+          foundWaypointDistance = distance;
+        }
       }
     }
-    if (foundWaypoints.length == 1) {
-      return foundWaypoints.keys.first;
-    }
-    // if more than one waypoint is found, return the one with the smallest distance
-    if (foundWaypoints.length >= 2) {
-      final sortedWaypoints = foundWaypoints.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
-      return sortedWaypoints.first.key;
-    }
-    return null;
+    return foundWaypoint;
   }
 
   Future<void> addWaypoint(ScreenCoordinate point) async {
