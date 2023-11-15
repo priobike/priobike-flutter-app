@@ -16,7 +16,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -73,9 +72,6 @@ class Ride with ChangeNotifier {
 
   /// The wrapper-service for the used prediction mode.
   PredictionComponent? predictionComponent;
-
-  /// The simulator used for simulation mode.
-  Simulator? simulator;
 
   /// List of Waypoints if the last ride got killed by the os.
   List<Waypoint>? lastRoute;
@@ -238,13 +234,6 @@ class Ride with ChangeNotifier {
       predictionComponent!.connectMQTTClient();
     }
 
-    final useSimulator = settings.enableSimulatorMode;
-    if (useSimulator) {
-      log.i("Starting simulator.");
-      simulator = Simulator();
-      simulator!.connectMQTTClient();
-    }
-
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
     navigationIsActive = true;
@@ -348,7 +337,6 @@ class Ride with ChangeNotifier {
   /// Stop the navigation.
   Future<void> stopNavigation() async {
     if (predictionComponent != null) predictionComponent!.stopNavigation();
-    if (simulator != null) simulator!.disconnectMQTTClient();
     navigationIsActive = false;
     onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
     notifyListeners();
@@ -360,7 +348,6 @@ class Ride with ChangeNotifier {
     navigationIsActive = false;
     await predictionComponent?.reset();
     predictionComponent = null;
-    if (simulator != null) simulator!.disconnectMQTTClient();
     userSelectedSG = null;
     userSelectedSGIndex = null;
     calcCurrentSG = null;

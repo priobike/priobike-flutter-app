@@ -203,8 +203,6 @@ class Positioning with ChangeNotifier {
       locationSettings: locationSettings,
     );
 
-    // TODO: Hier MQTT einbauen
-
     final Simulator simulator = getIt<Simulator>();
 
     positionSubscription = positionStream.listen(
@@ -236,6 +234,7 @@ class Positioning with ChangeNotifier {
     positionSource = null;
     log.i('Geolocator stopped!');
     isGeolocating = false;
+    await getIt<Simulator>().disconnectMQTTClient();
   }
 
   /// Set the current speed to a selected value.

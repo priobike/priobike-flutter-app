@@ -19,7 +19,7 @@ class Simulator {
   MqttServerClient? client;
 
   /// The unique key to identify the device in the simulator.
-  final deviceId = UniqueKey().toString().replaceAll("[", "").replaceAll("]", "").replaceAll("#", "");
+  final deviceId = UniqueKey().toString();
 
   askForPermission() {
     // TODO: implement askForPermission
@@ -48,6 +48,26 @@ class Simulator {
       qualityOfService: qualityOfService,
     );
     // TODO: muss ich hier noch irgendwie auf eine Antwort warten??
+  }
+
+  /// Sends a ready pair request to the simulator via MQTT.
+  Future<void> sendStopRide() async {
+    if (client == null) await connectMQTTClient();
+
+    const topic = "simulation";
+    const qualityOfService = MqttQos.atLeastOnce;
+
+    Map<String, String> json = {};
+    json['type'] = 'StopRide';
+    json['deviceID'] = deviceId;
+
+    final String message = jsonEncode(json);
+
+    await sendViaMQTT(
+      message: message,
+      topic: topic,
+      qualityOfService: qualityOfService,
+    );
   }
 
   /// Send the current position to the simulator via MQTT.
@@ -161,6 +181,7 @@ class Simulator {
 
   Future<void> disconnectMQTTClient() async {
     if (client != null) {
+      await sendStopRide();
       client!.disconnect();
       client = null;
       log.i("Disconnected from simulator MQTT broker.");
