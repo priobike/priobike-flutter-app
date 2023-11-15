@@ -25,7 +25,7 @@ class Simulator {
     // TODO: implement askForPermission
   }
 
-  conntectWithSensor() {
+  connectWithSensor() {
     // TODO: implement conntectWithDevice
   }
 
