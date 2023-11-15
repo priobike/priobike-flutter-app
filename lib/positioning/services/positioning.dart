@@ -14,9 +14,10 @@ import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 
 class Positioning with ChangeNotifier {
   final log = Logger("Positioning");
@@ -204,10 +205,14 @@ class Positioning with ChangeNotifier {
 
     // TODO: Hier MQTT einbauen
 
+    final Simulator simulator = getIt<Simulator>();
+
     positionSubscription = positionStream.listen(
       (Position position) {
         if (!isGeolocating) return;
         lastPosition = position;
+        simulator.sendCurrentPosition();
+
         positions.add(position);
         // Snap the position to the route.
         if (route != null && route!.route.length > 2) {

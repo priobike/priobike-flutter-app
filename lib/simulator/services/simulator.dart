@@ -1,12 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:path/path.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -22,50 +18,75 @@ class Simulator {
   /// The mqtt client.
   MqttServerClient? client;
 
-  /// The last time the current speed was sent to the simulator.
-  DateTime? lastSend;
-
-  /// The timer that is used to periodically calculate the prediction.
-  Timer? calcTimer;
-
-  double currentSpeed = 20.0;
-
-  final deviceId = UniqueKey().toString();
-
-  /// How often the current speed should be sent to the simulator.
-  final Duration sendInterval = const Duration(seconds: 1);
+  /// The unique key to identify the device in the simulator.
+  final deviceId = UniqueKey().toString().replaceAll("[", "").replaceAll("]", "").replaceAll("#", "");
 
   askForPermission() {
     // TODO: implement askForPermission
   }
 
-  conntectWithDevice() {
+  conntectWithSensor() {
     // TODO: implement conntectWithDevice
   }
 
-  sendReadyToPair() {
-    // TODO:
+  /// Sends a ready pair request to the simulator via MQTT.
+  Future<void> sendReadyPairRequest() async {
+    if (client == null) await connectMQTTClient();
+
+    const topic = "simulation";
+    const qualityOfService = MqttQos.atLeastOnce;
+
+    Map<String, String> json = {};
+    json['type'] = 'ReadyPairRequest';
+    json['deviceID'] = deviceId;
+
+    final String message = jsonEncode(json);
+
+    await sendViaMQTT(
+      message: message,
+      topic: topic,
+      qualityOfService: qualityOfService,
+    );
+    // TODO: muss ich hier noch irgendwie auf eine Antwort warten??
   }
 
-  Future<void> sendCurrentSpeedToMQTT() async {
+  /// Send the current position to the simulator via MQTT.
+  Future<void> sendCurrentPosition() async {
     if (client == null) await connectMQTTClient();
 
     const topic = "simulation";
     const qualityOfService = MqttQos.atMostOnce;
 
-    // Debug-Feature: Set the current speed to a random value between 20 and 40 and set Debug-Speed.
-    final oldSpeed = currentSpeed;
-    double newSpeed = 0.0;
-    const minSpeed = 20.0;
-    const maxSpeed = 40.0;
-    while (newSpeed > maxSpeed || newSpeed < minSpeed || (newSpeed - oldSpeed).abs() > 2) {
-      newSpeed = minSpeed + Random().nextDouble() * (maxSpeed - minSpeed);
-    }
-    currentSpeed = newSpeed;
-    final positioning = getIt<Positioning>();
-    positioning.setDebugSpeed(currentSpeed / 3.6);
+    final Positioning positioning = getIt<Positioning>();
+    final position = positioning.lastPosition;
+    if (position == null) return;
+    final longitude = position.longitude;
+    final latitude = position.latitude;
+    final heading = position.heading;
 
-    final String message = "$deviceId ${currentSpeed.toStringAsFixed(2)}";
+    // Format:
+    // {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.
+    // 12345", "latitude":"50.12345", "bearing":"-80"}
+
+    Map<String, String> json = {};
+    json['type'] = 'NextCoordinate';
+    json['deviceID'] = deviceId;
+    json['longitude'] = longitude.toString();
+    json['latitude'] = latitude.toString();
+    json['bearing'] = heading.toString();
+
+    final String message = jsonEncode(json);
+
+    await sendViaMQTT(
+      message: message,
+      topic: topic,
+      qualityOfService: qualityOfService,
+    );
+  }
+
+  /// Sends a message to the simulator via MQTT.
+  Future<void> sendViaMQTT({required String message, required String topic, required MqttQos qualityOfService}) async {
+    if (client == null) await connectMQTTClient();
 
     // convert message to byte array
     final Uint8List data = Uint8List.fromList(utf8.encode(message));
@@ -81,6 +102,7 @@ class Simulator {
     }
   }
 
+  /// Connects the MQTT client to the simulator.
   Future<void> connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
@@ -120,10 +142,8 @@ class Simulator {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
 
-      // Start the timer that updates the prediction once per second.
-      calcTimer = Timer.periodic(sendInterval, (timer) {
-        sendCurrentSpeedToMQTT();
-      });
+      await sendReadyPairRequest();
+      // TODO: implement MQTT handshake
     } catch (e, stacktrace) {
       client = null;
       final hint = "Failed to connect the simulator MQTT client: $e, $stacktrace";
@@ -140,8 +160,6 @@ class Simulator {
   }
 
   Future<void> disconnectMQTTClient() async {
-    calcTimer?.cancel();
-    calcTimer = null;
     if (client != null) {
       client!.disconnect();
       client = null;
