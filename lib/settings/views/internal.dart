@@ -24,7 +24,6 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';

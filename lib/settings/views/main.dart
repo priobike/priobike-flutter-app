@@ -13,7 +13,7 @@ import 'package:priobike/licenses/views.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
