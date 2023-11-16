@@ -204,12 +204,14 @@ class Positioning with ChangeNotifier {
     );
 
     final Simulator simulator = getIt<Simulator>();
+    final Settings settings = getIt<Settings>();
 
     positionSubscription = positionStream.listen(
       (Position position) {
         if (!isGeolocating) return;
         lastPosition = position;
-        simulator.sendCurrentPosition();
+
+        if (settings.enableSimulatorMode) simulator.sendCurrentPosition();
 
         positions.add(position);
         // Snap the position to the route.
@@ -234,7 +236,8 @@ class Positioning with ChangeNotifier {
     positionSource = null;
     log.i('Geolocator stopped!');
     isGeolocating = false;
-    await getIt<Simulator>().disconnectMQTTClient();
+    final Settings settings = getIt<Settings>();
+    if (settings.enableSimulatorMode) await getIt<Simulator>().disconnectMQTTClient();
   }
 
   /// Set the current speed to a selected value.
