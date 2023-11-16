@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gpx/gpx.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
@@ -18,7 +15,9 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ImportGpxView extends StatefulWidget {
-  const ImportGpxView({Key? key}) : super(key: key);
+  final List<Wpt> initPoints;
+
+  const ImportGpxView({Key? key, required this.initPoints}) : super(key: key);
 
   @override
   ImportGpxViewState createState() => ImportGpxViewState();
@@ -29,48 +28,11 @@ class ImportGpxViewState extends State<ImportGpxView> {
   List<Wpt> points = [];
   GpxConversion gpxConversionNotifier = GpxConversion();
 
-  void initGpx() async {
-    List<Wpt> newPoints = await loadGpxFile();
-
-    setState(() => points = newPoints);
-  }
-
   @override
   void initState() {
     super.initState();
     routing = getIt<Routing>();
-    initGpx();
-  }
-
-  Future<List<Wpt>> loadGpxFile() async {
-    // pick and parse gpx file
-    List<Wpt> points = [];
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      String gpxString = file.readAsStringSync();
-      Gpx gpx = GpxReader().fromString(gpxString);
-      Trk trk = gpx.trks[0];
-      Trkseg seg = trk.trksegs[0];
-      points = seg.trkpts;
-      if (points.isEmpty) {
-        ToastMessage.showError('Die GPX Datei konnte nicht geladen werden.');
-        if (mounted) Navigator.of(context).pop();
-      }
-      // check if all waypoints are within Hamburg
-      List<Waypoint> initWaypoints = [];
-      for (int i = 0; i < points.length; i++) {
-        initWaypoints.add(Waypoint(points[i].lat!, points[i].lon!));
-      }
-      if (!routing.inCityBoundary(initWaypoints)) {
-        ToastMessage.showError('Ein oder mehrere Punkte der GPX Datei liegen nicht in Hamburg.');
-        if (mounted) Navigator.of(context).pop();
-      }
-      return points;
-    } else {
-      if (mounted) Navigator.of(context).pop();
-      return [];
-    }
+    setState(() => points = widget.initPoints);
   }
 
   Future<void> convertGpxToWaypoints(List<Wpt> points) async {
