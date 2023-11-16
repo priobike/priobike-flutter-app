@@ -38,7 +38,7 @@ class Boundary {
   Map<String, double> getRoughBoundingBox() {
     final backend = getIt<Settings>().backend;
 
-    if (backend == Backend.production) {
+    if (backend == Backend.production || backend == Backend.release) {
       // See: http://bboxfinder.com/#53.350000,9.650000,53.750000,10.400000
       return {
         "minLon": 9.65,
