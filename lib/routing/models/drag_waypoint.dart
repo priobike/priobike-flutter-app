@@ -7,6 +7,7 @@ enum WaypointType {
   waypoint,
 }
 
+/// The icon path of a waypoint type.
 extension IconPath on WaypointType {
   String get iconPath {
     switch (this) {
@@ -20,6 +21,7 @@ extension IconPath on WaypointType {
   }
 }
 
+/// Determines whether the waypoint is a start, destination or waypoint in between.
 WaypointType getWaypointType(List<Waypoint> list, Waypoint waypoint) {
   if (list.last == waypoint) {
     return WaypointType.destination;

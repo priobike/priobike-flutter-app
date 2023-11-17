@@ -135,6 +135,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The current screen edge the user is dragging the waypoint to, if any.
   ScreenEdge currentScreenEdge = ScreenEdge.none;
 
+  /// Hide the icon of a dragged waypoint while loading when adding a new waypoint.
+  bool hideDragWaypoint = false;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -800,8 +803,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
     int index;
-    // if the wayPointTapped isn't null, the user is dragging a waypoint
-    // and the waypoint must be inserted at the same index
+    // if the draggedWaypoint isn't null, the user is dragging a waypoint
+    // and the waypoint must be reinserted at the same index as before the dragging
     // otherwise the user is adding a waypoint by tapping on the map
     // and the waypoint must be appended to end of list
     if (draggedWaypoint != null && draggedWaypointIndex != null) {
@@ -1063,7 +1066,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               }
               final point = ScreenCoordinate(x: x, y: y);
 
-              // add new waypoint at tapped position.
+              // hide the dragged waypoint icon while loading when adding the new waypoint
+              hideDragWaypoint = true;
+
+              // add new waypoint at the released position.
               await addWaypoint(point);
             } else {
               animationController.reverse();
@@ -1076,6 +1082,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             draggedWaypoint = null;
             draggedWaypointIndex = null;
             draggedWaypointType = null;
+            hideDragWaypoint = false;
             currentScreenEdge = ScreenEdge.none;
           },
           behavior: HitTestBehavior.translucent,
@@ -1164,7 +1171,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ),
           ),
         // for dragging waypoints
-        if (dragPosition != null && draggedWaypointType != null)
+        if (dragPosition != null && draggedWaypointType != null && !hideDragWaypoint)
           Stack(
             children: [
               AnimatedPositioned(
@@ -1173,8 +1180,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 left: dragPosition!.dx,
                 top: dragPosition!.dy,
                 child: SizedBox(
-                  width: 24 * 1.5,
-                  height: 24 * 1.5,
+                  width: 24 * 1.3,
+                  height: 24 * 1.3,
                   child: Image.asset(
                     draggedWaypointType!.iconPath,
                     fit: BoxFit.contain,
