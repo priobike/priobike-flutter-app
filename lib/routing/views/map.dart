@@ -132,6 +132,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The type of the dragged waypoint to determine the icon.
   WaypointType? draggedWaypointType;
 
+  /// The current screen edge the user is dragging the waypoint to, if any.
+  ScreenEdge currentScreenEdge = ScreenEdge.none;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -873,11 +876,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
-  ScreenEdge currentScreenEdge = ScreenEdge.none;
-
+  /// A callback that is executed when the user drags a waypoint.
   void dragWaypoint({required double x, required double y}) {
     // check if the user dragged the waypoint to the edge of the screen
-    ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
+    final ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
 
     if (screenEdge != ScreenEdge.none) {
       if (screenEdge != currentScreenEdge) {
@@ -901,6 +903,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       MapAnimationOptions(duration: 0),
     );
 
+    // if the user drags a waypoint to the edge of the screen recursively call this function to move the map
     if (currentScreenEdge != ScreenEdge.none && currentScreenEdge == screenEdge) animateCameraScreenEdge(screenEdge);
   }
 
@@ -1073,6 +1076,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             draggedWaypoint = null;
             draggedWaypointIndex = null;
             draggedWaypointType = null;
+            currentScreenEdge = ScreenEdge.none;
           },
           behavior: HitTestBehavior.translucent,
           child: AppMap(

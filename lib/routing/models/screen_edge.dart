@@ -6,10 +6,10 @@ enum ScreenEdge {
   right,
   top,
   bottom,
-  topright,
-  topleft,
-  bottomright,
-  bottomleft,
+  topRight,
+  topLeft,
+  bottomRight,
+  bottomLeft,
   none,
 }
 
@@ -25,10 +25,10 @@ ScreenEdge getDragScreenEdge({required double x, required double y, required Bui
   final minEdgeWidth = screenWidth * 0.17;
   final maxEdgeWidth = screenWidth * 0.83;
 
-  if (x <= minEdgeWidth && y <= minEdgeHeight) return ScreenEdge.topleft;
-  if (x >= maxEdgeWidth && y <= minEdgeHeight) return ScreenEdge.topright;
-  if (x <= minEdgeWidth && y >= maxEdgeHeight) return ScreenEdge.bottomleft;
-  if (x >= maxEdgeWidth && y >= maxEdgeHeight) return ScreenEdge.bottomright;
+  if (x <= minEdgeWidth && y <= minEdgeHeight) return ScreenEdge.topLeft;
+  if (x >= maxEdgeWidth && y <= minEdgeHeight) return ScreenEdge.topRight;
+  if (x <= minEdgeWidth && y >= maxEdgeHeight) return ScreenEdge.bottomLeft;
+  if (x >= maxEdgeWidth && y >= maxEdgeHeight) return ScreenEdge.bottomRight;
 
   if (x <= minEdgeWidth) return ScreenEdge.left;
   if (x >= maxEdgeWidth) return ScreenEdge.right;
@@ -41,7 +41,8 @@ ScreenEdge getDragScreenEdge({required double x, required double y, required Bui
 // Calculates how the map should move when dragging a waypoint to the edge of the screen
 Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge screenEdge}) {
   // determines how fast the map moves when dragging a waypoint to the edge of the screen
-  const mapMoveSpeed = 15.0;
+  const mapMoveSpeed = 8.0;
+
   final double moveCameraX;
   final double moveCameraY;
   switch (screenEdge) {
@@ -61,23 +62,22 @@ Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge scre
       moveCameraX = mapMoveSpeed;
       moveCameraY = 0.0;
       break;
-    case ScreenEdge.topleft:
+    case ScreenEdge.topLeft:
       moveCameraX = mapMoveSpeed;
       moveCameraY = mapMoveSpeed;
       break;
-    case ScreenEdge.topright:
+    case ScreenEdge.topRight:
       moveCameraX = -mapMoveSpeed;
       moveCameraY = mapMoveSpeed;
       break;
-    case ScreenEdge.bottomleft:
+    case ScreenEdge.bottomLeft:
       moveCameraX = mapMoveSpeed;
       moveCameraY = -mapMoveSpeed;
       break;
-    case ScreenEdge.bottomright:
+    case ScreenEdge.bottomRight:
       moveCameraX = -mapMoveSpeed;
       moveCameraY = -mapMoveSpeed;
       break;
-
     default:
       moveCameraX = 0.0;
       moveCameraY = 0.0;
