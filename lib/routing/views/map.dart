@@ -1096,6 +1096,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
+              currentScreenEdge = ScreenEdge.none;
               await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
             } else {
               animationController.reverse();
