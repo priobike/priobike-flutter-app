@@ -889,7 +889,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
-  /// A callback that is executed when the user drags a waypoint.
+  /// When the user drags a waypoint.
   void dragWaypoint({required double x, required double y}) {
     // check if the user dragged the waypoint to the edge of the screen
     final ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
@@ -1084,6 +1084,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 x *= ppi;
                 y *= ppi;
               }
+
               final point = ScreenCoordinate(x: x, y: y);
 
               // hide the dragged waypoint icon while loading when adding the new waypoint
