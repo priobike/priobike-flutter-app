@@ -794,7 +794,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         },
       );
       // If the user is dragging a waypoint outside of the city boundary, restore the original waypoint
-      // otherwise the user is adding a new waypoint and we can just return
+      // otherwise the user is trying to add a new waypoint and we can just return
       if (draggedWaypoint != null) {
         await routing.addWaypoint(draggedWaypoint!, draggedWaypointIndex);
         await getIt<Geosearch>().addToSearchHistory(draggedWaypoint!);
@@ -904,6 +904,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Animates the map camera when the user drags a waypoint to the edge of the screen.
   Future<void> animateCameraScreenEdge(ScreenEdge screenEdge) async {
     // determine how to move the map
     final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
@@ -1006,6 +1007,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return chosenCoordinates;
   }
 
+  resetDragging() {
+    // reset variables
+    dragPosition = null;
+    draggedWaypoint = null;
+    draggedWaypointIndex = null;
+    draggedWaypointType = null;
+    hideDragWaypoint = false;
+    currentScreenEdge = ScreenEdge.none;
+  }
+
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
@@ -1021,9 +1032,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             draggedWaypoint =
                 await _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
             if (draggedWaypoint == null) {
+              resetDragging();
               tapPosition = details.localPosition;
-              dragPosition = null;
-              draggedWaypointType = null;
               animationController.forward();
             } else {
               if (routing.selectedWaypoints == null) return;
@@ -1033,7 +1043,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           onLongPressCancel: () {
             animationController.reverse();
-            dragPosition = null;
+            resetDragging();
           },
           onLongPressMoveUpdate: (details) async {
             // if user pressed on map, reverse pin animation
@@ -1087,13 +1097,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               // if the user pressed on the map, add a waypoint
               onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
             }
-            // reset variables
-            dragPosition = null;
-            draggedWaypoint = null;
-            draggedWaypointIndex = null;
-            draggedWaypointType = null;
-            hideDragWaypoint = false;
-            currentScreenEdge = ScreenEdge.none;
+            resetDragging();
           },
           behavior: HitTestBehavior.translucent,
           child: AppMap(
