@@ -759,7 +759,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> addWaypoint(ScreenCoordinate point) async {
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
-    String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
+    final fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
@@ -1008,8 +1008,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Move the waypoint after finish dragging
-  moveDraggedWaypoint(double dx, double dy) async {
+  Future<void> moveDraggedWaypoint(BuildContext context, double dx, double dy) async {
     if (routing.selectedWaypoints == null) return;
+
+    final ppi = MediaQuery.of(context).devicePixelRatio;
 
     draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
 
@@ -1021,8 +1023,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     double x = dx;
     double y = dy;
 
-    if (!mounted) return;
-    final ppi = MediaQuery.of(context).devicePixelRatio;
     // On android, we need to multiply by the ppi.
     if (Platform.isAndroid) {
       x *= ppi;
@@ -1038,8 +1038,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await addWaypoint(point);
   }
 
-  resetDragging() {
-    // reset variables
+  /// Reset variables for dragging
+  _resetDragging() {
     dragPosition = null;
     draggedWaypoint = null;
     draggedWaypointIndex = null;
@@ -1063,7 +1063,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             draggedWaypoint =
                 await _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
             if (draggedWaypoint == null) {
-              resetDragging();
+              _resetDragging();
               tapPosition = details.localPosition;
               animationController.forward();
             } else {
@@ -1074,7 +1074,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           onLongPressCancel: () {
             animationController.reverse();
-            resetDragging();
+            _resetDragging();
           },
           onLongPressMoveUpdate: (details) async {
             // if user pressed on map, reverse pin animation
@@ -1096,14 +1096,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
-              await moveDraggedWaypoint(details.localPosition.dx, details.localPosition.dy);
+              await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
             } else {
               animationController.reverse();
 
               // if the user pressed on the map, add a waypoint
-              onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+              await onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
             }
-            resetDragging();
+            _resetDragging();
           },
           behavior: HitTestBehavior.translucent,
           child: AppMap(
@@ -1200,8 +1200,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 left: dragPosition!.dx,
                 top: dragPosition!.dy,
                 child: SizedBox(
-                  width: 24 * 1.3,
-                  height: 24 * 1.3,
+                  width: 24 * 1.4,
+                  height: 24 * 1.4,
                   child: Image.asset(
                     draggedWaypointType!.iconPath,
                     fit: BoxFit.contain,
