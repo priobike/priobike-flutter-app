@@ -1007,6 +1007,37 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return chosenCoordinates;
   }
 
+  /// Move the waypoint after finish dragging
+  moveDraggedWaypoint(double dx, double dy) async {
+    if (routing.selectedWaypoints == null) return;
+
+    draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
+
+    // remove old waypoint from before dragging from routing and search history
+    await routing.removeWaypoint(draggedWaypoint!);
+    getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
+
+    // get the position when the user released the waypoint
+    double x = dx;
+    double y = dy;
+
+    if (!mounted) return;
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    // On android, we need to multiply by the ppi.
+    if (Platform.isAndroid) {
+      x *= ppi;
+      y *= ppi;
+    }
+
+    final point = ScreenCoordinate(x: x, y: y);
+
+    // hide the dragged waypoint icon while loading when adding the new waypoint
+    hideDragWaypoint = true;
+
+    // add new waypoint at the new position
+    await addWaypoint(point);
+  }
+
   resetDragging() {
     // reset variables
     dragPosition = null;
@@ -1053,7 +1084,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               return;
             }
 
-            // set new icon position under the finger
+            // set new icon position under the finger while dragging
             setState(() {
               dragPosition = details.localPosition;
             });
@@ -1065,33 +1096,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
-              if (routing.selectedWaypoints == null) return;
-
-              draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
-
-              // remove old waypoint from before dragging from routing and search history
-              await routing.removeWaypoint(draggedWaypoint!);
-              getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
-
-              // get the position when the user released the waypoint
-              double x = details.localPosition.dx;
-              double y = details.localPosition.dy;
-
-              if (!mounted) return;
-              final ppi = MediaQuery.of(context).devicePixelRatio;
-              // On android, we need to multiply by the ppi.
-              if (Platform.isAndroid) {
-                x *= ppi;
-                y *= ppi;
-              }
-
-              final point = ScreenCoordinate(x: x, y: y);
-
-              // hide the dragged waypoint icon while loading when adding the new waypoint
-              hideDragWaypoint = true;
-
-              // add new waypoint at the released position.
-              await addWaypoint(point);
+              await moveDraggedWaypoint(details.localPosition.dx, details.localPosition.dy);
             } else {
               animationController.reverse();
 
