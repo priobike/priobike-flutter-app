@@ -755,6 +755,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return foundWaypoint;
   }
 
+  /// Add a waypoint at the tapped position.
   Future<void> addWaypoint(ScreenCoordinate point) async {
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
@@ -792,7 +793,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           );
         },
       );
-      return;
+      // If the user is dragging a waypoint outside of the city boundary, restore the original waypoint
+      // otherwise the user is adding a new waypoint and we can just return
+      if (draggedWaypoint != null) {
+        await routing.addWaypoint(draggedWaypoint!, draggedWaypointIndex);
+        await getIt<Geosearch>().addToSearchHistory(draggedWaypoint!);
+        await routing.loadRoutes();
+        return;
+      } else {
+        return;
+      }
     }
 
     String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
@@ -802,11 +812,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
-    int index;
     // if the draggedWaypoint isn't null, the user is dragging a waypoint
     // and the waypoint must be reinserted at the same index as before the dragging
     // otherwise the user is adding a waypoint by tapping on the map
     // and the waypoint must be appended to end of list
+    int index;
     if (draggedWaypoint != null && draggedWaypointIndex != null) {
       index = draggedWaypointIndex!;
     } else {
@@ -1049,7 +1059,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
               draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
 
-              // remove old waypoint from routing and search history
+              // remove old waypoint from before dragging from routing and search history
               await routing.removeWaypoint(draggedWaypoint!);
               getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
 
