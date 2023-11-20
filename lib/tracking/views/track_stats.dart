@@ -8,12 +8,12 @@ class TrackStats extends StatelessWidget {
   final num? savedCo2inG;
 
   const TrackStats({
-    Key? key,
+    super.key,
     this.formattedTime,
     this.distanceMeters,
     this.averageSpeedKmH,
     this.savedCo2inG,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

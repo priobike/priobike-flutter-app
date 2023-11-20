@@ -11,8 +11,7 @@ class RewardBadge extends StatelessWidget {
   final bool achieved;
 
   const RewardBadge(
-      {Key? key, required this.color, required this.size, required this.iconIndex, required this.achieved})
-      : super(key: key);
+      {super.key, required this.color, required this.size, required this.iconIndex, required this.achieved});
 
   @override
   Widget build(BuildContext context) {

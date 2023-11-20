@@ -36,8 +36,7 @@ class SettingsElement extends StatelessWidget {
   /// The callback when the element was selected.
   final void Function() callback;
 
-  const SettingsElement({required this.title, this.subtitle, required this.icon, required this.callback, Key? key})
-      : super(key: key);
+  const SettingsElement({required this.title, this.subtitle, required this.icon, required this.callback, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,8 +86,7 @@ class SettingsSelection<E> extends StatelessWidget {
   final void Function(E e) callback;
 
   const SettingsSelection(
-      {required this.elements, required this.selected, required this.title, required this.callback, Key? key})
-      : super(key: key);
+      {required this.elements, required this.selected, required this.title, required this.callback, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +134,7 @@ class SettingsSelection<E> extends StatelessWidget {
 }
 
 class SettingsView extends StatefulWidget {
-  const SettingsView({Key? key}) : super(key: key);
+  const SettingsView({super.key});
 
   @override
   SettingsViewState createState() => SettingsViewState();

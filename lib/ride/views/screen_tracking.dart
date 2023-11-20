@@ -6,7 +6,7 @@ import 'package:priobike/tracking/services/tracking.dart';
 class ScreenTrackingView extends StatefulWidget {
   final Widget child;
 
-  const ScreenTrackingView({Key? key, required this.child}) : super(key: key);
+  const ScreenTrackingView({super.key, required this.child});
 
   @override
   State<StatefulWidget> createState() => ScreenTrackingViewState();

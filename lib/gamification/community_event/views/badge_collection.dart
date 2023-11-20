@@ -12,7 +12,7 @@ import 'package:priobike/gamification/community_event/views/badge.dart';
 class BadgeCollection extends StatelessWidget {
   final List<EventBadge> badges;
 
-  const BadgeCollection({Key? key, required this.badges}) : super(key: key);
+  const BadgeCollection({super.key, required this.badges});
 
   @override
   Widget build(BuildContext context) {

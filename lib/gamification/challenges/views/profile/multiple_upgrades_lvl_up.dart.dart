@@ -17,10 +17,10 @@ class MultipleUpgradesLvlUpDialog extends StatefulWidget {
   final List<ProfileUpgrade> upgrades;
 
   const MultipleUpgradesLvlUpDialog({
-    Key? key,
+    super.key,
     required this.newLevel,
     required this.upgrades,
-  }) : super(key: key);
+  });
   @override
   State<MultipleUpgradesLvlUpDialog> createState() => _MultipleUpgradesLvlUpDialogState();
 }
@@ -73,12 +73,12 @@ class UpgradeChoice extends StatelessWidget {
   final Color color;
 
   const UpgradeChoice({
-    Key? key,
+    super.key,
     required this.onTap,
     required this.upgrade,
     required this.visible,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -11,7 +11,7 @@ class CountdownTimer extends StatefulWidget {
   /// This field can be used to apply a specific style to the countdown text.
   final TextStyle? style;
 
-  const CountdownTimer({Key? key, required this.timestamp, this.style}) : super(key: key);
+  const CountdownTimer({super.key, required this.timestamp, this.style});
 
   @override
   State<CountdownTimer> createState() => _CountdownTimerState();

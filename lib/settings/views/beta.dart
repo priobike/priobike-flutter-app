@@ -13,7 +13,7 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:share_plus/share_plus.dart';
 
 class BetaSettingsView extends StatefulWidget {
-  const BetaSettingsView({Key? key}) : super(key: key);
+  const BetaSettingsView({super.key});
 
   @override
   BetaSettingsViewState createState() => BetaSettingsViewState();

@@ -42,7 +42,7 @@ import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   HomeViewState createState() => HomeViewState();

@@ -6,7 +6,7 @@ import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 
 class CenterButton extends StatefulWidget {
-  const CenterButton({Key? key}) : super(key: key);
+  const CenterButton({super.key});
 
   @override
   State<StatefulWidget> createState() => CenterButtonState();

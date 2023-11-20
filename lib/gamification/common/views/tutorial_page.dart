@@ -27,14 +27,14 @@ class TutorialPage extends StatefulWidget {
   final List<Widget> contentList;
 
   const TutorialPage({
-    Key? key,
+    super.key,
     this.confirmButtonIcon = Icons.check,
     required this.confirmButtonLabel,
     this.withContentFade = true,
     this.onBackButtonTab,
     required this.onConfirmButtonTab,
     required this.contentList,
-  }) : super(key: key);
+  });
 
   @override
   State<TutorialPage> createState() => _TutorialPageState();

@@ -12,7 +12,7 @@ class ShowQRCodeView extends StatelessWidget {
   /// The shortcut for which a QR code should be shown.
   final Shortcut shortcut;
 
-  const ShowQRCodeView({Key? key, required this.shortcut}) : super(key: key);
+  const ShowQRCodeView({super.key, required this.shortcut});
 
   @override
   Widget build(BuildContext context) {

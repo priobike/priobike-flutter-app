@@ -16,7 +16,7 @@ class AchievedLocations extends Table {
 
 @DriftAccessor(tables: [AchievedLocations])
 class AchievedLocationDao extends DatabaseDao<AchievedLocation> with _$AchievedLocationDaoMixin {
-  AchievedLocationDao(AppDatabase attachedDatabase) : super(attachedDatabase);
+  AchievedLocationDao(super.attachedDatabase);
 
   @override
   TableInfo<Table, dynamic> get table => achievedLocations;

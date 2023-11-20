@@ -25,9 +25,9 @@ class ChallengeProgressBar extends StatefulWidget {
   final bool isWeekly;
 
   const ChallengeProgressBar({
-    Key? key,
+    super.key,
     required this.isWeekly,
-  }) : super(key: key);
+  });
   @override
   State<ChallengeProgressBar> createState() => _ChallengeProgressBarState();
 }

@@ -16,12 +16,12 @@ class OnTapAnimation extends StatefulWidget {
   final bool blockFastClicking;
 
   const OnTapAnimation({
-    Key? key,
+    super.key,
     required this.child,
     this.onPressed,
     this.scaleFactor = 0.9,
     this.blockFastClicking = true,
-  }) : super(key: key);
+  });
 
   @override
   State<OnTapAnimation> createState() => _OnTapAnimationState();

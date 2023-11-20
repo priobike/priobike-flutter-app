@@ -72,8 +72,7 @@ class AppMap extends StatefulWidget {
       this.attributionButtonMargins,
       this.attributionButtonOrnamentPosition,
       this.saveBatteryModeEnabled = false,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   AppMapState createState() => AppMapState();

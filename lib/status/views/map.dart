@@ -23,7 +23,7 @@ class SGStatusMapViewLegendElement {
 }
 
 class SGStatusMapView extends StatefulWidget {
-  const SGStatusMapView({Key? key}) : super(key: key);
+  const SGStatusMapView({super.key});
 
   @override
   SGStatusMapViewState createState() => SGStatusMapViewState();

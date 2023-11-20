@@ -9,7 +9,7 @@ import 'package:priobike/status/views/map.dart';
 class StatusView extends StatefulWidget {
   final Function triggerRebuild;
 
-  const StatusView({Key? key, required this.triggerRebuild}) : super(key: key);
+  const StatusView({super.key, required this.triggerRebuild});
 
   @override
   StatusViewState createState() => StatusViewState();

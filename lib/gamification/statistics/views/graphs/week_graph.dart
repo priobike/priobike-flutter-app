@@ -9,7 +9,7 @@ class WeekStatsGraph extends StatelessWidget {
   /// The stats corresponding to the displayed week.
   final WeekStats week;
 
-  const WeekStatsGraph({Key? key, required this.week}) : super(key: key);
+  const WeekStatsGraph({super.key, required this.week});
 
   /// Label the x axis by adding a short description of the days of the week.
   Widget _getTitlesX(double value, TitleMeta meta, TextStyle style) {

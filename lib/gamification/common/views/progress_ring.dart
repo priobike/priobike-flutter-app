@@ -26,7 +26,7 @@ class ProgressRing extends StatefulWidget {
   final AnimationController? animationController;
 
   const ProgressRing({
-    Key? key,
+    super.key,
     required this.ringColor,
     required this.ringSize,
     this.progress = 1,
@@ -34,7 +34,7 @@ class ProgressRing extends StatefulWidget {
     this.showBorder = true,
     this.background = Colors.transparent,
     this.content,
-  }) : super(key: key);
+  });
 
   @override
   ProgressRingState createState() => ProgressRingState();

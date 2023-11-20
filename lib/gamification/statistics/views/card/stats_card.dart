@@ -18,7 +18,7 @@ import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information and functionality of the statistics feature.
 class RideStatisticsCard extends StatelessWidget {
-  const RideStatisticsCard({Key? key}) : super(key: key);
+  const RideStatisticsCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class RideStatisticsCard extends StatelessWidget {
 
 /// A page view displaying a reduced stat history of the user for only the recent weeks.
 class StatisticsOverview extends StatefulWidget {
-  const StatisticsOverview({Key? key}) : super(key: key);
+  const StatisticsOverview({super.key});
 
   @override
   State<StatisticsOverview> createState() => _StatisticsOverviewState();

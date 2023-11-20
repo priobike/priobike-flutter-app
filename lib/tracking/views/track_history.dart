@@ -15,7 +15,7 @@ import 'package:priobike/tracking/views/all_track_history.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 
 class TrackHistoryView extends StatefulWidget {
-  const TrackHistoryView({Key? key}) : super(key: key);
+  const TrackHistoryView({super.key});
 
   @override
   State<StatefulWidget> createState() => TrackHistoryViewState();

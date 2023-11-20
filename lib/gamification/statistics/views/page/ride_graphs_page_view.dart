@@ -19,9 +19,9 @@ class RideGraphsPageView extends StatefulWidget {
   final List<ListOfRideStats> stats;
 
   const RideGraphsPageView({
-    Key? key,
+    super.key,
     required this.stats,
-  }) : super(key: key);
+  });
   @override
   State<RideGraphsPageView> createState() => _RideGraphsPageViewState();
 }

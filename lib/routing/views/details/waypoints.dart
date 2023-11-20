@@ -9,7 +9,7 @@ class SearchWaypointItem extends StatelessWidget {
   /// A callback that is executed when the waypoint is selected.
   final void Function()? onSelect;
 
-  const SearchWaypointItem({this.onSelect, Key? key}) : super(key: key);
+  const SearchWaypointItem({this.onSelect, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +92,7 @@ class RouteWaypointItem extends StatelessWidget {
   /// If the waypoint is the last waypoint.
   bool get isLast => idx == count - 1;
 
-  const RouteWaypointItem({this.onDelete, required this.waypoint, required this.idx, required this.count, Key? key})
-      : super(key: key);
+  const RouteWaypointItem({this.onDelete, required this.waypoint, required this.idx, required this.count, super.key});
 
   @override
   Widget build(BuildContext context) {

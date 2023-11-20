@@ -14,10 +14,10 @@ class SingleChallengeDialog extends StatelessWidget {
   final Color color;
 
   const SingleChallengeDialog({
-    Key? key,
+    super.key,
     required this.challenge,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

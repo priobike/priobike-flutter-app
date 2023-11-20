@@ -13,7 +13,7 @@ class LevelUpDialog extends StatefulWidget {
   /// Additional content on the dialog.
   final Widget? content;
 
-  const LevelUpDialog({Key? key, required this.newLevel, this.content}) : super(key: key);
+  const LevelUpDialog({super.key, required this.newLevel, this.content});
 
   @override
   State<LevelUpDialog> createState() => _LevelUpDialogState();

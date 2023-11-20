@@ -14,12 +14,12 @@ class BlendIn extends StatefulWidget {
   final Widget child;
 
   const BlendIn({
-    Key? key,
+    super.key,
     this.curve = Curves.easeInOutCubic,
     this.delay = Duration.zero,
     this.duration = const Duration(milliseconds: 500),
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   BlendInState createState() => BlendInState();

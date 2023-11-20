@@ -18,7 +18,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ImportShortcutDialog<E> extends StatefulWidget {
-  const ImportShortcutDialog({key}) : super(key: key);
+  const ImportShortcutDialog({super.key});
 
   @override
   ImportShortcutDialogState<E> createState() => ImportShortcutDialogState<E>();

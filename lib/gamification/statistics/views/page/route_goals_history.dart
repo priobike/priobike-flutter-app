@@ -15,7 +15,7 @@ class RouteGoalsHistory extends StatefulWidget {
   /// The view model with the weeks, for which the history should be displayed.
   final StatisticsViewModel viewModel;
 
-  const RouteGoalsHistory({Key? key, required this.viewModel}) : super(key: key);
+  const RouteGoalsHistory({super.key, required this.viewModel});
 
   @override
   State<RouteGoalsHistory> createState() => _RouteGoalsHistoryState();

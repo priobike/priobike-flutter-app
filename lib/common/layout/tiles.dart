@@ -42,7 +42,7 @@ class Tile extends StatelessWidget {
   final double borderWidth;
 
   const Tile({
-    Key? key,
+    super.key,
     required this.content,
     this.onPressed,
     this.onLongPressed,
@@ -58,7 +58,7 @@ class Tile extends StatelessWidget {
     this.borderRadius = const BorderRadius.all(
       Radius.circular(24),
     ),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

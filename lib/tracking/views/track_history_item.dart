@@ -104,12 +104,12 @@ class TrackHistoryItemTileView extends StatefulWidget {
   final ui.Image destinationImage;
 
   const TrackHistoryItemTileView({
-    Key? key,
+    super.key,
     required this.track,
     required this.startImage,
     required this.destinationImage,
     this.width,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemTileViewState();
@@ -304,12 +304,12 @@ class TrackHistoryItemDetailView extends StatefulWidget {
   final ui.Image destinationImage;
 
   const TrackHistoryItemDetailView({
-    Key? key,
+    super.key,
     required this.track,
     required this.startImage,
     required this.destinationImage,
     this.width,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemDetailViewState();

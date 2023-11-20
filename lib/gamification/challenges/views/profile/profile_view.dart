@@ -21,7 +21,7 @@ import 'package:priobike/main.dart';
 /// This view displays the users game state for the challenge feature and provides them with the option to
 /// upgrade to the next level, if the current level is finished.
 class GameProfileView extends StatefulWidget {
-  const GameProfileView({Key? key}) : super(key: key);
+  const GameProfileView({super.key});
 
   @override
   State<GameProfileView> createState() => _GameProfileViewState();

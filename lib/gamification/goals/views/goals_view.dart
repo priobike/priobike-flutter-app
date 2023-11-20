@@ -10,7 +10,7 @@ import 'package:priobike/tutorial/view.dart';
 
 /// This view gives the user to open dialogs to edit their daily and route goals by pressing on corresponding buttons.
 class GoalsView extends StatelessWidget {
-  const GoalsView({Key? key}) : super(key: key);
+  const GoalsView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +59,11 @@ class CustomIconButton extends StatelessWidget {
   final Function() onPressed;
 
   const CustomIconButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

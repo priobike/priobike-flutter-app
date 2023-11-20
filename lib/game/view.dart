@@ -22,12 +22,12 @@ class LevelView extends StatefulWidget {
   LevelViewState createState() => LevelViewState();
 
   const LevelView({
-    Key? key,
+    super.key,
     required this.levels,
     required this.value,
     required this.icon,
     required this.unit,
-  }) : super(key: key);
+  });
 }
 
 class LevelViewState extends State<LevelView> {
@@ -215,12 +215,12 @@ class LevelRing extends StatefulWidget {
   final IconData icon;
 
   const LevelRing({
-    Key? key,
+    super.key,
     required this.levels,
     required this.value,
     required this.color,
     required this.icon,
-  }) : super(key: key);
+  });
 
   @override
   LevelRingState createState() => LevelRingState();

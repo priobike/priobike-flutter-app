@@ -83,7 +83,7 @@ void showEditShortcutSheet(context, int idx) {
 }
 
 class ShortcutsEditView extends StatefulWidget {
-  const ShortcutsEditView({Key? key}) : super(key: key);
+  const ShortcutsEditView({super.key});
 
   @override
   ShortcutsEditViewState createState() => ShortcutsEditViewState();
