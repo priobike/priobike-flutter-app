@@ -3,8 +3,8 @@ import 'package:priobike/routing/models/waypoint.dart';
 /// The type of a waypoint that is being dragged by user.
 enum WaypointType {
   start,
+  middle,
   destination,
-  waypoint,
 }
 
 /// The icon path of a waypoint type.
@@ -13,10 +13,10 @@ extension IconPath on WaypointType {
     switch (this) {
       case WaypointType.start:
         return 'assets/images/start.drawio.png';
+      case WaypointType.middle:
+        return 'assets/images/waypoint.drawio.png';
       case WaypointType.destination:
         return 'assets/images/destination.drawio.png';
-      case WaypointType.waypoint:
-        return 'assets/images/waypoint.drawio.png';
     }
   }
 }
@@ -28,6 +28,6 @@ WaypointType getWaypointType(List<Waypoint> list, Waypoint waypoint) {
   } else if (list.first == waypoint) {
     return WaypointType.start;
   } else {
-    return WaypointType.waypoint;
+    return WaypointType.middle;
   }
 }
