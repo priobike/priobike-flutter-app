@@ -725,7 +725,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return null;
     if (routing.selectedWaypoints == null) return null;
 
-    // Convert x and y into a lat/lon.
     final ppi = MediaQuery.of(context).devicePixelRatio;
     // On android, we need to multiply by the ppi.
     if (Platform.isAndroid) {
@@ -793,16 +792,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           );
         },
       );
-      // If the user is dragging a waypoint outside of the city boundary, restore the original waypoint
+      // If the user is dragging a waypoint outside of the city boundary, restore the original waypoint and return
       // otherwise the user is trying to add a new waypoint and we can just return
       if (draggedWaypoint != null) {
         await routing.addWaypoint(draggedWaypoint!, draggedWaypointIndex);
         await getIt<Geosearch>().addToSearchHistory(draggedWaypoint!);
         await routing.loadRoutes();
-        return;
-      } else {
-        return;
       }
+      return;
     }
 
     String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
@@ -918,6 +915,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     // if the user drags a waypoint to the edge of the screen recursively call this function to move the map
+    // it is implemented this way, because "onLongPressMoveUpdate" in the Gesture Detector below
+    // gets only called when the user moves the finger but we want to keep moving the map
+    // when the user keeps a waypoint at the edge of the screen without moving the finger
     if (currentScreenEdge != ScreenEdge.none && currentScreenEdge == screenEdge) animateCameraScreenEdge(screenEdge);
   }
 
@@ -1016,7 +1016,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
 
     // remove old waypoint from before dragging from routing and search history
-    await routing.removeWaypoint(draggedWaypoint!);
+    routing.selectedWaypoints!.remove(draggedWaypoint!);
     getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
 
     // get the position when the user released the waypoint

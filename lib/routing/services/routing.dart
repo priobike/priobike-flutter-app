@@ -190,14 +190,6 @@ class Routing with ChangeNotifier {
     await loadRoutes();
   }
 
-  /// Remove a new waypoint at index.
-  Future<void> removeWaypoint(Waypoint waypoint) async {
-    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
-    // get index of waypoint
-    final index = selectedWaypoints!.indexWhere((element) => element == waypoint);
-    if (index != -1) await removeWaypointAt(index);
-  }
-
   /// Select new waypoints.
   Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;
