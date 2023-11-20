@@ -20,10 +20,10 @@ ScreenEdge getDragScreenEdge({required double x, required double y, required Bui
 
   // the area of the screen that is considered the edge of the screen
   // the bottom area needs to be bigger because of the bottom sheet
-  final minEdgeHeight = screenHeight * 0.17;
-  final maxEdgeHeight = screenHeight * 0.73;
-  final minEdgeWidth = screenWidth * 0.17;
-  final maxEdgeWidth = screenWidth * 0.83;
+  final minEdgeHeight = screenHeight * 0.17; // top
+  final maxEdgeHeight = screenHeight * 0.70; // bottom
+  final minEdgeWidth = screenWidth * 0.17; // left
+  final maxEdgeWidth = screenWidth * 0.83; // right
 
   if (x <= minEdgeWidth && y <= minEdgeHeight) return ScreenEdge.topLeft;
   if (x >= maxEdgeWidth && y <= minEdgeHeight) return ScreenEdge.topRight;
