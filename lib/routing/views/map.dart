@@ -1011,8 +1011,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> moveDraggedWaypoint(BuildContext context, double dx, double dy) async {
     if (routing.selectedWaypoints == null) return;
 
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-
     draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
 
     // remove old waypoint from before dragging from routing and search history
@@ -1023,6 +1021,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     double x = dx;
     double y = dy;
 
+    final ppi = MediaQuery.of(context).devicePixelRatio;
     // On android, we need to multiply by the ppi.
     if (Platform.isAndroid) {
       x *= ppi;
