@@ -48,7 +48,7 @@ class ShowQRCodeView extends StatelessWidget {
     final gZipJson = gzip.encode(enCodedJson);
     final base64Json = base64.encode(gZipJson);
 
-    return QrImage(
+    return QrImageView(
       data: base64Json,
       version: QrVersions.auto,
       errorCorrectionLevel: QrErrorCorrectLevel.L,
