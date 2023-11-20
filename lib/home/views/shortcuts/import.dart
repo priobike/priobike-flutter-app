@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
@@ -7,13 +8,13 @@ import 'package:gpx/gpx.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/views/shortcuts/import_gpx.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ImportShortcutDialog<E> extends StatefulWidget {
@@ -193,7 +194,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(
-              fill: Theme.of(context).colorScheme.background,
+              fill: Theme.of(context).colorScheme.surfaceVariant,
               onPressed: loadFromClipboard,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

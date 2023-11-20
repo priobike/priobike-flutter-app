@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
@@ -9,6 +10,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:proj4dart/src/classes/point.dart';
 
 /// Models the possible states before, during and after a gpx file conversion.
+/// Debugging of the algorithm can also be done using this python script: https://github.com/priobike/priobike-gpx-converter
 enum GpxConversionState {
   /// The GPX file was loaded.
   init,
