@@ -83,6 +83,5 @@ Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge scre
       moveCameraY = 0.0;
       break;
   }
-  final map = {'x': moveCameraX, 'y': moveCameraY};
-  return map;
+  return {'x': moveCameraX, 'y': moveCameraY};
 }
