@@ -290,8 +290,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     duration: const Duration(milliseconds: 1000),
                     firstChild: Container(),
                     secondChild: renderTopInfoSection(context),
-                    crossFadeState:
-                        routing.selectedRoute == null || routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
                   ),
                   AnimatedCrossFade(
                     firstCurve: Curves.easeInOutCubic,
@@ -300,8 +301,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     duration: const Duration(milliseconds: 1000),
                     firstChild: Container(),
                     secondChild: renderStartRideButton(context),
-                    crossFadeState:
-                        routing.selectedRoute == null || routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
                   ),
                   AnimatedCrossFade(
                     firstCurve: Curves.easeInOutCubic,
