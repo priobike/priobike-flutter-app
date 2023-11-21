@@ -50,6 +50,8 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The image of the route destination icon.
   ui.Image? destinationImage;
 
+  Widget? trackHistory;
+
   /// Submit feedback.
   Future<void> submit() async {
     // Send the feedback and reset the feedback service.
@@ -105,6 +107,15 @@ class FeedbackViewState extends State<FeedbackView> {
         final Uint8List destinationBytes = Uint8List.view(destinationBd.buffer);
         final ui.Codec destinationCodec = await ui.instantiateImageCodec(destinationBytes);
         destinationImage = (await destinationCodec.getNextFrame()).image;
+
+        if (startImage != null && destinationImage != null) {
+          // Create TrackHistory once to prevent getting rebuild on every setState.
+          trackHistory = TrackHistoryItemDetailView(
+            track: tracking.previousTracks!.last,
+            startImage: startImage!,
+            destinationImage: destinationImage!,
+          );
+        }
 
         setState(() {});
       },
@@ -208,12 +219,7 @@ class FeedbackViewState extends State<FeedbackView> {
                   }(),
                 ),
                 const SmallVSpace(),
-                if (startImage != null && destinationImage != null)
-                  TrackHistoryItemDetailView(
-                    track: tracking.previousTracks!.last,
-                    startImage: startImage!,
-                    destinationImage: destinationImage!,
-                  ),
+                trackHistory != null ? trackHistory! : Container(),
               ],
             ),
           ),
