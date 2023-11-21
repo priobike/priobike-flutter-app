@@ -554,7 +554,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       CameraOptions(
         padding: MbxEdgeInsets(
             bottom: newBottomInset,
-            left: defaultMapInsets.left,
+            // Needs to be set since this offset is set in fitCameraToRouteBounds().
+            left: 75 * frame.devicePixelRatio,
             top: defaultMapInsets.top,
             right: defaultMapInsets.left),
       ),
