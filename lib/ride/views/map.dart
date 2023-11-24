@@ -200,14 +200,14 @@ class RideMapViewState extends State<RideMapView> {
       if (isBatterySaveModeEnabled) {
         if (Platform.isAndroid) {
           padding = mapbox.MbxEdgeInsets(
-              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.18);
+              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.055);
         } else {
           padding =
               mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
         }
       } else {
         padding =
-            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.15);
       }
     }
 
