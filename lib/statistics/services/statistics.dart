@@ -119,7 +119,6 @@ class Statistics with ChangeNotifier {
     // Aggregate the duration.
     final now = positions.last.timestamp;
     final start = positions.first.timestamp;
-    if (now == null || start == null) return;
     final totalDuration = now.difference(start).inMilliseconds;
 
     // Create the summary.

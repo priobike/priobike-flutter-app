@@ -428,7 +428,7 @@ class $ChallengesTable extends Challenges with TableInfo<$ChallengesTable, Chall
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
         SqlDialect.sqlite: 'CHECK ("is_weekly" IN (0, 1))',
-        SqlDialect.mysql: '',
+        SqlDialect.mariadb: '',
         SqlDialect.postgres: '',
       }));
   static const VerificationMeta _isOpenMeta = const VerificationMeta('isOpen');
@@ -438,7 +438,7 @@ class $ChallengesTable extends Challenges with TableInfo<$ChallengesTable, Chall
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
         SqlDialect.sqlite: 'CHECK ("is_open" IN (0, 1))',
-        SqlDialect.mysql: '',
+        SqlDialect.mariadb: '',
         SqlDialect.postgres: '',
       }));
   static const VerificationMeta _routeIdMeta = const VerificationMeta('routeId');

@@ -44,14 +44,15 @@ class ShowQRCodeView extends StatelessWidget {
     }
 
     // Encode the JSON and compress it
-    final enCodedJson = utf8.encode(json.encode(shortcutCopy.toJson()));
-    final gZipJson = gzip.encode(enCodedJson);
+    final encodedJson = utf8.encode(json.encode(shortcutCopy.toJson()));
+    final gZipJson = gzip.encode(encodedJson);
     final base64Json = base64.encode(gZipJson);
 
     return QrImageView(
       data: base64Json,
       version: QrVersions.auto,
       errorCorrectionLevel: QrErrorCorrectLevel.L,
+      // ignore: deprecated_member_use // FIXME: remove use of deprecated attribute
       foregroundColor: isDark ? Colors.white : Colors.black,
       eyeStyle: const QrEyeStyle(
         eyeShape: QrEyeShape.circle,

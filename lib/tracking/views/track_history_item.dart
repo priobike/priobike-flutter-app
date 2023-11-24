@@ -83,7 +83,6 @@ mixin TrackHistoryItem {
     // Aggregate the duration.
     final start = positions.first.timestamp;
     final end = positions.last.timestamp;
-    if (end == null || start == null) return;
     final totalDuration = end.difference(start).inMilliseconds;
 
     // Create the summary.
