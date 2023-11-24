@@ -102,10 +102,9 @@ class _StatisticsViewState extends State<StatisticsView> with TickerProviderStat
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
-      child: WillPopScope(
-        onWillPop: () async {
+      child: PopScope(
+        onPopInvoked: (type) {
           _resetGraphs();
-          return true;
         },
         child: Scaffold(
           backgroundColor: Theme.of(context).colorScheme.background,

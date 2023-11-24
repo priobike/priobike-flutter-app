@@ -44,14 +44,12 @@ class _MultipleUpgradesLvlUpDialogState extends State<MultipleUpgradesLvlUpDialo
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ...widget.upgrades
-              .mapIndexed((i, upgrade) => UpgradeChoice(
-                    visible: _selectedUpgrade == null || _selectedUpgrade == i,
-                    onTap: _selectedUpgrade == i ? null : () => _selectUpgrade(i),
-                    upgrade: upgrade,
-                    color: widget.newLevel.color,
-                  ))
-              .toList(),
+          ...widget.upgrades.mapIndexed((i, upgrade) => UpgradeChoice(
+                visible: _selectedUpgrade == null || _selectedUpgrade == i,
+                onTap: _selectedUpgrade == i ? null : () => _selectUpgrade(i),
+                upgrade: upgrade,
+                color: widget.newLevel.color,
+              )),
         ],
       ),
     );

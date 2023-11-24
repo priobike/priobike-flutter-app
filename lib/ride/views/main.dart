@@ -194,8 +194,8 @@ class RideViewState extends State<RideView> {
       positionSpeedometerRight = 6.0;
     }
 
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      onPopInvoked: (type) async => false,
       child: Scaffold(
         body: ScreenTrackingView(
           child: SafeArea(
