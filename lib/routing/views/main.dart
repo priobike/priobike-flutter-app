@@ -81,11 +81,12 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        // Calling requestSingleLocation function to fill lastPosition of PositionService
-        await positioning?.requestSingleLocation(onNoPermission: () {
+        // Calling startGeolocation function to fill lastPosition of PositionService regularly.
+        await positioning?.startGeolocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning!.positionSource);
-        });
+        }, onNewPosition: () {print("new pos");});
+
         // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
         // a location shortcut instead of a route shortcut.
         await routing?.loadRoutes();
@@ -113,6 +114,8 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   void dispose() {
+    // To enable start the position service with new onPosition and ensure gps fetching is turned off on exit.
+    positioning?.reset();
     geocoding!.removeListener(update);
     routing!.removeListener(update);
     shortcuts!.removeListener(update);
