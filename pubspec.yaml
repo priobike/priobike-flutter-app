@@ -41,12 +41,12 @@ dependencies:
   flutter_native_splash: ^2.3.6 # Generated splash screen, see below
   wakelock: ^0.4.0 # Keep display active in certain conditions
   http: ^1.1.0 # HTTP client framework
-  device_info_plus: ^9.1.0 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
-  package_info_plus: ^4.2.0 # Fetch info about the package
+  device_info_plus: ^9.1.1 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
+  package_info_plus: ^5.0.1 # Fetch info about the package
   battery_plus: ^4.1.0 # Fetch info about the battery state
   share_plus: ^7.2.1 # Used for debugging to share example requests/responses via e-mail/airdrop
-  firebase_core: ^2.22.0 # Used to initialize the connection to Firebase
-  firebase_messaging: ^14.7.4 # Used to receive push notifications of news service
+  firebase_core: ^2.23.0 # Used to initialize the connection to Firebase
+  firebase_messaging: ^14.7.5 # Used to receive push notifications of news service
   sensors_plus: # Used to get accelerometer data
     git:
       url: https://github.com/priobike/priobike-plus-plugins
@@ -60,7 +60,7 @@ dependencies:
   intl: ^0.18.1 # Used for date formats
   mapbox_maps_flutter: ^0.5.0
   path_provider: ^2.1.1 # To get the path to the app directory and store files
-  connectivity_plus: ^5.0.1 # To check if the user is connected to Wifi or mobile data
+  connectivity_plus: ^5.0.2 # To check if the user is connected to Wifi or mobile data
   get_it: ^7.6.4 # Used for dependency injection
   qr_flutter: ^4.1.0 # Used to display QR codes
   qr_code_scanner: ^1.0.1 # Used to scan QR codes
