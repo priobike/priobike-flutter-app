@@ -207,7 +207,7 @@ class RideMapViewState extends State<RideMapView> {
         }
       } else {
         padding =
-            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.15);
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.19);
       }
     }
 
