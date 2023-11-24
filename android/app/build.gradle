@@ -75,6 +75,13 @@ android {
             signingConfig signingConfigs.release
         }
     }
+
+    namespace 'de.tudresden.priobike'
+
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libfbjni.so'
+    }
 }
 
 flutter {
