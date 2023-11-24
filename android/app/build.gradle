@@ -77,11 +77,12 @@ android {
     }
 
     namespace 'de.tudresden.priobike'
-
     packagingOptions {
-        pickFirst '**/libc++_shared.so'
-        pickFirst '**/libfbjni.so'
+        jniLibs {
+            pickFirsts += ['**/libc++_shared.so', '**/libfbjni.so']
+        }
     }
+
 }
 
 flutter {
