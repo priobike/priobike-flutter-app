@@ -25,12 +25,12 @@ class GpxConversionWaypointsPictogram extends StatefulWidget {
   final GpxConversion gpxConversionNotifier;
 
   const GpxConversionWaypointsPictogram({
-    Key? key,
+    super.key,
     required this.wpts,
     this.height = 400,
     this.color = CI.radkulturRedDark,
     required this.gpxConversionNotifier,
-  }) : super(key: key);
+  });
 
   @override
   GpxConversionWaypointsPictogramState createState() => GpxConversionWaypointsPictogramState();

@@ -17,7 +17,7 @@ import 'package:priobike/routing/services/routing.dart';
 class ImportGpxView extends StatefulWidget {
   final List<Wpt> initPoints;
 
-  const ImportGpxView({Key? key, required this.initPoints}) : super(key: key);
+  const ImportGpxView({super.key, required this.initPoints});
 
   @override
   ImportGpxViewState createState() => ImportGpxViewState();
