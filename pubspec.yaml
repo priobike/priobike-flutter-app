@@ -39,10 +39,10 @@ dependencies:
   shared_preferences: ^2.2.2 # Access to shared preferences or user defaults (iOS)
   latlong2: ^0.9.0 # Distance calculations and more
   flutter_native_splash: ^2.3.6 # Generated splash screen, see below
-  wakelock: ^0.4.0 # Keep display active in certain conditions
+  wakelock_plus: ^1.1.3 # Keep display active in certain conditions
   http: ^1.1.0 # HTTP client framework
-  device_info_plus: ^9.1.1 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
-  package_info_plus: ^5.0.1 # Fetch info about the package
+  device_info_plus: ^9.1.1 # Fetch info about the device
+  package_info_plus: ^4.2.0 # Fetch info about the package
   battery_plus: ^4.1.0 # Fetch info about the battery state
   share_plus: ^7.2.1 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^2.23.0 # Used to initialize the connection to Firebase
