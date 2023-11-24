@@ -389,10 +389,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: b85eb92b175767fdaa0c543bf3b0d1f610fe966412ea72845fe5ba7801e763ff
+      sha256: "4e42aacde3b993c5947467ab640882c56947d9d27342a5b6f2895b23956954a6"
       url: "https://pub.dev"
     source: hosted
-    version: "5.2.10"
+    version: "6.1.1"
   firebase_core:
     dependency: "direct main"
     description:
@@ -975,7 +975,7 @@ packages:
       sha256: "5095f0fc6e3f71d08adef8feccc8cea4f12eec18a2e31c2e8d82cb6019f4b097"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "4.1.0"
   quiver:
     dependency: transitive
     description:
@@ -984,7 +984,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
-    version: "4.1.0"
   rbush:
     dependency: transitive
     description:
