@@ -52,7 +52,8 @@ class ShowQRCodeView extends StatelessWidget {
       data: base64Json,
       version: QrVersions.auto,
       errorCorrectionLevel: QrErrorCorrectLevel.L,
-      // ignore: deprecated_member_use // FIXME: remove use of deprecated attribute
+      // FIXME: remove use of deprecated attribute
+      // ignore: deprecated_member_use
       foregroundColor: isDark ? Colors.white : Colors.black,
       eyeStyle: const QrEyeStyle(
         eyeShape: QrEyeShape.circle,
