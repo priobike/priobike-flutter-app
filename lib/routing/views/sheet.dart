@@ -290,8 +290,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     duration: const Duration(milliseconds: 1000),
                     firstChild: Container(),
                     secondChild: renderTopInfoSection(context),
-                    crossFadeState:
-                        routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
                   ),
                   AnimatedCrossFade(
                     firstCurve: Curves.easeInOutCubic,
@@ -300,10 +301,19 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     duration: const Duration(milliseconds: 1000),
                     firstChild: Container(),
                     secondChild: renderStartRideButton(context),
-                    crossFadeState:
-                        routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
                   ),
-                  renderBottomSheetWaypoints(context),
+                  AnimatedCrossFade(
+                    firstCurve: Curves.easeInOutCubic,
+                    secondCurve: Curves.easeInOutCubic,
+                    sizeCurve: Curves.easeInOutCubic,
+                    duration: const Duration(milliseconds: 1000),
+                    firstChild: Container(),
+                    secondChild: renderBottomSheetWaypoints(context),
+                    crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                  ),
                   if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
                     const TutorialView(
                       id: "priobike.tutorial.draw-waypoints",
