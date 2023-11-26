@@ -156,7 +156,7 @@ class Simulator {
   Future<void> connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
-    final clientId = 'priobike-app-${deviceId.toString()}';
+    final clientId = 'app';
     try {
       client = MqttServerClient(
         settings.backend.simulatorMQTTPath,
