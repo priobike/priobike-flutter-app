@@ -28,7 +28,6 @@ import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
-import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/services/simulator.dart';
 
@@ -161,8 +160,8 @@ class RoutingViewState extends State<RoutingView> {
 
     final settings = getIt<Settings>();
     final simulator = getIt<Simulator>();
-    final feature = getIt<Feature>();
     if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
+      simulator.sendReadyPairRequest();
       showGeneralDialog(
         context: context,
         barrierDismissible: true,
@@ -183,17 +182,6 @@ class RoutingViewState extends State<RoutingView> {
                 onPressed: () => Navigator.of(context).pop(),
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),
-              if (feature.canEnableInternalFeatures)
-                BigButton(
-                  iconColor: Colors.white,
-                  icon: Icons.check_rounded,
-                  label: "Trotzdem starten",
-                  onPressed: () {
-                    simulator.pairSuccessful = true;
-                    startRide();
-                  },
-                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-                )
             ],
           );
         },
@@ -201,7 +189,8 @@ class RoutingViewState extends State<RoutingView> {
       return;
     }
 
-    if (settings.didViewWarning) {
+    // if on simulator mode, skip warning
+    if (settings.enableSimulatorMode || settings.didViewWarning) {
       startRide();
     } else {
       showGeneralDialog(

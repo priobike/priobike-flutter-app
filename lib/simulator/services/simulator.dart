@@ -24,6 +24,9 @@ class Simulator {
   /// Whether the device received a successful pair response from the simulator.
   bool pairSuccessful = false;
 
+  /// The topic for the MQTT messages.
+  final topic = "simulation";
+
   askForPermission() {
     // TODO: implement askForPermission
   }
@@ -33,17 +36,18 @@ class Simulator {
   }
 
   sendTrafficLights() {
+    // Format: App: {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80", "state":"red"}
     // TODO: implement sendTrafficLights
   }
 
   sendUpdateForTrafficLight() {
+    // Format: App: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"yellow", "timestamp":"..."}
     // TODO: implement sendUpdateForTrafficLight
   }
 
   Future<void> sendReadyPairRequest() async {
     if (client == null) await connectMQTTClient();
 
-    const topic = "simulation";
     const qualityOfService = MqttQos.atLeastOnce;
 
     Map<String, String> json = {};
@@ -54,17 +58,16 @@ class Simulator {
 
     await sendViaMQTT(
       message: message,
-      topic: topic,
       qualityOfService: qualityOfService,
     );
-    // TODO: muss ich hier noch irgendwie auf eine Antwort warten??
+
+    client?.subscribe(topic, MqttQos.atLeastOnce);
   }
 
   /// Sends a start ride message to the simulator via MQTT.
   Future<void> sendStartRide() async {
     if (client == null) await connectMQTTClient();
 
-    const topic = "simulation";
     const qualityOfService = MqttQos.atLeastOnce;
 
     Map<String, String> json = {};
@@ -75,16 +78,16 @@ class Simulator {
 
     await sendViaMQTT(
       message: message,
-      topic: topic,
       qualityOfService: qualityOfService,
     );
+
+    await sendTrafficLights();
   }
 
   /// Sends a ready pair request to the simulator via MQTT.
   Future<void> sendStopRide() async {
     if (client == null) await connectMQTTClient();
 
-    const topic = "simulation";
     const qualityOfService = MqttQos.atLeastOnce;
 
     Map<String, String> json = {};
@@ -95,7 +98,6 @@ class Simulator {
 
     await sendViaMQTT(
       message: message,
-      topic: topic,
       qualityOfService: qualityOfService,
     );
   }
@@ -104,7 +106,6 @@ class Simulator {
   Future<void> sendCurrentPosition() async {
     if (client == null) await connectMQTTClient();
 
-    const topic = "simulation";
     const qualityOfService = MqttQos.atMostOnce;
 
     final Positioning positioning = getIt<Positioning>();
@@ -129,13 +130,12 @@ class Simulator {
 
     await sendViaMQTT(
       message: message,
-      topic: topic,
       qualityOfService: qualityOfService,
     );
   }
 
   /// Sends a message to the simulator via MQTT.
-  Future<void> sendViaMQTT({required String message, required String topic, required MqttQos qualityOfService}) async {
+  Future<void> sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
     if (client == null) await connectMQTTClient();
 
     // convert message to byte array
@@ -152,11 +152,30 @@ class Simulator {
     }
   }
 
+  /// A callback that is executed when data arrives.
+  Future<void> onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
+    if (messages == null) return;
+    if (pairSuccessful) return;
+    for (final message in messages) {
+      final recMess = message.payload as MqttPublishMessage;
+      // Decode the payload.
+      final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      final json = jsonDecode(data);
+      log.i("Received for simulator: $json");
+      if (json['type'] == 'PairConfirm' && json['deviceID'] == deviceId) {
+        pairSuccessful = true;
+        log.i("Pairing with simulator successful.");
+      }
+    }
+  }
+
   /// Connects the MQTT client to the simulator.
   Future<void> connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
-    final clientId = 'app';
+
+    // must be "app", otherwise the simulator won't accept the connection
+    const clientId = 'app';
     try {
       client = MqttServerClient(
         settings.backend.simulatorMQTTPath,
@@ -192,8 +211,9 @@ class Simulator {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
 
-      await sendStartRide();
-      // TODO: implement MQTT handshake
+      client!.updates?.listen(onData);
+
+      await sendReadyPairRequest();
     } catch (e, stacktrace) {
       client = null;
       final hint = "Failed to connect the simulator MQTT client: $e, $stacktrace";
@@ -212,6 +232,7 @@ class Simulator {
   Future<void> disconnectMQTTClient() async {
     if (client != null) {
       await sendStopRide();
+      client!.unsubscribe(topic);
       client!.disconnect();
       client = null;
       log.i("Disconnected from simulator MQTT broker.");
