@@ -32,6 +32,14 @@ class Simulator {
     // TODO: implement conntectWithDevice
   }
 
+  sendTrafficLights() {
+    // TODO: implement sendTrafficLights
+  }
+
+  sendUpdateForTrafficLight() {
+    // TODO: implement sendUpdateForTrafficLight
+  }
+
   Future<void> sendReadyPairRequest() async {
     if (client == null) await connectMQTTClient();
 
@@ -194,7 +202,7 @@ class Simulator {
       if (ride.navigationIsActive) {
         // TODO: we can use this in the simulator as well, right??
         await Future.delayed(const Duration(seconds: 10));
-        connectMQTTClient();
+        await connectMQTTClient();
       } else {
         disconnectMQTTClient();
       }
