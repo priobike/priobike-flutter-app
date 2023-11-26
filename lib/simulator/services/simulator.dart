@@ -235,6 +235,7 @@ class Simulator {
       client!.unsubscribe(topic);
       client!.disconnect();
       client = null;
+      pairSuccessful = false;
       log.i("Disconnected from simulator MQTT broker.");
     }
   }
