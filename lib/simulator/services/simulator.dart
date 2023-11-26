@@ -27,6 +27,9 @@ class Simulator {
   /// The topic for the MQTT messages.
   final topic = "simulation";
 
+  /// The last time a pair request was sent to the simulator.
+  DateTime? lastSendPairRequest;
+
   askForPermission() {
     // TODO: implement askForPermission
   }
@@ -47,6 +50,10 @@ class Simulator {
 
   Future<void> sendReadyPairRequest() async {
     if (client == null) await connectMQTTClient();
+
+    // Only send a ready pair request every 10 seconds to avoid spamming the simulator.
+    if (lastSendPairRequest != null && DateTime.now().difference(lastSendPairRequest!).inSeconds < 10) return;
+    lastSendPairRequest = DateTime.now();
 
     const qualityOfService = MqttQos.atLeastOnce;
 
@@ -236,6 +243,7 @@ class Simulator {
       client!.disconnect();
       client = null;
       pairSuccessful = false;
+      lastSendPairRequest = null;
       log.i("Disconnected from simulator MQTT broker.");
     }
   }
