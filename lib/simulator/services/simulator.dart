@@ -21,6 +21,9 @@ class Simulator {
   /// The unique key to identify the device in the simulator.
   final deviceId = UniqueKey().toString();
 
+  /// Whether the device received a successful pair response from the simulator.
+  bool pairSuccessful = false;
+
   askForPermission() {
     // TODO: implement askForPermission
   }
@@ -159,8 +162,8 @@ class Simulator {
       client!.resubscribeOnAutoReconnect = true;
       client!.onDisconnected = () => log.i("Simulator MQTT client disconnected");
       client!.onConnected = () => log.i("Simulator MQTT client connected");
-      // client!.onSubscribed = (topic) => log.i("Simulator MQTT client subscribed to $topic");
-      // client!.onUnsubscribed = (topic) => log.i("Simulator MQTT client unsubscribed from $topic");
+      client!.onSubscribed = (topic) => log.i("Simulator MQTT client subscribed to $topic");
+      client!.onUnsubscribed = (topic) => log.i("Simulator MQTT client unsubscribed from $topic");
       client!.onAutoReconnect = () => log.i("Simulator MQTT client auto reconnect");
       client!.onAutoReconnected = () => log.i("Simulator MQTT client auto reconnected");
       client!.setProtocolV311(); // Default Mosquitto protocol

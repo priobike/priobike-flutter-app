@@ -27,8 +27,10 @@ import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
+import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 
 class RoutingView extends StatefulWidget {
   const RoutingView({super.key});
@@ -158,6 +160,47 @@ class RoutingViewState extends State<RoutingView> {
     }
 
     final settings = getIt<Settings>();
+    final simulator = getIt<Simulator>();
+    final feature = getIt<Feature>();
+    if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
+      showGeneralDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierColor: Colors.black.withOpacity(0.4),
+        pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+          return DialogLayout(
+            title: 'Hinweis',
+            text: """Du hast den Simulator aktiviert, aber der Simulator ist noch nicht verbunden. \n
+                Bitte verbinde Dein Gerät mit dem Simulator, um die Fahrt zu beginnen oder deaktiviere den Simulator in den Einstellungen.""",
+            icon: Icons.info_rounded,
+            iconColor: Theme.of(context).colorScheme.primary,
+            actions: [
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.check_rounded,
+                label: "Okay",
+                onPressed: () => Navigator.of(context).pop(),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              ),
+              if (feature.canEnableInternalFeatures)
+                BigButton(
+                  iconColor: Colors.white,
+                  icon: Icons.check_rounded,
+                  label: "Trotzdem starten",
+                  onPressed: () {
+                    simulator.pairSuccessful = true;
+                    startRide();
+                  },
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                )
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     if (settings.didViewWarning) {
       startRide();
     } else {
