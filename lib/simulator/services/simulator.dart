@@ -169,9 +169,17 @@ class Simulator {
       final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       final json = jsonDecode(data);
       log.i("Received for simulator: $json");
-      if (json['type'] == 'PairConfirm' && json['deviceID'] == deviceId) {
+      if (json['type'] == 'PairStart' && json['deviceID'] == deviceId) {
         pairSuccessful = true;
         log.i("Pairing with simulator successful.");
+
+        // send pair confirm
+        const qualityOfService = MqttQos.atLeastOnce;
+        final String message = '{"type":"PairConfirm", "deviceID":"$deviceId"}';
+        await sendViaMQTT(
+          message: message,
+          qualityOfService: qualityOfService,
+        );
       }
     }
   }
