@@ -206,7 +206,7 @@ extension BackendShortcuts on Backend {
           ),
           ShortcutRoute(
             id: UniqueKey().toString(),
-            name: "Edmund-S.-Allee Ost ➔ West",
+            name: "E.-S.-Allee Ost ➔ West",
             waypoints: [
               Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
               Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
@@ -214,7 +214,7 @@ extension BackendShortcuts on Backend {
           ),
           ShortcutRoute(
             id: UniqueKey().toString(),
-            name: "Edmund-S.-Allee West ➔ Ost",
+            name: "E.-S.-Allee West ➔ Ost",
             waypoints: [
               Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
               Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
