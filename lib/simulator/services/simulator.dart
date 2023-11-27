@@ -18,8 +18,8 @@ class Simulator {
   /// The mqtt client.
   MqttServerClient? client;
 
-  /// The unique key to identify the device in the simulator.
-  final deviceId = UniqueKey().toString();
+  /// The unique key to identify the device in the simulator. Remove the brackets and hash sign.
+  final deviceId = UniqueKey().toString().replaceAll("[", "").replaceAll("]", "").replaceAll("#", "");
 
   /// Whether the device received a successful pair response from the simulator.
   bool pairSuccessful = false;
@@ -29,6 +29,12 @@ class Simulator {
 
   /// The last time a pair request was sent to the simulator.
   DateTime? lastSendPairRequest;
+
+  /// Whether the device received a stop ride message from the simulator, indicating the simulation needs to be stopped.
+  bool receivedStopRide = false;
+
+  /// The subscription for the MQTT messages.
+  Subscription? subscription;
 
   askForPermission() {
     // TODO: implement askForPermission
@@ -67,8 +73,6 @@ class Simulator {
       message: message,
       qualityOfService: qualityOfService,
     );
-
-    client?.subscribe(topic, MqttQos.atLeastOnce);
   }
 
   /// Sends a start ride message to the simulator via MQTT.
@@ -169,6 +173,8 @@ class Simulator {
       final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       final json = jsonDecode(data);
       log.i("Received for simulator: $json");
+
+      // Paring
       if (json['type'] == 'PairStart' && json['deviceID'] == deviceId) {
         pairSuccessful = true;
         log.i("Pairing with simulator successful.");
@@ -181,11 +187,19 @@ class Simulator {
           qualityOfService: qualityOfService,
         );
       }
+
+      // Stop ride
+      if (json['type'] == 'StopRide' && json['deviceID'] == deviceId) {
+        log.i("Stop ride received from simulator.");
+        receivedStopRide = true;
+      }
     }
   }
 
   /// Connects the MQTT client to the simulator.
   Future<void> connectMQTTClient() async {
+    resetVariables();
+
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
 
@@ -229,6 +243,7 @@ class Simulator {
       client!.updates?.listen(onData);
 
       await sendReadyPairRequest();
+      subscription = client?.subscribe(topic, MqttQos.atLeastOnce);
     } catch (e, stacktrace) {
       client = null;
       final hint = "Failed to connect the simulator MQTT client: $e, $stacktrace";
@@ -244,15 +259,23 @@ class Simulator {
     }
   }
 
+  /// Disconnects the MQTT client from the simulator.
   Future<void> disconnectMQTTClient() async {
     if (client != null) {
       await sendStopRide();
       client!.unsubscribe(topic);
       client!.disconnect();
       client = null;
-      pairSuccessful = false;
-      lastSendPairRequest = null;
+      resetVariables();
       log.i("Disconnected from simulator MQTT broker.");
     }
+  }
+
+  /// Resets the variables for the simulation.
+  resetVariables() {
+    pairSuccessful = false;
+    lastSendPairRequest = null;
+    receivedStopRide = false;
+    subscription = null;
   }
 }
