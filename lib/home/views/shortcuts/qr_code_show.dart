@@ -52,14 +52,13 @@ class ShowQRCodeView extends StatelessWidget {
       data: base64Json,
       version: QrVersions.auto,
       errorCorrectionLevel: QrErrorCorrectLevel.L,
-      // FIXME: remove use of deprecated attribute
-      // ignore: deprecated_member_use
-      foregroundColor: isDark ? Colors.white : Colors.black,
-      eyeStyle: const QrEyeStyle(
+      eyeStyle: QrEyeStyle(
+        color: isDark ? Colors.white : Colors.black,
         eyeShape: QrEyeShape.circle,
       ),
-      dataModuleStyle: const QrDataModuleStyle(
+      dataModuleStyle: QrDataModuleStyle(
         dataModuleShape: QrDataModuleShape.circle,
+        color: isDark ? Colors.white : Colors.black,
       ),
     );
   }
