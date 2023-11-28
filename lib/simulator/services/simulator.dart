@@ -66,6 +66,7 @@ class Simulator {
     Map<String, String> json = {};
     json['type'] = 'PairRequest';
     json['deviceID'] = deviceId;
+    json['deviceName'] = 'Priobike';
 
     final String message = jsonEncode(json);
 
