@@ -12,7 +12,7 @@ class ChallengeRewardDialog extends StatefulWidget {
   /// The color in which the reward should be shown.
   final Color color;
 
-  const ChallengeRewardDialog({Key? key, required this.color, required this.challenge}) : super(key: key);
+  const ChallengeRewardDialog({super.key, required this.color, required this.challenge});
 
   @override
   State<ChallengeRewardDialog> createState() => ChallengeRewardDialogState();

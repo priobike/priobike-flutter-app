@@ -8,7 +8,7 @@ import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 
 class CompassButton extends StatefulWidget {
-  const CompassButton({Key? key}) : super(key: key);
+  const CompassButton({super.key});
 
   @override
   State<StatefulWidget> createState() => CompassButtonState();

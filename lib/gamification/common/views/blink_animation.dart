@@ -16,12 +16,12 @@ class BlinkAnimation extends StatefulWidget {
   final Duration duration;
 
   const BlinkAnimation({
-    Key? key,
+    super.key,
     required this.child,
     this.scaleFactor = 1.3,
     this.animate = true,
     this.duration = const MediumDuration(),
-  }) : super(key: key);
+  });
 
   @override
   State<BlinkAnimation> createState() => _BlinkAnimationState();

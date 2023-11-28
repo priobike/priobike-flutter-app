@@ -19,13 +19,13 @@ class AnnotatedRegionWrapper extends StatelessWidget {
   final Brightness? systemNavigationBarIconBrightness;
 
   const AnnotatedRegionWrapper({
-    Key? key,
+    super.key,
     required this.backgroundColor,
     required this.brightness,
     required this.child,
     this.statusBarIconBrightness,
     this.systemNavigationBarIconBrightness,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

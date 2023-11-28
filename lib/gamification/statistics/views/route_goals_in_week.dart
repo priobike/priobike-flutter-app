@@ -18,11 +18,11 @@ class RouteGoalsInWeek extends StatelessWidget {
   final double daySize;
 
   const RouteGoalsInWeek({
-    Key? key,
+    super.key,
     required this.ridesInWeek,
     required this.goals,
     required this.daySize,
-  }) : super(key: key);
+  });
 
   /// Returns the number of rides the user did on the route for a given weekday.
   int _ridesOnDay(int day) {

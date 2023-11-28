@@ -24,13 +24,13 @@ class MapboxAttribution extends StatelessWidget {
   final double width;
 
   const MapboxAttribution({
-    Key? key,
+    super.key,
     this.top,
     this.left,
     this.right,
     this.bottom,
     this.width = 32,
-  }) : super(key: key);
+  });
 
   /// Used to show the attribution dialog.
   /// (Only if the battery saving mode is used

@@ -15,7 +15,7 @@ class EventBadges extends Table {
 
 @DriftAccessor(tables: [EventBadges])
 class EventBadgeDao extends DatabaseDao<EventBadge> with _$EventBadgeDaoMixin {
-  EventBadgeDao(AppDatabase attachedDatabase) : super(attachedDatabase);
+  EventBadgeDao(super.attachedDatabase);
 
   @override
   TableInfo<Table, dynamic> get table => eventBadges;

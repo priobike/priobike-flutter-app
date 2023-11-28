@@ -22,7 +22,7 @@ class Challenges extends Table {
 
 @DriftAccessor(tables: [Challenges])
 class ChallengeDao extends DatabaseDao<Challenge> with _$ChallengeDaoMixin {
-  ChallengeDao(AppDatabase attachedDatabase) : super(attachedDatabase);
+  ChallengeDao(super.attachedDatabase);
 
   @override
   TableInfo<Table, dynamic> get table => challenges;

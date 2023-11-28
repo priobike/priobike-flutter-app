@@ -12,7 +12,7 @@ import 'package:priobike/gamification/community_event/views/badge.dart';
 class BadgeCollection extends StatelessWidget {
   final List<EventBadge> badges;
 
-  const BadgeCollection({Key? key, required this.badges}) : super(key: key);
+  const BadgeCollection({super.key, required this.badges});
 
   @override
   Widget build(BuildContext context) {
@@ -48,35 +48,33 @@ class BadgeCollection extends StatelessWidget {
                   ],
                 ),
                 const SmallVSpace(),
-                ...badges
-                    .map(
-                      (badge) => Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                            ),
-                            borderRadius: BorderRadius.circular(24),
-                            color: Theme.of(context).colorScheme.surface),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            RewardBadge(color: CI.radkulturRed, size: 64, iconIndex: badge.icon, achieved: true),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  BoldSubHeader(text: badge.title, context: context),
-                                  Content(text: StringFormatter.getDateStr(badge.achievedTimestamp), context: context),
-                                ],
-                              ),
-                            ),
-                          ],
+                ...badges.map(
+                  (badge) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 1,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                         ),
-                      ),
-                    )
-                    .toList(),
+                        borderRadius: BorderRadius.circular(24),
+                        color: Theme.of(context).colorScheme.surface),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        RewardBadge(color: CI.radkulturRed, size: 64, iconIndex: badge.icon, achieved: true),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              BoldSubHeader(text: badge.title, context: context),
+                              Content(text: StringFormatter.getDateStr(badge.achievedTimestamp), context: context),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

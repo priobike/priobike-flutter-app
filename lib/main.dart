@@ -112,13 +112,13 @@ Future<void> main() async {
   getIt.registerSingleton<EvaluationDataService>(EvaluationDataService());
   getIt.registerSingleton<EventService>(EventService());
 
-  runZonedGuarded(() async {
+  try {
     runApp(const App());
-  }, (error, stack) async {
+  } on Error catch (error, stack) {
     // Log the error to the console.
-    log.e(error.toString());
-    log.e(stack.toString());
-  });
+    log.e("Error during app startup: $error");
+    log.e(stack);
+  }
 }
 
 /// The main app widget.
@@ -126,7 +126,7 @@ class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {

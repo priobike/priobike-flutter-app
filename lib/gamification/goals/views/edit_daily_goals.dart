@@ -13,7 +13,7 @@ import 'package:priobike/main.dart';
 
 /// This dialog enables the user to edit their daily goals.
 class EditDailyGoalsDialog extends StatefulWidget {
-  const EditDailyGoalsDialog({Key? key}) : super(key: key);
+  const EditDailyGoalsDialog({super.key});
 
   @override
   State<EditDailyGoalsDialog> createState() => _EditDailyGoalsDialogState();
@@ -151,7 +151,7 @@ class EditGoalWidget extends StatelessWidget {
   final Function(double)? onChanged;
 
   const EditGoalWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.min,
@@ -159,7 +159,7 @@ class EditGoalWidget extends StatelessWidget {
     required this.stepSize,
     required this.valueLabel,
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +221,7 @@ class EditButton extends StatelessWidget {
   /// Callback for when the button is pressed.
   final Function()? onPressed;
 
-  const EditButton({Key? key, required this.icon, required this.onPressed}) : super(key: key);
+  const EditButton({super.key, required this.icon, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

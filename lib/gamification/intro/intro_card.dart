@@ -6,7 +6,7 @@ import 'package:priobike/gamification/intro/intro_page.dart';
 
 /// Intro card to be displayed on the home view of the app, if the gamification feauture is disabled.
 class GameIntroCard extends StatelessWidget {
-  const GameIntroCard({Key? key}) : super(key: key);
+  const GameIntroCard({super.key});
 
   @override
   Widget build(BuildContext context) {

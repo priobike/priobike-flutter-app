@@ -5,7 +5,7 @@ class MapBackground extends StatelessWidget {
   /// The child to be displayed above the map.
   final Widget child;
 
-  const MapBackground({Key? key, required this.child}) : super(key: key);
+  const MapBackground({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

@@ -17,9 +17,10 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class FinishRideButton extends StatefulWidget {
-  const FinishRideButton({Key? key}) : super(key: key);
+  const FinishRideButton({super.key});
 
   @override
   FinishRideButtonState createState() => FinishRideButtonState();
@@ -92,6 +93,9 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // Stop the geolocation.
     final position = getIt<Positioning>();
     await position.stopGeolocation();
+
+    // Disable the wakelock which was set when the ride started.
+    WakelockPlus.disable();
 
     // Show the feedback view.
     if (mounted) {

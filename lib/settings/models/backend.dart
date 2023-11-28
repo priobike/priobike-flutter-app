@@ -173,11 +173,11 @@ extension BackendRegion on Backend {
   LatLng get center {
     switch (this) {
       case Backend.production:
-        return LatLng(53.551086, 9.993682);
+        return const LatLng(53.551086, 9.993682);
       case Backend.staging:
-        return LatLng(51.050407, 13.737262);
+        return const LatLng(51.050407, 13.737262);
       case Backend.release:
-        return LatLng(53.551086, 9.993682);
+        return const LatLng(53.551086, 9.993682);
     }
   }
 
@@ -206,7 +206,7 @@ extension BackendShortcuts on Backend {
           ),
           ShortcutRoute(
             id: UniqueKey().toString(),
-            name: "Edmund-S.-Allee Ost ➔ West",
+            name: "E.-S.-Allee Ost ➔ West",
             waypoints: [
               Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
               Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
@@ -214,7 +214,7 @@ extension BackendShortcuts on Backend {
           ),
           ShortcutRoute(
             id: UniqueKey().toString(),
-            name: "Edmund-S.-Allee West ➔ Ost",
+            name: "E.-S.-Allee West ➔ Ost",
             waypoints: [
               Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
               Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),

@@ -6,7 +6,7 @@ import 'package:priobike/wiki/detail.dart';
 import 'package:priobike/wiki/models/article.dart';
 
 class WikiCard extends StatefulWidget {
-  const WikiCard({Key? key, required this.article}) : super(key: key);
+  const WikiCard({super.key, required this.article});
 
   /// The article of the WikiCard.
   final Article article;

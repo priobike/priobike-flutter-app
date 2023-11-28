@@ -14,7 +14,7 @@ class DailyOverview extends StatefulWidget {
   /// The day to be displayed.
   final DayStats today;
 
-  const DailyOverview({Key? key, required this.today}) : super(key: key);
+  const DailyOverview({super.key, required this.today});
 
   @override
   State<DailyOverview> createState() => _DailyOverviewState();

@@ -20,12 +20,12 @@ class GPXConversionWaypointsPaint extends StatefulWidget {
   final Color approxColor;
 
   const GPXConversionWaypointsPaint({
-    Key? key,
+    super.key,
     required this.wpts,
     this.gpxColor = CI.radkulturRed,
     this.approxColor = CI.route,
     required this.gpxConversionNotifier,
-  }) : super(key: key);
+  });
 
   @override
   GPXConversionWaypointsPaintState createState() => GPXConversionWaypointsPaintState();

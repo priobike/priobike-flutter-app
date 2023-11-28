@@ -15,7 +15,7 @@ import 'package:priobike/main.dart';
 
 /// Dialog to edit the route goals set by the user.
 class EditRouteGoalsDialog extends StatefulWidget {
-  const EditRouteGoalsDialog({Key? key}) : super(key: key);
+  const EditRouteGoalsDialog({super.key});
 
   @override
   State<EditRouteGoalsDialog> createState() => _EditRouteGoalsDialogState();

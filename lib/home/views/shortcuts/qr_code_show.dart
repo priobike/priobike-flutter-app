@@ -12,7 +12,7 @@ class ShowQRCodeView extends StatelessWidget {
   /// The shortcut for which a QR code should be shown.
   final Shortcut shortcut;
 
-  const ShowQRCodeView({Key? key, required this.shortcut}) : super(key: key);
+  const ShowQRCodeView({super.key, required this.shortcut});
 
   @override
   Widget build(BuildContext context) {
@@ -44,20 +44,21 @@ class ShowQRCodeView extends StatelessWidget {
     }
 
     // Encode the JSON and compress it
-    final enCodedJson = utf8.encode(json.encode(shortcutCopy.toJson()));
-    final gZipJson = gzip.encode(enCodedJson);
+    final encodedJson = utf8.encode(json.encode(shortcutCopy.toJson()));
+    final gZipJson = gzip.encode(encodedJson);
     final base64Json = base64.encode(gZipJson);
 
-    return QrImage(
+    return QrImageView(
       data: base64Json,
       version: QrVersions.auto,
       errorCorrectionLevel: QrErrorCorrectLevel.L,
-      foregroundColor: isDark ? Colors.white : Colors.black,
-      eyeStyle: const QrEyeStyle(
+      eyeStyle: QrEyeStyle(
+        color: isDark ? Colors.white : Colors.black,
         eyeShape: QrEyeShape.circle,
       ),
-      dataModuleStyle: const QrDataModuleStyle(
+      dataModuleStyle: QrDataModuleStyle(
         dataModuleShape: QrDataModuleShape.circle,
+        color: isDark ? Colors.white : Colors.black,
       ),
     );
   }

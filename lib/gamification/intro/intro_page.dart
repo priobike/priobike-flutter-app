@@ -9,9 +9,8 @@ import 'package:priobike/main.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
-  IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
+  IconItem({super.key, required IconData icon, required String text, required BuildContext context})
       : super(
-          key: key,
           children: [
             SizedBox(
               width: 56,
@@ -33,7 +32,7 @@ class IconItem extends Row {
 
 /// Page to give the user an intro to the gamification feature and let them enable it.
 class IntroPage extends StatelessWidget {
-  const IntroPage({Key? key}) : super(key: key);
+  const IntroPage({super.key});
 
   @override
   Widget build(BuildContext context) {

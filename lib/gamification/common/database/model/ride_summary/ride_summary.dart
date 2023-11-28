@@ -24,7 +24,7 @@ class RideSummaryDao extends DatabaseDao<RideSummary> with _$RideSummaryDaoMixin
   /// The logger for this service.
   final logger = Logger("RideDAO");
 
-  RideSummaryDao(AppDatabase attachedDatabase) : super(attachedDatabase);
+  RideSummaryDao(super.attachedDatabase);
 
   @override
   TableInfo<Table, dynamic> get table => rideSummaries;

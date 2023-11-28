@@ -12,7 +12,7 @@ class SingleUpgradeLvlUpDialog extends StatelessWidget {
   /// The upgrade gained by the level up.
   final ProfileUpgrade upgrade;
 
-  const SingleUpgradeLvlUpDialog({Key? key, required this.newLevel, required this.upgrade}) : super(key: key);
+  const SingleUpgradeLvlUpDialog({super.key, required this.newLevel, required this.upgrade});
 
   @override
   Widget build(BuildContext context) {

@@ -17,7 +17,7 @@ class FancyRouteStatsForWeek extends StatefulWidget {
   /// The week displayed by the widget.
   final WeekStats week;
 
-  const FancyRouteStatsForWeek({Key? key, required this.week}) : super(key: key);
+  const FancyRouteStatsForWeek({super.key, required this.week});
 
   @override
   State<FancyRouteStatsForWeek> createState() => _FancyRouteStatsForWeekState();

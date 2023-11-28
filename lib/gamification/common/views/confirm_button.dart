@@ -10,7 +10,7 @@ class ConfirmButton extends StatelessWidget {
 
   final Function()? onPressed;
 
-  const ConfirmButton({Key? key, required this.label, this.onPressed, this.color = CI.radkulturRed}) : super(key: key);
+  const ConfirmButton({super.key, required this.label, this.onPressed, this.color = CI.radkulturRed});
 
   @override
   Widget build(BuildContext context) {

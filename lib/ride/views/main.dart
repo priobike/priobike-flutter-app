@@ -22,10 +22,10 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class RideView extends StatefulWidget {
-  const RideView({Key? key}) : super(key: key);
+  const RideView({super.key});
 
   @override
   State<StatefulWidget> createState() => RideViewState();
@@ -165,7 +165,7 @@ class RideViewState extends State<RideView> {
   @override
   Widget build(BuildContext context) {
     // Keep the device active during navigation.
-    Wakelock.enable();
+    WakelockPlus.enable();
 
     final EdgeInsets paddingCenterButton;
     final double heightToPuckBoundingBox;
@@ -194,8 +194,8 @@ class RideViewState extends State<RideView> {
       positionSpeedometerRight = 6.0;
     }
 
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      onPopInvoked: (type) async => false,
       child: Scaffold(
         body: ScreenTrackingView(
           child: SafeArea(

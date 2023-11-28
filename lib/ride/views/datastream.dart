@@ -11,7 +11,7 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class DatastreamView extends StatefulWidget {
-  const DatastreamView({Key? key}) : super(key: key);
+  const DatastreamView({super.key});
 
   @override
   State<StatefulWidget> createState() => DatastreamViewState();

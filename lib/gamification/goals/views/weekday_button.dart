@@ -15,7 +15,7 @@ class WeekdayButton extends StatelessWidget {
   /// Whether the weekday is currently selected, which means it is displayed in blue.
   final bool selected;
 
-  const WeekdayButton({Key? key, required this.day, required this.onPressed, required this.selected}) : super(key: key);
+  const WeekdayButton({super.key, required this.day, required this.onPressed, required this.selected});
 
   @override
   Widget build(BuildContext context) {

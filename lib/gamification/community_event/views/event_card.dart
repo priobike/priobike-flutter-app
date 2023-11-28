@@ -14,7 +14,7 @@ import 'package:priobike/main.dart';
 
 /// This card is displayed on the home view and holds all information about the users participation in the weekend events.
 class EventCard extends StatefulWidget {
-  const EventCard({Key? key}) : super(key: key);
+  const EventCard({super.key});
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -143,7 +143,7 @@ class _EventCardState extends State<EventCard> {
 class WaitingForEventView extends StatelessWidget {
   final EventService service;
 
-  const WaitingForEventView({Key? key, required this.service}) : super(key: key);
+  const WaitingForEventView({super.key, required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +196,7 @@ class WaitingForEventView extends StatelessWidget {
 class ActiveEventView extends StatelessWidget {
   final EventService service;
 
-  const ActiveEventView({Key? key, required this.service}) : super(key: key);
+  const ActiveEventView({super.key, required this.service});
 
   Widget getInfoIcon(IconData icon, int value, Color color, var context) {
     return Row(
@@ -260,7 +260,7 @@ class ActiveEventView extends StatelessWidget {
 class NoEventView extends StatelessWidget {
   final EventService service;
 
-  const NoEventView({Key? key, required this.service}) : super(key: key);
+  const NoEventView({super.key, required this.service});
 
   @override
   Widget build(BuildContext context) {
