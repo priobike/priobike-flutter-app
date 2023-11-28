@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -10,6 +12,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings with ChangeNotifier {
@@ -67,6 +70,12 @@ class Settings with ChangeNotifier {
 
   /// Enable "old" gamification for app
   bool enableGamification;
+
+  /// Whether the user has seen the user transfer dialog.
+  bool didViewUserTransfer;
+
+  /// Whether the migration was applied.
+  bool didMigrateTracks;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -373,6 +382,40 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const didViewUserTransferKey = "priobike.settings.didViewUserTransfer";
+  static const defaultDidViewUserTransfer = false;
+
+  Future<bool> setDidViewUserTransfer(bool didViewUserTransfer, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didViewUserTransfer;
+    this.didViewUserTransfer = didViewUserTransfer;
+    final bool success = await storage.setBool(didViewUserTransferKey, didViewUserTransfer);
+    if (!success) {
+      log.e("Failed to set didViewUserTransfer to $didViewUserTransferKey");
+      this.didViewUserTransfer = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const didMigrateTracksKey = "priobike.settings.didMigrateTracks";
+  static const defaultDidMigrateTracks = false;
+
+  Future<bool> setDidMigrateTracks(bool didMigrateTracks, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didMigrateTracks;
+    this.didMigrateTracks = didMigrateTracks;
+    final bool success = await storage.setBool(didViewUserTransferKey, didMigrateTracks);
+    if (!success) {
+      log.e("Failed to set didMigrateTracks to $didMigrateTracksKey");
+      this.didMigrateTracks = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings(
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -391,6 +434,8 @@ class Settings with ChangeNotifier {
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
+    this.didViewUserTransfer = defaultDidViewUserTransfer,
+    this.didMigrateTracks = defaultDidMigrateTracks,
   });
 
   /// Load the beta settings from the shared preferences.
@@ -482,9 +527,33 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      didViewUserTransfer = storage.getBool(didViewUserTransferKey) ?? defaultDidViewUserTransfer;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
     notifyListeners();
+  }
+
+  /// Transfer a user to the given backend.
+  Future<void> transferUser(Backend backend) async {
+    // Get beta shortcuts and tracks before the backend switch.
+    Shortcuts shortcuts = getIt<Shortcuts>();
+    var exportedShortcuts = shortcuts.shortcuts;
+    Tracking tracking = getIt<Tracking>();
+    var exportedTracks = tracking.previousTracks;
+
+    // Set release backend.
+    await setBackend(backend);
+
+    // Import beta shortcuts and tracks.
+    if (exportedShortcuts != null) shortcuts.updateShortcuts(exportedShortcuts);
+    if (exportedTracks != null) {} // tracking.up(exportedShortcuts);
+
+    // Set did view user transfer screen.
+    await setDidViewUserTransfer(true);
   }
 
   /// Convert the settings to a json object.

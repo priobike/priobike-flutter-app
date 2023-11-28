@@ -11,6 +11,7 @@ import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
@@ -304,6 +305,29 @@ class SettingsViewState extends State<SettingsView> {
                     },
                   ),
                 ],
+                const VSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: Content(text: "Version", context: context),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Du kannst zwischen der stabilen Version und der Beta-Version wechseln. Vorteil der stabilen Version sind die Nutzung der stabilen Services und Ampeln.",
+                    context: context,
+                  ),
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Stabile Version verwenden",
+                    icon: settings.backend == Backend.release ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings
+                        .transferUser(settings.backend == Backend.release ? Backend.production : Backend.release),
+                  ),
+                ),
                 const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(left: 32),
