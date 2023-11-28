@@ -64,7 +64,7 @@ class Simulator {
     const qualityOfService = MqttQos.atLeastOnce;
 
     Map<String, String> json = {};
-    json['type'] = 'ReadyPairRequest';
+    json['type'] = 'PairRequest';
     json['deviceID'] = deviceId;
 
     final String message = jsonEncode(json);
