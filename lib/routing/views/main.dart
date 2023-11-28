@@ -170,8 +170,8 @@ class RoutingViewState extends State<RoutingView> {
         pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
           return DialogLayout(
             title: 'Hinweis',
-            text: """Du hast den Simulator aktiviert, aber der Simulator ist noch nicht verbunden. \n
-                Bitte verbinde Dein Gerät mit dem Simulator, um die Fahrt zu beginnen oder deaktiviere den Simulator in den Einstellungen.""",
+            text:
+                """Du hast den Simulator aktiviert.\n\nBestätige die Verbindung beim Simulator, um die Fahrt zu beginnen oder deaktiviere den Simulator.\n\nDevice ID: ${simulator.deviceId}""",
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
@@ -179,7 +179,20 @@ class RoutingViewState extends State<RoutingView> {
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
                 label: "Okay",
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              ),
+              BigButton(
+                iconColor: Colors.white,
+                icon: Icons.check_rounded,
+                label: "Simulator deaktivieren",
+                onPressed: () {
+                  settings.setSimulatorMode(false);
+                  Navigator.of(context).pop();
+                  setState(() {});
+                },
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),
             ],

@@ -13,6 +13,8 @@ import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
+import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -244,10 +246,23 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render the start ride button.
   Widget renderStartRideButton(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
+    final simulator = getIt<Simulator>();
+    final settings = getIt<Settings>();
+    final String label;
+    if (settings.enableSimulatorMode) {
+      if (!simulator.pairSuccessful) {
+        label = "Pair mit Simulator";
+      } else {
+        label = "Simulator starten";
+      }
+    } else {
+      label = "Losfahren";
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: BigButtonPrimary(
-        label: "Losfahren",
+        label: label,
         onPressed: widget.onSelectStartButton,
         boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
       ),
