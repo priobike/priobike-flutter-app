@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -13,7 +10,6 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
-import 'package:priobike/tracking/services/tracking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings with ChangeNotifier {
@@ -74,9 +70,6 @@ class Settings with ChangeNotifier {
 
   /// Whether the user has seen the user transfer dialog.
   bool didViewUserTransfer;
-
-  /// Whether the migration of tracks and shortcuts was applied.
-  bool didMigrate;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -400,23 +393,6 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const didMigrateKey = "priobike.settings.didMigrate";
-  static const defaultDidMigrate = false;
-
-  Future<bool> setDidMigrateTracks(bool didMigrate, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.didMigrate;
-    this.didMigrate = didMigrate;
-    final bool success = await storage.setBool(didViewUserTransferKey, didMigrate);
-    if (!success) {
-      log.e("Failed to set didMigrateTracks to $didMigrate");
-      this.didMigrate = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
   Settings(
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -436,7 +412,6 @@ class Settings with ChangeNotifier {
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
     this.didViewUserTransfer = defaultDidViewUserTransfer,
-    this.didMigrate = defaultDidMigrate,
   });
 
   /// Load the beta settings from the shared preferences.
@@ -530,11 +505,6 @@ class Settings with ChangeNotifier {
     }
     try {
       didViewUserTransfer = storage.getBool(didViewUserTransferKey) ?? defaultDidViewUserTransfer;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      didMigrate = storage.getBool(didMigrateKey) ?? defaultDidMigrate;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

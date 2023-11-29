@@ -19,9 +19,10 @@ import 'package:priobike/gamification/statistics/services/statistics_service.dar
 import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/user_transfer/user_transfer_view.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/migration/services.dart';
+import 'package:priobike/migration/user_transfer_view.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -112,6 +113,7 @@ Future<void> main() async {
   getIt.registerSingleton<ChallengesProfileService>(ChallengesProfileService());
   getIt.registerSingleton<EvaluationDataService>(EvaluationDataService());
   getIt.registerSingleton<EventService>(EventService());
+  getIt.registerSingleton<Migration>(Migration());
 
   try {
     runApp(const App());

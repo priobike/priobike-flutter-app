@@ -18,6 +18,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
@@ -70,6 +71,7 @@ class LoaderState extends State<Loader> {
     // while critical services should throw their errors.
 
     try {
+      await getIt<Migration>().migrate();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();

@@ -181,13 +181,4 @@ class Geosearch with ChangeNotifier {
     await saveSearchHistory();
     notifyListeners();
   }
-
-  /// Migrate the search history.
-  Future<void> migrateSearchHistory() async {
-    final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().backend;
-    List<String> searchHistoryList = preferences.getStringList("priobike.routing.searchHistory.${backend.name}") ?? [];
-    await preferences.setStringList("priobike.routing.searchHistory.${backend.regionName}", searchHistoryList);
-    await preferences.remove("priobike.routing.searchHistory.${backend.name}");
-  }
 }
