@@ -112,7 +112,7 @@ class Shortcuts with ChangeNotifier {
 
     final backend = getIt<Settings>().backend;
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
-    storage.setString("priobike.home.shortcuts.${backend.name}", jsonStr);
+    storage.setString("priobike.home.shortcuts.${backend.regionName}", jsonStr);
   }
 
   /// Load the custom shortcuts.
@@ -121,7 +121,7 @@ class Shortcuts with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     final backend = getIt<Settings>().backend;
-    final jsonStr = storage.getString("priobike.home.shortcuts.${backend.name}");
+    final jsonStr = storage.getString("priobike.home.shortcuts.${backend.regionName}");
 
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
@@ -164,5 +164,22 @@ class Shortcuts with ChangeNotifier {
     shortcuts!.remove(shortcutItem);
     await storeShortcuts();
     notifyListeners();
+  }
+
+  /// Migrate all shortcuts.
+  Future<void> migrateShortcuts() async {
+    final storage = await SharedPreferences.getInstance();
+
+    final backend = getIt<Settings>().backend;
+    // Get the current shortcuts of the currently used backend.
+    final jsonStr = storage.getString("priobike.home.shortcuts.${backend.name}");
+
+    // Save shortcuts under region name so that production and release use the same shortcuts.
+    if (jsonStr != null) {
+      // Save under new path.
+      storage.setString("priobike.home.shortcuts.${backend.regionName}", jsonStr);
+      // Remove the unused shortcuts.
+      storage.remove("priobike.home.shortcuts.${backend.name}");
+    }
   }
 }

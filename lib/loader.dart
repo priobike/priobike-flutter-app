@@ -21,6 +21,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/status_history.dart';
@@ -29,6 +30,8 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'settings/models/backend.dart';
 
 class Loader extends StatefulWidget {
   const Loader({super.key});
@@ -114,6 +117,19 @@ class LoaderState extends State<Loader> {
       hasError = false;
     });
     settings.resetConnectionErrorCounter();
+
+    // Migrating from Hamburg (Beta) to Hamburg to enable the version switch to stable.
+    if (!settings.didMigrate) {
+      // Shortcuts and Geosearch needs to be migrated from production to hamburg in shared preferences.
+      // Staging and release can stay the same.
+      // Note: If the user is not in production we can assume everything is working correctly since the user has all stored under hamburg anyways.
+      if (getIt<Settings>().backend == Backend.production) {
+        await getIt<Shortcuts>().migrateShortcuts();
+        await getIt<Geosearch>().migrateSearchHistory();
+      }
+      // Set migrated true so this will not be run anymore.
+      await settings.setDidMigrateTracks(true);
+    }
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
     setState(() => isLoading = false);

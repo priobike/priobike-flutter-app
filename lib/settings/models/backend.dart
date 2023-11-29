@@ -170,6 +170,17 @@ extension BackendRegion on Backend {
     }
   }
 
+  String get regionName {
+    switch (this) {
+      case Backend.production:
+        return "Hamburg";
+      case Backend.staging:
+        return "Dresden";
+      case Backend.release:
+        return "Hamburg";
+    }
+  }
+
   LatLng get center {
     switch (this) {
       case Backend.production:

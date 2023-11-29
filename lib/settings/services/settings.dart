@@ -74,8 +74,8 @@ class Settings with ChangeNotifier {
   /// Whether the user has seen the user transfer dialog.
   bool didViewUserTransfer;
 
-  /// Whether the migration was applied.
-  bool didMigrateTracks;
+  /// Whether the migration of tracks and shortcuts was applied.
+  bool didMigrate;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -399,17 +399,17 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const didMigrateTracksKey = "priobike.settings.didMigrateTracks";
-  static const defaultDidMigrateTracks = false;
+  static const didMigrateKey = "priobike.settings.didMigrate";
+  static const defaultDidMigrate = false;
 
-  Future<bool> setDidMigrateTracks(bool didMigrateTracks, [SharedPreferences? storage]) async {
+  Future<bool> setDidMigrateTracks(bool didMigrate, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.didMigrateTracks;
-    this.didMigrateTracks = didMigrateTracks;
-    final bool success = await storage.setBool(didViewUserTransferKey, didMigrateTracks);
+    final prev = this.didMigrate;
+    this.didMigrate = didMigrate;
+    final bool success = await storage.setBool(didViewUserTransferKey, didMigrate);
     if (!success) {
-      log.e("Failed to set didMigrateTracks to $didMigrateTracksKey");
-      this.didMigrateTracks = prev;
+      log.e("Failed to set didMigrateTracks to $didMigrate");
+      this.didMigrate = prev;
     } else {
       notifyListeners();
     }
@@ -435,7 +435,7 @@ class Settings with ChangeNotifier {
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
     this.didViewUserTransfer = defaultDidViewUserTransfer,
-    this.didMigrateTracks = defaultDidMigrateTracks,
+    this.didMigrate = defaultDidMigrate,
   });
 
   /// Load the beta settings from the shared preferences.
@@ -529,6 +529,11 @@ class Settings with ChangeNotifier {
     }
     try {
       didViewUserTransfer = storage.getBool(didViewUserTransferKey) ?? defaultDidViewUserTransfer;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      didMigrate = storage.getBool(didMigrateKey) ?? defaultDidMigrate;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
