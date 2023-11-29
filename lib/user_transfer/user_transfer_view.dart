@@ -129,7 +129,7 @@ class UserTransferViewState extends State<UserTransferView> {
                                   const TextStyle(fontWeight: FontWeight.normal),
                                 ),
                           ),
-                          TextSpan(text: "Einstellungen > TODO ", style: Theme.of(context).textTheme.displayMedium!),
+                          TextSpan(text: "Einstellungen > Version ", style: Theme.of(context).textTheme.displayMedium!),
                           TextSpan(
                             text: " die gewünschte Version aus.",
                             style: Theme.of(context).textTheme.displayMedium!.merge(
