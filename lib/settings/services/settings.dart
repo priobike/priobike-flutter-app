@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -544,18 +545,8 @@ class Settings with ChangeNotifier {
 
   /// Transfer a user to the given backend.
   Future<void> transferUser(Backend backend) async {
-    // Get beta shortcuts and tracks before the backend switch.
-    Shortcuts shortcuts = getIt<Shortcuts>();
-    var exportedShortcuts = shortcuts.shortcuts;
-    Tracking tracking = getIt<Tracking>();
-    var exportedTracks = tracking.previousTracks;
-
     // Set release backend.
     await setBackend(backend);
-
-    // Import beta shortcuts and tracks.
-    if (exportedShortcuts != null) shortcuts.updateShortcuts(exportedShortcuts);
-    if (exportedTracks != null) {} // tracking.up(exportedShortcuts);
 
     // Set did view user transfer screen.
     await setDidViewUserTransfer(true);

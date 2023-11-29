@@ -5,7 +5,9 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -35,6 +37,23 @@ class UserTransferViewState extends State<UserTransferView> {
 
     settings = getIt<Settings>();
     settings.addListener(update);
+
+    checkMigration();
+  }
+
+  Future<void> checkMigration() async {
+    // Migrating from Hamburg (Beta) to Hamburg to enable the version switch to stable.
+    if (!settings.didMigrate) {
+      // Shortcuts and Geosearch needs to be migrated from production to hamburg in shared preferences.
+      // Staging and release can stay the same.
+      // Note: If the user is not in production we can assume everything is working correctly since the user has all stored under hamburg anyways.
+      if (getIt<Settings>().backend == Backend.production) {
+        await getIt<Shortcuts>().migrateShortcuts();
+        await getIt<Geosearch>().migrateSearchHistory();
+      }
+      // Set migrated true so this will not be run anymore.
+      await settings.setDidMigrateTracks(true);
+    }
   }
 
   @override
