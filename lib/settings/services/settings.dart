@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/fcm.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/news/services/news.dart';
+import 'package:priobike/routing/services/boundary.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -10,6 +16,9 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/status/services/status_history.dart';
+import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings with ChangeNotifier {
@@ -70,6 +79,9 @@ class Settings with ChangeNotifier {
 
   /// Whether the user has seen the user transfer dialog.
   bool didViewUserTransfer;
+
+  /// If the user is transferring.
+  bool isUserTransferring = false;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -515,11 +527,42 @@ class Settings with ChangeNotifier {
 
   /// Transfer a user to the given backend.
   Future<void> transferUser(Backend backend) async {
+    if (isUserTransferring) return;
+    isUserTransferring = true;
+    notifyListeners();
     // Set release backend.
     await setBackend(backend);
 
+    // Tell the fcm service that we selected the new backend.
+    await FCM.selectTopic(backend);
+
+    PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
+    StatusHistory statusHistory = getIt<StatusHistory>();
+    Shortcuts shortcuts = getIt<Shortcuts>();
+    Routing routing = getIt<Routing>();
+    News news = getIt<News>();
+    Weather weather = getIt<Weather>();
+    Boundary boundary = getIt<Boundary>();
+
+    // Reset the associated services.
+    await predictionStatusSummary.reset();
+    await statusHistory.reset();
+    await shortcuts.reset();
+    await routing.reset();
+    await news.reset();
+
+    // Load stuff for the new backend.
+    await news.getArticles();
+    await shortcuts.loadShortcuts();
+    await predictionStatusSummary.fetch();
+    await statusHistory.fetch();
+    await weather.fetch();
+    await boundary.loadBoundaryCoordinates();
+
     // Set did view user transfer screen.
     await setDidViewUserTransfer(true);
+    isUserTransferring = false;
+    notifyListeners();
   }
 
   /// Convert the settings to a json object.

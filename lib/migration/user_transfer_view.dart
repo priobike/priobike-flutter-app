@@ -3,6 +3,7 @@ import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/icon_item.dart';
+import 'package:priobike/common/layout/loading_screen.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -23,6 +24,9 @@ class UserTransferView extends StatefulWidget {
 class UserTransferViewState extends State<UserTransferView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
+
+  /// Is user transferring. Needs to be local variable so that this view doesn't get called in the widget tree again on user transfer in settings.
+  bool isUserTransferring = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -46,7 +50,13 @@ class UserTransferViewState extends State<UserTransferView> {
   /// A callback that is executed when the unsubscribe beta button was pressed.
   Future<void> onUnsubscribeBetaPressed() async {
     // Get beta shortcuts before backend switch.
+    setState(() {
+      isUserTransferring = true;
+    });
     await settings.transferUser(Backend.release);
+    setState(() {
+      isUserTransferring = false;
+    });
   }
 
   /// A callback that is executed when the stay beta button was pressed.
@@ -58,7 +68,9 @@ class UserTransferViewState extends State<UserTransferView> {
   @override
   Widget build(BuildContext context) {
     // Display when backend ist not release and user did not seen this view yet.
-    if ((settings.didViewUserTransfer == true || settings.backend == Backend.release) && (widget.child != null)) {
+    if ((settings.didViewUserTransfer == true || settings.backend == Backend.release) &&
+        (!isUserTransferring) &&
+        (widget.child != null)) {
       return widget.child!;
     }
 
@@ -142,22 +154,24 @@ class UserTransferViewState extends State<UserTransferView> {
               ),
             if (widget.child != null)
               Pad(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  BigButton(
-                    label: "Beta-Version deabonnieren",
-                    onPressed: onUnsubscribeBetaPressed,
-                    boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
-                  ),
-                  BigButton(
-                    fillColor: Theme.of(context).colorScheme.secondary,
-                    label: "Beta Tester bleiben",
-                    onPressed: onStayBetaButtonPressed,
-                    boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
-                  ),
-                ],
-              )),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    BigButton(
+                      label: "Beta-Version deabonnieren",
+                      onPressed: onUnsubscribeBetaPressed,
+                      boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
+                    ),
+                    BigButton(
+                      fillColor: Theme.of(context).colorScheme.secondary,
+                      label: "Beta Tester bleiben",
+                      onPressed: onStayBetaButtonPressed,
+                      boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
+                    ),
+                  ],
+                ),
+              ),
+            if (isUserTransferring) const LoadingScreen()
           ],
         ),
       ),
