@@ -312,20 +312,31 @@ class SettingsViewState extends State<SettingsView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                  child: Small(
-                    text:
-                        "Du kannst zwischen der stabilen Version und der Beta-Version wechseln. Vorteil der stabilen Version sind die Nutzung der stabilen Services und Ampeln.",
-                    context: context,
+                  child: Text.rich(
+                    TextSpan(children: [
+                      TextSpan(text: "Du verwendest aktuell die ", style: Theme.of(context).textTheme.displaySmall!),
+                      TextSpan(
+                        text: settings.backend == Backend.release ? "stabile Version" : "Beta-Version",
+                        style: Theme.of(context).textTheme.displaySmall!.merge(
+                              const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                      ),
+                      TextSpan(
+                        text:
+                            " der App. Du hast die Möglichkeit zwischen der stabilen und der Beta-Version zu wechseln. Vorteile der stabilen Version sind die Nutzung stabiler Ampeln und Services.",
+                        style: Theme.of(context).textTheme.displaySmall!,
+                      ),
+                    ]),
                   ),
                 ),
                 const SmallVSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Stabile Version verwenden",
-                    icon: settings.backend == Backend.release ? Icons.check_box : Icons.check_box_outline_blank,
+                    title: settings.backend == Backend.release ? "Beta Tester werden" : "Zur stabilen Version wechseln",
                     callback: () => settings
                         .transferUser(settings.backend == Backend.release ? Backend.production : Backend.release),
+                    icon: Icons.change_circle_outlined,
                   ),
                 ),
                 const VSpace(),
