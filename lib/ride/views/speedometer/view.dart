@@ -73,6 +73,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// The value of the speed animation.
   double speedAnimationPct = 0;
 
+  /// The GarminSpeedSensor2
   GarminSpeedSensor speedSensor = GarminSpeedSensor();
 
   void updateSpeedometerViaSpeedSensor() {
@@ -132,12 +133,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     });
 
     positioning = getIt<Positioning>();
-    positioning.addListener(updateSpeedometer);
+    //positioning.addListener(updateSpeedometer);
     routing = getIt<Routing>();
     routing.addListener(updateLayout);
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
 
+    initSpeedSensor();
     updateSpeedometer();
     WidgetsBinding.instance.addObserver(this);
   }
@@ -153,7 +155,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   @override
   void dispose() {
     speedAnimationController.dispose();
-    positioning.removeListener(updateSpeedometer);
+    //positioning.removeListener(updateSpeedometer);
     positioning.removeListener(updateSpeedometerViaSpeedSensor);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
@@ -256,7 +258,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   @override
   Widget build(BuildContext context) {
-    final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
+    //updateSpeedometerViaSpeedSensor();
+    //final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
+    final double speedkmh = speedSensor.getSpeed();
 
     final remainingDistance = (((ride.route?.path.distance ?? 0.0) -
                 (positioning.snap?.distanceOnRoute ?? 0.0)) /

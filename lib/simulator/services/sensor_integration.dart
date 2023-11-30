@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import '../../main.dart';
 import 'speed_sensor_extra.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class GarminSpeedSensor {
 
@@ -45,33 +48,35 @@ class GarminSpeedSensor {
     FlutterBluePlus.systemDevices.then((devices) {
       _connectedDevices = devices;
     });
-    device = _connectedDevices.firstWhere((element) => element.localName == speedSensorName);
-    if( device != null) {
+    try {
+      device = _connectedDevices.firstWhere((element) => element.localName == speedSensorName);
       return true;
+    } catch (e) {
+      log.i("speed sensor not in connected devices");
     }
 
     _scanResultsSubscription = FlutterBluePlus.scanResults.listen((results) {
       _scanResults = results;
-      ScanResult element = _scanResults.firstWhere((element) => element.advertisementData.localName == speedSensorName);
-      if(element != null) {
+      try {
+        ScanResult element = _scanResults.firstWhere((element) =>
+        element.advertisementData.localName == speedSensorName);
         FlutterBluePlus.stopScan();
         device = element.device;
+        log.i("found speed sensor!");
+        _discoverServices();
+      } catch (e) {
+        log.i("speed sensor not in scan results");
       }
     });
-
     _isScanningSubscription = FlutterBluePlus.isScanning.listen((state) {
       _isScanning = state;
     });
 
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15), androidUsesFineLocation: true);
-    return device != null;
+    return true;
   }
 
   void _discoverServices() {
-    if(device == null) {
-      print("error: device = null!");
-      return;
-    }
     _connectionStateSubscription = device.connectionState.listen((state) async {
       _connectionState = state;
       if (state == BluetoothConnectionState.connected) {
@@ -92,25 +97,51 @@ class GarminSpeedSensor {
     _isDisconnectingSubscription = device.isDisconnecting.listen((value) {
       _isDisconnecting = value;
     });
+
+    _onConnectPressed();
+  }
+
+  void _checkPerm() async {
+    var status = await Permission.bluetooth.status;
+    if (status.isDenied) {
+
+      await Permission.bluetooth.request();
+    }
+
+    if (await Permission.bluetooth.status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+
   }
 
   @override
   Future<bool> initSpeedSensor() async {
+    log.i("initializing speed sensor");
+    _checkPerm();
+
     _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       _adapterState = state;
     });
 
     if(_adapterState != BluetoothAdapterState.on) {
-      print("bluetooth turned off");
-      return false;
-
+      log.i("ERROR: bluetooth turned off");
+      if (Platform.isAndroid) {
+        log.i("turning bluetooth on");
+        await FlutterBluePlus.turnOn();
+        _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
+          _adapterState = state;
+        });
+      }
     }
-
+    if(_adapterState != BluetoothAdapterState.on) {
+      log.i("ERROR: Aborting connecting to Sensor!");
+      return false;
+    }
     if(!await _initConnectedDevices()) {
+      log.i("ERROR: speed sensor not found!");
       return false;
     }
-    _discoverServices();
-    _onConnectPressed();
+    log.i("speed sensor initialized");
     return true;
   }
 
@@ -131,23 +162,20 @@ class GarminSpeedSensor {
   Future _onConnectPressed() async {
     try {
       await device.connectAndUpdateStream();
-      print("connection success");
+      log.i("connection success");
+      _getSpeedCharacteristic();
     } catch (e) {
-      if (e is FlutterBluePlusException && e.code == FbpErrorCode.createBondFailed) {
-        // ignore connections canceled by the user
-      } else {
-        print("error connecting");
-      }
+      log.i("error connecting");
     }
-    _getSpeedCharacteristic();
   }
 
   Future _onDiscoverServicesPressed() async {
     try {
       _services = await device.discoverServices();
-      print("got service successfully");
+      log.i("got services successfully");
+      log.i(_services);
     } catch (e) {
-      print("error getting service");
+      log.i("error getting service");
     }
   }
 
@@ -159,11 +187,13 @@ class GarminSpeedSensor {
     while(serviceIter.moveNext()) {
       BluetoothService service = serviceIter.current;
       if(service.uuid.toString().toUpperCase() == "00001816-0000-1000-8000-00805F9B34FB") {
+        log.i("found correct service");
         //correct service found
         Iterator<BluetoothCharacteristic> characteristicsIter = service.characteristics.iterator;
         while(characteristicsIter.moveNext()) {
           if(characteristicsIter.current.uuid.toString().toUpperCase() == "00002A5B-0000-1000-8000-00805F9B34FB") {
             //correct characteristic found
+            log.i("found correct characteristics");
             speedCharacteristic =  characteristicsIter.current;
             break;
           }
@@ -175,12 +205,13 @@ class GarminSpeedSensor {
     await speedCharacteristic!.setNotifyValue(speedCharacteristic!.isNotifying == false);
     _lastValueSubscription = speedCharacteristic!.lastValueStream.listen((value) {
       _speed = _calculateSpeed(value);
+      log.i(_speed);
     });
   }
 
   double _calculateSpeed(List<int> values) {
-    print("calculating speed");
-    print(values);
+    log.i("calculating speed");
+    log.i(values);
     int rotations = values[1];
 
     int rotationDifference = rotations - lastNumberOfRotations;
