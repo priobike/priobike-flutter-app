@@ -371,7 +371,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
                     text:
-                        "Durch Migration testen werden jeweils ein alter Shortcut und eine alte Suchanfrage angelegt (staging, production, release). Diese müssten nach einem Neustart der App jeweils mit angezeigt werden.",
+                        "Durch das Drücken von Migration testen werden jeweils ein Test-Shortcut und eine Test-Suchanfrage angelegt (staging, production, release). Diese müssten korrekterweise nach einem Neustart der App jeweils in den verschiedenen Versionen mit angezeigt werden.",
                     context: context,
                   ),
                 ),
