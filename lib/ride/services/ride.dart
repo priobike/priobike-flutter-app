@@ -357,4 +357,13 @@ class Ride with ChangeNotifier {
     shortcutId = null;
     notifyListeners();
   }
+
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+
+    // TODO: Display next signal group and its color on the simulator.
+    print("Current recommendation: ${predictionComponent?.recommendation}");
+    print("Current SG: $calcCurrentSG");
+  }
 }

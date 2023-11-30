@@ -87,6 +87,10 @@ class RideViewState extends State<RideView> {
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
+
+        // TODO: Send the selected route to the s(t)imulator.
+        print("Selected route: ${routing.selectedRoute!.signalGroups}");
+
         // Connect the datastream mqtt client, if the user enabled real-time data.
         final settings = getIt<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
