@@ -1,13 +1,12 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Migration with ChangeNotifier {
+class Migration {
   /// Load the privacy policy.
   Future<void> migrate() async {
     // List of things to migrate.

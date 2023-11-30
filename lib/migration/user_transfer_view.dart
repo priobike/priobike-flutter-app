@@ -9,11 +9,11 @@ import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-/// A view that displays the privacy policy.
+/// A view that displays the user transfer view.
 class UserTransferView extends StatefulWidget {
   final Widget? child;
 
-  /// Create the privacy proxy view with the wrapped view.
+  /// Create the user transfer view.
   const UserTransferView({this.child, super.key});
 
   @override
@@ -62,6 +62,8 @@ class UserTransferViewState extends State<UserTransferView> {
       return widget.child!;
     }
 
+    var frame = MediaQuery.of(context);
+
     return Scaffold(
       body: Container(
         color: Theme.of(context).colorScheme.background,
@@ -74,7 +76,7 @@ class UserTransferViewState extends State<UserTransferView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 164),
+                      SizedBox(height: frame.padding.top + 24),
                       Header(text: "Jetzt umsteigen.", color: CI.radkulturRed, context: context),
                       Header(
                           text: "Wechsle zur stabilen Version der PrioBike-App.",
@@ -112,7 +114,7 @@ class UserTransferViewState extends State<UserTransferView> {
                           ),
                           TextSpan(text: "Einstellungen > Version ", style: Theme.of(context).textTheme.displayMedium!),
                           TextSpan(
-                            text: " die gewünschte Version aus.",
+                            text: "die gewünschte Version aus.",
                             style: Theme.of(context).textTheme.displayMedium!.merge(
                                   const TextStyle(fontWeight: FontWeight.normal),
                                 ),
@@ -144,13 +146,15 @@ class UserTransferViewState extends State<UserTransferView> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   BigButton(
-                    label: "Beta-Version deabonieren",
+                    label: "Beta-Version deabonnieren",
                     onPressed: onUnsubscribeBetaPressed,
+                    boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
                   ),
                   BigButton(
                     fillColor: Theme.of(context).colorScheme.secondary,
                     label: "Beta Tester bleiben",
                     onPressed: onStayBetaButtonPressed,
+                    boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
                   ),
                 ],
               )),

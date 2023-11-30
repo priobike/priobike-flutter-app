@@ -71,7 +71,7 @@ class LoaderState extends State<Loader> {
     // while critical services should throw their errors.
 
     try {
-      await getIt<Migration>().migrate();
+      await Migration().migrate();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();
@@ -84,9 +84,9 @@ class LoaderState extends State<Loader> {
 
       await getIt<News>().getArticles();
 
-      final preditionStatusSummary = getIt<PredictionStatusSummary>();
-      await preditionStatusSummary.fetch();
-      if (preditionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
+      final predictionStatusSummary = getIt<PredictionStatusSummary>();
+      await predictionStatusSummary.fetch();
+      if (predictionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
 
       await getIt<StatusHistory>().fetch();
       await getIt<Weather>().fetch();
