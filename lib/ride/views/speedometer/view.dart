@@ -24,6 +24,8 @@ import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
+import 'package:priobike/simulator/services/sensor_integration.dart';
+
 class RideSpeedometerView extends StatefulWidget {
   /// Height to puck bounding box.
   final double puckHeight;
@@ -71,6 +73,14 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// The value of the speed animation.
   double speedAnimationPct = 0;
 
+  GarminSpeedSensor speedSensor = GarminSpeedSensor();
+
+  void updateSpeedometerViaSpeedSensor() {
+    speedAnimationController.animateTo(speedSensor.getSpeed(),
+        duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    setState(() {});
+  }
+
   /// Update the speedometer.
   void updateSpeedometer() {
     // Fetch the maximum speed from the settings service.
@@ -82,7 +92,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     // Scale between minSpeed and maxSpeed.
     final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
     // Animate to the new value.
-    speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    speedAnimationController.animateTo(pct,
+        duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
     // Load the gauge colors and steps, from the predictor.
     if (!routing.hadErrorDuringFetch) {
       loadGauge(ride);
@@ -96,6 +107,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     setState(() {});
   }
 
+  void initSpeedSensor() async {
+    if (await speedSensor.initSpeedSensor()) {
+      positioning.addListener(updateSpeedometerViaSpeedSensor);
+    }
+  }
+
   @override
   void initState() {
     hideNavigationBarAndroid();
@@ -106,7 +123,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       duration: const Duration(milliseconds: 1000),
       animationBehavior: AnimationBehavior.preserve,
     );
-    speedAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(speedAnimationController);
+    speedAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(speedAnimationController);
     speedAnimation.addListener(() {
       setState(() {
         speedAnimationPct = speedAnimation.value;
@@ -136,6 +154,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   void dispose() {
     speedAnimationController.dispose();
     positioning.removeListener(updateSpeedometer);
+    positioning.removeListener(updateSpeedometerViaSpeedSensor);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
     WidgetsBinding.instance.removeObserver(this);
@@ -154,7 +173,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   /// Load the gauge colors and steps, from the predictor.
   Future<void> loadGauge(Ride ride) async {
-    if (ride.predictionComponent?.recommendation == null || ride.calcDistanceToNextSG == null) {
+    if (ride.predictionComponent?.recommendation == null ||
+        ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
       return;
@@ -171,14 +191,17 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     }
 
     final phases = ride.predictionComponent!.recommendation!.calcPhasesFromNow;
-    final qualities = ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
+    final qualities =
+        ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
 
     var colors = <Color>[];
     for (var i = 0; i < phases.length; i++) {
       final phase = phases[i];
       final quality = max(0, qualities[i]);
       final opacity = quality;
-      colors.add(Color.lerp(defaultGaugeColor, phase.color, opacity.toDouble()) ?? defaultGaugeColor);
+      colors.add(
+          Color.lerp(defaultGaugeColor, phase.color, opacity.toDouble()) ??
+              defaultGaugeColor);
     }
 
     // Since we want the color steps not by second, but by speed, we map the stops accordingly
@@ -235,10 +258,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   Widget build(BuildContext context) {
     final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
 
-    final remainingDistance =
-        (((ride.route?.path.distance ?? 0.0) - (positioning.snap?.distanceOnRoute ?? 0.0)) / 1000).abs();
+    final remainingDistance = (((ride.route?.path.distance ?? 0.0) -
+                (positioning.snap?.distanceOnRoute ?? 0.0)) /
+            1000)
+        .abs();
     final remainingMinutes = remainingDistance / (18 / 60);
-    final timeOfArrival = DateTime.now().add(Duration(minutes: remainingMinutes.toInt()));
+    final timeOfArrival =
+        DateTime.now().add(Duration(minutes: remainingMinutes.toInt()));
 
     final showAlert = routing.hadErrorDuringFetch;
 
@@ -309,30 +335,42 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                           final double xRel;
                           final double yRel;
                           if (isLandscapeMode) {
-                            xRel = details.localPosition.dx / MediaQuery.of(context).size.height;
-                            yRel = details.localPosition.dy / MediaQuery.of(context).size.height;
+                            xRel = details.localPosition.dx /
+                                MediaQuery.of(context).size.height;
+                            yRel = details.localPosition.dy /
+                                MediaQuery.of(context).size.height;
                           } else {
-                            xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
-                            yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
+                            xRel = details.localPosition.dx /
+                                MediaQuery.of(context).size.width;
+                            yRel = details.localPosition.dy /
+                                MediaQuery.of(context).size.width;
                           }
                           // Transform the angle of the tapped position into an intuitive angle system:
                           // 0 deg is south, 90 deg is west, 180 deg is north, 270 deg is east.
-                          final angleDeg = atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
-                          final headingDeg = angleDeg > 0 ? angleDeg : 360 + angleDeg;
+                          final angleDeg =
+                              atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
+                          final headingDeg =
+                              angleDeg > 0 ? angleDeg : 360 + angleDeg;
                           // Interpolate the heading to a speed.
                           const minDeg = 45.0, maxDeg = 315.0;
-                          var speed = (headingDeg - minDeg) / (maxDeg - minDeg) * (maxSpeed - minSpeed) + minSpeed;
+                          var speed = (headingDeg - minDeg) /
+                                  (maxDeg - minDeg) *
+                                  (maxSpeed - minSpeed) +
+                              minSpeed;
                           speed = max(minSpeed, min(maxSpeed, speed));
                           onTapSpeedometer(speed);
                         },
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            if (!isLandscapeMode) CustomPaint(painter: SpeedometerCoverPainter()),
+                            if (!isLandscapeMode)
+                              CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               size: size,
                               painter: SpeedometerBackgroundPainter(
-                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                                isDark:
+                                    Theme.of(context).colorScheme.brightness ==
+                                        Brightness.dark,
                               ),
                             ),
                             CustomPaint(
@@ -348,7 +386,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                                   maxSpeed: maxSpeed,
                                   colors: gaugeColors,
                                   stops: gaugeStops,
-                                  isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                                  isDark: Theme.of(context)
+                                          .colorScheme
+                                          .brightness ==
+                                      Brightness.dark,
                                 ),
                               ),
                             CustomPaint(
@@ -385,7 +426,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                           painter: SpeedometerSpeedArcPainter(
                             minSpeed: minSpeed,
                             maxSpeed: maxSpeed,
-                            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                            isDark: Theme.of(context).colorScheme.brightness ==
+                                Brightness.dark,
                             // Scale the animation pct between minSpeed and maxSpeed
                             speed: speedkmh,
                           ),
@@ -431,7 +473,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       padding: const EdgeInsets.only(bottom: 10),
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
-                        child: ride.predictionComponent?.currentMode == PredictionMode.usePredictor
+                        child: ride.predictionComponent?.currentMode ==
+                                PredictionMode.usePredictor
                             // Display a small dot to indicate that the fallback is active.
                             ? Container(
                                 decoration: BoxDecoration(
