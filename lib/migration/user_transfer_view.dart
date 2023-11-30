@@ -68,7 +68,7 @@ class UserTransferViewState extends State<UserTransferView> {
   @override
   Widget build(BuildContext context) {
     // Display when backend ist not release and user did not seen this view yet.
-    if ((settings.didViewUserTransfer == true || settings.backend == Backend.release) &&
+    if ((settings.didViewUserTransfer == true || settings.backend != Backend.production) &&
         (!isUserTransferring) &&
         (widget.child != null)) {
       return widget.child!;

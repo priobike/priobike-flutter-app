@@ -1,8 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,43 +94,119 @@ class Migration {
 
   /// Migrate the search history (production/release => Hamburg).
   Future<void> migrateSearchHistoryProduction() async {
-    final preferences = await SharedPreferences.getInstance();
+    final storage = await SharedPreferences.getInstance();
 
     // Load production and release lists.
     List<String>? searchHistoryListProduction =
-        preferences.getStringList("priobike.routing.searchHistory.${Backend.production.name}");
+        storage.getStringList("priobike.routing.searchHistory.${Backend.production.name}");
     // Return on no key found.
     if (searchHistoryListProduction == null) return;
 
     List<String> searchHistoryListRelease =
-        preferences.getStringList("priobike.routing.searchHistory.${Backend.release.name}") ?? [];
+        storage.getStringList("priobike.routing.searchHistory.${Backend.release.name}") ?? [];
     // Concat both lists.
     searchHistoryListRelease.addAll(searchHistoryListProduction);
     // Store concatenated list.
-    await preferences.setStringList(
+    await storage.setStringList(
         "priobike.routing.searchHistory.${Backend.release.regionName}", searchHistoryListRelease);
     // Remove old list.
-    await preferences.remove("priobike.routing.searchHistory.${Backend.production.name}");
+    await storage.remove("priobike.routing.searchHistory.${Backend.production.name}");
   }
 
   /// Migrate the search history (staging => Dresden).
   Future<void> migrateSearchHistoryStaging() async {
-    final preferences = await SharedPreferences.getInstance();
+    final storage = await SharedPreferences.getInstance();
 
     // Load production and release lists.
     List<String>? searchHistoryListStaging =
-        preferences.getStringList("priobike.routing.searchHistory.${Backend.staging.name}");
+        storage.getStringList("priobike.routing.searchHistory.${Backend.staging.name}");
     // Return on no key found.
     if (searchHistoryListStaging == null) return;
 
     List<String> searchHistoryListStagingNew =
-        preferences.getStringList("priobike.routing.searchHistory.${Backend.staging.regionName}") ?? [];
+        storage.getStringList("priobike.routing.searchHistory.${Backend.staging.regionName}") ?? [];
     // Concat both lists.
     searchHistoryListStagingNew.addAll(searchHistoryListStaging);
     // Store concatenated list.
-    await preferences.setStringList(
+    await storage.setStringList(
         "priobike.routing.searchHistory.${Backend.staging.regionName}", searchHistoryListStagingNew);
     // Remove old list.
-    await preferences.remove("priobike.routing.searchHistory.${Backend.staging.name}");
+    await storage.remove("priobike.routing.searchHistory.${Backend.staging.name}");
+  }
+
+  /// Adds test migration data for all backends.
+  Future<void> addTestMigrationData() async {
+    final storage = await SharedPreferences.getInstance();
+
+    // Create old data for Staging.
+    List<Shortcut> stagingList = [
+      ShortcutLocation(
+        id: UniqueKey().toString(),
+        name: "Staging-Location-Test",
+        waypoint: Waypoint(51.038294, 13.703280, address: "Clara-Viebig-Straße 9"),
+      ),
+      ShortcutRoute(
+        id: UniqueKey().toString(),
+        name: "Staging-Route-Test",
+        waypoints: [
+          Waypoint(51.038294, 13.703280, address: "Clara-Viebig-Straße 9"),
+          Waypoint(50.979067, 13.882596, address: "Elberadweg Heidenau"),
+        ],
+      ),
+    ];
+
+    final jsonStrStaging = jsonEncode(stagingList.map((e) => e.toJson()).toList());
+
+    storage.setString("priobike.home.shortcuts.${Backend.staging.name}", jsonStrStaging);
+
+    // Create old data for Production.
+    List<Shortcut> productionList = [
+      ShortcutLocation(
+        id: UniqueKey().toString(),
+        name: "Production-Location-Test",
+        waypoint: Waypoint(53.5415701077766, 9.984275605794686, address: "Staging-test"),
+      ),
+      ShortcutRoute(
+        id: UniqueKey().toString(),
+        name: "Production-Route-Test",
+        waypoints: [
+          Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
+          Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
+        ],
+      ),
+    ];
+
+    final jsonStrProduction = jsonEncode(productionList.map((e) => e.toJson()).toList());
+
+    storage.setString("priobike.home.shortcuts.${Backend.production.name}", jsonStrProduction);
+
+    // Create old data for Release.
+    List<Shortcut> releaseList = [
+      ShortcutLocation(
+        id: UniqueKey().toString(),
+        name: "Release-Location-Test",
+        waypoint: Waypoint(53.5415701077766, 9.984275605794686, address: "Staging-test"),
+      ),
+      ShortcutRoute(
+        id: UniqueKey().toString(),
+        name: "Release-Route-Test",
+        waypoints: [
+          Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
+          Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
+        ],
+      ),
+    ];
+
+    final jsonStrRelease = jsonEncode(releaseList.map((e) => e.toJson()).toList());
+
+    storage.setString("priobike.home.shortcuts.${Backend.release.name}", jsonStrRelease);
+
+    // Create old search history data.
+    await storage.setStringList("priobike.routing.searchHistory.${Backend.staging.name}",
+        [json.encode(Waypoint(51.038294, 13.703280, address: "Clara-Viebig-Straße 9").toJSON())]);
+    await storage.setStringList("priobike.routing.searchHistory.${Backend.production.name}",
+        [json.encode(Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg").toJSON())]);
+    await storage.setStringList("priobike.routing.searchHistory.${Backend.release.name}",
+        [json.encode(Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg").toJSON())]);
   }
 }

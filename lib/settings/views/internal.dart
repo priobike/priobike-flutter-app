@@ -11,6 +11,7 @@ import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -160,6 +161,11 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await boundary.loadBoundaryCoordinates();
 
     if (mounted) Navigator.pop(context);
+  }
+
+  /// A callback that adds test migration data for testing.
+  void addTestMigrationData() {
+    Migration().addTestMigrationData();
   }
 
   @override
@@ -358,6 +364,23 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Gamification",
                     icon: settings.enableGamification ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnableGamification(!settings.enableGamification),
+                  ),
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Durch Migration testen werden jeweils ein alter Shortcut und eine alte Suchanfrage angelegt (staging, production, release). Diese müssten nach einem Neustart der App jeweils mit angezeigt werden.",
+                    context: context,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Migration testen",
+                    icon: Icons.start,
+                    callback: addTestMigrationData,
                   ),
                 ),
                 const SmallVSpace(),
