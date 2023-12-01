@@ -47,18 +47,18 @@ class News with ChangeNotifier {
     List<Article> localSavedArticles = await _getStoredArticles();
 
     // If there are articles saved already in the shared preferences on the device
-    // get the lastSyncDate for later usage eg when deciding whether the "Neu"-tag
+    // get the Date of the latest article for later usage eg when deciding whether the "Neu"-tag
     // should be shown on the article items in the list.
-    DateTime? newLastSyncDate;
+    DateTime? lastArticleDate;
     if (localSavedArticles.isNotEmpty) {
-      newLastSyncDate = localSavedArticles[0].pubDate;
+      lastArticleDate = localSavedArticles[0].pubDate;
     }
 
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
-    final newsArticlesUrl = newLastSyncDate == null
+    final newsArticlesUrl = lastArticleDate == null
         ? "https://$baseUrl/news-service/news/articles"
-        : "https://$baseUrl/news-service/news/articles?from=${DateFormat('yyyy-MM-ddTH:mm:ss').format(newLastSyncDate)}Z";
+        : "https://$baseUrl/news-service/news/articles?from=${DateFormat('yyyy-MM-ddTH:mm:ss').format(lastArticleDate)}Z";
     final newsArticlesEndpoint = Uri.parse(newsArticlesUrl);
 
     List<Article> articlesFromServer = [];
