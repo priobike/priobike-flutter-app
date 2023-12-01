@@ -1,6 +1,7 @@
-// used for the dection of the screen edge when dragging a waypoint
+import 'dart:io';
 import 'package:flutter/widgets.dart';
 
+/// Used for the dection of the screen edge when dragging a waypoint
 enum ScreenEdge {
   left,
   right,
@@ -41,7 +42,13 @@ ScreenEdge getDragScreenEdge({required double x, required double y, required Bui
 // Calculates how the map should move when dragging a waypoint to the edge of the screen
 Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge screenEdge}) {
   // determines how fast the map moves when dragging a waypoint to the edge of the screen
-  const mapMoveSpeed = 6.0;
+
+  final double mapMoveSpeed;
+  if (Platform.isAndroid) {
+    mapMoveSpeed = 6.0;
+  } else {
+    mapMoveSpeed = 0.003;
+  }
 
   final double moveCameraX;
   final double moveCameraY;

@@ -900,13 +900,37 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // determine how to move the map
     final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
 
-    await mapController?.moveBy(
-      ScreenCoordinate(
-        x: cameraMovement['x'] ?? 0,
-        y: cameraMovement['y'] ?? 0,
-      ),
-      MapAnimationOptions(duration: 0),
-    );
+    if (Platform.isAndroid) {
+      await mapController?.moveBy(
+        ScreenCoordinate(
+          x: cameraMovement['x'] ?? 0,
+          y: cameraMovement['y'] ?? 0,
+        ),
+        MapAnimationOptions(duration: 0),
+      );
+    } else {
+      // On iOS we get a platform exception when using moveBy().
+      final CameraState cameraState = await mapController!.getCameraState();
+
+      // get the current coordinates of the center of the map
+      final coords = cameraState.center["coordinates"]! as List;
+
+      final double x = coords[0];
+      final double y = coords[1];
+
+      await mapController?.easeTo(
+        CameraOptions(
+          center: Point(
+            coordinates: Position(
+              // for some reason the x coordiate has to be negated otherwise left/right movement is inverted
+              x + (cameraMovement['x'] ?? 0) * (-1),
+              y + (cameraMovement['y'] ?? 0) * 0.8,
+            ),
+          ).toJson(),
+        ),
+        MapAnimationOptions(duration: 0),
+      );
+    }
 
     // Add a small delay to throttle the camera movement.
     await Future.delayed(const Duration(milliseconds: 10));
