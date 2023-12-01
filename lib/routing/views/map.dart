@@ -913,7 +913,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // No negative zoom speedup otherwise the map would move in the opposite direction.
     // And don't set to 0 otherwise the map would not move at all.
-    if (zoomSpeedup <= 0.5) zoomSpeedup = 0.5;
+    if (zoomSpeedup <= 0.3) zoomSpeedup = 0.3;
 
     await mapController?.easeTo(
       CameraOptions(
