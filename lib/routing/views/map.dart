@@ -908,6 +908,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       MapAnimationOptions(duration: 0),
     );
 
+    // Add a small delay to throttle the camera movement.
+    await Future.delayed(const Duration(milliseconds: 10));
+
     // if the user drags a waypoint to the edge of the screen recursively call this function to move the map
     // it is implemented this way, because "onLongPressMoveUpdate" in the Gesture Detector below
     // gets only called when the user moves the finger but we want to keep moving the map
