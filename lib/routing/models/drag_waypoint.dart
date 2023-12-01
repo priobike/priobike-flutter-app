@@ -23,6 +23,8 @@ extension IconPath on WaypointType {
 
 /// Determines whether the waypoint is a start, destination or waypoint in between.
 WaypointType getWaypointType(List<Waypoint> list, Waypoint waypoint) {
+  if (!list.contains(waypoint)) throw Exception("Waypoint $waypoint is not in list $list.");
+
   if (list.last == waypoint) {
     return WaypointType.destination;
   } else if (list.first == waypoint) {
