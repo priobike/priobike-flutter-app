@@ -159,7 +159,7 @@ class LoaderState extends State<Loader> {
               label: "Zurücksetzen",
               onPressed: () async {
                 await getIt<Settings>().deleteAllUserData();
-                ToastMessage.showSuccess("Daten zurück gesetzt!");
+                ToastMessage.showSuccess("Daten zurückgesetzt!");
                 if (mounted) Navigator.of(context).pop();
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
