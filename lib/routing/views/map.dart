@@ -1204,13 +1204,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           Stack(
             children: [
               AnimatedPositioned(
-                // only add a very short duration, otherwise dragging feels sluggish
+                // only add a very short duration, otherwise dragging feels sluggish.
                 duration: const Duration(milliseconds: 20),
-                left: dragPosition!.dx,
-                top: dragPosition!.dy,
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (24 * 1.5) / 2,
+                top: dragPosition!.dy - (24 * 1.5) / 2,
                 child: SizedBox(
-                  width: 24 * 1.4,
-                  height: 24 * 1.4,
+                  // Image width times scale (1.5).
+                  width: 24 * 1.5,
+                  height: 24 * 1.5,
                   child: Image.asset(
                     draggedWaypointType!.iconPath,
                     fit: BoxFit.contain,
