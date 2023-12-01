@@ -27,7 +27,6 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Loader extends StatefulWidget {
   const Loader({super.key});
