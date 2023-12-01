@@ -882,6 +882,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// When the user drags a waypoint.
   void dragWaypoint({required double x, required double y}) {
+    if (draggedWaypoint == null || mapController == null) return;
+
     // check if the user dragged the waypoint to the edge of the screen
     final ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
 
@@ -897,6 +899,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Animates the map camera when the user drags a waypoint to the edge of the screen.
   Future<void> animateCameraScreenEdge(ScreenEdge screenEdge) async {
+    if (draggedWaypoint == null || mapController == null) return;
+
     // determine how to move the map
     final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
 
@@ -1025,7 +1029,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Move the waypoint after finish dragging
   Future<void> moveDraggedWaypoint(BuildContext context, double dx, double dy) async {
-    if (routing.selectedWaypoints == null) return;
+    if (routing.selectedWaypoints == null || draggedWaypoint == null) return;
 
     draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
 
@@ -1071,7 +1075,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               tapPosition = details.localPosition;
               animationController.forward();
             } else {
-              if (routing.selectedWaypoints == null) return;
+              if (routing.selectedWaypoints == null || !routing.selectedWaypoints!.contains(draggedWaypoint)) return;
               dragPosition = details.localPosition;
               draggedWaypointType = getWaypointType(routing.selectedWaypoints!, draggedWaypoint!);
             }
