@@ -6,6 +6,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -400,6 +401,18 @@ class Settings with ChangeNotifier {
       log.e("Failed to set didViewUserTransfer to $didViewUserTransferKey");
       this.didViewUserTransfer = prev;
     } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  Future<bool> deleteAllUserData([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final success = await storage.clear();
+    if (!success) {
+      log.e("Failed to delete all user data");
+    } else {
+      ToastMessage.showSuccess("Nutzerdaten gelöscht. Bitte neustarten.");
       notifyListeners();
     }
     return success;

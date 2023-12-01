@@ -138,11 +138,6 @@ class LoaderState extends State<Loader> {
     super.dispose();
   }
 
-  _resetData() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
-  }
-
   void _showResetDialog(context) {
     showGeneralDialog(
       context: context,
@@ -164,7 +159,7 @@ class LoaderState extends State<Loader> {
               fillColor: CI.radkulturYellow,
               label: "Zurücksetzen",
               onPressed: () async {
-                await _resetData();
+                await getIt<Settings>().deleteAllUserData();
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
                 if (mounted) Navigator.of(context).pop();
               },

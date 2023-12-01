@@ -434,6 +434,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     callback: () => settings.setEnableGamification(!settings.enableGamification),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: 'Alle Nutzerdaten löschen (Neustart notw.)',
+                    icon: Icons.warning_rounded,
+                    callback: () => getIt<Settings>().deleteAllUserData(),
+                  ),
+                ),
                 const SmallVSpace(),
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
