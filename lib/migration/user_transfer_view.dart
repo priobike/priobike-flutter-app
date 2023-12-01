@@ -53,7 +53,7 @@ class UserTransferViewState extends State<UserTransferView> {
     setState(() {
       isUserTransferring = true;
     });
-    await settings.transferUser(Backend.release);
+    await settings.setBackend(Backend.release);
     setState(() {
       isUserTransferring = false;
     });
