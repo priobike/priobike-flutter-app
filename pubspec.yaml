@@ -114,9 +114,6 @@ flutter:
         - asset: assets/fonts/HamburgSans-BoldItalic.ttf
           weight: 700
           style: italic
-    - family: CustomGameIcons
-      fonts:
-        - asset: assets/fonts/CustomGameIcons.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
