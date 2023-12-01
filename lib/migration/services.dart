@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Migration {
   /// Load the privacy policy.
-  Future<void> migrate() async {
+  static Future<void> migrate() async {
     // List of things to migrate.
     await migrateShortcutsProduction();
     await migrateShortcutsStaging();
@@ -21,7 +21,7 @@ class Migration {
   }
 
   /// Migrate all shortcuts (production/release => Hamburg).
-  Future<void> migrateShortcutsProduction() async {
+  static Future<void> migrateShortcutsProduction() async {
     final storage = await SharedPreferences.getInstance();
 
     Shortcuts shortcuts = getIt<Shortcuts>();
@@ -59,10 +59,11 @@ class Migration {
     storage.setString("priobike.home.shortcuts.${Backend.release.regionName}", jsonStr);
     // Remove the unused shortcuts.
     storage.remove("priobike.home.shortcuts.${Backend.production.name}");
+    storage.remove("priobike.home.shortcuts.${Backend.release.name}");
   }
 
   /// Migrate all shortcuts (staging => Dresden).
-  Future<void> migrateShortcutsStaging() async {
+  static Future<void> migrateShortcutsStaging() async {
     final storage = await SharedPreferences.getInstance();
 
     Shortcuts shortcuts = getIt<Shortcuts>();
@@ -93,7 +94,7 @@ class Migration {
   }
 
   /// Migrate the search history (production/release => Hamburg).
-  Future<void> migrateSearchHistoryProduction() async {
+  static Future<void> migrateSearchHistoryProduction() async {
     final storage = await SharedPreferences.getInstance();
 
     // Load production and release lists.
@@ -114,7 +115,7 @@ class Migration {
   }
 
   /// Migrate the search history (staging => Dresden).
-  Future<void> migrateSearchHistoryStaging() async {
+  static Future<void> migrateSearchHistoryStaging() async {
     final storage = await SharedPreferences.getInstance();
 
     // Load production and release lists.
@@ -135,7 +136,7 @@ class Migration {
   }
 
   /// Adds test migration data for all backends.
-  Future<void> addTestMigrationData() async {
+  static Future<void> addTestMigrationData() async {
     final storage = await SharedPreferences.getInstance();
 
     // Create old data for Staging.

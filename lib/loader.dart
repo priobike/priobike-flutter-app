@@ -71,7 +71,7 @@ class LoaderState extends State<Loader> {
     // while critical services should throw their errors.
 
     try {
-      await Migration().migrate();
+      await Migration.migrate();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();

@@ -165,7 +165,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
   /// A callback that adds test migration data for testing.
   void addTestMigrationData() {
-    Migration().addTestMigrationData();
+    Migration.addTestMigrationData();
   }
 
   @override
