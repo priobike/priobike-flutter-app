@@ -45,13 +45,13 @@ Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge scre
 
   final double mapMoveSpeed;
   if (Platform.isAndroid) {
-    mapMoveSpeed = 6.0;
+    mapMoveSpeed = 0.00015;
   } else {
     mapMoveSpeed = 0.003;
   }
 
   final double moveCameraX;
-  final double moveCameraY;
+  double moveCameraY;
   switch (screenEdge) {
     case ScreenEdge.bottom:
       moveCameraX = 0.0;
@@ -62,27 +62,27 @@ Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge scre
       moveCameraY = mapMoveSpeed;
       break;
     case ScreenEdge.right:
-      moveCameraX = -mapMoveSpeed;
+      moveCameraX = mapMoveSpeed;
       moveCameraY = 0.0;
       break;
     case ScreenEdge.left:
-      moveCameraX = mapMoveSpeed;
+      moveCameraX = -mapMoveSpeed;
       moveCameraY = 0.0;
       break;
     case ScreenEdge.topLeft:
-      moveCameraX = mapMoveSpeed;
+      moveCameraX = -mapMoveSpeed;
       moveCameraY = mapMoveSpeed;
       break;
     case ScreenEdge.topRight:
-      moveCameraX = -mapMoveSpeed;
+      moveCameraX = mapMoveSpeed;
       moveCameraY = mapMoveSpeed;
       break;
     case ScreenEdge.bottomLeft:
-      moveCameraX = mapMoveSpeed;
+      moveCameraX = -mapMoveSpeed;
       moveCameraY = -mapMoveSpeed;
       break;
     case ScreenEdge.bottomRight:
-      moveCameraX = -mapMoveSpeed;
+      moveCameraX = mapMoveSpeed;
       moveCameraY = -mapMoveSpeed;
       break;
     default:
@@ -90,5 +90,9 @@ Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge scre
       moveCameraY = 0.0;
       break;
   }
+
+  // the up/down movement is faster than left/right, therefore it is multiplied by 0.8
+  moveCameraY *= 0.8;
+
   return {'x': moveCameraX, 'y': moveCameraY};
 }

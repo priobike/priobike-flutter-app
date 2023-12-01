@@ -900,37 +900,28 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // determine how to move the map
     final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
 
-    if (Platform.isAndroid) {
-      await mapController?.moveBy(
-        ScreenCoordinate(
-          x: cameraMovement['x'] ?? 0,
-          y: cameraMovement['y'] ?? 0,
-        ),
-        MapAnimationOptions(duration: 0),
-      );
-    } else {
-      // On iOS we get a platform exception when using moveBy().
-      final CameraState cameraState = await mapController!.getCameraState();
+    // get the current coordinates of the center of the map
+    final CameraState cameraState = await mapController!.getCameraState();
+    final coords = cameraState.center["coordinates"]! as List;
+    final double x = coords[0];
+    final double y = coords[1];
 
-      // get the current coordinates of the center of the map
-      final coords = cameraState.center["coordinates"]! as List;
+    // The zoom is usually between 12 and 16, while 16 is more zoomed in.
+    // We need to speed up the movement while zoomed out otherwise the movement is too slow.
+    final zoom = cameraState.zoom;
+    final zoomSpeedup = 16 - zoom;
 
-      final double x = coords[0];
-      final double y = coords[1];
-
-      await mapController?.easeTo(
-        CameraOptions(
-          center: Point(
-            coordinates: Position(
-              // for some reason the x coordiate has to be negated otherwise left/right movement is inverted
-              x + (cameraMovement['x'] ?? 0) * (-1),
-              y + (cameraMovement['y'] ?? 0) * 0.8,
-            ),
-          ).toJson(),
-        ),
-        MapAnimationOptions(duration: 0),
-      );
-    }
+    await mapController?.easeTo(
+      CameraOptions(
+        center: Point(
+          coordinates: Position(
+            x + (cameraMovement['x'] ?? 0) * zoomSpeedup,
+            y + (cameraMovement['y'] ?? 0) * zoomSpeedup,
+          ),
+        ).toJson(),
+      ),
+      MapAnimationOptions(duration: 0),
+    );
 
     // Add a small delay to throttle the camera movement.
     await Future.delayed(const Duration(milliseconds: 10));
