@@ -426,15 +426,6 @@ class Settings with ChangeNotifier {
     this.didViewUserTransfer = defaultDidViewUserTransfer,
   });
 
-  /// Load the beta settings from the shared preferences.
-  Future<void> loadBetaSettings(SharedPreferences storage) async {
-    try {
-      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-  }
-
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
     enablePerformanceOverlay = storage.getBool(enablePerformanceOverlayKey) ?? defaultEnablePerformanceOverlay;
@@ -470,6 +461,11 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
   }
@@ -482,9 +478,6 @@ class Settings with ChangeNotifier {
 
     // All internal settings - use the default values if internal features are disabled.
     if (canEnableInternalFeatures) await loadInternalSettings(storage);
-
-    // All beta settings - use the default values if beta features are disabled.
-    if (canEnableBetaFeatures) await loadBetaSettings(storage);
 
     // All remaining settings.
     connectionErrorCounter = storage.getInt(connectionErrorCounterKey) ?? defaultConnectionErrorCounter;
