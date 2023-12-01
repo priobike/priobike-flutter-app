@@ -61,6 +61,10 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       return alternativeView("Keine\nAmpeldaten\nvorhanden");
     }
 
+    if ((ride.predictionComponent?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+      return alternativeView("Prognose\nzu schlecht");
+    }
+
     final recommendation = ride.predictionComponent!.recommendation!;
     // If the phase change time is null, we hide the countdown.
     if (recommendation.calcCurrentPhaseChangeTime == null) return alternativeView("Prognose\nzu alt");
