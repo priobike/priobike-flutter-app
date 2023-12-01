@@ -725,12 +725,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return null;
     if (routing.selectedWaypoints == null) return null;
 
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    // On android, we need to multiply by the ppi.
-    if (Platform.isAndroid) {
-      x *= ppi;
-      y *= ppi;
-    }
     final tapPosition = ScreenCoordinate(x: x, y: y);
 
     Waypoint? foundWaypoint;
@@ -743,7 +737,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final distance = math.sqrt(math.pow(coordsOnScreenWaypoint.x - tapPosition.x, 2) +
           math.pow(coordsOnScreenWaypoint.y - tapPosition.y, 2));
 
-      if (distance < 150) {
+      if (distance < 50) {
         // get closest waypoint if there are multiple waypoints at the same position
         if (foundWaypointDistance == null || distance < foundWaypointDistance) {
           foundWaypoint = waypoint;
@@ -1017,18 +1011,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing.selectedWaypoints!.remove(draggedWaypoint!);
     getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
 
-    // get the position when the user released the waypoint
-    double x = dx;
-    double y = dy;
-
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    // On android, we need to multiply by the ppi.
-    if (Platform.isAndroid) {
-      x *= ppi;
-      y *= ppi;
-    }
-
-    final point = ScreenCoordinate(x: x, y: y);
+    final point = ScreenCoordinate(x: dx, y: dy);
 
     // hide the dragged waypoint icon while loading when adding the new waypoint
     hideDragWaypoint = true;
@@ -1038,7 +1021,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Reset variables for dragging
-  _resetDragging() {
+  void _resetDragging() {
     dragPosition = null;
     draggedWaypoint = null;
     draggedWaypointIndex = null;
