@@ -8,8 +8,6 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/community_event/service/event_service.dart';
-import 'package:priobike/gamification/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -247,7 +245,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
-          await getIt<EventService>().fetchData();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),
@@ -386,11 +383,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ),
                       child: Column(
                         children: [
-                          if (settings.enableGamification)
-                            const BlendIn(
-                              duration: Duration(milliseconds: 1250),
-                              child: GameView(),
-                            ),
                           const BlendIn(
                             delay: Duration(milliseconds: 1250),
                             child: WikiView(),

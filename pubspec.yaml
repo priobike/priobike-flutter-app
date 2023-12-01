@@ -67,10 +67,6 @@ dependencies:
   url_launcher: ^6.2.1 # Used to open URLs
   in_app_review: ^2.0.8 # Used to rate the app
   proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
-  drift: ^2.13.2 # Used for the local database
-  sqlite3_flutter_libs: ^0.5.18 # Needed for the drift database which is based on sqlite
-  path: ^1.8.2 # Used to determine the database file location
-  fl_chart: ^0.65.0 # Used to display the ride statistics in the gamification views
   file_picker: ^6.1.1 # Used to open GPX files
   gpx: ^2.2.1
 
@@ -118,9 +114,6 @@ flutter:
         - asset: assets/fonts/HamburgSans-BoldItalic.ttf
           weight: 700
           style: italic
-    - family:  CustomGameIcons
-      fonts:
-        - asset: assets/fonts/CustomGameIcons.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
