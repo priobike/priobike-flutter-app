@@ -909,7 +909,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // The zoom is usually between 12 and 16, while 16 is more zoomed in.
     // We need to speed up the movement while zoomed out otherwise the movement is too slow.
     final zoom = cameraState.zoom;
-    final zoomSpeedup = 16 - zoom;
+    double zoomSpeedup = 16 - zoom;
+
+    // No negative zoom speedup otherwise the map would move in the opposite direction.
+    // And don't set to 0 otherwise the map would not move at all.
+    if (zoomSpeedup <= 0.5) zoomSpeedup = 0.5;
 
     await mapController?.easeTo(
       CameraOptions(

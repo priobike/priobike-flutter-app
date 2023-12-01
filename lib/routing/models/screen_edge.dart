@@ -46,8 +46,10 @@ Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge scre
   final double mapMoveSpeed;
   if (Platform.isAndroid) {
     mapMoveSpeed = 0.00015;
+  } else if (Platform.isIOS) {
+    mapMoveSpeed = 0.0017;
   } else {
-    mapMoveSpeed = 0.003;
+    throw Exception("Platform not supported");
   }
 
   final double moveCameraX;
