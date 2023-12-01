@@ -51,10 +51,15 @@ class NavBarView extends StatelessWidget {
                     color: Colors.white,
                     context: context,
                   ),
+                  Content(
+                    text: settings.backend == Backend.staging ? " DD" : " HH",
+                    color: Colors.white,
+                    context: context,
+                  ),
                   Flexible(
                     fit: FlexFit.tight,
-                    child: Content(
-                      text: settings.backend == Backend.staging ? " DD" : " HH",
+                    child: Small(
+                      text: settings.backend == Backend.production ? "  beta" : "",
                       color: Colors.white,
                       context: context,
                     ),
