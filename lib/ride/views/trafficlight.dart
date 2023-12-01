@@ -60,9 +60,10 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     if (ride.predictionComponent?.recommendation == null) {
       return alternativeView("Keine\nAmpeldaten\nvorhanden");
     }
+
     final recommendation = ride.predictionComponent!.recommendation!;
     // If the phase change time is null, we hide the countdown.
-    if (recommendation.calcCurrentPhaseChangeTime == null) return alternativeView("Keine\nGrünphase\ngefunden");
+    if (recommendation.calcCurrentPhaseChangeTime == null) return alternativeView("Prognose\nzu alt");
     // Calculate the countdown.
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     // If the countdown is 0 (or negative), we hide the countdown. In this way the user
@@ -118,7 +119,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       sizeCurve: Curves.easeInOutCubic,
       duration: const Duration(milliseconds: 500),
       firstChild: trafficLight,
-      secondChild: alternativeView("Keine\nPrognosen"),
+      secondChild: alternativeView("Keine\nAmpeldaten"),
       crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
     );
   }
