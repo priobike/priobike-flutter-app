@@ -22,7 +22,7 @@ class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
   final Future<void> Function(BuildContext context) onSubmitted;
 
-  const FeedbackView({required this.onSubmitted, Key? key}) : super(key: key);
+  const FeedbackView({required this.onSubmitted, super.key});
 
   @override
   FeedbackViewState createState() => FeedbackViewState();
@@ -49,6 +49,8 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// The image of the route destination icon.
   ui.Image? destinationImage;
+
+  Widget? trackHistory;
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -105,6 +107,15 @@ class FeedbackViewState extends State<FeedbackView> {
         final Uint8List destinationBytes = Uint8List.view(destinationBd.buffer);
         final ui.Codec destinationCodec = await ui.instantiateImageCodec(destinationBytes);
         destinationImage = (await destinationCodec.getNextFrame()).image;
+
+        if (startImage != null && destinationImage != null) {
+          // Create TrackHistory once to prevent getting rebuild on every setState.
+          trackHistory = TrackHistoryItemDetailView(
+            track: tracking.previousTracks!.last,
+            startImage: startImage!,
+            destinationImage: destinationImage!,
+          );
+        }
 
         setState(() {});
       },
@@ -208,12 +219,7 @@ class FeedbackViewState extends State<FeedbackView> {
                   }(),
                 ),
                 const SmallVSpace(),
-                if (startImage != null && destinationImage != null)
-                  TrackHistoryItemDetailView(
-                    track: tracking.previousTracks!.last,
-                    startImage: startImage!,
-                    destinationImage: destinationImage!,
-                  ),
+                trackHistory != null ? trackHistory! : Container(),
               ],
             ),
           ),

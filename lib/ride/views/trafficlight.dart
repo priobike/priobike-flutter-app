@@ -8,7 +8,7 @@ class RideTrafficLightView extends StatefulWidget {
   /// The size of the speedometer.
   final Size size;
 
-  const RideTrafficLightView({Key? key, required this.size}) : super(key: key);
+  const RideTrafficLightView({super.key, required this.size});
 
   @override
   State<StatefulWidget> createState() => RideTrafficLightViewState();

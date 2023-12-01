@@ -28,9 +28,9 @@ class ExpandablePageView extends StatefulWidget {
   final List<Widget> children;
 
   const ExpandablePageView({
-    Key? key,
+    super.key,
     required this.children,
-  }) : super(key: key);
+  });
 
   @override
   State<ExpandablePageView> createState() => _ExpandablePageViewState();
@@ -118,10 +118,10 @@ class SizeReportingWidget extends StatefulWidget {
   final ValueChanged<Size> onSizeChange;
 
   const SizeReportingWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.onSizeChange,
-  }) : super(key: key);
+  });
 
   @override
   State<SizeReportingWidget> createState() => _SizeReportingWidgetState();
@@ -152,7 +152,7 @@ class _SizeReportingWidgetState extends State<SizeReportingWidget> {
 class StatusTabsView extends StatefulWidget {
   final Function triggerRebuild;
 
-  const StatusTabsView({Key? key, required this.triggerRebuild}) : super(key: key);
+  const StatusTabsView({super.key, required this.triggerRebuild});
 
   @override
   StatusTabsViewState createState() => StatusTabsViewState();

@@ -8,7 +8,7 @@ class NewsButton extends StatefulWidget {
   /// A callback that is fired when the button was pressed.
   final void Function() onPressed;
 
-  const NewsButton({required this.onPressed, Key? key}) : super(key: key);
+  const NewsButton({required this.onPressed, super.key});
 
   @override
   NewsButtonState createState() => NewsButtonState();

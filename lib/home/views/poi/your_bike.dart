@@ -15,14 +15,14 @@ class YourBikeElementButton extends StatelessWidget {
   final void Function()? onPressed;
 
   const YourBikeElementButton({
-    Key? key,
+    super.key,
     required this.image,
     required this.title,
     this.color,
     this.backgroundColor,
     this.touchColor,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +74,7 @@ class YourBikeElementButton extends StatelessWidget {
 }
 
 class YourBikeView extends StatefulWidget {
-  const YourBikeView({Key? key}) : super(key: key);
+  const YourBikeView({super.key});
 
   @override
   YourBikeViewState createState() => YourBikeViewState();
@@ -182,8 +182,7 @@ class MetaListView extends StatefulWidget {
   final bool repairBikeActive;
 
   const MetaListView(
-      {Key? key, required this.rentBikeActive, required this.pumpUpBikeActive, required this.repairBikeActive})
-      : super(key: key);
+      {super.key, required this.rentBikeActive, required this.pumpUpBikeActive, required this.repairBikeActive});
 
   @override
   MetaListViewState createState() => MetaListViewState();

@@ -9,7 +9,7 @@ class SpeedometerAlert extends StatelessWidget {
   /// The size of the speedometer.
   final Size size;
 
-  const SpeedometerAlert({Key? key, required this.size}) : super(key: key);
+  const SpeedometerAlert({super.key, required this.size});
 
   @override
   Widget build(BuildContext context) {

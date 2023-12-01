@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
-import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/home/views/main.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -17,9 +16,10 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class FinishRideButton extends StatefulWidget {
-  const FinishRideButton({Key? key}) : super(key: key);
+  const FinishRideButton({super.key});
 
   @override
   FinishRideButtonState createState() => FinishRideButtonState();
@@ -76,9 +76,6 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final statistics = getIt<Statistics>();
     await statistics.calculateSummary();
 
-    // If there is an active event, check if the user passed some of the event locations.
-    await getIt<EventService>().checkLocations();
-
     // Disconnect from the mqtt broker.
     final datastream = getIt<Datastream>();
     await datastream.disconnect();
@@ -92,6 +89,9 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // Stop the geolocation.
     final position = getIt<Positioning>();
     await position.stopGeolocation();
+
+    // Disable the wakelock which was set when the ride started.
+    WakelockPlus.disable();
 
     // Show the feedback view.
     if (mounted) {

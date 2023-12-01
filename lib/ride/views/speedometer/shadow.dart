@@ -5,7 +5,7 @@ class SpeedometerRadialShadow extends StatelessWidget {
   /// The size of the speedometer.
   final Size size;
 
-  const SpeedometerRadialShadow({Key? key, required this.size}) : super(key: key);
+  const SpeedometerRadialShadow({super.key, required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +42,10 @@ class SpeedometerLinearShadow extends StatelessWidget {
   final double originalSpeedometerWidth;
 
   const SpeedometerLinearShadow({
-    Key? key,
+    super.key,
     required this.originalSpeedometerHeight,
     required this.originalSpeedometerWidth,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

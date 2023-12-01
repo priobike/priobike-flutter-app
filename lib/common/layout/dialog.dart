@@ -125,13 +125,13 @@ class DialogLayout extends StatefulWidget {
   final List<Widget>? actions;
 
   const DialogLayout({
-    Key? key,
+    super.key,
     required this.title,
     required this.text,
     required this.actions,
     this.icon,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => DialogLayoutState();
@@ -188,7 +188,7 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
 
   @override
   void didChangeMetrics() {
-    final newPadding = WidgetsBinding.instance.window.viewInsets;
+    final newPadding = MediaQuery.of(context).viewInsets;
     delayPaddingUpdate(newPadding.bottom);
   }
 

@@ -21,11 +21,11 @@ class ShortcutPictogram extends StatefulWidget {
   final Color color;
 
   const ShortcutPictogram({
-    Key? key,
+    super.key,
     this.shortcut,
     this.height = 200,
     this.color = Colors.black,
-  }) : super(key: key);
+  });
 
   @override
   ShortcutPictogramState createState() => ShortcutPictogramState();

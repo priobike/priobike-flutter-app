@@ -23,7 +23,7 @@ class SGStatusMapViewLegendElement {
 }
 
 class SGStatusMapView extends StatefulWidget {
-  const SGStatusMapView({Key? key}) : super(key: key);
+  const SGStatusMapView({super.key});
 
   @override
   SGStatusMapViewState createState() => SGStatusMapViewState();
@@ -276,7 +276,6 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", CI.radkulturRedDark),
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.radkulturGreen),
     ];
-    final ppi = MediaQuery.of(context).devicePixelRatio * 0.9;
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
@@ -284,9 +283,9 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
         body: Stack(
           children: [
             AppMap(
-              logoViewMargins: Point(50, 120 * ppi + MediaQuery.of(context).padding.bottom),
+              logoViewMargins: Point(50, 120 + MediaQuery.of(context).padding.bottom),
               logoViewOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_LEFT,
-              attributionButtonMargins: Point(50, 120 * ppi + MediaQuery.of(context).padding.bottom),
+              attributionButtonMargins: Point(50, 120 + MediaQuery.of(context).padding.bottom),
               attributionButtonOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_RIGHT,
               onMapCreated: onMapCreated,
               onStyleLoaded: onStyleLoaded,

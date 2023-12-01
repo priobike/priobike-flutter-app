@@ -165,7 +165,7 @@ class Track {
     required this.activityType,
     required this.routes,
     required this.subVersion,
-    this.canUseGamification = true,
+    this.canUseGamification = false,
   });
 
   /// Convert the track to a json object.

@@ -41,7 +41,7 @@ class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final Stream<DraggableScrollableNotification>? sheetMovement;
 
-  const RoutingMapView({required this.sheetMovement, Key? key}) : super(key: key);
+  const RoutingMapView({required this.sheetMovement, super.key});
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
@@ -262,12 +262,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (currentCameraOptions == null) return;
 
     MbxEdgeInsets padding = MbxEdgeInsets(
-      // (AppBackButton height + top padding) * devicePixelRatio
-      top: (80 + frame.padding.top) * frame.devicePixelRatio,
-      // AppBackButton width * devicePixelRatio
-      left: 75 * frame.devicePixelRatio,
-      // (BottomSheet + bottom padding) * devicePixelRatio
-      bottom: (140 + frame.padding.bottom) * frame.devicePixelRatio,
+      // (AppBackButton height + top padding)
+      top: (80 + frame.padding.top),
+      // AppBackButton width
+      left: 64,
+      // (BottomSheet + bottom padding)
+      bottom: (140 + frame.padding.bottom),
       right: 0,
     );
 
@@ -555,14 +555,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         padding: MbxEdgeInsets(
             bottom: newBottomInset,
             // Needs to be set since this offset is set in fitCameraToRouteBounds().
-            left: 75 * frame.devicePixelRatio,
+            left: 64,
             top: defaultMapInsets.top,
             right: defaultMapInsets.left),
       ),
     );
-    final ppi = frame.devicePixelRatio;
     final attributionMargins =
-        math.Point(10 * ppi, 116 / frame.size.height + (frame.padding.bottom / frame.size.height) + 170 * ppi);
+        math.Point(10, 116 / frame.size.height + (frame.padding.bottom / frame.size.height) + 170);
     mapController!.attribution.updateSettings(AttributionSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginRight: attributionMargins.x.toDouble(),
@@ -697,12 +696,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onMapLongClick(BuildContext context, double x, double y) async {
     if (mapController == null) return;
     // Convert x and y into a lat/lon.
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    // On android, we need to multiply by the ppi.
-    if (Platform.isAndroid) {
-      x *= ppi;
-      y *= ppi;
-    }
     final point = ScreenCoordinate(x: x, y: y);
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();

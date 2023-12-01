@@ -24,7 +24,7 @@ class RideMapView extends StatefulWidget {
   /// If the map should follow the user location.
   final bool cameraFollowUserLocation;
 
-  const RideMapView({Key? key, required this.onMapMoved, required this.cameraFollowUserLocation}) : super(key: key);
+  const RideMapView({super.key, required this.onMapMoved, required this.cameraFollowUserLocation});
 
   @override
   State<StatefulWidget> createState() => RideMapViewState();
@@ -200,14 +200,14 @@ class RideMapViewState extends State<RideMapView> {
       if (isBatterySaveModeEnabled) {
         if (Platform.isAndroid) {
           padding = mapbox.MbxEdgeInsets(
-              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.18);
+              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.055);
         } else {
           padding =
-              mapbox.MbxEdgeInsets(top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
+              mapbox.MbxEdgeInsets(top: deviceHeight * 0.55, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.2);
         }
       } else {
         padding =
-            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.4);
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.19);
       }
     }
 
@@ -513,14 +513,10 @@ class RideMapViewState extends State<RideMapView> {
     // below.
     double marginYLogo = frame.padding.top;
     final double marginYAttribution;
-    if (Platform.isAndroid) {
-      final ppi = frame.devicePixelRatio;
-      marginYLogo = marginYLogo * ppi;
-      marginYAttribution = marginYLogo;
-    } else {
-      marginYLogo = marginYLogo * 0.7;
-      marginYAttribution = marginYLogo - (22 * frame.devicePixelRatio);
-    }
+
+    marginYLogo = marginYLogo * 0.7;
+    marginYAttribution = marginYLogo - 22;
+
     return AppMap(
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,

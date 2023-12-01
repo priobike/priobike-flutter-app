@@ -22,7 +22,7 @@ class ShortcutView extends StatelessWidget {
   final Color selectionColor;
 
   const ShortcutView({
-    Key? key,
+    super.key,
     this.shortcut,
     required this.onPressed,
     required this.width,
@@ -32,7 +32,7 @@ class ShortcutView extends StatelessWidget {
     this.selected = false,
     this.showSplash = true,
     this.selectionColor = CI.radkulturRedDark,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -140,8 +140,8 @@ class ShortcutsView extends StatefulWidget {
   const ShortcutsView({
     required this.onSelectShortcut,
     required this.onStartFreeRouting,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => ShortcutsViewState();

@@ -9,8 +9,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
-import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
-import 'package:priobike/gamification/community_event/service/event_service.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -18,6 +16,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
@@ -31,7 +30,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Loader extends StatefulWidget {
-  const Loader({Key? key}) : super(key: key);
+  const Loader({super.key});
 
   @override
   LoaderState createState() => LoaderState();
@@ -70,6 +69,7 @@ class LoaderState extends State<Loader> {
     // while critical services should throw their errors.
 
     try {
+      await Migration.migrate();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();
@@ -82,17 +82,15 @@ class LoaderState extends State<Loader> {
 
       await getIt<News>().getArticles();
 
-      final preditionStatusSummary = getIt<PredictionStatusSummary>();
-      await preditionStatusSummary.fetch();
-      if (preditionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
+      final predictionStatusSummary = getIt<PredictionStatusSummary>();
+      await predictionStatusSummary.fetch();
+      if (predictionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
 
       await getIt<StatusHistory>().fetch();
       await getIt<Weather>().fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
-      await getIt<EventService>().fetchData();
       await MapboxTileImageCache.pruneUnusedImages();
-      getIt<EvaluationDataService>().sendUnsentElements();
 
       // Only allow portrait mode.
       await SystemChrome.setPreferredOrientations([
@@ -114,6 +112,7 @@ class LoaderState extends State<Loader> {
       hasError = false;
     });
     settings.resetConnectionErrorCounter();
+
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
     setState(() => isLoading = false);

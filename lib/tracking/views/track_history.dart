@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -15,7 +16,7 @@ import 'package:priobike/tracking/views/all_track_history.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 
 class TrackHistoryView extends StatefulWidget {
-  const TrackHistoryView({Key? key}) : super(key: key);
+  const TrackHistoryView({super.key});
 
   @override
   State<StatefulWidget> createState() => TrackHistoryViewState();
@@ -57,7 +58,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     var i = tracking.previousTracks!.length - 1;
     final backend = getIt<Settings>().backend;
     while (i >= 0) {
-      if (tracking.previousTracks![i].backend == backend) {
+      // To get Production and Release or Staging.
+      if (tracking.previousTracks![i].backend.regionName == backend.regionName) {
         if (newestTracks.length < 10) {
           newestTracks.add(tracking.previousTracks![i]);
         }

@@ -59,6 +59,8 @@ mixin TrackHistoryItem {
             altitude: 0,
             heading: 0,
             speedAccuracy: 0,
+            altitudeAccuracy: 0,
+            headingAccuracy: 0,
           ),
         );
       }
@@ -81,7 +83,6 @@ mixin TrackHistoryItem {
     // Aggregate the duration.
     final start = positions.first.timestamp;
     final end = positions.last.timestamp;
-    if (end == null || start == null) return;
     final totalDuration = end.difference(start).inMilliseconds;
 
     // Create the summary.
@@ -104,12 +105,12 @@ class TrackHistoryItemTileView extends StatefulWidget {
   final ui.Image destinationImage;
 
   const TrackHistoryItemTileView({
-    Key? key,
+    super.key,
     required this.track,
     required this.startImage,
     required this.destinationImage,
     this.width,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemTileViewState();
@@ -304,12 +305,12 @@ class TrackHistoryItemDetailView extends StatefulWidget {
   final ui.Image destinationImage;
 
   const TrackHistoryItemDetailView({
-    Key? key,
+    super.key,
     required this.track,
     required this.startImage,
     required this.destinationImage,
     this.width,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemDetailViewState();

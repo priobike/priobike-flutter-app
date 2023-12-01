@@ -2,12 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/gamification/common/database/database.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -119,7 +116,6 @@ class Statistics with ChangeNotifier {
     // Aggregate the duration.
     final now = positions.last.timestamp;
     final start = positions.first.timestamp;
-    if (now == null || start == null) return;
     final totalDuration = now.difference(start).inMilliseconds;
 
     // Create the summary.
@@ -129,13 +125,6 @@ class Statistics with ChangeNotifier {
       elevationGain: totalElevationGain,
       elevationLoss: totalElevationLoss,
     );
-
-    // Store summary in database, if a user profile exists.
-    final storage = await SharedPreferences.getInstance();
-    if (storage.getBool(GamificationUserService.gamificationEnabledKey) ?? false) {
-      // Get the route or location shortcut used for the ride, if there is one.
-      AppDatabase.instance.rideSummaryDao.createObjectFromSummary(currentSummary!, start, getIt<Ride>().shortcutId);
-    }
 
     addSummary(currentSummary!);
   }
