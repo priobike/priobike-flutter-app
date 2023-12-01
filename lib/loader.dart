@@ -18,6 +18,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
@@ -70,6 +71,7 @@ class LoaderState extends State<Loader> {
     // while critical services should throw their errors.
 
     try {
+      await Migration.migrate();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();
@@ -82,9 +84,9 @@ class LoaderState extends State<Loader> {
 
       await getIt<News>().getArticles();
 
-      final preditionStatusSummary = getIt<PredictionStatusSummary>();
-      await preditionStatusSummary.fetch();
-      if (preditionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
+      final predictionStatusSummary = getIt<PredictionStatusSummary>();
+      await predictionStatusSummary.fetch();
+      if (predictionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
 
       await getIt<StatusHistory>().fetch();
       await getIt<Weather>().fetch();
@@ -114,6 +116,7 @@ class LoaderState extends State<Loader> {
       hasError = false;
     });
     settings.resetConnectionErrorCounter();
+
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
     setState(() => isLoading = false);

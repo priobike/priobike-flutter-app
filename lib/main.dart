@@ -21,6 +21,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/migration/user_transfer_view.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -155,7 +156,13 @@ class App extends StatelessWidget {
               }
               getIt<Shortcuts>().saveNewShortcutObject(shortcut);
             }
-            return MaterialPageRoute(builder: (context) => const PrivacyPolicyView(child: Loader()));
+            return MaterialPageRoute(
+              builder: (context) => const PrivacyPolicyView(
+                child: UserTransferView(
+                  child: Loader(),
+                ),
+              ),
+            );
           },
           // The navigator key is used to access the app's build context.
           navigatorKey: navigatorKey,

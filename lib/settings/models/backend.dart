@@ -170,6 +170,17 @@ extension BackendRegion on Backend {
     }
   }
 
+  String get regionName {
+    switch (this) {
+      case Backend.production:
+        return "Hamburg";
+      case Backend.staging:
+        return "Dresden";
+      case Backend.release:
+        return "Hamburg";
+    }
+  }
+
   LatLng get center {
     switch (this) {
       case Backend.production:
@@ -206,54 +217,10 @@ extension BackendShortcuts on Backend {
           ),
           ShortcutRoute(
             id: UniqueKey().toString(),
-            name: "E.-S.-Allee Ost ➔ West",
+            name: "Altona ➔ City",
             waypoints: [
-              Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
-              Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
-            ],
-          ),
-          ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "E.-S.-Allee West ➔ Ost",
-            waypoints: [
-              Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
-              Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
-            ],
-          ),
-          ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "B4 Ost ➔ West",
-            waypoints: [
-              Waypoint(53.547722154285324, 10.004045134575035, address: "Burchardstraße 11, 20095 Hamburg"),
-              Waypoint(53.549482, 9.978636, address: "Ludwig-Erhard-Straße 20, 20459 Hamburg"),
-              Waypoint(53.550264133830126, 9.971739418506827, address: "Millerntorpl. 20, 20359 Hamburg"),
-            ],
-          ),
-          ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "B4 West ➔ Ost",
-            waypoints: [
-              Waypoint(53.54990402934412, 9.971606990198367, address: "St. Pauli, 20359 Hamburg"),
-              Waypoint(53.547262160720436, 10.004240381440082, address: "Oberbaumbrücke 1, 20457 Hamburg"),
-            ],
-          ),
-          ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "Lombardsbrücke Ost ➔ West",
-            waypoints: [
-              Waypoint(53.5511715, 10.0062077, address: "Steintorwall, 20095 Hamburg"),
-              Waypoint(53.5575131, 9.99471, address: "Lombardsbrücke, 20354 Hamburg"),
-              Waypoint(53.5575762, 9.9828379, address: "Jungiusstraße 3, 20355 Hamburg"),
-              Waypoint(53.55285, 9.976352, address: "Ring 1 13, 20355 Hamburg"),
-            ],
-          ),
-          ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "Lombardsbrücke West ➔ Ost",
-            waypoints: [
-              Waypoint(53.55285, 9.976352, address: "Ring 1 13, 20355 Hamburg"),
-              Waypoint(53.5579687, 9.9859757, address: "Gorch-Fock-Wall, 20354 Hamburg"),
-              Waypoint(53.551241482916915, 10.005804047062561, address: "Steintorwall, 20095 Hamburg"),
+              Waypoint(53.5522524, 9.9313068, address: "Altona-Altstadt, 22767, Hamburg, Deutschland"),
+              Waypoint(53.5536507, 9.9893664, address: "Jungfernstieg, Altstadt, 20095, Hamburg, Deutschland"),
             ],
           ),
         ];
@@ -282,7 +249,22 @@ extension BackendShortcuts on Backend {
           ),
         ];
       case Backend.release:
-        return [];
+        return [
+          ShortcutLocation(
+            id: UniqueKey().toString(),
+            name: "Elbphilharmonie",
+            waypoint: Waypoint(53.5415701077766, 9.984275605794686,
+                address: "Elbphilharmonie Hamburg, Platz der Deutschen Einheit, Hamburg"),
+          ),
+          ShortcutRoute(
+            id: UniqueKey().toString(),
+            name: "Altona ➔ City",
+            waypoints: [
+              Waypoint(53.5522524, 9.9313068, address: "Altona-Altstadt, 22767, Hamburg, Deutschland"),
+              Waypoint(53.5536507, 9.9893664, address: "Jungfernstieg, Altstadt, 20095, Hamburg, Deutschland"),
+            ],
+          ),
+        ];
     }
   }
 }
