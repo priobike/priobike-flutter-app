@@ -1080,7 +1080,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               if (routing.selectedWaypoints == null || !routing.selectedWaypoints!.contains(draggedWaypoint)) return;
               dragPosition = details.localPosition;
               draggedWaypointType = getWaypointType(routing.selectedWaypoints!, draggedWaypoint!);
-              await Future.delayed(const Duration(milliseconds: 20));
               showAuxiliaryMarking = true;
             }
           },
@@ -1109,9 +1108,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
               showAuxiliaryMarking = false;
-              await Future.delayed(const Duration(milliseconds: 1000));
+              //await Future.delayed(const Duration(milliseconds: 1000));
               currentScreenEdge = ScreenEdge.none;
-              await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
+              if (mounted) await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
             } else {
               animationController.reverse();
 
@@ -1251,8 +1250,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 // Subtract half the icon size to center the icon.
                 left: dragPosition!.dx - (showAuxiliaryMarking ? 100 : 0) / 2,
                 top: dragPosition!.dy - (showAuxiliaryMarking ? 100 : 0) / 2,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 1000),
+                child: Container(
                   width: showAuxiliaryMarking ? 100 : 0,
                   height: showAuxiliaryMarking ? 100 : 0,
                   decoration: BoxDecoration(
@@ -1269,12 +1267,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 // only add a very short duration, otherwise dragging feels sluggish.
                 duration: const Duration(milliseconds: 20),
                 // Subtract half the icon size to center the icon.
-                left: dragPosition!.dx - (showAuxiliaryMarking ? 150 : 0) / 2,
-                top: dragPosition!.dy - (showAuxiliaryMarking ? 150 : 0) / 2,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 1000),
-                  width: showAuxiliaryMarking ? 150 : 0,
-                  height: showAuxiliaryMarking ? 150 : 0,
+                left: dragPosition!.dx - (showAuxiliaryMarking ? 125 : 0) / 2,
+                top: dragPosition!.dy - (showAuxiliaryMarking ? 125 : 0) / 2,
+                child: Container(
+                  width: showAuxiliaryMarking ? 125 : 0,
+                  height: showAuxiliaryMarking ? 125 : 0,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.transparent,
