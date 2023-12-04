@@ -350,7 +350,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         ],
                       ),
                     ),
-                    const SmallVSpace(),
+                    const VSpace(),
                     BlendIn(
                       delay: const Duration(milliseconds: 750),
                       child: Row(children: [
@@ -361,7 +361,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         ),
                       ]),
                     ),
-                    const SmallVSpace(),
+                    const VSpace(),
                     const BlendIn(
                       delay: Duration(milliseconds: 750),
                       child: YourBikeView(),

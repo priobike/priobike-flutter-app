@@ -524,7 +524,7 @@ class BigButtonTertiary extends StatelessWidget {
 }
 
 /// A custom stylized button to display important actions.
-class IconTextButton extends StatelessWidget {
+class IconTextButtonPrimary extends StatelessWidget {
   /// The icon of the button.
   final IconData? icon;
 
@@ -552,7 +552,7 @@ class IconTextButton extends StatelessWidget {
   /// The optional border color of the button.
   final Color? textColor;
 
-  const IconTextButton({
+  const IconTextButtonPrimary({
     super.key,
     this.icon,
     required this.label,
@@ -602,6 +602,186 @@ class IconTextButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A custom stylized button to display important actions.
+class IconTextButtonSecondary extends StatelessWidget {
+  /// The icon of the button.
+  final IconData? icon;
+
+  /// The label of the button.
+  final String label;
+
+  /// The callback that is executed when the button was pressed.
+  final void Function() onPressed;
+
+  /// The optional fill color of the button.
+  final Color? fillColor;
+
+  /// The optional splash color of the button.
+  final Color? splashColor;
+
+  /// The optional icon color of the button.
+  final Color? iconColor;
+
+  /// The constraints to define a specific size for the button.
+  final BoxConstraints boxConstraints;
+
+  /// The optional border color of the button.
+  final Color? borderColor;
+
+  /// The optional border color of the button.
+  final Color? textColor;
+
+  const IconTextButtonSecondary({
+    super.key,
+    this.icon,
+    required this.label,
+    required this.onPressed,
+    this.fillColor,
+    this.splashColor,
+    this.iconColor,
+    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
+    this.borderColor,
+    this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.onSecondary,
+      constraints: boxConstraints,
+      // Hide ugly material shadows.
+      elevation: 0,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: borderColor ?? Theme.of(context).colorScheme.primary),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            const SizedBox(width: 2),
+            if (icon != null)
+              Icon(
+                icon,
+                color: iconColor ?? Theme.of(context).colorScheme.primary,
+              ),
+            SizedBox(width: icon != null ? 2 : 0),
+            Flexible(
+              child: Center(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.primary, fontSize: 14),
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A custom stylized button to display important actions.
+class IconTextButtonTertiary extends StatelessWidget {
+  /// The icon of the button.
+  final IconData? icon;
+
+  /// The label of the button.
+  final String label;
+
+  /// The callback that is executed when the button was pressed.
+  final void Function() onPressed;
+
+  /// The optional fill color of the button.
+  final Color? fillColor;
+
+  /// The optional splash color of the button.
+  final Color? splashColor;
+
+  /// The optional icon color of the button.
+  final Color? iconColor;
+
+  /// The constraints to define a specific size for the button.
+  final BoxConstraints boxConstraints;
+
+  /// The optional border color of the button.
+  final Color? borderColor;
+
+  /// The optional border color of the button.
+  final Color? textColor;
+
+  const IconTextButtonTertiary({
+    super.key,
+    this.icon,
+    required this.label,
+    required this.onPressed,
+    this.fillColor,
+    this.splashColor,
+    this.iconColor,
+    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
+    this.borderColor,
+    this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
+      constraints: boxConstraints,
+      // Hide ugly material shadows.
+      elevation: 0,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: borderColor ?? Theme.of(context).colorScheme.onTertiary),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            const SizedBox(width: 2),
+            if (icon != null)
+              Icon(
+                icon,
+                color: iconColor ?? Theme.of(context).colorScheme.tertiary,
+              ),
+            SizedBox(width: icon != null ? 2 : 0),
+            Flexible(
+              child: Center(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.tertiary, fontSize: 14),
                 ),
               ),
             ),

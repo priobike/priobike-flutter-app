@@ -180,14 +180,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                 context: context,
               ),
               Expanded(child: Container()),
-              IconTextButton(
+              IconTextButtonTertiary(
                 label: "Alle anzeigen",
-                fillColor: Theme.of(context).colorScheme.surfaceVariant,
-                splashColor: Theme.of(context).colorScheme.surfaceTint,
-                borderColor: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.black.withOpacity(0.08),
-                textColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                 onPressed: () =>
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
               ),

@@ -49,6 +49,27 @@ class ButtonPreView extends StatelessWidget {
             )
           ]),
           const SmallVSpace(),
+          Row(children: [
+            IconTextButtonPrimary(
+              onPressed: () {},
+              label: 'Primary',
+            )
+          ]),
+          const SmallVSpace(),
+          Row(children: [
+            IconTextButtonSecondary(
+              onPressed: () {},
+              label: 'Secondary',
+            )
+          ]),
+          const SmallVSpace(),
+          Row(children: [
+            IconTextButtonTertiary(
+              onPressed: () {},
+              label: 'Tertiary',
+            )
+          ]),
+          const SmallVSpace(),
         ],
       ),
     );
