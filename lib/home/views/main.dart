@@ -232,11 +232,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
-  /// A callback that is fired when the shortcuts should be edited.
-  void onOpenButtonView() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ButtonPreView()));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -323,14 +318,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             splash: Theme.of(context).colorScheme.surfaceTint,
                             onPressed: onOpenShortcutEditView,
                           ),
-                          const SizedBox(width: 8),
-                          SmallIconButtonPrimary(
-                            icon: Icons.preview,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fill: Theme.of(context).colorScheme.surface,
-                            splash: Theme.of(context).colorScheme.surfaceTint,
-                            onPressed: onOpenButtonView,
-                          ),
                           const SizedBox(width: 24),
                         ],
                       ),
@@ -376,7 +363,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.onTertiary,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(32),
                           topRight: Radius.circular(32),
@@ -392,7 +379,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           BoldSmall(
                             text: "radkultur hamburg",
                             context: context,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(height: 32),
                         ],

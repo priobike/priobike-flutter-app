@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/buttonPreView.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
@@ -185,6 +186,11 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is fired when the shortcuts should be edited.
+  void onOpenButtonView() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ButtonPreView()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
@@ -203,6 +209,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     const HSpace(),
                     SubHeader(text: "Interne Features", context: context),
                   ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Button Preview",
+                    icon: Icons.open_in_new,
+                    callback: onOpenButtonView,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
