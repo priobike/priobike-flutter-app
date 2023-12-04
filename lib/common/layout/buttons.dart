@@ -107,7 +107,7 @@ class SmallIconButtonSecondary extends StatelessWidget {
         onPressed: onPressed,
         shape: CircleBorder(
             side: BorderSide(
-          width: 2,
+          width: 1,
           color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.primary,
         )),
         child: Padding(
@@ -169,7 +169,7 @@ class SmallIconButtonTertiary extends StatelessWidget {
         onPressed: onPressed,
         shape: CircleBorder(
             side: BorderSide(
-                width: 2, color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.onTertiary)),
+                width: 1, color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.onTertiary)),
         child: Padding(
           padding: const EdgeInsets.all(11),
           child: Icon(
@@ -306,7 +306,7 @@ class BigButtonPrimary extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 label,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: textColor ?? Colors.white,
@@ -378,7 +378,7 @@ class BigButtonSecondary extends StatelessWidget {
       highlightElevation: 0,
       onPressed: onPressed,
       shape: RoundedRectangleBorder(
-        side: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary),
+        side: BorderSide(width: 1, color: Theme.of(context).colorScheme.primary),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
@@ -478,7 +478,7 @@ class BigButtonTertiary extends StatelessWidget {
       highlightElevation: 0,
       onPressed: onPressed,
       shape: RoundedRectangleBorder(
-        side: BorderSide(width: 2, color: Theme.of(context).colorScheme.onTertiary),
+        side: BorderSide(width: 1, color: Theme.of(context).colorScheme.onTertiary),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(

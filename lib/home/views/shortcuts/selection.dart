@@ -155,7 +155,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   late Routing routing;
 
   /// The left padding.
-  double leftPad = 24;
+  double leftPad = 25;
 
   /// If the user has scrolled.
   bool hasScrolled = false;
@@ -203,8 +203,8 @@ class ShortcutsViewState extends State<ShortcutsView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
-    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+    const double shortcutRightPad = 15;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 40) / 2) - shortcutRightPad;
     final shortcutHeight = shortcutWidth; // Must be square for the pictograms to work.
 
     List<Widget> views = [

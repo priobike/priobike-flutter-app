@@ -124,7 +124,8 @@ class YourBikeViewState extends State<YourBikeView> {
 
   @override
   Widget build(BuildContext context) {
-    return HPad(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Column(
         children: [
           GridView.count(
