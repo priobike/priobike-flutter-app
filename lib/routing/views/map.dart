@@ -93,6 +93,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Where the user is currently long tapping, used for dragging waypoints.
   Offset? dragPosition;
 
+  bool showAuxiliaryMarking = false;
+
   /// The animation controller for the on-tap animation.
   late AnimationController animationController;
 
@@ -1078,6 +1080,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               if (routing.selectedWaypoints == null || !routing.selectedWaypoints!.contains(draggedWaypoint)) return;
               dragPosition = details.localPosition;
               draggedWaypointType = getWaypointType(routing.selectedWaypoints!, draggedWaypoint!);
+              await Future.delayed(const Duration(milliseconds: 20));
+              showAuxiliaryMarking = true;
             }
           },
           onLongPressCancel: () {
@@ -1104,6 +1108,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
+              showAuxiliaryMarking = false;
+              await Future.delayed(const Duration(milliseconds: 1000));
               currentScreenEdge = ScreenEdge.none;
               await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
             } else {
@@ -1216,6 +1222,66 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   child: Image.asset(
                     draggedWaypointType!.iconPath,
                     fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                // only add a very short duration, otherwise dragging feels sluggish.
+                duration: const Duration(milliseconds: 20),
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (showAuxiliaryMarking ? 75 : 0) / 2,
+                top: dragPosition!.dy - (showAuxiliaryMarking ? 75 : 0) / 2,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 1000),
+                  width: showAuxiliaryMarking ? 75 : 0,
+                  height: showAuxiliaryMarking ? 75 : 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                    border: Border.all(
+                      width: 3,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                    ),
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                // only add a very short duration, otherwise dragging feels sluggish.
+                duration: const Duration(milliseconds: 20),
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (showAuxiliaryMarking ? 100 : 0) / 2,
+                top: dragPosition!.dy - (showAuxiliaryMarking ? 100 : 0) / 2,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 1000),
+                  width: showAuxiliaryMarking ? 100 : 0,
+                  height: showAuxiliaryMarking ? 100 : 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                    border: Border.all(
+                      width: 2,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    ),
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                // only add a very short duration, otherwise dragging feels sluggish.
+                duration: const Duration(milliseconds: 20),
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (showAuxiliaryMarking ? 150 : 0) / 2,
+                top: dragPosition!.dy - (showAuxiliaryMarking ? 150 : 0) / 2,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 1000),
+                  width: showAuxiliaryMarking ? 150 : 0,
+                  height: showAuxiliaryMarking ? 150 : 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                    border: Border.all(
+                      width: 1,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                    ),
                   ),
                 ),
               ),
