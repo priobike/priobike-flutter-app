@@ -153,7 +153,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
+            BigButtonPrimary(
               iconColor: Colors.black,
               icon: Icons.delete_forever_rounded,
               fillColor: CI.radkulturYellow,
@@ -166,7 +166,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-            BigButton(
+            BigButtonPrimary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),

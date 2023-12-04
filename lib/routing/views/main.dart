@@ -160,7 +160,7 @@ class RoutingViewState extends State<RoutingView> {
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
-              BigButton(
+              BigButtonPrimary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
                 label: "Ok",
@@ -207,7 +207,7 @@ class RoutingViewState extends State<RoutingView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Tile(
+          child: TilePrimary(
             fill: Theme.of(context).colorScheme.background,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -232,7 +232,7 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
+                          BigButtonPrimary(
                             label: "Zurück zum Hauptmenu",
                             onPressed: () => Navigator.of(context).pop(),
                           ),
@@ -247,7 +247,7 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
+                          BigButtonPrimary(
                             label: "Erneut versuchen",
                             onPressed: () async {
                               await routing?.loadRoutes();
@@ -280,7 +280,7 @@ class RoutingViewState extends State<RoutingView> {
           icon: Icons.info_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
+            BigButtonPrimary(
               iconColor: Colors.white,
               icon: Icons.check_rounded,
               label: "Ok",
@@ -332,7 +332,7 @@ class RoutingViewState extends State<RoutingView> {
                             SizedBox(
                               width: 58,
                               height: 58,
-                              child: Tile(
+                              child: TilePrimary(
                                 fill: Theme.of(context).colorScheme.background,
                                 onPressed: onLayerSelection,
                                 content: Icon(

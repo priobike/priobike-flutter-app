@@ -45,7 +45,7 @@ class SettingsElement extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 16),
-      child: Tile(
+      child: TilePrimary(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
         fill: Theme.of(context).colorScheme.surfaceVariant,
@@ -101,7 +101,7 @@ class SettingsSelection<E> extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           return Padding(
             padding: const EdgeInsets.all(8),
-            child: Tile(
+            child: TilePrimary(
               fill: elements[index] == selected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.background,

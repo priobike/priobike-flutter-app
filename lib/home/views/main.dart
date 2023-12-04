@@ -11,6 +11,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/buttonPreView.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/poi/your_bike.dart';
 import 'package:priobike/home/views/profile.dart';
@@ -231,6 +232,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
+  /// A callback that is fired when the shortcuts should be edited.
+  void onOpenButtonView() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ButtonPreView()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -299,7 +305,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             ],
                           ),
                           Expanded(child: Container()),
-                          SmallIconButton(
+                          SmallIconButtonPrimary(
                             onPressed: () => showAppSheet(
                               context: context,
                               builder: (context) => const ImportShortcutDialog(),
@@ -310,12 +316,20 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             splash: Theme.of(context).colorScheme.surfaceTint,
                           ),
                           const SizedBox(width: 8),
-                          SmallIconButton(
+                          SmallIconButtonPrimary(
                             icon: Icons.list_rounded,
                             color: Theme.of(context).colorScheme.onSurface,
                             fill: Theme.of(context).colorScheme.surface,
                             splash: Theme.of(context).colorScheme.surfaceTint,
                             onPressed: onOpenShortcutEditView,
+                          ),
+                          const SizedBox(width: 8),
+                          SmallIconButtonPrimary(
+                            icon: Icons.preview,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fill: Theme.of(context).colorScheme.surface,
+                            splash: Theme.of(context).colorScheme.surfaceTint,
+                            onPressed: onOpenButtonView,
                           ),
                           const SizedBox(width: 24),
                         ],

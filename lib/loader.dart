@@ -157,7 +157,7 @@ class LoaderState extends State<Loader> {
           icon: Icons.delete_forever_rounded,
           iconColor: CI.radkulturYellow,
           actions: [
-            BigButton(
+            BigButtonPrimary(
               iconColor: Colors.black,
               textColor: Colors.black,
               icon: Icons.delete_forever_rounded,
@@ -170,7 +170,7 @@ class LoaderState extends State<Loader> {
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-            BigButton(
+            BigButtonPrimary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
@@ -208,7 +208,7 @@ class LoaderState extends State<Loader> {
               ? Padding(
                   padding: const EdgeInsets.all(16),
                   child: Center(
-                    child: Tile(
+                    child: TilePrimary(
                       shadowIntensity: 0.2,
                       fill: Theme.of(context).colorScheme.background,
                       content: Column(
@@ -235,16 +235,17 @@ class LoaderState extends State<Loader> {
                           const SmallVSpace(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
-                              ? BigButton(
+                              ? BigButtonPrimary(
                                   label: "Logs teilen",
                                   onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
                               : Container(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
-                              ? BigButton(label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
+                              ? BigButtonPrimary(
+                                  label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
                               : Container(),
                           const SizedBox(height: 16),
-                          BigButton(label: "Erneut versuchen", onPressed: () => init()),
+                          BigButtonPrimary(label: "Erneut versuchen", onPressed: () => init()),
                         ],
                       ),
                     ),

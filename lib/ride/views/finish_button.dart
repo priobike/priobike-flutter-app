@@ -41,14 +41,14 @@ class FinishRideButtonState extends State<FinishRideButton> {
           icon: Icons.question_mark_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
+            BigButtonPrimary(
               iconColor: Colors.white,
               icon: Icons.flag_rounded,
               label: "Ja",
               onPressed: () => onTap(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-            BigButton(
+            BigButtonPrimary(
               iconColor: Colors.white,
               icon: Icons.close_rounded,
               label: "Nein",
@@ -143,7 +143,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
           right: isLandscapeMode ? null : 0,
           left: isLandscapeMode ? 0 : null,
           child: SafeArea(
-            child: Tile(
+            child: TilePrimary(
               onPressed: () => showAskForConfirmationDialog(context),
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(24),

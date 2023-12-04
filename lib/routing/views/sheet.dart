@@ -236,7 +236,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (routing.selectedRoute == null) return Container();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: BigButton(
+      child: BigButtonPrimary(
         iconColor: Colors.white,
         label: "Losfahren",
         onPressed: widget.onSelectStartButton,
@@ -250,7 +250,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (routing.selectedRoute == null) return Container();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-      child: BigButton(
+      child: BigButtonPrimary(
         iconColor: Colors.white,
         label: "Strecke speichern",
         onPressed: widget.onSelectSaveButton,

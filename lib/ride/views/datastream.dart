@@ -86,7 +86,7 @@ class DatastreamViewState extends State<DatastreamView> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: Tile(
+              child: TilePrimary(
                 fill: Theme.of(context).colorScheme.background,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
@@ -125,7 +125,7 @@ class DatastreamViewState extends State<DatastreamView> {
             ),
             if ((datastream.detectorCar != null && datastream.detectorCar!.pct > 0) ||
                 (datastream.detectorCyclists != null && datastream.detectorCyclists!.pct > 0))
-              Tile(
+              TilePrimary(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 fill: Theme.of(context).colorScheme.background,
                 borderRadius: const BorderRadius.only(

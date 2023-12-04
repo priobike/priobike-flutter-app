@@ -158,7 +158,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
     return SizedBox(
       width: widget.width,
       height: widget.width,
-      child: Tile(
+      child: TilePrimary(
         borderRadius: BorderRadius.circular(24),
         onPressed: () => showAppSheet(
           context: context,
@@ -267,7 +267,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
+            BigButtonPrimary(
               iconColor: Colors.black,
               textColor: Colors.black,
               icon: Icons.delete_forever_rounded,
@@ -279,7 +279,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-            BigButton(
+            BigButtonPrimary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
@@ -353,7 +353,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
           trackStats = const TrackStats();
         }
 
-        Widget content = Tile(
+        Widget content = TilePrimary(
           padding: const EdgeInsets.all(0),
           borderRadius: BorderRadius.circular(20),
           content: const SizedBox(
@@ -366,7 +366,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
         );
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
-              ? Tile(
+              ? TilePrimary(
                   padding: const EdgeInsets.all(0),
                   borderRadius: BorderRadius.circular(20),
                   content: TrackPictogram(

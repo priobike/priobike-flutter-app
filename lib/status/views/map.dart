@@ -311,7 +311,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                     bottom: 12,
                     right: 12,
                   ),
-                  child: Tile(
+                  child: TilePrimary(
                     fill: Theme.of(context).colorScheme.background,
                     content: SizedBox(
                       height: 60,

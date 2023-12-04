@@ -61,7 +61,7 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
       height: 130,
       width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Tile(
+      child: TilePrimary(
         fill: isProblem ? CI.radkulturYellow : Theme.of(context).colorScheme.surfaceVariant,
         shadowIntensity: isProblem ? 0.2 : 0.05,
         shadow: isProblem ? CI.radkulturYellow : Colors.black,

@@ -47,7 +47,7 @@ class CenterButtonState extends State<CenterButton> {
     return SizedBox(
       width: 58,
       height: 58,
-      child: Tile(
+      child: TilePrimary(
         fill: Theme.of(context).colorScheme.background,
         onPressed: _gpsCentralization,
         content: Icon(

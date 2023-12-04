@@ -29,7 +29,7 @@ void showInvalidShortcutSheet(context) {
         icon: Icons.warning_rounded,
         iconColor: CI.radkulturYellow,
         actions: [
-          BigButton(
+          BigButtonPrimary(
             label: 'Schließen',
             onPressed: () => Navigator.of(context).pop(),
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
@@ -77,7 +77,7 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
               ),
             ),
           ),
-          BigButton(
+          BigButtonPrimary(
             iconColor: Colors.white,
             icon: Icons.save_rounded,
             label: "Speichern",

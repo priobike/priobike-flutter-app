@@ -55,7 +55,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
               ),
             ),
           ),
-          BigButton(
+          BigButtonPrimary(
             iconColor: Colors.white,
             icon: Icons.save_rounded,
             label: "Speichern",
@@ -394,7 +394,7 @@ class RouteSearchState extends State<RouteSearch> {
           icon: Icons.delete_rounded,
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
+            BigButtonPrimary(
               iconColor: Colors.black,
               textColor: Colors.black,
               icon: Icons.delete_rounded,
@@ -406,7 +406,7 @@ class RouteSearchState extends State<RouteSearch> {
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             ),
-            BigButton(
+            BigButtonPrimary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),

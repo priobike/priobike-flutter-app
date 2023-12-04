@@ -125,7 +125,7 @@ class QRCodeViewState extends State<QRCodeView> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Tile(
+                        child: TilePrimary(
                           fill: Theme.of(context).colorScheme.background,
                           shadowIntensity: 0.05,
                           shadow: Colors.black,
@@ -187,7 +187,7 @@ class QRCodeViewState extends State<QRCodeView> {
                               children: [
                                 Content(text: shortcut!.getShortInfo(), context: context),
                                 const VSpace(),
-                                BigButton(
+                                BigButtonPrimary(
                                   iconColor: Colors.white,
                                   label: "Speichern!",
                                   onPressed: () => saveShortCut(),

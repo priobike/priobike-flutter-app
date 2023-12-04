@@ -244,7 +244,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 child: StarRatingView(text: "Dein Feedback zur App"),
               ),
-              BigButton(
+              BigButtonPrimary(
                 iconColor: Colors.white,
                 icon: Icons.check,
                 fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
@@ -252,7 +252,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 onPressed: () => submit(),
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
               ),
-              BigButton(
+              BigButtonPrimary(
                 iconColor: Colors.white,
                 icon: Icons.save_rounded,
                 fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),

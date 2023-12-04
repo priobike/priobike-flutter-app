@@ -51,7 +51,7 @@ class ShortcutsState extends State<ShortcutsRow> {
   Widget shortcutItem(Shortcut shortcut) {
     return Container(
       margin: const EdgeInsets.only(left: 8),
-      child: Tile(
+      child: TilePrimary(
         onPressed: () => _loadShortcutsRoute(shortcut),
         fill: Theme.of(context).colorScheme.surfaceVariant,
         splash: Theme.of(context).colorScheme.surfaceTint,

@@ -60,7 +60,7 @@ void showEditShortcutSheet(context, int idx) {
               ),
             ),
           ),
-          BigButton(
+          BigButtonPrimary(
             iconColor: Colors.white,
             icon: Icons.save_rounded,
             label: "Speichern",
@@ -224,7 +224,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               ),
             ),
           ),
-          Tile(
+          TilePrimary(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               bottomLeft: Radius.circular(24),
@@ -256,7 +256,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   children: [
                     const HSpace(),
                     !editMode
-                        ? SmallIconButton(
+                        ? SmallIconButtonPrimary(
                             icon: Icons.share_rounded,
                             onPressed: () => onShareShortcut(key),
                             fill: Theme.of(context).colorScheme.background,
@@ -264,13 +264,13 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         : Container(),
                     const SmallHSpace(),
                     editMode
-                        ? SmallIconButton(
+                        ? SmallIconButtonPrimary(
                             icon: Icons.edit,
                             onPressed: () => onEditShortcut(key),
                             color: Theme.of(context).colorScheme.onSurface,
                             fill: Theme.of(context).colorScheme.surface,
                             splash: Theme.of(context).colorScheme.surfaceTint)
-                        : SmallIconButton(
+                        : SmallIconButtonPrimary(
                             icon: Icons.qr_code_2_rounded,
                             onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute<void>(
@@ -282,7 +282,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: editMode
-                          ? SmallIconButton(
+                          ? SmallIconButtonPrimary(
                               icon: Icons.delete,
                               onPressed: () => onDeleteShortcut(key),
                               color: Colors.black,
@@ -349,7 +349,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     const HSpace(),
                     SubHeader(text: "Strecken & Orte", context: context),
                     Expanded(child: Container()),
-                    SmallIconButton(
+                    SmallIconButtonPrimary(
                       onPressed: () => showAppSheet(
                         context: context,
                         builder: (context) => const ImportShortcutDialog(),
@@ -363,14 +363,14 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: editMode
-                          ? SmallIconButton(
+                          ? SmallIconButtonPrimary(
                               icon: Icons.check_rounded,
                               onPressed: () => setState(() => editMode = false),
                               color: Theme.of(context).colorScheme.onSurface,
                               fill: CI.radkulturGreen,
                               splash: Theme.of(context).colorScheme.surfaceTint,
                             )
-                          : SmallIconButton(
+                          : SmallIconButtonPrimary(
                               icon: Icons.edit_rounded,
                               onPressed: () => setState(() => editMode = true),
                               color: Theme.of(context).colorScheme.onSurface,

@@ -70,7 +70,7 @@ class MapboxAttribution extends StatelessWidget {
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
               for (final entry in attributionEntries)
-                BigButton(
+                BigButtonPrimary(
                   label: entry['title']!,
                   onPressed: () async {
                     Navigator.pop(context);
@@ -78,7 +78,7 @@ class MapboxAttribution extends StatelessWidget {
                   },
                   boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
                 ),
-              BigButton(
+              BigButtonPrimary(
                 label: "Abbrechen",
                 fillColor: CI.radkulturRedDark,
                 onPressed: () => Navigator.pop(context),

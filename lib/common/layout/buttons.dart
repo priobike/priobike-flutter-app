@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// A small icon button.
-class SmallIconButton extends StatelessWidget {
+/// A small icon button (primary).
+class SmallIconButtonPrimary extends StatelessWidget {
   /// The icon to be displayed.
   final IconData icon;
 
@@ -20,7 +20,7 @@ class SmallIconButton extends StatelessWidget {
   /// The optional splash color of the button.
   final bool withBorder;
 
-  const SmallIconButton({
+  const SmallIconButtonPrimary({
     required this.icon,
     required this.onPressed,
     this.color,
@@ -47,7 +47,142 @@ class SmallIconButton extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(24)),
       ),
       child: RawMaterialButton(
-        elevation: 0, // Hide ugly material shadows.
+        elevation: 0,
+        // Hide ugly material shadows.
+        fillColor: fill ?? Theme.of(context).colorScheme.primary,
+        splashColor: splash ?? Theme.of(context).colorScheme.onPrimary,
+        onPressed: onPressed,
+        shape: const CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(11),
+          child: Icon(
+            icon,
+            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A small icon button (secondary).
+class SmallIconButtonSecondary extends StatelessWidget {
+  /// The icon to be displayed.
+  final IconData icon;
+
+  /// The callback that is executed when the button is pressed.
+  final void Function() onPressed;
+
+  /// The optional icon color of the button.
+  final Color? color;
+
+  /// The optional fill color of the button.
+  final Color? fill;
+
+  /// The optional splash color of the button.
+  final Color? splash;
+
+  /// The optional border colors of the button.
+  final Color? borderColor;
+
+  /// The optional splash color of the button.
+  final bool withBorder;
+
+  const SmallIconButtonSecondary({
+    required this.icon,
+    required this.onPressed,
+    this.color,
+    this.fill,
+    this.splash,
+    this.borderColor,
+    this.withBorder = true,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        border: withBorder
+            ? Border.all(
+                color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.primary,
+                width: 1,
+              )
+            : null,
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
+      ),
+      child: RawMaterialButton(
+        elevation: 0,
+        // Hide ugly material shadows.
+        fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
+        splashColor: splash ?? Theme.of(context).colorScheme.surfaceTint,
+        onPressed: onPressed,
+        shape: const CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(11),
+          child: Icon(
+            icon,
+            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A small icon button (tertiary).
+class SmallIconButtonTertiary extends StatelessWidget {
+  /// The icon to be displayed.
+  final IconData icon;
+
+  /// The callback that is executed when the button is pressed.
+  final void Function() onPressed;
+
+  /// The optional icon color of the button.
+  final Color? color;
+
+  /// The optional fill color of the button.
+  final Color? fill;
+
+  /// The optional splash color of the button.
+  final Color? splash;
+
+  /// The optional border colors of the button.
+  final Color? borderColor;
+
+  /// The optional splash color of the button.
+  final bool withBorder;
+
+  const SmallIconButtonTertiary({
+    required this.icon,
+    required this.onPressed,
+    this.color,
+    this.fill,
+    this.splash,
+    this.borderColor,
+    this.withBorder = true,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        border: withBorder
+            ? Border.all(
+                color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.tertiary,
+                width: 1,
+              )
+            : null,
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
+      ),
+      child: RawMaterialButton(
+        elevation: 0,
+        // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
         splashColor: splash ?? Theme.of(context).colorScheme.surfaceTint,
         onPressed: onPressed,
@@ -106,8 +241,8 @@ class AppBackButton extends StatelessWidget {
   }
 }
 
-/// A custom stylized button to display important actions.
-class BigButton extends StatelessWidget {
+/// A custom stylized button to display important actions (primary).
+class BigButtonPrimary extends StatelessWidget {
   /// The icon of the button.
   final IconData? icon;
 
@@ -135,7 +270,205 @@ class BigButton extends StatelessWidget {
   /// The optional elevation of the button.
   final double elevation;
 
-  const BigButton({
+  const BigButtonPrimary({
+    super.key,
+    this.icon,
+    required this.label,
+    this.onPressed,
+    this.fillColor,
+    this.splashColor,
+    this.iconColor,
+    this.textColor,
+    this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
+    this.elevation = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
+      constraints: boxConstraints,
+      // Hide ugly material shadows.
+      elevation: elevation,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      onPressed: onPressed,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const SizedBox(width: 32),
+            if (icon != null)
+              Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: iconColor,
+                    size: 22,
+                  ),
+                  const SizedBox(
+                    width: 12,
+                  )
+                ],
+              ),
+            Container(
+              height: 24,
+              alignment: Alignment.center,
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColor ?? Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A custom stylized button to display important actions (secondary).
+class BigButtonSecondary extends StatelessWidget {
+  /// The icon of the button.
+  final IconData? icon;
+
+  /// The label of the button.
+  final String label;
+
+  /// The callback that is executed when the button was pressed.
+  final void Function()? onPressed;
+
+  /// The optional fill color of the button.
+  final Color? fillColor;
+
+  /// The optional splash color of the button.
+  final Color? splashColor;
+
+  /// The optional icon color of the button.
+  final Color? iconColor;
+
+  /// The optional text color of the button.
+  final Color? textColor;
+
+  /// The constraints to define a specific size for the button.
+  final BoxConstraints boxConstraints;
+
+  /// The optional elevation of the button.
+  final double elevation;
+
+  const BigButtonSecondary({
+    super.key,
+    this.icon,
+    required this.label,
+    this.onPressed,
+    this.fillColor,
+    this.splashColor,
+    this.iconColor,
+    this.textColor,
+    this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
+    this.elevation = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
+      constraints: boxConstraints,
+      // Hide ugly material shadows.
+      elevation: elevation,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      onPressed: onPressed,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const SizedBox(width: 32),
+            if (icon != null)
+              Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: iconColor,
+                    size: 22,
+                  ),
+                  const SizedBox(
+                    width: 12,
+                  )
+                ],
+              ),
+            Container(
+              height: 24,
+              alignment: Alignment.center,
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColor ?? Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A custom stylized button to display important actions (tertiary).
+class BigButtonTertiary extends StatelessWidget {
+  /// The icon of the button.
+  final IconData? icon;
+
+  /// The label of the button.
+  final String label;
+
+  /// The callback that is executed when the button was pressed.
+  final void Function()? onPressed;
+
+  /// The optional fill color of the button.
+  final Color? fillColor;
+
+  /// The optional splash color of the button.
+  final Color? splashColor;
+
+  /// The optional icon color of the button.
+  final Color? iconColor;
+
+  /// The optional text color of the button.
+  final Color? textColor;
+
+  /// The constraints to define a specific size for the button.
+  final BoxConstraints boxConstraints;
+
+  /// The optional elevation of the button.
+  final double elevation;
+
+  const BigButtonTertiary({
     super.key,
     this.icon,
     required this.label,
