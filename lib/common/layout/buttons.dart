@@ -32,32 +32,27 @@ class SmallIconButtonPrimary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 48,
       height: 48,
-      decoration: BoxDecoration(
-        border: withBorder
-            ? Border.all(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withOpacity(0.04)
-                    : Colors.black.withOpacity(0.04),
-                width: 1,
-              )
-            : null,
-        borderRadius: const BorderRadius.all(Radius.circular(24)),
-      ),
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.primary,
         splashColor: splash ?? Theme.of(context).colorScheme.onPrimary,
         onPressed: onPressed,
-        shape: const CircleBorder(),
+        shape: CircleBorder(
+            side: BorderSide(
+          width: 1,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withOpacity(0.04)
+              : Colors.black.withOpacity(0.04),
+        )),
         child: Padding(
           padding: const EdgeInsets.all(11),
           child: Icon(
             icon,
-            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+            color: color ?? Colors.white,
           ),
         ),
       ),
@@ -101,30 +96,25 @@ class SmallIconButtonSecondary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 48,
       height: 48,
-      decoration: BoxDecoration(
-        border: withBorder
-            ? Border.all(
-                color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.primary,
-                width: 1,
-              )
-            : null,
-        borderRadius: const BorderRadius.all(Radius.circular(24)),
-      ),
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
-        splashColor: splash ?? Theme.of(context).colorScheme.surfaceTint,
+        splashColor: splash ?? Theme.of(context).colorScheme.onSecondary,
         onPressed: onPressed,
-        shape: const CircleBorder(),
+        shape: CircleBorder(
+            side: BorderSide(
+          width: 2,
+          color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.primary,
+        )),
         child: Padding(
           padding: const EdgeInsets.all(11),
           child: Icon(
             icon,
-            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+            color: color ?? Theme.of(context).colorScheme.primary,
           ),
         ),
       ),
@@ -168,30 +158,23 @@ class SmallIconButtonTertiary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 48,
       height: 48,
-      decoration: BoxDecoration(
-        border: withBorder
-            ? Border.all(
-                color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.tertiary,
-                width: 1,
-              )
-            : null,
-        borderRadius: const BorderRadius.all(Radius.circular(24)),
-      ),
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
-        splashColor: splash ?? Theme.of(context).colorScheme.surfaceTint,
+        splashColor: splash ?? Theme.of(context).colorScheme.onTertiary,
         onPressed: onPressed,
-        shape: const CircleBorder(),
+        shape: CircleBorder(
+            side: BorderSide(
+                width: 2, color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.onTertiary)),
         child: Padding(
           padding: const EdgeInsets.all(11),
           child: Icon(
             icon,
-            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+            color: color ?? Theme.of(context).colorScheme.tertiary,
           ),
         ),
       ),
@@ -310,7 +293,7 @@ class BigButtonPrimary extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    color: iconColor,
+                    color: iconColor ?? Colors.white,
                     size: 22,
                   ),
                   const SizedBox(
@@ -385,8 +368,8 @@ class BigButtonSecondary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
-      splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.onSecondary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
       elevation: elevation,
@@ -394,8 +377,9 @@ class BigButtonSecondary extends StatelessWidget {
       hoverElevation: 0,
       highlightElevation: 0,
       onPressed: onPressed,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary),
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -409,7 +393,7 @@ class BigButtonSecondary extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    color: iconColor,
+                    color: iconColor ?? Theme.of(context).colorScheme.primary,
                     size: 22,
                   ),
                   const SizedBox(
@@ -425,7 +409,7 @@ class BigButtonSecondary extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: textColor ?? Colors.white,
+                  color: textColor ?? Theme.of(context).colorScheme.primary,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -484,8 +468,8 @@ class BigButtonTertiary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
-      splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
       elevation: elevation,
@@ -493,8 +477,9 @@ class BigButtonTertiary extends StatelessWidget {
       hoverElevation: 0,
       highlightElevation: 0,
       onPressed: onPressed,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(width: 2, color: Theme.of(context).colorScheme.onTertiary),
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -508,7 +493,7 @@ class BigButtonTertiary extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    color: iconColor,
+                    color: iconColor ?? Theme.of(context).colorScheme.tertiary,
                     size: 22,
                   ),
                   const SizedBox(
@@ -524,7 +509,7 @@ class BigButtonTertiary extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: textColor ?? Colors.white,
+                  color: textColor ?? Theme.of(context).colorScheme.tertiary,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),

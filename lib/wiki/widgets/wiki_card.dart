@@ -20,7 +20,7 @@ class WikiCardState extends State<WikiCard> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      child: TilePrimary(
+      child: Tile(
         borderRadius: const BorderRadius.all(
           Radius.circular(24),
         ),

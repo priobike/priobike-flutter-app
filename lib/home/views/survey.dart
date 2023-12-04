@@ -38,7 +38,7 @@ class SurveyViewState extends State<SurveyView> {
 
   @override
   Widget build(BuildContext context) {
-    return TilePrimary(
+    return Tile(
       borderRadius: widget.borderRadius ??
           const BorderRadius.all(
             Radius.circular(24),

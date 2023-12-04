@@ -39,7 +39,7 @@ class ShortcutView extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(right: rightPad, bottom: 24),
-      child: TilePrimary(
+      child: Tile(
         onLongPressed: onLongPressed,
         onPressed: onPressed,
         shadow: shortcut == null ? CI.radkulturRed : const Color.fromARGB(255, 45, 45, 45),

@@ -143,7 +143,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
           right: isLandscapeMode ? null : 0,
           left: isLandscapeMode ? 0 : null,
           child: SafeArea(
-            child: TilePrimary(
+            child: Tile(
               onPressed: () => showAskForConfirmationDialog(context),
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(24),

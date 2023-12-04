@@ -31,7 +31,7 @@ class ProfileElementButton extends StatelessWidget {
     final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        return TilePrimary(
+        return Tile(
           fill: backgroundColor ?? theme.colorScheme.surface,
           splash: theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
@@ -150,7 +150,7 @@ class ProfileViewState extends State<ProfileView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TilePrimary(
+          Tile(
             content: Center(
               child: SizedBox(
                 height: 86,
@@ -179,7 +179,7 @@ class ProfileViewState extends State<ProfileView> {
                 'Unten kannst Du Dein Profil konfigurieren. Diese Informationen werden für die Berechnung der Route verwendet. Du kannst sie jederzeit ändern.',
             padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
           ),
-          TilePrimary(
+          Tile(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             fill: Theme.of(context).colorScheme.background,
             borderColor: Colors.grey.withOpacity(0.2),
@@ -317,7 +317,7 @@ class ProfileViewState extends State<ProfileView> {
                 ],
               ),
             ),
-            SmallIconButtonPrimary(
+            SmallIconButtonTertiary(
               icon: Icons.expand_less_rounded,
               onPressed: () {
                 toggleBikeSelection();

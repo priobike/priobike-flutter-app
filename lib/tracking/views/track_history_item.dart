@@ -158,7 +158,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
     return SizedBox(
       width: widget.width,
       height: widget.width,
-      child: TilePrimary(
+      child: Tile(
         borderRadius: BorderRadius.circular(24),
         onPressed: () => showAppSheet(
           context: context,
@@ -353,7 +353,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
           trackStats = const TrackStats();
         }
 
-        Widget content = TilePrimary(
+        Widget content = Tile(
           padding: const EdgeInsets.all(0),
           borderRadius: BorderRadius.circular(20),
           content: const SizedBox(
@@ -366,7 +366,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
         );
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
-              ? TilePrimary(
+              ? Tile(
                   padding: const EdgeInsets.all(0),
                   borderRadius: BorderRadius.circular(20),
                   content: TrackPictogram(

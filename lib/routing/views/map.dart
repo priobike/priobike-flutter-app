@@ -1001,7 +1001,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
         if (!mapLayersFinishedLoading)
           Center(
-            child: TilePrimary(
+            child: Tile(
               fill: Theme.of(context).colorScheme.background,
               shadowIntensity: 0.2,
               shadow: Colors.black,

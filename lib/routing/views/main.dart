@@ -207,7 +207,7 @@ class RoutingViewState extends State<RoutingView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: TilePrimary(
+          child: Tile(
             fill: Theme.of(context).colorScheme.background,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -332,7 +332,7 @@ class RoutingViewState extends State<RoutingView> {
                             SizedBox(
                               width: 58,
                               height: 58,
-                              child: TilePrimary(
+                              child: Tile(
                                 fill: Theme.of(context).colorScheme.background,
                                 onPressed: onLayerSelection,
                                 content: Icon(

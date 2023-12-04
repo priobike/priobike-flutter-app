@@ -29,10 +29,11 @@ class YourBikeElementButton extends StatelessWidget {
     final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        return TileSecondary(
+        return Tile(
           fill: backgroundColor ?? theme.colorScheme.surface,
           splash: touchColor ?? theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
+          borderColor: Theme.of(context).colorScheme.primary,
           padding: const EdgeInsets.all(8),
           content: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -138,9 +139,7 @@ class YourBikeViewState extends State<YourBikeView> {
                     ? Image.asset("assets/images/rent-icon-white.png")
                     : Image.asset("assets/images/rent-icon-red.png"),
                 title: "Ausleihen",
-                color: rentBikeActive
-                    ? Theme.of(context).colorScheme.surfaceVariant
-                    : Theme.of(context).colorScheme.primary,
+                color: rentBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
                 backgroundColor: rentBikeActive
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.surfaceVariant,
@@ -151,9 +150,7 @@ class YourBikeViewState extends State<YourBikeView> {
                     ? Image.asset("assets/images/air-icon-white.png")
                     : Image.asset("assets/images/air-icon-red.png"),
                 title: "Aufpumpen",
-                color: pumpUpBikeActive
-                    ? Theme.of(context).colorScheme.surfaceVariant
-                    : Theme.of(context).colorScheme.primary,
+                color: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
                 backgroundColor: pumpUpBikeActive
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.surfaceVariant,
@@ -164,9 +161,7 @@ class YourBikeViewState extends State<YourBikeView> {
                     ? Image.asset("assets/images/repair-icon-white.png")
                     : Image.asset("assets/images/repair-icon-red.png"),
                 title: "Reparieren",
-                color: repairBikeActive
-                    ? Theme.of(context).colorScheme.surfaceVariant
-                    : Theme.of(context).colorScheme.primary,
+                color: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
                 backgroundColor: repairBikeActive
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.surfaceVariant,

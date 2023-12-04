@@ -90,7 +90,7 @@ class StatusViewState extends State<StatusView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       constraints: const BoxConstraints(minHeight: 128),
-      child: TilePrimary(
+      child: Tile(
         fill: isProblem ? CI.radkulturYellow : Theme.of(context).colorScheme.surfaceVariant,
         shadowIntensity: isProblem ? 0.2 : 0.05,
         shadow: isProblem ? CI.radkulturYellow : Colors.black,

@@ -263,7 +263,7 @@ class LayerSelectionItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        TilePrimary(
+        Tile(
           padding: const EdgeInsets.all(0),
           borderRadius: BorderRadius.circular(26),
           splash: Theme.of(context).colorScheme.surfaceTint,

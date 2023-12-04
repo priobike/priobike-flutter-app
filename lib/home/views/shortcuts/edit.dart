@@ -224,7 +224,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               ),
             ),
           ),
-          TilePrimary(
+          Tile(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               bottomLeft: Radius.circular(24),

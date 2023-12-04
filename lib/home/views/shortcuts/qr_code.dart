@@ -125,7 +125,7 @@ class QRCodeViewState extends State<QRCodeView> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: TilePrimary(
+                        child: Tile(
                           fill: Theme.of(context).colorScheme.background,
                           shadowIntensity: 0.05,
                           shadow: Colors.black,

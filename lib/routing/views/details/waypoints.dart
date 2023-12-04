@@ -24,7 +24,7 @@ class SearchWaypointItem extends StatelessWidget {
           SizedBox(
             height: 42,
             width: frame.size.width - 106,
-            child: TilePrimary(
+            child: Tile(
               fill: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               onPressed: onSelect,
               showShadow: false,

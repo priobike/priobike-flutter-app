@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/tiles.dart';
 
 class ButtonPreView extends StatelessWidget {
   const ButtonPreView({super.key});
@@ -20,9 +21,10 @@ class ButtonPreView extends StatelessWidget {
           const SmallVSpace(),
           Row(children: [
             BigButtonPrimary(
+              icon: Icons.check,
               onPressed: () {},
               label: 'Primary',
-            )
+            ),
           ]),
           const SmallVSpace(),
           Row(children: [
@@ -40,6 +42,13 @@ class ButtonPreView extends StatelessWidget {
               label: 'Tertiary',
             )
           ]),
+          Row(children: [
+            Tile(
+              onPressed: () {},
+              content: Text("Primary"),
+            )
+          ]),
+          const SmallVSpace(),
         ],
       ),
     );

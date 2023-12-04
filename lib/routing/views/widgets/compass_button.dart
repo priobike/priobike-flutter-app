@@ -49,7 +49,7 @@ class CompassButtonState extends State<CompassButton> {
     return SizedBox(
       width: 58,
       height: 58,
-      child: TilePrimary(
+      child: Tile(
         fill: Theme.of(context).colorScheme.background,
         onPressed: _centerNorth,
         content: Transform.rotate(

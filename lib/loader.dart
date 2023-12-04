@@ -208,7 +208,7 @@ class LoaderState extends State<Loader> {
               ? Padding(
                   padding: const EdgeInsets.all(16),
                   child: Center(
-                    child: TilePrimary(
+                    child: Tile(
                       shadowIntensity: 0.2,
                       fill: Theme.of(context).colorScheme.background,
                       content: Column(
