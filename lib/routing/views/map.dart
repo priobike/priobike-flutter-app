@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
@@ -1108,9 +1109,30 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
               showAuxiliaryMarking = false;
-              //await Future.delayed(const Duration(milliseconds: 1000));
               currentScreenEdge = ScreenEdge.none;
-              if (mounted) await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
+              double cancelButtonX = MediaQuery.of(context).size.width / 2 - 24;
+              double cancelButtonY = MediaQuery.of(context).size.height / 1.5;
+
+              // the icon x and y position of the icon starts in the top left corner
+              // therefore we need to add half the icon size to the x and y position to get the center of the icon
+              const iconSize = 50 / 2;
+              cancelButtonX += iconSize;
+              cancelButtonY += iconSize;
+
+              final x = details.localPosition.dx;
+              final y = details.localPosition.dy;
+
+              // check if the user dragged to the cancel button
+              // if yes, just refresh to remove the cancel button
+              // if no, move the waypoint to the new position
+              if (x > cancelButtonX - iconSize &&
+                  x < cancelButtonX + iconSize &&
+                  y > cancelButtonY - iconSize &&
+                  y < cancelButtonY + iconSize) {
+                setState(() {});
+              } else {
+                await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
+              }
             } else {
               animationController.reverse();
 
@@ -1208,6 +1230,25 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         if (dragPosition != null && draggedWaypointType != null && !hideDragWaypoint)
           Stack(
             children: [
+              Positioned(
+                left: MediaQuery.of(context).size.width / 2 - 24,
+                top: MediaQuery.of(context).size.height / 1.5,
+                child: Column(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.cancel_outlined),
+                      color: Theme.of(context).colorScheme.primary,
+                      iconSize: 50,
+                      // do nothing here and handle the cancel button in onLongPressEnd
+                      onPressed: () {},
+                    ),
+                    BoldSmall(
+                      context: context,
+                      text: "Abbrechen",
+                    )
+                  ],
+                ),
+              ),
               AnimatedPositioned(
                 // only add a very short duration, otherwise dragging feels sluggish.
                 duration: const Duration(milliseconds: 20),
