@@ -1058,7 +1058,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Check if the user dragged a waypoint to the cancel button to stop dragging
   bool _hitCancelButton({required double x, required double y}) {
     double cancelButtonX = MediaQuery.of(context).size.width / 2 - 24;
-    double cancelButtonY = MediaQuery.of(context).size.height / 1.6;
+    double cancelButtonY = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 270;
 
     // the icon x and y position of the icon starts in the top left corner
     // therefore we need to add half the icon size to the x and y position to get the center of the icon
@@ -1248,7 +1248,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             children: [
               Positioned(
                 left: MediaQuery.of(context).size.width / 2 - 24,
-                top: MediaQuery.of(context).size.height / 1.6,
+                top: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 270,
                 child: Column(
                   children: [
                     IconButton(
@@ -1287,8 +1287,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 // Subtract half the icon size to center the icon.
                 left: dragPosition!.dx - (showAuxiliaryMarking ? 75 : 0) / 2,
                 top: dragPosition!.dy - (showAuxiliaryMarking ? 75 : 0) / 2,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 1000),
+                child: Container(
                   width: showAuxiliaryMarking ? 75 : 0,
                   height: showAuxiliaryMarking ? 75 : 0,
                   decoration: BoxDecoration(
