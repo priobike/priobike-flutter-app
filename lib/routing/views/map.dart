@@ -141,6 +141,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Hide the icon of a dragged waypoint while loading when adding a new waypoint.
   bool hideDragWaypoint = false;
 
+  /// Whether user is dragging a waypoint over the cancel button.
+  bool highlightCancelButton = false;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -890,6 +893,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // check if the user dragged the waypoint to the edge of the screen
     final ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
 
+    // don't move map if the user hit the cancel button
+    if (_hitCancelButton(x: x, y: y)) return;
+
     if (screenEdge != ScreenEdge.none) {
       if (screenEdge != currentScreenEdge) {
         currentScreenEdge = screenEdge;
@@ -1049,6 +1055,26 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await addWaypoint(point);
   }
 
+  /// Check if the user dragged a waypoint to the cancel button to stop dragging
+  bool _hitCancelButton({required double x, required double y}) {
+    double cancelButtonX = MediaQuery.of(context).size.width / 2 - 24;
+    double cancelButtonY = MediaQuery.of(context).size.height / 1.6;
+
+    // the icon x and y position of the icon starts in the top left corner
+    // therefore we need to add half the icon size to the x and y position to get the center of the icon
+    const iconSize = 50 / 2;
+    cancelButtonX += iconSize;
+    cancelButtonY += iconSize;
+
+    if (x > cancelButtonX - iconSize &&
+        x < cancelButtonX + iconSize &&
+        y > cancelButtonY - iconSize &&
+        y < cancelButtonY + iconSize) {
+      return true;
+    }
+    return false;
+  }
+
   /// Reset variables for dragging
   void _resetDragging() {
     dragPosition = null;
@@ -1057,6 +1083,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     draggedWaypointType = null;
     hideDragWaypoint = false;
     currentScreenEdge = ScreenEdge.none;
+    highlightCancelButton = false;
   }
 
   @override
@@ -1101,6 +1128,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               dragPosition = details.localPosition;
             });
 
+            highlightCancelButton = _hitCancelButton(x: details.localPosition.dx, y: details.localPosition.dy);
+
             dragWaypoint(
               x: details.localPosition.dx,
               y: details.localPosition.dy,
@@ -1110,25 +1139,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             if (draggedWaypoint != null) {
               showAuxiliaryMarking = false;
               currentScreenEdge = ScreenEdge.none;
-              double cancelButtonX = MediaQuery.of(context).size.width / 2 - 24;
-              double cancelButtonY = MediaQuery.of(context).size.height / 1.5;
 
-              // the icon x and y position of the icon starts in the top left corner
-              // therefore we need to add half the icon size to the x and y position to get the center of the icon
-              const iconSize = 50 / 2;
-              cancelButtonX += iconSize;
-              cancelButtonY += iconSize;
-
-              final x = details.localPosition.dx;
-              final y = details.localPosition.dy;
-
-              // check if the user dragged to the cancel button
-              // if yes, just refresh to remove the cancel button
-              // if no, move the waypoint to the new position
-              if (x > cancelButtonX - iconSize &&
-                  x < cancelButtonX + iconSize &&
-                  y > cancelButtonY - iconSize &&
-                  y < cancelButtonY + iconSize) {
+              // Check if the user released the waypoint over the cancel button
+              // if so just refresh to remove the cancel button
+              // otherwise move the dragged waypoint to the new position
+              final hitCancelButton = _hitCancelButton(x: details.localPosition.dx, y: details.localPosition.dy);
+              if (hitCancelButton) {
                 setState(() {});
               } else {
                 await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
@@ -1232,12 +1248,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             children: [
               Positioned(
                 left: MediaQuery.of(context).size.width / 2 - 24,
-                top: MediaQuery.of(context).size.height / 1.5,
+                top: MediaQuery.of(context).size.height / 1.6,
                 child: Column(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.cancel_outlined),
-                      color: Theme.of(context).colorScheme.primary,
+                      color: highlightCancelButton ? Theme.of(context).colorScheme.primary : Colors.grey,
                       iconSize: 50,
                       // do nothing here and handle the cancel button in onLongPressEnd
                       onPressed: () {},
