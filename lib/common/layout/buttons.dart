@@ -48,8 +48,7 @@ class SmallIconButtonPrimary extends StatelessWidget {
               ? Colors.white.withOpacity(0.04)
               : Colors.black.withOpacity(0.04),
         )),
-        child: Padding(
-          padding: const EdgeInsets.all(11),
+        child: Center(
           child: Icon(
             icon,
             color: color ?? Colors.white,
@@ -110,8 +109,7 @@ class SmallIconButtonSecondary extends StatelessWidget {
           width: 1,
           color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.primary,
         )),
-        child: Padding(
-          padding: const EdgeInsets.all(11),
+        child: Center(
           child: Icon(
             icon,
             color: color ?? Theme.of(context).colorScheme.primary,
@@ -170,8 +168,7 @@ class SmallIconButtonTertiary extends StatelessWidget {
         shape: CircleBorder(
             side: BorderSide(
                 width: 1, color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.onTertiary)),
-        child: Padding(
-          padding: const EdgeInsets.all(11),
+        child: Center(
           child: Icon(
             icon,
             color: color ?? Theme.of(context).colorScheme.tertiary,

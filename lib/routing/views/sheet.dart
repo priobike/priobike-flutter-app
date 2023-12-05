@@ -253,7 +253,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               ),
               Icon(
                 Icons.chevron_right_rounded,
-                color: allTrafficLights > 0
+                color: percentageTrafficLights > 0
                     ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
                     : Theme.of(context).colorScheme.onTertiary,
                 size: 24,
