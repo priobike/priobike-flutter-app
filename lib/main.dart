@@ -263,8 +263,8 @@ class App extends StatelessWidget {
               secondary: CI.radkulturRedDark,
               onSecondary: Color(0xFFCCCCCC),
               // FIXME Radkultur Grey.
-              tertiary: Color(0xFFEEEEEE),
-              onTertiary: Color(0xFF222222),
+              tertiary: Color(0xFFDDDDDD),
+              onTertiary: Color(0xFF333333),
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
