@@ -308,6 +308,8 @@ class RouteSearchState extends State<RouteSearch> {
   /// FocusNode for the search text field that is used to check if unfocused is needed.
   FocusNode searchTextFieldFocusNode = FocusNode();
 
+  TextEditingController searchTextFieldController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -417,6 +419,14 @@ class RouteSearchState extends State<RouteSearch> {
     );
   }
 
+  /// A callback that resets the search string.
+  void resetSearchString() {
+    setState(() {
+      searchTextFieldController.text = "";
+    });
+    onSearchUpdated("");
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -431,6 +441,7 @@ class RouteSearchState extends State<RouteSearch> {
                 AppBackButton(
                   onPressed: () async {
                     // FIXME we should pay attention to release notes if this Flutter bug might be fixed in the future.
+                    // Note: still not fixed with flutter 3.16.0.
                     // Prevents the keyboard to be focused on pop screen. This can cause ugly map effects on Android.
                     if (Platform.isAndroid && searchTextFieldFocusNode.hasFocus) {
                       searchTextFieldFocusNode.unfocus();
@@ -447,6 +458,7 @@ class RouteSearchState extends State<RouteSearch> {
                   width: frame.size.width - 72,
                   child: TextField(
                     autofocus: true,
+                    controller: searchTextFieldController,
                     focusNode: searchTextFieldFocusNode,
                     onChanged: onSearchUpdated,
                     decoration: InputDecoration(
@@ -457,11 +469,18 @@ class RouteSearchState extends State<RouteSearch> {
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                         borderSide: BorderSide.none,
                       ),
-                      suffixIcon: geosearch.isFetchingAddress
-                          ? const Padding(padding: EdgeInsets.all(4), child: CircularProgressIndicator())
+                      suffixIcon: searchTextFieldController.text != ""
+                          ? SmallIconButtonTertiary(
+                              icon: Icons.close,
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fill: Colors.transparent,
+                              withBorder: false,
+                              onPressed: resetSearchString,
+                            )
                           : Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
               ],

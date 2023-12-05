@@ -41,13 +41,16 @@ class SmallIconButtonPrimary extends StatelessWidget {
         fillColor: fill ?? Theme.of(context).colorScheme.primary,
         splashColor: splash ?? Theme.of(context).colorScheme.onPrimary,
         onPressed: onPressed,
-        shape: CircleBorder(
-            side: BorderSide(
-          width: 1,
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.04),
-        )),
+        shape: withBorder
+            ? CircleBorder(
+                side: BorderSide(
+                  width: 1,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.04)
+                      : Colors.black.withOpacity(0.04),
+                ),
+              )
+            : const CircleBorder(),
         child: Center(
           child: Icon(
             icon,
@@ -104,11 +107,14 @@ class SmallIconButtonSecondary extends StatelessWidget {
         fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
         splashColor: splash ?? Theme.of(context).colorScheme.onSecondary,
         onPressed: onPressed,
-        shape: CircleBorder(
-            side: BorderSide(
-          width: 1,
-          color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.primary,
-        )),
+        shape: withBorder
+            ? CircleBorder(
+                side: BorderSide(
+                  width: 1,
+                  color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.primary,
+                ),
+              )
+            : const CircleBorder(),
         child: Center(
           child: Icon(
             icon,
@@ -165,9 +171,12 @@ class SmallIconButtonTertiary extends StatelessWidget {
         fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
         splashColor: splash ?? Theme.of(context).colorScheme.onTertiary,
         onPressed: onPressed,
-        shape: CircleBorder(
-            side: BorderSide(
-                width: 1, color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.onTertiary)),
+        shape: withBorder
+            ? CircleBorder(
+                side: BorderSide(
+                    width: 1, color: borderColor != null ? borderColor! : Theme.of(context).colorScheme.onTertiary),
+              )
+            : const CircleBorder(),
         child: Center(
           child: Icon(
             icon,
