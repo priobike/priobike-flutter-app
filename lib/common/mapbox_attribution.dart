@@ -4,7 +4,6 @@ import 'package:priobike/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'layout/buttons.dart';
-import 'layout/ci.dart';
 import 'layout/dialog.dart';
 
 class MapboxAttribution extends StatelessWidget {
@@ -66,7 +65,6 @@ class MapboxAttribution extends StatelessWidget {
           return DialogLayout(
             title: title,
             text: "",
-            icon: Icons.map,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
               for (final entry in attributionEntries)
@@ -78,9 +76,8 @@ class MapboxAttribution extends StatelessWidget {
                   },
                   boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
                 ),
-              BigButtonPrimary(
+              BigButtonTertiary(
                 label: "Abbrechen",
-                fillColor: CI.radkulturRedDark,
                 onPressed: () => Navigator.pop(context),
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),
