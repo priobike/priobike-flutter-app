@@ -94,6 +94,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Where the user is currently long tapping, used for dragging waypoints.
   Offset? dragPosition;
 
+  /// Whether the auxiliary marking around a waypoint is displayed or not.
   bool showAuxiliaryMarking = false;
 
   /// The animation controller for the on-tap animation.
