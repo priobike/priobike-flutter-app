@@ -1254,22 +1254,27 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           Stack(
             children: [
               Positioned(
-                left: MediaQuery.of(context).size.width / 2 - 24,
+                left: 0,
                 top: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 270,
-                child: Column(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.cancel_outlined),
-                      color: highlightCancelButton ? Theme.of(context).colorScheme.primary : Colors.grey,
-                      iconSize: cancelButtonIconSize,
-                      // do nothing here and handle the cancel button in onLongPressEnd
-                      onPressed: () {},
-                    ),
-                    BoldSmall(
-                      context: context,
-                      text: "Abbrechen",
-                    )
-                  ],
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.cancel_outlined),
+                        color: highlightCancelButton ? Theme.of(context).colorScheme.primary : Colors.grey,
+                        iconSize: cancelButtonIconSize,
+                        // do nothing here and handle the cancel button in onLongPressEnd
+                        onPressed: () {},
+                      ),
+                      BoldSmall(
+                        context: context,
+                        textAlign: TextAlign.center,
+                        text: "Abbrechen",
+                      )
+                    ],
+                  ),
                 ),
               ),
               AnimatedPositioned(
