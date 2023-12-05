@@ -40,6 +40,9 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tutorial/service.dart';
 
+/// The fixed icon size of the cancel button.
+const double cancelButtonIconSize = 50;
+
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final Stream<DraggableScrollableNotification>? sheetMovement;
@@ -1058,19 +1061,22 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Check if the user dragged a waypoint to the cancel button to stop dragging
   bool _hitCancelButton({required double x, required double y}) {
-    double cancelButtonX = MediaQuery.of(context).size.width / 2 - 24;
+    // The x and y position of the cancel button.
+    // x: half width screen - half width button.
+    // y: 270 from the bottom of the screen. Value tested with different devices.
+    // (Maybe we can make this depending on the users device.)
+    double cancelButtonX = MediaQuery.of(context).size.width / 2 - cancelButtonIconSize / 2;
     double cancelButtonY = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 270;
 
     // the icon x and y position of the icon starts in the top left corner
     // therefore we need to add half the icon size to the x and y position to get the center of the icon
-    const iconSize = 50 / 2;
-    cancelButtonX += iconSize;
-    cancelButtonY += iconSize;
+    cancelButtonX += cancelButtonIconSize;
+    cancelButtonY += cancelButtonIconSize;
 
-    if (x > cancelButtonX - iconSize &&
-        x < cancelButtonX + iconSize &&
-        y > cancelButtonY - iconSize &&
-        y < cancelButtonY + iconSize) {
+    if (x > cancelButtonX - cancelButtonIconSize &&
+        x < cancelButtonX + cancelButtonIconSize &&
+        y > cancelButtonY - cancelButtonIconSize &&
+        y < cancelButtonY + cancelButtonIconSize) {
       return true;
     }
     return false;
@@ -1255,7 +1261,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                     IconButton(
                       icon: const Icon(Icons.cancel_outlined),
                       color: highlightCancelButton ? Theme.of(context).colorScheme.primary : Colors.grey,
-                      iconSize: 50,
+                      iconSize: cancelButtonIconSize,
                       // do nothing here and handle the cancel button in onLongPressEnd
                       onPressed: () {},
                     ),
