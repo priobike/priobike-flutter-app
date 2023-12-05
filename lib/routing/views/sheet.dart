@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -191,43 +192,76 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final int allTrafficLights = status.ok + status.bad + status.offline + status.disconnected;
 
     String textTrafficLights;
+    double percentageTrafficLights = 0;
     if (allTrafficLights > 0) {
       textTrafficLights = "$okTrafficLights von $allTrafficLights Ampeln verbunden";
+      percentageTrafficLights = okTrafficLights / allTrafficLights;
     } else {
-      textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
+      textTrafficLights = "Keine Ampeln auf der Route";
     }
 
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
-      child: Column(
-        children: [
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-                text: text,
-                style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-                children: [
-                  TextSpan(
-                    text: " - ",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const SizedBox(
+          width: 24,
+        ),
+        const SmallHSpace(),
+        Column(
+          children: [
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                  text: text,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                  children: [
+                    TextSpan(
+                      text: " - ",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
                     ),
-                  ),
-                  TextSpan(
-                    text: textTrafficLights,
-                    style: const TextStyle(
-                      color: CI.radkulturGreen,
+                    TextSpan(
+                      text: textTrafficLights,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
                     ),
-                  ),
-                ]),
+                  ]),
+            ),
+            const SizedBox(height: 2),
+            BoldSmall(
+                text:
+                    "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ca. ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
+                context: context),
+          ],
+        ),
+        const SmallHSpace(),
+        SizedBox(
+          width: 24,
+          height: 24,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(
+                value: percentageTrafficLights,
+                strokeWidth: 4,
+                backgroundColor: allTrafficLights > 0
+                    ? CI.radkulturGreen.withOpacity(0.2)
+                    : Theme.of(context).colorScheme.onTertiary,
+                valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: allTrafficLights > 0
+                    ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
+                    : Theme.of(context).colorScheme.onTertiary,
+                size: 24,
+              ),
+            ],
           ),
-          const SizedBox(height: 2),
-          BoldSmall(
-              text:
-                  "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ca. ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
-              context: context),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 

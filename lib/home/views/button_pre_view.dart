@@ -45,7 +45,7 @@ class ButtonPreView extends StatelessWidget {
           Row(children: [
             Tile(
               onPressed: () {},
-              content: Text("Primary"),
+              content: const Text("Primary"),
             )
           ]),
           const SmallVSpace(),

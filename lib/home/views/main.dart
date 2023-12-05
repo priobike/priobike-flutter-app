@@ -11,7 +11,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/home/views/buttonPreView.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/poi/your_bike.dart';
 import 'package:priobike/home/views/profile.dart';

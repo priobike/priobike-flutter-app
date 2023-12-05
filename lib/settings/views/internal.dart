@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/home/views/buttonPreView.dart';
+import 'package:priobike/home/views/button_pre_view.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
