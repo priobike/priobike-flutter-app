@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -178,7 +179,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
@@ -192,17 +193,16 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
             },
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Content(text: "Gefahrenstellen", context: context),
-              Row(children: [
-                Content(
-                  text: "Details",
-                  context: context,
-                  color: Theme.of(context).colorScheme.primary,
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: SmallIconButtonTertiary(
+                  icon: showDiscomfortDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
+                  onPressed: () => setState(() {
+                    showDiscomfortDetails = !showDiscomfortDetails;
+                  }),
                 ),
-                const SizedBox(width: 4),
-                showDiscomfortDetails
-                    ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
-                    : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
-              ]),
+              ),
             ]),
           ),
           const SizedBox(height: 8),

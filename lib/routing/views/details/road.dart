@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -192,7 +193,7 @@ class RoadClassChartState extends State<RoadClassChart> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
@@ -204,17 +205,16 @@ class RoadClassChartState extends State<RoadClassChart> {
             }),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Content(text: "Wegtypen", context: context),
-              Row(children: [
-                Content(
-                  text: "Details",
-                  context: context,
-                  color: Theme.of(context).colorScheme.primary,
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: SmallIconButtonTertiary(
+                  icon: showRoadClassDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
+                  onPressed: () => setState(() {
+                    showRoadClassDetails = !showRoadClassDetails;
+                  }),
                 ),
-                const SizedBox(width: 4),
-                showRoadClassDetails
-                    ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
-                    : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
-              ]),
+              ),
             ]),
           ),
           const SizedBox(height: 8),
