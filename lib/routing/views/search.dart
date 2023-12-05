@@ -102,7 +102,7 @@ class SearchItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
-        title: BoldSmall(
+        title: BoldContent(
           text: waypoint.address!,
           context: context,
           color: Theme.of(context).colorScheme.onBackground,
@@ -110,8 +110,8 @@ class SearchItem extends StatelessWidget {
         subtitle: distance == null
             ? null
             : distance! >= 1000
-                ? (Small(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                : (Small(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)),
+                ? (Content(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                : (Content(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)),
         trailing: Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
@@ -119,7 +119,7 @@ class SearchItem extends StatelessWidget {
               padding: const EdgeInsets.only(right: 12),
               child: IconButton(
                 icon: const Icon(Icons.save),
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.tertiary,
                 onPressed: () {
                   showSaveShortcutLocationSheet(context, waypoint);
                 },
@@ -188,7 +188,7 @@ class HistoryItemState extends State<HistoryItem> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
-        title: BoldSmall(
+        title: BoldContent(
           text: widget.waypoint.address!,
           context: context,
           color: Theme.of(context).colorScheme.onBackground,
@@ -196,8 +196,8 @@ class HistoryItemState extends State<HistoryItem> {
         subtitle: widget.distance == null
             ? null
             : (widget.distance! >= 1000)
-                ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)),
+                ? (Content(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                : (Content(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)),
         trailing: showDeleteIcon == true
             ? IconButton(
                 onPressed: () => getIt<Geosearch>().removeItemFromSearchHistory(widget.waypoint),
@@ -213,7 +213,7 @@ class HistoryItemState extends State<HistoryItem> {
                     padding: const EdgeInsets.only(right: 12),
                     child: IconButton(
                       icon: const Icon(Icons.save),
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.tertiary,
                       onPressed: () {
                         showSaveShortcutLocationSheet(context, widget.waypoint);
                       },
@@ -255,7 +255,7 @@ class CurrentPosition extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListTile(
-        title: BoldSmall(
+        title: BoldContent(
           text: "Aktueller Standort",
           context: context,
         ),
@@ -480,7 +480,9 @@ class RouteSearchState extends State<RouteSearch> {
                           : Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: Theme.of(context).textTheme.displayMedium?.merge(
+                          const TextStyle(fontWeight: FontWeight.normal),
+                        ),
                   ),
                 ),
               ],
@@ -514,7 +516,7 @@ class RouteSearchState extends State<RouteSearch> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          BoldSmall(
+                          BoldContent(
                             text: "Letzte Suchergebnisse",
                             context: context,
                             color: Theme.of(context).colorScheme.onBackground,
@@ -560,7 +562,7 @@ class RouteSearchState extends State<RouteSearch> {
                       ),
                     Padding(
                       padding: const EdgeInsets.only(top: 12, left: 28, bottom: 20),
-                      child: Small(text: "Keine weiteren Ergebnisse", context: context),
+                      child: Content(text: "Keine weiteren Ergebnisse", context: context),
                     )
                   ],
 
@@ -573,13 +575,13 @@ class RouteSearchState extends State<RouteSearch> {
                           const VSpace(),
                           Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
                           const VSpace(),
-                          BoldSmall(
+                          BoldContent(
                             text: "Es konnten leider keine Ziele gefunden werden.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
                           const SmallVSpace(),
-                          Small(
+                          Content(
                             text: "Versuche es mit einer anderen Suchanfrage.",
                             context: context,
                             textAlign: TextAlign.center,
