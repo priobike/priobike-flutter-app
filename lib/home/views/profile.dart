@@ -34,7 +34,7 @@ class ProfileElementButton extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Tile(
-          fill: backgroundColor ?? theme.colorScheme.surface,
+          fill: backgroundColor ?? theme.colorScheme.background,
           splash: theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           padding: const EdgeInsets.all(8),
@@ -373,7 +373,7 @@ class ProfileViewState extends State<ProfileView> {
                       color: Theme.of(context).colorScheme.tertiary,
                       backgroundColor: profileService.bikeType == bikeType
                           ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.surfaceVariant,
+                          : Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.bikeType = bikeType;
                         profileService.store();
@@ -387,7 +387,7 @@ class ProfileViewState extends State<ProfileView> {
                   icon: Icons.cancel_outlined,
                   title: "Auswahl entfernen",
                   color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.background,
                   onPressed: () {
                     profileService.bikeType = null;
                     profileService.store();
@@ -444,7 +444,7 @@ class ProfileViewState extends State<ProfileView> {
                       color: Theme.of(context).colorScheme.tertiary,
                       backgroundColor: profileService.preferenceType == preferenceType
                           ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.surfaceVariant,
+                          : Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.preferenceType = preferenceType;
                         profileService.store();
@@ -458,7 +458,7 @@ class ProfileViewState extends State<ProfileView> {
                   icon: Icons.cancel_outlined,
                   title: "Auswahl entfernen",
                   color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.background,
                   onPressed: () {
                     profileService.preferenceType = null;
                     profileService.store();
@@ -516,7 +516,7 @@ class ProfileViewState extends State<ProfileView> {
                       color: Theme.of(context).colorScheme.tertiary,
                       backgroundColor: profileService.activityType == activityType
                           ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.surfaceVariant,
+                          : Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.activityType = activityType;
                         profileService.store();
@@ -530,7 +530,7 @@ class ProfileViewState extends State<ProfileView> {
                   icon: Icons.cancel_outlined,
                   title: "Auswahl entfernen",
                   color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.background,
                   onPressed: () {
                     profileService.activityType = null;
                     profileService.store();
