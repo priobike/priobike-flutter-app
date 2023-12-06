@@ -126,7 +126,7 @@ class StatusViewState extends State<StatusView> {
                           ? BoldSmall(
                               text: text ?? "Lade Daten...",
                               context: context,
-                              color: Colors.black,
+                              color: Theme.of(context).colorScheme.tertiary,
                             )
                           : BoldSmall(
                               text: text ?? "Lade Daten...",
