@@ -10,7 +10,6 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -168,10 +167,11 @@ class FeedbackViewState extends State<FeedbackView> {
     final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
     final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
 
+    // 2 * 52 + 3 * VSpace(24) + padding + padding bottom.
     final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
 
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
       systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
@@ -228,7 +228,7 @@ class FeedbackViewState extends State<FeedbackView> {
           width: MediaQuery.of(context).size.width,
           height: bottomSheetHeight,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.surfaceVariant,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.3),
@@ -238,28 +238,31 @@ class FeedbackViewState extends State<FeedbackView> {
             ],
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const VSpace(),
-              const Padding(
+              /*const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 child: StarRatingView(text: "Dein Feedback zur App"),
-              ),
+              ),*/
               BigButtonPrimary(
-                iconColor: Colors.white,
-                icon: Icons.check,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                // iconColor: Colors.white,
+                // icon: Icons.check,
+                // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                 label: "Fertig",
-                onPressed: () => submit(),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+                onPressed: () => showFinishDriveDialog(context, submit),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 52),
               ),
+              const VSpace(),
               BigButtonPrimary(
-                iconColor: Colors.white,
-                icon: Icons.save_rounded,
-                fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                // iconColor: Colors.white,
+                // icon: Icons.save_rounded,
+                // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                 label: "Strecke speichern",
                 onPressed: () => showSaveShortcutSheet(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 52),
               ),
+              const VSpace(),
             ],
           ),
         ),

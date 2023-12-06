@@ -384,7 +384,7 @@ class BigButtonSecondary extends StatelessWidget {
       highlightElevation: 0,
       onPressed: onPressed,
       shape: RoundedRectangleBorder(
-        side: BorderSide(width: 1, color: Theme.of(context).colorScheme.primary),
+        side: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
