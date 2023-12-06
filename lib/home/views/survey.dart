@@ -61,7 +61,7 @@ class SurveyViewState extends State<SurveyView> {
                       text: "Vielen Dank für’s Ausprobieren der PrioBike-App. Klappt alles?",
                       context: context,
                       textAlign: TextAlign.left),
-                  Small(
+                  BoldSmall(
                     text:
                         "Wenn nicht — umso besser. Wir sind auf Dein Feedback gespannt. Bitte nimm Dir etwa 10 Minuten Zeit für unsere Umfrage.",
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
