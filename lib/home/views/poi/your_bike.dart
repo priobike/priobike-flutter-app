@@ -29,7 +29,7 @@ class YourBikeElementButton extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Tile(
-          fill: backgroundColor ?? theme.colorScheme.surface,
+          fill: backgroundColor ?? theme.colorScheme.background,
           splash: touchColor ?? theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           borderColor: Theme.of(context).colorScheme.primary,
@@ -140,9 +140,8 @@ class YourBikeViewState extends State<YourBikeView> {
                     : Image.asset("assets/images/rent-icon-red.png"),
                 title: "Ausleihen",
                 color: rentBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                backgroundColor: rentBikeActive
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceVariant,
+                backgroundColor:
+                    rentBikeActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
                 onPressed: toggleRentBikeSelection,
               ),
               YourBikeElementButton(
@@ -151,9 +150,8 @@ class YourBikeViewState extends State<YourBikeView> {
                     : Image.asset("assets/images/air-icon-red.png"),
                 title: "Aufpumpen",
                 color: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                backgroundColor: pumpUpBikeActive
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceVariant,
+                backgroundColor:
+                    pumpUpBikeActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
                 onPressed: togglePumpUpBikeSelection,
               ),
               YourBikeElementButton(
@@ -162,9 +160,8 @@ class YourBikeViewState extends State<YourBikeView> {
                     : Image.asset("assets/images/repair-icon-red.png"),
                 title: "Reparieren",
                 color: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                backgroundColor: repairBikeActive
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceVariant,
+                backgroundColor:
+                    repairBikeActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
                 onPressed: toggleRepairBikeSelection,
               ),
             ],

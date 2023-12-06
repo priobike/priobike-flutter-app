@@ -228,7 +228,7 @@ class ProfileViewState extends State<ProfileView> {
                           color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleBikeSelection)
                       : ProfileElementButton(
                           key: ValueKey<String>(profileService.bikeType!.description()),
@@ -237,7 +237,7 @@ class ProfileViewState extends State<ProfileView> {
                           color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleBikeSelection,
                         ),
                 ),
@@ -253,9 +253,8 @@ class ProfileViewState extends State<ProfileView> {
                           title: "Präferenz",
                           color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor: preferenceSelectionActive
-                              ? CI.radkulturRed
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          backgroundColor:
+                              preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: togglePreferenceSelection,
                         )
                       : ProfileElementButton(
@@ -264,9 +263,8 @@ class ProfileViewState extends State<ProfileView> {
                           title: profileService.preferenceType!.description(),
                           color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor: preferenceSelectionActive
-                              ? CI.radkulturRed
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          backgroundColor:
+                              preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: togglePreferenceSelection,
                         ),
                 ),
@@ -283,7 +281,7 @@ class ProfileViewState extends State<ProfileView> {
                           color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleActivitySelection,
                         )
                       : ProfileElementButton(
@@ -293,7 +291,7 @@ class ProfileViewState extends State<ProfileView> {
                           borderColor: Theme.of(context).colorScheme.primary,
                           color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleActivitySelection,
                         ),
                 ),
