@@ -47,7 +47,8 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
+    barrierColor:
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.8),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
@@ -105,22 +106,12 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
           ),
-          BigButtonSecondary(
+          BigButtonTertiary(
             label: "Abbrechen",
             onPressed: () async {
               Navigator.pop(context);
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-          ),
-          const SmallVSpace(),
-          BoldSubHeader(
-            context: context,
-            text: "Dein Feedback zur App",
-            textAlign: TextAlign.center,
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: StarRatingView(text: "Dein Feedback zur App", displayQuestion: false),
           ),
         ],
       );

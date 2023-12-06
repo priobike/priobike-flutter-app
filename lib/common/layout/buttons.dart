@@ -374,7 +374,7 @@ class BigButtonSecondary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      fillColor: fillColor ?? Colors.transparent,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onSecondary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
