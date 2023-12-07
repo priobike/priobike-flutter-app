@@ -186,12 +186,12 @@ class ProfileViewState extends State<ProfileView> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BoldContent(
+                    BoldSubHeader(
                       text: "Routing-Profil",
                       context: context,
                     ),
                     const SizedBox(height: 4),
-                    Small(
+                    BoldSmall(
                       text: "Personalisiere Deine Routenberechnung",
                       context: context,
                     ),

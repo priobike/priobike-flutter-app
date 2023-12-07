@@ -287,12 +287,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              BoldContent(
+                              BoldSubHeader(
                                 text: "Navigation",
                                 context: context,
                               ),
                               const SizedBox(height: 4),
-                              Small(
+                              Content(
                                 text: "Deine Strecken und Orte",
                                 context: context,
                               ),
@@ -341,7 +341,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: const Duration(milliseconds: 750),
                       child: Row(children: [
                         const SizedBox(width: 40),
-                        BoldContent(
+                        BoldSubHeader(
                           text: "Servicepunkte in deiner Nähe",
                           context: context,
                         ),
