@@ -282,72 +282,100 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
-      child: DraggableScrollableSheet(
-        initialChildSize: 132 / frame.size.height + (frame.padding.bottom / frame.size.height),
-        maxChildSize: 1,
-        minChildSize: 132 / frame.size.height + (frame.padding.bottom / frame.size.height),
-        builder: (BuildContext context, ScrollController controller) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
-            ),
-            child: SingleChildScrollView(
-              controller: controller,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Column(
-                children: [
-                  renderDragIndicator(context),
-                  AnimatedCrossFade(
-                    firstCurve: Curves.easeInOutCubic,
-                    secondCurve: Curves.easeInOutCubic,
-                    sizeCurve: Curves.easeInOutCubic,
-                    duration: const Duration(milliseconds: 1000),
-                    firstChild: Container(),
-                    secondChild: renderTopInfoSection(context),
-                    crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                  ),
-                  AnimatedCrossFade(
-                    firstCurve: Curves.easeInOutCubic,
-                    secondCurve: Curves.easeInOutCubic,
-                    sizeCurve: Curves.easeInOutCubic,
-                    duration: const Duration(milliseconds: 1000),
-                    firstChild: Container(),
-                    secondChild: renderStartRideButton(context),
-                    crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                  ),
-                  AnimatedCrossFade(
-                    firstCurve: Curves.easeInOutCubic,
-                    secondCurve: Curves.easeInOutCubic,
-                    sizeCurve: Curves.easeInOutCubic,
-                    duration: const Duration(milliseconds: 1000),
-                    firstChild: Container(),
-                    secondChild: renderBottomSheetWaypoints(context),
-                    crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                  ),
-                  if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                    const TutorialView(
-                      id: "priobike.tutorial.draw-waypoints",
-                      text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                      padding: EdgeInsets.only(left: 18),
-                    ),
-                  const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                  renderSaveRouteButton(context),
-                ],
+      child: Stack(children: [
+        DraggableScrollableSheet(
+          initialChildSize: 124 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          maxChildSize: 1,
+          minChildSize: 124 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          builder: (BuildContext context, ScrollController controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
               ),
+              child: SingleChildScrollView(
+                controller: controller,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
+                  children: [
+                    renderDragIndicator(context),
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderTopInfoSection(context),
+                      crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                    ),
+                    const SmallVSpace(),
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderBottomSheetWaypoints(context),
+                      crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    ),
+                    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                      const TutorialView(
+                        id: "priobike.tutorial.draw-waypoints",
+                        text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                        padding: EdgeInsets.only(left: 18),
+                      ),
+                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                    // Big button size + padding.
+                    const SizedBox(
+                      height: 40 + 4,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          child: Container(
+            padding: const EdgeInsets.only(top: 8),
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            width: frame.size.width,
+            height: frame.padding.bottom + 44,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SmallHSpace(),
+                Expanded(
+                  child: BigButtonSecondary(
+                    label: "Speichern",
+                    onPressed: routing.isFetchingRoute ? null : widget.onSelectSaveButton,
+                    addPadding: false,
+                  ),
+                ),
+                const SmallHSpace(),
+                Expanded(
+                  child: BigButtonPrimary(
+                    label: "Losfahren",
+                    onPressed: routing.isFetchingRoute ? null : widget.onSelectStartButton,
+                    addPadding: false,
+                  ),
+                ),
+                const SmallHSpace(),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        ),
+      ]),
     );
   }
 }

@@ -360,7 +360,7 @@ class RoutingViewState extends State<RoutingView> {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 140),
+                    padding: EdgeInsets.only(bottom: 132),
                     child: ShortcutsRow(),
                   ),
                 ),

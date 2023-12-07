@@ -26,7 +26,6 @@ class ButtonPreView extends StatelessWidget {
               label: 'Primary',
             ),
           ]),
-          const SmallVSpace(),
           Row(children: [
             BigButtonSecondary(
               icon: Icons.check,
@@ -34,7 +33,6 @@ class ButtonPreView extends StatelessWidget {
               label: 'Secondary',
             ),
           ]),
-          const SmallVSpace(),
           Row(children: [
             BigButtonTertiary(
               icon: Icons.check,
