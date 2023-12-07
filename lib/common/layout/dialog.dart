@@ -47,7 +47,7 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
+    barrierColor: Colors.black.withOpacity(0.8),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(

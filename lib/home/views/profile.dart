@@ -34,7 +34,7 @@ class ProfileElementButton extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Tile(
-          fill: backgroundColor ?? theme.colorScheme.surface,
+          fill: backgroundColor ?? theme.colorScheme.background,
           splash: theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           padding: const EdgeInsets.all(8),
@@ -228,7 +228,7 @@ class ProfileViewState extends State<ProfileView> {
                           color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleBikeSelection)
                       : ProfileElementButton(
                           key: ValueKey<String>(profileService.bikeType!.description()),
@@ -237,7 +237,7 @@ class ProfileViewState extends State<ProfileView> {
                           color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleBikeSelection,
                         ),
                 ),
@@ -253,9 +253,8 @@ class ProfileViewState extends State<ProfileView> {
                           title: "Präferenz",
                           color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor: preferenceSelectionActive
-                              ? CI.radkulturRed
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          backgroundColor:
+                              preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: togglePreferenceSelection,
                         )
                       : ProfileElementButton(
@@ -264,9 +263,8 @@ class ProfileViewState extends State<ProfileView> {
                           title: profileService.preferenceType!.description(),
                           color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor: preferenceSelectionActive
-                              ? CI.radkulturRed
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          backgroundColor:
+                              preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: togglePreferenceSelection,
                         ),
                 ),
@@ -283,7 +281,7 @@ class ProfileViewState extends State<ProfileView> {
                           color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleActivitySelection,
                         )
                       : ProfileElementButton(
@@ -293,7 +291,7 @@ class ProfileViewState extends State<ProfileView> {
                           borderColor: Theme.of(context).colorScheme.primary,
                           color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           backgroundColor:
-                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
                           onPressed: toggleActivitySelection,
                         ),
                 ),
@@ -375,7 +373,7 @@ class ProfileViewState extends State<ProfileView> {
                       color: Theme.of(context).colorScheme.tertiary,
                       backgroundColor: profileService.bikeType == bikeType
                           ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.surfaceVariant,
+                          : Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.bikeType = bikeType;
                         profileService.store();
@@ -389,7 +387,7 @@ class ProfileViewState extends State<ProfileView> {
                   icon: Icons.cancel_outlined,
                   title: "Auswahl entfernen",
                   color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.background,
                   onPressed: () {
                     profileService.bikeType = null;
                     profileService.store();
@@ -446,7 +444,7 @@ class ProfileViewState extends State<ProfileView> {
                       color: Theme.of(context).colorScheme.tertiary,
                       backgroundColor: profileService.preferenceType == preferenceType
                           ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.surfaceVariant,
+                          : Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.preferenceType = preferenceType;
                         profileService.store();
@@ -460,7 +458,7 @@ class ProfileViewState extends State<ProfileView> {
                   icon: Icons.cancel_outlined,
                   title: "Auswahl entfernen",
                   color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.background,
                   onPressed: () {
                     profileService.preferenceType = null;
                     profileService.store();
@@ -518,7 +516,7 @@ class ProfileViewState extends State<ProfileView> {
                       color: Theme.of(context).colorScheme.tertiary,
                       backgroundColor: profileService.activityType == activityType
                           ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.surfaceVariant,
+                          : Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.activityType = activityType;
                         profileService.store();
@@ -532,7 +530,7 @@ class ProfileViewState extends State<ProfileView> {
                   icon: Icons.cancel_outlined,
                   title: "Auswahl entfernen",
                   color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.background,
                   onPressed: () {
                     profileService.activityType = null;
                     profileService.store();

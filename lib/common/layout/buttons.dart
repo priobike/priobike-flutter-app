@@ -106,7 +106,7 @@ class SmallIconButtonSecondary extends StatelessWidget {
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
-        fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
+        fillColor: fill ?? Theme.of(context).colorScheme.background,
         splashColor: splash ?? Theme.of(context).colorScheme.onSecondary,
         onPressed: onPressed,
         shape: withBorder
@@ -170,7 +170,7 @@ class SmallIconButtonTertiary extends StatelessWidget {
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
-        fillColor: fill ?? Theme.of(context).colorScheme.surfaceVariant,
+        fillColor: fill ?? Colors.transparent,
         splashColor: splash ?? Theme.of(context).colorScheme.onTertiary,
         onPressed: onPressed,
         shape: withBorder
@@ -208,6 +208,9 @@ class AppBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var bColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.07)
+        : Colors.black.withOpacity(0.07);
     return SizedBox(
       width: 64,
       height: 64,
@@ -216,8 +219,9 @@ class AppBackButton extends StatelessWidget {
         fillColor: Theme.of(context).colorScheme.surfaceVariant,
         splashColor: Theme.of(context).colorScheme.surfaceTint,
         onPressed: onPressed,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
+        shape: RoundedRectangleBorder(
+          side: BorderSide(width: 1, color: bColor),
+          borderRadius: const BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
         child: Padding(
           padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
@@ -376,7 +380,7 @@ class BigButtonSecondary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.background,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onSecondary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -475,7 +479,7 @@ class BigButtonTertiary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      fillColor: fillColor ?? Colors.transparent,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -664,7 +668,7 @@ class IconTextButtonSecondary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.background,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onSecondary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -754,7 +758,7 @@ class IconTextButtonTertiary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      fillColor: fillColor ?? Colors.transparent,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.

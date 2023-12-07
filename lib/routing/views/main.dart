@@ -296,7 +296,7 @@ class RoutingViewState extends State<RoutingView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: NotificationListener<DraggableScrollableNotification>(
@@ -333,7 +333,7 @@ class RoutingViewState extends State<RoutingView> {
                               width: 58,
                               height: 58,
                               child: Tile(
-                                fill: Theme.of(context).colorScheme.background,
+                                fill: Theme.of(context).colorScheme.surfaceVariant,
                                 onPressed: onLayerSelection,
                                 content: Icon(
                                   Icons.layers_rounded,
