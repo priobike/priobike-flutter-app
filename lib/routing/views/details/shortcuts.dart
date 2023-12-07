@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -64,9 +66,12 @@ class ShortcutsState extends State<ShortcutsRow> {
           children: [
             shortcut.getIcon(),
             const SmallHSpace(),
-            Content(
-              context: context,
-              text: shortcut.name,
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+              child: Content(
+                context: context,
+                text: shortcut.name,
+              ),
             ),
           ],
         ),
