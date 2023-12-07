@@ -24,7 +24,6 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
         iconColor: Theme.of(context).colorScheme.primary,
         actions: [
           BigButtonPrimary(
-            iconColor: Colors.white,
             icon: Icons.directions_bike_rounded,
             label: "Fortsetzen",
             onPressed: () async {
@@ -56,8 +55,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
-          BigButtonPrimary(
-            iconColor: Colors.white,
+          BigButtonSecondary(
             icon: Icons.save_rounded,
             label: "Speichern",
             onPressed: () {
@@ -68,8 +66,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
-          BigButtonPrimary(
-            iconColor: Colors.white,
+          BigButtonTertiary(
             icon: Icons.close_rounded,
             label: "Abbrechen",
             onPressed: () => Navigator.of(context).pop(),

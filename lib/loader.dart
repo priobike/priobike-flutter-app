@@ -170,7 +170,7 @@ class LoaderState extends State<Loader> {
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButtonPrimary(
+            BigButtonTertiary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/spacing.dart';
 
 const double disabledOpacity = 0.5;
 

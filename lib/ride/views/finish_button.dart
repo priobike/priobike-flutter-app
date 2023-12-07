@@ -38,16 +38,13 @@ class FinishRideButtonState extends State<FinishRideButton> {
         return DialogLayout(
           title: 'Fahrt wirklich beenden?',
           text: "Wenn Du die Fahrt beendest, musst Du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButtonPrimary(
-              icon: Icons.flag_rounded,
               label: "Fahrt beenden",
               onPressed: () => onTap(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
             BigButtonTertiary(
-              icon: Icons.close_rounded,
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

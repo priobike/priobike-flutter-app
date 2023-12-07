@@ -105,7 +105,7 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
-          BigButtonSecondary(
+          BigButtonTertiary(
             label: "Abbrechen",
             onPressed: () async {
               Navigator.pop(context);
