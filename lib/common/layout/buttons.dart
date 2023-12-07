@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/spacing.dart';
 
 /// A small icon button (primary).
 class SmallIconButtonPrimary extends StatelessWidget {
