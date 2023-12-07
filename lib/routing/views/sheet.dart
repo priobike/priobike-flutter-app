@@ -197,70 +197,55 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       textTrafficLights = "$okTrafficLights von $allTrafficLights Ampeln verbunden";
       percentageTrafficLights = okTrafficLights / allTrafficLights;
     } else {
-      textTrafficLights = "Keine Ampeln auf der Route";
+      textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
     }
 
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const SizedBox(
-          width: 24,
-        ),
-        const SmallHSpace(),
-        Column(
-          children: [
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  text: text,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-                  children: [
-                    TextSpan(
-                      text: " - ",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground,
-                      ),
-                    ),
-                    TextSpan(
-                      text: textTrafficLights,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground,
-                      ),
-                    ),
-                  ]),
-            ),
-            const SizedBox(height: 2),
-            BoldSmall(
-                text:
-                    "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ca. ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
-                context: context),
-          ],
-        ),
-        const SmallHSpace(),
-        SizedBox(
-          width: 24,
-          height: 24,
-          child: Stack(
-            alignment: Alignment.center,
+        Column(children: [
+          Small(text: text, context: context),
+          const SizedBox(height: 2),
+          BoldSmall(
+              text:
+                  "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ca. ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
+              context: context),
+          const SizedBox(height: 2),
+          Row(
             children: [
-              CircularProgressIndicator(
-                value: percentageTrafficLights,
-                strokeWidth: 4,
-                backgroundColor: allTrafficLights > 0
-                    ? CI.radkulturGreen.withOpacity(0.2)
-                    : Theme.of(context).colorScheme.onTertiary,
-                valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
+              Small(
+                text: textTrafficLights,
+                context: context,
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: percentageTrafficLights > 0
-                    ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
-                    : Theme.of(context).colorScheme.onTertiary,
-                size: 24,
+              const SmallHSpace(),
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: percentageTrafficLights,
+                      strokeWidth: 4,
+                      backgroundColor: allTrafficLights > 0
+                          ? CI.radkulturGreen.withOpacity(0.2)
+                          : Theme.of(context).colorScheme.onTertiary,
+                      valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: percentageTrafficLights > 0
+                          ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
+                          : Theme.of(context).colorScheme.onTertiary,
+                      size: 18,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 2),
+        ]),
       ]),
     );
   }
@@ -298,9 +283,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: DraggableScrollableSheet(
-        initialChildSize: 116 / frame.size.height + (frame.padding.bottom / frame.size.height),
+        initialChildSize: 132 / frame.size.height + (frame.padding.bottom / frame.size.height),
         maxChildSize: 1,
-        minChildSize: 116 / frame.size.height + (frame.padding.bottom / frame.size.height),
+        minChildSize: 132 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
           return Container(
             decoration: BoxDecoration(
