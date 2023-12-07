@@ -297,7 +297,7 @@ class App extends StatelessWidget {
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
                 fontSize: 14,
-                fontWeight: FontWeight.w300,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineLarge: TextStyle(
