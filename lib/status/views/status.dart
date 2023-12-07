@@ -123,12 +123,12 @@ class StatusViewState extends State<StatusView> {
                           : BoldContent(text: "Datenverfügbarkeit", context: context),
                       const SizedBox(height: 6),
                       isProblem
-                          ? BoldSmall(
+                          ? Small(
                               text: text ?? "Lade Daten...",
                               context: context,
                               color: Theme.of(context).colorScheme.tertiary,
                             )
-                          : BoldSmall(
+                          : Small(
                               text: text ?? "Lade Daten...",
                               context: context,
                               color: Theme.of(context).colorScheme.tertiary,

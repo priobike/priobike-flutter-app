@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -61,7 +62,7 @@ class SurveyViewState extends State<SurveyView> {
                       text: "Vielen Dank für’s Ausprobieren der PrioBike-App. Klappt alles?",
                       context: context,
                       textAlign: TextAlign.left),
-                  BoldSmall(
+                  Small(
                     text:
                         "Wenn nicht — umso besser. Wir sind auf Dein Feedback gespannt. Bitte nimm Dir etwa 10 Minuten Zeit für unsere Umfrage.",
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
@@ -79,6 +80,7 @@ class SurveyViewState extends State<SurveyView> {
                 },
               ),
           ]),
+          const SmallVSpace(),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             Small(
               context: context,

@@ -296,7 +296,7 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
@@ -308,13 +308,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
