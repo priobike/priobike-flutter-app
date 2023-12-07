@@ -193,7 +193,7 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -205,13 +205,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -223,13 +223,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -326,13 +326,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
