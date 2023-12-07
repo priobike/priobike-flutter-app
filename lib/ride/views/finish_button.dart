@@ -44,13 +44,13 @@ class FinishRideButtonState extends State<FinishRideButton> {
               icon: Icons.flag_rounded,
               label: "Fahrt beenden",
               onPressed: () => onTap(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
             BigButtonTertiary(
               icon: Icons.close_rounded,
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
           ],
         );

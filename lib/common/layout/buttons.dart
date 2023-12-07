@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
 
 /// A small icon button (primary).
 class SmallIconButtonPrimary extends StatelessWidget {
@@ -288,10 +290,10 @@ class BigButtonPrimary extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const SizedBox(width: 32),
             if (icon != null)
@@ -307,13 +309,13 @@ class BigButtonPrimary extends StatelessWidget {
                   )
                 ],
               ),
-            Container(
-              height: 24,
-              alignment: Alignment.center,
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
               child: Text(
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: textColor ?? Colors.white,
                   fontSize: 18,
@@ -388,10 +390,10 @@ class BigButtonSecondary extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const SizedBox(width: 32),
             if (icon != null)
@@ -407,9 +409,8 @@ class BigButtonSecondary extends StatelessWidget {
                   )
                 ],
               ),
-            Container(
-              height: 24,
-              alignment: Alignment.center,
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
               child: Text(
                 label,
                 maxLines: 2,
@@ -488,10 +489,10 @@ class BigButtonTertiary extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const SizedBox(width: 32),
             if (icon != null)
@@ -507,9 +508,8 @@ class BigButtonTertiary extends StatelessWidget {
                   )
                 ],
               ),
-            Container(
-              height: 24,
-              alignment: Alignment.center,
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
               child: Text(
                 label,
                 maxLines: 2,
@@ -566,7 +566,7 @@ class IconTextButtonPrimary extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.iconColor,
-    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
+    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 28.0),
     this.borderColor,
     this.textColor,
   });
@@ -589,7 +589,7 @@ class IconTextButtonPrimary extends StatelessWidget {
         side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -599,16 +599,16 @@ class IconTextButtonPrimary extends StatelessWidget {
               Icon(
                 icon,
                 color: iconColor,
+                size: 18,
               ),
             SizedBox(width: icon != null ? 2 : 0),
-            Flexible(
-              child: Center(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
-                ),
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
               ),
             ),
             const SizedBox(width: 2),
@@ -656,7 +656,7 @@ class IconTextButtonSecondary extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.iconColor,
-    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
+    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 28.0),
     this.borderColor,
     this.textColor,
   });
@@ -679,7 +679,7 @@ class IconTextButtonSecondary extends StatelessWidget {
         side: BorderSide(color: borderColor ?? Theme.of(context).colorScheme.primary),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -689,16 +689,16 @@ class IconTextButtonSecondary extends StatelessWidget {
               Icon(
                 icon,
                 color: iconColor ?? Theme.of(context).colorScheme.primary,
+                size: 18,
               ),
             SizedBox(width: icon != null ? 2 : 0),
-            Flexible(
-              child: Center(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.primary, fontSize: 14),
-                ),
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.primary, fontSize: 14),
               ),
             ),
             const SizedBox(width: 2),
@@ -746,7 +746,7 @@ class IconTextButtonTertiary extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.iconColor,
-    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
+    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 28.0),
     this.borderColor,
     this.textColor,
   });
@@ -769,7 +769,7 @@ class IconTextButtonTertiary extends StatelessWidget {
         side: BorderSide(color: borderColor ?? Theme.of(context).colorScheme.onTertiary),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -779,16 +779,16 @@ class IconTextButtonTertiary extends StatelessWidget {
               Icon(
                 icon,
                 color: iconColor ?? Theme.of(context).colorScheme.tertiary,
+                size: 18,
               ),
             SizedBox(width: icon != null ? 2 : 0),
-            Flexible(
-              child: Center(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.tertiary, fontSize: 14),
-                ),
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.tertiary, fontSize: 14),
               ),
             ),
             const SizedBox(width: 2),

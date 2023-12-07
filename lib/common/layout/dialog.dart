@@ -33,7 +33,7 @@ void showInvalidShortcutSheet(context) {
           BigButtonPrimary(
             label: 'Schließen',
             onPressed: () => Navigator.of(context).pop(),
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
         ],
       );
@@ -103,14 +103,14 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
               if (!context.mounted) return;
               Navigator.pop(context);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
           BigButtonSecondary(
             label: "Abbrechen",
             onPressed: () async {
               Navigator.pop(context);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
           const SmallVSpace(),
           BoldSubHeader(
@@ -149,7 +149,7 @@ void showFinishDriveDialog(context, Function submit) {
               Navigator.pop(context);
               submit();
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           )
         ],
       );

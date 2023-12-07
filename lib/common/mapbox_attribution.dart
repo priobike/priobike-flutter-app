@@ -74,12 +74,12 @@ class MapboxAttribution extends StatelessWidget {
                     Navigator.pop(context);
                     await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
                   },
-                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                 ),
               BigButtonTertiary(
                 label: "Abbrechen",
                 onPressed: () => Navigator.pop(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               ),
             ],
           );

@@ -70,7 +70,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
               ToastMessage.showSuccess("Ort gespeichert!");
               Navigator.pop(context);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           )
         ],
       );
@@ -406,12 +406,12 @@ class RouteSearchState extends State<RouteSearch> {
                 geosearch.deleteSearchHistory();
                 Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
             BigButtonPrimary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );

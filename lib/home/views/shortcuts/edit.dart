@@ -78,7 +78,7 @@ void showEditShortcutSheet(context, int idx) {
               ToastMessage.showSuccess("Name gespeichert!");
               Navigator.pop(context);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           )
         ],
       );

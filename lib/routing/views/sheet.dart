@@ -258,7 +258,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       child: BigButtonPrimary(
         label: "Losfahren",
         onPressed: widget.onSelectStartButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
       ),
     );
   }
@@ -271,7 +271,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       child: BigButtonSecondary(
         label: "Strecke speichern",
         onPressed: widget.onSelectSaveButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
       ),
     );
   }

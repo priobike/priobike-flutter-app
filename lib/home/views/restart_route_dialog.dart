@@ -54,7 +54,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
                 }
               }
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
           BigButtonPrimary(
             iconColor: Colors.white,
@@ -66,14 +66,14 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
               Navigator.pop(context);
               showSaveShortcutSheet(context, shortcut: shortcutRoute);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
           BigButtonPrimary(
             iconColor: Colors.white,
             icon: Icons.close_rounded,
             label: "Abbrechen",
             onPressed: () => Navigator.of(context).pop(),
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           )
         ],
       );

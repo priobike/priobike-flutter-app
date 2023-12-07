@@ -53,6 +53,7 @@ class ButtonPreView extends StatelessWidget {
             IconTextButtonPrimary(
               onPressed: () {},
               label: 'Primary',
+              icon: Icons.check,
             )
           ]),
           const SmallVSpace(),
@@ -60,6 +61,7 @@ class ButtonPreView extends StatelessWidget {
             IconTextButtonSecondary(
               onPressed: () {},
               label: 'Secondary',
+              icon: Icons.check,
             )
           ]),
           const SmallVSpace(),
@@ -67,6 +69,7 @@ class ButtonPreView extends StatelessWidget {
             IconTextButtonTertiary(
               onPressed: () {},
               label: 'Tertiary',
+              icon: Icons.check,
             )
           ]),
           const SmallVSpace(),

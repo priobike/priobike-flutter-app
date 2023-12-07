@@ -168,7 +168,7 @@ class RoutingViewState extends State<RoutingView> {
                   await settings.setDidViewWarning(true);
                   startRide();
                 },
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               )
             ],
           );
@@ -285,7 +285,7 @@ class RoutingViewState extends State<RoutingView> {
               icon: Icons.check_rounded,
               label: "Ok",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );

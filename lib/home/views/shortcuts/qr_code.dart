@@ -191,7 +191,8 @@ class QRCodeViewState extends State<QRCodeView> {
                                   iconColor: Colors.white,
                                   label: "Speichern!",
                                   onPressed: () => saveShortCut(),
-                                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                                  boxConstraints:
+                                      BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                                 ),
                               ],
                             ),

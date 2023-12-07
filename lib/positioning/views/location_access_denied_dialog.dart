@@ -20,7 +20,7 @@ void showLocationAccessDeniedDialog(BuildContext context, PositionSource? positi
           BigButtonPrimary(
             label: 'Einstellungen öffnen',
             onPressed: () => positionSource?.openLocationSettings(),
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
         ],
       );

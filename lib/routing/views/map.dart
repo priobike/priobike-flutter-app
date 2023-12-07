@@ -726,7 +726,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 icon: Icons.check_rounded,
                 label: "Ok",
                 onPressed: () => Navigator.of(context).pop(),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               )
             ],
           );
