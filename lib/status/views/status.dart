@@ -126,12 +126,16 @@ class StatusViewState extends State<StatusView> {
                           ? Small(
                               text: text ?? "Lade Daten...",
                               context: context,
-                              color: Theme.of(context).colorScheme.tertiary,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             )
                           : Small(
                               text: text ?? "Lade Daten...",
                               context: context,
-                              color: Theme.of(context).colorScheme.tertiary,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             ),
                     ],
                   ),
