@@ -11,7 +11,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:typed_data/typed_buffers.dart';
 
-import 'sensor_integration.dart';
+import '../../speedsensor/sensor_integration.dart';
 
 class Simulator {
   /// The logger.
@@ -46,11 +46,7 @@ class Simulator {
   }
 
   connectWithSensor() async {
-    // TODO: implement conntectWithDevice
-    if(!await speedSensor.initSpeedSensor()) {
-      print("pairing unsuccessful!");
-    }
-    //successfully connected to the sensor
+    // TODO: implement connectWithDevice
   }
 
   getSpeedFromSensor() {

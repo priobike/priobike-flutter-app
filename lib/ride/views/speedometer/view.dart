@@ -24,7 +24,7 @@ import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-import 'package:priobike/simulator/services/sensor_integration.dart';
+import 'package:priobike/speedsensor/sensor_integration.dart';
 
 class RideSpeedometerView extends StatefulWidget {
   /// Height to puck bounding box.
@@ -75,11 +75,14 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   /// The GarminSpeedSensor2
   GarminSpeedSensor speedSensor = GarminSpeedSensor();
+  bool initializingSpeedSensor = false;
 
-  void updateSpeedometerViaSpeedSensor() {
-    speedAnimationController.animateTo(speedSensor.getSpeed(),
+  double updateSpeedometerViaSpeedSensor() {
+    double speed = speedSensor.getSpeed();
+    speedAnimationController.animateTo(speed,
         duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
     setState(() {});
+    return speed;
   }
 
   /// Update the speedometer.
@@ -108,10 +111,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     setState(() {});
   }
 
-  void initSpeedSensor() async {
-    if (await speedSensor.initSpeedSensor()) {
+  Future<void> initSpeedSensor() async {
+    initializingSpeedSensor = true;
+    if (await speedSensor.initSpeedSensor(context)) {
       positioning.addListener(updateSpeedometerViaSpeedSensor);
+      positioning.removeListener(updateSpeedometer);
     }
+    initializingSpeedSensor = false;
   }
 
   @override
@@ -133,13 +139,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     });
 
     positioning = getIt<Positioning>();
-    //positioning.addListener(updateSpeedometer);
+
     routing = getIt<Routing>();
     routing.addListener(updateLayout);
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
 
-    initSpeedSensor();
+    positioning.addListener(updateSpeedometer);
     updateSpeedometer();
     WidgetsBinding.instance.addObserver(this);
   }
@@ -155,8 +161,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   @override
   void dispose() {
     speedAnimationController.dispose();
-    //positioning.removeListener(updateSpeedometer);
-    positioning.removeListener(updateSpeedometerViaSpeedSensor);
+    if (getIt<Settings>().enableSpeedSensor) {
+      positioning.removeListener(updateSpeedometerViaSpeedSensor);
+    } else {
+      positioning.removeListener(updateSpeedometer);
+    }
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
     WidgetsBinding.instance.removeObserver(this);
@@ -259,8 +268,22 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   @override
   Widget build(BuildContext context) {
     //updateSpeedometerViaSpeedSensor();
-    //final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
-    final double speedkmh = speedSensor.getSpeed();
+    double speedkmh;
+    if (getIt<Settings>().enableSpeedSensor) {
+      if (!speedSensor.isConnected) {
+        initSpeedSensor();
+
+        /// wait until speed sensor is initialized
+        while (true) {
+          if (!initializingSpeedSensor) {
+            break;
+          }
+        }
+      }
+      speedkmh = updateSpeedometerViaSpeedSensor();
+    } else {
+      speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
+    }
 
     final remainingDistance = (((ride.route?.path.distance ?? 0.0) -
                 (positioning.snap?.distanceOnRoute ?? 0.0)) /
