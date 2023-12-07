@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -167,8 +168,8 @@ class FeedbackViewState extends State<FeedbackView> {
     final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
     final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
 
-    // 2 * 52 + 3 * VSpace(24) + padding + padding bottom.
-    final bottomSheetHeight = 228.0 + MediaQuery.of(context).padding.bottom;
+    // 2 * 36 (buttons) + 16 Padding + 1/6 height (stars).
+    final bottomSheetHeight = 2 * 36 + 16 + MediaQuery.of(context).size.height / 6;
 
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
@@ -240,29 +241,29 @@ class FeedbackViewState extends State<FeedbackView> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const VSpace(),
-              /*const Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32),
-                child: StarRatingView(text: "Dein Feedback zur App"),
-              ),*/
+                child: StarRatingView(
+                  text: "Dein Feedback zur App",
+                  displayQuestion: true,
+                ),
+              ),
               BigButtonPrimary(
                 // iconColor: Colors.white,
                 // icon: Icons.check,
                 // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                 label: "Fertig",
-                onPressed: () => showFinishDriveDialog(context, submit),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 52),
+                onPressed: () => submit(),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
               ),
-              const VSpace(),
               BigButtonPrimary(
                 // iconColor: Colors.white,
                 // icon: Icons.save_rounded,
                 // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                 label: "Strecke speichern",
                 onPressed: () => showSaveShortcutSheet(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 52),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
               ),
-              const VSpace(),
             ],
           ),
         ),
