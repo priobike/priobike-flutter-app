@@ -132,7 +132,7 @@ class Small extends Text {
           overflow: overflow,
           maxLines: maxLines,
           style: Theme.of(context).textTheme.displaySmall!.merge(
-                TextStyle(color: color, height: height),
+                TextStyle(color: color, fontWeight: FontWeight.normal, height: height),
               ),
           textAlign: textAlign,
         );
