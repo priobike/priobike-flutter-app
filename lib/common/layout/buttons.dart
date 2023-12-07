@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const double disabledOpacity = 0.5;
+
 /// A small icon button (primary).
 class SmallIconButtonPrimary extends StatelessWidget {
   /// The icon to be displayed.
@@ -259,6 +261,9 @@ class BigButtonPrimary extends StatelessWidget {
   /// The optional elevation of the button.
   final double elevation;
 
+  /// Whether padding around the button should be applied.
+  final bool addPadding;
+
   const BigButtonPrimary({
     super.key,
     this.icon,
@@ -270,19 +275,25 @@ class BigButtonPrimary extends StatelessWidget {
     this.textColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
+    this.addPadding = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
-      splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
+      fillColor: onPressed != null
+          ? fillColor ?? Theme.of(context).colorScheme.surface
+          : (fillColor?.withOpacity(disabledOpacity) ??
+              Theme.of(context).colorScheme.surface.withOpacity(disabledOpacity)),
+      splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.surfaceTint : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
       elevation: elevation,
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,
+      // To not get confused by standard padding around buttons.
+      materialTapTargetSize: addPadding ? MaterialTapTargetSize.padded : MaterialTapTargetSize.shrinkWrap,
       onPressed: onPressed,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -315,7 +326,7 @@ class BigButtonPrimary extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: textColor ?? Colors.white,
+                  color: onPressed != null ? textColor ?? Colors.white : Colors.white.withOpacity(disabledOpacity),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -358,6 +369,9 @@ class BigButtonSecondary extends StatelessWidget {
   /// The optional elevation of the button.
   final double elevation;
 
+  /// Whether padding around the button should be applied.
+  final bool addPadding;
+
   const BigButtonSecondary({
     super.key,
     this.icon,
@@ -369,22 +383,32 @@ class BigButtonSecondary extends StatelessWidget {
     this.textColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
+    this.addPadding = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceVariant,
-      splashColor: splashColor ?? Theme.of(context).colorScheme.onSecondary,
+      fillColor: onPressed != null
+          ? fillColor ?? Theme.of(context).colorScheme.surfaceVariant
+          : (fillColor?.withOpacity(disabledOpacity) ?? Theme.of(context).colorScheme.surfaceVariant),
+      splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.onSecondary : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
       elevation: elevation,
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,
+      padding: EdgeInsets.zero,
+      // To not get confused by standard padding around buttons.
+      materialTapTargetSize: addPadding ? MaterialTapTargetSize.padded : MaterialTapTargetSize.shrinkWrap,
       onPressed: onPressed,
       shape: RoundedRectangleBorder(
-        side: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary),
+        side: BorderSide(
+            width: 2,
+            color: onPressed != null
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.primary.withOpacity(disabledOpacity)),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
@@ -415,7 +439,9 @@ class BigButtonSecondary extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: textColor ?? Theme.of(context).colorScheme.primary,
+                  color: onPressed != null
+                      ? textColor ?? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.primary.withOpacity(disabledOpacity),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -458,6 +484,9 @@ class BigButtonTertiary extends StatelessWidget {
   /// The optional elevation of the button.
   final double elevation;
 
+  /// Whether padding around the button should be applied.
+  final bool addPadding;
+
   const BigButtonTertiary({
     super.key,
     this.icon,
@@ -469,6 +498,7 @@ class BigButtonTertiary extends StatelessWidget {
     this.textColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
+    this.addPadding = true,
   });
 
   @override
@@ -482,6 +512,8 @@ class BigButtonTertiary extends StatelessWidget {
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,
+      // To not get confused by standard padding around buttons.
+      materialTapTargetSize: addPadding ? MaterialTapTargetSize.padded : MaterialTapTargetSize.shrinkWrap,
       onPressed: onPressed,
       shape: RoundedRectangleBorder(
         side: BorderSide(width: 1, color: Theme.of(context).colorScheme.onTertiary),
