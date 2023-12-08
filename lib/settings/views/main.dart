@@ -21,6 +21,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/settings/views/text.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
 import 'package:share_plus/share_plus.dart';

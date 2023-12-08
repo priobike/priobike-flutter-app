@@ -175,7 +175,7 @@ class RoutingViewState extends State<RoutingView> {
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
-              BigButton(
+              BigButtonPrimary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
                 label: "Okay",
@@ -184,7 +184,7 @@ class RoutingViewState extends State<RoutingView> {
                 },
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),
-              BigButton(
+              BigButtonSecondary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
                 label: "Simulator deaktivieren",

@@ -407,6 +407,12 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set didViewUserTransfer to $didViewUserTransfer");
       this.didViewUserTransfer = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const simulatorModeKey = "priobike.settings.enableSimulatorMode";
   static const defaultSimulatorMode = false;
 
