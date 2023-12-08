@@ -25,19 +25,19 @@ final surfaceTypeTranslation = {
 
 /// The color translation of the surface.
 final surfaceTypeColor = {
-  "Asphalt": const Color(0xFF8e44ad),
-  "Kopfsteinpflaster": const Color(0xFF2980b9),
-  "Fester Boden": const Color(0xFFEEB072),
-  "Beton": const Color(0xFF7f8c8d),
-  "Erde": const Color(0xFF402F22),
-  "Feiner Kies": const Color(0xFF7B7B7B),
-  "Graß": const Color(0xFF2ecc71),
-  "Kies": const Color(0xFF2980b9),
-  "Boden": const Color(0xFF2c3e50),
-  "Sonstiges": const Color(0xFF27ae60),
-  "Pflastersteine": const Color(0xFF95a5a6),
-  "Sand": const Color(0xFFf39c12),
-  "Unbefestigter Boden": const Color(0xFFc0392b),
+  "Asphalt": const Color(0xFF3D3D3D),
+  "Kopfsteinpflaster": const Color(0xFFFF4260),
+  "Fester Boden": const Color(0xFF916735),
+  "Beton": const Color(0xFFB5B5B5),
+  "Erde": const Color(0xFF703D01),
+  "Feiner Kies": const Color(0xFFD6D6D6),
+  "Graß": const Color(0xFF64BA79),
+  "Kies": const Color(0xFF9F9F9F),
+  "Boden": const Color(0xFF916735),
+  "Sonstiges": const Color(0xFFD694FF),
+  "Pflastersteine": const Color(0xFFFF4260),
+  "Sand": const Color(0xFFD8CD88),
+  "Unbefestigter Boden": const Color(0xFF703D01),
 };
 
 class SurfaceTypeChart extends StatefulWidget {
