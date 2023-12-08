@@ -65,6 +65,7 @@ class MapboxAttribution extends StatelessWidget {
           return DialogLayout(
             title: title,
             text: "",
+            icon: Icons.map,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
               for (final entry in attributionEntries)

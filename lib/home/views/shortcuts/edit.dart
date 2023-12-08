@@ -39,8 +39,6 @@ void showEditShortcutSheet(context, int idx) {
       return DialogLayout(
         title: 'Aktualisieren',
         text: "Bitte gib einen neuen Namen ein.",
-        icon: Icons.update_rounded,
-        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
           TextField(
             autofocus: false,

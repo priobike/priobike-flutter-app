@@ -54,7 +54,6 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
       return DialogLayout(
         title: 'Route speichern',
         text: "Bitte gib einen Namen für die Route ein.",
-        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
           TextField(
             autofocus: false,

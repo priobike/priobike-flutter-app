@@ -30,8 +30,6 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
       return DialogLayout(
         title: 'Ort speichern',
         text: "Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.",
-        icon: Icons.location_on_rounded,
-        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
           TextField(
             autofocus: MediaQuery.of(dialogContext).viewInsets.bottom > 0,
