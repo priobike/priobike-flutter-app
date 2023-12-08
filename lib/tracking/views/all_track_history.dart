@@ -154,8 +154,6 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButtonPrimary(
-              iconColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
               fillColor: CI.radkulturYellow,
               textColor: Colors.black,
               label: "Löschen",

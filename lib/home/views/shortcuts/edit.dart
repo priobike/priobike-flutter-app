@@ -37,6 +37,8 @@ void showEditShortcutSheet(context, int idx) {
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
+        icon: Icons.update_rounded,
+        iconColor: Theme.of(context).primaryColor,
         title: 'Aktualisieren',
         text: "Bitte gib einen neuen Namen ein.",
         actions: [
@@ -52,9 +54,15 @@ void showEditShortcutSheet(context, int idx) {
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 borderSide: BorderSide.none,
               ),
-              suffixIcon: Icon(
-                Icons.bookmark,
+              suffixIcon: SmallIconButtonTertiary(
+                icon: Icons.close,
+                onPressed: () {
+                  nameController.text = "";
+                },
                 color: Theme.of(context).colorScheme.onBackground,
+                fill: Colors.transparent,
+                // splash: Colors.transparent,
+                withBorder: false,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               counterStyle: TextStyle(
@@ -63,8 +71,6 @@ void showEditShortcutSheet(context, int idx) {
             ),
           ),
           BigButtonPrimary(
-            iconColor: Colors.white,
-            icon: Icons.save_rounded,
             label: "Speichern",
             onPressed: () async {
               final name = nameController.text;

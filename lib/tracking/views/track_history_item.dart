@@ -268,9 +268,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
           iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButtonPrimary(
-              iconColor: Colors.black,
               textColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
               fillColor: CI.radkulturYellow,
               label: "Löschen",
               onPressed: () {

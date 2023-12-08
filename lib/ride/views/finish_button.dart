@@ -38,6 +38,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
         return DialogLayout(
           title: 'Fahrt wirklich beenden?',
           text: "Wenn Du die Fahrt beendest, musst Du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
+          icon: Icons.question_mark_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButtonPrimary(
               label: "Fahrt beenden",
