@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
@@ -22,7 +23,9 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/drag_waypoint.dart';
 import 'package:priobike/routing/models/route.dart' as r;
+import 'package:priobike/routing/models/screen_edge.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -36,6 +39,9 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tutorial/service.dart';
+
+/// The fixed icon size of the cancel button.
+const double cancelButtonIconSize = 50;
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -88,6 +94,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Where the user is currently tapping.
   Offset? tapPosition;
 
+  /// Where the user is currently long tapping, used for dragging waypoints.
+  Offset? dragPosition;
+
+  /// Whether the auxiliary marking around a waypoint is displayed or not.
+  bool showAuxiliaryMarking = false;
+
   /// The animation controller for the on-tap animation.
   late AnimationController animationController;
 
@@ -117,6 +129,24 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A bool indicating whether the Mapbox internal map layers have finished loading.
   var mapLayersFinishedLoading = false;
+
+  /// When the user long presses on a waypoint, this is the waypoint that is being dragged.
+  Waypoint? draggedWaypoint;
+
+  /// The index of the dragged waypoint to determine if the waypoint is a destination or a waypoint in the middle.
+  int? draggedWaypointIndex;
+
+  /// The type of the dragged waypoint to determine the icon.
+  WaypointType? draggedWaypointType;
+
+  /// The current screen edge the user is dragging the waypoint to, if any.
+  ScreenEdge currentScreenEdge = ScreenEdge.none;
+
+  /// Hide the icon of a dragged waypoint while loading when adding a new waypoint.
+  bool hideDragWaypoint = false;
+
+  /// Whether user is dragging a waypoint over the cancel button.
+  bool highlightCancelButton = false;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -697,9 +727,42 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     // Convert x and y into a lat/lon.
     final point = ScreenCoordinate(x: x, y: y);
+    await addWaypoint(point);
+  }
+
+  /// Check if user tapped on an existing waypoint and return the waypoint if found.
+  Future<Waypoint?> _checkIfWaypointIsAtTappedPosition({required double x, required double y}) async {
+    if (mapController == null) return null;
+    if (routing.selectedWaypoints == null) return null;
+
+    final tapPosition = ScreenCoordinate(x: x, y: y);
+
+    Waypoint? foundWaypoint;
+    double? foundWaypointDistance;
+
+    for (Waypoint waypoint in routing.selectedWaypoints!) {
+      final ScreenCoordinate coordsOnScreenWaypoint = await mapController!.pixelForCoordinate({
+        "coordinates": [waypoint.lon, waypoint.lat]
+      });
+      final distance = math.sqrt(math.pow(coordsOnScreenWaypoint.x - tapPosition.x, 2) +
+          math.pow(coordsOnScreenWaypoint.y - tapPosition.y, 2));
+
+      if (distance < 50) {
+        // get closest waypoint if there are multiple waypoints at the same position
+        if (foundWaypointDistance == null || distance < foundWaypointDistance) {
+          foundWaypoint = waypoint;
+          foundWaypointDistance = distance;
+        }
+      }
+    }
+    return foundWaypoint;
+  }
+
+  /// Add a waypoint at the tapped position.
+  Future<void> addWaypoint(ScreenCoordinate point) async {
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
-    String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
+    final fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
@@ -733,6 +796,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           );
         },
       );
+      // If the user is dragging a waypoint outside of the city boundary, restore the original waypoint and return
+      // otherwise the user is trying to add a new waypoint and we can just return
+      if (draggedWaypoint != null) {
+        await routing.addWaypoint(draggedWaypoint!, draggedWaypointIndex);
+        await getIt<Geosearch>().addToSearchHistory(draggedWaypoint!);
+        await routing.loadRoutes();
+      }
       return;
     }
 
@@ -743,7 +813,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
-    await routing.addWaypoint(waypoint);
+    // if the draggedWaypoint isn't null, the user is dragging a waypoint
+    // and the waypoint must be reinserted at the same index as before the dragging
+    // otherwise the user is adding a waypoint by tapping on the map
+    // and the waypoint must be appended to end of list
+    int index;
+    if (draggedWaypoint != null && draggedWaypointIndex != null) {
+      index = draggedWaypointIndex!;
+    } else {
+      index = routing.selectedWaypoints!.length;
+    }
+    await routing.addWaypoint(waypoint, index);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
     await routing.loadRoutes();
   }
@@ -808,6 +888,70 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routeLabelLock.run(() {
       updateRouteLabels();
     });
+  }
+
+  /// When the user drags a waypoint.
+  void dragWaypoint({required double x, required double y}) {
+    if (draggedWaypoint == null || mapController == null) return;
+
+    // check if the user dragged the waypoint to the edge of the screen
+    final ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
+
+    // don't move map if the user hit the cancel button
+    if (_hitCancelButton(x: x, y: y)) return;
+
+    if (screenEdge != ScreenEdge.none) {
+      if (screenEdge != currentScreenEdge) {
+        currentScreenEdge = screenEdge;
+        animateCameraScreenEdge(screenEdge);
+      }
+    } else {
+      currentScreenEdge = ScreenEdge.none;
+    }
+  }
+
+  /// Animates the map camera when the user drags a waypoint to the edge of the screen.
+  Future<void> animateCameraScreenEdge(ScreenEdge screenEdge) async {
+    if (draggedWaypoint == null || mapController == null) return;
+
+    // determine how to move the map
+    final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
+
+    // get the current coordinates of the center of the map
+    final CameraState cameraState = await mapController!.getCameraState();
+    final coords = cameraState.center["coordinates"]! as List;
+    final double x = coords[0];
+    final double y = coords[1];
+
+    // The zoom is usually between 12 and 16, while 16 is more zoomed in.
+    // We need to speed up the movement while zoomed out otherwise the movement is too slow.
+    final zoom = cameraState.zoom;
+    double zoomSpeedup = 16 - zoom;
+
+    // No negative zoom speedup otherwise the map would move in the opposite direction.
+    // And don't set to 0 otherwise the map would not move at all.
+    if (zoomSpeedup <= 0.3) zoomSpeedup = 0.3;
+
+    await mapController?.easeTo(
+      CameraOptions(
+        center: Point(
+          coordinates: Position(
+            x + (cameraMovement['x'] ?? 0) * zoomSpeedup,
+            y + (cameraMovement['y'] ?? 0) * zoomSpeedup,
+          ),
+        ).toJson(),
+      ),
+      MapAnimationOptions(duration: 0),
+    );
+
+    // Add a small delay to throttle the camera movement.
+    await Future.delayed(const Duration(milliseconds: 10));
+
+    // if the user drags a waypoint to the edge of the screen recursively call this function to move the map
+    // it is implemented this way, because "onLongPressMoveUpdate" in the Gesture Detector below
+    // gets only called when the user moves the finger but we want to keep moving the map
+    // when the user keeps a waypoint at the edge of the screen without moving the finger
+    if (currentScreenEdge != ScreenEdge.none && currentScreenEdge == screenEdge) animateCameraScreenEdge(screenEdge);
   }
 
   /// Calculates the coordinates for the route labels.
@@ -896,23 +1040,129 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return chosenCoordinates;
   }
 
+  /// Move the waypoint after finish dragging
+  Future<void> moveDraggedWaypoint(BuildContext context, double dx, double dy) async {
+    if (routing.selectedWaypoints == null || draggedWaypoint == null) return;
+
+    draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
+
+    // remove old waypoint from before dragging from routing and search history
+    routing.selectedWaypoints!.remove(draggedWaypoint!);
+    getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
+
+    final point = ScreenCoordinate(x: dx, y: dy);
+
+    // hide the dragged waypoint icon while loading when adding the new waypoint
+    hideDragWaypoint = true;
+
+    // add new waypoint at the new position
+    await addWaypoint(point);
+  }
+
+  /// Check if the user dragged a waypoint to the cancel button to stop dragging
+  bool _hitCancelButton({required double x, required double y}) {
+    // The x and y position of the cancel button.
+    // x: half width screen - half width button.
+    // y: 270 from the bottom of the screen. Value tested with different devices.
+    // (Maybe we can make this depending on the users device.)
+    double cancelButtonX = MediaQuery.of(context).size.width / 2 - cancelButtonIconSize / 2;
+    double cancelButtonY = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 270;
+
+    // the icon x and y position of the icon starts in the top left corner
+    // therefore we need to add half the icon size to the x and y position to get the center of the icon
+    cancelButtonX += cancelButtonIconSize;
+    cancelButtonY += cancelButtonIconSize;
+
+    if (x > cancelButtonX - cancelButtonIconSize &&
+        x < cancelButtonX + cancelButtonIconSize &&
+        y > cancelButtonY - cancelButtonIconSize &&
+        y < cancelButtonY + cancelButtonIconSize) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Reset variables for dragging
+  void _resetDragging() {
+    dragPosition = null;
+    draggedWaypoint = null;
+    draggedWaypointIndex = null;
+    draggedWaypointType = null;
+    hideDragWaypoint = false;
+    currentScreenEdge = ScreenEdge.none;
+    highlightCancelButton = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Stack(
       children: [
         // Show the map.
         GestureDetector(
-          onLongPressDown: (details) {
-            tapPosition = details.localPosition;
-            animationController.forward();
+          onLongPressDown: (details) async {
+            // check if user long pressed on map or waypoint
+            // if on map, create new waypoint
+            // if on waypoint, start dragging waypoint
+            draggedWaypoint =
+                await _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
+            if (draggedWaypoint == null) {
+              _resetDragging();
+              tapPosition = details.localPosition;
+              animationController.forward();
+            } else {
+              if (routing.selectedWaypoints == null || !routing.selectedWaypoints!.contains(draggedWaypoint)) return;
+              dragPosition = details.localPosition;
+              draggedWaypointType = getWaypointType(routing.selectedWaypoints!, draggedWaypoint!);
+              showAuxiliaryMarking = true;
+            }
           },
           onLongPressCancel: () {
             animationController.reverse();
+            _resetDragging();
           },
-          onLongPressEnd: (details) {
-            animationController.reverse();
-            onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+          onLongPressMoveUpdate: (details) async {
+            // if user pressed on map, reverse pin animation
+            // if user pressed on waypoint, drag waypoint
+            if (draggedWaypoint == null) {
+              animationController.reverse();
+              return;
+            }
+
+            // set new icon position under the finger while dragging
+            setState(() {
+              dragPosition = details.localPosition;
+            });
+
+            highlightCancelButton = _hitCancelButton(x: details.localPosition.dx, y: details.localPosition.dy);
+
+            dragWaypoint(
+              x: details.localPosition.dx,
+              y: details.localPosition.dy,
+            );
+          },
+          onLongPressEnd: (details) async {
+            if (draggedWaypoint != null) {
+              showAuxiliaryMarking = false;
+              currentScreenEdge = ScreenEdge.none;
+
+              // Check if the user released the waypoint over the cancel button
+              // if so just refresh to remove the cancel button
+              // otherwise move the dragged waypoint to the new position
+              final hitCancelButton = _hitCancelButton(x: details.localPosition.dx, y: details.localPosition.dy);
+              if (hitCancelButton) {
+                setState(() {});
+              } else {
+                await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
+              }
+            } else {
+              animationController.reverse();
+
+              // if the user pressed on the map, add a waypoint
+              await onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+            }
+            _resetDragging();
           },
           behavior: HitTestBehavior.translucent,
           child: AppMap(
@@ -999,6 +1249,110 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               ],
             ),
           ),
+        // for dragging waypoints
+        if (dragPosition != null && draggedWaypointType != null && !hideDragWaypoint)
+          Stack(
+            children: [
+              Positioned(
+                left: 0,
+                top: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 270,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.cancel_outlined),
+                        color: highlightCancelButton ? Theme.of(context).colorScheme.primary : Colors.grey,
+                        iconSize: cancelButtonIconSize,
+                        // do nothing here and handle the cancel button in onLongPressEnd
+                        onPressed: () {},
+                      ),
+                      BoldSmall(
+                        context: context,
+                        textAlign: TextAlign.center,
+                        text: "Abbrechen",
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                // only add a very short duration, otherwise dragging feels sluggish.
+                duration: const Duration(milliseconds: 20),
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (24 * 1.5) / 2,
+                top: dragPosition!.dy - (24 * 1.5) / 2,
+                child: SizedBox(
+                  // Image width times scale (1.5).
+                  width: 24 * 1.5,
+                  height: 24 * 1.5,
+                  child: Image.asset(
+                    draggedWaypointType!.iconPath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                // only add a very short duration, otherwise dragging feels sluggish.
+                duration: const Duration(milliseconds: 20),
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (showAuxiliaryMarking ? 75 : 0) / 2,
+                top: dragPosition!.dy - (showAuxiliaryMarking ? 75 : 0) / 2,
+                child: Container(
+                  width: showAuxiliaryMarking ? 75 : 0,
+                  height: showAuxiliaryMarking ? 75 : 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                    border: Border.all(
+                      width: 3,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                    ),
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                // only add a very short duration, otherwise dragging feels sluggish.
+                duration: const Duration(milliseconds: 20),
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (showAuxiliaryMarking ? 100 : 0) / 2,
+                top: dragPosition!.dy - (showAuxiliaryMarking ? 100 : 0) / 2,
+                child: Container(
+                  width: showAuxiliaryMarking ? 100 : 0,
+                  height: showAuxiliaryMarking ? 100 : 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                    border: Border.all(
+                      width: 2,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    ),
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                // only add a very short duration, otherwise dragging feels sluggish.
+                duration: const Duration(milliseconds: 20),
+                // Subtract half the icon size to center the icon.
+                left: dragPosition!.dx - (showAuxiliaryMarking ? 125 : 0) / 2,
+                top: dragPosition!.dy - (showAuxiliaryMarking ? 125 : 0) / 2,
+                child: Container(
+                  width: showAuxiliaryMarking ? 125 : 0,
+                  height: showAuxiliaryMarking ? 125 : 0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                    border: Border.all(
+                      width: 1,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
         if (!mapLayersFinishedLoading)
           Center(
             child: Tile(
