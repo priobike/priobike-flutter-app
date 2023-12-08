@@ -346,10 +346,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           bottom: 0,
           left: 0,
           child: Container(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: 8, bottom: 4),
             color: Theme.of(context).colorScheme.background,
             width: frame.size.width,
-            height: frame.padding.bottom + 44,
+            height: frame.padding.bottom + 48,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
