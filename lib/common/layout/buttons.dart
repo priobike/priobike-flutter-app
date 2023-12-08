@@ -633,7 +633,7 @@ class IconTextButtonPrimary extends StatelessWidget {
             if (icon != null)
               Icon(
                 icon,
-                color: iconColor,
+                color: iconColor ?? Colors.white,
                 size: 18,
               ),
             SizedBox(width: icon != null ? 2 : 0),
