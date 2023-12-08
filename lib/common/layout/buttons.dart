@@ -171,7 +171,7 @@ class SmallIconButtonTertiary extends StatelessWidget {
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
-        fillColor: fill ?? Theme.of(context).colorScheme.background,
+        fillColor: fill ?? Colors.transparent,
         splashColor: splash ?? Theme.of(context).colorScheme.onTertiary,
         onPressed: onPressed,
         shape: withBorder
@@ -508,7 +508,7 @@ class BigButtonTertiary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.background,
+      fillColor: fillColor ?? Colors.transparent,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -789,7 +789,7 @@ class IconTextButtonTertiary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.background,
+      fillColor: fillColor ?? Colors.transparent,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
