@@ -358,7 +358,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 Expanded(
                   child: BigButtonSecondary(
                     label: "Speichern",
-                    onPressed: routing.isFetchingRoute ? null : widget.onSelectSaveButton,
+                    onPressed:
+                        routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectSaveButton,
                     addPadding: false,
                   ),
                 ),
@@ -366,7 +367,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 Expanded(
                   child: BigButtonPrimary(
                     label: "Losfahren",
-                    onPressed: routing.isFetchingRoute ? null : widget.onSelectStartButton,
+                    onPressed:
+                        routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectStartButton,
                     addPadding: false,
                   ),
                 ),
