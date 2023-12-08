@@ -544,9 +544,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final frame = MediaQuery.of(context);
     final sheetHeightAbs = sheetHeightRelative == null
         // Bottom padding + sheet init size + padding + shortcut height + padding.
-        ? 124.0 + 8 + 40 + 4 // Default value.
+        ? 124.0 + 8 + 40 + 8 // Default value.
         // Bottom padding + sheet relative size + padding + shortcut height + padding.
-        : sheetHeightRelative * frame.size.height + 40 + 4;
+        : sheetHeightRelative * frame.size.height + 40 + 8;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
     mapController!.setCamera(
@@ -560,7 +560,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
     );
     // Bottom padding + sheet init size + padding + shortcut height + padding.
-    const attributionMargins = math.Point(10, 124 + 8 + 40 + 4);
+    const attributionMargins = math.Point(10, 124 + 8 + 40 + 8);
     mapController!.attribution.updateSettings(AttributionSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginRight: attributionMargins.x.toDouble(),
