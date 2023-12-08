@@ -187,7 +187,7 @@ class RoutingViewState extends State<RoutingView> {
               BigButton(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
-                label: "Simulator deaktivieren",
+                label: "Simulator deakt.", // TODO: durch anderen Button ersetzen??
                 onPressed: () {
                   settings.setSimulatorMode(false);
                   Navigator.of(context).pop();
