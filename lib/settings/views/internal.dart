@@ -2,12 +2,14 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
@@ -183,6 +185,44 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await settings.setSGSelector(sgSelector);
 
     if (mounted) Navigator.pop(context);
+  }
+
+  /// Shows a dialog that asks for confirmation before deleting all user data.
+  void showAskForConfirmationDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Wirklich alle Daten löschen?',
+          text: "Es werden unwiderruflich alle App-Daten auf Deinem Handy gelöscht.",
+          icon: Icons.question_mark_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.flag_rounded,
+              label: "Bestätigen",
+              onPressed: () {
+                getIt<Settings>().deleteAllUserData();
+                ToastMessage.showSuccess("Alle Daten gelöscht. Bitte App neustarten.");
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+            BigButton(
+              iconColor: Colors.white,
+              icon: Icons.close_rounded,
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -439,7 +479,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: 'Alle Nutzerdaten löschen (Neustart notw.)',
                     icon: Icons.warning_rounded,
-                    callback: () => getIt<Settings>().deleteAllUserData(),
+                    callback: () => showAskForConfirmationDialog(context),
                   ),
                 ),
                 const SmallVSpace(),
