@@ -174,7 +174,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
           delay: const Duration(milliseconds: 250),
           child: Row(
             children: [
-              const SizedBox(width: 25),
+              const SizedBox(width: 40),
               BoldSubHeader(
                 text: "Letzte Fahrten",
                 context: context,

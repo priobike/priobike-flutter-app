@@ -283,7 +283,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: const Duration(milliseconds: 250),
                       child: Row(
                         children: [
-                          const SizedBox(width: 25),
+                          const SizedBox(width: 40),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -336,14 +336,24 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         ],
                       ),
                     ),
-                    const VSpace(),
+                    const SmallVSpace(),
                     BlendIn(
                       delay: const Duration(milliseconds: 750),
                       child: Row(children: [
                         const SizedBox(width: 40),
-                        BoldSubHeader(
-                          text: "Servicepunkte in deiner Nähe",
-                          context: context,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoldSubHeader(
+                              text: "Servicepunkte",
+                              context: context,
+                            ),
+                            const SizedBox(height: 4),
+                            Content(
+                              text: "In deiner Nähe",
+                              context: context,
+                            ),
+                          ],
                         ),
                       ]),
                     ),

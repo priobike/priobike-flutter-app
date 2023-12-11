@@ -182,7 +182,6 @@ class ProfileViewState extends State<ProfileView> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const SizedBox(width: 5),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -191,14 +190,13 @@ class ProfileViewState extends State<ProfileView> {
                       context: context,
                     ),
                     const SizedBox(height: 4),
-                    BoldSmall(
+                    Content(
                       text: "Personalisiere Deine Routenberechnung",
                       context: context,
+                      maxLines: 2,
                     ),
                   ],
                 ),
-                Expanded(child: Container()),
-                const SizedBox(width: 24),
               ],
             ),
             const SmallVSpace(),
