@@ -891,19 +891,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// When the user drags a waypoint.
-  void dragWaypoint({required double x, required double y}) {
-    if (draggedWaypoint == null || mapController == null) return;
+  void _dragWaypoint() {
+    if (draggedWaypoint == null || mapController == null || dragPosition == null) return;
 
     // check if the user dragged the waypoint to the edge of the screen
-    final ScreenEdge screenEdge = getDragScreenEdge(x: x, y: y, context: context);
-
-    // don't move map if the user hit the cancel button
-    if (_hitCancelButton(x: x, y: y)) return;
+    final ScreenEdge screenEdge = getDragScreenEdge(x: dragPosition!.dx, y: dragPosition!.dy, context: context);
 
     if (screenEdge != ScreenEdge.none) {
       if (screenEdge != currentScreenEdge) {
         currentScreenEdge = screenEdge;
-        animateCameraScreenEdge(screenEdge);
+        _animateCameraScreenEdge(screenEdge);
       }
     } else {
       currentScreenEdge = ScreenEdge.none;
@@ -911,8 +908,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Animates the map camera when the user drags a waypoint to the edge of the screen.
-  Future<void> animateCameraScreenEdge(ScreenEdge screenEdge) async {
-    if (draggedWaypoint == null || mapController == null) return;
+  Future<void> _animateCameraScreenEdge(ScreenEdge screenEdge) async {
+    if (draggedWaypoint == null || mapController == null || dragPosition == null) return;
+
+    // don't move map if the user dragged the waypoint to the cancel button
+    if (_hitCancelButton()) {
+      currentScreenEdge = ScreenEdge.none;
+      return;
+    }
 
     // determine how to move the map
     final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
@@ -951,7 +954,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // it is implemented this way, because "onLongPressMoveUpdate" in the Gesture Detector below
     // gets only called when the user moves the finger but we want to keep moving the map
     // when the user keeps a waypoint at the edge of the screen without moving the finger
-    if (currentScreenEdge != ScreenEdge.none && currentScreenEdge == screenEdge) animateCameraScreenEdge(screenEdge);
+    if (currentScreenEdge != ScreenEdge.none && currentScreenEdge == screenEdge) {
+      _animateCameraScreenEdge(screenEdge);
+    }
   }
 
   /// Calculates the coordinates for the route labels.
@@ -1041,7 +1046,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Move the waypoint after finish dragging
-  Future<void> moveDraggedWaypoint(BuildContext context, double dx, double dy) async {
+  Future<void> _moveDraggedWaypoint(BuildContext context, double dx, double dy) async {
     if (routing.selectedWaypoints == null || draggedWaypoint == null) return;
 
     draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
@@ -1060,7 +1065,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Check if the user dragged a waypoint to the cancel button to stop dragging
-  bool _hitCancelButton({required double x, required double y}) {
+  bool _hitCancelButton() {
+    if (dragPosition == null) return false;
     // The x and y position of the cancel button.
     // x: half width screen - half width button.
     // y: 270 from the bottom of the screen. Value tested with different devices.
@@ -1073,10 +1079,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     cancelButtonX += cancelButtonIconSize;
     cancelButtonY += cancelButtonIconSize;
 
-    if (x > cancelButtonX - cancelButtonIconSize &&
-        x < cancelButtonX + cancelButtonIconSize &&
-        y > cancelButtonY - cancelButtonIconSize &&
-        y < cancelButtonY + cancelButtonIconSize) {
+    if (dragPosition!.dx > cancelButtonX - cancelButtonIconSize &&
+        dragPosition!.dx < cancelButtonX + cancelButtonIconSize &&
+        dragPosition!.dy > cancelButtonY - cancelButtonIconSize &&
+        dragPosition!.dy < cancelButtonY + cancelButtonIconSize) {
       return true;
     }
     return false;
@@ -1135,12 +1141,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               dragPosition = details.localPosition;
             });
 
-            highlightCancelButton = _hitCancelButton(x: details.localPosition.dx, y: details.localPosition.dy);
+            highlightCancelButton = _hitCancelButton();
 
-            dragWaypoint(
-              x: details.localPosition.dx,
-              y: details.localPosition.dy,
-            );
+            _dragWaypoint();
           },
           onLongPressEnd: (details) async {
             if (draggedWaypoint != null) {
@@ -1150,11 +1153,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               // Check if the user released the waypoint over the cancel button
               // if so just refresh to remove the cancel button
               // otherwise move the dragged waypoint to the new position
-              final hitCancelButton = _hitCancelButton(x: details.localPosition.dx, y: details.localPosition.dy);
+              final hitCancelButton = _hitCancelButton();
               if (hitCancelButton) {
                 setState(() {});
               } else {
-                await moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
+                await _moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
               }
             } else {
               animationController.reverse();
