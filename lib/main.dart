@@ -193,7 +193,7 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
@@ -205,13 +205,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -229,7 +229,7 @@ class App extends StatelessWidget {
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -296,7 +296,7 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
@@ -314,7 +314,7 @@ class App extends StatelessWidget {
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
@@ -332,7 +332,7 @@ class App extends StatelessWidget {
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
