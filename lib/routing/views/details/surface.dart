@@ -25,18 +25,18 @@ final surfaceTypeTranslation = {
 
 /// The color translation of the surface.
 final surfaceTypeColor = {
-  "Asphalt": const Color(0xFF3D3D3D),
-  "Kopfsteinpflaster": const Color(0xFFFF4260),
+  "Asphalt": const Color(0xFF555555),
+  "Kopfsteinpflaster": const Color(0xFF8A8A8A),
   "Fester Boden": const Color(0xFF916735),
-  "Beton": const Color(0xFFB5B5B5),
-  "Erde": const Color(0xFF703D01),
-  "Feiner Kies": const Color(0xFFD6D6D6),
+  "Beton": const Color(0xFFC0C0C0),
+  "Erde": const Color(0xFFA15802),
+  "Feiner Kies": const Color(0xFFD6C9A8),
   "Graß": const Color(0xFF64BA79),
-  "Kies": const Color(0xFF9F9F9F),
+  "Kies": const Color(0xFFA7A288),
   "Boden": const Color(0xFF916735),
   "Sonstiges": const Color(0xFFD694FF),
-  "Pflastersteine": const Color(0xFFFF4260),
-  "Sand": const Color(0xFFD8CD88),
+  "Pflastersteine": const Color(0xFFA7A7A7),
+  "Sand": const Color(0xFFE7D980),
   "Unbefestigter Boden": const Color(0xFF703D01),
 };
 
