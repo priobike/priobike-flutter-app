@@ -37,8 +37,6 @@ void showEditShortcutSheet(context, int idx) {
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
-        icon: Icons.update_rounded,
-        iconColor: Theme.of(context).primaryColor,
         title: 'Aktualisieren',
         text: "Bitte gib einen neuen Namen ein.",
         actions: [

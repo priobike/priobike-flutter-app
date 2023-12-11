@@ -264,8 +264,6 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         return DialogLayout(
           title: 'Fahrt löschen',
           text: "Bitte bestätige, dass Du diese Fahrt löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButtonPrimary(
               textColor: Colors.black,

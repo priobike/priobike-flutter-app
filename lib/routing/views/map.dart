@@ -718,12 +718,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             title: 'Wegpunkt außerhalb des Stadtgebiets',
             text:
                 'Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe Deinen Wegpunkt an.',
-            icon: Icons.info_rounded,
-            iconColor: Theme.of(context).colorScheme.primary,
             actions: [
               BigButtonPrimary(
-                iconColor: Colors.white,
-                icon: Icons.check_rounded,
                 label: "Ok",
                 onPressed: () => Navigator.of(context).pop(),
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

@@ -154,13 +154,9 @@ class LoaderState extends State<Loader> {
           title: 'Persönliche Daten zurücksetzen',
           text:
               "Bist Du Dir sicher, dass Du Deine persönlichen Daten zurücksetzen willst? Nach dem Bestätigen werden Deine Daten unwiderruflich verworfen. Dazu gehören unter anderem Deine erstellten Routen.",
-          icon: Icons.delete_forever_rounded,
-          iconColor: CI.radkulturYellow,
           actions: [
             BigButtonPrimary(
-              iconColor: Colors.black,
               textColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
               fillColor: CI.radkulturYellow,
               label: "Zurücksetzen",
               onPressed: () async {

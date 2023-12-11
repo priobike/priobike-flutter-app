@@ -280,7 +280,7 @@ class BigButtonPrimary extends StatelessWidget {
     this.textColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
-    this.addPadding = true,
+    this.addPadding = false,
   });
 
   @override
@@ -388,7 +388,7 @@ class BigButtonSecondary extends StatelessWidget {
     this.textColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
-    this.addPadding = true,
+    this.addPadding = false,
   });
 
   @override
@@ -502,13 +502,13 @@ class BigButtonTertiary extends StatelessWidget {
     this.textColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
     this.elevation = 0,
-    this.addPadding = true,
+    this.addPadding = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Colors.transparent,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -789,7 +789,7 @@ class IconTextButtonTertiary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Colors.transparent,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.

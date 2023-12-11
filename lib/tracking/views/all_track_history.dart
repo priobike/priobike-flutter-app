@@ -150,8 +150,6 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         return DialogLayout(
           title: 'Alle Fahrten löschen',
           text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButtonPrimary(
               fillColor: CI.radkulturYellow,

@@ -137,8 +137,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
             if (widget.child != null)
               Pad(
                 child: BigButtonPrimary(
-                  icon: Icons.check,
-                  iconColor: Colors.white,
                   label: "Akzeptieren",
                   onPressed: onAcceptButtonPressed,
                 ),

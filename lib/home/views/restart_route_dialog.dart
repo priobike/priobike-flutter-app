@@ -20,11 +20,8 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
         title: 'Fahrt abgebrochen',
         text:
             "Die letzte Fahrt wurde unerwartet beendet. Willst Du die Navigation der Route fortsetzen oder die Route speichern?",
-        icon: Icons.warning_rounded,
-        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
           BigButtonPrimary(
-            icon: Icons.directions_bike_rounded,
             label: "Fortsetzen",
             onPressed: () async {
               Routing routing = getIt<Routing>();
@@ -56,7 +53,6 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
           BigButtonSecondary(
-            icon: Icons.save_rounded,
             label: "Speichern",
             onPressed: () {
               ShortcutRoute shortcutRoute = ShortcutRoute(id: UniqueKey().toString(), name: "", waypoints: lastRoute);
@@ -67,7 +63,6 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
           BigButtonTertiary(
-            icon: Icons.close_rounded,
             label: "Abbrechen",
             onPressed: () => Navigator.of(context).pop(),
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

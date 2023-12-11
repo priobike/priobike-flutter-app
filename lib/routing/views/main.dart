@@ -157,12 +157,8 @@ class RoutingViewState extends State<RoutingView> {
             title: 'Hinweis',
             text:
                 'Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-            icon: Icons.info_rounded,
-            iconColor: Theme.of(context).colorScheme.primary,
             actions: [
               BigButtonPrimary(
-                iconColor: Colors.white,
-                icon: Icons.check_rounded,
                 label: "Ok",
                 onPressed: () async {
                   await settings.setDidViewWarning(true);
@@ -277,12 +273,8 @@ class RoutingViewState extends State<RoutingView> {
           title: 'Hinweis',
           text:
               'Deine GPS-Position scheint ungenau zu sein. Solltest Du während der Fahrt Probleme mit der Ortung feststellen, prüfe Deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
-          icon: Icons.info_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
             BigButtonPrimary(
-              iconColor: Colors.white,
-              icon: Icons.check_rounded,
               label: "Ok",
               onPressed: () => Navigator.of(context).pop(),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
