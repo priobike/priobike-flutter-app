@@ -22,6 +22,8 @@ class MapboxTileImageCache {
     required List<LatLng> coords,
     required Brightness brightness,
     String? styleUri,
+    double heightRatio = 1,
+    double widthRatio = 1,
   }) async {
     final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
     if (bbox == null) return null;
@@ -32,8 +34,8 @@ class MapboxTileImageCache {
       return MapboxTileImageCache.ongoingFetches[imageName];
     } else {
       // Fetch the image.
-      final Future<MemoryImage?> fetch =
-          MapboxTileImageCache._fetchTile(bbox: bbox, brightness: brightness, styleUri: styleUri);
+      final Future<MemoryImage?> fetch = MapboxTileImageCache._fetchTile(
+          bbox: bbox, brightness: brightness, styleUri: styleUri, heightRatio: heightRatio, widthRatio: widthRatio);
       MapboxTileImageCache.ongoingFetches[imageName] = fetch;
       final MemoryImage? image = await fetch;
       MapboxTileImageCache.ongoingFetches.remove(imageName);
@@ -46,6 +48,8 @@ class MapboxTileImageCache {
     required MapboxMapProjectionBoundingBox bbox,
     required Brightness brightness,
     String? styleUri,
+    double heightRatio = 1,
+    double widthRatio = 1,
   }) async {
     // Check if the image exists, and if so, return it.
     final path = await _getImagePath(bbox, brightness, styleUri);
@@ -67,7 +71,7 @@ class MapboxTileImageCache {
       final bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
       // we display the logo and attribution, so we can hide it in the image
       final url =
-          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessToken";
+          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/${(1000 * widthRatio).toInt()}x${(1000 * heightRatio).toInt()}/?attribution=false&logo=false&$accessToken";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {

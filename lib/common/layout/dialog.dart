@@ -123,7 +123,8 @@ void showFinishDriveDialog(context, Function submit) {
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
+    barrierColor:
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.8),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       return DialogLayout(
         title: 'Dein Feedback zur App',

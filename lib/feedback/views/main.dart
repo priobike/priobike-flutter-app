@@ -164,108 +164,46 @@ class FeedbackViewState extends State<FeedbackView> {
     if (feedback.isSendingFeedback) return renderLoadingIndicator();
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return Container();
 
-    // get street names
-    final start = routing.selectedWaypoints!.first.address?.split(",")[0] ?? "";
-    final end = routing.selectedWaypoints!.last.address?.split(",")[0] ?? "";
-
-    // 2 * 36 (buttons) + 16 Padding + 1/6 height (stars).
-    final bottomSheetHeight = 2 * 36 + 16 + MediaQuery.of(context).size.height / 6;
-
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
       systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
-        body: SizedBox(
-          height: MediaQuery.of(context).size.height - bottomSheetHeight,
-          child: SingleChildScrollView(
-            key: const ValueKey("feedback_scroll_view"),
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 24, 24, 0),
-                  child: () {
-                    if (start == "" || end == "") {
-                      return BoldContent(
-                        text: "Fahrt",
-                        context: context,
-                        textAlign: TextAlign.center,
-                      );
-                    } else {
-                      return Wrap(
-                        alignment: WrapAlignment.center,
-                        runAlignment: WrapAlignment.center,
-                        direction: Axis.horizontal,
-                        runSpacing: 8,
-                        children: [
-                          Content(
-                            text: "Von ",
-                            context: context,
-                          ),
-                          Content(
-                            text: start,
-                            context: context,
-                          ),
-                          Content(
-                            text: " nach ",
-                            context: context,
-                          ),
-                          Content(
-                            text: end,
-                            context: context,
-                          )
-                        ],
-                      );
-                    }
-                  }(),
-                ),
-                const SmallVSpace(),
-                trackHistory != null ? trackHistory! : Container(),
-              ],
+        body: Stack(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: trackHistory != null ? trackHistory! : Container(),
             ),
-          ),
-        ),
-        bottomSheet: Container(
-          width: MediaQuery.of(context).size.width,
-          height: bottomSheetHeight,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
-                child: StarRatingView(
-                  text: "Dein Feedback zur App",
-                  displayQuestion: true,
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    BigButtonTertiary(
+                      // iconColor: Colors.white,
+                      // icon: Icons.save_rounded,
+                      fillColor: Theme.of(context).colorScheme.background.withOpacity(0.75),
+                      label: "Strecke speichern",
+                      onPressed: () => showSaveShortcutSheet(context),
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
+                    ),
+                    const SmallVSpace(),
+                    BigButtonPrimary(
+                      // iconColor: Colors.white,
+                      // icon: Icons.check,
+                      // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                      label: "Fertig",
+                      onPressed: () => showFinishDriveDialog(context, submit),
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
+                    ),
+                  ],
                 ),
               ),
-              BigButtonPrimary(
-                // iconColor: Colors.white,
-                // icon: Icons.check,
-                // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Fertig",
-                onPressed: () => submit(),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
-              ),
-              BigButtonPrimary(
-                // iconColor: Colors.white,
-                // icon: Icons.save_rounded,
-                // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
-                label: "Strecke speichern",
-                onPressed: () => showSaveShortcutSheet(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

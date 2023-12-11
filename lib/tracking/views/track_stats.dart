@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
 
 /// A pictogram of a track.
 class TrackStats extends StatelessWidget {
@@ -43,36 +44,47 @@ class TrackStats extends StatelessWidget {
           ? "${(savedCo2inG! / 1000).toStringAsFixed(2)} kg"
           : "${savedCo2inG!.toStringAsFixed(2)} g";
     }
-    return Wrap(
-      spacing: 12,
-      runSpacing: 6,
-      direction: Axis.horizontal,
-      alignment: WrapAlignment.center,
-      runAlignment: WrapAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          children: [
-            Text("Dauer", style: headerTextStyle),
-            Text(timeText, style: cellTextStyle),
-          ],
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary),
+              borderRadius: const BorderRadius.all(Radius.circular(15))),
+          child: Column(
+            children: [
+              Content(text: "Dauer", context: context),
+              BoldContent(text: timeText, context: context),
+            ],
+          ),
         ),
-        Column(
-          children: [
-            Text("Distanz", style: headerTextStyle),
-            Text(distanceText, style: cellTextStyle),
-          ],
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary),
+              borderRadius: const BorderRadius.all(Radius.circular(15))),
+          child: Column(
+            children: [
+              Content(text: "Distanz", context: context),
+              BoldContent(text: distanceText, context: context),
+            ],
+          ),
         ),
-        Column(
-          children: [
-            Text("Geschwindigkeit", style: headerTextStyle),
-            Text(speedText, style: cellTextStyle),
-          ],
-        ),
-        Column(
-          children: [
-            Text("CO2 gespart", style: headerTextStyle),
-            Text(co2Text, style: cellTextStyle),
-          ],
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary),
+              borderRadius: const BorderRadius.all(Radius.circular(15))),
+          child: Column(
+            children: [
+              Content(text: "Geschwindigkeit", context: context),
+              BoldContent(text: speedText, context: context),
+            ],
+          ),
         ),
       ],
     );

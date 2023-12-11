@@ -325,7 +325,6 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
       future: _loadTrack(widget.track),
       builder: (context, snapshot) {
         final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-        final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
 
         final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
         final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
@@ -360,69 +359,44 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
             ),
           ),
         );
+
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
-              ? Tile(
-                  padding: const EdgeInsets.all(0),
-                  borderRadius: BorderRadius.circular(20),
-                  content: TrackPictogram(
-                    key: ValueKey(widget.track.sessionId),
-                    track: positions,
-                    blurRadius: 2,
-                    startImage: widget.startImage,
-                    destinationImage: widget.destinationImage,
-                    iconSize: 16,
-                    lineWidth: 6,
-                  ),
+              ? TrackPictogram(
+                  key: ValueKey(widget.track.sessionId),
+                  track: positions,
+                  blurRadius: 2,
+                  startImage: widget.startImage,
+                  destinationImage: widget.destinationImage,
+                  iconSize: 16,
+                  lineWidth: 6,
+                  imageWidthRatio: MediaQuery.of(context).size.width / MediaQuery.of(context).size.height,
                 )
               : Center(
                   child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
                 );
         }
 
-        return Wrap(
+        return Stack(
+          // alignment: Alignment.center,
           children: [
-            Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              BoldContent(text: "Deine Fahrt vom", context: context),
-                              Content(
-                                text: lastTrackDateFormatted,
-                                context: context,
-                                color: Theme.of(context).colorScheme.onBackground,
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SmallVSpace(),
-                        Container(
-                            // use width as height to make it a square
-                            height: MediaQuery.of(context).size.width,
-                            width: MediaQuery.of(context).size.width,
-                            padding: const EdgeInsets.all(24),
-                            child: content),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: trackStats,
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-                const VSpace(),
-              ],
+            content,
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 20,
+              right: 20,
+              height: 96,
+              child: Content(
+                text: "Deine Fahrt",
+                context: context,
+              ),
             ),
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 40,
+              left: 20,
+              right: 20,
+              child: trackStats,
+            )
           ],
         );
       },
