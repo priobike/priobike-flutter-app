@@ -303,42 +303,29 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   ),
                 ),
                 const SmallHSpace(),
-                SizedBox(
-                  // button height + small vertical space + button height.
-                  height: 48 + 8 + 48,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      editMode
-                          ? SmallIconButtonSecondary(
-                              icon: Icons.delete,
-                              onPressed: () => onDeleteShortcut(key),
-                            )
-                          : SmallIconButtonSecondary(
-                              icon: Icons.qr_code_2_rounded,
-                              onPressed: () => Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
-                                ),
-                              ),
-                            ),
-                      const SmallVSpace(),
-                      editMode
-                          ? SmallIconButtonTertiary(
-                              icon: Icons.edit,
-                              onPressed: () => onEditShortcut(key),
-                            )
-                          : SmallIconButtonTertiary(
-                              icon: Icons.share_rounded,
-                              onPressed: () => onShareShortcut(key),
-                            ),
-                    ],
-                  ),
-                ),
-                const HSpace(),
-                const Center(
-                  child: Icon(Icons.list_rounded),
-                ),
+                editMode
+                    ? SmallIconButtonSecondary(
+                        icon: Icons.delete,
+                        onPressed: () => onDeleteShortcut(key),
+                      )
+                    : SmallIconButtonSecondary(
+                        icon: Icons.qr_code_2_rounded,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
+                          ),
+                        ),
+                      ),
+                const SmallHSpace(),
+                editMode
+                    ? SmallIconButtonTertiary(
+                        icon: Icons.edit,
+                        onPressed: () => onEditShortcut(key),
+                      )
+                    : SmallIconButtonTertiary(
+                        icon: Icons.share_rounded,
+                        onPressed: () => onShareShortcut(key),
+                      ),
                 const SmallHSpace(),
                 const SmallHSpace(),
               ],
@@ -438,6 +425,19 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       .entries
                       .map<Widget>((entry) => shortcutListItem(entry.value, entry.key))
                       .toList(),
+                ),
+                const VSpace(),
+                const HPad(
+                  child: Center(
+                    child: Text(
+                      'Drücke lange auf ein Element und ziehe es nach oben oder unten, um die Reihenfolge zu ändern.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 128),
               ],
