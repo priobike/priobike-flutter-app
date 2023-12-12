@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:latlong2/latlong.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -16,6 +17,7 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -78,6 +80,12 @@ class Ride with ChangeNotifier {
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
+
+  /// The last send state of the next signal group. Used for the simulator to only send a new state if it changed.
+  String? lastSendSGState;
+
+  // The last send signal group id. Used for the simulator to only send a new state if it changed.
+  String? lastSendSGId;
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -342,6 +350,40 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sends the current state of the signal group to the simulator.
+  Future<void> sendUpdatesToSimulator() async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
+    if (calcCurrentSG == null || predictionComponent == null || predictionComponent!.recommendation == null) return;
+
+    final currentSg = calcCurrentSG!;
+
+    // only send if same traffic light has different state
+    final state = predictionComponent!.recommendation!.calcCurrentSignalPhase.toString().split(".")[1];
+    final tlID = currentSg.id;
+    if (lastSendSGState != null && lastSendSGId != null && lastSendSGState == state && lastSendSGId == tlID) return;
+    lastSendSGState = state;
+    lastSendSGId = tlID;
+
+    // format {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80", "state":"red"}
+    final simulator = getIt<Simulator>();
+    const type = "TrafficLight";
+    final deviceID = simulator.deviceId;
+    final longitude = currentSg.position.lon;
+    final latitude = currentSg.position.lat;
+    const bearing = 0; // TODO: fix
+
+    Map<String, String> json = {};
+    json['type'] = type;
+    json['deviceID'] = deviceID;
+    json['tlID'] = tlID;
+    json['longitude'] = longitude.toString();
+    json['latitude'] = latitude.toString();
+    json['bearing'] = bearing.toString();
+    json['state'] = state;
+    final String message = jsonEncode(json);
+    await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
+  }
+
   /// Reset the service.
   Future<void> reset() async {
     route = null;
@@ -362,8 +404,6 @@ class Ride with ChangeNotifier {
   void notifyListeners() {
     super.notifyListeners();
 
-    // TODO: Display next signal group and its color on the simulator.
-    print("Current recommendation: ${predictionComponent?.recommendation}");
-    print("Current SG: $calcCurrentSG");
+    if (getIt<Settings>().enableSimulatorMode == true) sendUpdatesToSimulator();
   }
 }
