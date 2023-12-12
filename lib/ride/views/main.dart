@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
@@ -56,8 +57,16 @@ class RideViewState extends State<RideView> {
   /// A bool indicating whether the camera should follow the user location.
   bool cameraFollowsUserLocation = true;
 
+  /// The finish ride button.
+  late FinishRideButton finishRideButton;
+
+  /// The associated simulator service, which is injected by the provider.
+  late Simulator simulator;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {});
+  void update() => setState(() {
+        if (settings.enableSimulatorMode && simulator.receivedStopRide) stopRide(context);
+      });
 
   @override
   void initState() {
@@ -65,6 +74,8 @@ class RideViewState extends State<RideView> {
 
     settings = getIt<Settings>();
     settings.addListener(update);
+    simulator = getIt<Simulator>();
+    simulator.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -92,7 +103,6 @@ class RideViewState extends State<RideView> {
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
 
-        settings = getIt<Settings>();
         if (settings.enableSimulatorMode) sendTrafficlightsToSimulator();
 
         // Connect the datastream mqtt client, if the user enabled real-time data.
@@ -153,10 +163,9 @@ class RideViewState extends State<RideView> {
 
   /// Send the selected route to the simulator at the beginning of the ride.
   Future<void> sendTrafficlightsToSimulator() async {
-    if (getIt<Settings>().enableSimulatorMode == false) return;
+    if (settings.enableSimulatorMode == false) return;
     if (routing.selectedRoute == null) return;
 
-    final simulator = getIt<Simulator>();
     for (final sg in routing.selectedRoute!.signalGroups) {
       // format {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345"}
       final tlID = sg.id;
@@ -176,6 +185,37 @@ class RideViewState extends State<RideView> {
     }
   }
 
+  Future<void> stopRide(context) async {
+    if (settings.enableSimulatorMode == false) return;
+    await showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt beendet',
+          text: "Der Simulator hat die Fahrt beendet.",
+          iconColor: CI.radkulturYellow,
+          actions: [
+            BigButton(
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              icon: Icons.home_rounded,
+              fillColor: CI.radkulturRed,
+              label: "Okay",
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            ),
+          ],
+        );
+      },
+    );
+    await finishRideButton.onTap(context);
+  }
+
   /// Called when the user moves the map.
   Future<void> onMapMoved() async {
     if (cameraFollowsUserLocation) {
@@ -188,6 +228,7 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
+    simulator.removeListener(update);
     super.dispose();
   }
 
@@ -222,6 +263,8 @@ class RideViewState extends State<RideView> {
       paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.42);
       positionSpeedometerRight = 6.0;
     }
+
+    finishRideButton = FinishRideButton();
 
     return PopScope(
       onPopInvoked: (type) async => false,
