@@ -364,21 +364,15 @@ class Ride with ChangeNotifier {
     lastSendSGState = state;
     lastSendSGId = tlID;
 
-    // format {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80", "state":"red"}
+    // format {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
     final simulator = getIt<Simulator>();
-    const type = "TrafficLight";
+    const type = "TrafficLightChange";
     final deviceID = simulator.deviceId;
-    final longitude = currentSg.position.lon;
-    final latitude = currentSg.position.lat;
-    const bearing = 0; // TODO: fix
 
     Map<String, String> json = {};
     json['type'] = type;
     json['deviceID'] = deviceID;
     json['tlID'] = tlID;
-    json['longitude'] = longitude.toString();
-    json['latitude'] = latitude.toString();
-    json['bearing'] = bearing.toString();
     json['state'] = state;
     final String message = jsonEncode(json);
     await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);

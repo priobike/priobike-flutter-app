@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/lock.dart';
@@ -18,6 +21,7 @@ import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -70,13 +74,13 @@ class RideViewState extends State<RideView> {
         final tracking = getIt<Tracking>();
         final positioning = getIt<Positioning>();
         final datastream = getIt<Datastream>();
-        final routing = getIt<Routing>();
+        routing = getIt<Routing>();
         final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
-        final ride = getIt<Ride>();
+        ride = getIt<Ride>();
 
         // Save the shortcut id if there exists a matching shortcut for the selected waypoints.
         ride.setShortcut(routing.selectedWaypoints!);
@@ -88,11 +92,10 @@ class RideViewState extends State<RideView> {
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
 
-        // TODO: Send the selected route to the s(t)imulator.
-        print("Selected route: ${routing.selectedRoute!.signalGroups}");
+        settings = getIt<Settings>();
+        if (settings.enableSimulatorMode) sendTrafficlightsToSimulator();
 
         // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = getIt<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
           await datastream.connect();
           // Link the ride to the datastream.
@@ -146,6 +149,31 @@ class RideViewState extends State<RideView> {
         ]);
       },
     );
+  }
+
+  /// Send the selected route to the simulator at the beginning of the ride.
+  Future<void> sendTrafficlightsToSimulator() async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
+    if (routing.selectedRoute == null) return;
+
+    final simulator = getIt<Simulator>();
+    for (final sg in routing.selectedRoute!.signalGroups) {
+      // format {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345"}
+      final tlID = sg.id;
+      const type = "TrafficLight";
+      final deviceID = simulator.deviceId;
+      final longitude = sg.position.lon;
+      final latitude = sg.position.lat;
+
+      Map<String, String> json = {};
+      json['type'] = type;
+      json['deviceID'] = deviceID;
+      json['tlID'] = tlID;
+      json['longitude'] = longitude.toString();
+      json['latitude'] = latitude.toString();
+      final String message = jsonEncode(json);
+      await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
+    }
   }
 
   /// Called when the user moves the map.
