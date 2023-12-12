@@ -350,7 +350,7 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sends the current state of the signal group to the simulator.
+  /// Sends updates of the state of the signal group to the simulator.
   Future<void> sendUpdatesToSimulator() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (calcCurrentSG == null || predictionComponent == null || predictionComponent!.recommendation == null) return;
@@ -404,6 +404,6 @@ class Ride with ChangeNotifier {
   void notifyListeners() {
     super.notifyListeners();
 
-    if (getIt<Settings>().enableSimulatorMode == true) sendUpdatesToSimulator();
+    if (getIt<Settings>().enableSimulatorMode) sendUpdatesToSimulator();
   }
 }

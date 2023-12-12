@@ -63,6 +63,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The timer that updates the location puck position on the map.
   Timer? timer;
 
+  /// The associated simulator service, which is injected by the provider.
+  late Simulator simulator;
+
   /// The threshold for the location accuracy in meter
   /// NOTE: The accuracy will increase if we move and gain more GPS signal data.
   /// Hence, we don't want to set this threshold too low. The threshold should
@@ -124,6 +127,8 @@ class RoutingViewState extends State<RoutingView> {
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
+    simulator = getIt<Simulator>();
+    simulator.addListener(update);
   }
 
   @override
@@ -134,6 +139,7 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.removeListener(update);
     layers.removeListener(update);
     timer?.cancel();
+    simulator.removeListener(update);
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
@@ -175,16 +181,22 @@ class RoutingViewState extends State<RoutingView> {
             icon: Icons.info_rounded,
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
-              BigButton(
+              BigButtonPrimary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
-                label: "Okay",
+                // TODO: fix: warum update sich der Text nicht?
+                label: simulator.pairSuccessful ? 'Simulation starten' : 'Okay',
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  if (simulator.pairSuccessful) {
+                    startRide();
+                  } else {
+                    Navigator.of(context).pop();
+                    return;
+                  }
                 },
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               ),
-              BigButton(
+              BigButtonSecondary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
                 label: "Simulator deakt.", // TODO: durch anderen Button ersetzen??
