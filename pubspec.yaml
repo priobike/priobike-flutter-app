@@ -153,3 +153,6 @@ flutter:
 
     # wiki images
     - assets/images/wiki/
+
+    # Radkultur icons
+    - assets/icons/

@@ -146,8 +146,8 @@ class YourBikeViewState extends State<YourBikeView> {
               ),
               YourBikeElementButton(
                 image: pumpUpBikeActive
-                    ? Image.asset("assets/images/air-icon-white.png")
-                    : Image.asset("assets/images/air-icon-red.png"),
+                    ? Image.asset("assets/icons/luftpumpe.svg")
+                    : Image.asset("assets/icons/luftpumpe.svg"),
                 title: "Aufpumpen",
                 color: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
                 backgroundColor:
@@ -156,8 +156,8 @@ class YourBikeViewState extends State<YourBikeView> {
               ),
               YourBikeElementButton(
                 image: repairBikeActive
-                    ? Image.asset("assets/images/repair-icon-white.png")
-                    : Image.asset("assets/images/repair-icon-red.png"),
+                    ? Image.asset("assets/icons/werkzeug.svg")
+                    : Image.asset("assets/icons/werkzeug.svg"),
                 title: "Reparieren",
                 color: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
                 backgroundColor:
