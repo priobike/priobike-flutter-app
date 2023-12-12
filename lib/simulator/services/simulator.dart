@@ -149,6 +149,7 @@ class Simulator with ChangeNotifier {
   /// Sends a message to the simulator via MQTT.
   Future<void> sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
     if (client == null) await connectMQTTClient();
+    if (receivedStopRide) return;
 
     // convert message to byte array
     final Uint8List data = Uint8List.fromList(utf8.encode(message));
@@ -167,7 +168,6 @@ class Simulator with ChangeNotifier {
   /// A callback that is executed when data arrives.
   Future<void> onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
     if (messages == null) return;
-    if (pairSuccessful) return;
     for (final message in messages) {
       final recMess = message.payload as MqttPublishMessage;
       // Decode the payload.
@@ -176,7 +176,7 @@ class Simulator with ChangeNotifier {
       log.i("Received for simulator: $json");
 
       // Paring
-      if (json['type'] == 'PairStart' && json['deviceID'] == deviceId) {
+      if (!pairSuccessful && json['type'] == 'PairStart' && json['deviceID'] == deviceId) {
         pairSuccessful = true;
         log.i("Pairing with simulator successful.");
 
@@ -187,14 +187,15 @@ class Simulator with ChangeNotifier {
           message: message,
           qualityOfService: qualityOfService,
         );
+        notifyListeners();
       }
 
       // Stop ride
-      if (json['type'] == 'StopRide' && json['deviceID'] == deviceId) {
+      if (!receivedStopRide && json['type'] == 'StopRide' && json['deviceID'] == deviceId) {
         log.i("Stop ride received from simulator.");
         receivedStopRide = true;
+        notifyListeners();
       }
-      notifyListeners();
     }
   }
 
