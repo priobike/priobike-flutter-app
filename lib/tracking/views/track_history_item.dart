@@ -441,9 +441,29 @@ class TrackHistoryItemAppSheetView extends StatefulWidget {
 }
 
 class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetView> with TrackHistoryItem {
+  /// The widget that displays the track on a map.
+  late Widget trackPictogram;
+
   @override
   void initState() {
     super.initState();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // Create TrackHistory once to prevent getting rebuild on every setState.
+      trackPictogram = TrackPictogram(
+        key: ValueKey(widget.track.sessionId),
+        track: positions,
+        blurRadius: 2,
+        startImage: widget.startImage,
+        destinationImage: widget.destinationImage,
+        iconSize: 16,
+        lineWidth: 6,
+        imageWidthRatio: 1,
+        mapboxTop: MediaQuery.of(context).padding.top + 10,
+        mapboxRight: 20,
+        mapboxWidth: 64,
+      );
+    });
     initializeDateFormatting();
   }
 
@@ -498,38 +518,6 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
           trackStats = const TrackStats();
         }
 
-        Widget content = Tile(
-          padding: const EdgeInsets.all(0),
-          borderRadius: BorderRadius.circular(20),
-          content: const SizedBox(
-            height: 64,
-            width: 64,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
-        );
-
-        if (snapshot.connectionState == ConnectionState.done) {
-          content = positions.isNotEmpty
-              ? TrackPictogram(
-                  key: ValueKey(widget.track.sessionId),
-                  track: positions,
-                  blurRadius: 2,
-                  startImage: widget.startImage,
-                  destinationImage: widget.destinationImage,
-                  iconSize: 16,
-                  lineWidth: 6,
-                  imageWidthRatio: 1,
-                  mapboxTop: MediaQuery.of(context).padding.top + 10,
-                  mapboxRight: 20,
-                  mapboxWidth: 64,
-                )
-              : Center(
-                  child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
-                );
-        }
-
         return Container(
           // VSpace + Content + SmallVSpace + Track map size + 20 + Details + padding + 44 Stats.
           height: (24 + 32 + 8 + widget.height + 20 + 62 + 8 + MediaQuery.of(context).padding.bottom),
@@ -556,7 +544,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
                 ]),
               ),
               const SmallVSpace(),
-              SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: content),
+              SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: trackPictogram),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: trackStats,

@@ -327,7 +327,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         onPressed: () => onShareShortcut(key),
                       ),
                 const SmallHSpace(),
-                const SmallHSpace(),
               ],
             ),
             onPressed: () async {
