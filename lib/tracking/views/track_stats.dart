@@ -51,7 +51,7 @@ class TrackStats extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary),
+              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
               borderRadius: const BorderRadius.all(Radius.circular(15))),
           child: Column(
             children: [
@@ -64,7 +64,7 @@ class TrackStats extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary),
+              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
               borderRadius: const BorderRadius.all(Radius.circular(15))),
           child: Column(
             children: [
@@ -77,7 +77,7 @@ class TrackStats extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary),
+              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
               borderRadius: const BorderRadius.all(Radius.circular(15))),
           child: Column(
             children: [

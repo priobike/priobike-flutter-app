@@ -37,6 +37,12 @@ class TrackPictogram extends StatefulWidget {
   /// If the speed should be displayed.
   final bool showSpeedLegend;
 
+  /// If the speed should be displayed.
+  final double? speedLegendBottom;
+
+  /// If the speed should be displayed.
+  final double? speedLegendLeft;
+
   /// The ratio of the height of the fetched image.
   /// Has to be between 0 and 1.
   final double imageHeightRatio;
@@ -80,6 +86,8 @@ class TrackPictogram extends StatefulWidget {
     this.mapboxLeft,
     this.mapboxBottom,
     this.mapboxWidth = 32,
+    this.speedLegendBottom = 10,
+    this.speedLegendLeft = 10,
   });
 
   @override
@@ -198,8 +206,8 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
         // Legend
         if (widget.showSpeedLegend)
           Positioned(
-            bottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
-            left: 20,
+            bottom: widget.speedLegendBottom,
+            left: widget.speedLegendLeft,
             child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(

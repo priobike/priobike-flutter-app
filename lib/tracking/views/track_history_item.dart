@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -166,7 +167,6 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
             track: widget.track,
             startImage: widget.startImage,
             destinationImage: widget.destinationImage,
-            width: MediaQuery.of(context).size.width - 40,
             height: MediaQuery.of(context).size.width - 40,
           ),
         ),
@@ -378,6 +378,8 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   mapboxTop: MediaQuery.of(context).padding.top + 10,
                   mapboxRight: 20,
                   mapboxWidth: 64,
+                  speedLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
+                  speedLegendLeft: 20,
                 )
               : Center(
                   child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
@@ -417,11 +419,8 @@ class TrackHistoryItemAppSheetView extends StatefulWidget {
   /// The track to display.
   final Track track;
 
-  /// The width of the view.
-  final double? width;
-
   /// The height of this widget.
-  final double? height;
+  final double height;
 
   /// The image of the route start icon.
   final ui.Image startImage;
@@ -434,8 +433,7 @@ class TrackHistoryItemAppSheetView extends StatefulWidget {
     required this.track,
     required this.startImage,
     required this.destinationImage,
-    this.width,
-    this.height,
+    required this.height,
   });
 
   @override
@@ -451,6 +449,28 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
 
   @override
   Widget build(BuildContext context) {
+    var relativeTime = "";
+    final now = DateTime.now();
+    final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+    final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
+    if (isToday) {
+      relativeTime = "Heute";
+    } else {
+      final yesterday = now.subtract(const Duration(days: 1));
+      if (trackDate.day == yesterday.day && trackDate.month == yesterday.month && trackDate.year == yesterday.year) {
+        relativeTime = "Gestern";
+      } else {
+        relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
+      }
+    }
+    // Add the time.
+    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
+
+    // Determine the duration.
+    final trackDurationFormatted = durationSeconds != null
+        ? '${(durationSeconds! ~/ 60).toString().padLeft(2, '0')}:${(durationSeconds! % 60).toString().padLeft(2, '0')}\nMinuten'
+        : null;
+
     return FutureBuilder<void>(
       future: _loadTrack(widget.track),
       builder: (context, snapshot) {
@@ -498,8 +518,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
                   destinationImage: widget.destinationImage,
                   iconSize: 16,
                   lineWidth: 6,
-                  imageWidthRatio: (widget.width ?? MediaQuery.of(context).size.width) /
-                      (widget.height ?? MediaQuery.of(context).size.height),
+                  imageWidthRatio: 1,
                   mapboxTop: MediaQuery.of(context).padding.top + 10,
                   mapboxRight: 20,
                   mapboxWidth: 64,
@@ -510,19 +529,33 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
         }
 
         return Container(
-          color: Theme.of(context).colorScheme.background,
-          // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          height: widget.height ?? MediaQuery.of(context).size.height,
-          width: widget.width ?? MediaQuery.of(context).size.width,
-          child: Stack(
+          // VSpace + Content + SmallVSpace + Track map size + 20 padding + 44 Stats.
+          height: (24 + 32 + 8 + widget.height + 20 + 64 + 8),
+          // width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            color: Theme.of(context).colorScheme.background,
+          ),
+          child: Column(
             children: [
-              content,
-              Positioned(
-                top: 20,
-                left: 10,
-                right: 10,
+              const VSpace(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    BoldContent(text: relativeTime, context: context),
+                    Content(text: clock, context: context),
+                  ]),
+                  Content(text: trackDurationFormatted ?? "", context: context),
+                ]),
+              ),
+              const SmallVSpace(),
+              SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: content),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: trackStats,
-              )
+              ),
+              const SmallVSpace(),
             ],
           ),
         );
