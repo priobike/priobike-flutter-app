@@ -333,8 +333,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
                     const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
                     // Big button size + padding.
-                    const SizedBox(
-                      height: 40 + 4,
+                    SizedBox(
+                      height: 40 + 8 + frame.padding.bottom,
                     ),
                   ],
                 ),
