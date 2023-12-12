@@ -18,16 +18,6 @@ class TrackStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final headerTextStyle = TextStyle(
-      fontSize: 11,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
-    );
-
-    final cellTextStyle = TextStyle(
-      fontSize: 14,
-      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-    );
-
     String timeText = '--- s';
     if (formattedTime != null) timeText = formattedTime!;
     String distanceText = '--- m';
@@ -38,12 +28,7 @@ class TrackStats extends StatelessWidget {
     }
     String speedText = 'Ø --- km/h';
     if (averageSpeedKmH != null) speedText = 'Ø ${averageSpeedKmH!.toStringAsFixed(2)} km/h';
-    String co2Text = '--- g';
-    if (savedCo2inG != null) {
-      co2Text = savedCo2inG! >= 1000
-          ? "${(savedCo2inG! / 1000).toStringAsFixed(2)} kg"
-          : "${savedCo2inG!.toStringAsFixed(2)} g";
-    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

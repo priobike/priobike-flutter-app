@@ -449,28 +449,6 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
 
   @override
   Widget build(BuildContext context) {
-    var relativeTime = "";
-    final now = DateTime.now();
-    final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-    final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
-    if (isToday) {
-      relativeTime = "Heute";
-    } else {
-      final yesterday = now.subtract(const Duration(days: 1));
-      if (trackDate.day == yesterday.day && trackDate.month == yesterday.month && trackDate.year == yesterday.year) {
-        relativeTime = "Gestern";
-      } else {
-        relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
-      }
-    }
-    // Add the time.
-    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
-
-    // Determine the duration.
-    final trackDurationFormatted = durationSeconds != null
-        ? '${(durationSeconds! ~/ 60).toString().padLeft(2, '0')}:${(durationSeconds! % 60).toString().padLeft(2, '0')}\nMinuten'
-        : null;
-
     return FutureBuilder<void>(
       future: _loadTrack(widget.track),
       builder: (context, snapshot) {
@@ -483,6 +461,30 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
         const co2PerKm = 0.1187; // Data according to statista.com in KG
         final savedCo2inG =
             distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+
+        var relativeTime = "";
+        final now = DateTime.now();
+        final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+        final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
+        if (isToday) {
+          relativeTime = "Heute";
+        } else {
+          final yesterday = now.subtract(const Duration(days: 1));
+          if (trackDate.day == yesterday.day &&
+              trackDate.month == yesterday.month &&
+              trackDate.year == yesterday.year) {
+            relativeTime = "Gestern";
+          } else {
+            relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
+          }
+        }
+        // Add the time.
+        final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
+
+        // Determine the duration.
+        final trackDurationFormatted = durationSeconds != null
+            ? '${(durationSeconds! ~/ 60).toString().padLeft(2, '0')}:${(durationSeconds! % 60).toString().padLeft(2, '0')}\nMinuten'
+            : null;
 
         final Widget trackStats;
         if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
@@ -529,8 +531,8 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
         }
 
         return Container(
-          // VSpace + Content + SmallVSpace + Track map size + 20 padding + 44 Stats.
-          height: (24 + 32 + 8 + widget.height + 20 + 64 + 8),
+          // VSpace + Content + SmallVSpace + Track map size + 20 + Details + padding + 44 Stats.
+          height: (24 + 32 + 8 + widget.height + 20 + 62 + 8 + MediaQuery.of(context).padding.bottom),
           // width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
@@ -546,7 +548,11 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
                     BoldContent(text: relativeTime, context: context),
                     Content(text: clock, context: context),
                   ]),
-                  Content(text: trackDurationFormatted ?? "", context: context),
+                  Content(
+                    text: trackDurationFormatted ?? "",
+                    context: context,
+                    textAlign: TextAlign.end,
+                  ),
                 ]),
               ),
               const SmallVSpace(),
@@ -556,6 +562,9 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
                 child: trackStats,
               ),
               const SmallVSpace(),
+              SizedBox(
+                height: MediaQuery.of(context).padding.bottom,
+              ),
             ],
           ),
         );

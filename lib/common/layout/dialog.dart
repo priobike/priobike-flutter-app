@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/stars.dart';
