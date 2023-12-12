@@ -10,7 +10,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -163,10 +162,12 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         onPressed: () => showAppSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => TrackHistoryItemDetailView(
+          builder: (context) => TrackHistoryItemAppSheetView(
             track: widget.track,
             startImage: widget.startImage,
             destinationImage: widget.destinationImage,
+            width: MediaQuery.of(context).size.width - 40,
+            height: MediaQuery.of(context).size.width - 40,
           ),
         ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
@@ -294,6 +295,9 @@ class TrackHistoryItemDetailView extends StatefulWidget {
   /// The width of the view.
   final double? width;
 
+  /// The height of this widget.
+  final double? height;
+
   /// The image of the route start icon.
   final ui.Image startImage;
 
@@ -306,6 +310,7 @@ class TrackHistoryItemDetailView extends StatefulWidget {
     required this.startImage,
     required this.destinationImage,
     this.width,
+    this.height,
   });
 
   @override
@@ -324,13 +329,11 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
     return FutureBuilder<void>(
       future: _loadTrack(widget.track),
       builder: (context, snapshot) {
-        final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-
         final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
         final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
         final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-        String? formattedTime = _formatDuration();
+        String? formattedTime = _formatDuration(durationSeconds);
 
         const co2PerKm = 0.1187; // Data according to statista.com in KG
         final savedCo2inG =
@@ -370,56 +373,180 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   destinationImage: widget.destinationImage,
                   iconSize: 16,
                   lineWidth: 6,
-                  imageWidthRatio: MediaQuery.of(context).size.width / MediaQuery.of(context).size.height,
+                  imageWidthRatio: (widget.width ?? MediaQuery.of(context).size.width) /
+                      (widget.height ?? MediaQuery.of(context).size.height),
+                  mapboxTop: MediaQuery.of(context).padding.top + 10,
+                  mapboxRight: 20,
+                  mapboxWidth: 64,
                 )
               : Center(
                   child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
                 );
         }
 
-        return Stack(
-          // alignment: Alignment.center,
-          children: [
-            content,
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 20,
-              right: 20,
-              height: 96,
-              child: Content(
-                text: "Deine Fahrt",
-                context: context,
+        return SizedBox(
+          height: widget.height ?? MediaQuery.of(context).size.height,
+          width: widget.width ?? MediaQuery.of(context).size.width,
+          child: Stack(
+            children: [
+              content,
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10,
+                left: 20,
+                right: 20,
+                child: Content(
+                  text: "Deine Fahrt",
+                  context: context,
+                ),
               ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 40,
-              left: 20,
-              right: 20,
-              child: trackStats,
-            )
-          ],
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 40,
+                left: 20,
+                right: 20,
+                child: trackStats,
+              )
+            ],
+          ),
         );
       },
     );
   }
+}
 
-  /// Helper method to format the duration of the track.
-  String? _formatDuration() {
-    if (durationSeconds == null) return null;
-    if (durationSeconds! < 60) {
-      // Show only seconds.
-      final seconds = durationSeconds!.floor();
-      return "$seconds s";
-    } else if (durationSeconds! < 3600) {
-      // Show minutes and seconds.
-      final minutes = (durationSeconds! / 60).floor();
-      final seconds = (durationSeconds! - (minutes * 60)).floor();
-      return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
-    } else {
-      // Show only hours and minutes.
-      final hours = (durationSeconds! / 3600).floor();
-      final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
-      return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
-    }
+class TrackHistoryItemAppSheetView extends StatefulWidget {
+  /// The track to display.
+  final Track track;
+
+  /// The width of the view.
+  final double? width;
+
+  /// The height of this widget.
+  final double? height;
+
+  /// The image of the route start icon.
+  final ui.Image startImage;
+
+  /// The image of the route destination icon.
+  final ui.Image destinationImage;
+
+  const TrackHistoryItemAppSheetView({
+    super.key,
+    required this.track,
+    required this.startImage,
+    required this.destinationImage,
+    this.width,
+    this.height,
+  });
+
+  @override
+  State<StatefulWidget> createState() => TrackHistoryItemAppSheetViewState();
+}
+
+class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetView> with TrackHistoryItem {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _loadTrack(widget.track),
+      builder: (context, snapshot) {
+        final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
+        final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
+        final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+
+        String? formattedTime = _formatDuration(durationSeconds);
+
+        const co2PerKm = 0.1187; // Data according to statista.com in KG
+        final savedCo2inG =
+            distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+
+        final Widget trackStats;
+        if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
+          trackStats = TrackStats(
+            formattedTime: formattedTime,
+            distanceMeters: distanceMeters,
+            averageSpeedKmH: averageSpeedKmH,
+            savedCo2inG: savedCo2inG,
+          );
+        } else {
+          trackStats = const TrackStats();
+        }
+
+        Widget content = Tile(
+          padding: const EdgeInsets.all(0),
+          borderRadius: BorderRadius.circular(20),
+          content: const SizedBox(
+            height: 64,
+            width: 64,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        );
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          content = positions.isNotEmpty
+              ? TrackPictogram(
+                  key: ValueKey(widget.track.sessionId),
+                  track: positions,
+                  blurRadius: 2,
+                  startImage: widget.startImage,
+                  destinationImage: widget.destinationImage,
+                  iconSize: 16,
+                  lineWidth: 6,
+                  imageWidthRatio: (widget.width ?? MediaQuery.of(context).size.width) /
+                      (widget.height ?? MediaQuery.of(context).size.height),
+                  mapboxTop: MediaQuery.of(context).padding.top + 10,
+                  mapboxRight: 20,
+                  mapboxWidth: 64,
+                )
+              : Center(
+                  child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
+                );
+        }
+
+        return Container(
+          color: Theme.of(context).colorScheme.background,
+          // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          height: widget.height ?? MediaQuery.of(context).size.height,
+          width: widget.width ?? MediaQuery.of(context).size.width,
+          child: Stack(
+            children: [
+              content,
+              Positioned(
+                top: 20,
+                left: 10,
+                right: 10,
+                child: trackStats,
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Helper method to format the duration of the track.
+String? _formatDuration(int? durationSeconds) {
+  if (durationSeconds == null) return null;
+  if (durationSeconds < 60) {
+    // Show only seconds.
+    final seconds = durationSeconds.floor();
+    return "$seconds s";
+  } else if (durationSeconds < 3600) {
+    // Show minutes and seconds.
+    final minutes = (durationSeconds / 60).floor();
+    final seconds = (durationSeconds - (minutes * 60)).floor();
+    return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
+  } else {
+    // Show only hours and minutes.
+    final hours = (durationSeconds / 3600).floor();
+    final minutes = ((durationSeconds - (hours * 3600)) / 60).floor();
+    return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
   }
 }

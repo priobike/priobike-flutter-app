@@ -38,12 +38,27 @@ class TrackPictogram extends StatefulWidget {
   final bool showSpeedLegend;
 
   /// The ratio of the height of the fetched image.
-  /// Has to be <= 1.
+  /// Has to be between 0 and 1.
   final double imageHeightRatio;
 
   /// The ratio of the height of the fetched image.
-  /// Has to be <= 1.
+  /// Has to be between 0 and 1.
   final double imageWidthRatio;
+
+  /// The mapbox attribution top value.
+  final double? mapboxTop;
+
+  /// The mapbox attribution left value.
+  final double? mapboxRight;
+
+  /// The mapbox attribution left value.
+  final double? mapboxLeft;
+
+  /// The mapbox attribution bottom value.
+  final double? mapboxBottom;
+
+  /// The mapbox attribution width value.
+  final double mapboxWidth;
 
   const TrackPictogram({
     super.key,
@@ -60,6 +75,11 @@ class TrackPictogram extends StatefulWidget {
     this.showSpeedLegend = true,
     this.imageHeightRatio = 1,
     this.imageWidthRatio = 1,
+    this.mapboxTop = 12,
+    this.mapboxRight = 8,
+    this.mapboxLeft,
+    this.mapboxBottom,
+    this.mapboxWidth = 32,
   });
 
   @override
@@ -221,9 +241,12 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             ),
           ),
         //Mapbox Attribution Logo
-        const MapboxAttribution(
-          top: 24,
-          right: 8,
+        MapboxAttribution(
+          top: widget.mapboxTop,
+          right: widget.mapboxRight,
+          left: widget.mapboxLeft,
+          bottom: widget.mapboxBottom,
+          width: widget.mapboxWidth,
         ),
       ],
     );

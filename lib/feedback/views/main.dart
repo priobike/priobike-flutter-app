@@ -8,9 +8,7 @@ import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -183,8 +181,6 @@ class FeedbackViewState extends State<FeedbackView> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     BigButtonTertiary(
-                      // iconColor: Colors.white,
-                      // icon: Icons.save_rounded,
                       fillColor: Theme.of(context).colorScheme.background.withOpacity(0.75),
                       label: "Strecke speichern",
                       onPressed: () => showSaveShortcutSheet(context),
@@ -192,9 +188,6 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                     const SmallVSpace(),
                     BigButtonPrimary(
-                      // iconColor: Colors.white,
-                      // icon: Icons.check,
-                      // fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                       label: "Fertig",
                       onPressed: () => showFinishDriveDialog(context, submit),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),

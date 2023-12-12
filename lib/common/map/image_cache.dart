@@ -70,24 +70,44 @@ class MapboxTileImageCache {
       }
       final bboxStr = "[${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}]";
       // we display the logo and attribution, so we can hide it in the image
-      final url =
+
+      // The background image that should be displayed in the feedback view.
+      final feedbackUrl =
           "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/${(1000 * widthRatio).toInt()}x${(1000 * heightRatio).toInt()}/?attribution=false&logo=false&$accessToken";
-      final endpoint = Uri.parse(url);
-      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
-      if (response.statusCode != 200) {
-        final err = "Error while fetching background image status from Mapbox: ${response.statusCode}";
+      final feedbackEndpoint = Uri.parse(feedbackUrl);
+      final feedbackResponse = await Http.get(feedbackEndpoint).timeout(const Duration(seconds: 4));
+      if (feedbackResponse.statusCode != 200) {
+        final err = "Error while fetching background image status from Mapbox: ${feedbackResponse.statusCode}";
         throw Exception(err);
       }
-      final MemoryImage image = MemoryImage(response.bodyBytes);
 
-      log.i("Fetched background image from Mapbox: $url");
-      await saveImage(bbox, image, brightness, styleUri);
+      // the background image that should be cached and displayed in the all rides view.
+      final cacheUrl =
+          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/${(1000 * widthRatio).toInt()}x${(1000 * heightRatio).toInt()}/?attribution=false&logo=false&$accessToken";
+      final endpoint = Uri.parse(cacheUrl);
+
+      // Only run if ratios differ. Otherwise we would make the same request.
+      if (heightRatio != 1 && widthRatio != 1) {
+        final cacheResponse = await Http.get(endpoint).timeout(const Duration(seconds: 4));
+        if (cacheResponse.statusCode != 200) {
+          final err = "Error while fetching background image status from Mapbox: ${cacheResponse.statusCode}";
+          throw Exception(err);
+        }
+
+        final cachedImage = MemoryImage(cacheResponse.bodyBytes);
+        log.i("Fetched background image from Mapbox: $cacheUrl");
+        await saveImage(bbox, cachedImage, brightness, styleUri);
+      }
+
+      final MemoryImage feedbackImage = MemoryImage(feedbackResponse.bodyBytes);
+
+      log.i("Fetched background image from Mapbox: $feedbackUrl");
 
       // save timestamp of last fetch to shared preferences, used in pruning of old images
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt("priobike.backgroundimage.lastfetch", DateTime.now().millisecondsSinceEpoch);
 
-      return image;
+      return feedbackImage;
     } catch (e) {
       log.e("Error while fetching background-image-service: $e");
       return null;
