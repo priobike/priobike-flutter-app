@@ -11,7 +11,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:typed_data/typed_buffers.dart';
 
-class Simulator {
+class Simulator with ChangeNotifier {
   /// The logger.
   final log = Logger("Simulator");
 
@@ -194,6 +194,7 @@ class Simulator {
         log.i("Stop ride received from simulator.");
         receivedStopRide = true;
       }
+      notifyListeners();
     }
   }
 
@@ -278,5 +279,6 @@ class Simulator {
     lastSendPairRequest = null;
     receivedStopRide = false;
     subscription = null;
+    notifyListeners();
   }
 }

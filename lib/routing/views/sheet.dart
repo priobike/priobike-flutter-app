@@ -44,6 +44,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
+  /// The associated simulator service, which is injected by the provider.
+  late Simulator simulator;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -57,6 +60,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     positioning.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+    simulator = getIt<Simulator>();
+    simulator.addListener(update);
   }
 
   @override
@@ -64,6 +69,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.removeListener(update);
     positioning.removeListener(update);
     status.removeListener(update);
+    simulator.removeListener(update);
     super.dispose();
   }
 
@@ -253,7 +259,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       if (!simulator.pairSuccessful) {
         label = "Pair mit Simulator";
       } else {
-        label = "Simulator starten";
+        label = "Simulation starten";
       }
     } else {
       label = "Losfahren";

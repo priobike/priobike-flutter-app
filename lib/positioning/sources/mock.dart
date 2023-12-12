@@ -329,20 +329,18 @@ class PathMockPositionSource extends PositionSource {
 
       final double bearing;
       final LatLng currentLocation;
-      final double heading;
 
       final settings = getIt<Settings>();
       if (settings.enableSimulatorMode) {
         // Don't use GPS inaccuracy in simulator mode.
         bearing = vincenty.bearing(from, to);
         currentLocation = vincenty.offset(from, distanceOnSegment, bearing);
-        heading = bearing > 0 ? bearing : 360 + bearing;
       } else {
         final random = Random(); // Simulate GPS inaccuracy.
         bearing = vincenty.bearing(from, to) - 2.5 + 5 * random.nextDouble(); // [-180°, 180°]
         currentLocation = vincenty.offset(from, distanceOnSegment - 1 + 2 * random.nextDouble(), bearing);
-        heading = bearing > 0 ? bearing : 360 + bearing;
       }
+      final heading = bearing > 0 ? bearing : 360 + bearing;
 
       lastPosition = Position(
         latitude: currentLocation.latitude,
