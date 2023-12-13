@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:flutter/rendering.dart';
@@ -38,9 +37,6 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 
 final log = Logger("main.dart");
 
@@ -125,25 +121,10 @@ class App extends StatelessWidget {
           showPerformanceOverlay: settings.enablePerformanceOverlay,
           onGenerateRoute: (routeSettings) {
             String url = routeSettings.name!;
-            List<String> subUrls = url.split('/');
-            if (subUrls.length == 3 && subUrls[1] == 'import') {
-              final shortcutBase64 = subUrls.last;
-              final shortcutBytes = base64.decode(shortcutBase64);
-              final shortcutUTF8 = utf8.decode(shortcutBytes);
-              final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
-              shortcutJson['id'] = UniqueKey().toString();
-              Shortcut shortcut;
-              if (shortcutJson['type'] == "ShortcutLocation") {
-                shortcut = ShortcutLocation.fromJson(shortcutJson);
-              } else {
-                shortcut = ShortcutRoute.fromJson(shortcutJson);
-              }
-              getIt<Shortcuts>().saveNewShortcutObject(shortcut);
-            }
             return MaterialPageRoute(
-              builder: (context) => const PrivacyPolicyView(
+              builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(
-                  child: Loader(),
+                  child: Loader(shareUrl: url),
                 ),
               ),
             );
