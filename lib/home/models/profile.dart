@@ -23,7 +23,7 @@ extension BikeTypeDescription on BikeType {
 }
 
 extension BikeTypeIcon on BikeType {
-  IconData icon() {
+  IconData? icon() {
     switch (this) {
       case BikeType.ebike:
         return Icons.electric_bike_rounded;
@@ -32,7 +32,22 @@ extension BikeTypeIcon on BikeType {
       case BikeType.mountainbike:
         return Icons.pedal_bike_rounded;
       case BikeType.cargobike:
-        return Icons.pedal_bike_rounded;
+        return null;
+    }
+  }
+}
+
+extension BikeTypeIconAsSting on BikeType {
+  String? iconAsString() {
+    switch (this) {
+      case BikeType.ebike:
+        return null;
+      case BikeType.racingbike:
+        return null;
+      case BikeType.mountainbike:
+        return null;
+      case BikeType.cargobike:
+        return "assets/icons/lastenrad.png";
     }
   }
 }

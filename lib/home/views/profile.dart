@@ -11,7 +11,8 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 
 class ProfileElementButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsString;
   final String title;
   final Color? color;
   final Color? borderColor;
@@ -20,7 +21,8 @@ class ProfileElementButton extends StatelessWidget {
 
   const ProfileElementButton({
     super.key,
-    required this.icon,
+    this.icon,
+    this.iconAsString,
     required this.title,
     this.color,
     this.borderColor,
@@ -49,7 +51,13 @@ class ProfileElementButton extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(icon, size: constraints.maxWidth * 0.4, color: color ?? theme.colorScheme.onBackground),
+                    if (icon != null)
+                      Icon(icon, size: constraints.maxWidth * 0.4, color: color ?? theme.colorScheme.onBackground),
+                    if (iconAsString != null)
+                      SizedBox(
+                        width: constraints.maxWidth * 0.4,
+                        child: Image.asset(iconAsString!, color: color),
+                      ),
                     const SizedBox(height: 2),
                     Flexible(
                       child: Small(
@@ -221,7 +229,8 @@ class ProfileViewState extends State<ProfileView> {
                   child: profileService.bikeType == null
                       ? ProfileElementButton(
                           key: const ValueKey<String>("None"),
-                          icon: Icons.electric_bike_rounded,
+                          // icon: Icons.electric_bike_rounded,
+                          iconAsString: "assets/icons/fahrrad.png",
                           title: "Radtyp",
                           color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
@@ -231,6 +240,7 @@ class ProfileViewState extends State<ProfileView> {
                       : ProfileElementButton(
                           key: ValueKey<String>(profileService.bikeType!.description()),
                           icon: profileService.bikeType!.icon(),
+                          iconAsString: profileService.bikeType!.iconAsString(),
                           title: profileService.bikeType!.description(),
                           color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
@@ -367,6 +377,7 @@ class ProfileViewState extends State<ProfileView> {
                   .map(
                     (bikeType) => ProfileElementButton(
                       icon: bikeType.icon(),
+                      iconAsString: bikeType.iconAsString(),
                       title: bikeType.description(),
                       color: Theme.of(context).colorScheme.tertiary,
                       backgroundColor: profileService.bikeType == bikeType
