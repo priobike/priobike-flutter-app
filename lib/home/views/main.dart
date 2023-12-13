@@ -294,7 +294,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                                 ),
                                 const SizedBox(height: 4),
                                 Content(
-                                  text: "Deine Strecken und Orte dsad",
+                                  text: "Deine Strecken und Orte",
                                   context: context,
                                 ),
                               ],

@@ -41,6 +41,7 @@ class ProfileElementButton extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           padding: const EdgeInsets.all(8),
           borderColor: borderColor,
+          borderWidth: 2,
           showShadow: false,
           content: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -186,6 +187,7 @@ class ProfileViewState extends State<ProfileView> {
         fill: Theme.of(context).colorScheme.background,
         borderColor: Colors.grey.withOpacity(0.2),
         content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
             Column(

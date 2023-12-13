@@ -123,7 +123,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ],
         ),
-        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.background,
+        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.surfaceVariant,
         splash: showSplash ? Theme.of(context).colorScheme.surfaceTint : Colors.transparent,
       ),
     );

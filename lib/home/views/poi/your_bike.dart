@@ -34,6 +34,7 @@ class YourBikeElementButton extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           borderColor: Theme.of(context).colorScheme.primary,
           padding: const EdgeInsets.all(8),
+          borderWidth: 2,
           content: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
