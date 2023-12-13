@@ -115,4 +115,18 @@ class ShortcutRoute implements Shortcut {
   Widget getIcon() {
     return const Icon(Icons.route);
   }
+
+  String? getFirstAddress() {
+    if (waypoints.length >= 2) {
+      return waypoints[0].address;
+    }
+    return null;
+  }
+
+  String? getLastAddress() {
+    if (waypoints.length >= 2) {
+      return waypoints[waypoints.length - 1].address;
+    }
+    return null;
+  }
 }
