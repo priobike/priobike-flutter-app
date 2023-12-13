@@ -282,23 +282,26 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     BlendIn(
                       delay: const Duration(milliseconds: 250),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const SizedBox(width: 40),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              BoldSubHeader(
-                                text: "Navigation",
-                                context: context,
-                              ),
-                              const SizedBox(height: 4),
-                              Content(
-                                text: "Deine Strecken und Orte",
-                                context: context,
-                              ),
-                            ],
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                BoldSubHeader(
+                                  text: "Navigation",
+                                  context: context,
+                                ),
+                                const SizedBox(height: 4),
+                                Content(
+                                  text: "Deine Strecken und Orte",
+                                  context: context,
+                                ),
+                              ],
+                            ),
                           ),
-                          Expanded(child: Container()),
+                          const SizedBox(width: 8),
                           SmallIconButtonPrimary(
                             onPressed: () => showAppSheet(
                               context: context,
