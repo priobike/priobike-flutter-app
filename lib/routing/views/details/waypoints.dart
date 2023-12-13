@@ -20,7 +20,7 @@ class SearchWaypointItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          const WaypointIcon(width: 32, height: 32),
+          const AddWaypointIcon(width: 32, height: 32),
           const SmallHSpace(),
           SizedBox(
             height: 42,

@@ -44,6 +44,17 @@ class WaypointIcon extends Image {
         );
 }
 
+/// An add waypoint icon.
+class AddWaypointIcon extends Image {
+  const AddWaypointIcon({double super.width = 24, double super.height = 24, super.key})
+      : super(
+          image: const AssetImage("assets/images/waypoint-plus.drawio.png"),
+          color: null,
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+        );
+}
+
 /// A compass icon.
 class CompassIcon extends Image {
   CompassIcon({double super.width = 24, double super.height = 24, required BuildContext context, super.key})
