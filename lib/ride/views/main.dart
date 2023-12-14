@@ -213,7 +213,7 @@ class RideViewState extends State<RideView> {
         );
       },
     );
-    await finishRideButton.onTap(context);
+    await finishRideButton.endRide(context);
   }
 
   /// Called when the user moves the map.

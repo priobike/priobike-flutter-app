@@ -46,7 +46,7 @@ class FinishRideButton extends StatelessWidget {
           actions: [
             BigButtonPrimary(
               label: "Fahrt beenden",
-              onPressed: () => onTap(),
+              onPressed: () => endRide(context),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
             BigButtonTertiary(
@@ -62,7 +62,7 @@ class FinishRideButton extends StatelessWidget {
   }
 
   /// A callback that is executed when the cancel button is pressed.
-  Future<void> onTap(context) async {
+  Future<void> endRide(context) async {
     // Allows only portrait mode again when leaving the ride view.
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
