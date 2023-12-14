@@ -17,7 +17,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
 
-// import 'package:priobike/home/views/shortcuts/qr_code.dart';
+import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -90,6 +90,86 @@ void showEditShortcutSheet(context, int idx) {
   );
 }
 
+class EditOptionsView extends StatelessWidget {
+  final Shortcut shortcut;
+
+  final int idx;
+
+  final Function onDeleteShortcut;
+
+  final Function onEditShortcut;
+
+  final Function onShareShortcut;
+
+  const EditOptionsView({
+    super.key,
+    required this.shortcut,
+    required this.idx,
+    required this.onDeleteShortcut,
+    required this.onEditShortcut,
+    required this.onShareShortcut,
+  });
+
+  void onDelete(BuildContext context) {
+    onDeleteShortcut(idx);
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Show a grid view with all available layers.
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SmallVSpace(),
+              BoldSubHeader(text: shortcut.name, context: context),
+              const VSpace(),
+              BigButtonPrimary(
+                label: "Teilen",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => onShareShortcut(idx),
+              ),
+              const SmallVSpace(),
+              BigButtonTertiary(
+                label: "QR-Code",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
+                  ),
+                ),
+              ),
+              const SmallVSpace(),
+              BigButtonTertiary(
+                label: "Bearbeiten",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => onEditShortcut(idx),
+              ),
+              const SmallVSpace(),
+              BigButtonPrimary(
+                fillColor: CI.radkulturYellow,
+                textColor: Colors.black,
+                label: "Löschen",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => onDelete(context),
+              ),
+              const SmallVSpace(),
+              SizedBox(
+                height: MediaQuery.of(context).padding.bottom,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class ShortcutsEditView extends StatefulWidget {
   const ShortcutsEditView({super.key});
 
@@ -108,9 +188,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
 
   /// The associated predictionSGStatus service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
-
-  /// If the view is in the state to delete a shortcut.
-  bool editMode = false;
 
   /// The associcated settings service, which is injected by the provider.
   late Settings settings;
@@ -190,6 +267,20 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink', subject: subject);
   }
 
+  /// A callback that is executed when the more button is pressed.
+  onMorePressed(Shortcut shortcut, int idx) {
+    showAppSheet(
+      context: context,
+      builder: (BuildContext context) => EditOptionsView(
+        idx: idx,
+        shortcut: shortcut,
+        onDeleteShortcut: onDeleteShortcut,
+        onEditShortcut: onEditShortcut,
+        onShareShortcut: onShareShortcut,
+      ),
+    );
+  }
+
   /// Widget that displays a shortcut.
   Widget shortcutListItem(Shortcut shortcut, int key) {
     return Container(
@@ -241,7 +332,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               Radius.circular(0),
             ),
             content: Container(
-              padding: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(top: 16, bottom: 8),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
@@ -271,7 +362,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             child: ShortcutPictogram(
                               key: ValueKey(shortcut.hashCode),
                               shortcut: shortcut,
-                              // button height (2x48 + small vertical space).
+                              // Fixed height of pictogram.
                               height: 96,
                               color: CI.radkulturRed,
                               strokeWidth: 4,
@@ -288,7 +379,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             child: ShortcutPictogram(
                               key: ValueKey(shortcut.hashCode),
                               shortcut: shortcut,
-                              // button height (2x48 + small vertical space).
+                              // Fixed height of pictogram.
                               height: 96,
                               color: CI.radkulturRed,
                               iconSize: 42,
@@ -450,7 +541,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   const SmallHSpace(),
                   SmallIconButtonTertiary(
                     icon: Icons.more_vert,
-                    onPressed: () => onShareShortcut(key),
+                    onPressed: () => onMorePressed(shortcut, key),
                   ),
                   const SmallHSpace(),
                 ],
@@ -518,25 +609,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       splash: Theme.of(context).colorScheme.surfaceTint,
                     ),
                     const SmallHSpace(),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: editMode
-                          ? SmallIconButtonPrimary(
-                              icon: Icons.check_rounded,
-                              onPressed: () => setState(() => editMode = false),
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fill: CI.radkulturGreen,
-                              splash: Theme.of(context).colorScheme.surfaceTint,
-                            )
-                          : SmallIconButtonPrimary(
-                              icon: Icons.edit_rounded,
-                              onPressed: () => setState(() => editMode = true),
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fill: Theme.of(context).colorScheme.surface,
-                              splash: Theme.of(context).colorScheme.surfaceTint,
-                            ),
-                    ),
-                    const SizedBox(width: 14),
                   ],
                 ),
                 ReorderableListView(
