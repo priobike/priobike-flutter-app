@@ -1,23 +1,31 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/geosearch.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:priobike/routing/models/route.dart' as r;
 
 class Migration {
   /// Load the privacy policy.
   static Future<void> migrate() async {
     // List of things to migrate.
+    // Migrate shortcuts to new naming scheme.
     await migrateShortcutsProduction();
     await migrateShortcutsStaging();
     await migrateSearchHistoryProduction();
     await migrateSearchHistoryStaging();
+    // Migrate shortcuts to new shortcuts model.
+    await migrateShortcutsValues();
   }
 
   /// Migrate all shortcuts (production/release => Hamburg).
@@ -209,5 +217,55 @@ class Migration {
         [json.encode(Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg").toJSON())]);
     await storage.setStringList("priobike.routing.searchHistory.${Backend.release.name}",
         [json.encode(Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg").toJSON())]);
+  }
+
+  /// Migrates all shortcuts to set values for time and length.
+  /// Also checks for 'Aktueller Standort' as waypoint name.
+  static Future<void> migrateShortcutsValues() async {
+    final storage = await SharedPreferences.getInstance();
+    final Backend backend = getIt<Backend>();
+    Shortcuts shortcuts = getIt<Shortcuts>();
+
+    await shortcuts.loadShortcuts();
+
+    // Load the list of checked shortcuts.
+    List<String> checkedShortcutsList = storage.getStringList("priobike.shortcuts.checked.${backend.name}") ?? [];
+
+    // Loop through shortcuts and fill missing values.
+    // Skip if lists are equally long.
+    if (shortcuts.shortcuts == null && shortcuts.shortcuts!.length == checkedShortcutsList.length) return;
+
+    Routing routing = getIt<Routing>();
+    Geocoding geocoding = getIt<Geocoding>();
+
+    for (Shortcut shortcut in shortcuts.shortcuts!) {
+      // Skip checked shortcuts.
+      if (checkedShortcutsList.contains(shortcut.id)) continue;
+      // Skip and add ShortcutLocations.
+      if (shortcut is ShortcutLocation) {
+        checkedShortcutsList.add(shortcut.id);
+        continue;
+      }
+      shortcut = shortcut as ShortcutRoute;
+      // Check waypoint addresses.
+      for (Waypoint waypoint in shortcut.getWaypoints()) {
+        // Skip addresses not 'Aktueller Standort'.
+        if (waypoint.address != "Aktueller Standort") continue;
+        String? address = await geocoding.reverseGeocode(LatLng(waypoint.lat, waypoint.lon));
+        if (address == null) {
+          log.i("Address for waypoint with reverseGeocode not found");
+        }
+        waypoint.address = address;
+      }
+
+      // Check route length text.
+      if (shortcut.routeLengthText == null || shortcut.routeTimeText == null) {
+        r.Route? route = await routing.loadRouteFromShortcutRouteForMigration(shortcut);
+        if (route != null) {
+          // shortcut.routeTimeText = route.timeText;
+        }
+      }
+      checkedShortcutsList.add(shortcut.id);
+    }
   }
 }

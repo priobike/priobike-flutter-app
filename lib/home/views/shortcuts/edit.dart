@@ -90,15 +90,21 @@ void showEditShortcutSheet(context, int idx) {
   );
 }
 
+/// The view that will be displayed in an app sheet.
 class EditOptionsView extends StatelessWidget {
+  /// The shortcut of the view.
   final Shortcut shortcut;
 
+  /// The index of the shortcut.
   final int idx;
 
+  /// The callback that will be executed when the delete button is pressed.
   final Function onDeleteShortcut;
 
+  /// The callback that will be executed when the edit button is pressed.
   final Function onEditShortcut;
 
+  /// The callback that will be executed when the share button is pressed.
   final Function onShareShortcut;
 
   const EditOptionsView({
@@ -110,6 +116,7 @@ class EditOptionsView extends StatelessWidget {
     required this.onShareShortcut,
   });
 
+  /// The callback that will be executed when the delete button is pressed.
   void onDelete(BuildContext context) {
     onDeleteShortcut(idx);
     Navigator.pop(context);

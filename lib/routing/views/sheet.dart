@@ -174,16 +174,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render an info section on top of the bottom sheet.
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
-    final distInfo = routing.selectedRoute!.path.distance.round() >= 1000
-        ? "${((routing.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km"
-        : "${routing.selectedRoute!.path.distance.toStringAsFixed(0)} m";
-    final seconds = routing.selectedRoute!.path.time / 1000;
-    // Get the full hours needed to cover the route.
-    final hours = seconds ~/ 3600;
-    // Get the remaining minutes.
-    final minutes = (seconds - hours * 3600) ~/ 60;
-    // Calculate the time when the user will reach the destination.
-    final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
+
     var text = "Zum Ziel";
     if (routing.selectedProfile?.explanation != null) {
       text = routing.selectedProfile!.explanation;
@@ -208,7 +199,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           const SizedBox(height: 2),
           BoldSmall(
               text:
-                  "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ca. ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
+                  "${routing.selectedRoute!.timeText} - ${routing.selectedRoute!.arrivalTimeText}, ${routing.selectedRoute!.lengthText}",
               context: context),
           const SizedBox(height: 2),
           Row(
