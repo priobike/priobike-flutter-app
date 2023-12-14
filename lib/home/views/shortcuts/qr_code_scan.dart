@@ -1,20 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/shimmer.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQRCodeView extends StatefulWidget {
   /// Called when a QR code has been scanned.
-  final void Function(Shortcut shortcut) onScan;
+  final void Function(String shortLink) onScan;
 
   const ScanQRCodeView({super.key, required this.onScan});
 
@@ -68,45 +65,9 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
   Future<void> onQRViewCreated(QRViewController controller) async {
     cameraController = controller;
     listener = controller.scannedDataStream.listen((scanData) {
-      if (shortcut != null) {
-        return;
-      }
-      if (scanData.code == null) {
-        return;
-      }
-      try {
-        final decodeBase64Json = base64.decode(scanData.code!);
-        final decodedZipJson = gzip.decode(decodeBase64Json);
-        final originalJson = utf8.decode(decodedZipJson);
-        final shortcutJson = json.decode(originalJson);
-        Shortcut? shortcut;
-
-        if (shortcutJson["type"] != null) {
-          switch (shortcutJson["type"]) {
-            case "ShortcutLocation":
-              shortcut = ShortcutLocation.fromJson(shortcutJson);
-              break;
-            case "ShortcutRoute":
-              shortcut = ShortcutRoute.fromJson(shortcutJson);
-              break;
-          }
-        } else {
-          // https://github.com/priobike/priobike-flutter-app/commit/02c61cdf34497c350cd95f9a48dd4e8b8faf591f
-          // The commit above introduces a new attribute "type". This else-condition was added for
-          // backward compatibility, so QR-codes that don't have this attribute yet still work.
-          shortcut = ShortcutRoute.fromJson(shortcutJson);
-        }
-
-        if (shortcut != null) {
-          this.shortcut = shortcut;
-          widget.onScan(shortcut);
-        } else {
-          final hint = "Error unknown type ${shortcut.runtimeType} in ShowQRCodeView.";
-          log.e(hint);
-        }
-      } catch (e) {
-        log.e('Failed to parse QR code into shortcut object: ${scanData.code!}');
-      }
+      if (shortcut != null) return;
+      if (scanData.code == null) return;
+      widget.onScan(scanData.code!);
     });
   }
 

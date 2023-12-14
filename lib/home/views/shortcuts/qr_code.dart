@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart' as shortcuts_service;
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/qr_code_scan.dart';
 import 'package:priobike/home/views/shortcuts/qr_code_show.dart';
 import 'package:priobike/main.dart';
@@ -136,11 +137,15 @@ class QRCodeViewState extends State<QRCodeView> {
                             height: MediaQuery.of(context).size.width * 0.8,
                             child: state == QRCodeViewMode.scanning
                                 ? ScanQRCodeView(
-                                    onScan: (shortcut) {
+                                    onScan: (shortLink) {
                                       setState(
                                         () {
-                                          this.shortcut = shortcut;
-                                          state = QRCodeViewMode.scanned;
+                                          getIt<Shortcuts>().getShortcutFromShortLink(shortLink).then((newShortcut) {
+                                            if (shortcut != null) {
+                                              shortcut = newShortcut;
+                                              state = QRCodeViewMode.scanned;
+                                            }
+                                          });
                                         },
                                       );
                                     },

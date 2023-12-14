@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +9,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
-import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -104,31 +99,10 @@ class LoaderState extends State<Loader> {
         DeviceOrientation.portraitUp,
       ]);
 
-      // load shared shortcut if app was opened with sharing link
-      if (widget.shareUrl != null){
+      // Load shared shortcut if app was opened with sharing link
+      if (widget.shareUrl != null) {
         String url = widget.shareUrl!;
-        List<String> subUrls = url.split('/');
-        if (subUrls.length == 6 && subUrls[4] == 'link') {
-          // parse short link
-          // TODO staging vs production
-          final parseShortLinkEndpoint = Uri.parse('https://priobike.vkw.tu-dresden.de/staging/link/rest/v3/short-urls/${subUrls[5]}');
-          Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': '8a1e47f1-36ac-44e8-b648-aae112f97208'}).then((longLinkResponse) {
-            final String longUrl = json.decode(longLinkResponse.body)['longUrl'];
-            subUrls = longUrl.split('/');
-            final shortcutBase64 = subUrls.last;
-            final shortcutBytes = base64.decode(shortcutBase64);
-            final shortcutUTF8 = utf8.decode(shortcutBytes);
-            final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
-            shortcutJson['id'] = UniqueKey().toString();
-            Shortcut shortcut;
-            if (shortcutJson['type'] == "ShortcutLocation") {
-              shortcut = ShortcutLocation.fromJson(shortcutJson);
-            } else {
-              shortcut = ShortcutRoute.fromJson(shortcutJson);
-            }
-            getIt<Shortcuts>().saveNewShortcutObject(shortcut);
-          });
-        }
+        getIt<Shortcuts>().createShortcutFromShortLink(url);
       }
 
       settings.incrementUseCounter();
