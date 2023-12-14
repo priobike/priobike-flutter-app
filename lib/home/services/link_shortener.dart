@@ -3,6 +3,9 @@ import 'dart:typed_data';
 
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/http.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 class LinkShortener {
   /// Create sharing link of shortcut.
@@ -17,9 +20,9 @@ class LinkShortener {
     return '$scheme://$host/$route/$base64Str';
   }
 
-  Future<String> getShortLink(String longLink) async {
-    // TODO staging vs production
-    const linkShortenerUrl = 'https://priobike.vkw.tu-dresden.de/staging/link/rest/v3/short-urls';
+  Future<String?> getShortLink(String longLink) async {
+    String backendPath = getIt<Settings>().backend.path;
+    final linkShortenerUrl = 'https://$backendPath/link/rest/v3/short-urls';
     final linkShortenerEndpoint = Uri.parse(linkShortenerUrl);
     DateTime now = DateTime.now();
     String validUntil = DateTime(now.year, now.month + 1, now.day).toIso8601String();
@@ -34,11 +37,17 @@ class LinkShortener {
     });
     final shortLinkResponse = await Http.post(linkShortenerEndpoint,
         headers: {'X-Api-Key': '8a1e47f1-36ac-44e8-b648-aae112f97208'}, body: longUrlJson);
-    return json.decode(shortLinkResponse.body)['shortUrl'];
+    try {
+      return json.decode(shortLinkResponse.body)['shortUrl'];
+    } catch (e) {
+      log.e('Failed to get short link.');
+      return null;
+    }
   }
 
-  Future<Uint8List> getQr(String longLink) async {
-    final String shortLink = await getShortLink(longLink);
+  Future<Uint8List?> getQr(String longLink) async {
+    final String? shortLink = await getShortLink(longLink);
+    if (shortLink == null) return null;
     final String shortCode = shortLink.split('/').last;
     final String qrUrl =
         'https://priobike.vkw.tu-dresden.de/staging/link/$shortCode/qr-code?size=300&format=png&errorCorrection=L';

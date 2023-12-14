@@ -166,7 +166,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
     final text = 'Probiere $shortcutTypeText in der PrioBike-App aus:';
     String longLink = getIt<LinkShortener>().getLongLink(shortcut);
-    String shortLink = await getIt<LinkShortener>().getShortLink(longLink);
+    String? shortLink = await getIt<LinkShortener>().getShortLink(longLink);
+    if (shortLink == null) return;
     const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie dir hier holen:';
     const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
     const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';

@@ -175,10 +175,9 @@ class Shortcuts with ChangeNotifier {
 
   Future<Shortcut?> getShortcutFromShortLink(String shortLink) async {
     List<String> subUrls = shortLink.split('/');
-    if (subUrls.length == 6 && subUrls[4] == 'link') {
-      // TODO staging vs production
-      final parseShortLinkEndpoint =
-          Uri.parse('https://priobike.vkw.tu-dresden.de/staging/link/rest/v3/short-urls/${subUrls[5]}');
+    try {
+      String backendPath = getIt<Settings>().backend.path;
+      final parseShortLinkEndpoint = Uri.parse('https://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
       final longLinkResponse =
           await Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': '8a1e47f1-36ac-44e8-b648-aae112f97208'});
       final String longUrl = json.decode(longLinkResponse.body)['longUrl'];
@@ -195,8 +194,9 @@ class Shortcuts with ChangeNotifier {
         shortcut = ShortcutRoute.fromJson(shortcutJson);
       }
       return shortcut;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   void createShortcutFromShortLink(String shortLink) {

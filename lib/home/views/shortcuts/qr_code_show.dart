@@ -16,9 +16,9 @@ class ShowQRCodeView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     String longLink = getIt<LinkShortener>().getLongLink(shortcut);
-    return FutureBuilder<Uint8List>(
+    return FutureBuilder<Uint8List?>(
       future: getIt<LinkShortener>().getQr(longLink),
-      builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<Uint8List?> snapshot) {
         if (snapshot.hasError) return Text(snapshot.error.toString());
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
         Uint8List qr = snapshot.data!;
