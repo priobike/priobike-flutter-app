@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
@@ -15,7 +16,8 @@ import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
-import 'package:priobike/home/views/shortcuts/qr_code.dart';
+
+// import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -244,7 +246,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 border: Border(
                   top: BorderSide(
                     width: 1,
-                    color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25),
+                    color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
                   ),
                 ),
               ),
@@ -254,13 +256,14 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   const SmallHSpace(),
                   SizedBox(
                     // button height as width because of square pictogram (2x48 + small vertical space).
-                    width: 96 + 8,
+                    width: 96,
+                    height: 96,
                     child: Stack(
                       children: [
                         if (shortcut is ShortcutRoute)
                           Container(
                             decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(18)),
+                              borderRadius: const BorderRadius.all(Radius.circular(20)),
                               border:
                                   Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5)),
                               color: Theme.of(context).colorScheme.surfaceVariant,
@@ -269,7 +272,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                               key: ValueKey(shortcut.hashCode),
                               shortcut: shortcut,
                               // button height (2x48 + small vertical space).
-                              height: 96 + 8,
+                              height: 96,
                               color: CI.radkulturRed,
                               strokeWidth: 4,
                             ),
@@ -277,7 +280,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         else if (shortcut is ShortcutLocation)
                           Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(22),
+                              borderRadius: BorderRadius.circular(20),
                               border:
                                   Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5)),
                               color: Theme.of(context).colorScheme.surfaceVariant,
@@ -286,7 +289,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                               key: ValueKey(shortcut.hashCode),
                               shortcut: shortcut,
                               // button height (2x48 + small vertical space).
-                              height: 96 + 8,
+                              height: 96,
                               color: CI.radkulturRed,
                               iconSize: 42,
                             ),
@@ -294,6 +297,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       ],
                     ),
                   ),
+                  // Space between middle content and map.
                   const SmallHSpace(),
                   Expanded(
                     child: SizedBox(
@@ -301,13 +305,19 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       height: 96,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          BoldContent(
-                            text: shortcut.name,
-                            context: context,
+                          const SizedBox(
+                            height: 2,
                           ),
-                          const SmallVSpace(),
+                          Padding(
+                            // Padding to align with location icon.
+                            padding: const EdgeInsets.only(left: 4),
+                            child: BoldContent(
+                              text: shortcut.name,
+                              context: context,
+                            ),
+                          ),
                           if (shortcut is ShortcutLocation)
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,28 +342,58 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Container(
-                                  width: 6,
-                                  height: 6,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 10,
+                                  height: 10,
+                                  // To align with to-address symbol.
+                                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  // To align with route name.
+                                  margin: const EdgeInsets.only(left: 6),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
                                 ),
+                                // The space of the location icon + the padding of the waypoint item to align the texts vertically.
+                                const SizedBox(width: 6),
                                 Expanded(
-                                  child: Small(
-                                    text: shortcut.getFirstAddress() ?? "",
-                                    overflow: TextOverflow.ellipsis,
-                                    context: context,
-                                    color: Theme.of(context).colorScheme.tertiary,
-                                    maxLines: 1,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 2),
+                                    child: Small(
+                                      text: shortcut.getFirstAddress() ?? "",
+                                      overflow: TextOverflow.ellipsis,
+                                      context: context,
+                                      color: Theme.of(context).colorScheme.tertiary,
+                                      maxLines: 1,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 4),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons.location_on,
-                                  color: Theme.of(context).colorScheme.primary,
+                                Container(
+                                  width: 14,
+                                  height: 14,
+                                  margin: const EdgeInsets.only(left: 4),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      width: 5,
+                                      height: 5,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Theme.of(context).colorScheme.background,
+                                      ),
+                                    ),
+                                  ),
                                 ),
+                                // The space of the location icon to align the texts vertically.
+                                const SizedBox(width: 4),
                                 Expanded(
                                   child: Small(
                                     text: shortcut.getLastAddress() ?? "",
@@ -365,7 +405,44 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 ),
                               ],
                             ),
-                          ]
+                          ],
+                          const SizedBox(height: 4),
+                          if (shortcut is ShortcutRoute)
+                            Row(
+                              children: [
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                Icon(
+                                  Icons.access_time,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  size: 14,
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                                  child: Small(text: "15 min.", context: context),
+                                ),
+                                const HSpace(),
+                                Icon(
+                                  Icons.route,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  size: 14,
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                                  child: Small(text: "3 km", context: context),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(
+                            height: 2,
+                          ),
                         ],
                       ),
                     ),
