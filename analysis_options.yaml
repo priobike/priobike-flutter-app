@@ -28,6 +28,7 @@ linter:
     # Don't use the following rules.
     implementation_imports: false
     use_super_parameters: true
+    unawaited_futures: true
 
 
 # Additional information about this file can be found at
