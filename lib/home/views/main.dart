@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/services.dart';
 import 'package:in_app_review/in_app_review.dart';
