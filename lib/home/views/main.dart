@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/services.dart';
 import 'package:in_app_review/in_app_review.dart';
@@ -9,6 +11,8 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
@@ -199,7 +203,25 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    routing.selectShortcut(shortcut);
+    // Create new Shortcut copy to avoid changing the original Shortcut.
+    final Shortcut newShortcut;
+    if (shortcut is ShortcutLocation) {
+      newShortcut = ShortcutLocation(
+        id: shortcut.id,
+        name: shortcut.name,
+        waypoint: shortcut.waypoint,
+      );
+    } else if (shortcut is ShortcutRoute) {
+      newShortcut = ShortcutRoute(
+        id: shortcut.id,
+        name: shortcut.name,
+        waypoints: List<Waypoint>.from(shortcut.waypoints),
+      );
+    } else {
+      throw UnimplementedError();
+    }
+
+    routing.selectShortcut(newShortcut);
 
     pushRoutingView();
   }
