@@ -29,7 +29,7 @@ linter:
     implementation_imports: false
     use_super_parameters: true
     unawaited_futures: true
-
+    unnecessary_await_in_return: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
