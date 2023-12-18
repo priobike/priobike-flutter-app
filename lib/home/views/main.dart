@@ -330,11 +330,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: const Duration(milliseconds: 500),
                       child: Column(
                         children: [
-                          const TutorialView(
-                            id: "priobike.tutorial.select-shortcut",
-                            text:
-                                'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
-                            padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 20),
+                            child: TutorialView(
+                              id: "priobike.tutorial.select-shortcut",
+                              text:
+                                  'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
+                              padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
+                            ),
                           ),
                           ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
                         ],
