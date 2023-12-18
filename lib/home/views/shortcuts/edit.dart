@@ -292,7 +292,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Widget shortcutListItem(Shortcut shortcut, int key) {
     return Container(
       key: Key("$key"),
-      padding: const EdgeInsets.only(left: 8, top: 8),
+      padding: const EdgeInsets.only(left: 8),
       child: Stack(
         children: [
           Positioned.fill(
@@ -317,21 +317,11 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                           Theme.of(context).colorScheme.background.withOpacity(0.3),
                         ],
                 ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
-              ),
-              child: const ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
               ),
             ),
           ),
           Tile(
-            padding: const EdgeInsets.only(left: 0),
+            padding: const EdgeInsets.all(0),
             showShadow: false,
             borderWidth: 0,
             borderColor: Theme.of(context).colorScheme.background,
@@ -339,7 +329,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               Radius.circular(0),
             ),
             content: Container(
-              padding: const EdgeInsets.only(top: 16, bottom: 8),
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
@@ -400,13 +390,13 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   Expanded(
                     child: SizedBox(
                       // height of pictogram.
-                      height: 96,
+                      height: 112,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const SizedBox(
-                            height: 2,
+                            height: 10,
                           ),
                           Padding(
                             // Padding to align with location icon.
@@ -539,7 +529,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                               ],
                             ),
                           const SizedBox(
-                            height: 2,
+                            height: 10,
                           ),
                         ],
                       ),
@@ -618,6 +608,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     const SmallHSpace(),
                   ],
                 ),
+                const VSpace(),
                 ReorderableListView(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
