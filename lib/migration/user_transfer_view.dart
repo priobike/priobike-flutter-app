@@ -162,6 +162,7 @@ class UserTransferViewState extends State<UserTransferView> {
                       onPressed: onUnsubscribeBetaPressed,
                       boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
                     ),
+                    const SmallVSpace(),
                     BigButtonPrimary(
                       fillColor: Theme.of(context).colorScheme.secondary,
                       label: "Beta Tester bleiben",

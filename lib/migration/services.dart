@@ -8,10 +8,11 @@ import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/geocoding.dart';
-import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 
@@ -217,19 +218,22 @@ class Migration {
         [json.encode(Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg").toJSON())]);
     await storage.setStringList("priobike.routing.searchHistory.${Backend.release.name}",
         [json.encode(Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg").toJSON())]);
+
+    await storage.remove("priobike.shortcuts.checked.${Backend.release.regionName}");
+    await storage.remove("priobike.shortcuts.checked.${Backend.staging.regionName}");
   }
 
   /// Migrates all shortcuts to set values for time and length.
   /// Also checks for 'Aktueller Standort' as waypoint name.
   static Future<void> migrateShortcutsValues() async {
     final storage = await SharedPreferences.getInstance();
-    final Backend backend = getIt<Backend>();
+    final Backend backend = getIt<Settings>().backend;
     Shortcuts shortcuts = getIt<Shortcuts>();
 
     await shortcuts.loadShortcuts();
 
     // Load the list of checked shortcuts.
-    List<String> checkedShortcutsList = storage.getStringList("priobike.shortcuts.checked.${backend.name}") ?? [];
+    List<String> checkedShortcutsList = storage.getStringList("priobike.shortcuts.checked.${backend.regionName}") ?? [];
 
     // Loop through shortcuts and fill missing values.
     // Skip if lists are equally long.
@@ -259,13 +263,23 @@ class Migration {
       }
 
       // Check route length text.
-      if (shortcut.routeLengthText == null || shortcut.routeTimeText == null) {
+      if (shortcut.routeLengthText == null ||
+          shortcut.routeLengthText == "" ||
+          shortcut.routeTimeText == null ||
+          shortcut.routeTimeText == "") {
+        await getIt<Boundary>().loadBoundaryCoordinates();
         r.Route? route = await routing.loadRouteFromShortcutRouteForMigration(shortcut);
         if (route != null) {
-          // shortcut.routeTimeText = route.timeText;
+          shortcut.routeTimeText = route.timeText;
+          shortcut.routeLengthText = route.lengthText;
+          // Only add if route was found.
+          checkedShortcutsList.add(shortcut.id);
         }
       }
-      checkedShortcutsList.add(shortcut.id);
     }
+    // Save the migrated shortcuts.
+    shortcuts.storeShortcuts();
+    // Save the migrated shortcuts to skip them in the future.
+    storage.setStringList("priobike.shortcuts.checked.${backend.regionName}", checkedShortcutsList);
   }
 }

@@ -521,7 +521,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                                  child: Small(text: "15 min.", context: context),
+                                  child: Small(text: shortcut.routeTimeText ?? "", context: context),
                                 ),
                                 const HSpace(),
                                 Icon(
@@ -534,7 +534,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                                  child: Small(text: "3 km", context: context),
+                                  child: Small(text: shortcut.routeLengthText ?? "", context: context),
                                 ),
                               ],
                             ),

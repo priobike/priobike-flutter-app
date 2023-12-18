@@ -22,10 +22,10 @@ class ShortcutRoute implements Shortcut {
   final List<Waypoint> waypoints;
 
   /// The length text of the route.
-  final String? routeLengthText;
+  String? routeLengthText;
 
   /// The time text of the route.
-  final String? routeTimeText;
+  String? routeTimeText;
 
   ShortcutRoute(
       {required this.name, required this.waypoints, required this.id, this.routeLengthText, this.routeTimeText});

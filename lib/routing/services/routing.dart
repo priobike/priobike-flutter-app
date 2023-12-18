@@ -575,8 +575,6 @@ class Routing with ChangeNotifier {
           final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
           // Snap each signal group to the route and calculate the distance.
           final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
-          // Snap each crossing to the route and calculate the distance.
-          final crossingsDistancesOnRoute = List<double>.empty(growable: true);
 
           // Order the crossings by distance.
           final tuples = List<TupleCrossingsDistances>.empty(growable: true);
@@ -599,7 +597,7 @@ class Routing with ChangeNotifier {
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
           );
           // Connect the route to the start and end points.
-          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+          route = route.connected(shortcutRoute.waypoints.first, shortcutRoute.waypoints.last);
           return MapEntry(i, route);
         })
         .values
