@@ -255,7 +255,7 @@ class ProfileViewState extends State<ProfileView> {
                   child: profileService.preferenceType == null
                       ? ProfileElementButton(
                           key: const ValueKey<String>("None"),
-                          icon: Icons.thumbs_up_down_rounded,
+                          icon: Icons.thumbs_up_down,
                           title: "Präferenz",
                           color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                           borderColor: Theme.of(context).colorScheme.primary,
