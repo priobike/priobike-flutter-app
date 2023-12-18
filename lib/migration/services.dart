@@ -278,7 +278,7 @@ class Migration {
       }
     }
     // Save the migrated shortcuts.
-    shortcuts.storeShortcuts();
+    await shortcuts.storeShortcuts();
     // Save the migrated shortcuts to skip them in the future.
     storage.setStringList("priobike.shortcuts.checked.${backend.regionName}", checkedShortcutsList);
   }
