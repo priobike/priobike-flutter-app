@@ -33,40 +33,55 @@ class TrackStats extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background.withOpacity(0.75),
               border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
               borderRadius: const BorderRadius.all(Radius.circular(15))),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Content(text: "Dauer", context: context),
+              Content(
+                text: "Dauer",
+                context: context,
+              ),
               BoldContent(text: timeText, context: context),
             ],
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
-              borderRadius: const BorderRadius.all(Radius.circular(15))),
+            color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+            border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(15),
+            ),
+          ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Content(text: "Distanz", context: context),
-              BoldContent(text: distanceText, context: context),
+              BoldContent(
+                text: distanceText,
+                context: context,
+              ),
             ],
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background.withOpacity(0.75),
               border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
               borderRadius: const BorderRadius.all(Radius.circular(15))),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Content(text: "Geschwindigkeit", context: context),
+              Content(
+                text: "Geschwindigkeit",
+                context: context,
+              ),
               BoldContent(text: speedText, context: context),
             ],
           ),
