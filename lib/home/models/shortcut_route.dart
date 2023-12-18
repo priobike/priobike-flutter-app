@@ -35,6 +35,8 @@ class ShortcutRoute implements Shortcut {
       id: json.keys.contains('id') ? json['id'] : UniqueKey().toString(),
       name: json['name'],
       waypoints: (json['waypoints'] as List).map((e) => Waypoint.fromJson(e)).toList(),
+      routeLengthText: json['routeLengthText'],
+      routeTimeText: json['routeTimeText'],
     );
   }
 
@@ -44,6 +46,8 @@ class ShortcutRoute implements Shortcut {
         'id': id,
         'name': name,
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),
+        'routeLengthText': routeLengthText,
+        'routeTimeText': routeTimeText,
       };
 
   /// Get the linebreaked name of the shortcut route. The name is split into at most 2 lines, by a limit of 15 characters.

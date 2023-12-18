@@ -174,7 +174,7 @@ class Migration {
       ShortcutLocation(
         id: UniqueKey().toString(),
         name: "Production-Location-Test",
-        waypoint: Waypoint(53.5415701077766, 9.984275605794686, address: "Staging-test"),
+        waypoint: Waypoint(53.5415701077766, 9.984275605794686, address: "Production-Location-Test"),
       ),
       ShortcutRoute(
         id: UniqueKey().toString(),
@@ -195,7 +195,7 @@ class Migration {
       ShortcutLocation(
         id: UniqueKey().toString(),
         name: "Release-Location-Test",
-        waypoint: Waypoint(53.5415701077766, 9.984275605794686, address: "Staging-test"),
+        waypoint: Waypoint(53.5415701077766, 9.984275605794686, address: "Release-Location-Test"),
       ),
       ShortcutRoute(
         id: UniqueKey().toString(),
