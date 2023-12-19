@@ -285,7 +285,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
             AppMap(
               logoViewMargins: const Point(25, 120),
               logoViewOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_LEFT,
-              attributionButtonMargins: const Point(15, 120),
+              attributionButtonMargins: const Point(25, 120),
               attributionButtonOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_RIGHT,
               onMapCreated: onMapCreated,
               onStyleLoaded: onStyleLoaded,
