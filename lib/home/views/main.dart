@@ -304,22 +304,26 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       child: Row(
                         children: [
                           const SizedBox(width: 40),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              BoldContent(
-                                text: "Navigation",
-                                context: context,
-                              ),
-                              const SizedBox(height: 4),
-                              Small(
-                                text: "Deine Strecken und Orte",
-                                context: context,
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                BoldSubHeader(
+                                  text: "Navigation",
+                                  context: context,
+                                ),
+                                const SizedBox(height: 4),
+                                Content(
+                                  text: "Deine Strecken und Orte",
+                                  context: context,
+                                ),
+                              ],
+                            ),
                           ),
-                          Expanded(child: Container()),
-                          SmallIconButton(
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          SmallIconButtonPrimary(
                             onPressed: () => showAppSheet(
                               context: context,
                               builder: (context) => const ImportShortcutDialog(),
@@ -330,7 +334,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             splash: Theme.of(context).colorScheme.surfaceTint,
                           ),
                           const SizedBox(width: 8),
-                          SmallIconButton(
+                          SmallIconButtonPrimary(
                             icon: Icons.list_rounded,
                             color: Theme.of(context).colorScheme.onSurface,
                             fill: Theme.of(context).colorScheme.surface,
@@ -346,44 +350,44 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: const Duration(milliseconds: 500),
                       child: Column(
                         children: [
-                          const TutorialView(
-                            id: "priobike.tutorial.select-shortcut",
-                            text:
-                                'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
-                            padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 20),
+                            child: TutorialView(
+                              id: "priobike.tutorial.select-shortcut",
+                              text:
+                                  'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
+                              padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
+                            ),
                           ),
                           ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
                         ],
                       ),
                     ),
+                    const SmallVSpace(),
+                    BlendIn(
+                      delay: const Duration(milliseconds: 750),
+                      child: Row(children: [
+                        const SizedBox(width: 40),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoldSubHeader(
+                              text: "Servicepunkte",
+                              context: context,
+                            ),
+                            const SizedBox(height: 4),
+                            Content(
+                              text: "In deiner Nähe",
+                              context: context,
+                            ),
+                          ],
+                        ),
+                      ]),
+                    ),
+                    const VSpace(),
                     const BlendIn(
                       delay: Duration(milliseconds: 750),
                       child: YourBikeView(),
-                    ),
-                    const VSpace(),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 750),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 40),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              BoldContent(
-                                text: "Routing-Profil",
-                                context: context,
-                              ),
-                              const SizedBox(height: 4),
-                              Small(
-                                text: "Personalisiere Deine Routenberechnung",
-                                context: context,
-                              ),
-                            ],
-                          ),
-                          Expanded(child: Container()),
-                          const SizedBox(width: 24),
-                        ],
-                      ),
                     ),
                     const VSpace(),
                     const BlendIn(
@@ -395,7 +399,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.onTertiary,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(32),
                           topRight: Radius.circular(32),
@@ -411,7 +415,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           BoldSmall(
                             text: "radkultur hamburg",
                             context: context,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(height: 32),
                         ],

@@ -150,12 +150,8 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         return DialogLayout(
           title: 'Alle Fahrten löschen',
           text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
-              iconColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
+            BigButtonPrimary(
               fillColor: CI.radkulturYellow,
               textColor: Colors.black,
               label: "Löschen",
@@ -164,12 +160,12 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                 update();
                 Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButton(
+            BigButtonTertiary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
           ],
         );

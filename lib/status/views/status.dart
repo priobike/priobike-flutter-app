@@ -126,14 +126,23 @@ class StatusViewState extends State<StatusView> {
                           ? Small(
                               text: text ?? "Lade Daten...",
                               context: context,
-                              color: Colors.black,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             )
                           : Small(
                               text: text ?? "Lade Daten...",
                               context: context,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             ),
                     ],
                   ),
+                ),
+                // Very small divider.
+                const SizedBox(
+                  width: 2,
                 ),
                 // Show a progress indicator with the pct value.
                 Padding(

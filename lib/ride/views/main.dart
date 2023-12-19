@@ -242,10 +242,7 @@ class RideViewState extends State<RideView> {
                     bottom: true,
                     child: Padding(
                       padding: paddingCenterButton,
-                      child: BigButton(
-                        icon: Icons.navigation_rounded,
-                        iconColor: Colors.white,
-                        fillColor: Theme.of(context).colorScheme.primary,
+                      child: BigButtonPrimary(
                         label: "Zentrieren",
                         elevation: 20,
                         onPressed: () {

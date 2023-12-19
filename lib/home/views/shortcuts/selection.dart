@@ -31,7 +31,7 @@ class ShortcutView extends StatelessWidget {
     this.onLongPressed,
     this.selected = false,
     this.showSplash = true,
-    this.selectionColor = CI.radkulturRedDark,
+    this.selectionColor = CI.radkulturRed,
   });
 
   @override
@@ -42,7 +42,7 @@ class ShortcutView extends StatelessWidget {
       child: Tile(
         onLongPressed: onLongPressed,
         onPressed: onPressed,
-        shadow: shortcut == null ? CI.radkulturRedDark : const Color.fromARGB(255, 45, 45, 45),
+        shadow: shortcut == null ? CI.radkulturRed : const Color.fromARGB(255, 45, 45, 45),
         shadowIntensity: shortcut == null ? 0.3 : 0.1,
         padding: const EdgeInsets.all(0),
         content: Stack(
@@ -123,7 +123,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ],
         ),
-        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.background,
+        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.surfaceVariant,
         splash: showSplash ? Theme.of(context).colorScheme.surfaceTint : Colors.transparent,
       ),
     );
@@ -155,7 +155,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   late Routing routing;
 
   /// The left padding.
-  double leftPad = 24;
+  double leftPad = 25;
 
   /// If the user has scrolled.
   bool hasScrolled = false;
@@ -203,8 +203,8 @@ class ShortcutsViewState extends State<ShortcutsView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
-    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+    const double shortcutRightPad = 15;
+    final shortcutWidth = ((MediaQuery.of(context).size.width - 40) / 2) - shortcutRightPad;
     final shortcutHeight = shortcutWidth; // Must be square for the pictograms to work.
 
     List<Widget> views = [

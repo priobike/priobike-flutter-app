@@ -109,11 +109,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
     top: 108,
-    bottom: 130,
+    bottom: 146,
   );
-
-  /// The extra distance between the bottom sheet and the attribution.
-  final sheetPadding = 16.0;
 
   /// The current mode (dark/light).
   bool isDark = false;
@@ -297,7 +294,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // AppBackButton width
       left: 64,
       // (BottomSheet + bottom padding)
-      bottom: (140 + frame.padding.bottom),
+      bottom: (146 + frame.padding.bottom),
       right: 0,
     );
 
@@ -576,8 +573,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     final frame = MediaQuery.of(context);
     final sheetHeightAbs = sheetHeightRelative == null
-        ? 124 + frame.padding.bottom + sheetPadding // Default value.
-        : sheetHeightRelative * frame.size.height + sheetPadding;
+        // Bottom padding + sheet init size + padding + shortcut height + padding.
+        ? 124.0 + 8 + 40 + 8 // Default value.
+        // Bottom padding + sheet relative size + padding + shortcut height + padding.
+        : sheetHeightRelative * frame.size.height + 40 + 8;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
     mapController!.setCamera(
@@ -590,8 +589,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             right: defaultMapInsets.left),
       ),
     );
-    final attributionMargins =
-        math.Point(10, 116 / frame.size.height + (frame.padding.bottom / frame.size.height) + 170);
+    // Bottom padding + sheet init size + padding + shortcut height + padding.
+    const attributionMargins = math.Point(10, 124 + 8 + 40 + 8);
     mapController!.attribution.updateSettings(AttributionSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginRight: attributionMargins.x.toDouble(),
@@ -782,15 +781,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             title: 'Wegpunkt außerhalb des Stadtgebiets',
             text:
                 'Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe Deinen Wegpunkt an.',
-            icon: Icons.info_rounded,
-            iconColor: Theme.of(context).colorScheme.primary,
             actions: [
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.check_rounded,
+              BigButtonPrimary(
                 label: "Ok",
                 onPressed: () => Navigator.of(context).pop(),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               )
             ],
           );

@@ -157,16 +157,17 @@ class UserTransferViewState extends State<UserTransferView> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    BigButton(
+                    BigButtonPrimary(
                       label: "Beta-Version deabonnieren",
                       onPressed: onUnsubscribeBetaPressed,
-                      boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36.0),
                     ),
-                    BigButton(
+                    const SmallVSpace(),
+                    BigButtonPrimary(
                       fillColor: Theme.of(context).colorScheme.secondary,
                       label: "Beta Tester bleiben",
                       onPressed: onStayBetaButtonPressed,
-                      boxConstraints: const BoxConstraints(minWidth: 320.0, minHeight: 36.0),
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36.0),
                     ),
                   ],
                 ),

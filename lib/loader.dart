@@ -154,13 +154,9 @@ class LoaderState extends State<Loader> {
           title: 'Persönliche Daten zurücksetzen',
           text:
               "Bist Du Dir sicher, dass Du Deine persönlichen Daten zurücksetzen willst? Nach dem Bestätigen werden Deine Daten unwiderruflich verworfen. Dazu gehören unter anderem Deine erstellten Routen.",
-          icon: Icons.delete_forever_rounded,
-          iconColor: CI.radkulturYellow,
           actions: [
-            BigButton(
-              iconColor: Colors.black,
+            BigButtonPrimary(
               textColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
               fillColor: CI.radkulturYellow,
               label: "Zurücksetzen",
               onPressed: () async {
@@ -168,12 +164,12 @@ class LoaderState extends State<Loader> {
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
                 if (mounted) Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButton(
+            BigButtonTertiary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );
@@ -235,16 +231,17 @@ class LoaderState extends State<Loader> {
                           const SmallVSpace(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
-                              ? BigButton(
+                              ? BigButtonPrimary(
                                   label: "Logs teilen",
                                   onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
                               : Container(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
-                              ? BigButton(label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
+                              ? BigButtonPrimary(
+                                  label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
                               : Container(),
                           const SizedBox(height: 16),
-                          BigButton(label: "Erneut versuchen", onPressed: () => init()),
+                          BigButtonPrimary(label: "Erneut versuchen", onPressed: () => init()),
                         ],
                       ),
                     ),

@@ -327,17 +327,20 @@ class SettingsViewState extends State<SettingsView> {
                       child: Text.rich(
                         TextSpan(children: [
                           TextSpan(
-                              text: "Du verwendest aktuell die ", style: Theme.of(context).textTheme.displaySmall!),
-                          TextSpan(
-                            text: settings.backend == Backend.release ? "stabile Version" : "Beta-Version",
+                            text: "Du verwendest aktuell die ",
                             style: Theme.of(context).textTheme.displaySmall!.merge(
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                                  const TextStyle(fontWeight: FontWeight.normal),
                                 ),
                           ),
                           TextSpan(
+                              text: settings.backend == Backend.release ? "stabile Version" : "Beta-Version",
+                              style: Theme.of(context).textTheme.displaySmall!),
+                          TextSpan(
                             text:
                                 " der App. Du hast die Möglichkeit zwischen der stabilen und der Beta-Version zu wechseln. Vorteile der stabilen Version sind die Nutzung stabiler Ampeln und Services.",
-                            style: Theme.of(context).textTheme.displaySmall!,
+                            style: Theme.of(context).textTheme.displaySmall!.merge(
+                                  const TextStyle(fontWeight: FontWeight.normal),
+                                ),
                           ),
                         ]),
                       ),

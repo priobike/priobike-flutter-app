@@ -157,18 +157,14 @@ class RoutingViewState extends State<RoutingView> {
             title: 'Hinweis',
             text:
                 'Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-            icon: Icons.info_rounded,
-            iconColor: Theme.of(context).colorScheme.primary,
             actions: [
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.check_rounded,
+              BigButtonPrimary(
                 label: "Ok",
                 onPressed: () async {
                   await settings.setDidViewWarning(true);
                   startRide();
                 },
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               )
             ],
           );
@@ -232,7 +228,7 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
+                          BigButtonPrimary(
                             label: "Zurück zum Hauptmenu",
                             onPressed: () => Navigator.of(context).pop(),
                           ),
@@ -247,7 +243,7 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
+                          BigButtonPrimary(
                             label: "Erneut versuchen",
                             onPressed: () async {
                               await routing?.loadRoutes();
@@ -277,15 +273,11 @@ class RoutingViewState extends State<RoutingView> {
           title: 'Hinweis',
           text:
               'Deine GPS-Position scheint ungenau zu sein. Solltest Du während der Fahrt Probleme mit der Ortung feststellen, prüfe Deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
-          icon: Icons.info_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.check_rounded,
+            BigButtonPrimary(
               label: "Ok",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );
@@ -296,7 +288,7 @@ class RoutingViewState extends State<RoutingView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: NotificationListener<DraggableScrollableNotification>(
@@ -333,7 +325,7 @@ class RoutingViewState extends State<RoutingView> {
                               width: 58,
                               height: 58,
                               child: Tile(
-                                fill: Theme.of(context).colorScheme.background,
+                                fill: Theme.of(context).colorScheme.surfaceVariant,
                                 onPressed: onLayerSelection,
                                 content: Icon(
                                   Icons.layers_rounded,
@@ -360,7 +352,7 @@ class RoutingViewState extends State<RoutingView> {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 124),
+                    padding: EdgeInsets.only(bottom: 132),
                     child: ShortcutsRow(),
                   ),
                 ),

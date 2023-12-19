@@ -44,18 +44,18 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            BoldContent(
+            BoldSubHeader(
               text: "Wie funktioniert PrioBike?",
               context: context,
               textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 4),
-            Small(
+            Content(
               text: "Erfahre mehr über die App.",
               context: context,
               textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),

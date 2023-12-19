@@ -14,17 +14,25 @@ class ShortcutPictogram extends StatefulWidget {
   /// The route of the shortcut, if it is a route shortcut.
   final Shortcut? shortcut;
 
-  /// The height of the shortcut (width == height, because the it is a square)
+  /// The height of the shortcut (width == height, because it is a square)
   final double height;
 
   /// The color of the pictogram.
   final Color color;
+
+  /// The icon size of the pictogram.
+  final double iconSize;
+
+  /// The stroke width of the pictogram.
+  final double strokeWidth;
 
   const ShortcutPictogram({
     super.key,
     this.shortcut,
     this.height = 200,
     this.color = Colors.black,
+    this.iconSize = 64,
+    this.strokeWidth = 6,
   });
 
   @override
@@ -124,7 +132,7 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
               child: Icon(
                 Icons.location_on,
                 color: widget.color,
-                size: 64,
+                size: widget.iconSize,
               ),
             )
           else if (widget.shortcut is ShortcutRoute)
@@ -134,6 +142,7 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
                 painter: ShortcutRoutePainter(
                   shortcut: widget.shortcut as ShortcutRoute,
                   color: widget.color,
+                  strokeWidth: widget.strokeWidth,
                 ),
               ),
             ),
@@ -150,14 +159,15 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
 class ShortcutRoutePainter extends CustomPainter {
   final ShortcutRoute shortcut;
   final Color color;
+  final double strokeWidth;
 
-  ShortcutRoutePainter({required this.shortcut, required this.color});
+  ShortcutRoutePainter({required this.shortcut, required this.color, required this.strokeWidth});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 6
+      ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
@@ -232,11 +242,11 @@ class ShortcutRoutePainter extends CustomPainter {
       final y = (waypoint.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
 
       if (i == 0) {
-        canvas.drawCircle(Offset(x, y), 3, paint);
+        canvas.drawCircle(Offset(x, y), strokeWidth / 2, paint);
       } else if (i == waypointCount - 1) {
-        canvas.drawCircle(Offset(x, y), 6, paint);
+        canvas.drawCircle(Offset(x, y), strokeWidth, paint);
       } else {
-        canvas.drawCircle(Offset(x, y), 3, paint);
+        canvas.drawCircle(Offset(x, y), strokeWidth / 2, paint);
       }
     }
   }

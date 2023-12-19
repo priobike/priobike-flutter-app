@@ -40,12 +40,14 @@ class ImportGpxViewState extends State<ImportGpxView> {
     List<Waypoint> waypoints = await gpxConversionNotifier.reduceWpts(points, routing);
     ToastMessage.showSuccess("Die GPX Strecke wurde erfolgreich konvertiert.");
     if (mounted) {
-      showSaveShortcutSheet(context,
-          shortcut: ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "Strecke aus GPX",
-            waypoints: waypoints,
-          ));
+      showSaveShortcutSheet(
+        context,
+        shortcut: ShortcutRoute(
+          id: UniqueKey().toString(),
+          name: "Strecke aus GPX",
+          waypoints: waypoints,
+        ),
+      );
     }
     return;
   }

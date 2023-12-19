@@ -8,6 +8,7 @@ import 'package:priobike/traffic/services/traffic_service.dart';
 
 class TrafficChart extends StatefulWidget {
   const TrafficChart({super.key});
+
   @override
   TrafficChartState createState() => TrafficChartState();
 }
@@ -109,7 +110,7 @@ class TrafficChartState extends State<TrafficChart> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(

@@ -3,9 +3,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
@@ -26,13 +26,11 @@ void showInvalidShortcutSheet(context) {
         title: 'Ungültige Strecke',
         text:
             "Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${backend.region} liegen.\nPrioBike wird aktuell nur innerhalb von ${backend.region} unterstützt.",
-        icon: Icons.warning_rounded,
-        iconColor: CI.radkulturYellow,
         actions: [
-          BigButton(
+          BigButtonPrimary(
             label: 'Schließen',
             onPressed: () => Navigator.of(context).pop(),
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
         ],
       );
@@ -46,14 +44,13 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor:
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.8),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
         title: 'Route speichern',
         text: "Bitte gib einen Namen für die Route ein.",
-        icon: Icons.route_rounded,
-        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
           TextField(
             autofocus: false,
@@ -67,9 +64,15 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 borderSide: BorderSide.none,
               ),
-              suffixIcon: Icon(
-                Icons.bookmark,
+              suffixIcon: SmallIconButtonTertiary(
+                icon: Icons.close,
+                onPressed: () {
+                  nameController.text = "";
+                },
                 color: Theme.of(context).colorScheme.onBackground,
+                fill: Colors.transparent,
+                // splash: Colors.transparent,
+                withBorder: false,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               counterStyle: TextStyle(
@@ -77,9 +80,7 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
               ),
             ),
           ),
-          BigButton(
-            iconColor: Colors.white,
-            icon: Icons.save_rounded,
+          BigButtonPrimary(
             label: "Speichern",
             onPressed: () async {
               final name = nameController.text;
@@ -99,7 +100,45 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
               if (!context.mounted) return;
               Navigator.pop(context);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          ),
+          BigButtonTertiary(
+            label: "Abbrechen",
+            addPadding: false,
+            onPressed: () async {
+              Navigator.pop(context);
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+/// Show a sheet to save a shortcut. If the shortcut is null the current route (at the routing service will be saved).
+void showFinishDriveDialog(context, Function submit) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor:
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.8),
+    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+      return DialogLayout(
+        title: 'Dein Feedback zur App',
+        actions: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: StarRatingView(text: "Dein Feedback zur App", displayQuestion: false),
+          ),
+          BigButtonPrimary(
+            label: "Danke!",
+            onPressed: () {
+              Navigator.pop(context);
+              submit();
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           )
         ],
       );
@@ -113,7 +152,7 @@ class DialogLayout extends StatefulWidget {
   final String title;
 
   /// The text content of the dialog.
-  final String text;
+  final String? text;
 
   /// The icon of the dialog.
   final IconData? icon;
@@ -127,7 +166,7 @@ class DialogLayout extends StatefulWidget {
   const DialogLayout({
     super.key,
     required this.title,
-    required this.text,
+    this.text,
     required this.actions,
     this.icon,
     this.iconColor,
@@ -247,12 +286,14 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
                         text: widget.title,
                         textAlign: TextAlign.center,
                       ),
-                      const SmallVSpace(),
-                      Content(
-                        context: context,
-                        text: widget.text,
-                        textAlign: TextAlign.center,
-                      ),
+                      if (widget.text != null) ...[
+                        const SmallVSpace(),
+                        Content(
+                          context: context,
+                          text: widget.text!,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                       if (widget.actions != null) ...[
                         const SmallVSpace(),
                         ...actions,

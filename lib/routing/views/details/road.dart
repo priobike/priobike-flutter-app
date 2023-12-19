@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -31,26 +32,25 @@ final roadClassTranslation = {
 
 /// The color translation of road class.
 final roadClassColor = {
-  "Autobahn": const Color(0xFF5B81FF),
-  "Fernstraße": const Color(0xFF90A9FF),
-  "Hauptstraße": const Color(0xFF7f8c8d),
-  "Landstraße": const Color(0xFFbdc3c7),
-  "???": const Color(0xFFc0392b),
-  "Wohnstraße": const Color(0xFFd35400),
-  "Nicht klassifiziert": const Color(0xFFf39c12),
-  "Zufahrtsstraße": const Color(0xFF95a5a6),
-  "Straße": const Color(0xFFecf0f1),
-  "Rennstrecke": const Color(0xFFf1c40f),
-  "Reitweg": const Color(0xFF2c3e50),
-  "Treppen": const Color(0xFF8e44ad),
-  "Fahrradweg": const Color(0xFF2980b9),
-  "Weg": const Color(0xFF27ae60),
-  "Spielstraße": const Color(0xFF16a085),
-  "Fußweg": const Color(0xFF34495e),
-  "Fußgängerzone": const Color(0xFF9b59b6),
-  "Bahnsteig": const Color(0xFF3498db),
-  "Korridor": const Color(0xFF2ecc71),
-  "Sonstiges": const Color(0xFF1abc9c)
+  "Autobahn": const Color(0xFFFA1E41),
+  "Fernstraße": const Color(0xFFD4B700),
+  "Hauptstraße": const Color(0xFFA8EDB9),
+  "Landstraße": const Color(0xFFFFDC00),
+  "Wohnstraße": const Color(0xFF64BA79),
+  "Nicht klassifiziert": const Color(0xFF7C7C7C),
+  "Zufahrtsstraße": const Color(0xFF9C9C9C),
+  "Straße": const Color(0xFF8CCF9C),
+  "Rennstrecke": const Color(0xFFE5A028),
+  "Reitweg": const Color(0xFFA79000),
+  "Treppen": const Color(0xFF9C4452),
+  "Fahrradweg": const Color(0xFF28CD50),
+  "Weg": const Color(0xFF58755F),
+  "Spielstraße": const Color(0xFF405645),
+  "Fußweg": const Color(0xFFD8CD88),
+  "Fußgängerzone": const Color(0xFFEB9034),
+  "Bahnsteig": const Color(0xFFDC576C),
+  "Korridor": const Color(0xFFFF4260),
+  "Sonstiges": const Color(0xFF676767)
 };
 
 class RoadClassChart extends StatefulWidget {
@@ -193,7 +193,7 @@ class RoadClassChartState extends State<RoadClassChart> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
@@ -205,17 +205,16 @@ class RoadClassChartState extends State<RoadClassChart> {
             }),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Content(text: "Wegtypen", context: context),
-              Row(children: [
-                Content(
-                  text: "Details",
-                  context: context,
-                  color: Theme.of(context).colorScheme.primary,
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: SmallIconButtonTertiary(
+                  icon: showRoadClassDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
+                  onPressed: () => setState(() {
+                    showRoadClassDetails = !showRoadClassDetails;
+                  }),
                 ),
-                const SizedBox(width: 4),
-                showRoadClassDetails
-                    ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
-                    : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
-              ]),
+              ),
             ]),
           ),
           const SizedBox(height: 8),

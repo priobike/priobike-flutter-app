@@ -158,7 +158,10 @@ class App extends StatelessWidget {
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
-              onSecondary: Colors.white,
+              onSecondary: Color(0xFFCCCCCC),
+              // FIXME Radkultur Grey.
+              tertiary: Color(0xFF444444),
+              onTertiary: Color(0xFFDDDDDD),
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
@@ -168,7 +171,7 @@ class App extends StatelessWidget {
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFF000000),
               // For the background of complete views/pages.
-              background: Colors.white,
+              background: Color(0xFFFCFCFC),
               // For content on the background (color with high contrast).
               onBackground: Color(0xFF000000),
               // For the splash effect on buttons.
@@ -190,8 +193,8 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineLarge: TextStyle(
@@ -202,13 +205,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -220,13 +223,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -258,7 +261,10 @@ class App extends StatelessWidget {
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
-              onSecondary: Colors.white,
+              onSecondary: Color(0xFFCCCCCC),
+              // FIXME Radkultur Grey.
+              tertiary: Color(0xFFDDDDDD),
+              onTertiary: Color(0xFF333333),
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
@@ -268,7 +274,7 @@ class App extends StatelessWidget {
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFFFFFFFF),
               // For the background of complete views/pages.
-              background: Colors.black,
+              background: Color(0xFF222222),
               // For content on the background (color with high contrast).
               onBackground: Color(0xFFFFFFFF),
               // For the splash effect on buttons.
@@ -290,8 +296,8 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineLarge: TextStyle(
@@ -302,13 +308,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
@@ -320,13 +326,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),

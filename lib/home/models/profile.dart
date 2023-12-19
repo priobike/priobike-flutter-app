@@ -23,16 +23,31 @@ extension BikeTypeDescription on BikeType {
 }
 
 extension BikeTypeIcon on BikeType {
-  IconData icon() {
+  IconData? icon() {
     switch (this) {
       case BikeType.ebike:
-        return Icons.electric_bike_rounded;
+        return Icons.electric_bike;
       case BikeType.racingbike:
-        return Icons.directions_bike_rounded;
+        return Icons.directions_bike;
       case BikeType.mountainbike:
-        return Icons.pedal_bike_rounded;
+        return Icons.pedal_bike;
       case BikeType.cargobike:
-        return Icons.pedal_bike_rounded;
+        return null;
+    }
+  }
+}
+
+extension BikeTypeIconAsSting on BikeType {
+  String? iconAsString() {
+    switch (this) {
+      case BikeType.ebike:
+        return null;
+      case BikeType.racingbike:
+        return null;
+      case BikeType.mountainbike:
+        return null;
+      case BikeType.cargobike:
+        return "assets/icons/lastenrad.png";
     }
   }
 }
@@ -57,9 +72,9 @@ extension PreferenceTypeIcon on PreferenceType {
   IconData icon() {
     switch (this) {
       case PreferenceType.fast:
-        return Icons.access_time_rounded;
+        return Icons.access_time_outlined;
       case PreferenceType.comfortible:
-        return Icons.chair_rounded;
+        return Icons.chair_outlined;
     }
   }
 }
@@ -73,9 +88,9 @@ extension ActivityTypeIcon on ActivityType {
   IconData icon() {
     switch (this) {
       case ActivityType.avoidIncline:
-        return Icons.trending_flat;
+        return Icons.trending_flat_outlined;
       case ActivityType.allowIncline:
-        return Icons.trending_up;
+        return Icons.trending_up_outlined;
     }
   }
 }
