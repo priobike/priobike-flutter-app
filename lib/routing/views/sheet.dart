@@ -349,6 +349,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 Expanded(
                   child: BigButtonSecondary(
                     label: "Speichern",
+                    fillColor: Theme.of(context).colorScheme.background,
                     onPressed:
                         routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectSaveButton,
                     addPadding: false,
