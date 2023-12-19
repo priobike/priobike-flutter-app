@@ -378,6 +378,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   mapboxTop: MediaQuery.of(context).padding.top + 10,
                   mapboxRight: 20,
                   mapboxWidth: 64,
+                  // Padding + 2 * button height + padding + padding bottom.
                   speedLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
                   speedLegendLeft: 20,
                 )
