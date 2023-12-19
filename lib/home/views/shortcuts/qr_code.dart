@@ -166,7 +166,7 @@ class QRCodeViewState extends State<QRCodeView> {
                                   text: "Scanne den QR-Code einer anderen PrioBike-App, um die Route zu erhalten.",
                                   context: context,
                                   textAlign: TextAlign.center,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                                 ),
                               ],
                             ),
