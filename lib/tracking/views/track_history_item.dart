@@ -442,7 +442,7 @@ class TrackHistoryItemAppSheetView extends StatefulWidget {
 
 class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetView> with TrackHistoryItem {
   /// The widget that displays the track on a map.
-  late Widget trackPictogram;
+  Widget trackPictogram = Container();
 
   @override
   void initState() {
@@ -450,19 +450,21 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       // Create TrackHistory once to prevent getting rebuild on every setState.
-      trackPictogram = TrackPictogram(
-        key: ValueKey(widget.track.sessionId),
-        track: positions,
-        blurRadius: 2,
-        startImage: widget.startImage,
-        destinationImage: widget.destinationImage,
-        iconSize: 16,
-        lineWidth: 6,
-        imageWidthRatio: 1,
-        mapboxTop: MediaQuery.of(context).padding.top + 10,
-        mapboxRight: 20,
-        mapboxWidth: 64,
-      );
+      setState(() {
+        trackPictogram = TrackPictogram(
+          key: ValueKey(widget.track.sessionId),
+          track: positions,
+          blurRadius: 2,
+          startImage: widget.startImage,
+          destinationImage: widget.destinationImage,
+          iconSize: 16,
+          lineWidth: 6,
+          imageWidthRatio: 1,
+          mapboxTop: MediaQuery.of(context).padding.top + 10,
+          mapboxRight: 20,
+          mapboxWidth: 64,
+        );
+      });
     });
     initializeDateFormatting();
   }
