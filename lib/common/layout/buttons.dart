@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+/// The value of the opacity of a disabled button.
 const double disabledOpacity = 0.5;
 
 /// A small icon button (primary).
