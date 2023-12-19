@@ -139,6 +139,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                 child: BigButtonPrimary(
                   label: "Akzeptieren",
                   onPressed: onAcceptButtonPressed,
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
                 ),
               ),
           ],
