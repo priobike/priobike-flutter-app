@@ -88,7 +88,11 @@ class ShortcutsState extends State<ShortcutsRow> {
       width: frame.size.width,
       height: 40,
       child: ListView(
-          scrollDirection: Axis.horizontal, children: shortcuts.shortcuts!.map((e) => shortcutItem(e)).toList()),
+          scrollDirection: Axis.horizontal,
+          children: shortcuts.shortcuts!.map((e) => shortcutItem(e)).toList() +
+              [
+                const SmallHSpace(),
+              ]),
     );
   }
 }
