@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -139,6 +140,10 @@ class StatusViewState extends State<StatusView> {
                             ),
                     ],
                   ),
+                ),
+                // Very small divider.
+                const SizedBox(
+                  width: 2,
                 ),
                 // Show a progress indicator with the pct value.
                 Padding(
