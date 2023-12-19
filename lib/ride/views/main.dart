@@ -198,7 +198,8 @@ class RideViewState extends State<RideView> {
           text: "Der Simulator hat die Fahrt beendet.",
           iconColor: CI.radkulturYellow,
           actions: [
-            BigButton(
+            BigButtonPrimary(
+              // TODO: vllt noch Design anpassen mit neuem Design
               iconColor: Colors.black,
               textColor: Colors.black,
               icon: Icons.home_rounded,
