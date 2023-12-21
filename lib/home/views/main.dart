@@ -399,7 +399,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onTertiary,
+                        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.33),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(32),
                           topRight: Radius.circular(32),

@@ -339,9 +339,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SmallHSpace(),
                   SizedBox(
                     // button height as width because of square pictogram (2x48 + small vertical space).
                     width: 96,
@@ -432,8 +431,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 Container(
                                   width: 10,
                                   height: 10,
-                                  // To align with to-address symbol.
-                                  padding: const EdgeInsets.symmetric(horizontal: 2),
                                   // To align with route name.
                                   margin: const EdgeInsets.only(left: 6),
                                   decoration: BoxDecoration(
@@ -442,7 +439,9 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                   ),
                                 ),
                                 // The space of the location icon + the padding of the waypoint item to align the texts vertically.
-                                const SizedBox(width: 6),
+                                const SizedBox(
+                                  width: 6,
+                                ),
                                 Expanded(
                                   child: Padding(
                                     padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 2),
@@ -457,9 +456,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Container(
                                   width: 14,
@@ -481,14 +479,19 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                   ),
                                 ),
                                 // The space of the location icon to align the texts vertically.
-                                const SizedBox(width: 4),
+                                const SizedBox(
+                                  width: 4,
+                                ),
                                 Expanded(
-                                  child: Small(
-                                    text: shortcut.getLastAddress() ?? "",
-                                    overflow: TextOverflow.ellipsis,
-                                    context: context,
-                                    color: Theme.of(context).colorScheme.tertiary,
-                                    maxLines: 1,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                                    child: Small(
+                                      text: shortcut.getLastAddress() ?? "",
+                                      overflow: TextOverflow.ellipsis,
+                                      context: context,
+                                      color: Theme.of(context).colorScheme.tertiary,
+                                      maxLines: 1,
+                                    ),
                                   ),
                                 ),
                               ],
