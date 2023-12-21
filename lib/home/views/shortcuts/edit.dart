@@ -339,9 +339,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SmallHSpace(),
                   SizedBox(
                     // button height as width because of square pictogram (2x48 + small vertical space).
                     width: 96,
