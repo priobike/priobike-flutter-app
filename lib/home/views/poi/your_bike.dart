@@ -32,7 +32,8 @@ class YourBikeElementButton extends StatelessWidget {
           fill: backgroundColor ?? theme.colorScheme.background,
           splash: touchColor ?? theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          borderColor: Theme.of(context).colorScheme.primary,
+          borderColor:
+              Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).colorScheme.primary,
           padding: const EdgeInsets.all(8),
           borderWidth: 2,
           content: Row(
@@ -135,36 +136,69 @@ class YourBikeViewState extends State<YourBikeView> {
             crossAxisSpacing: 8,
             crossAxisCount: 3,
             children: [
-              YourBikeElementButton(
-                image: rentBikeActive
-                    ? Image.asset("assets/images/rent-icon-white.png")
-                    : Image.asset("assets/images/rent-icon-red.png"),
-                title: "Ausleihen",
-                color: rentBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                backgroundColor:
-                    rentBikeActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
-                onPressed: toggleRentBikeSelection,
-              ),
-              YourBikeElementButton(
-                image: pumpUpBikeActive
-                    ? Image.asset("assets/icons/luftpumpe.png", color: Colors.white)
-                    : Image.asset("assets/icons/luftpumpe.png"),
-                title: "Aufpumpen",
-                color: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                backgroundColor:
-                    pumpUpBikeActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
-                onPressed: togglePumpUpBikeSelection,
-              ),
-              YourBikeElementButton(
-                image: repairBikeActive
-                    ? Image.asset("assets/icons/werkzeug.png", color: Colors.white)
-                    : Image.asset("assets/icons/werkzeug.png"),
-                title: "Reparieren",
-                color: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                backgroundColor:
-                    repairBikeActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
-                onPressed: toggleRepairBikeSelection,
-              ),
+              Theme.of(context).brightness == Brightness.light
+                  ? YourBikeElementButton(
+                      image: rentBikeActive
+                          ? Image.asset("assets/images/rent-icon-white.png")
+                          : Image.asset("assets/images/rent-icon-red.png"),
+                      title: "Ausleihen",
+                      color: rentBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                      backgroundColor: rentBikeActive
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.background,
+                      onPressed: toggleRentBikeSelection,
+                    )
+                  : YourBikeElementButton(
+                      image: rentBikeActive
+                          ? Image.asset("assets/images/rent-icon-red.png")
+                          : Image.asset("assets/images/rent-icon-white.png"),
+                      title: "Ausleihen",
+                      color: rentBikeActive ? Theme.of(context).colorScheme.primary : Colors.white,
+                      backgroundColor: rentBikeActive ? Colors.white : Theme.of(context).colorScheme.background,
+                      onPressed: toggleRentBikeSelection,
+                    ),
+              Theme.of(context).brightness == Brightness.light
+                  ? YourBikeElementButton(
+                      image: pumpUpBikeActive
+                          ? Image.asset("assets/icons/luftpumpe.png", color: Colors.white)
+                          : Image.asset("assets/icons/luftpumpe.png"),
+                      title: "Aufpumpen",
+                      color: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                      backgroundColor: pumpUpBikeActive
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.background,
+                      onPressed: togglePumpUpBikeSelection,
+                    )
+                  : YourBikeElementButton(
+                      image: pumpUpBikeActive
+                          ? Image.asset("assets/icons/luftpumpe.png")
+                          : Image.asset("assets/icons/luftpumpe.png", color: Colors.white),
+                      title: "Aufpumpen",
+                      color: pumpUpBikeActive ? Theme.of(context).colorScheme.primary : Colors.white,
+                      backgroundColor: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.background,
+                      onPressed: togglePumpUpBikeSelection,
+                    ),
+              Theme.of(context).brightness == Brightness.light
+                  ? YourBikeElementButton(
+                      image: repairBikeActive
+                          ? Image.asset("assets/icons/werkzeug.png", color: Colors.white)
+                          : Image.asset("assets/icons/werkzeug.png"),
+                      title: "Reparieren",
+                      color: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                      backgroundColor: repairBikeActive
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.background,
+                      onPressed: toggleRepairBikeSelection,
+                    )
+                  : YourBikeElementButton(
+                      image: repairBikeActive
+                          ? Image.asset("assets/icons/werkzeug.png")
+                          : Image.asset("assets/icons/werkzeug.png", color: Colors.white),
+                      title: "Reparieren",
+                      color: repairBikeActive ? Theme.of(context).colorScheme.primary : Colors.white,
+                      backgroundColor: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.background,
+                      onPressed: toggleRepairBikeSelection,
+                    ),
             ],
           ),
           const SizedBox(height: 16),
