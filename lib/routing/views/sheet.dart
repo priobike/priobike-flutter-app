@@ -161,6 +161,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 physics: const NeverScrollableScrollPhysics(),
                 proxyDecorator: (proxyWidget, idx, anim) => proxyWidget,
                 onReorder: onChangeWaypointOrder,
+                cacheExtent: 999999999999,
                 children: widgets,
               );
             }),

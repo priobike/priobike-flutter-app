@@ -293,6 +293,7 @@ class RoutingViewState extends State<RoutingView> {
       child: Scaffold(
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {
+            // print(notification.extent);
             sheetMovement.add(notification);
             return false;
           },
