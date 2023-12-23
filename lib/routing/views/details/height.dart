@@ -5,8 +5,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
+
+// Rough value on how many lines per route is okay to display the height chart smoothly.
+const maxPointsPerRouteHeightChart = 100;
 
 class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({super.key});
@@ -382,15 +386,38 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   }
 
   /// Process the route data and create the LineElements for the chart.
+  /// Care about max number of line elements to not decrease performance on scroll.
   void processRouteData() {
     if (routing.allRoutes == null || routing.allRoutes!.isEmpty) return;
     lineElements = List.empty(growable: true);
     for (var route in routing.allRoutes!) {
-      final latlngCoords = route.path.points.coordinates;
+      List<GHCoordinate> latlngCoords = route.path.points.coordinates;
 
       const vincenty = Distance(roundResult: false);
       final data = List<HeightData>.empty(growable: true);
       var prevDist = 0.0;
+
+      // Only pick max number of coords per route.
+      // To many lines will make the scrolling laggy.
+      // Therefore skip a slight amount of waypoints on big routes.
+      int waypointsOverhead = latlngCoords.length - maxPointsPerRouteHeightChart;
+      // The skip value for the modulo operation. 500 means no skip.
+      int skipValue = maxPointsPerRouteHeightChart;
+      // If there are more waypoints then needed.
+      // Iterate through points until its small enough.
+      while (waypointsOverhead > 0) {
+        List<GHCoordinate> reducedWaypointList = [];
+        skipValue = latlngCoords.length ~/ waypointsOverhead;
+        // Make sure not everything gets deleted.
+        if (skipValue <= 1) skipValue = 2;
+        for (var i = 0; i < latlngCoords.length; i++) {
+          if (i % skipValue == 0 && i != 0) continue;
+          reducedWaypointList.add(latlngCoords[i]);
+        }
+        latlngCoords = reducedWaypointList;
+        waypointsOverhead = latlngCoords.length - maxPointsPerRouteHeightChart;
+      }
+
       for (var i = 0; i < latlngCoords.length; i++) {
         var dist = 0.0;
         final p = latlngCoords[i];
@@ -401,7 +428,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         prevDist += dist;
         data.add(HeightData(p.elevation ?? 0.0, prevDist / 1000));
       }
-      final bool isMainLine = (latlngCoords == routing.selectedRoute!.path.points.coordinates);
+      final bool isMainLine = (route.path.points.coordinates == routing.selectedRoute!.path.points.coordinates);
 
       // The last item of the data stores the total distance of the route
       lineElements.add(LineElement(isMainLine, data, data.last.distance));
