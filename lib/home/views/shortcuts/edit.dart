@@ -330,14 +330,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
             ),
             content: Container(
               padding: const EdgeInsets.only(top: 8, bottom: 8),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    width: 1,
-                    color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
-                  ),
-                ),
-              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -352,7 +344,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             decoration: BoxDecoration(
                               borderRadius: const BorderRadius.all(Radius.circular(20)),
                               border:
-                                  Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5)),
+                                  Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1)),
                               color: Theme.of(context).colorScheme.surfaceVariant,
                             ),
                             child: ShortcutPictogram(
@@ -369,7 +361,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               border:
-                                  Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5)),
+                                  Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1)),
                               color: Theme.of(context).colorScheme.surfaceVariant,
                             ),
                             child: ShortcutPictogram(
@@ -378,7 +370,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                               // Fixed height of pictogram.
                               height: 96,
                               color: CI.radkulturRed,
-                              iconSize: 42,
+                              iconSize: 24,
                             ),
                           ),
                       ],
@@ -406,23 +398,16 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             ),
                           ),
                           if (shortcut is ShortcutLocation)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.location_on,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                Expanded(
-                                  child: Small(
-                                    text: shortcut.getShortInfo(),
-                                    overflow: TextOverflow.ellipsis,
-                                    context: context,
-                                    color: Theme.of(context).colorScheme.tertiary,
-                                    maxLines: 4,
-                                  ),
-                                ),
-                              ],
+                            Padding(
+                              // Padding to align with location icon.
+                              padding: const EdgeInsets.only(left: 4),
+                              child: Small(
+                                text: shortcut.getShortInfo(),
+                                overflow: TextOverflow.ellipsis,
+                                context: context,
+                                color: Theme.of(context).colorScheme.tertiary,
+                                maxLines: 4,
+                              ),
                             ),
                           if (shortcut is ShortcutRoute) ...[
                             Row(

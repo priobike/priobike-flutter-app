@@ -147,8 +147,6 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
       }
     }
-    // Add the time.
-    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
 
     // Determine the duration.
     final trackDurationFormatted = durationSeconds != null
@@ -200,10 +198,6 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                       text: relativeTime,
                       context: context,
                     ),
-                    Small(
-                      text: clock,
-                      context: context,
-                    )
                   ],
                 )),
             if (trackDurationFormatted != null)
@@ -221,69 +215,9 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                   ),
                 ),
               ),
-            Positioned(
-              right: 12,
-              bottom: 12,
-              child: Container(
-                height: 42,
-                width: 42,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? Colors.white.withOpacity(0.75)
-                      : Colors.black.withOpacity(0.25),
-                ),
-                child: IconButton(
-                  onPressed: () => _showDeleteDialog(context),
-                  visualDensity: VisualDensity.compact,
-                  icon: Icon(
-                    Icons.delete_rounded,
-                    size: 24,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                  ),
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  /// Show a dialog that asks if the track really shoud be deleted.
-  void _showDeleteDialog(BuildContext context) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.4),
-      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        return DialogLayout(
-          title: 'Fahrt löschen',
-          text: "Bitte bestätige, dass Du diese Fahrt löschen möchtest.",
-          actions: [
-            BigButtonPrimary(
-              textColor: Colors.black,
-              fillColor: CI.radkulturYellow,
-              label: "Löschen",
-              onPressed: () {
-                getIt<Tracking>().deleteTrack(widget.track);
-                Navigator.of(context).pop();
-              },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-            ),
-            BigButtonTertiary(
-              label: "Abbrechen",
-              onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-            ),
-          ],
-        );
-      },
     );
   }
 }
@@ -394,15 +328,6 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
             children: [
               content,
               Positioned(
-                top: MediaQuery.of(context).padding.top + 10,
-                left: 20,
-                right: 20,
-                child: Content(
-                  text: "Deine Fahrt",
-                  context: context,
-                ),
-              ),
-              Positioned(
                 top: MediaQuery.of(context).padding.top + 40,
                 left: 20,
                 right: 20,
@@ -470,6 +395,40 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
     initializeDateFormatting();
   }
 
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void _showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt löschen',
+          text: "Bitte bestätige, dass Du diese Fahrt löschen möchtest.",
+          actions: [
+            BigButtonPrimary(
+              textColor: Colors.black,
+              fillColor: CI.radkulturYellow,
+              label: "Löschen",
+              onPressed: () {
+                getIt<Tracking>().deleteTrack(widget.track);
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+            BigButtonTertiary(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
@@ -504,11 +463,6 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
         // Add the time.
         final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
 
-        // Determine the duration.
-        final trackDurationFormatted = durationSeconds != null
-            ? '${(durationSeconds! ~/ 60).toString().padLeft(2, '0')}:${(durationSeconds! % 60).toString().padLeft(2, '0')}\nMinuten'
-            : null;
-
         final Widget trackStats;
         if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
           trackStats = TrackStats(
@@ -523,7 +477,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
 
         return Container(
           // VSpace + Content + SmallVSpace + Track map size + 20 + Details + padding + 44 Stats.
-          height: (24 + 32 + 8 + widget.height + 20 + 62 + 8 + MediaQuery.of(context).padding.bottom),
+          height: (24 + 32 + 16 + 20 + widget.height + 20 + 42 + 62 + MediaQuery.of(context).padding.bottom),
           // width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
@@ -533,29 +487,32 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
             children: [
               const VSpace(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    BoldContent(text: relativeTime, context: context),
-                    Content(text: clock, context: context),
-                  ]),
-                  Content(
-                    text: trackDurationFormatted ?? "",
-                    context: context,
-                    textAlign: TextAlign.end,
-                  ),
+                  BoldContent(text: relativeTime, context: context),
+                  Content(text: clock, context: context),
                 ]),
               ),
-              const SmallVSpace(),
+              const VSpace(),
               SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: trackPictogram),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: trackStats,
               ),
-              const SmallVSpace(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                height: 42,
+                child: BigButtonTertiary(
+                  label: "Fahrt löschen",
+                  onPressed: () => _showDeleteDialog(context),
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                ),
+              ),
               SizedBox(
                 height: MediaQuery.of(context).padding.bottom,
               ),
+              const SmallVSpace(),
+              // Button to delete track
             ],
           ),
         );

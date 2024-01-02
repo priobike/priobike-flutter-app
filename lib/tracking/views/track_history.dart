@@ -60,7 +60,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     while (i >= 0) {
       // To get Production and Release or Staging.
       if (tracking.previousTracks![i].backend.regionName == backend.regionName) {
-        if (newestTracks.length < 10) {
+        if (newestTracks.length < 4) {
           newestTracks.add(tracking.previousTracks![i]);
         }
         totalTracks++;
@@ -139,10 +139,10 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
           alignment: Alignment.center,
           child: Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Content(
-              text: "... und ${totalTracks - newestTracks.length} weitere.",
-              context: context,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.4),
+            child: IconTextButtonTertiary(
+              label: "Alle anzeigen",
+              onPressed: () =>
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
             ),
           ),
         ),
@@ -179,17 +179,10 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                 text: "Letzte Fahrten",
                 context: context,
               ),
-              Expanded(child: Container()),
-              IconTextButtonTertiary(
-                label: "Alle anzeigen",
-                onPressed: () =>
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
-              ),
-              const SizedBox(width: 24),
             ],
           ),
         ),
-        const VSpace(),
+        const SizedBox(height: 16),
         SingleChildScrollView(
           // Padding is necessary for Shadow in LightMode
           padding: const EdgeInsets.only(bottom: 18),

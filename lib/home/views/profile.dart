@@ -18,6 +18,7 @@ class ProfileElementButton extends StatelessWidget {
   final Color? borderColor;
   final Color? backgroundColor;
   final void Function()? onPressed;
+  final bool showShadow;
 
   const ProfileElementButton({
     super.key,
@@ -28,6 +29,7 @@ class ProfileElementButton extends StatelessWidget {
     this.borderColor,
     this.backgroundColor,
     this.onPressed,
+    this.showShadow = false,
   });
 
   @override
@@ -38,11 +40,12 @@ class ProfileElementButton extends StatelessWidget {
         return Tile(
           fill: backgroundColor ?? theme.colorScheme.background,
           splash: theme.colorScheme.surfaceTint,
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          borderRadius: const BorderRadius.all(Radius.circular(18)),
           padding: const EdgeInsets.all(8),
           borderColor: borderColor,
           borderWidth: 2,
-          showShadow: false,
+          showShadow: showShadow,
+          shadowIntensity: 0.1,
           content: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -181,187 +184,194 @@ class ProfileViewState extends State<ProfileView> {
   }
 
   Widget renderProfileSelection() {
-    return HPad(
-      child: Tile(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        fill: Theme.of(context).colorScheme.background,
-        borderColor: Colors.grey.withOpacity(0.2),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BoldSubHeader(
+                text: "Routing-Profil",
+                context: context,
+              ),
+              const SizedBox(height: 4),
+              Content(
+                text: "Personalisiere Deine Routenberechnung",
+                context: context,
+                maxLines: 2,
+              ),
+            ],
+          ),
+        ),
+        const VSpace(),
+        const TutorialView(
+          id: "priobike.tutorial.configure-profile",
+          text:
+              'Hier kannst Du Dein Profil konfigurieren. Diese Informationen werden für die Berechnung der Route verwendet. Du kannst sie jederzeit ändern.',
+          padding: EdgeInsets.fromLTRB(6, 0, 16, 6),
+        ),
+        GridView.count(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          crossAxisSpacing: 8,
+          crossAxisCount: 3,
           children: [
-            const SizedBox(height: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BoldSubHeader(
-                  text: "Routing-Profil",
-                  context: context,
-                ),
-                const SizedBox(height: 4),
-                Content(
-                  text: "Personalisiere Deine Routenberechnung",
-                  context: context,
-                  maxLines: 2,
-                ),
-              ],
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: profileService.bikeType == null
+                  ? ProfileElementButton(
+                      key: const ValueKey<String>("None"),
+                      // icon: Icons.electric_bike_rounded,
+                      iconAsString: "assets/icons/fahrrad.png",
+                      title: "Radtyp",
+                      showShadow: true,
+                      color: bikeSelectionActive
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                      backgroundColor:
+                          bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                      onPressed: toggleBikeSelection)
+                  : ProfileElementButton(
+                      key: ValueKey<String>(profileService.bikeType!.description()),
+                      icon: profileService.bikeType!.icon(),
+                      iconAsString: profileService.bikeType!.iconAsString(),
+                      title: profileService.bikeType!.description(),
+                      showShadow: true,
+                      color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                      backgroundColor:
+                          bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                      onPressed: toggleBikeSelection,
+                    ),
             ),
-            const SmallVSpace(),
-            const TutorialView(
-              id: "priobike.tutorial.configure-profile",
-              text:
-                  'Hier kannst Du Dein Profil konfigurieren. Diese Informationen werden für die Berechnung der Route verwendet. Du kannst sie jederzeit ändern.',
-              padding: EdgeInsets.fromLTRB(6, 0, 16, 6),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: profileService.preferenceType == null
+                  ? ProfileElementButton(
+                      key: const ValueKey<String>("None"),
+                      icon: Icons.thumbs_up_down,
+                      title: "Präferenz",
+                      showShadow: true,
+                      color: preferenceSelectionActive
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                      backgroundColor:
+                          preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                      onPressed: togglePreferenceSelection,
+                    )
+                  : ProfileElementButton(
+                      key: ValueKey<String>(profileService.preferenceType!.description()),
+                      icon: profileService.preferenceType!.icon(),
+                      title: profileService.preferenceType!.description(),
+                      showShadow: true,
+                      color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                      backgroundColor:
+                          preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                      onPressed: togglePreferenceSelection,
+                    ),
             ),
-            GridView.count(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              padding: EdgeInsets.zero,
-              crossAxisSpacing: 8,
-              crossAxisCount: 3,
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return ScaleTransition(scale: animation, child: child);
-                  },
-                  child: profileService.bikeType == null
-                      ? ProfileElementButton(
-                          key: const ValueKey<String>("None"),
-                          // icon: Icons.electric_bike_rounded,
-                          iconAsString: "assets/icons/fahrrad.png",
-                          title: "Radtyp",
-                          color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                          borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor:
-                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
-                          onPressed: toggleBikeSelection)
-                      : ProfileElementButton(
-                          key: ValueKey<String>(profileService.bikeType!.description()),
-                          icon: profileService.bikeType!.icon(),
-                          iconAsString: profileService.bikeType!.iconAsString(),
-                          title: profileService.bikeType!.description(),
-                          color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                          borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor:
-                              bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
-                          onPressed: toggleBikeSelection,
-                        ),
-                ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return ScaleTransition(scale: animation, child: child);
-                  },
-                  child: profileService.preferenceType == null
-                      ? ProfileElementButton(
-                          key: const ValueKey<String>("None"),
-                          icon: Icons.thumbs_up_down,
-                          title: "Präferenz",
-                          color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                          borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor:
-                              preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
-                          onPressed: togglePreferenceSelection,
-                        )
-                      : ProfileElementButton(
-                          key: ValueKey<String>(profileService.preferenceType!.description()),
-                          icon: profileService.preferenceType!.icon(),
-                          title: profileService.preferenceType!.description(),
-                          color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                          borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor:
-                              preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
-                          onPressed: togglePreferenceSelection,
-                        ),
-                ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return ScaleTransition(scale: animation, child: child);
-                  },
-                  child: profileService.activityType == null
-                      ? ProfileElementButton(
-                          key: const ValueKey<String>("None"),
-                          icon: Icons.landscape,
-                          title: "Anstieg",
-                          color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                          borderColor: Theme.of(context).colorScheme.primary,
-                          backgroundColor:
-                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
-                          onPressed: toggleActivitySelection,
-                        )
-                      : ProfileElementButton(
-                          key: ValueKey<String>(profileService.activityType!.description()),
-                          icon: profileService.activityType!.icon(),
-                          title: profileService.activityType!.description(),
-                          borderColor: Theme.of(context).colorScheme.primary,
-                          color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                          backgroundColor:
-                              activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.background,
-                          onPressed: toggleActivitySelection,
-                        ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            AnimatedCrossFade(
-              firstCurve: Curves.easeInOutCubic,
-              secondCurve: Curves.easeInOutCubic,
-              sizeCurve: Curves.easeInOutCubic,
-              duration: const Duration(milliseconds: 1000),
-              firstChild: Container(),
-              secondChild: renderBikeTypeSelection(),
-              crossFadeState: bikeSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            ),
-            AnimatedCrossFade(
-              firstCurve: Curves.easeInOutCubic,
-              secondCurve: Curves.easeInOutCubic,
-              sizeCurve: Curves.easeInOutCubic,
-              duration: const Duration(milliseconds: 1000),
-              firstChild: Container(),
-              secondChild: renderPreferenceTypeSelection(),
-              crossFadeState: preferenceSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            ),
-            AnimatedCrossFade(
-              firstCurve: Curves.easeInOutCubic,
-              secondCurve: Curves.easeInOutCubic,
-              sizeCurve: Curves.easeInOutCubic,
-              duration: const Duration(milliseconds: 1000),
-              firstChild: Container(),
-              secondChild: renderActivityTypeSelection(),
-              crossFadeState: activitySelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: profileService.activityType == null
+                  ? ProfileElementButton(
+                      key: const ValueKey<String>("None"),
+                      icon: Icons.landscape,
+                      title: "Anstieg",
+                      showShadow: true,
+                      color: activitySelectionActive
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                      backgroundColor:
+                          activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                      onPressed: toggleActivitySelection,
+                    )
+                  : ProfileElementButton(
+                      key: ValueKey<String>(profileService.activityType!.description()),
+                      icon: profileService.activityType!.icon(),
+                      title: profileService.activityType!.description(),
+                      showShadow: true,
+                      color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                      backgroundColor:
+                          activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                      onPressed: toggleActivitySelection,
+                    ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 16),
+        AnimatedCrossFade(
+          firstCurve: Curves.easeInOutCubic,
+          secondCurve: Curves.easeInOutCubic,
+          sizeCurve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1000),
+          firstChild: Container(),
+          secondChild: renderBikeTypeSelection(),
+          crossFadeState: bikeSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+        AnimatedCrossFade(
+          firstCurve: Curves.easeInOutCubic,
+          secondCurve: Curves.easeInOutCubic,
+          sizeCurve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1000),
+          firstChild: Container(),
+          secondChild: renderPreferenceTypeSelection(),
+          crossFadeState: preferenceSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+        AnimatedCrossFade(
+          firstCurve: Curves.easeInOutCubic,
+          secondCurve: Curves.easeInOutCubic,
+          sizeCurve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1000),
+          firstChild: Container(),
+          secondChild: renderActivityTypeSelection(),
+          crossFadeState: activitySelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+      ],
     );
   }
 
   Widget renderBikeTypeSelection() {
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Content(text: "Radtyp", context: context, color: Theme.of(context).colorScheme.onBackground),
-                  const SmallVSpace(),
-                  Small(
-                      text: "Dein Rad ist so individuell wie Du. Wähle den Radtyp, der am besten zu Deinem Rad passt.",
-                      context: context,
-                      color: Theme.of(context).colorScheme.onBackground),
-                ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Content(text: "Radtyp", context: context, color: Theme.of(context).colorScheme.onBackground),
+                    const SmallVSpace(),
+                    Small(
+                        text:
+                            "Dein Rad ist so individuell wie Du. Wähle den Radtyp, der am besten zu Deinem Rad passt.",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onBackground),
+                  ],
+                ),
               ),
-            ),
-            SmallIconButtonTertiary(
-              icon: Icons.expand_less_rounded,
-              onPressed: () {
-                toggleBikeSelection();
-              },
-            )
-          ],
+              const HSpace(),
+              SmallIconButtonTertiary(
+                icon: Icons.expand_less_rounded,
+                onPressed: () {
+                  toggleBikeSelection();
+                },
+              )
+            ],
+          ),
         ),
         const VSpace(),
         GridView.count(
@@ -377,10 +387,10 @@ class ProfileViewState extends State<ProfileView> {
                       icon: bikeType.icon(),
                       iconAsString: bikeType.iconAsString(),
                       title: bikeType.description(),
-                      color: Theme.of(context).colorScheme.tertiary,
-                      backgroundColor: profileService.bikeType == bikeType
-                          ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.background,
+                      color: profileService.bikeType == bikeType
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.bikeType = bikeType;
                         profileService.store();
@@ -411,29 +421,33 @@ class ProfileViewState extends State<ProfileView> {
   Widget renderPreferenceTypeSelection() {
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Content(text: "Routenpräferenz", context: context, color: Theme.of(context).colorScheme.onBackground),
-                  const SmallVSpace(),
-                  Small(
-                      text: "Wir werden Dir Routen vorschlagen, die Deinen Präferenzen entsprechen.",
-                      context: context,
-                      color: Theme.of(context).colorScheme.onBackground),
-                ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Content(
+                        text: "Routenpräferenz", context: context, color: Theme.of(context).colorScheme.onBackground),
+                    const SmallVSpace(),
+                    Small(
+                        text: "Wir werden Dir Routen vorschlagen, die Deinen Präferenzen entsprechen.",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onBackground),
+                  ],
+                ),
               ),
-            ),
-            const SmallHSpace(),
-            SmallIconButtonTertiary(
-              icon: Icons.expand_less_rounded,
-              onPressed: () {
-                togglePreferenceSelection();
-              },
-            ),
-          ],
+              const HSpace(),
+              SmallIconButtonTertiary(
+                icon: Icons.expand_less_rounded,
+                onPressed: () {
+                  togglePreferenceSelection();
+                },
+              ),
+            ],
+          ),
         ),
         const VSpace(),
         GridView.count(
@@ -448,10 +462,10 @@ class ProfileViewState extends State<ProfileView> {
                     (preferenceType) => ProfileElementButton(
                       icon: preferenceType.icon(),
                       title: preferenceType.description(),
-                      color: Theme.of(context).colorScheme.tertiary,
-                      backgroundColor: profileService.preferenceType == preferenceType
-                          ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.background,
+                      color: profileService.preferenceType == preferenceType
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.preferenceType = preferenceType;
                         profileService.store();
@@ -482,30 +496,33 @@ class ProfileViewState extends State<ProfileView> {
   Widget renderActivityTypeSelection() {
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Content(text: "Anstieg", context: context, color: Theme.of(context).colorScheme.onBackground),
-                  const SmallVSpace(),
-                  Small(
-                      text:
-                          "Vermeide Anstiege oder fahre lieber bergauf? Wähle die Option, die am besten zu Dir passt.",
-                      context: context,
-                      color: Theme.of(context).colorScheme.onBackground),
-                ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Content(text: "Anstieg", context: context, color: Theme.of(context).colorScheme.onBackground),
+                    const SmallVSpace(),
+                    Small(
+                        text:
+                            "Vermeide Anstiege oder fahre lieber bergauf? Wähle die Option, die am besten zu Dir passt.",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onBackground),
+                  ],
+                ),
               ),
-            ),
-            const SmallHSpace(),
-            SmallIconButtonTertiary(
-              icon: Icons.expand_less_rounded,
-              onPressed: () {
-                toggleActivitySelection();
-              },
-            )
-          ],
+              const HSpace(),
+              SmallIconButtonTertiary(
+                icon: Icons.expand_less_rounded,
+                onPressed: () {
+                  toggleActivitySelection();
+                },
+              )
+            ],
+          ),
         ),
         const VSpace(),
         GridView.count(
@@ -520,10 +537,10 @@ class ProfileViewState extends State<ProfileView> {
                     (activityType) => ProfileElementButton(
                       icon: activityType.icon(),
                       title: activityType.description(),
-                      color: Theme.of(context).colorScheme.tertiary,
-                      backgroundColor: profileService.activityType == activityType
-                          ? Theme.of(context).colorScheme.onTertiary
-                          : Theme.of(context).colorScheme.background,
+                      color: profileService.activityType == activityType
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: () {
                         profileService.activityType = activityType;
                         profileService.store();
