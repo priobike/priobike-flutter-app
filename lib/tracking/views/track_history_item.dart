@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -309,7 +310,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   lineWidth: 6,
                   imageWidthRatio: (widget.width ?? MediaQuery.of(context).size.width) /
                       (widget.height ?? MediaQuery.of(context).size.height),
-                  mapboxTop: MediaQuery.of(context).padding.top + 10,
+                  mapboxTop: MediaQuery.of(context).padding.top + 96,
                   mapboxRight: 20,
                   mapboxWidth: 64,
                   // Padding + 2 * button height + padding + padding bottom.
@@ -325,14 +326,27 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
           height: widget.height ?? MediaQuery.of(context).size.height,
           width: widget.width ?? MediaQuery.of(context).size.width,
           child: Stack(
+            alignment: Alignment.topCenter,
             children: [
               content,
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 40,
-                left: 20,
-                right: 20,
-                child: trackStats,
-              )
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                  child: Material(
+                    color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                    child: SizedBox(
+                      height: 86 + MediaQuery.of(context).padding.top,
+                      child: Container(),
+                    ), // Extra container is required for the blur.
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
+                  child: trackStats,
+                ),
+              ),
             ],
           ),
         );
@@ -480,7 +494,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
           height: (24 + 32 + 16 + 20 + widget.height + 20 + 42 + 62 + MediaQuery.of(context).padding.bottom),
           // width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(8),
             color: Theme.of(context).colorScheme.background,
           ),
           child: Column(
@@ -496,7 +510,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
               const VSpace(),
               SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: trackPictogram),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: trackStats,
               ),
               Container(

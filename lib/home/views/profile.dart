@@ -45,7 +45,6 @@ class ProfileElementButton extends StatelessWidget {
           borderColor: borderColor,
           borderWidth: 2,
           showShadow: showShadow,
-          shadowIntensity: 0.1,
           content: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,

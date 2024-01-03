@@ -76,7 +76,7 @@ class NearbyResultsList extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.only(left: 8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onTertiary,
+                  color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
