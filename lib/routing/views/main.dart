@@ -184,7 +184,6 @@ class RoutingViewState extends State<RoutingView> {
               BigButtonPrimary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
-                // TODO: fix: warum update sich der Text nicht?
                 label: simulator.pairSuccessful ? 'Simulation starten' : 'Okay',
                 onPressed: () {
                   if (simulator.pairSuccessful) {
@@ -199,7 +198,7 @@ class RoutingViewState extends State<RoutingView> {
               BigButtonSecondary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
-                label: "Simulator deakt.", // TODO: durch anderen Button ersetzen??
+                label: "Simulator deaktivieren",
                 onPressed: () {
                   settings.setSimulatorMode(false);
                   Navigator.of(context).pop();

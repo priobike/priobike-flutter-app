@@ -252,23 +252,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render the start ride button.
   Widget renderStartRideButton(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
-    final simulator = getIt<Simulator>();
-    final settings = getIt<Settings>();
-    final String label;
-    if (settings.enableSimulatorMode) {
-      if (!simulator.pairSuccessful) {
-        label = "Pair mit Simulator";
-      } else {
-        label = "Simulation starten";
-      }
-    } else {
-      label = "Losfahren";
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: BigButtonPrimary(
-        label: label,
+        label: "Losfahren",
         onPressed: widget.onSelectStartButton,
         boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
       ),
@@ -291,6 +278,15 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
+
+    final simulator = getIt<Simulator>();
+    final settings = getIt<Settings>();
+    final String labelStartRide;
+    if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
+      labelStartRide = "Pair Simulator";
+    } else {
+      labelStartRide = "Losfahren";
+    }
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
@@ -379,7 +375,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 const SmallHSpace(),
                 Expanded(
                   child: BigButtonPrimary(
-                    label: "Losfahren",
+                    label: labelStartRide,
                     onPressed:
                         routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectStartButton,
                     addPadding: false,
