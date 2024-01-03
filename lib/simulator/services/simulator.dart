@@ -175,6 +175,10 @@ class Simulator with ChangeNotifier {
           message: message,
           qualityOfService: qualityOfService,
         );
+
+        // send first position
+        await sendCurrentPosition();
+
         notifyListeners();
       }
 
