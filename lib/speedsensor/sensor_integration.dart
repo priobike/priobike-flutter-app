@@ -55,6 +55,7 @@ class GarminSpeedSensor {
   late StreamSubscription<int> _mtuSubscription;
 
   Future<bool> _initConnectedDevices() async {
+    log.i("initalizing connected devices");
     FlutterBluePlus.systemDevices.then((devices) {
       _connectedDevices = devices;
     });
@@ -82,7 +83,7 @@ class GarminSpeedSensor {
       _isScanning = state;
     });
 
-    await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15), androidUsesFineLocation: true);
+    await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15), continuousUpdates: true, androidUsesFineLocation: true);
     return true;
   }
 
@@ -129,14 +130,14 @@ class GarminSpeedSensor {
   Future<bool> initSpeedSensor(BuildContext context) async {
     log.i("initializing speed sensor");
     //Navigator.of(context).pop();
-    showSpeedSensorInitDialog(context);
+    //showSpeedSensorInitDialog(context);
     log.i("checking permissions");
     _checkPerm();
 
     _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       _adapterState = state;
     });
-
+    log.i("checking bluetooth adapter:");
     if(_adapterState != BluetoothAdapterState.on) {
       log.i("ERROR: bluetooth turned off");
       if (Platform.isAndroid) {
