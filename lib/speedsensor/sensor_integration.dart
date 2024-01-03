@@ -128,8 +128,9 @@ class GarminSpeedSensor {
   @override
   Future<bool> initSpeedSensor(BuildContext context) async {
     log.i("initializing speed sensor");
-    Navigator.of(context).pop();
+    //Navigator.of(context).pop();
     showSpeedSensorInitDialog(context);
+    log.i("checking permissions");
     _checkPerm();
 
     _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
@@ -249,6 +250,7 @@ class GarminSpeedSensor {
   void showSpeedSensorInitDialog(BuildContext context) {
     showGeneralDialog(
       context: context,
+      useRootNavigator: false,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),

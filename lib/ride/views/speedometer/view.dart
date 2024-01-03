@@ -111,7 +111,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     setState(() {});
   }
 
-  Future<void> initSpeedSensor() async {
+  Future<void> initSpeedSensor(BuildContext context) async {
     initializingSpeedSensor = true;
     if (await speedSensor.initSpeedSensor(context)) {
       positioning.addListener(updateSpeedometerViaSpeedSensor);
@@ -180,6 +180,26 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
         overlays: [SystemUiOverlay.top],
       );
     }
+  }
+
+  double getSpeed(BuildContext context) {
+    double speedkmh;
+    if (getIt<Settings>().enableSpeedSensor) {
+      if (!speedSensor.isConnected) {
+        initSpeedSensor(context);
+
+        /// wait until speed sensor is initialized
+        while (true) {
+          if (!initializingSpeedSensor) {
+            break;
+          }
+        }
+      }
+      speedkmh = updateSpeedometerViaSpeedSensor();
+    } else {
+      speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
+    }
+    return speedkmh;
   }
 
   /// Load the gauge colors and steps, from the predictor.
@@ -268,22 +288,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   @override
   Widget build(BuildContext context) {
     //updateSpeedometerViaSpeedSensor();
-    double speedkmh;
-    if (getIt<Settings>().enableSpeedSensor) {
-      if (!speedSensor.isConnected) {
-        initSpeedSensor();
-
-        /// wait until speed sensor is initialized
-        while (true) {
-          if (!initializingSpeedSensor) {
-            break;
-          }
-        }
-      }
-      speedkmh = updateSpeedometerViaSpeedSensor();
-    } else {
-      speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
-    }
 
     final remainingDistance = (((ride.route?.path.distance ?? 0.0) -
                 (positioning.snap?.distanceOnRoute ?? 0.0)) /
@@ -456,7 +460,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                             isDark: Theme.of(context).colorScheme.brightness ==
                                 Brightness.dark,
                             // Scale the animation pct between minSpeed and maxSpeed
-                            speed: speedkmh,
+                            speed: getSpeed(context),
                           ),
                         ),
                       ),
@@ -475,7 +479,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
-                          '${speedkmh.toStringAsFixed(0)} km/h',
+                          '${getSpeed(context).toStringAsFixed(0)} km/h',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 28,
