@@ -198,8 +198,7 @@ class Simulator with ChangeNotifier {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
 
-    // must be "app", otherwise the simulator won't accept the connection
-    const clientId = 'app';
+    final clientId = deviceId;
     try {
       client = MqttServerClient(
         settings.backend.simulatorMQTTPath,
