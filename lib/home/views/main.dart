@@ -363,64 +363,54 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         ],
                       ),
                     ),
-                    const SmallVSpace(),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 750),
-                      child: Row(children: [
-                        const SizedBox(width: 40),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            BoldSubHeader(
-                              text: "Servicepunkte",
-                              context: context,
-                            ),
-                            const SizedBox(height: 4),
-                            Content(
-                              text: "In deiner Nähe",
-                              context: context,
-                            ),
-                          ],
-                        ),
-                      ]),
-                    ),
-                    const VSpace(),
                     const BlendIn(
                       delay: Duration(milliseconds: 750),
                       child: YourBikeView(),
                     ),
-                    const VSpace(),
-                    const BlendIn(
-                      delay: Duration(milliseconds: 750),
-                      child: ProfileView(),
+                    const SmallVSpace(),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 24, right: 24, bottom: 16),
+                      child: BlendIn(
+                        delay: Duration(milliseconds: 750),
+                        child: ProfileView(),
+                      ),
                     ),
-                    const VSpace(),
                     const TrackHistoryView(),
                     Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.33),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(32),
-                          topRight: Radius.circular(32),
-                        ),
-                      ),
+                      alignment: Alignment.topLeft,
+                      padding: const EdgeInsets.only(left: 40, right: 40),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const BlendIn(
-                            delay: Duration(milliseconds: 1250),
-                            child: WikiView(),
-                          ),
-                          const SizedBox(height: 32),
-                          BoldSmall(
-                            text: "radkultur hamburg",
+                          BoldSubHeader(
+                            text: "Wie funktioniert PrioBike?",
                             context: context,
+                            textAlign: TextAlign.center,
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 4),
+                          Content(
+                            text: "Erfahre mehr über die App.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ],
                       ),
-                    )
+                    ),
+                    const VSpace(),
+                    const BlendIn(
+                      delay: Duration(milliseconds: 1250),
+                      child: WikiView(),
+                    ),
+                    const VSpace(),
+                    BoldSmall(
+                      text: "#radkultur hamburg",
+                      context: context,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const VSpace(),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),

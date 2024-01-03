@@ -128,7 +128,7 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
           ),
           if (widget.shortcut is ShortcutLocation)
             Transform.translate(
-              offset: const Offset(0, -26),
+              offset: Offset(0, -(widget.iconSize / 2)),
               child: Icon(
                 Icons.location_on,
                 color: widget.color,

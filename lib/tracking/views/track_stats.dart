@@ -24,44 +24,40 @@ class TrackStats extends StatelessWidget {
     if (distanceMeters != null) {
       distanceText = distanceMeters! >= 1000
           ? '${(distanceMeters! / 1000).toStringAsFixed(2)} km'
-          : '${distanceMeters!.toStringAsFixed(0)} m';
+          : '${distanceMeters!.toStringAsFixed(2)} m';
     }
-    String speedText = 'Ø --- km/h';
-    if (averageSpeedKmH != null) speedText = 'Ø ${averageSpeedKmH!.toStringAsFixed(2)} km/h';
+    String speedText = 'Ø ---';
+    if (averageSpeedKmH != null) speedText = 'Ø ${averageSpeedKmH!.toStringAsFixed(1)}';
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
-              borderRadius: const BorderRadius.all(Radius.circular(15))),
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          width: MediaQuery.of(context).size.width * 0.25,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Content(
+              Small(
                 text: "Dauer",
                 context: context,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
               ),
               BoldContent(text: timeText, context: context),
             ],
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-            border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(15),
-            ),
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          width: MediaQuery.of(context).size.width * 0.25,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Content(text: "Distanz", context: context),
+              Small(
+                text: "Distanz",
+                context: context,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+              ),
               BoldContent(
                 text: distanceText,
                 context: context,
@@ -70,17 +66,15 @@ class TrackStats extends StatelessWidget {
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              border: Border.all(width: 1, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.25)),
-              borderRadius: const BorderRadius.all(Radius.circular(15))),
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          width: MediaQuery.of(context).size.width * 0.25,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Content(
-                text: "Geschwindigkeit",
+              Small(
+                text: "km/h",
                 context: context,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
               ),
               BoldContent(text: speedText, context: context),
             ],

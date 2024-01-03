@@ -16,6 +16,9 @@ class POIElement {
   /// The name of the POI.
   final String name;
 
+  /// The type of element.
+  final String typeDescription;
+
   /// The longitude of the POI.
   final double lon;
 
@@ -27,6 +30,7 @@ class POIElement {
 
   POIElement({
     required this.name,
+    required this.typeDescription,
     required this.lon,
     required this.lat,
     this.distance,
@@ -78,6 +82,7 @@ class POI with ChangeNotifier {
 
           final POIElement poiElement = POIElement(
             name: name,
+            typeDescription: "Fahrradleihe",
             lon: element["geometry"]["coordinates"][0],
             lat: element["geometry"]["coordinates"][1],
           );
@@ -101,6 +106,7 @@ class POI with ChangeNotifier {
 
           final POIElement poiElement = POIElement(
             name: name,
+            typeDescription: "Luftstation",
             lon: element["geometry"]["coordinates"][0],
             lat: element["geometry"]["coordinates"][1],
           );
@@ -124,6 +130,7 @@ class POI with ChangeNotifier {
 
           final POIElement poiElement = POIElement(
             name: name,
+            typeDescription: "Fahrradladen",
             lon: element["geometry"]["coordinates"][0],
             lat: element["geometry"]["coordinates"][1],
           );
@@ -173,6 +180,7 @@ class POI with ChangeNotifier {
       results.add(
         POIElement(
           name: element.name,
+          typeDescription: element.typeDescription,
           distance: distance,
           lon: element.lon,
           lat: element.lat,
