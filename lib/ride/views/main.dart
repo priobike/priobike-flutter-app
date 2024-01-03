@@ -167,12 +167,13 @@ class RideViewState extends State<RideView> {
     if (routing.selectedRoute == null) return;
 
     for (final sg in routing.selectedRoute!.signalGroups) {
-      // format {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345"}
+      // format {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"80"}
       final tlID = sg.id;
       const type = "TrafficLight";
       final deviceID = simulator.deviceId;
       final longitude = sg.position.lon;
       final latitude = sg.position.lat;
+      final bearing = sg.bearing ?? 0;
 
       Map<String, String> json = {};
       json['type'] = type;
@@ -180,6 +181,7 @@ class RideViewState extends State<RideView> {
       json['tlID'] = tlID;
       json['longitude'] = longitude.toString();
       json['latitude'] = latitude.toString();
+      json['bearing'] = bearing.toString();
       final String message = jsonEncode(json);
       await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
     }
@@ -199,7 +201,6 @@ class RideViewState extends State<RideView> {
           iconColor: CI.radkulturYellow,
           actions: [
             BigButtonPrimary(
-              // TODO: vllt noch Design anpassen mit neuem Design
               iconColor: Colors.black,
               textColor: Colors.black,
               icon: Icons.home_rounded,

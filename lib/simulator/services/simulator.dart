@@ -44,16 +44,6 @@ class Simulator with ChangeNotifier {
     // TODO: implement conntectWithDevice
   }
 
-  sendTrafficLights() {
-    // Format: App: {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80", "state":"red"}
-    // TODO: implement sendTrafficLights
-  }
-
-  sendUpdateForTrafficLight() {
-    // Format: App: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"yellow", "timestamp":"..."}
-    // TODO: implement sendUpdateForTrafficLight
-  }
-
   Future<void> sendReadyPairRequest() async {
     if (client == null) await connectMQTTClient();
 
@@ -92,8 +82,6 @@ class Simulator with ChangeNotifier {
       message: message,
       qualityOfService: qualityOfService,
     );
-
-    await sendTrafficLights();
   }
 
   /// Sends a ready pair request to the simulator via MQTT.
@@ -253,7 +241,6 @@ class Simulator with ChangeNotifier {
       log.e(hint);
       final ride = getIt<Ride>();
       if (ride.navigationIsActive) {
-        // TODO: we can use this in the simulator as well, right??
         await Future.delayed(const Duration(seconds: 10));
         await connectMQTTClient();
       } else {
