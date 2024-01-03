@@ -211,7 +211,9 @@ class Positioning with ChangeNotifier {
         if (!isGeolocating) return;
         lastPosition = position;
 
-        if (settings.enableSimulatorMode && !simulator.receivedStopRide) simulator.sendCurrentPosition();
+        if (settings.enableSimulatorMode && !simulator.receivedStopRide) {
+          simulator.sendCurrentPosition(isFirstPosition: false);
+        }
 
         positions.add(position);
         // Snap the position to the route.

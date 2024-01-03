@@ -103,7 +103,7 @@ class Simulator with ChangeNotifier {
   }
 
   /// Send the current position to the simulator via MQTT.
-  Future<void> sendCurrentPosition() async {
+  Future<void> sendCurrentPosition({required bool isFirstPosition}) async {
     if (client == null) await connectMQTTClient();
 
     const qualityOfService = MqttQos.atMostOnce;
@@ -119,12 +119,38 @@ class Simulator with ChangeNotifier {
     // {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.
     // 12345", "latitude":"50.12345", "bearing":"-80"}
 
+    final String type;
+    if (isFirstPosition) {
+      type = 'FirstCoordinate';
+    } else {
+      type = 'NextCoordinate';
+    }
+
     Map<String, String> json = {};
-    json['type'] = 'NextCoordinate';
+    json['type'] = type;
     json['deviceID'] = deviceId;
     json['longitude'] = longitude.toString();
     json['latitude'] = latitude.toString();
     json['bearing'] = heading.toString();
+
+    final String message = jsonEncode(json);
+
+    await sendViaMQTT(
+      message: message,
+      qualityOfService: qualityOfService,
+    );
+  }
+
+  /// Sends the current cameraBearing to the simulator via MQTT.
+  Future<void> sendCameraHeading(double cameraHeading) async {
+    if (client == null) await connectMQTTClient();
+
+    const qualityOfService = MqttQos.atMostOnce;
+
+    Map<String, String> json = {};
+    json['type'] = 'CameraHeading';
+    json['deviceID'] = deviceId;
+    json['heading'] = cameraHeading.toString();
 
     final String message = jsonEncode(json);
 
@@ -177,7 +203,7 @@ class Simulator with ChangeNotifier {
         );
 
         // send first position
-        await sendCurrentPosition();
+        await sendCurrentPosition(isFirstPosition: true);
 
         notifyListeners();
       }

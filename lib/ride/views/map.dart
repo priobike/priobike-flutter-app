@@ -15,6 +15,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class RideMapView extends StatefulWidget {
@@ -280,6 +281,13 @@ class RideMapViewState extends State<RideMapView> {
     // Avoid looking too far away from the route.
     if (cameraHeading == null || (cameraHeading - userPosSnap.heading).abs() > 20) {
       cameraHeading = userPosSnap.heading; // Look into the direction of the user.
+    }
+
+    // send camera heading to simulator, if enabled
+    final settings = getIt<Settings>();
+    final simulator = getIt<Simulator>();
+    if (settings.enableSimulatorMode && !simulator.receivedStopRide) {
+      simulator.sendCameraHeading(cameraHeading);
     }
 
     if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {
