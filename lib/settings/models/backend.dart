@@ -275,9 +275,9 @@ extension Simulator on Backend {
       case Backend.production:
         return "priobike.vkw.tu-dresden.de";
       case Backend.staging:
-        throw UnimplementedError();
+        return "priobike.vkw.tu-dresden.de";
       case Backend.release:
-        throw UnimplementedError();
+        return "priobike.vkw.tu-dresden.de";
     }
   }
 
@@ -286,9 +286,9 @@ extension Simulator on Backend {
       case Backend.production:
         return 20036;
       case Backend.staging:
-        throw UnimplementedError();
+        return 20036;
       case Backend.release:
-        throw UnimplementedError();
+        return 20036;
     }
   }
 
@@ -297,9 +297,9 @@ extension Simulator on Backend {
       case Backend.production:
         return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
       case Backend.staging:
-        throw UnimplementedError();
+        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
       case Backend.release:
-        throw UnimplementedError();
+        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
     }
   }
 
@@ -308,9 +308,9 @@ extension Simulator on Backend {
       case Backend.production:
         return "app";
       case Backend.staging:
-        throw UnimplementedError();
+        return "app";
       case Backend.release:
-        throw UnimplementedError();
+        return "app";
     }
   }
 }
