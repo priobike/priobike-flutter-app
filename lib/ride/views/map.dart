@@ -287,7 +287,7 @@ class RideMapViewState extends State<RideMapView> {
     final settings = getIt<Settings>();
     final simulator = getIt<Simulator>();
     if (settings.enableSimulatorMode && !simulator.receivedStopRide) {
-      simulator.sendCameraHeading(cameraHeading);
+      simulator.cameraHeading = cameraHeading;
     }
 
     if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {

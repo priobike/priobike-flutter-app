@@ -36,6 +36,9 @@ class Simulator with ChangeNotifier {
   /// The subscription for the MQTT messages.
   Subscription? subscription;
 
+  /// The current cameraHeading of the simulator.
+  double? cameraHeading;
+
   askForPermission() {
     // TODO: implement askForPermission
   }
@@ -113,7 +116,7 @@ class Simulator with ChangeNotifier {
     if (position == null) return;
     final longitude = position.longitude;
     final latitude = position.latitude;
-    final heading = position.heading;
+    final heading = cameraHeading ?? position.heading;
 
     // Format:
     // {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.
@@ -132,25 +135,6 @@ class Simulator with ChangeNotifier {
     json['longitude'] = longitude.toString();
     json['latitude'] = latitude.toString();
     json['bearing'] = heading.toString();
-
-    final String message = jsonEncode(json);
-
-    await sendViaMQTT(
-      message: message,
-      qualityOfService: qualityOfService,
-    );
-  }
-
-  /// Sends the current cameraBearing to the simulator via MQTT.
-  Future<void> sendCameraHeading(double cameraHeading) async {
-    if (client == null) await connectMQTTClient();
-
-    const qualityOfService = MqttQos.atMostOnce;
-
-    Map<String, String> json = {};
-    json['type'] = 'CameraHeading';
-    json['deviceID'] = deviceId;
-    json['heading'] = cameraHeading.toString();
 
     final String message = jsonEncode(json);
 
@@ -296,6 +280,7 @@ class Simulator with ChangeNotifier {
     lastSendPairRequest = null;
     receivedStopRide = false;
     subscription = null;
+    cameraHeading = null;
     notifyListeners();
   }
 }
