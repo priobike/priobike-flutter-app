@@ -139,6 +139,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Whether user is dragging a waypoint over the cancel button.
   bool highlightCancelButton = false;
 
+  /// The waypoint pixel coordinates
+  Map<Waypoint, ScreenCoordinate> waypointPixelCoordinates = {};
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -715,7 +718,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Check if user tapped on an existing waypoint and return the waypoint if found.
-  Future<Waypoint?> _checkIfWaypointIsAtTappedPosition({required double x, required double y}) async {
+  Waypoint? _checkIfWaypointIsAtTappedPosition({required double x, required double y}) {
     if (mapController == null) return null;
     if (routing.selectedWaypoints == null) return null;
 
@@ -724,17 +727,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     Waypoint? foundWaypoint;
     double? foundWaypointDistance;
 
-    for (Waypoint waypoint in routing.selectedWaypoints!) {
-      final ScreenCoordinate coordsOnScreenWaypoint = await mapController!.pixelForCoordinate({
-        "coordinates": [waypoint.lon, waypoint.lat]
-      });
-      final distance = math.sqrt(math.pow(coordsOnScreenWaypoint.x - tapPosition.x, 2) +
-          math.pow(coordsOnScreenWaypoint.y - tapPosition.y, 2));
+    for (var entry in waypointPixelCoordinates.entries) {
+      final distance =
+          math.sqrt(math.pow(entry.value.x - tapPosition.x, 2) + math.pow(entry.value.y - tapPosition.y, 2));
 
       if (distance < 50) {
         // get closest waypoint if there are multiple waypoints at the same position
         if (foundWaypointDistance == null || distance < foundWaypointDistance) {
-          foundWaypoint = waypoint;
+          foundWaypoint = entry.key;
           foundWaypointDistance = distance;
         }
       }
@@ -836,6 +836,23 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Updates the waypoint pixel coordinates for dragging waypoints.
+  Future<void> updateWaypointPixelCoordinates() async {
+    if (mapController == null) return;
+    if (routing.selectedWaypoints == null) return;
+
+    Map<Waypoint, ScreenCoordinate> newWaypointPixelCoordinates = {};
+
+    for (Waypoint waypoint in routing.selectedWaypoints!) {
+      final ScreenCoordinate coordsOnScreenWaypoint = await mapController!.pixelForCoordinate({
+        "coordinates": [waypoint.lon, waypoint.lat]
+      });
+      newWaypointPixelCoordinates[waypoint] = coordsOnScreenWaypoint;
+    }
+
+    waypointPixelCoordinates = newWaypointPixelCoordinates;
+  }
+
   /// Updates the route labels.
   Future<void> updateRouteLabels() async {
     if (mapController == null) return;
@@ -864,6 +881,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
 
     updateBearingAndCenteringButtons();
+
+    updateWaypointPixelCoordinates();
 
     routeLabelLock.run(() {
       updateRouteLabels();
@@ -925,7 +944,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
         ).toJson(),
       ),
-      MapAnimationOptions(),
+      MapAnimationOptions(duration: 0),
     );
 
     // Add a small delay to throttle the camera movement.
@@ -1093,7 +1112,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // if on map, create new waypoint
             // if on waypoint, start dragging waypoint
             draggedWaypoint =
-                await _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
+                _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
+
             if (draggedWaypoint == null) {
               _resetDragging();
               tapPosition = details.localPosition;
