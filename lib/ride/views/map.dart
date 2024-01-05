@@ -218,7 +218,8 @@ class RideMapViewState extends State<RideMapView> {
         await snapLocationIndicatorToRouteStart();
         return;
       }
-      mapController!.easeTo(
+      // Note: in the current version ease to is broken on ios devices.
+      mapController!.flyTo(
           mapbox.CameraOptions(
             center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
             bearing: userPos.heading,
@@ -277,7 +278,8 @@ class RideMapViewState extends State<RideMapView> {
     }
 
     if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {
-      mapController!.easeTo(
+      // Note: in the current version ease to is broken on ios devices.
+      mapController!.flyTo(
           mapbox.CameraOptions(
             center: mapbox.Point(
                     coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
@@ -352,7 +354,7 @@ class RideMapViewState extends State<RideMapView> {
         // On iOS it seems like the duration is being given in seconds while on Android in milliseconds.
         if (Platform.isAndroid) {
           await mapController!.style
-              .setStyleTransition(mapbox.TransitionOptions(duration: 1500, enablePlacementTransitions: false));
+              .setStyleTransition(mapbox.TransitionOptions(duration: 1000, enablePlacementTransitions: false));
         } else {
           await mapController!.style
               .setStyleTransition(mapbox.TransitionOptions(duration: 1, enablePlacementTransitions: false));

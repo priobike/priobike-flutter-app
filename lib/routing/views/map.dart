@@ -915,7 +915,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // And don't set to 0 otherwise the map would not move at all.
     if (zoomSpeedup <= 0.3) zoomSpeedup = 0.3;
 
-    await mapController?.easeTo(
+    // Note: in the current version ease to is broken on ios devices.
+    await mapController?.flyTo(
       CameraOptions(
         center: Point(
           coordinates: Position(
@@ -924,7 +925,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
         ).toJson(),
       ),
-      MapAnimationOptions(duration: 0),
+      MapAnimationOptions(),
     );
 
     // Add a small delay to throttle the camera movement.
