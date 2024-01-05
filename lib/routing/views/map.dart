@@ -44,10 +44,7 @@ import 'package:priobike/tutorial/service.dart';
 const double cancelButtonIconSize = 50;
 
 class RoutingMapView extends StatefulWidget {
-  /// The stream that receives notifications when the bottom sheet is dragged.
-  final Stream<DraggableScrollableNotification>? sheetMovement;
-
-  const RoutingMapView({required this.sheetMovement, super.key});
+  const RoutingMapView({super.key});
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
@@ -87,9 +84,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A map controller for the map.
   MapboxMap? mapController;
-
-  /// The stream that receives notifications when the bottom sheet is dragged.
-  StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
 
   /// Where the user is currently tapping.
   Offset? tapPosition;
@@ -217,11 +211,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   void initState() {
     super.initState();
 
-    // Connect the sheet movement listener to adapt the map insets.
-    sheetMovementSubscription = widget.sheetMovement?.listen(
-      (n) => fitAttributionPosition(sheetHeightRelative: n.extent),
-    );
-
     animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -245,8 +234,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   @override
   void dispose() {
-    // Unbind the sheet movement listener.
-    sheetMovementSubscription?.cancel();
     animationController.dispose();
     layers.removeListener(loadGeoLayers);
     mapDesigns.removeListener(loadMapDesign);
@@ -340,8 +327,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               accuracyRadius: positioning.lastPosition!.accuracy,
             ),
             LayerPosition(at: index));
-        await mapController!.style
-            .setStyleTransition(TransitionOptions(duration: 1000, enablePlacementTransitions: false));
       } else {
         await mapController!.style.updateLayer(
           LocationIndicatorLayer(
@@ -950,7 +935,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // And don't set to 0 otherwise the map would not move at all.
     if (zoomSpeedup <= 0.3) zoomSpeedup = 0.3;
 
-    await mapController?.easeTo(
+    // Note: in the current version ease to is broken on ios devices.
+    await mapController?.flyTo(
       CameraOptions(
         center: Point(
           coordinates: Position(
@@ -959,7 +945,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
         ).toJson(),
       ),
-      MapAnimationOptions(duration: 0),
+      MapAnimationOptions(),
     );
 
     // Add a small delay to throttle the camera movement.

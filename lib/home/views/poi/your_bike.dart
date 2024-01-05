@@ -11,6 +11,7 @@ class YourBikeElementButton extends StatelessWidget {
   final Color? color;
   final Color? backgroundColor;
   final Color? touchColor;
+  final Color? borderColor;
   final void Function()? onPressed;
 
   const YourBikeElementButton({
@@ -20,6 +21,7 @@ class YourBikeElementButton extends StatelessWidget {
     this.color,
     this.backgroundColor,
     this.touchColor,
+    this.borderColor,
     this.onPressed,
   });
 
@@ -32,39 +34,29 @@ class YourBikeElementButton extends StatelessWidget {
           fill: backgroundColor ?? theme.colorScheme.background,
           splash: touchColor ?? theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          borderColor:
-              Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).colorScheme.primary,
+          borderColor: borderColor ?? theme.colorScheme.primary,
           padding: const EdgeInsets.all(8),
-          borderWidth: 2,
+          borderWidth: 4,
+          shadowIntensity: 0.05,
           content: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    Transform.translate(
-                      offset: Offset(0, MediaQuery.of(context).size.width * -0.02),
-                      child: Transform.scale(
-                        scale: 0.7,
-                        child: image,
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: Offset(0, MediaQuery.of(context).size.width * 0.08),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Small(
-                          text: title,
-                          color: color ?? theme.colorScheme.primary,
-                          textAlign: TextAlign.center,
-                          context: context,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ],
+              Padding(
+                padding: const EdgeInsets.only(right: 2),
+                // Resize image
+                child: SizedBox(
+                  width: constraints.maxWidth * 0.15,
+                  height: constraints.maxWidth * 0.2,
+                  child: image,
                 ),
+              ),
+              Small(
+                text: title,
+                color: color ?? theme.colorScheme.primary,
+                textAlign: TextAlign.center,
+                context: context,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -83,149 +75,6 @@ class YourBikeView extends StatefulWidget {
 }
 
 class YourBikeViewState extends State<YourBikeView> {
-  bool rentBikeActive = false;
-  bool repairBikeActive = false;
-  bool pumpUpBikeActive = false;
-
-  void toggleRentBikeSelection() {
-    final yourBikeService = getIt<POI>();
-    yourBikeService.getRentalResults();
-    setState(
-      () {
-        rentBikeActive = !rentBikeActive;
-        repairBikeActive = false;
-        pumpUpBikeActive = false;
-      },
-    );
-  }
-
-  void toggleRepairBikeSelection() {
-    final yourBikeService = getIt<POI>();
-    yourBikeService.getRepairResults();
-    setState(
-      () {
-        rentBikeActive = false;
-        repairBikeActive = !repairBikeActive;
-        pumpUpBikeActive = false;
-      },
-    );
-  }
-
-  void togglePumpUpBikeSelection() {
-    final yourBikeService = getIt<POI>();
-    yourBikeService.getBikeAirResults();
-    setState(
-      () {
-        rentBikeActive = false;
-        repairBikeActive = false;
-        pumpUpBikeActive = !pumpUpBikeActive;
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            crossAxisSpacing: 8,
-            crossAxisCount: 3,
-            children: [
-              Theme.of(context).brightness == Brightness.light
-                  ? YourBikeElementButton(
-                      image: rentBikeActive
-                          ? Image.asset("assets/images/rent-icon-white.png")
-                          : Image.asset("assets/images/rent-icon-red.png"),
-                      title: "Ausleihen",
-                      color: rentBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                      backgroundColor: rentBikeActive
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.background,
-                      onPressed: toggleRentBikeSelection,
-                    )
-                  : YourBikeElementButton(
-                      image: rentBikeActive
-                          ? Image.asset("assets/images/rent-icon-red.png")
-                          : Image.asset("assets/images/rent-icon-white.png"),
-                      title: "Ausleihen",
-                      color: rentBikeActive ? Theme.of(context).colorScheme.primary : Colors.white,
-                      backgroundColor: rentBikeActive ? Colors.white : Theme.of(context).colorScheme.background,
-                      onPressed: toggleRentBikeSelection,
-                    ),
-              Theme.of(context).brightness == Brightness.light
-                  ? YourBikeElementButton(
-                      image: pumpUpBikeActive
-                          ? Image.asset("assets/icons/luftpumpe.png", color: Colors.white)
-                          : Image.asset("assets/icons/luftpumpe.png"),
-                      title: "Aufpumpen",
-                      color: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                      backgroundColor: pumpUpBikeActive
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.background,
-                      onPressed: togglePumpUpBikeSelection,
-                    )
-                  : YourBikeElementButton(
-                      image: pumpUpBikeActive
-                          ? Image.asset("assets/icons/luftpumpe.png")
-                          : Image.asset("assets/icons/luftpumpe.png", color: Colors.white),
-                      title: "Aufpumpen",
-                      color: pumpUpBikeActive ? Theme.of(context).colorScheme.primary : Colors.white,
-                      backgroundColor: pumpUpBikeActive ? Colors.white : Theme.of(context).colorScheme.background,
-                      onPressed: togglePumpUpBikeSelection,
-                    ),
-              Theme.of(context).brightness == Brightness.light
-                  ? YourBikeElementButton(
-                      image: repairBikeActive
-                          ? Image.asset("assets/icons/werkzeug.png", color: Colors.white)
-                          : Image.asset("assets/icons/werkzeug.png"),
-                      title: "Reparieren",
-                      color: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                      backgroundColor: repairBikeActive
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.background,
-                      onPressed: toggleRepairBikeSelection,
-                    )
-                  : YourBikeElementButton(
-                      image: repairBikeActive
-                          ? Image.asset("assets/icons/werkzeug.png")
-                          : Image.asset("assets/icons/werkzeug.png", color: Colors.white),
-                      title: "Reparieren",
-                      color: repairBikeActive ? Theme.of(context).colorScheme.primary : Colors.white,
-                      backgroundColor: repairBikeActive ? Colors.white : Theme.of(context).colorScheme.background,
-                      onPressed: toggleRepairBikeSelection,
-                    ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          MetaListView(
-            rentBikeActive: rentBikeActive,
-            pumpUpBikeActive: pumpUpBikeActive,
-            repairBikeActive: repairBikeActive,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MetaListView extends StatefulWidget {
-  final bool rentBikeActive;
-  final bool pumpUpBikeActive;
-  final bool repairBikeActive;
-
-  const MetaListView(
-      {super.key, required this.rentBikeActive, required this.pumpUpBikeActive, required this.repairBikeActive});
-
-  @override
-  MetaListViewState createState() => MetaListViewState();
-}
-
-class MetaListViewState extends State<MetaListView> {
   /// The associated poi service, which is injected by the provider.
   late POI poi;
 
@@ -237,6 +86,11 @@ class MetaListViewState extends State<MetaListView> {
     super.initState();
     poi = getIt<POI>();
     poi.addListener(update);
+
+    // Fetch POI data
+    poi.getRepairResults();
+    poi.getRentalResults();
+    poi.getBikeAirResults();
   }
 
   @override
@@ -261,45 +115,23 @@ class MetaListViewState extends State<MetaListView> {
 
     final showList = !poi.loading && !poi.errorDuringFetch && !poi.positionPermissionDenied;
 
-    return Column(
-      children: [
-        AnimatedCrossFade(
-          firstCurve: Curves.easeInOutCubic,
-          secondCurve: Curves.easeInOutCubic,
-          sizeCurve: Curves.easeInOutCubic,
-          duration: const Duration(milliseconds: 1000),
-          firstChild: Container(),
-          secondChild: metaInformation,
-          crossFadeState: !showList ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-        ),
-        AnimatedCrossFade(
-          firstCurve: Curves.easeInOutCubic,
-          secondCurve: Curves.easeInOutCubic,
-          sizeCurve: Curves.easeInOutCubic,
-          duration: const Duration(milliseconds: 1000),
-          firstChild: Container(),
-          secondChild: NearbyResultsList(results: poi.rentalResults),
-          crossFadeState: showList && widget.rentBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-        ),
-        AnimatedCrossFade(
-          firstCurve: Curves.easeInOutCubic,
-          secondCurve: Curves.easeInOutCubic,
-          sizeCurve: Curves.easeInOutCubic,
-          duration: const Duration(milliseconds: 1000),
-          firstChild: Container(),
-          secondChild: NearbyResultsList(results: poi.bikeAirResults),
-          crossFadeState: showList && widget.pumpUpBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-        ),
-        AnimatedCrossFade(
-          firstCurve: Curves.easeInOutCubic,
-          secondCurve: Curves.easeInOutCubic,
-          sizeCurve: Curves.easeInOutCubic,
-          duration: const Duration(milliseconds: 1000),
-          firstChild: Container(),
-          secondChild: NearbyResultsList(results: poi.repairResults),
-          crossFadeState: showList && widget.repairBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 28, right: 28),
+      child: Column(
+        children: [
+          showList
+              ? Column(
+                  children: [
+                    NearbyResultsList(results: [
+                      if (poi.rentalResults.isNotEmpty) poi.rentalResults.first,
+                      if (poi.rentalResults.isNotEmpty) poi.bikeAirResults.first,
+                      if (poi.repairResults.isNotEmpty) poi.repairResults.first,
+                    ]),
+                  ],
+                )
+              : metaInformation,
+        ],
+      ),
     );
   }
 }
