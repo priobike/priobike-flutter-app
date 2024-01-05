@@ -731,7 +731,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final distance =
           math.sqrt(math.pow(entry.value.x - tapPosition.x, 2) + math.pow(entry.value.y - tapPosition.y, 2));
 
-      // TODO make scale dependent.
       if (distance < 50) {
         // get closest waypoint if there are multiple waypoints at the same position
         if (foundWaypointDistance == null || distance < foundWaypointDistance) {
