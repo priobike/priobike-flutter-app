@@ -945,7 +945,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
         ).toJson(),
       ),
-      MapAnimationOptions(),
+      MapAnimationOptions(duration: 0),
     );
 
     // Add a small delay to throttle the camera movement.
