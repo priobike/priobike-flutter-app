@@ -24,6 +24,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -376,6 +377,21 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   ),
                 ),
                 const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Simulator aktivieren (ID: ${getIt<Simulator>().deviceId})",
+                    icon: settings.enableSimulatorMode ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setSimulatorMode(!settings.enableSimulatorMode),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text: "Hinweis: Aktiviert den Simulator für die Nutzung auf der Output-Messe.",
+                    context: context,
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
