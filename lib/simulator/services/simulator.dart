@@ -181,11 +181,6 @@ class Simulator with ChangeNotifier {
       payload.add(coord);
     }
 
-    Map<String, String> jsonEnd = {};
-    jsonEnd['type'] = 'RouteDataEnd';
-    jsonEnd['deviceID'] = deviceId;
-    payload.add(jsonEnd);
-
     final String message = jsonEncode(payload);
 
     await sendViaMQTT(
