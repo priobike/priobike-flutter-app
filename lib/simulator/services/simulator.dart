@@ -163,6 +163,37 @@ class Simulator with ChangeNotifier {
     }
   }
 
+  /// Sends the GPS data of the whole route before the rides startes to the simulator.
+  Future<void> sendRouteGPSData(List<Map<String, dynamic>> gpsData) async {
+    if (client == null) await connectMQTTClient();
+    if (gpsData.isEmpty) return;
+
+    const qualityOfService = MqttQos.atLeastOnce;
+
+    final List<Map<String, dynamic>> payload = [];
+
+    Map<String, String> jsonStart = {};
+    jsonStart['type'] = 'RouteDataStart';
+    jsonStart['deviceID'] = deviceId;
+    payload.add(jsonStart);
+
+    for (final coord in gpsData) {
+      payload.add(coord);
+    }
+
+    Map<String, String> jsonEnd = {};
+    jsonEnd['type'] = 'RouteDataEnd';
+    jsonEnd['deviceID'] = deviceId;
+    payload.add(jsonEnd);
+
+    final String message = jsonEncode(payload);
+
+    await sendViaMQTT(
+      message: message,
+      qualityOfService: qualityOfService,
+    );
+  }
+
   /// A callback that is executed when data arrives.
   Future<void> onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
     if (messages == null) return;

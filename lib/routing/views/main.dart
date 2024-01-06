@@ -185,8 +185,22 @@ class RoutingViewState extends State<RoutingView> {
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
                 label: simulator.pairSuccessful ? 'Simulation starten' : 'Okay',
-                onPressed: () {
+                onPressed: () async {
                   if (simulator.pairSuccessful) {
+                    if (simulator.receivedStopRide) return;
+                    if (routing!.selectedRoute == null) return;
+
+                    // send GPS data of route to simulator
+                    final List<Map<String, dynamic>> gpsData = [];
+                    for (final node in routing!.selectedRoute!.route) {
+                      gpsData.add({
+                        'index': routing!.selectedRoute!.route.indexOf(node),
+                        'lon': node.lon,
+                        'lat': node.lat,
+                      });
+                    }
+                    await simulator.sendRouteGPSData(gpsData);
+
                     startRide();
                   } else {
                     Navigator.of(context).pop();
