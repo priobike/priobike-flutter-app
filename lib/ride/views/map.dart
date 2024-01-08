@@ -71,6 +71,7 @@ class RideMapViewState extends State<RideMapView> {
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
+    TrafficLightsLayerClickable.layerId,
     TrafficLightsLayer.touchIndicatorsLayerId,
     TrafficLightLayer.layerId,
   ];
@@ -401,6 +402,13 @@ class RideMapViewState extends State<RideMapView> {
       iconSize: ppi / 5,
       at: index,
     );
+    index = await getIndex(TrafficLightsLayer.layerId);
+    if (!mounted) return;
+    await TrafficLightsLayerClickable(isDark).install(
+      mapController!,
+      iconSize: ppi / 5,
+      at: index,
+    );
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: false)
@@ -466,7 +474,7 @@ class RideMapViewState extends State<RideMapView> {
         type: mapbox.Type.SCREEN_COORDINATE,
       ),
       mapbox.RenderedQueryOptions(
-        layerIds: [TrafficLightsLayer.layerId, TrafficLightsLayer.touchIndicatorsLayerId],
+        layerIds: [TrafficLightsLayerClickable.layerId],
       ),
     );
 
@@ -479,8 +487,8 @@ class RideMapViewState extends State<RideMapView> {
   onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
     final id = queriedFeature.feature['id'];
-    if ((id as String).startsWith("traffic-light-")) {
-      final sgIdx = int.tryParse(id.split("-")[2]);
+    if ((id as String).startsWith("traffic-light-clickable")) {
+      final sgIdx = int.tryParse(id.split("-")[3]);
       if (sgIdx == null) return;
       ride.userSelectSG(sgIdx);
       if (ride.userSelectedSG != null) {
