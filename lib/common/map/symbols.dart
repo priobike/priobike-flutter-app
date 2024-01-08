@@ -16,6 +16,7 @@ class SymbolLoader {
     await add("trafficlightdisconnectedlight", "assets/images/trafficlights/disconnected-light.png", 400, 400);
     await add("trafficlightonlinedarknocheck", "assets/images/trafficlights/online-dark-no-check.png", 400, 400);
     await add("trafficlightonlinelightnocheck", "assets/images/trafficlights/online-light-no-check.png", 400, 400);
+    await add("trafficlightclicklayer", "assets/images/trafficlights/traffic-light-click-layer.png", 60, 400);
     await add("trafficlightonlinedark", "assets/images/trafficlights/online-dark.png", 400, 400);
     await add("trafficlightonlinelight", "assets/images/trafficlights/online-light.png", 400, 400);
     await add("trafficlightonlinegreendark", "assets/images/trafficlights/online-green-dark.png", 400, 400);

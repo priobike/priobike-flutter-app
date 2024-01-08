@@ -44,6 +44,9 @@ class RideMapViewState extends State<RideMapView> {
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
@@ -68,6 +71,7 @@ class RideMapViewState extends State<RideMapView> {
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
+    TrafficLightsLayerClickable.layerId,
     TrafficLightsLayer.touchIndicatorsLayerId,
     TrafficLightLayer.layerId,
   ];
@@ -101,6 +105,7 @@ class RideMapViewState extends State<RideMapView> {
     positioning.addListener(onPositioningUpdate);
     predictionSGStatus = getIt<PredictionSGStatus>();
     predictionSGStatus.addListener(onStatusUpdate);
+    settings = getIt<Settings>();
   }
 
   @override
@@ -397,6 +402,13 @@ class RideMapViewState extends State<RideMapView> {
       iconSize: ppi / 5,
       at: index,
     );
+    index = await getIndex(TrafficLightsLayer.layerId);
+    if (!mounted) return;
+    await TrafficLightsLayerClickable(isDark).install(
+      mapController!,
+      iconSize: ppi / 5,
+      at: index,
+    );
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: false)
@@ -434,13 +446,35 @@ class RideMapViewState extends State<RideMapView> {
       ).toJson(),
     );
 
+    // Calculate the correct screen coordinates since the map got scaled.
+    if (settings.saveBatteryModeEnabled) {
+      if (!mounted) return;
+      final frame = MediaQuery.of(context);
+
+      // Get the scaled width and height.
+      double scaleWidth = frame.size.width / settings.scalingFactor;
+      double scaleHeight = frame.size.height / settings.scalingFactor;
+
+      // Normalize the screen coordinate to the scaled area.
+      double normalizedX = actualScreenCoordinate.x - (frame.size.width - scaleWidth) / 2;
+      double normalizedY = actualScreenCoordinate.y - (frame.size.height - scaleHeight) / 2;
+
+      // Get the width and height ratio factor in relation to the scaled screen size.
+      double ratioX = normalizedX / scaleWidth;
+      double ratioY = normalizedY / scaleHeight;
+
+      // Calculate the screen coordinates with the ratio in relation to the actual screen.
+      actualScreenCoordinate.x = frame.size.width * ratioX;
+      actualScreenCoordinate.y = frame.size.height * ratioY;
+    }
+
     final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
       mapbox.RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
         type: mapbox.Type.SCREEN_COORDINATE,
       ),
       mapbox.RenderedQueryOptions(
-        layerIds: [TrafficLightsLayer.layerId, TrafficLightsLayer.touchIndicatorsLayerId],
+        layerIds: [TrafficLightsLayerClickable.layerId],
       ),
     );
 
@@ -453,8 +487,8 @@ class RideMapViewState extends State<RideMapView> {
   onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
     final id = queriedFeature.feature['id'];
-    if ((id as String).startsWith("traffic-light-")) {
-      final sgIdx = int.tryParse(id.split("-")[2]);
+    if ((id as String).startsWith("traffic-light-clickable")) {
+      final sgIdx = int.tryParse(id.split("-")[3]);
       if (sgIdx == null) return;
       ride.userSelectSG(sgIdx);
       if (ride.userSelectedSG != null) {
@@ -528,7 +562,7 @@ class RideMapViewState extends State<RideMapView> {
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
-      saveBatteryModeEnabled: getIt<Settings>().saveBatteryModeEnabled,
+      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
     );
   }
 }

@@ -26,6 +26,8 @@ class Settings with ChangeNotifier {
 
   static final log = Logger("Settings");
 
+  final double scalingFactor = 2.5;
+
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
 
