@@ -73,18 +73,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// The value of the speed animation.
   double speedAnimationPct = 0;
 
-  /// The GarminSpeedSensor2
-  GarminSpeedSensor speedSensor = GarminSpeedSensor();
-  bool initializingSpeedSensor = false;
-
-  double updateSpeedometerViaSpeedSensor() {
-    double speed = speedSensor.getSpeed();
-    speedAnimationController.animateTo(speed,
-        duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
-    setState(() {});
-    return speed;
-  }
-
   /// Update the speedometer.
   void updateSpeedometer() {
     // Fetch the maximum speed from the settings service.
@@ -109,15 +97,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// Update the layout of the speedometer.
   void updateLayout() {
     setState(() {});
-  }
-
-  Future<void> initSpeedSensor(BuildContext context) async {
-    initializingSpeedSensor = true;
-    if (await speedSensor.initSpeedSensor(context)) {
-      positioning.addListener(updateSpeedometerViaSpeedSensor);
-      positioning.removeListener(updateSpeedometer);
-    }
-    initializingSpeedSensor = false;
   }
 
   @override
@@ -145,8 +124,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
 
-    positioning.addListener(updateSpeedometer);
-    updateSpeedometer();
+    maxSpeed = getIt<Settings>().speedMode.maxSpeed;
+    if (!getIt<Settings>().enableSpeedSensor) {
+      positioning.addListener(updateSpeedometer);
+    } else {
+      loadGauge(ride);
+    }
+    //updateSpeedometer();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -161,9 +145,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   @override
   void dispose() {
     speedAnimationController.dispose();
-    if (getIt<Settings>().enableSpeedSensor) {
-      positioning.removeListener(updateSpeedometerViaSpeedSensor);
-    } else {
+    if (!getIt<Settings>().enableSpeedSensor) {
       positioning.removeListener(updateSpeedometer);
     }
     routing.removeListener(updateLayout);
@@ -182,24 +164,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     }
   }
 
-  double getSpeed(BuildContext context) {
-    double speedkmh;
-    if (getIt<Settings>().enableSpeedSensor) {
-      if (!speedSensor.isConnected) {
-        initSpeedSensor(context);
-
-        /// wait until speed sensor is initialized
-        while (true) {
-          if (!initializingSpeedSensor) {
-            break;
-          }
-        }
-      }
-      speedkmh = updateSpeedometerViaSpeedSensor();
-    } else {
-      speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
-    }
-    return speedkmh;
+  double getSpeed() {
+    return minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
   }
 
   /// Load the gauge colors and steps, from the predictor.
@@ -320,6 +286,18 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       sizedBoxWidth = originalSpeedometerWidth;
     }
     final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
+
+    Widget speedWidget = getIt<Settings>().enableSpeedSensor
+        ? GarminSpeedSensor(
+            positioning: positioning, callback: () => loadGauge(ride))
+        : Text(
+            '${getSpeed().toStringAsFixed(0)} km/h',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.w600,
+            ),
+          );
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -460,7 +438,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                             isDark: Theme.of(context).colorScheme.brightness ==
                                 Brightness.dark,
                             // Scale the animation pct between minSpeed and maxSpeed
-                            speed: getSpeed(context),
+                            speed: getSpeed(),
                           ),
                         ),
                       ),
@@ -478,14 +456,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                         ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
-                        child: Text(
-                          '${getSpeed(context).toStringAsFixed(0)} km/h',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: speedWidget,
                       ),
                     ],
                     Padding(

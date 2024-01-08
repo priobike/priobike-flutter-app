@@ -11,8 +11,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:typed_data/typed_buffers.dart';
 
-import '../../speedsensor/sensor_integration.dart';
-
 class Simulator {
   /// The logger.
   final log = Logger("Simulator");
@@ -39,18 +37,12 @@ class Simulator {
   Subscription? subscription;
 
   /// the Speed Sensor
-  GarminSpeedSensor speedSensor = GarminSpeedSensor();
-
   askForPermission() {
     // TODO: implement askForPermission
   }
 
   connectWithSensor() async {
     // TODO: implement connectWithDevice
-  }
-
-  getSpeedFromSensor() {
-    return speedSensor.getSpeed();
   }
 
   sendTrafficLights() {

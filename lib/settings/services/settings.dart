@@ -450,14 +450,14 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const SpeedSensorKey = "priobike.settings.enableSpeedSensor";
+  static const speedSensorKey = "priobike.settings.enableSpeedSensor";
   static const defaultSpeedSensorUse = false;
 
   Future<bool> setSpeedSensor(bool enableSpeedSensor, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.enableSpeedSensor;
     this.enableSpeedSensor = enableSpeedSensor;
-    final bool success = await storage.setBool(SpeedSensorKey, enableSpeedSensor);
+    final bool success = await storage.setBool(speedSensorKey, enableSpeedSensor);
     if (!success) {
       log.e("Failed to set enableSpeedSensor to $enableSpeedSensor");
       this.enableSpeedSensor = prev;
@@ -534,7 +534,7 @@ class Settings with ChangeNotifier {
 
     enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
     enableSimulatorMode = storage.getBool(simulatorModeKey) ?? defaultSimulatorMode;
-    enableSpeedSensor = storage.getBool(SpeedSensorKey) ?? defaultSpeedSensorUse;
+    enableSpeedSensor = storage.getBool(speedSensorKey) ?? defaultSpeedSensorUse;
   }
 
   /// Load the stored settings.

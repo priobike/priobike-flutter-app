@@ -67,7 +67,6 @@ dependencies:
   gpx: ^2.2.1
   typed_data: ^1.3.2 # Used for encoding messages to send via MQTT for simulator
   flutter_blue_plus: ^1.31.4 # Used for connecting to BLE devices
-  permission_handler: ^11.1.0 # Used for handling bluetooth permission
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Generate app icons
