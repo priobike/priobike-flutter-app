@@ -987,20 +987,19 @@ packages:
   sensors_plus:
     dependency: "direct main"
     description:
-      path: "packages/sensors_plus/sensors_plus"
-      ref: main
-      resolved-ref: "8d2dc9a7bb66616c63e8d8cca2833d48724fd76a"
-      url: "https://github.com/priobike/priobike-plus-plugins"
-    source: git
-    version: "2.0.2"
+      name: sensors_plus
+      sha256: "8e7fa79b4940442bb595bfc0ee9da4af5a22a0fe6ebacc74998245ee9496a82d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.2"
   sensors_plus_platform_interface:
     dependency: transitive
     description:
       name: sensors_plus_platform_interface
-      sha256: "95f0cc08791b8bf0c41c5fa99c84be2a7d5bf60a811ddc17e1438b1e68caf0d3"
+      sha256: bc472d6cfd622acb4f020e726433ee31788b038056691ba433fec80e448a094f
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.3"
+    version: "1.2.0"
   share_plus:
     dependency: "direct main"
     description:
