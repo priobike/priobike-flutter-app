@@ -15,7 +15,7 @@ class NavBarView extends StatelessWidget {
   /// A callback that is fired when the notification button was pressed.
   final void Function()? onTapNotificationButton;
 
-  const NavBarView({this.onTapSettingsButton, this.onTapNotificationButton, Key? key}) : super(key: key);
+  const NavBarView({this.onTapSettingsButton, this.onTapNotificationButton, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +51,15 @@ class NavBarView extends StatelessWidget {
                     color: Colors.white,
                     context: context,
                   ),
+                  Content(
+                    text: settings.backend == Backend.staging ? " DD" : " HH",
+                    color: Colors.white,
+                    context: context,
+                  ),
                   Flexible(
                     fit: FlexFit.tight,
-                    child: Content(
-                      text: settings.backend == Backend.staging ? " DD" : " HH",
+                    child: Small(
+                      text: settings.backend == Backend.production ? "  beta" : "",
                       color: Colors.white,
                       context: context,
                     ),
@@ -79,11 +84,13 @@ class NavBarView extends StatelessWidget {
                 },
               ),
               const SmallHSpace(),
-              SmallIconButton(
+              SmallIconButtonSecondary(
                 icon: Icons.settings_rounded,
                 color: Colors.white,
                 splash: Theme.of(context).colorScheme.surfaceTint,
-                fill: const Color.fromARGB(50, 255, 255, 255),
+                fill: Colors.transparent,
+                borderColor: Colors.white,
+                withBorder: true,
                 onPressed: () {
                   onTapSettingsButton?.call();
                 },

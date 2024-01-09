@@ -6,11 +6,10 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
-import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/goals/services/goals_service.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -20,16 +19,19 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
+import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
+import 'package:share_plus/share_plus.dart';
 
 class InternalSettingsView extends StatefulWidget {
-  const InternalSettingsView({Key? key}) : super(key: key);
+  const InternalSettingsView({super.key});
 
   @override
   InternalSettingsViewState createState() => InternalSettingsViewState();
@@ -162,6 +164,27 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that adds test migration data for testing.
+  void addTestMigrationData() {
+    Migration.addTestMigrationData();
+  }
+
+  /// A callback that is executed when a routing endpoint is selected.
+  Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
+    // Tell the settings service that we selected the new backend.
+    await settings.setRoutingEndpoint(routingEndpoint);
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a sg-selector is selected.
+  Future<void> onSelectSGSelector(SGSelector sgSelector) async {
+    // Tell the settings service that we selected the new sg-selector.
+    await settings.setSGSelector(sgSelector);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
@@ -285,6 +308,77 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Routing",
+                    subtitle: settings.routingEndpoint.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                          elements: RoutingEndpoint.values,
+                          selected: settings.routingEndpoint,
+                          title: (RoutingEndpoint e) => e.description,
+                          callback: onSelectRoutingMode,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Innerhalb von Hamburg kannst Du das DRN-Routing auswählen. Im Digitalen Radverkehrsnetz (DRN) sind alle Radwege oder durch das Rad befahrbare Straßen in Hamburg enthalten. Die Routenberechnung ist aber noch in Entwicklung und kann derzeit auch zu falschen Routen führen.",
+                    context: context,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Logs senden",
+                    icon: Icons.ios_share_rounded,
+                    callback: () => Share.share(Logger.db.join("\n"), subject: 'Logs für PrioBike'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Wenn Du Probleme mit der App hast, kannst Du uns gerne die Logs schicken. Dann können wir genau sehen, was bei Dir kaputt ist.",
+                    context: context,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Auswahl der Ampeln",
+                    subtitle: settings.sgSelector.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                          elements: SGSelector.values,
+                          selected: settings.sgSelector,
+                          title: (SGSelector e) => e.description,
+                          callback: onSelectSGSelector,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Wenn Du Probleme mit der Auswahl der Ampeln entlang der Route hast, kannst Du diese Einstellung wechseln.",
+                    context: context,
+                  ),
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "Tutorials zurücksetzen",
                     icon: Icons.recycling,
                     callback: () => getIt<Tutorial>().deleteCompleted(),
@@ -325,20 +419,10 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: 'Challenges zurücksetzen',
-                    icon: Icons.recycling,
-                    callback: () => getIt<ChallengesProfileService>().resetChallenges(),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Game-Profil zurücksetzen",
+                    title: "Nutzertransfer zurücksetzen",
                     icon: Icons.recycling,
                     callback: () async {
-                      await getIt<GamificationUserService>().reset();
-                      await getIt<ChallengesProfileService>().reset();
-                      await getIt<GoalsService>().reset();
+                      await getIt<Settings>().setDidViewUserTransfer(false);
                     },
                   ),
                 ),
@@ -348,6 +432,23 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Gamification",
                     icon: settings.enableGamification ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnableGamification(!settings.enableGamification),
+                  ),
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Durch das Drücken von Migration testen werden jeweils ein Test-Shortcut und eine Test-Suchanfrage angelegt (staging, production, release). Diese müssten korrekterweise nach einem Neustart der App jeweils in den verschiedenen Versionen mit angezeigt werden.",
+                    context: context,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Migration testen",
+                    icon: Icons.start,
+                    callback: addTestMigrationData,
                   ),
                 ),
                 const SmallVSpace(),

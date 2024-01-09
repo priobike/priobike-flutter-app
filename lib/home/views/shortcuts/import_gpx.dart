@@ -17,7 +17,7 @@ import 'package:priobike/routing/services/routing.dart';
 class ImportGpxView extends StatefulWidget {
   final List<Wpt> initPoints;
 
-  const ImportGpxView({Key? key, required this.initPoints}) : super(key: key);
+  const ImportGpxView({super.key, required this.initPoints});
 
   @override
   ImportGpxViewState createState() => ImportGpxViewState();
@@ -40,12 +40,14 @@ class ImportGpxViewState extends State<ImportGpxView> {
     List<Waypoint> waypoints = await gpxConversionNotifier.reduceWpts(points, routing);
     ToastMessage.showSuccess("Die GPX Strecke wurde erfolgreich konvertiert.");
     if (mounted) {
-      showSaveShortcutSheet(context,
-          shortcut: ShortcutRoute(
-            id: UniqueKey().toString(),
-            name: "Strecke aus GPX",
-            waypoints: waypoints,
-          ));
+      showSaveShortcutSheet(
+        context,
+        shortcut: ShortcutRoute(
+          id: UniqueKey().toString(),
+          name: "Strecke aus GPX",
+          waypoints: waypoints,
+        ),
+      );
     }
     return;
   }

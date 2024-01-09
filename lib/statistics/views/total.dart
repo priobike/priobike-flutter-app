@@ -10,7 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 
 class TotalStatisticsView extends StatefulWidget {
-  const TotalStatisticsView({Key? key}) : super(key: key);
+  const TotalStatisticsView({super.key});
 
   @override
   State<TotalStatisticsView> createState() => TotalStatisticsViewState();
@@ -80,7 +80,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             child: SizedBox(
               width: 48,
               height: 48,
-              child: SmallIconButton(
+              child: SmallIconButtonPrimary(
                 icon: Icons.info_outline_rounded,
                 fill: Theme.of(context).colorScheme.surfaceVariant,
                 splash: Theme.of(context).colorScheme.surfaceTint,

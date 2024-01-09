@@ -14,7 +14,7 @@ import 'package:priobike/status/services/sg.dart';
 class NearbyResultsList extends StatelessWidget {
   final List<POIElement> results;
 
-  const NearbyResultsList({Key? key, required this.results}) : super(key: key);
+  const NearbyResultsList({super.key, required this.results});
 
   /// A POI list element.
   Widget poiListElement(BuildContext context, POIElement poi) {
@@ -45,7 +45,7 @@ class NearbyResultsList extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16, right: 16),
+          padding: const EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -53,7 +53,7 @@ class NearbyResultsList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.6,
+                    width: MediaQuery.of(context).size.width * 0.5,
                     child: BoldSmall(
                       text: poi.name,
                       overflow: TextOverflow.ellipsis,
@@ -62,16 +62,44 @@ class NearbyResultsList extends StatelessWidget {
                     ),
                   ),
                   const SmallVSpace(),
-                  if (poi.distance != null)
-                    poi.distance! >= 1000
-                        ? (Small(
-                            text: "${(poi.distance! / 1000).toStringAsFixed(1)} km von Dir entfernt", context: context))
-                        : (Small(text: "${poi.distance!.toStringAsFixed(0)} m von Dir entfernt", context: context)),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    child: Small(
+                      text: poi.typeDescription,
+                      overflow: TextOverflow.ellipsis,
+                      context: context,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
                 ],
               ),
-              Icon(
-                Icons.arrow_forward,
-                color: Theme.of(context).colorScheme.primary,
+              Container(
+                padding: const EdgeInsets.only(left: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    if (poi.distance != null)
+                      poi.distance! >= 1000
+                          ? (BoldSmall(
+                              text: "${(poi.distance! / 1000).toStringAsFixed(1)}km",
+                              context: context,
+                              color: Theme.of(context).colorScheme.tertiary))
+                          : (BoldSmall(
+                              text: "${poi.distance!.toStringAsFixed(0)}m",
+                              context: context,
+                              color: Theme.of(context).colorScheme.tertiary)),
+                    Transform.translate(
+                      offset: const Offset(2, 0),
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -93,7 +121,7 @@ class NearbyResultsList extends StatelessWidget {
       );
     }
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 8),
       child: ListView.separated(
         padding: const EdgeInsets.all(0),
         shrinkWrap: true,
@@ -103,7 +131,7 @@ class NearbyResultsList extends StatelessWidget {
           context,
           results[index],
         ),
-        separatorBuilder: (context, index) => const SizedBox(height: 10),
+        separatorBuilder: (context, index) => const SizedBox(height: 4),
       ),
     );
   }

@@ -1,5 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/fcm.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/news/services/news.dart';
+import 'package:priobike/routing/services/boundary.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -10,12 +16,17 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/status/services/status_history.dart';
+import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings with ChangeNotifier {
   var hasLoaded = false;
 
   static final log = Logger("Settings");
+
+  final double scalingFactor = 2.5;
 
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
@@ -67,6 +78,12 @@ class Settings with ChangeNotifier {
 
   /// Enable "old" gamification for app
   bool enableGamification;
+
+  /// Whether the user has seen the user transfer dialog.
+  bool didViewUserTransfer;
+
+  /// If the user is transferring.
+  bool isUserTransferring = false;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -357,7 +374,7 @@ class Settings with ChangeNotifier {
   }
 
   static const enableGamificationKey = "priobike.settings.enableGamification";
-  static const defaultEnableGamification = true;
+  static const defaultEnableGamification = false;
 
   Future<bool> setEnableGamification(bool enableGamification, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
@@ -367,6 +384,23 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set enablePerformanceOverlay to $enableGamificationKey");
       this.enableGamification = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const didViewUserTransferKey = "priobike.settings.didViewUserTransfer";
+  static const defaultDidViewUserTransfer = false;
+
+  Future<bool> setDidViewUserTransfer(bool didViewUserTransfer, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didViewUserTransfer;
+    this.didViewUserTransfer = didViewUserTransfer;
+    final bool success = await storage.setBool(didViewUserTransferKey, didViewUserTransfer);
+    if (!success) {
+      log.e("Failed to set didViewUserTransfer to $didViewUserTransferKey");
+      this.didViewUserTransfer = prev;
     } else {
       notifyListeners();
     }
@@ -391,16 +425,8 @@ class Settings with ChangeNotifier {
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
+    this.didViewUserTransfer = defaultDidViewUserTransfer,
   });
-
-  /// Load the beta settings from the shared preferences.
-  Future<void> loadBetaSettings(SharedPreferences storage) async {
-    try {
-      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-  }
 
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
@@ -437,6 +463,11 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
   }
@@ -449,9 +480,6 @@ class Settings with ChangeNotifier {
 
     // All internal settings - use the default values if internal features are disabled.
     if (canEnableInternalFeatures) await loadInternalSettings(storage);
-
-    // All beta settings - use the default values if beta features are disabled.
-    if (canEnableBetaFeatures) await loadBetaSettings(storage);
 
     // All remaining settings.
     connectionErrorCounter = storage.getInt(connectionErrorCounterKey) ?? defaultConnectionErrorCounter;
@@ -482,8 +510,53 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      didViewUserTransfer = storage.getBool(didViewUserTransferKey) ?? defaultDidViewUserTransfer;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
+    notifyListeners();
+  }
+
+  /// Transfer a user to the given backend.
+  Future<void> transferUser(Backend backend) async {
+    if (isUserTransferring) return;
+    isUserTransferring = true;
+    notifyListeners();
+    // Set release backend.
+    await setBackend(backend);
+
+    // Tell the fcm service that we selected the new backend.
+    await FCM.selectTopic(backend);
+
+    PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
+    StatusHistory statusHistory = getIt<StatusHistory>();
+    Shortcuts shortcuts = getIt<Shortcuts>();
+    Routing routing = getIt<Routing>();
+    News news = getIt<News>();
+    Weather weather = getIt<Weather>();
+    Boundary boundary = getIt<Boundary>();
+
+    // Reset the associated services.
+    await predictionStatusSummary.reset();
+    await statusHistory.reset();
+    await shortcuts.reset();
+    await routing.reset();
+    await news.reset();
+
+    // Load stuff for the new backend.
+    await news.getArticles();
+    await shortcuts.loadShortcuts();
+    await predictionStatusSummary.fetch();
+    await statusHistory.fetch();
+    await weather.fetch();
+    await boundary.loadBoundaryCoordinates();
+
+    // Set did view user transfer screen.
+    await setDidViewUserTransfer(true);
+    isUserTransferring = false;
     notifyListeners();
   }
 

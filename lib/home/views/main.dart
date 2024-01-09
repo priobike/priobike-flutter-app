@@ -8,9 +8,9 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/gamification/community_event/service/event_service.dart';
-import 'package:priobike/gamification/main.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
@@ -42,7 +42,7 @@ import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   HomeViewState createState() => HomeViewState();
@@ -201,7 +201,25 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    routing.selectShortcut(shortcut);
+    // Create new Shortcut copy to avoid changing the original Shortcut.
+    final Shortcut newShortcut;
+    if (shortcut is ShortcutLocation) {
+      newShortcut = ShortcutLocation(
+        id: shortcut.id,
+        name: shortcut.name,
+        waypoint: shortcut.waypoint,
+      );
+    } else if (shortcut is ShortcutRoute) {
+      newShortcut = ShortcutRoute(
+        id: shortcut.id,
+        name: shortcut.name,
+        waypoints: List<Waypoint>.from(shortcut.waypoints),
+      );
+    } else {
+      throw UnimplementedError();
+    }
+
+    routing.selectShortcut(newShortcut);
 
     pushRoutingView();
   }
@@ -247,7 +265,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
-          await getIt<EventService>().fetchData();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),
@@ -287,22 +304,26 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       child: Row(
                         children: [
                           const SizedBox(width: 40),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              BoldContent(
-                                text: "Navigation",
-                                context: context,
-                              ),
-                              const SizedBox(height: 4),
-                              Small(
-                                text: "Deine Strecken und Orte",
-                                context: context,
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                BoldSubHeader(
+                                  text: "Navigation",
+                                  context: context,
+                                ),
+                                const SizedBox(height: 4),
+                                Content(
+                                  text: "Deine Strecken und Orte",
+                                  context: context,
+                                ),
+                              ],
+                            ),
                           ),
-                          Expanded(child: Container()),
-                          SmallIconButton(
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          SmallIconButtonPrimary(
                             onPressed: () => showAppSheet(
                               context: context,
                               builder: (context) => const ImportShortcutDialog(),
@@ -313,7 +334,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             splash: Theme.of(context).colorScheme.surfaceTint,
                           ),
                           const SizedBox(width: 8),
-                          SmallIconButton(
+                          SmallIconButtonPrimary(
                             icon: Icons.list_rounded,
                             color: Theme.of(context).colorScheme.onSurface,
                             fill: Theme.of(context).colorScheme.surface,
@@ -329,11 +350,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: const Duration(milliseconds: 500),
                       child: Column(
                         children: [
-                          const TutorialView(
-                            id: "priobike.tutorial.select-shortcut",
-                            text:
-                                'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
-                            padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 20),
+                            child: TutorialView(
+                              id: "priobike.tutorial.select-shortcut",
+                              text:
+                                  'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
+                              padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
+                            ),
                           ),
                           ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
                         ],
@@ -343,68 +367,50 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: Duration(milliseconds: 750),
                       child: YourBikeView(),
                     ),
-                    const VSpace(),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 750),
-                      child: Row(
+                    const SmallVSpace(),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 24, right: 24, bottom: 16),
+                      child: BlendIn(
+                        delay: Duration(milliseconds: 750),
+                        child: ProfileView(),
+                      ),
+                    ),
+                    const TrackHistoryView(),
+                    Container(
+                      alignment: Alignment.topLeft,
+                      padding: const EdgeInsets.only(left: 40, right: 40),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(width: 40),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              BoldContent(
-                                text: "Routing-Profil",
-                                context: context,
-                              ),
-                              const SizedBox(height: 4),
-                              Small(
-                                text: "Personalisiere Deine Routenberechnung",
-                                context: context,
-                              ),
-                            ],
+                          BoldSubHeader(
+                            text: "Wie funktioniert PrioBike?",
+                            context: context,
+                            textAlign: TextAlign.center,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                          Expanded(child: Container()),
-                          const SizedBox(width: 24),
+                          const SizedBox(height: 4),
+                          Content(
+                            text: "Erfahre mehr über die App.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ],
                       ),
                     ),
                     const VSpace(),
                     const BlendIn(
-                      delay: Duration(milliseconds: 750),
-                      child: ProfileView(),
+                      delay: Duration(milliseconds: 1250),
+                      child: WikiView(),
                     ),
                     const VSpace(),
-                    const TrackHistoryView(),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(32),
-                          topRight: Radius.circular(32),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          if (settings.enableGamification)
-                            const BlendIn(
-                              duration: Duration(milliseconds: 1250),
-                              child: GameView(),
-                            ),
-                          const BlendIn(
-                            delay: Duration(milliseconds: 1250),
-                            child: WikiView(),
-                          ),
-                          const SizedBox(height: 32),
-                          BoldSmall(
-                            text: "radkultur hamburg",
-                            context: context,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          const SizedBox(height: 32),
-                        ],
-                      ),
-                    )
+                    BoldSmall(
+                      text: "#radkultur hamburg",
+                      context: context,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const VSpace(),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),

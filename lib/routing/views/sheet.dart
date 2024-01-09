@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -25,8 +26,7 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// A callback that is executed when a shortcut should be saved.
   final void Function() onSelectSaveButton;
 
-  const RouteDetailsBottomSheet({required this.onSelectStartButton, required this.onSelectSaveButton, Key? key})
-      : super(key: key);
+  const RouteDetailsBottomSheet({required this.onSelectStartButton, required this.onSelectSaveButton, super.key});
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
@@ -174,16 +174,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render an info section on top of the bottom sheet.
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
-    final distInfo = routing.selectedRoute!.path.distance.round() >= 1000
-        ? "${((routing.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km"
-        : "${routing.selectedRoute!.path.distance.toStringAsFixed(0)} m";
-    final seconds = routing.selectedRoute!.path.time / 1000;
-    // Get the full hours needed to cover the route.
-    final hours = seconds ~/ 3600;
-    // Get the remaining minutes.
-    final minutes = (seconds - hours * 3600) ~/ 60;
-    // Calculate the time when the user will reach the destination.
-    final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
+
     var text = "Zum Ziel";
     if (routing.selectedProfile?.explanation != null) {
       text = routing.selectedProfile!.explanation;
@@ -192,43 +183,61 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final int allTrafficLights = status.ok + status.bad + status.offline + status.disconnected;
 
     String textTrafficLights;
+    double percentageTrafficLights = 0;
     if (allTrafficLights > 0) {
       textTrafficLights = "$okTrafficLights von $allTrafficLights Ampeln verbunden";
+      percentageTrafficLights = okTrafficLights / allTrafficLights;
     } else {
       textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
     }
 
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
-      child: Column(
-        children: [
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-                text: text,
-                style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
-                children: [
-                  TextSpan(
-                    text: " - ",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  TextSpan(
-                    text: textTrafficLights,
-                    style: const TextStyle(
-                      color: CI.radkulturGreen,
-                    ),
-                  ),
-                ]),
-          ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Column(children: [
+          Small(text: text, context: context),
           const SizedBox(height: 2),
           BoldSmall(
               text:
-                  "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ca. ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
+                  "${routing.selectedRoute!.timeText} - ${routing.selectedRoute!.arrivalTimeText}, ${routing.selectedRoute!.lengthText}",
               context: context),
-        ],
-      ),
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              Small(
+                text: textTrafficLights,
+                context: context,
+              ),
+              const SmallHSpace(),
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: percentageTrafficLights,
+                      strokeWidth: 4,
+                      backgroundColor: allTrafficLights > 0
+                          ? CI.radkulturGreen.withOpacity(0.2)
+                          : Theme.of(context).colorScheme.onTertiary,
+                      valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: percentageTrafficLights > 0
+                          ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
+                          : Theme.of(context).colorScheme.onTertiary,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+        ]),
+      ]),
     );
   }
 
@@ -237,11 +246,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (routing.selectedRoute == null) return Container();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: BigButton(
-        iconColor: Colors.white,
+      child: BigButtonPrimary(
         label: "Losfahren",
         onPressed: widget.onSelectStartButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
       ),
     );
   }
@@ -251,11 +259,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (routing.selectedRoute == null) return Container();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-      child: BigButton(
-        iconColor: Colors.white,
+      child: BigButtonSecondary(
         label: "Strecke speichern",
         onPressed: widget.onSelectSaveButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
       ),
     );
   }
@@ -266,62 +273,103 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
-      child: DraggableScrollableSheet(
-        initialChildSize: 116 / frame.size.height + (frame.padding.bottom / frame.size.height),
-        maxChildSize: 1,
-        minChildSize: 116 / frame.size.height + (frame.padding.bottom / frame.size.height),
-        builder: (BuildContext context, ScrollController controller) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
-            ),
-            child: SingleChildScrollView(
-              controller: controller,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Column(
-                children: [
-                  renderDragIndicator(context),
-                  AnimatedCrossFade(
-                    firstCurve: Curves.easeInOutCubic,
-                    secondCurve: Curves.easeInOutCubic,
-                    sizeCurve: Curves.easeInOutCubic,
-                    duration: const Duration(milliseconds: 1000),
-                    firstChild: Container(),
-                    secondChild: renderTopInfoSection(context),
-                    crossFadeState:
-                        routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                  ),
-                  AnimatedCrossFade(
-                    firstCurve: Curves.easeInOutCubic,
-                    secondCurve: Curves.easeInOutCubic,
-                    sizeCurve: Curves.easeInOutCubic,
-                    duration: const Duration(milliseconds: 1000),
-                    firstChild: Container(),
-                    secondChild: renderStartRideButton(context),
-                    crossFadeState:
-                        routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                  ),
-                  renderBottomSheetWaypoints(context),
-                  if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                    const TutorialView(
-                      id: "priobike.tutorial.draw-waypoints",
-                      text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                      padding: EdgeInsets.only(left: 18),
-                    ),
-                  const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                  const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                  renderSaveRouteButton(context),
-                ],
+      child: Stack(children: [
+        DraggableScrollableSheet(
+          initialChildSize: 128 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          maxChildSize: 1,
+          minChildSize: 128 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          builder: (BuildContext context, ScrollController controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
               ),
+              child: SingleChildScrollView(
+                controller: controller,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
+                  children: [
+                    renderDragIndicator(context),
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderTopInfoSection(context),
+                      crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                    ),
+                    const SmallVSpace(),
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderBottomSheetWaypoints(context),
+                      crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    ),
+                    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                      const TutorialView(
+                        id: "priobike.tutorial.draw-waypoints",
+                        text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                        padding: EdgeInsets.only(left: 18),
+                      ),
+                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                    // Big button size + padding.
+                    SizedBox(
+                      height: 40 + 8 + frame.padding.bottom,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          child: Container(
+            padding: const EdgeInsets.only(top: 8, bottom: 4),
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            width: frame.size.width,
+            height: frame.padding.bottom + 48,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SmallHSpace(),
+                Expanded(
+                  child: BigButtonSecondary(
+                    label: "Speichern",
+                    fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                    onPressed:
+                        routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectSaveButton,
+                    addPadding: false,
+                  ),
+                ),
+                const SmallHSpace(),
+                Expanded(
+                  child: BigButtonPrimary(
+                    label: "Losfahren",
+                    onPressed:
+                        routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectStartButton,
+                    addPadding: false,
+                  ),
+                ),
+                const SmallHSpace(),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        ),
+      ]),
     );
   }
 }

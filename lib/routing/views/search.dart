@@ -30,8 +30,6 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
       return DialogLayout(
         title: 'Ort speichern',
         text: "Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.",
-        icon: Icons.location_on_rounded,
-        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
           TextField(
             autofocus: MediaQuery.of(dialogContext).viewInsets.bottom > 0,
@@ -55,9 +53,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
               ),
             ),
           ),
-          BigButton(
-            iconColor: Colors.white,
-            icon: Icons.save_rounded,
+          BigButtonPrimary(
             label: "Speichern",
             onPressed: () async {
               final name = nameController.text;
@@ -70,7 +66,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
               ToastMessage.showSuccess("Ort gespeichert!");
               Navigator.pop(context);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           )
         ],
       );
@@ -93,8 +89,8 @@ class SearchItem extends StatelessWidget {
     required this.waypoint,
     required this.onTapped,
     this.distance,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +98,7 @@ class SearchItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
-        title: BoldSmall(
+        title: BoldContent(
           text: waypoint.address!,
           context: context,
           color: Theme.of(context).colorScheme.onBackground,
@@ -110,8 +106,8 @@ class SearchItem extends StatelessWidget {
         subtitle: distance == null
             ? null
             : distance! >= 1000
-                ? (Small(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                : (Small(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)),
+                ? (Content(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                : (Content(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)),
         trailing: Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
@@ -119,7 +115,7 @@ class SearchItem extends StatelessWidget {
               padding: const EdgeInsets.only(right: 12),
               child: IconButton(
                 icon: const Icon(Icons.save),
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.tertiary,
                 onPressed: () {
                   showSaveShortcutLocationSheet(context, waypoint);
                 },
@@ -158,8 +154,8 @@ class HistoryItem extends StatefulWidget {
     required this.waypoint,
     required this.onTapped,
     this.distance,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => HistoryItemState();
@@ -188,7 +184,7 @@ class HistoryItemState extends State<HistoryItem> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
-        title: BoldSmall(
+        title: BoldContent(
           text: widget.waypoint.address!,
           context: context,
           color: Theme.of(context).colorScheme.onBackground,
@@ -196,8 +192,8 @@ class HistoryItemState extends State<HistoryItem> {
         subtitle: widget.distance == null
             ? null
             : (widget.distance! >= 1000)
-                ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)),
+                ? (Content(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                : (Content(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)),
         trailing: showDeleteIcon == true
             ? IconButton(
                 onPressed: () => getIt<Geosearch>().removeItemFromSearchHistory(widget.waypoint),
@@ -213,7 +209,7 @@ class HistoryItemState extends State<HistoryItem> {
                     padding: const EdgeInsets.only(right: 12),
                     child: IconButton(
                       icon: const Icon(Icons.save),
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.tertiary,
                       onPressed: () {
                         showSaveShortcutLocationSheet(context, widget.waypoint);
                       },
@@ -245,8 +241,8 @@ class CurrentPosition extends StatelessWidget {
 
   const CurrentPosition({
     required this.onTapped,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +251,7 @@ class CurrentPosition extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListTile(
-        title: BoldSmall(
+        title: BoldContent(
           text: "Aktueller Standort",
           context: context,
         ),
@@ -283,7 +279,7 @@ class RouteSearch extends StatefulWidget {
   /// current user position should be a suggested waypoint.
   final bool showCurrentPositionAsWaypoint;
 
-  const RouteSearch({Key? key, required this.showCurrentPositionAsWaypoint}) : super(key: key);
+  const RouteSearch({super.key, required this.showCurrentPositionAsWaypoint});
 
   @override
   RouteSearchState createState() => RouteSearchState();
@@ -307,6 +303,8 @@ class RouteSearchState extends State<RouteSearch> {
 
   /// FocusNode for the search text field that is used to check if unfocused is needed.
   FocusNode searchTextFieldFocusNode = FocusNode();
+
+  TextEditingController searchTextFieldController = TextEditingController();
 
   @override
   void initState() {
@@ -391,30 +389,34 @@ class RouteSearchState extends State<RouteSearch> {
         return DialogLayout(
           title: 'Gesamten Suchverlauf löschen',
           text: 'Möchtest Du den Suchverlauf wirklich löschen?',
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
-              iconColor: Colors.black,
+            BigButtonPrimary(
               textColor: Colors.black,
-              icon: Icons.delete_rounded,
               fillColor: CI.radkulturYellow,
               label: "Löschen",
               onPressed: () {
                 geosearch.deleteSearchHistory();
                 Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButton(
+            BigButtonTertiary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );
       },
     );
+  }
+
+  /// A callback that resets the search string.
+  void resetSearchString() {
+    setState(() {
+      searchTextFieldController.text = "";
+    });
+    onSearchUpdated("");
   }
 
   @override
@@ -431,6 +433,7 @@ class RouteSearchState extends State<RouteSearch> {
                 AppBackButton(
                   onPressed: () async {
                     // FIXME we should pay attention to release notes if this Flutter bug might be fixed in the future.
+                    // Note: still not fixed with flutter 3.16.0.
                     // Prevents the keyboard to be focused on pop screen. This can cause ugly map effects on Android.
                     if (Platform.isAndroid && searchTextFieldFocusNode.hasFocus) {
                       searchTextFieldFocusNode.unfocus();
@@ -447,6 +450,7 @@ class RouteSearchState extends State<RouteSearch> {
                   width: frame.size.width - 72,
                   child: TextField(
                     autofocus: true,
+                    controller: searchTextFieldController,
                     focusNode: searchTextFieldFocusNode,
                     onChanged: onSearchUpdated,
                     decoration: InputDecoration(
@@ -457,11 +461,20 @@ class RouteSearchState extends State<RouteSearch> {
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                         borderSide: BorderSide.none,
                       ),
-                      suffixIcon: geosearch.isFetchingAddress
-                          ? const Padding(padding: EdgeInsets.all(4), child: CircularProgressIndicator())
+                      suffixIcon: searchTextFieldController.text != ""
+                          ? SmallIconButtonTertiary(
+                              icon: Icons.close,
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fill: Colors.transparent,
+                              withBorder: false,
+                              onPressed: resetSearchString,
+                            )
                           : Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
                       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
+                    style: Theme.of(context).textTheme.displayMedium?.merge(
+                          const TextStyle(fontWeight: FontWeight.normal),
+                        ),
                   ),
                 ),
               ],
@@ -495,7 +508,7 @@ class RouteSearchState extends State<RouteSearch> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          BoldSmall(
+                          BoldContent(
                             text: "Letzte Suchergebnisse",
                             context: context,
                             color: Theme.of(context).colorScheme.onBackground,
@@ -541,7 +554,7 @@ class RouteSearchState extends State<RouteSearch> {
                       ),
                     Padding(
                       padding: const EdgeInsets.only(top: 12, left: 28, bottom: 20),
-                      child: Small(text: "Keine weiteren Ergebnisse", context: context),
+                      child: Content(text: "Keine weiteren Ergebnisse", context: context),
                     )
                   ],
 
@@ -554,13 +567,13 @@ class RouteSearchState extends State<RouteSearch> {
                           const VSpace(),
                           Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
                           const VSpace(),
-                          BoldSmall(
+                          BoldContent(
                             text: "Es konnten leider keine Ziele gefunden werden.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
                           const SmallVSpace(),
-                          Small(
+                          Content(
                             text: "Versuche es mit einer anderen Suchanfrage.",
                             context: context,
                             textAlign: TextAlign.center,

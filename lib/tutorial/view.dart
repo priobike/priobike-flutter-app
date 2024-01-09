@@ -23,8 +23,8 @@ class TutorialView extends StatefulWidget {
     required this.text,
     this.color,
     this.padding,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => TutorialViewState();

@@ -228,9 +228,9 @@ class Tracking with ChangeNotifier {
       await savePreviousTracks();
       // Start collecting data to the files of the track.
       await startCollectingGPSData();
-      await startCollectingAccData(accelerometerEvents);
-      await startCollectingGyrData(gyroscopeEvents);
-      await startCollectingMagData(magnetometerEvents);
+      await startCollectingAccData();
+      await startCollectingGyrData();
+      await startCollectingMagData();
       if (sensorSamplingTimer == null || !sensorSamplingTimer!.isActive) {
         sensorSamplingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async => await sampleSensorData());
       }
@@ -282,11 +282,14 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start collecting accelerometer data.
-  Future<void> startCollectingAccData(Stream<AccelerometerEvent> stream) async {
+  Future<void> startCollectingAccData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
+    const samplingPeriod = Duration(milliseconds: 1000);
+    final stream = accelerometerEventStream(samplingPeriod: samplingPeriod);
     accCache = CSVCache(
       header: "timestamp,x,y,z",
       file: await track!.accelerometerCSVFile,
-      maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
+      maxLines: 5, // Flush after 5 lines of data (~5s).
     );
     accSub = stream.listen((event) {
       latestAccEventTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -304,11 +307,14 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start collecting gyroscope data.
-  Future<void> startCollectingGyrData(Stream<GyroscopeEvent> stream) async {
+  Future<void> startCollectingGyrData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
+    const samplingPeriod = Duration(milliseconds: 1000);
+    final stream = gyroscopeEventStream(samplingPeriod: samplingPeriod);
     gyrCache = CSVCache(
       header: "timestamp,x,y,z",
       file: await track!.gyroscopeCSVFile,
-      maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
+      maxLines: 5, // Flush after 5 lines of data (~5s).
     );
     gyrSub = stream.listen((event) {
       latestGyroEventTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -326,11 +332,14 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start collecting magnetometer data.
-  Future<void> startCollectingMagData(Stream<MagnetometerEvent> stream) async {
+  Future<void> startCollectingMagData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
+    const samplingPeriod = Duration(milliseconds: 1000);
+    final stream = magnetometerEventStream(samplingPeriod: samplingPeriod);
     magCache = CSVCache(
       header: "timestamp,x,y,z",
       file: await track!.magnetometerCSVFile,
-      maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
+      maxLines: 5, // Flush after 5 lines of data (~5s).
     );
     magSub = stream.listen((event) {
       latestMagEventTimestamp = DateTime.now().millisecondsSinceEpoch;

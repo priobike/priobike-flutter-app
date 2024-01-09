@@ -5,7 +5,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/gpx_conversion.dart';
 
 class ImportGpxInfo extends StatefulWidget {
-  const ImportGpxInfo({Key? key, required this.convertCallback, required this.gpxConversionNotifier}) : super(key: key);
+  const ImportGpxInfo({super.key, required this.convertCallback, required this.gpxConversionNotifier});
 
   final VoidCallback convertCallback;
   final GpxConversion gpxConversionNotifier;
@@ -48,7 +48,7 @@ class ImportGpxInfoState extends State<ImportGpxInfo> {
           ),
           const VSpace(),
           if (gpxConversionState == GpxConversionState.init)
-            BigButton(
+            BigButtonPrimary(
               label: 'Konvertieren',
               onPressed: () => widget.convertCallback.call(),
             ),

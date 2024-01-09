@@ -14,18 +14,19 @@ class SymbolLoader {
   Future<void> loadSymbols() async {
     await add("trafficlightdisconnecteddark", "assets/images/trafficlights/disconnected-dark.png", 400, 400);
     await add("trafficlightdisconnectedlight", "assets/images/trafficlights/disconnected-light.png", 400, 400);
-    await add("trafficlightonlinedarknocheck", "assets/images/trafficlights/online-dark-no-check.png", 400, 400);
-    await add("trafficlightonlinelightnocheck", "assets/images/trafficlights/online-light-no-check.png", 400, 400);
+    await add("trafficlightonlinedarknocheck", "assets/images/trafficlights/online-dark-no-check.png", 300, 400);
+    await add("trafficlightonlinelightnocheck", "assets/images/trafficlights/online-light-no-check.png", 300, 400);
+    await add("trafficlightclicklayer", "assets/images/trafficlights/traffic-light-click-layer.png", 60, 400);
     await add("trafficlightonlinedark", "assets/images/trafficlights/online-dark.png", 400, 400);
     await add("trafficlightonlinelight", "assets/images/trafficlights/online-light.png", 400, 400);
-    await add("trafficlightonlinegreendark", "assets/images/trafficlights/online-green-dark.png", 400, 400);
-    await add("trafficlightonlinegreenlight", "assets/images/trafficlights/online-green-light.png", 400, 400);
-    await add("trafficlightonlinereddark", "assets/images/trafficlights/online-red-dark.png", 400, 400);
-    await add("trafficlightonlineredlight", "assets/images/trafficlights/online-red-light.png", 400, 400);
-    await add("trafficlightonlineamberdark", "assets/images/trafficlights/online-amber-dark.png", 400, 400);
-    await add("trafficlightonlineamberlight", "assets/images/trafficlights/online-amber-light.png", 400, 400);
-    await add("trafficlightonlinedarkdark", "assets/images/trafficlights/online-dark-dark.png", 400, 400);
-    await add("trafficlightonlinedarklight", "assets/images/trafficlights/online-dark-light.png", 400, 400);
+    await add("trafficlightonlinegreendark", "assets/images/trafficlights/online-green-dark.png", 300, 400);
+    await add("trafficlightonlinegreenlight", "assets/images/trafficlights/online-green-light.png", 300, 400);
+    await add("trafficlightonlinereddark", "assets/images/trafficlights/online-red-dark.png", 300, 400);
+    await add("trafficlightonlineredlight", "assets/images/trafficlights/online-red-light.png", 300, 400);
+    await add("trafficlightonlineamberdark", "assets/images/trafficlights/online-amber-dark.png", 300, 400);
+    await add("trafficlightonlineamberlight", "assets/images/trafficlights/online-amber-light.png", 300, 400);
+    await add("trafficlightonlinedarkdark", "assets/images/trafficlights/online-dark-dark.png", 300, 400);
+    await add("trafficlightonlinedarklight", "assets/images/trafficlights/online-dark-light.png", 300, 400);
 
     await add("trafficlighttouchindicatordark", "assets/images/trafficlights/touch-indicator-dark.png", 400, 400);
     await add("trafficlighttouchindicatorlight", "assets/images/trafficlights/touch-indicator-light.png", 400, 400);

@@ -8,10 +8,10 @@ class Shimmer extends StatefulWidget {
   }
 
   const Shimmer({
-    key,
+    super.key,
     required this.linearGradient,
     this.child,
-  }) : super(key: key);
+  });
 
   /// The gradient to use for the shimmering effect.
   final LinearGradient linearGradient;
@@ -79,10 +79,10 @@ class ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
 /// A transform that slides a gradient.
 class ShimmerLoading extends StatefulWidget {
   const ShimmerLoading({
-    key,
+    super.key,
     required this.isLoading,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Whether the shimmering effect is currently visible.
   final bool isLoading;

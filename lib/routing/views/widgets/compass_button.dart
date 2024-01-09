@@ -8,7 +8,7 @@ import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 
 class CompassButton extends StatefulWidget {
-  const CompassButton({Key? key}) : super(key: key);
+  const CompassButton({super.key});
 
   @override
   State<StatefulWidget> createState() => CompassButtonState();
@@ -50,7 +50,7 @@ class CompassButtonState extends State<CompassButton> {
       width: 58,
       height: 58,
       child: Tile(
-        fill: Theme.of(context).colorScheme.background,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: _centerNorth,
         content: Transform.rotate(
           angle: mapValues.cameraBearing.toInt() * math.pi / -180,

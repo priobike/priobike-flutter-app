@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -8,7 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutsRow extends StatefulWidget {
-  const ShortcutsRow({Key? key}) : super(key: key);
+  const ShortcutsRow({super.key});
 
   @override
   ShortcutsState createState() => ShortcutsState();
@@ -52,7 +54,7 @@ class ShortcutsState extends State<ShortcutsRow> {
     return Container(
       margin: const EdgeInsets.only(left: 8),
       child: Tile(
-        onPressed: () => _loadShortcutsRoute(shortcut),
+        onPressed: routing.isFetchingRoute ? null : () => _loadShortcutsRoute(shortcut),
         fill: Theme.of(context).colorScheme.surfaceVariant,
         splash: Theme.of(context).colorScheme.surfaceTint,
         shadowIntensity: 0,
@@ -64,9 +66,12 @@ class ShortcutsState extends State<ShortcutsRow> {
           children: [
             shortcut.getIcon(),
             const SmallHSpace(),
-            Content(
-              context: context,
-              text: shortcut.name,
+            Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+              child: Content(
+                context: context,
+                text: shortcut.name,
+              ),
             ),
           ],
         ),
@@ -83,7 +88,11 @@ class ShortcutsState extends State<ShortcutsRow> {
       width: frame.size.width,
       height: 40,
       child: ListView(
-          scrollDirection: Axis.horizontal, children: shortcuts.shortcuts!.map((e) => shortcutItem(e)).toList()),
+          scrollDirection: Axis.horizontal,
+          children: shortcuts.shortcuts!.map((e) => shortcutItem(e)).toList() +
+              [
+                const SmallHSpace(),
+              ]),
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -15,7 +16,7 @@ import 'package:priobike/tracking/views/all_track_history.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 
 class TrackHistoryView extends StatefulWidget {
-  const TrackHistoryView({Key? key}) : super(key: key);
+  const TrackHistoryView({super.key});
 
   @override
   State<StatefulWidget> createState() => TrackHistoryViewState();
@@ -57,8 +58,9 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     var i = tracking.previousTracks!.length - 1;
     final backend = getIt<Settings>().backend;
     while (i >= 0) {
-      if (tracking.previousTracks![i].backend == backend) {
-        if (newestTracks.length < 10) {
+      // To get Production and Release or Staging.
+      if (tracking.previousTracks![i].backend.regionName == backend.regionName) {
+        if (newestTracks.length < 4) {
           newestTracks.add(tracking.previousTracks![i]);
         }
         totalTracks++;
@@ -137,10 +139,10 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
           alignment: Alignment.center,
           child: Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Content(
-              text: "... und ${totalTracks - newestTracks.length} weitere.",
-              context: context,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.4),
+            child: IconTextButtonTertiary(
+              label: "Alle anzeigen",
+              onPressed: () =>
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
             ),
           ),
         ),
@@ -172,28 +174,15 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
           delay: const Duration(milliseconds: 250),
           child: Row(
             children: [
-              const SizedBox(width: 42),
-              BoldContent(
+              const SizedBox(width: 40),
+              BoldSubHeader(
                 text: "Letzte Fahrten",
                 context: context,
               ),
-              Expanded(child: Container()),
-              IconTextButton(
-                label: "Alle anzeigen",
-                fillColor: Theme.of(context).colorScheme.surfaceVariant,
-                splashColor: Theme.of(context).colorScheme.surfaceTint,
-                borderColor: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.black.withOpacity(0.08),
-                textColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                onPressed: () =>
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
-              ),
-              const SizedBox(width: 24),
             ],
           ),
         ),
-        const VSpace(),
+        const SizedBox(height: 16),
         SingleChildScrollView(
           // Padding is necessary for Shadow in LightMode
           padding: const EdgeInsets.only(bottom: 18),

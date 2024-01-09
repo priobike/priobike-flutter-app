@@ -14,6 +14,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -21,7 +22,7 @@ import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AllTracksHistoryView extends StatefulWidget {
-  const AllTracksHistoryView({Key? key}) : super(key: key);
+  const AllTracksHistoryView({super.key});
 
   @override
   State<StatefulWidget> createState() => AllTracksHistoryViewState();
@@ -85,7 +86,8 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       final backend = getIt<Settings>().backend;
       for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
         Track track = tracking.previousTracks![i];
-        if (track.backend == backend) {
+        // To get Production and Release or Staging.
+        if (track.backend.regionName == backend.regionName) {
           previousTracks.add(track);
         }
       }
@@ -148,12 +150,8 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         return DialogLayout(
           title: 'Alle Fahrten löschen',
           text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
-              iconColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
+            BigButtonPrimary(
               fillColor: CI.radkulturYellow,
               textColor: Colors.black,
               label: "Löschen",
@@ -162,12 +160,12 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                 update();
                 Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButton(
+            BigButtonTertiary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
           ],
         );

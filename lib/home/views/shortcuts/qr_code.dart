@@ -15,7 +15,7 @@ class QRCodeView extends StatefulWidget {
   /// The shortcut for which a QR code should be shown.
   final Shortcut? shortcut;
 
-  const QRCodeView({Key? key, this.shortcut}) : super(key: key);
+  const QRCodeView({super.key, this.shortcut});
 
   @override
   QRCodeViewState createState() => QRCodeViewState();
@@ -166,7 +166,7 @@ class QRCodeViewState extends State<QRCodeView> {
                                   text: "Scanne den QR-Code einer anderen PrioBike-App, um die Route zu erhalten.",
                                   context: context,
                                   textAlign: TextAlign.center,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                                 ),
                               ],
                             ),
@@ -187,11 +187,12 @@ class QRCodeViewState extends State<QRCodeView> {
                               children: [
                                 Content(text: shortcut!.getShortInfo(), context: context),
                                 const VSpace(),
-                                BigButton(
+                                BigButtonPrimary(
                                   iconColor: Colors.white,
                                   label: "Speichern!",
                                   onPressed: () => saveShortCut(),
-                                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                                  boxConstraints:
+                                      BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                                 ),
                               ],
                             ),

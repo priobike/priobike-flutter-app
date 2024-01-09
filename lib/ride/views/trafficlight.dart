@@ -8,7 +8,7 @@ class RideTrafficLightView extends StatefulWidget {
   /// The size of the speedometer.
   final Size size;
 
-  const RideTrafficLightView({Key? key, required this.size}) : super(key: key);
+  const RideTrafficLightView({super.key, required this.size});
 
   @override
   State<StatefulWidget> createState() => RideTrafficLightViewState();
@@ -34,9 +34,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final alternativeView = Container(
+  Widget alternativeView(String message) => Container(
         width: widget.size.width * 0.35,
         height: widget.size.width * 0.35,
         decoration: BoxDecoration(
@@ -44,23 +42,32 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
           borderRadius: BorderRadius.circular(100),
         ),
         child: Center(
-            child: BoldContent(
-          textAlign: TextAlign.center,
-          text: "Keine\nPrognosen",
-          color: Colors.white,
-          context: context,
-        )));
+          child: BoldContent(
+            textAlign: TextAlign.center,
+            text: message,
+            color: Colors.white,
+            context: context,
+          ),
+        ),
+      );
 
+  @override
+  Widget build(BuildContext context) {
     // Don't show a countdown if...
-    if (ride.calcCurrentSG == null) return alternativeView;
+    if (ride.calcCurrentSG == null) return alternativeView("Nicht\nunterstütze\nKreuzung");
 
     // Check if we have all auxiliary data that the app calculated.
     if (ride.predictionComponent?.recommendation == null) {
-      return alternativeView;
+      return alternativeView("Keine\nAmpeldaten\nvorhanden");
     }
+
+    if ((ride.predictionComponent?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+      return alternativeView("Prognose\nzu schlecht");
+    }
+
     final recommendation = ride.predictionComponent!.recommendation!;
     // If the phase change time is null, we hide the countdown.
-    if (recommendation.calcCurrentPhaseChangeTime == null) return alternativeView;
+    if (recommendation.calcCurrentPhaseChangeTime == null) return alternativeView("Prognose\nzu alt");
     // Calculate the countdown.
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     // If the countdown is 0 (or negative), we hide the countdown. In this way the user
@@ -116,7 +123,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       sizeCurve: Curves.easeInOutCubic,
       duration: const Duration(milliseconds: 500),
       firstChild: trafficLight,
-      secondChild: alternativeView,
+      secondChild: alternativeView("Keine\nAmpeldaten"),
       crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
     );
   }

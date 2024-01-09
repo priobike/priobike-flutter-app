@@ -5,9 +5,8 @@ class Fade extends ShaderMask {
   /// Custom stops of the fade.
   final List<double>? stops;
 
-  Fade({Key? key, required Widget child, this.stops})
+  Fade({super.key, required Widget super.child, this.stops})
       : super(
-            key: key,
             shaderCallback: (Rect rect) {
               return LinearGradient(
                 begin: Alignment.topCenter,
@@ -16,6 +15,5 @@ class Fade extends ShaderMask {
                 stops: stops ?? [0.0, 0.05, 0.95, 1.0],
               ).createShader(rect);
             },
-            blendMode: BlendMode.dstOut,
-            child: child);
+            blendMode: BlendMode.dstOut);
 }

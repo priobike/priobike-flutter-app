@@ -2,41 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
-
-/// A list item with icon.
-class IconItem extends Row {
-  IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
-      : super(
-          key: key,
-          children: [
-            SizedBox(
-              width: 64,
-              height: 64,
-              child: Icon(
-                icon,
-                color: CI.radkulturRed,
-                size: 64,
-                semanticLabel: text,
-              ),
-            ),
-            const SmallHSpace(),
-            Expanded(
-              child: Content(text: text, context: context),
-            ),
-          ],
-        );
-}
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
   final Widget? child;
 
   /// Create the privacy proxy view with the wrapped view.
-  const PrivacyPolicyView({this.child, Key? key}) : super(key: key);
+  const PrivacyPolicyView({this.child, super.key});
 
   @override
   PrivacyPolicyViewState createState() => PrivacyPolicyViewState();
@@ -159,11 +136,10 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
               ),
             if (widget.child != null)
               Pad(
-                child: BigButton(
-                  icon: Icons.check,
-                  iconColor: Colors.white,
+                child: BigButtonPrimary(
                   label: "Akzeptieren",
                   onPressed: onAcceptButtonPressed,
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
                 ),
               ),
           ],

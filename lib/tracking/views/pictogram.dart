@@ -37,8 +37,37 @@ class TrackPictogram extends StatefulWidget {
   /// If the speed should be displayed.
   final bool showSpeedLegend;
 
+  /// If the speed should be displayed.
+  final double? speedLegendBottom;
+
+  /// If the speed should be displayed.
+  final double? speedLegendLeft;
+
+  /// The ratio of the height of the fetched image.
+  /// Has to be between 0 and 1.
+  final double imageHeightRatio;
+
+  /// The ratio of the height of the fetched image.
+  /// Has to be between 0 and 1.
+  final double imageWidthRatio;
+
+  /// The mapbox attribution top value.
+  final double? mapboxTop;
+
+  /// The mapbox attribution left value.
+  final double? mapboxRight;
+
+  /// The mapbox attribution left value.
+  final double? mapboxLeft;
+
+  /// The mapbox attribution bottom value.
+  final double? mapboxBottom;
+
+  /// The mapbox attribution width value.
+  final double mapboxWidth;
+
   const TrackPictogram({
-    Key? key,
+    super.key,
     required this.track,
     required this.blurRadius,
     this.colors = const [
@@ -50,7 +79,16 @@ class TrackPictogram extends StatefulWidget {
     this.lineWidth = 3.0,
     this.iconSize = 10,
     this.showSpeedLegend = true,
-  }) : super(key: key);
+    this.imageHeightRatio = 1,
+    this.imageWidthRatio = 1,
+    this.mapboxTop = 12,
+    this.mapboxRight = 8,
+    this.mapboxLeft,
+    this.mapboxBottom,
+    this.mapboxWidth = 32,
+    this.speedLegendBottom = 10,
+    this.speedLegendLeft = 10,
+  });
 
   @override
   TrackPictogramState createState() => TrackPictogramState();
@@ -81,6 +119,8 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList(),
       brightness: fetchedBrightness,
+      heightRatio: widget.imageHeightRatio,
+      widthRatio: widget.imageWidthRatio,
     ).then((value) {
       if (!mounted) return;
       if (value == null) return;
@@ -145,7 +185,6 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                 )
               : Container(),
         ),
-
         CustomPaint(
           painter: TrackPainter(
             fraction: fraction,
@@ -159,14 +198,16 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             lineWidth: widget.lineWidth,
             iconSize: widget.iconSize,
             showSpeed: true,
+            heightRatio: widget.imageHeightRatio,
+            widthRatio: widget.imageWidthRatio,
           ),
         ),
 
         // Legend
         if (widget.showSpeedLegend)
           Positioned(
-            bottom: 8,
-            left: 12,
+            bottom: widget.speedLegendBottom,
+            left: widget.speedLegendLeft,
             child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -208,9 +249,12 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             ),
           ),
         //Mapbox Attribution Logo
-        const MapboxAttribution(
-          top: 12,
-          right: 8,
+        MapboxAttribution(
+          top: widget.mapboxTop,
+          right: widget.mapboxRight,
+          left: widget.mapboxLeft,
+          bottom: widget.mapboxBottom,
+          width: widget.mapboxWidth,
         ),
       ],
     );
@@ -229,6 +273,8 @@ class TrackPainter extends CustomPainter {
   final double lineWidth;
   final double iconSize;
   final bool showSpeed;
+  final double heightRatio;
+  final double widthRatio;
 
   TrackPainter({
     required this.fraction,
@@ -238,6 +284,8 @@ class TrackPainter extends CustomPainter {
     required this.lineWidth,
     required this.iconSize,
     required this.showSpeed,
+    required this.heightRatio,
+    required this.widthRatio,
     this.maxSpeed,
     this.minSpeed,
     this.startImage,
@@ -286,10 +334,18 @@ class TrackPainter extends CustomPainter {
       final p1 = trackToDraw[i];
       final p2 = trackToDraw[i + 1];
 
-      final x1 = (p1.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-      final y1 = (p1.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
-      final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-      final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+      // Calculation:
+      // longitude/latitude - bbox / (bbox max - bbox min) (Ratio) * Space available (height or width).
+      // If not square: multiply the opposite ratio to make sure, the route is displayed square.
+      // Also add half the size of the site with ratio to the point to center it.
+      final x1 = (p1.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y1 = (p1.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
+      final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
 
       var color = CI.radkulturRed;
       if (showSpeed && minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
@@ -311,10 +367,14 @@ class TrackPainter extends CustomPainter {
       final p1 = trackToDraw[trackCountFraction.toInt()];
       final p2 = trackToDraw[trackCountFraction.toInt() + 1];
       final pct = trackCountFraction - trackCountFraction.toInt();
-      final x1 = (p1.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-      final y1 = (p1.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
-      final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-      final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+      final x1 = (p1.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y1 = (p1.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
+      final x2 = (p2.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y2 = (p2.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
       final x2i = x1 + (x2 - x1) * pct;
       final y2i = y1 + (y2 - y1) * pct;
 
@@ -336,8 +396,10 @@ class TrackPainter extends CustomPainter {
 
     // Draw the circles at the start and end point.
     final pFirst = trackToDraw.first;
-    final xFirst = (pFirst.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-    final yFirst = (pFirst.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+    final xFirst = (pFirst.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+        (size.width * (1 - heightRatio) * 0.5);
+    final yFirst = (pFirst.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+        (size.height * (1 - widthRatio) * 0.5);
 
     if (startImage != null) {
       paintImage(
@@ -346,8 +408,10 @@ class TrackPainter extends CustomPainter {
           image: startImage!);
     }
     final pLast = trackToDraw.last;
-    final xLast = (pLast.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * size.width;
-    final yLast = (pLast.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * size.height;
+    final xLast = (pLast.longitude - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+        (size.width * (1 - heightRatio) * 0.5);
+    final yLast = (pLast.latitude - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+        (size.height * (1 - widthRatio) * 0.5);
 
     if (destinationImage != null) {
       paintImage(

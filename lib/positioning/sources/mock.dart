@@ -67,6 +67,8 @@ class StaticMockPositionSource extends PositionSource {
             accuracy: 1,
             speedAccuracy: 1,
             timestamp: DateTime.now().toUtc(),
+            headingAccuracy: 0,
+            altitudeAccuracy: 0,
           ),
         );
       },
@@ -88,6 +90,8 @@ class StaticMockPositionSource extends PositionSource {
       accuracy: 1,
       speedAccuracy: 1,
       timestamp: DateTime.now().toUtc(),
+      headingAccuracy: 0,
+      altitudeAccuracy: 0,
     );
   }
 
@@ -137,6 +141,8 @@ class RecordedMockPositionSource extends PositionSource {
           accuracy: checkDouble(json[i]['accuracy']),
           speedAccuracy: 0.0,
           timestamp: DateTime.fromMillisecondsSinceEpoch(json[i]['timeUnixMillis']),
+          headingAccuracy: 0.0,
+          altitudeAccuracy: 0.0,
         ),
       );
     }
@@ -178,12 +184,12 @@ class RecordedMockPositionSource extends PositionSource {
 
         // If the index is 0, we need to set the reference times.
         if (index == 0 || startPositionTime == null || startRealTime == null) {
-          startPositionTime = positions[index].timestamp!;
+          startPositionTime = positions[index].timestamp;
           startRealTime = DateTime.now();
         }
 
         // Compute the milliseconds between the current position and the reference position time.
-        final elapsedPositionTime = positions[index].timestamp!.difference(startPositionTime!).inMilliseconds;
+        final elapsedPositionTime = positions[index].timestamp.difference(startPositionTime!).inMilliseconds;
         // Compute the milliseconds between the current real time and the reference real time.
         final elapsedRealTime = DateTime.now().difference(startRealTime!).inMilliseconds;
 
@@ -200,6 +206,8 @@ class RecordedMockPositionSource extends PositionSource {
             accuracy: p.accuracy,
             speedAccuracy: p.speedAccuracy,
             timestamp: DateTime.now().toUtc(),
+            headingAccuracy: 0,
+            altitudeAccuracy: 0,
           );
           streamController.add(pNow);
           index++;
@@ -331,6 +339,8 @@ class PathMockPositionSource extends PositionSource {
         accuracy: 1,
         speedAccuracy: 1,
         timestamp: DateTime.now().toUtc(),
+        headingAccuracy: 0,
+        altitudeAccuracy: 0,
       );
       streamController.add(lastPosition!);
 
@@ -356,6 +366,8 @@ class PathMockPositionSource extends PositionSource {
         accuracy: 1,
         speedAccuracy: 1,
         timestamp: DateTime.now().toUtc(),
+        headingAccuracy: 0,
+        altitudeAccuracy: 0,
       );
     }
     return lastPosition!;

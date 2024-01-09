@@ -174,4 +174,31 @@ class Route {
       pitch: 0.0,
     );
   }
+
+  /// Calculate a length text for this route.
+  String get lengthText {
+    return path.distance.round() >= 1000
+        ? "${((path.distance) / 1000).toStringAsFixed(1)} km"
+        : "${path.distance.toStringAsFixed(0)} m";
+  }
+
+  /// Calculate a time text for this route.
+  String get timeText {
+    final seconds = path.time / 1000;
+    // Get the full hours needed to cover the route.
+    final hours = seconds ~/ 3600;
+    // Get the remaining minutes.
+    final minutes = (seconds - hours * 3600) ~/ 60;
+
+    return "${hours == 0 ? '' : '$hours Std. '}$minutes Min.";
+  }
+
+  /// Calculate a arrival time text for this route.
+  String get arrivalTimeText {
+    final seconds = path.time / 1000;
+    // Get the full hours needed to cover the route.
+
+    final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
+    return "Ankunft ca. ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr";
+  }
 }

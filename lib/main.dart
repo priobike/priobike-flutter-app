@@ -9,18 +9,12 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/gamification/challenges/services/challenge_service.dart';
-import 'package:priobike/gamification/challenges/services/challenges_profile_service.dart';
-import 'package:priobike/gamification/common/services/evaluation_data_service.dart';
-import 'package:priobike/gamification/common/services/user_service.dart';
-import 'package:priobike/gamification/community_event/service/event_service.dart';
-import 'package:priobike/gamification/goals/services/goals_service.dart';
-import 'package:priobike/gamification/statistics/services/statistics_service.dart';
 import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/migration/user_transfer_view.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -102,23 +96,14 @@ Future<void> main() async {
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<StatusHistory>(StatusHistory());
-  getIt.registerSingleton<GamificationUserService>(GamificationUserService());
   getIt.registerSingleton<POI>(POI());
-  getIt.registerSingleton<StatisticService>(StatisticService());
-  getIt.registerSingleton<DailyChallengeService>(DailyChallengeService());
-  getIt.registerSingleton<WeeklyChallengeService>(WeeklyChallengeService());
-  getIt.registerSingleton<GoalsService>(GoalsService());
-  getIt.registerSingleton<ChallengesProfileService>(ChallengesProfileService());
-  getIt.registerSingleton<EvaluationDataService>(EvaluationDataService());
-  getIt.registerSingleton<EventService>(EventService());
-
-  runZonedGuarded(() async {
+  try {
     runApp(const App());
-  }, (error, stack) async {
+  } on Error catch (error, stack) {
     // Log the error to the console.
-    log.e(error.toString());
-    log.e(stack.toString());
-  });
+    log.e("Error during app startup: $error");
+    log.e(stack);
+  }
 }
 
 /// The main app widget.
@@ -126,7 +111,7 @@ class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +140,13 @@ class App extends StatelessWidget {
               }
               getIt<Shortcuts>().saveNewShortcutObject(shortcut);
             }
-            return MaterialPageRoute(builder: (context) => const PrivacyPolicyView(child: Loader()));
+            return MaterialPageRoute(
+              builder: (context) => const PrivacyPolicyView(
+                child: UserTransferView(
+                  child: Loader(),
+                ),
+              ),
+            );
           },
           // The navigator key is used to access the app's build context.
           navigatorKey: navigatorKey,
@@ -167,7 +158,10 @@ class App extends StatelessWidget {
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
-              onSecondary: Colors.white,
+              onSecondary: Color(0xFFCCCCCC),
+              // FIXME Radkultur Grey.
+              tertiary: Color(0xFF444444),
+              onTertiary: Color(0xFFDDDDDD),
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
@@ -177,7 +171,7 @@ class App extends StatelessWidget {
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFF000000),
               // For the background of complete views/pages.
-              background: Colors.white,
+              background: Color(0xFFFCFCFC),
               // For content on the background (color with high contrast).
               onBackground: Color(0xFF000000),
               // For the splash effect on buttons.
@@ -199,8 +193,8 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineLarge: TextStyle(
@@ -211,13 +205,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -229,13 +223,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -267,7 +261,10 @@ class App extends StatelessWidget {
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
-              onSecondary: Colors.white,
+              onSecondary: Color(0xFFCCCCCC),
+              // FIXME Radkultur Grey.
+              tertiary: Color(0xFFDDDDDD),
+              onTertiary: Color(0xFF333333),
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
@@ -277,7 +274,7 @@ class App extends StatelessWidget {
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFFFFFFFF),
               // For the background of complete views/pages.
-              background: Colors.black,
+              background: Color(0xFF222222),
               // For content on the background (color with high contrast).
               onBackground: Color(0xFFFFFFFF),
               // For the splash effect on buttons.
@@ -299,8 +296,8 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineLarge: TextStyle(
@@ -311,13 +308,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
@@ -329,13 +326,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),

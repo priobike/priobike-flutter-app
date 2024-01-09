@@ -6,64 +6,32 @@ PODS:
     - ReachabilitySwift
   - device_info_plus (0.0.1):
     - Flutter
-  - DKImagePickerController/Core (4.3.4):
-    - DKImagePickerController/ImageDataManager
-    - DKImagePickerController/Resource
-  - DKImagePickerController/ImageDataManager (4.3.4)
-  - DKImagePickerController/PhotoGallery (4.3.4):
-    - DKImagePickerController/Core
-    - DKPhotoGallery
-  - DKImagePickerController/Resource (4.3.4)
-  - DKPhotoGallery (0.0.17):
-    - DKPhotoGallery/Core (= 0.0.17)
-    - DKPhotoGallery/Model (= 0.0.17)
-    - DKPhotoGallery/Preview (= 0.0.17)
-    - DKPhotoGallery/Resource (= 0.0.17)
-    - SDWebImage
-    - SwiftyGif
-  - DKPhotoGallery/Core (0.0.17):
-    - DKPhotoGallery/Model
-    - DKPhotoGallery/Preview
-    - SDWebImage
-    - SwiftyGif
-  - DKPhotoGallery/Model (0.0.17):
-    - SDWebImage
-    - SwiftyGif
-  - DKPhotoGallery/Preview (0.0.17):
-    - DKPhotoGallery/Model
-    - DKPhotoGallery/Resource
-    - SDWebImage
-    - SwiftyGif
-  - DKPhotoGallery/Resource (0.0.17):
-    - SDWebImage
-    - SwiftyGif
   - file_picker (0.0.1):
-    - DKImagePickerController/PhotoGallery
     - Flutter
-  - Firebase/CoreOnly (10.3.0):
-    - FirebaseCore (= 10.3.0)
-  - Firebase/Messaging (10.3.0):
+  - Firebase/CoreOnly (10.18.0):
+    - FirebaseCore (= 10.18.0)
+  - Firebase/Messaging (10.18.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 10.3.0)
-  - firebase_core (2.5.0):
-    - Firebase/CoreOnly (= 10.3.0)
+    - FirebaseMessaging (~> 10.18.0)
+  - firebase_core (2.23.0):
+    - Firebase/CoreOnly (= 10.18.0)
     - Flutter
-  - firebase_messaging (14.2.2):
-    - Firebase/Messaging (= 10.3.0)
+  - firebase_messaging (14.7.5):
+    - Firebase/Messaging (= 10.18.0)
     - firebase_core
     - Flutter
-  - FirebaseCore (10.3.0):
+  - FirebaseCore (10.18.0):
     - FirebaseCoreInternal (~> 10.0)
-    - GoogleUtilities/Environment (~> 7.8)
-    - GoogleUtilities/Logger (~> 7.8)
-  - FirebaseCoreInternal (10.15.0):
+    - GoogleUtilities/Environment (~> 7.12)
+    - GoogleUtilities/Logger (~> 7.12)
+  - FirebaseCoreInternal (10.18.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
-  - FirebaseInstallations (10.15.0):
+  - FirebaseInstallations (10.18.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
-  - FirebaseMessaging (10.3.0):
+  - FirebaseMessaging (10.18.0):
     - FirebaseCore (~> 10.0)
     - FirebaseInstallations (~> 10.0)
     - GoogleDataTransport (~> 9.2)
@@ -86,43 +54,43 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/AppDelegateSwizzler (7.11.5):
+  - GoogleUtilities/AppDelegateSwizzler (7.12.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (7.11.5):
+  - GoogleUtilities/Environment (7.12.0):
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.11.5):
+  - GoogleUtilities/Logger (7.12.0):
     - GoogleUtilities/Environment
-  - GoogleUtilities/Network (7.11.5):
+  - GoogleUtilities/Network (7.12.0):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (7.11.5)"
-  - GoogleUtilities/Reachability (7.11.5):
+  - "GoogleUtilities/NSData+zlib (7.12.0)"
+  - GoogleUtilities/Reachability (7.12.0):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (7.11.5):
+  - GoogleUtilities/UserDefaults (7.12.0):
     - GoogleUtilities/Logger
   - in_app_review (0.2.0):
     - Flutter
-  - mapbox_maps_flutter (0.4.2):
+  - mapbox_maps_flutter (0.5.0):
     - Flutter
-    - MapboxMaps (~> 10.10.0)
-  - MapboxCommon (23.2.3)
-  - MapboxCoreMaps (10.10.0):
-    - MapboxCommon (~> 23.2)
-  - MapboxMaps (10.10.2):
-    - MapboxCommon (= 23.2.3)
-    - MapboxCoreMaps (= 10.10.0)
+    - MapboxMaps (~> 10.13.1)
+  - MapboxCommon (23.5.0)
+  - MapboxCoreMaps (10.13.1):
+    - MapboxCommon (~> 23.5)
+  - MapboxMaps (10.13.1):
+    - MapboxCommon (= 23.5.0)
+    - MapboxCoreMaps (= 10.13.1)
     - MapboxMobileEvents (= 1.0.10)
     - Turf (~> 2.0)
   - MapboxMobileEvents (1.0.10)
   - MTBBarcodeScanner (5.0.11)
-  - nanopb (2.30909.0):
-    - nanopb/decode (= 2.30909.0)
-    - nanopb/encode (= 2.30909.0)
-  - nanopb/decode (2.30909.0)
-  - nanopb/encode (2.30909.0)
+  - nanopb (2.30909.1):
+    - nanopb/decode (= 2.30909.1)
+    - nanopb/encode (= 2.30909.1)
+  - nanopb/decode (2.30909.1)
+  - nanopb/encode (2.30909.1)
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -133,9 +101,6 @@ PODS:
     - Flutter
     - MTBBarcodeScanner
   - ReachabilitySwift (5.0.0)
-  - SDWebImage (5.18.3):
-    - SDWebImage/Core (= 5.18.3)
-  - SDWebImage/Core (5.18.3)
   - sensors_plus (0.0.1):
     - Flutter
   - share_plus (0.0.1):
@@ -143,29 +108,13 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - sqlite3 (3.41.2):
-    - sqlite3/common (= 3.41.2)
-  - sqlite3/common (3.41.2)
-  - sqlite3/fts5 (3.41.2):
-    - sqlite3/common
-  - sqlite3/perf-threadsafe (3.41.2):
-    - sqlite3/common
-  - sqlite3/rtree (3.41.2):
-    - sqlite3/common
-  - sqlite3_flutter_libs (0.0.1):
-    - Flutter
-    - sqlite3 (~> 3.41.2)
-    - sqlite3/fts5
-    - sqlite3/perf-threadsafe
-    - sqlite3/rtree
-  - SwiftyGif (5.4.4)
   - system_info_plus (0.0.1):
     - Flutter
   - Toast (4.0.0)
   - Turf (2.7.0)
   - url_launcher_ios (0.0.1):
     - Flutter
-  - wakelock (0.0.1):
+  - wakelock_plus (0.0.1):
     - Flutter
 
 DEPENDENCIES:
@@ -183,20 +132,17 @@ DEPENDENCIES:
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - mapbox_maps_flutter (from `.symlinks/plugins/mapbox_maps_flutter/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
-  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
-  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - system_info_plus (from `.symlinks/plugins/system_info_plus/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
-  - wakelock (from `.symlinks/plugins/wakelock/ios`)
+  - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
 
 SPEC REPOS:
   trunk:
-    - DKImagePickerController
-    - DKPhotoGallery
     - Firebase
     - FirebaseCore
     - FirebaseCoreInternal
@@ -212,9 +158,6 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - ReachabilitySwift
-    - SDWebImage
-    - sqlite3
-    - SwiftyGif
     - Toast
     - Turf
 
@@ -248,7 +191,7 @@ EXTERNAL SOURCES:
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/ios"
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   qr_code_scanner:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
   sensors_plus:
@@ -256,63 +199,55 @@ EXTERNAL SOURCES:
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
-    :path: ".symlinks/plugins/shared_preferences_foundation/ios"
-  sqlite3_flutter_libs:
-    :path: ".symlinks/plugins/sqlite3_flutter_libs/ios"
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   system_info_plus:
     :path: ".symlinks/plugins/system_info_plus/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
-  wakelock:
-    :path: ".symlinks/plugins/wakelock/ios"
+  wakelock_plus:
+    :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  battery_plus: 7851ab482c336dd101ae735dc9363f01e1223c7c
-  connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
-  device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
-  DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
-  DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
-  file_picker: ce3938a0df3cc1ef404671531facef740d03f920
-  Firebase: f92fc551ead69c94168d36c2b26188263860acd9
-  firebase_core: f95c8bbe65213d406d592573ad42a12d64849cb8
-  firebase_messaging: 3daef9f9ee5b91de2f282895ec91cc5e5ca78556
-  FirebaseCore: 988754646ab3bd4bdcb740f1bfe26b9f6c0d5f2a
-  FirebaseCoreInternal: 2f4bee5ed00301b5e56da0849268797a2dd31fb4
-  FirebaseInstallations: cae95cab0f965ce05b805189de1d4c70b11c76fb
-  FirebaseMessaging: e345b219fd15d325f0cf2fef28cb8ce00d851b3f
+  battery_plus: 091633b7f01cb33dfc4aeedb450816f4d33818fa
+  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
+  device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
+  file_picker: 880e54928ebe4aa405aaf4577f29a76a078341c6
+  Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
+  firebase_core: 29d66baf806970cda37c93621b27cd369b27db1b
+  firebase_messaging: 0a39f2514e1f27b0274b0d2fa99048f57856ee7c
+  FirebaseCore: 2322423314d92f946219c8791674d2f3345b598f
+  FirebaseCoreInternal: 8eb002e564b533bdcf1ba011f33f2b5c10e2ed4a
+  FirebaseInstallations: e842042ec6ac1fd2e37d7706363ebe7f662afea4
+  FirebaseMessaging: 9bc34a98d2e0237e1b121915120d4d48ddcf301e
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
-  fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
+  fluttertoast: 31b00dabfa7fb7bacd9e7dbee580d7a2ff4bf265
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
-  GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
+  GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
-  mapbox_maps_flutter: be1a16ff33006fff69d5c21b1cec8ed82be9c02d
-  MapboxCommon: e7948335faacbe6f8b9b115511fd0dd0354bf565
-  MapboxCoreMaps: 4075a9e415b9b3ab6229d09623fef5f791826a5b
-  MapboxMaps: d8cf7d214d94ec18790c338f3a3fe59dd4048e97
+  mapbox_maps_flutter: bad1576756da36dce455f94bd8a9a3e2afd0ff76
+  MapboxCommon: fdf7fd31c90b7b607cd9c63e37797f023c01d860
+  MapboxCoreMaps: 24270c7c6b8cb71819fc2f3c549db9620ee4d019
+  MapboxMaps: cb76511b98d3b95c74b0771ed105bc69f30ace6b
   MapboxMobileEvents: de50b3a4de180dd129c326e09cd12c8adaaa46d6
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
-  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
-  package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
-  path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
+  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
+  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  SDWebImage: 96e0c18ef14010b7485210e92fac888587ebb958
-  sensors_plus: 5717760720f7e6acd96fdbd75b7428f5ad755ec2
-  share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
-  shared_preferences_foundation: 297b3ebca31b34ec92be11acd7fb0ba932c822ca
-  sqlite3: fd89671d969f3e73efe503ce203e28b016b58f68
-  sqlite3_flutter_libs: 04ba0d14a04335a2fbf9a331e8664f401fbccdd5
-  SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
+  sensors_plus: 42b9de1b8237675fa8d8121e4bb93be0f79fa61d
+  share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
+  shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   system_info_plus: 5393c8da281d899950d751713575fbf91c7709aa
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Turf: 13d1a92d969ca0311bbc26e8356cca178ce95da2
-  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
-  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
+  url_launcher_ios: bf5ce03e0e2088bad9cc378ea97fa0ed5b49673b
+  wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
 
-PODFILE CHECKSUM: 61857122998a3d79fb644d9c64e650f8900bca19
+PODFILE CHECKSUM: cb9f3037cd8b80311c76d3ba2c5a5d5a10a0a629
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3

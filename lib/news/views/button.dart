@@ -8,7 +8,7 @@ class NewsButton extends StatefulWidget {
   /// A callback that is fired when the button was pressed.
   final void Function() onPressed;
 
-  const NewsButton({required this.onPressed, Key? key}) : super(key: key);
+  const NewsButton({required this.onPressed, super.key});
 
   @override
   NewsButtonState createState() => NewsButtonState();
@@ -57,11 +57,13 @@ class NewsButtonState extends State<NewsButton> {
     return Stack(
       alignment: Alignment.topRight,
       children: [
-        SmallIconButton(
+        SmallIconButtonSecondary(
           icon: Icons.notifications_rounded,
           color: Colors.white,
           splash: Theme.of(context).colorScheme.surfaceTint,
-          fill: const Color.fromARGB(50, 255, 255, 255),
+          fill: Colors.transparent,
+          borderColor: Colors.white,
+          withBorder: true,
           onPressed: widget.onPressed,
         ),
         if (unread > 0)

@@ -18,7 +18,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ImportShortcutDialog<E> extends StatefulWidget {
-  const ImportShortcutDialog({key}) : super(key: key);
+  const ImportShortcutDialog({super.key});
 
   @override
   ImportShortcutDialogState<E> createState() => ImportShortcutDialogState<E>();
@@ -95,12 +95,14 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
         waypoints.add(Waypoint(coordinates[i]![0], coordinates[i]![1], address: "Wegpunkt ${i + 1}"));
       }
       if (mounted) {
-        showSaveShortcutSheet(context,
-            shortcut: ShortcutRoute(
-              id: UniqueKey().toString(),
-              name: "Strecke von Google Maps",
-              waypoints: waypoints,
-            ));
+        showSaveShortcutSheet(
+          context,
+          shortcut: ShortcutRoute(
+            id: UniqueKey().toString(),
+            name: "Strecke von Google Maps",
+            waypoints: waypoints,
+          ),
+        );
       }
       return;
     }

@@ -21,7 +21,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=3.2.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -33,52 +33,41 @@ dependencies:
   flutter:
     sdk: flutter
 
-  fluttertoast: ^8.0.8 # Minimalistic popup callable from everywhere
-  cupertino_icons: ^1.0.2 # Icons package
-  geolocator: ^9.0.2 # GPS tracking
-  shared_preferences: ^2.0.15 # Access to shared preferences or user defaults (iOS)
-  latlong2: ^0.8.1 # Distance calculations and more
-  flutter_native_splash: ^2.1.6 # Generated splash screen, see below
-  wakelock: ^0.6.2 # Keep display active in certain conditions
-  http: ^0.13.5 # HTTP client framework
-  device_info_plus: ^8.0.0 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
-  package_info_plus: ^3.0.1 # Fetch info about the package
-  battery_plus: ^3.0.2 # Fetch info about the battery state
-  share_plus: ^6.2.0 # Used for debugging to share example requests/responses via e-mail/airdrop
-  firebase_core: ^2.1.1 # Used to initialize the connection to Firebase
-  firebase_messaging: ^14.0.4 # Used to receive push notifications of news service
-  sensors_plus: # Used to get accelerometer data
-    git:
-      url: https://github.com/priobike/priobike-plus-plugins
-      ref: main
-      path: packages/sensors_plus/sensors_plus
-  flutter_local_notifications: ^13.0.0 # Used to show the push notifications
-  mqtt_client: ^9.6.8
+  fluttertoast: ^8.2.4 # Minimalistic popup callable from everywhere
+  cupertino_icons: ^1.0.6 # Icons package
+  geolocator: ^10.1.0 # GPS tracking
+  shared_preferences: ^2.2.2 # Access to shared preferences or user defaults (iOS)
+  latlong2: ^0.9.0 # Distance calculations and more
+  flutter_native_splash: ^2.3.6 # Generated splash screen, see below
+  wakelock_plus: ^1.1.3 # Keep display active in certain conditions
+  http: ^1.1.0 # HTTP client framework
+  device_info_plus: ^9.1.1 # Fetch info about the device
+  package_info_plus: ^4.2.0 # Fetch info about the package
+  battery_plus: ^4.1.0 # Fetch info about the battery state
+  share_plus: ^7.2.1 # Used for debugging to share example requests/responses via e-mail/airdrop
+  firebase_core: ^2.23.0 # Used to initialize the connection to Firebase
+  firebase_messaging: ^14.7.5 # Used to receive push notifications of news service
+  sensors_plus: ^4.0.2 # Used to get the IMU data
+  flutter_local_notifications: ^16.1.0 # Used to show the push notifications
+  mqtt_client: ^10.0.0
   system_info_plus: ^0.0.5 # Used to check the RAM of user device
   confetti: ^0.7.0
   collection: ^1.16.0 # Used for example for the function DeepCollectionEquality()
-  intl: ^0.17.0 # Used for date formats
-  mapbox_maps_flutter:
-    git:
-      url: https://github.com/mapbox/mapbox-maps-flutter
-      ref: yds-fix-memory-leaks
-  path_provider: ^2.0.12 # To get the path to the app directory and store files
-  connectivity_plus: ^3.0.2 # To check if the user is connected to Wifi or mobile data
-  get_it: ^7.2.0 # Used for dependency injection
-  qr_flutter: ^4.0.0 # Used to display QR codes
+  intl: ^0.18.1 # Used for date formats
+  mapbox_maps_flutter: ^0.5.0
+  path_provider: ^2.1.1 # To get the path to the app directory and store files
+  connectivity_plus: ^5.0.2 # To check if the user is connected to Wifi or mobile data
+  get_it: ^7.6.4 # Used for dependency injection
+  qr_flutter: ^4.1.0 # Used to display QR codes
   qr_code_scanner: ^1.0.1 # Used to scan QR codes
-  url_launcher: ^6.1.10 # Used to open URLs
-  in_app_review: ^2.0.6 # Used to rate the app
+  url_launcher: ^6.2.1 # Used to open URLs
+  in_app_review: ^2.0.8 # Used to rate the app
   proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
-  drift: ^2.8.0 # Used for the local database
-  sqlite3_flutter_libs: ^0.5.0 # Needed for the drift database which is based on sqlite
-  path: ^1.8.2 # Used to determine the database file location
-  fl_chart: ^0.62.0 # Used to display the ride statistics in the gamification views
-  file_picker: ^5.2.10 # Used to open GPX files
+  file_picker: ^6.1.1 # Used to open GPX files
   gpx: ^2.2.1
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.11.0 # Generate app icons
+  flutter_launcher_icons: ^0.13.1 # Generate app icons
   flutter_test:
     sdk: flutter
 
@@ -87,9 +76,9 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.1
-  drift_dev: ^2.8.0 # Used for the sqlite database
-  build_runner: ^2.3.0 # Used to generate code with the drift package
+  flutter_lints: ^3.0.1
+  drift_dev: ^2.13.2 # Used for the sqlite database
+  build_runner: ^2.4.6 # Used to generate code with the drift package
 
 # Configuration of the splash screens.
 flutter_native_splash:
@@ -121,9 +110,6 @@ flutter:
         - asset: assets/fonts/HamburgSans-BoldItalic.ttf
           weight: 700
           style: italic
-    - family:  CustomGameIcons
-      fonts:
-        - asset: assets/fonts/CustomGameIcons.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -163,3 +149,6 @@ flutter:
 
     # wiki images
     - assets/images/wiki/
+
+    # Radkultur icons
+    - assets/icons/

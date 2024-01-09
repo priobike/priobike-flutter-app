@@ -20,12 +20,8 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
         title: 'Fahrt abgebrochen',
         text:
             "Die letzte Fahrt wurde unerwartet beendet. Willst Du die Navigation der Route fortsetzen oder die Route speichern?",
-        icon: Icons.warning_rounded,
-        iconColor: Theme.of(context).colorScheme.primary,
         actions: [
-          BigButton(
-            iconColor: Colors.white,
-            icon: Icons.directions_bike_rounded,
+          BigButtonPrimary(
             label: "Fortsetzen",
             onPressed: () async {
               Routing routing = getIt<Routing>();
@@ -54,11 +50,9 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
                 }
               }
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
-          BigButton(
-            iconColor: Colors.white,
-            icon: Icons.save_rounded,
+          BigButtonSecondary(
             label: "Speichern",
             onPressed: () {
               ShortcutRoute shortcutRoute = ShortcutRoute(id: UniqueKey().toString(), name: "", waypoints: lastRoute);
@@ -66,14 +60,12 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
               Navigator.pop(context);
               showSaveShortcutSheet(context, shortcut: shortcutRoute);
             },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
-          BigButton(
-            iconColor: Colors.white,
-            icon: Icons.close_rounded,
+          BigButtonTertiary(
             label: "Abbrechen",
             onPressed: () => Navigator.of(context).pop(),
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           )
         ],
       );

@@ -17,10 +17,10 @@ void showLocationAccessDeniedDialog(BuildContext context, PositionSource? positi
         icon: Icons.location_off_rounded,
         iconColor: Theme.of(context).colorScheme.primary,
         actions: [
-          BigButton(
+          BigButtonPrimary(
             label: 'Einstellungen öffnen',
             onPressed: () => positionSource?.openLocationSettings(),
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
         ],
       );

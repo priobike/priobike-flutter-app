@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -10,7 +11,7 @@ class SurveyView extends StatefulWidget {
 
   final BorderRadius? borderRadius;
 
-  const SurveyView({Key? key, required this.dismissible, this.borderRadius}) : super(key: key);
+  const SurveyView({super.key, required this.dismissible, this.borderRadius});
 
   @override
   State<StatefulWidget> createState() => SurveyViewState();
@@ -79,6 +80,7 @@ class SurveyViewState extends State<SurveyView> {
                 },
               ),
           ]),
+          const SmallVSpace(),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             Small(
               context: context,

@@ -28,7 +28,7 @@ class RideSpeedometerView extends StatefulWidget {
   /// Height to puck bounding box.
   final double puckHeight;
 
-  const RideSpeedometerView({Key? key, required this.puckHeight}) : super(key: key);
+  const RideSpeedometerView({super.key, required this.puckHeight});
 
   @override
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
