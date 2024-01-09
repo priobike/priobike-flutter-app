@@ -283,6 +283,7 @@ class Tracking with ChangeNotifier {
 
   /// Start collecting accelerometer data.
   Future<void> startCollectingAccData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
     const samplingPeriod = Duration(milliseconds: 1000);
     final stream = accelerometerEventStream(samplingPeriod: samplingPeriod);
     accCache = CSVCache(
@@ -307,6 +308,7 @@ class Tracking with ChangeNotifier {
 
   /// Start collecting gyroscope data.
   Future<void> startCollectingGyrData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
     const samplingPeriod = Duration(milliseconds: 1000);
     final stream = gyroscopeEventStream(samplingPeriod: samplingPeriod);
     gyrCache = CSVCache(
@@ -331,6 +333,7 @@ class Tracking with ChangeNotifier {
 
   /// Start collecting magnetometer data.
   Future<void> startCollectingMagData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
     const samplingPeriod = Duration(milliseconds: 1000);
     final stream = magnetometerEventStream(samplingPeriod: samplingPeriod);
     magCache = CSVCache(
