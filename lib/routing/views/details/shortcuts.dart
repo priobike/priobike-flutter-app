@@ -54,7 +54,7 @@ class ShortcutsState extends State<ShortcutsRow> {
     return Container(
       margin: const EdgeInsets.only(left: 8),
       child: Tile(
-        onPressed: () => _loadShortcutsRoute(shortcut),
+        onPressed: routing.isFetchingRoute ? null : () => _loadShortcutsRoute(shortcut),
         fill: Theme.of(context).colorScheme.surfaceVariant,
         splash: Theme.of(context).colorScheme.surfaceTint,
         shadowIntensity: 0,
