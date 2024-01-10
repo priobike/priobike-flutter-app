@@ -58,6 +58,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated MapValues service, which is injected by the provider.
   late MapValues mapValues;
 
+  /// The timer that updates the location puck position on the map.
+  late Timer timer;
+
   /// The threshold for the location accuracy in meter
   /// NOTE: The accuracy will increase if we move and gain more GPS signal data.
   /// Hence, we don't want to set this threshold too low. The threshold should
@@ -78,11 +81,24 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        // Calling requestSingleLocation function to fill lastPosition of PositionService
+        // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
         await positioning?.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning!.positionSource);
         });
+        // Calling requestSingleLocation function to fill lastPosition of PositionService regularly.
+        // Note: using dart timer because geolocator has no options for ios to set the gps interval.
+        timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+          await positioning?.requestSingleLocation(onNoPermission: () {
+            Navigator.of(context).pop();
+            showLocationAccessDeniedDialog(context, positioning!.positionSource);
+          });
+          // Move screen if was centered before.
+          if (mapValues.isCentered) {
+            mapFunctions.setCameraCenterOnUserLocation();
+          }
+        });
+
         // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
         // a location shortcut instead of a route shortcut.
         await routing?.loadRoutes();
@@ -115,6 +131,7 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
+    timer.cancel();
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
