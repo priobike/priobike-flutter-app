@@ -250,14 +250,26 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     // Animation duration.
     const duration = 1000;
+    final frame = MediaQuery.of(context);
+    MbxEdgeInsets padding = MbxEdgeInsets(
+      // (AppBackButton height + top padding)
+      top: (80 + frame.padding.top),
+      // AppBackButton width
+      left: 0,
+      // (BottomSheet + bottom padding)
+      bottom: (146 + frame.padding.bottom),
+      right: 0,
+    );
+
     await mapController?.flyTo(
       CameraOptions(
-        center: Point(
+          center: Point(
             coordinates: Position(
-          positioning.lastPosition!.longitude,
-          positioning.lastPosition!.latitude,
-        )).toJson(),
-      ),
+              positioning.lastPosition!.longitude,
+              positioning.lastPosition!.latitude,
+            ),
+          ).toJson(),
+          padding: padding),
       MapAnimationOptions(duration: duration),
     );
   }
