@@ -93,6 +93,10 @@ class RoutingViewState extends State<RoutingView> {
             Navigator.of(context).pop();
             showLocationAccessDeniedDialog(context, positioning!.positionSource);
           });
+          // Move screen if was centered before.
+          if (mapValues.isCentered) {
+            mapFunctions.setCameraCenterOnUserLocation();
+          }
         });
 
         // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
@@ -122,8 +126,6 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   void dispose() {
-    // To enable start the position service with new onPosition and ensure gps fetching is turned off on exit.
-    positioning?.reset();
     geocoding!.removeListener(update);
     routing!.removeListener(update);
     shortcuts!.removeListener(update);
