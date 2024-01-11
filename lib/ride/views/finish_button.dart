@@ -33,7 +33,9 @@ class FinishRideButtonState extends State<FinishRideButton> {
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black.withOpacity(0.6)
+          : Colors.black.withOpacity(0.8),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Fahrt wirklich beenden?',
