@@ -71,6 +71,7 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: coords,
       brightness: fetchedBrightness,
+      mapPadding: 0.45,
     ).then((value) {
       if (!mounted) return;
       if (value == null) return;
@@ -174,7 +175,7 @@ class ShortcutRoutePainter extends CustomPainter {
     final waypoints = shortcut.waypoints;
     final waypointCount = waypoints.length;
 
-    final bbox = MapboxMapProjection.mercatorBoundingBox(waypoints.map((e) => LatLng(e.lat, e.lon)).toList());
+    final bbox = MapboxMapProjection.mercatorBoundingBox(waypoints.map((e) => LatLng(e.lat, e.lon)).toList(), 0.45);
     if (bbox == null) return;
 
     List<double> distances = [];
