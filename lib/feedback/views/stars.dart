@@ -93,7 +93,7 @@ class StarRatingViewState extends State<StarRatingView> {
         ],
         LayoutBuilder(
           builder: (context, constraints) {
-            final size = constraints.maxWidth / 6;
+            final size = (constraints.maxWidth / 5) - 8;
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
