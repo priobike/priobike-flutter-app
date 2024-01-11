@@ -308,8 +308,11 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   destinationImage: widget.destinationImage,
                   iconSize: 16,
                   lineWidth: 6,
-                  imageWidthRatio: (widget.width ?? MediaQuery.of(context).size.width) /
-                      (widget.height ?? MediaQuery.of(context).size.height),
+                  // Note: in the feedback view the background image map (1000x1000 pixel) is displayed in full height.
+                  // Therefore the track pictogram needs to be extended outside the screen (logically).
+                  // So we calculate, how much the height is greater then the width.
+                  // This means the ratio is height / width.
+                  imageHeightRatio: MediaQuery.of(context).size.height / MediaQuery.of(context).size.width,
                   mapboxTop: MediaQuery.of(context).padding.top + 96,
                   mapboxRight: 20,
                   mapboxWidth: 64,

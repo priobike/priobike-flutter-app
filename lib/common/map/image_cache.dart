@@ -22,10 +22,9 @@ class MapboxTileImageCache {
     required List<LatLng> coords,
     required Brightness brightness,
     String? styleUri,
-    double heightRatio = 1,
-    double widthRatio = 1,
+    required double mapPadding,
   }) async {
-    final bbox = MapboxMapProjection.mercatorBoundingBox(coords);
+    final bbox = MapboxMapProjection.mercatorBoundingBox(coords, mapPadding);
     if (bbox == null) return null;
     final imageName = _getImageName(bbox, brightness, styleUri);
 
@@ -34,8 +33,8 @@ class MapboxTileImageCache {
       return MapboxTileImageCache.ongoingFetches[imageName];
     } else {
       // Fetch the image.
-      final Future<MemoryImage?> fetch = MapboxTileImageCache._fetchTile(
-          bbox: bbox, brightness: brightness, styleUri: styleUri, heightRatio: heightRatio, widthRatio: widthRatio);
+      final Future<MemoryImage?> fetch =
+          MapboxTileImageCache._fetchTile(bbox: bbox, brightness: brightness, styleUri: styleUri);
       MapboxTileImageCache.ongoingFetches[imageName] = fetch;
       final MemoryImage? image = await fetch;
       MapboxTileImageCache.ongoingFetches.remove(imageName);
@@ -48,8 +47,6 @@ class MapboxTileImageCache {
     required MapboxMapProjectionBoundingBox bbox,
     required Brightness brightness,
     String? styleUri,
-    double heightRatio = 1,
-    double widthRatio = 1,
   }) async {
     // Check if the image exists, and if so, return it.
     final path = await _getImagePath(bbox, brightness, styleUri);
@@ -73,7 +70,8 @@ class MapboxTileImageCache {
 
       // The background image that should be displayed in the feedback view.
       final feedbackUrl =
-          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/${(1000 * widthRatio).toInt()}x${(1000 * heightRatio).toInt()}/?attribution=false&logo=false&$accessToken";
+          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessToken";
+
       final feedbackEndpoint = Uri.parse(feedbackUrl);
       final feedbackResponse = await Http.get(feedbackEndpoint).timeout(const Duration(seconds: 4));
       if (feedbackResponse.statusCode != 200) {
@@ -81,27 +79,12 @@ class MapboxTileImageCache {
         throw Exception(err);
       }
 
-      // the background image that should be cached and displayed in the all rides view.
-      final cacheUrl =
-          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessToken";
-
-      // Use Cache url when height or width ratio is given.
-      final endpoint = Uri.parse(heightRatio != 1 || widthRatio != 1 ? cacheUrl : feedbackUrl);
-
-      // Only run if ratios differ. Otherwise we would make the same request.
-      final cacheResponse = await Http.get(endpoint).timeout(const Duration(seconds: 4));
-      if (cacheResponse.statusCode != 200) {
-        final err = "Error while fetching background image status from Mapbox: ${cacheResponse.statusCode}";
-        throw Exception(err);
-      }
-
-      final cachedImage = MemoryImage(cacheResponse.bodyBytes);
-      log.i("Fetched background image from Mapbox");
-      await saveImage(bbox, cachedImage, brightness, styleUri);
-
       final MemoryImage feedbackImage = MemoryImage(feedbackResponse.bodyBytes);
 
       log.i("Fetched background image from Mapbox");
+
+      // Cache the background image.
+      await saveImage(bbox, feedbackImage, brightness, styleUri);
 
       // save timestamp of last fetch to shared preferences, used in pruning of old images
       final prefs = await SharedPreferences.getInstance();

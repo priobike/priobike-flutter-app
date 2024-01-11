@@ -59,10 +59,8 @@ class GpxConversionWaypointsPictogramState extends State<GpxConversionWaypointsP
     List<LatLng> coords;
     List<Wpt> wpts = widget.wpts;
     coords = wpts.map((Wpt e) => LatLng(e.lat!, e.lon!)).toList();
-    backgroundImageFuture = MapboxTileImageCache.requestTile(
-      coords: coords,
-      brightness: fetchedBrightness,
-    ).then((value) {
+    backgroundImageFuture =
+        MapboxTileImageCache.requestTile(coords: coords, brightness: fetchedBrightness, mapPadding: 0.45).then((value) {
       if (!mounted) return;
       if (value == null) return;
       final brightnessNow = Theme.of(context).brightness;

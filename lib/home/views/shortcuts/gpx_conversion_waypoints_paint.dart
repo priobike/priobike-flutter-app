@@ -56,7 +56,7 @@ class GPXConversionWaypointsPaintState extends State<GPXConversionWaypointsPaint
   @override
   Widget build(BuildContext context) {
     MapboxMapProjectionBoundingBox? bbox =
-        MapboxMapProjection.mercatorBoundingBox(widget.wpts.map((e) => LatLng(e.lat!, e.lon!)).toList());
+        MapboxMapProjection.mercatorBoundingBox(widget.wpts.map((e) => LatLng(e.lat!, e.lon!)).toList(), 0.45);
     return CustomPaint(
       painter: WaypointsPainter(wpts: widget.wpts, color: widget.gpxColor, bbox: bbox),
       child: CustomPaint(painter: WaypointsPainter(wpts: recWpts, color: widget.approxColor, bbox: bbox)),
@@ -82,7 +82,7 @@ class WaypointsPainter extends CustomPainter {
     final waypoints = wpts;
     final waypointCount = waypoints.length;
 
-    bbox ??= MapboxMapProjection.mercatorBoundingBox(waypoints.map((e) => LatLng(e.lat!, e.lon!)).toList());
+    bbox ??= MapboxMapProjection.mercatorBoundingBox(waypoints.map((e) => LatLng(e.lat!, e.lon!)).toList(), 0.45);
 
     List<double> distances = [];
     double maxDistance = 0.0;

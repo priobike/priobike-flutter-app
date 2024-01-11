@@ -119,14 +119,14 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     backgroundImageFuture = MapboxTileImageCache.requestTile(
       coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList(),
       brightness: fetchedBrightness,
-      heightRatio: widget.imageHeightRatio,
-      widthRatio: widget.imageWidthRatio,
+      // To make sure tracks fit horizontally.
+      // 1 - screen ratio + 0.1 padding.
+      mapPadding: 1 - (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) + 0.1,
     ).then((value) {
       if (!mounted) return;
       if (value == null) return;
       final brightnessNow = Theme.of(context).brightness;
       if (fetchedBrightness != brightnessNow) return;
-
       setState(() {
         backgroundImage = value;
         backgroundImageBrightness = brightnessNow;
@@ -177,30 +177,35 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
           child: backgroundImage != null
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image(
-                    image: backgroundImage!,
-                    fit: BoxFit.contain,
-                    key: UniqueKey(),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: Image(
+                      image: backgroundImage!,
+                      fit: BoxFit.fitHeight,
+                      key: UniqueKey(),
+                    ),
                   ),
                 )
               : Container(),
         ),
         CustomPaint(
           painter: TrackPainter(
-            fraction: fraction,
-            track: widget.track,
-            blurRadius: 0,
-            colors: widget.colors,
-            maxSpeed: maxSpeed,
-            minSpeed: minSpeed,
-            startImage: widget.startImage,
-            destinationImage: widget.destinationImage,
-            lineWidth: widget.lineWidth,
-            iconSize: widget.iconSize,
-            showSpeed: true,
-            heightRatio: widget.imageHeightRatio,
-            widthRatio: widget.imageWidthRatio,
-          ),
+              fraction: fraction,
+              track: widget.track,
+              blurRadius: 0,
+              colors: widget.colors,
+              maxSpeed: maxSpeed,
+              minSpeed: minSpeed,
+              startImage: widget.startImage,
+              destinationImage: widget.destinationImage,
+              lineWidth: widget.lineWidth,
+              iconSize: widget.iconSize,
+              showSpeed: true,
+              heightRatio: widget.imageHeightRatio,
+              widthRatio: widget.imageWidthRatio,
+              // To make sure tracks fit horizontally.
+              // 1 - screen ratio + 0.1 padding.
+              mapPadding: 1 - (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) + 0.1),
         ),
 
         // Legend
@@ -275,6 +280,7 @@ class TrackPainter extends CustomPainter {
   final bool showSpeed;
   final double heightRatio;
   final double widthRatio;
+  final double mapPadding;
 
   TrackPainter({
     required this.fraction,
@@ -286,6 +292,7 @@ class TrackPainter extends CustomPainter {
     required this.showSpeed,
     required this.heightRatio,
     required this.widthRatio,
+    required this.mapPadding,
     this.maxSpeed,
     this.minSpeed,
     this.startImage,
@@ -326,7 +333,7 @@ class TrackPainter extends CustomPainter {
     final trackCountFraction = trackCount * fraction;
 
     final bbox = MapboxMapProjection.mercatorBoundingBox(
-        trackToDraw.map((Position p) => LatLng(p.latitude, p.longitude)).toList());
+        trackToDraw.map((Position p) => LatLng(p.latitude, p.longitude)).toList(), mapPadding);
     if (bbox == null) return;
 
     // Draw the lines between the coordinates
