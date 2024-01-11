@@ -167,6 +167,9 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
             startImage: widget.startImage,
             destinationImage: widget.destinationImage,
             height: MediaQuery.of(context).size.width - 40,
+            positions: positions,
+            distanceMeters: distanceMeters,
+            durationSeconds: durationSeconds,
           ),
         ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
@@ -371,19 +374,30 @@ class TrackHistoryItemAppSheetView extends StatefulWidget {
   /// The image of the route destination icon.
   final ui.Image destinationImage;
 
-  const TrackHistoryItemAppSheetView({
-    super.key,
-    required this.track,
-    required this.startImage,
-    required this.destinationImage,
-    required this.height,
-  });
+  /// The GPS positions of the driven route.
+  final List<Position> positions;
+
+  /// The driven distance in meters.
+  final double? distanceMeters;
+
+  /// The duration of the track in seconds.
+  final int? durationSeconds;
+
+  const TrackHistoryItemAppSheetView(
+      {super.key,
+      required this.track,
+      required this.startImage,
+      required this.destinationImage,
+      required this.height,
+      required this.positions,
+      this.distanceMeters,
+      this.durationSeconds});
 
   @override
   State<StatefulWidget> createState() => TrackHistoryItemAppSheetViewState();
 }
 
-class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetView> with TrackHistoryItem {
+class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetView> {
   /// The widget that displays the track on a map.
   Widget trackPictogram = Container();
 
@@ -396,7 +410,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
       setState(() {
         trackPictogram = TrackPictogram(
           key: ValueKey(widget.track.sessionId),
-          track: positions,
+          track: widget.positions,
           blurRadius: 2,
           startImage: widget.startImage,
           destinationImage: widget.destinationImage,
@@ -448,92 +462,86 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _loadTrack(widget.track),
-      builder: (context, snapshot) {
-        final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
-        final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
-        final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+    final totalDurationHours = widget.durationSeconds == null ? 0 : widget.durationSeconds! / 3600;
+    final totalDistanceKilometres = widget.distanceMeters == null ? 0 : widget.distanceMeters! / 1000;
+    final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-        String? formattedTime = _formatDuration(durationSeconds);
+    String? formattedTime = _formatDuration(widget.durationSeconds);
 
-        const co2PerKm = 0.1187; // Data according to statista.com in KG
-        final savedCo2inG =
-            distanceMeters == null && durationSeconds == null ? 0 : (distanceMeters! / 1000) * co2PerKm * 1000;
+    const co2PerKm = 0.1187; // Data according to statista.com in KG
+    final savedCo2inG = widget.distanceMeters == null && widget.durationSeconds == null
+        ? 0
+        : (widget.distanceMeters! / 1000) * co2PerKm * 1000;
 
-        var relativeTime = "";
-        final now = DateTime.now();
-        final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-        final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
-        if (isToday) {
-          relativeTime = "Heute";
-        } else {
-          final yesterday = now.subtract(const Duration(days: 1));
-          if (trackDate.day == yesterday.day &&
-              trackDate.month == yesterday.month &&
-              trackDate.year == yesterday.year) {
-            relativeTime = "Gestern";
-          } else {
-            relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
-          }
-        }
-        // Add the time.
-        final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
+    var relativeTime = "";
+    final now = DateTime.now();
+    final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+    final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
+    if (isToday) {
+      relativeTime = "Heute";
+    } else {
+      final yesterday = now.subtract(const Duration(days: 1));
+      if (trackDate.day == yesterday.day && trackDate.month == yesterday.month && trackDate.year == yesterday.year) {
+        relativeTime = "Gestern";
+      } else {
+        relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
+      }
+    }
+    // Add the time.
+    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
 
-        final Widget trackStats;
-        if (distanceMeters != null && durationSeconds != null && formattedTime != null) {
-          trackStats = TrackStats(
-            formattedTime: formattedTime,
-            distanceMeters: distanceMeters,
-            averageSpeedKmH: averageSpeedKmH,
-            savedCo2inG: savedCo2inG,
-          );
-        } else {
-          trackStats = const TrackStats();
-        }
+    final Widget trackStats;
+    if (widget.distanceMeters != null && widget.durationSeconds != null && formattedTime != null) {
+      trackStats = TrackStats(
+        formattedTime: formattedTime,
+        distanceMeters: widget.distanceMeters,
+        averageSpeedKmH: averageSpeedKmH,
+        savedCo2inG: savedCo2inG,
+      );
+    } else {
+      trackStats = const TrackStats();
+    }
 
-        return Container(
-          // VSpace + Content + SmallVSpace + Track map size + 20 + Details + padding + 44 Stats.
-          height: (24 + 32 + 16 + 20 + widget.height + 20 + 42 + 62 + MediaQuery.of(context).padding.bottom),
-          // width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).colorScheme.background,
+    return Container(
+      // VSpace + Content + SmallVSpace + Track map size + 20 + Details + padding + 44 Stats.
+      height: (24 + 32 + 16 + 20 + widget.height + 20 + 42 + 62 + MediaQuery.of(context).padding.bottom),
+      // width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).colorScheme.background,
+      ),
+      child: Column(
+        children: [
+          const VSpace(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              BoldContent(text: relativeTime, context: context),
+              Content(text: clock, context: context),
+            ]),
           ),
-          child: Column(
-            children: [
-              const VSpace(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  BoldContent(text: relativeTime, context: context),
-                  Content(text: clock, context: context),
-                ]),
-              ),
-              const VSpace(),
-              SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: trackPictogram),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                child: trackStats,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                height: 42,
-                child: BigButtonTertiary(
-                  label: "Fahrt löschen",
-                  onPressed: () => _showDeleteDialog(context),
-                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).padding.bottom,
-              ),
-              const SmallVSpace(),
-              // Button to delete track
-            ],
+          const VSpace(),
+          SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: trackPictogram),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            child: trackStats,
           ),
-        );
-      },
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            height: 42,
+            child: BigButtonTertiary(
+              label: "Fahrt löschen",
+              onPressed: () => _showDeleteDialog(context),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).padding.bottom,
+          ),
+          const SmallVSpace(),
+          // Button to delete track
+        ],
+      ),
     );
   }
 }

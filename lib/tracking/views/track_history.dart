@@ -54,7 +54,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     newestTracks.clear();
     totalTracks = 0;
 
-    // Get max. 10 newest tracks
+    // Get max. 4 newest tracks.
     var i = tracking.previousTracks!.length - 1;
     final backend = getIt<Settings>().backend;
     while (i >= 0) {
