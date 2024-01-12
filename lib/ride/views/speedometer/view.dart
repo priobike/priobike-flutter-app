@@ -34,7 +34,8 @@ class RideSpeedometerView extends StatefulWidget {
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
 }
 
-class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerProviderStateMixin {
+class RideSpeedometerViewState extends State<RideSpeedometerView>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   static const viewId = "ride.views.speedometer";
 
   /// The minimum speed in km/h.
@@ -120,6 +121,15 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     ride.addListener(updateLayout);
 
     updateSpeedometer();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  Future<void> didChangeMetrics() async {
+    if (Platform.isAndroid) {
+      await Future.delayed(const Duration(milliseconds: 10));
+      SystemChrome.restoreSystemUIOverlays();
+    }
   }
 
   @override
@@ -128,6 +138,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     positioning.removeListener(updateSpeedometer);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
