@@ -54,6 +54,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   @override
   Widget build(BuildContext context) {
     // Don't show a countdown if...
+    // Not supported crossing.
     if (ride.calcCurrentSG == null) return alternativeView("Nicht\nunterstütze\nKreuzung");
 
     // Check if we have all auxiliary data that the app calculated.
@@ -61,6 +62,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       return alternativeView("Keine\nAmpeldaten\nvorhanden");
     }
 
+    // Prediction quality check.
     if ((ride.predictionComponent?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
       return alternativeView("Prognose\nzu schlecht");
     }
@@ -123,7 +125,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       sizeCurve: Curves.easeInOutCubic,
       duration: const Duration(milliseconds: 500),
       firstChild: trafficLight,
-      secondChild: alternativeView("Keine\nAmpeldaten"),
+      secondChild: alternativeView(""),
       crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
     );
   }
