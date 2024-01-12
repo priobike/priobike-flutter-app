@@ -66,6 +66,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   Future<void> update() async {
     await loadTracks();
+    updateTrackWidgets();
     setState(() {});
   }
 
@@ -121,6 +122,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     );
   }
 
+  /// Adds new track widgets.
   void addTrackWidgets() {
     for (int i = animateTracksIndex; i < numberTracks; i++) {
       if (previousTracks.length > i) {
@@ -137,6 +139,38 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOutCubic,
               delay: Duration(milliseconds: 200 * (i - animateTracksIndex)),
+              child: TrackHistoryItemTileView(
+                key: ValueKey(track.sessionId),
+                track: track,
+                width: shortcutWidth,
+                startImage: startImage!,
+                destinationImage: destinationImage!,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Updates all track widgets.
+  void updateTrackWidgets() {
+    if (tracksToBeDisplayed.isEmpty) return;
+    tracksToBeDisplayed = [];
+    for (int i = 0; i < numberTracks; i++) {
+      if (previousTracks.length > i) {
+        final track = previousTracks[i];
+        final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+
+        tracksToBeDisplayed.add(
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: BlendIn(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
               child: TrackHistoryItemTileView(
                 key: ValueKey(track.sessionId),
                 track: track,

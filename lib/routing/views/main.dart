@@ -59,7 +59,7 @@ class RoutingViewState extends State<RoutingView> {
   late MapValues mapValues;
 
   /// The timer that updates the location puck position on the map.
-  late Timer timer;
+  Timer? timer;
 
   /// The threshold for the location accuracy in meter
   /// NOTE: The accuracy will increase if we move and gain more GPS signal data.
@@ -131,7 +131,7 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
-    timer.cancel();
+    timer?.cancel();
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
