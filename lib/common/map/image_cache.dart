@@ -131,13 +131,13 @@ class MapboxTileImageCache {
   }
 
   /// Deletes all images from the cache and the local storage.
-  static Future<void> deleteAllImages() async {
+  static Future<void> deleteAllImages(bool showToast) async {
     final dirPath = await _getImageDir();
     final imagesDir = Directory(dirPath);
     if (!await imagesDir.exists()) return;
     await imagesDir.delete(recursive: true);
     log.i("Deleted all images from $dirPath");
-    ToastMessage.showSuccess("Alle Hintergrundbilder gelöscht");
+    if (showToast) ToastMessage.showSuccess("Alle Hintergrundbilder gelöscht");
   }
 
   /// Prunes all images that were not used within 7 days since last fetch of background image.

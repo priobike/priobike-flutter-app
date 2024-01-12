@@ -22,6 +22,8 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const double shortcutRightPad = 16;
+
 class AllTracksHistoryView extends StatefulWidget {
   const AllTracksHistoryView({super.key});
 
@@ -45,15 +47,21 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   /// The previous tracks.
   List<Track> previousTracks = List.empty(growable: true);
 
-  /// The number of tracks being displayed. (Pagination).
+  /// The tracks that will be displayed.
+  List<Widget> tracksToBeDisplayed = List.empty(growable: true);
+
+  /// The number of tracks being displayed. (Pagination)
   int numberTracks = 12;
+
+  /// The index of the track that needs to be animated. (Pagination)
+  int animateTracksIndex = 0;
 
   /// The scroll controller of the single child scroll view.
   ScrollController scrollController = ScrollController();
 
   /// The lock to wait for animation of the track widgets.
-  /// Lock time is half number of tracks  * animation time.
-  final Lock lock = Lock(milliseconds: 3 * 700);
+  /// Lock time is 2 tracks * animation time.
+  final Lock lock = Lock(milliseconds: 2 * 700);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   Future<void> update() async {
@@ -85,22 +93,62 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         // Needs to be loaded after the tracks are loaded because we use them.
         await loadTracks();
 
+        // Add first 12 tracks.
+        addTrackWidgets();
+
         setState(() {});
 
         // Add a scroll listener for pagination.
         scrollController.addListener(() {
-          if (scrollController.offset >= scrollController.position.maxScrollExtent * 0.5) {
-            if (numberTracks < previousTracks.length) {
-              lock.run(() {
-                setState(() {
-                  numberTracks = numberTracks + 6;
-                });
+          if (numberTracks < previousTracks.length) {
+            // To only extend the list, when scroll position is close to the end of the list.
+            // Calculation: 0.5 + (half the ratio of tracks displayed - padding to never be to close to 1).
+            if (scrollController.offset >=
+                scrollController.position.maxScrollExtent *
+                    (0.5 + ((numberTracks / previousTracks.length) / 2) - 0.1)) {
+              lock.run(() async {
+                // Add new track history items.
+                numberTracks = numberTracks + 12;
+                animateTracksIndex = animateTracksIndex + 12;
+                addTrackWidgets();
+                await loadStorage();
+                setState(() {});
               });
             }
           }
         });
       },
     );
+  }
+
+  void addTrackWidgets() {
+    for (int i = animateTracksIndex; i < numberTracks; i++) {
+      if (previousTracks.length > i) {
+        final track = previousTracks[i];
+        final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+
+        tracksToBeDisplayed.add(
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: BlendIn(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
+              delay: Duration(milliseconds: 200 * (i - animateTracksIndex)),
+              child: TrackHistoryItemTileView(
+                key: ValueKey(track.sessionId),
+                track: track,
+                width: shortcutWidth,
+                startImage: startImage!,
+                destinationImage: destinationImage!,
+              ),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   /// Loads the tracks.
@@ -199,35 +247,6 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
-    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
-    final List<Widget> tracksToBeDisplayed = [];
-    for (int i = 0; i < numberTracks; i++) {
-      if (previousTracks.length > i) {
-        final track = previousTracks[i];
-        tracksToBeDisplayed.add(
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: BlendIn(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOutCubic,
-              delay: Duration(milliseconds: 200 * i),
-              child: TrackHistoryItemTileView(
-                key: ValueKey(track.sessionId),
-                track: track,
-                width: shortcutWidth,
-                startImage: startImage!,
-                destinationImage: destinationImage!,
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
@@ -266,13 +285,31 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                       ),
                     ),
                   const VSpace(),
-                  if (usedDiskSpace != null)
-                    HPad(
+                  BlendIn(
+                    delay: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 500),
+                    child: HPad(
                       child: Content(
-                        text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
+                        text:
+                            "${numberTracks > previousTracks.length ? previousTracks.length : numberTracks} von ${previousTracks.length} Fahrten geladen",
                         context: context,
                         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                         textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const SmallVSpace(),
+                  if (usedDiskSpace != null)
+                    BlendIn(
+                      delay: const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 500),
+                      child: HPad(
+                        child: Content(
+                          text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
+                          context: context,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   const VSpace(),

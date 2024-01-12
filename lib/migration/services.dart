@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -27,6 +28,21 @@ class Migration {
     await migrateSearchHistoryStaging();
     // Migrate shortcuts to new shortcuts model.
     await migrateShortcutsValues();
+
+    // Migrate new background images.
+    // Since beta 8.0 check if the image directory has images and remove them.
+    // Then the background images will load again when they are needed.
+    await migrateBackgroundImages();
+  }
+
+  /// Migrate all background images.
+  static Future<void> migrateBackgroundImages() async {
+    if (getIt<Settings>().didMigrateBackgroundImages) return;
+
+    // Deleting all images.
+    await MapboxTileImageCache.deleteAllImages(false);
+    // Set didMigrateBackgroundImages true.
+    await getIt<Settings>().setDidMigrateBackgroundImages(true);
   }
 
   /// Migrate all shortcuts (production/release => Hamburg).
