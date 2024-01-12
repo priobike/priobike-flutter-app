@@ -12,6 +12,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -44,6 +45,16 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   /// The previous tracks.
   List<Track> previousTracks = List.empty(growable: true);
 
+  /// The number of tracks being displayed. (Pagination).
+  int numberTracks = 12;
+
+  /// The scroll controller of the single child scroll view.
+  ScrollController scrollController = ScrollController();
+
+  /// The lock to wait for animation of the track widgets.
+  /// Lock time is half number of tracks  * animation time.
+  final Lock lock = Lock(milliseconds: 3 * 700);
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   Future<void> update() async {
     await loadTracks();
@@ -75,6 +86,19 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         await loadTracks();
 
         setState(() {});
+
+        // Add a scroll listener for pagination.
+        scrollController.addListener(() {
+          if (scrollController.offset >= scrollController.position.maxScrollExtent * 0.5) {
+            if (numberTracks < previousTracks.length) {
+              lock.run(() {
+                setState(() {
+                  numberTracks = numberTracks + 6;
+                });
+              });
+            }
+          }
+        });
       },
     );
   }
@@ -177,6 +201,32 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   Widget build(BuildContext context) {
     const double shortcutRightPad = 16;
     final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+    final List<Widget> tracksToBeDisplayed = [];
+    for (int i = 0; i < numberTracks; i++) {
+      if (previousTracks.length > i) {
+        final track = previousTracks[i];
+        tracksToBeDisplayed.add(
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: BlendIn(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
+              delay: Duration(milliseconds: 200 * i),
+              child: TrackHistoryItemTileView(
+                key: ValueKey(track.sessionId),
+                track: track,
+                width: shortcutWidth,
+                startImage: startImage!,
+                destinationImage: destinationImage!,
+              ),
+            ),
+          ),
+        );
+      }
+    }
 
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -184,6 +234,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       child: Scaffold(
         body: Fade(
           child: SingleChildScrollView(
+            controller: scrollController,
             child: SafeArea(
               child: Column(
                 children: [
@@ -211,39 +262,17 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                       child: Wrap(
                         spacing: 18,
                         runSpacing: 18,
-                        children: previousTracks
-                            .asMap()
-                            .entries
-                            .map(
-                              (track) => BlendIn(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeInOutCubic,
-                                delay: Duration(milliseconds: 200 * track.key),
-                                child: TrackHistoryItemTileView(
-                                  key: ValueKey(track.value.sessionId),
-                                  track: track.value,
-                                  width: shortcutWidth,
-                                  startImage: startImage!,
-                                  destinationImage: destinationImage!,
-                                ),
-                              ),
-                            )
-                            .toList(),
+                        children: tracksToBeDisplayed,
                       ),
                     ),
                   const VSpace(),
                   if (usedDiskSpace != null)
                     HPad(
-                      child: BlendIn(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOutCubic,
-                        delay: Duration(milliseconds: 200 * previousTracks.length),
-                        child: Content(
-                          text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
-                          context: context,
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                          textAlign: TextAlign.center,
-                        ),
+                      child: Content(
+                        text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   const VSpace(),
