@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -64,6 +66,14 @@ class FinishRideButtonState extends State<FinishRideButton> {
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+
+    /// Reenable the bottom navigation bar on Android after hiding it in Speedometer View
+    if (Platform.isAndroid) {
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+      );
+    }
 
     // End the tracking and collect the data.
     final tracking = getIt<Tracking>();

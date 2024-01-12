@@ -190,22 +190,23 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
         ),
         CustomPaint(
           painter: TrackPainter(
-              fraction: fraction,
-              track: widget.track,
-              blurRadius: 0,
-              colors: widget.colors,
-              maxSpeed: maxSpeed,
-              minSpeed: minSpeed,
-              startImage: widget.startImage,
-              destinationImage: widget.destinationImage,
-              lineWidth: widget.lineWidth,
-              iconSize: widget.iconSize,
-              showSpeed: true,
-              heightRatio: widget.imageHeightRatio,
-              widthRatio: widget.imageWidthRatio,
-              // To make sure tracks fit horizontally.
-              // 1 - screen ratio + 0.1 padding.
-              mapPadding: 1 - (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) + 0.1),
+            fraction: fraction,
+            track: widget.track,
+            blurRadius: 0,
+            colors: widget.colors,
+            maxSpeed: maxSpeed,
+            minSpeed: minSpeed,
+            startImage: widget.startImage,
+            destinationImage: widget.destinationImage,
+            lineWidth: widget.lineWidth,
+            iconSize: widget.iconSize,
+            showSpeed: true,
+            heightRatio: widget.imageHeightRatio,
+            widthRatio: widget.imageWidthRatio,
+            // To make sure tracks fit horizontally.
+            // 1 - screen ratio + 0.1 padding.
+            mapPadding: 1 - (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) + 0.1,
+          ),
         ),
 
         // Legend
