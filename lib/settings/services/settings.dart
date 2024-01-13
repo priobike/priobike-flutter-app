@@ -85,6 +85,9 @@ class Settings with ChangeNotifier {
   /// If the user is transferring.
   bool isUserTransferring = false;
 
+  /// If the user had migrate background images.
+  bool didMigrateBackgroundImages = false;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -382,7 +385,7 @@ class Settings with ChangeNotifier {
     this.enableGamification = enableGamification;
     final bool success = await storage.setBool(enableGamificationKey, enableGamification);
     if (!success) {
-      log.e("Failed to set enablePerformanceOverlay to $enableGamificationKey");
+      log.e("Failed to set enablePerformanceOverlay to $enableGamification");
       this.enableGamification = prev;
     } else {
       notifyListeners();
@@ -399,7 +402,7 @@ class Settings with ChangeNotifier {
     this.didViewUserTransfer = didViewUserTransfer;
     final bool success = await storage.setBool(didViewUserTransferKey, didViewUserTransfer);
     if (!success) {
-      log.e("Failed to set didViewUserTransfer to $didViewUserTransferKey");
+      log.e("Failed to set didViewUserTransfer to $didViewUserTransfer");
       this.didViewUserTransfer = prev;
     } else {
       notifyListeners();
@@ -407,26 +410,42 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  Settings(
-    this.backend, {
-    this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
-    this.didViewWarning = defaultDidViewWarning,
-    this.predictionMode = defaultPredictionMode,
-    this.positioningMode = defaultPositioningMode,
-    this.routingEndpoint = defaultRoutingEndpoint,
-    this.sgLabelsMode = defaultSGLabelsMode,
-    this.speedMode = defaultSpeedMode,
-    this.colorMode = defaultColorMode,
-    this.datastreamMode = defaultDatastreamMode,
-    this.connectionErrorCounter = defaultConnectionErrorCounter,
-    this.sgSelector = defaultSGSelector,
-    this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
-    this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-    this.useCounter = defaultUseCounter,
-    this.dismissedSurvey = defaultDismissedSurvey,
-    this.enableGamification = defaultEnableGamification,
-    this.didViewUserTransfer = defaultDidViewUserTransfer,
-  });
+  static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackroundImages";
+  static const defaultDidMigrateBackgroundImages = false;
+
+  Future<bool> setDidMigrateBackgroundImages(bool didMigrateBackgroundImages, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didMigrateBackgroundImages;
+    this.didMigrateBackgroundImages = didMigrateBackgroundImages;
+    final bool success = await storage.setBool(didMigrateBackgroundImagesKey, didViewUserTransfer);
+    if (!success) {
+      log.e("Failed to set didMigrateBackgroundImages to $didMigrateBackgroundImagesKey");
+      this.didMigrateBackgroundImages = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  Settings(this.backend,
+      {this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
+      this.didViewWarning = defaultDidViewWarning,
+      this.predictionMode = defaultPredictionMode,
+      this.positioningMode = defaultPositioningMode,
+      this.routingEndpoint = defaultRoutingEndpoint,
+      this.sgLabelsMode = defaultSGLabelsMode,
+      this.speedMode = defaultSpeedMode,
+      this.colorMode = defaultColorMode,
+      this.datastreamMode = defaultDatastreamMode,
+      this.connectionErrorCounter = defaultConnectionErrorCounter,
+      this.sgSelector = defaultSGSelector,
+      this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
+      this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+      this.useCounter = defaultUseCounter,
+      this.dismissedSurvey = defaultDismissedSurvey,
+      this.enableGamification = defaultEnableGamification,
+      this.didViewUserTransfer = defaultDidViewUserTransfer,
+      this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages});
 
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
@@ -512,6 +531,11 @@ class Settings with ChangeNotifier {
     }
     try {
       didViewUserTransfer = storage.getBool(didViewUserTransferKey) ?? defaultDidViewUserTransfer;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      didMigrateBackgroundImages = storage.getBool(didMigrateBackgroundImagesKey) ?? defaultDidMigrateBackgroundImages;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

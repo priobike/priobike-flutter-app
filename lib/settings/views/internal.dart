@@ -413,7 +413,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Hintergrundbilder löschen (Neustart notw.)",
                     icon: Icons.recycling,
-                    callback: () => MapboxTileImageCache.deleteAllImages(),
+                    callback: () => MapboxTileImageCache.deleteAllImages(true),
                   ),
                 ),
                 Padding(
