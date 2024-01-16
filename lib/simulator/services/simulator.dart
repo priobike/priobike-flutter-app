@@ -36,9 +36,6 @@ class Simulator with ChangeNotifier {
   /// The subscription for the MQTT messages.
   Subscription? subscription;
 
-  /// The current cameraHeading of the simulator.
-  double? cameraHeading;
-
   askForPermission() {
     // TODO: implement askForPermission
   }
@@ -116,7 +113,7 @@ class Simulator with ChangeNotifier {
     if (position == null) return;
     final longitude = position.longitude;
     final latitude = position.latitude;
-    final heading = cameraHeading ?? position.heading;
+    final heading = position.heading;
 
     // Format:
     // {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.
@@ -306,7 +303,6 @@ class Simulator with ChangeNotifier {
     lastSendPairRequest = null;
     receivedStopRide = false;
     subscription = null;
-    cameraHeading = null;
     notifyListeners();
   }
 }
