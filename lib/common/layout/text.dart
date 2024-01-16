@@ -9,14 +9,17 @@ class Header extends Text {
       int? maxLines,
       double? fontSize,
       Color? color,
+      TextAlign? textAlign,
+      double? height,
       required BuildContext context})
       : super(
           text,
           key: key,
           overflow: overflow,
           maxLines: maxLines,
+          textAlign: textAlign,
           style: Theme.of(context).textTheme.displayLarge!.merge(
-                TextStyle(color: color, fontSize: fontSize),
+                TextStyle(color: color, fontSize: fontSize, height: height),
               ),
         );
 }
@@ -30,6 +33,7 @@ class SubHeader extends Text {
       int? maxLines,
       Color? color,
       TextAlign? textAlign,
+      double? height,
       required BuildContext context})
       : super(
           text,
@@ -38,7 +42,7 @@ class SubHeader extends Text {
           maxLines: maxLines,
           textAlign: textAlign,
           style: Theme.of(context).textTheme.titleMedium!.merge(
-                TextStyle(color: color),
+                TextStyle(color: color, height: height),
               ),
         );
 }
@@ -51,6 +55,7 @@ class BoldSubHeader extends Text {
       int? maxLines,
       Color? color,
       TextAlign? textAlign,
+      double? height,
       required BuildContext context})
       : super(
           text,
@@ -59,7 +64,7 @@ class BoldSubHeader extends Text {
           maxLines: maxLines,
           textAlign: textAlign,
           style: Theme.of(context).textTheme.titleSmall!.merge(
-                TextStyle(color: color),
+                TextStyle(color: color, height: height),
               ),
         );
 }
@@ -73,6 +78,7 @@ class Content extends Text {
       int? maxLines,
       Color? color,
       TextAlign? textAlign,
+      double? height,
       required BuildContext context})
       : super(
           text,
@@ -81,7 +87,7 @@ class Content extends Text {
           maxLines: maxLines,
           textAlign: textAlign,
           style: Theme.of(context).textTheme.displayMedium!.merge(
-                TextStyle(color: color, fontWeight: FontWeight.normal),
+                TextStyle(color: color, fontWeight: FontWeight.normal, height: height),
               ),
         );
 }
@@ -95,6 +101,7 @@ class BoldContent extends Text {
       int? maxLines,
       Color? color,
       TextAlign? textAlign,
+      double? height,
       required BuildContext context})
       : super(
           text,
@@ -103,7 +110,7 @@ class BoldContent extends Text {
           maxLines: maxLines,
           textAlign: textAlign,
           style: Theme.of(context).textTheme.displayMedium!.merge(
-                TextStyle(color: color),
+                TextStyle(color: color, height: height),
               ),
         );
 }
@@ -117,6 +124,7 @@ class Small extends Text {
       int? maxLines,
       Color? color,
       TextAlign? textAlign,
+      double? height,
       required BuildContext context})
       : super(
           text,
@@ -124,7 +132,7 @@ class Small extends Text {
           overflow: overflow,
           maxLines: maxLines,
           style: Theme.of(context).textTheme.displaySmall!.merge(
-                TextStyle(color: color),
+                TextStyle(color: color, fontWeight: FontWeight.normal, height: height),
               ),
           textAlign: textAlign,
         );
@@ -139,6 +147,7 @@ class BoldSmall extends Text {
       int? maxLines,
       Color? color,
       TextAlign? textAlign,
+      double? height,
       required BuildContext context})
       : super(
           text,
@@ -146,8 +155,8 @@ class BoldSmall extends Text {
           overflow: overflow,
           maxLines: maxLines,
           textAlign: textAlign,
-          style: Theme.of(context).textTheme.headlineMedium!.merge(
-                TextStyle(color: color),
+          style: Theme.of(context).textTheme.displaySmall!.merge(
+                TextStyle(color: color, height: height),
               ),
         );
 }

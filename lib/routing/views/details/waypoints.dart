@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -9,7 +10,7 @@ class SearchWaypointItem extends StatelessWidget {
   /// A callback that is executed when the waypoint is selected.
   final void Function()? onSelect;
 
-  const SearchWaypointItem({this.onSelect, Key? key}) : super(key: key);
+  const SearchWaypointItem({this.onSelect, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +20,13 @@ class SearchWaypointItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          const WaypointIcon(width: 32, height: 32),
+          const AddWaypointIcon(width: 32, height: 32),
           const SmallHSpace(),
           SizedBox(
             height: 42,
             width: frame.size.width - 106,
             child: Tile(
-              fill: Theme.of(context).colorScheme.surface,
+              fill: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
               onPressed: onSelect,
               showShadow: false,
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -34,7 +35,7 @@ class SearchWaypointItem extends StatelessWidget {
                 children: [
                   Flexible(
                     child: BoldContent(
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.tertiary,
                       text: "Adresse suchen",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -46,27 +47,15 @@ class SearchWaypointItem extends StatelessWidget {
             ),
           ),
           const SmallHSpace(),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.all(Radius.circular(16)),
-              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: const BorderRadius.all(Radius.circular(16)),
-              child: InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                onTap: onSelect,
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: Icon(Icons.search_rounded, color: Colors.grey),
-                ),
+          if (onSelect != null)
+            SizedBox(
+              width: 42,
+              height: 42,
+              child: SmallIconButtonPrimary(
+                icon: Icons.search,
+                onPressed: onSelect!,
               ),
-            ),
-          )
+            )
         ],
       ),
     );
@@ -92,8 +81,7 @@ class RouteWaypointItem extends StatelessWidget {
   /// If the waypoint is the last waypoint.
   bool get isLast => idx == count - 1;
 
-  const RouteWaypointItem({this.onDelete, required this.waypoint, required this.idx, required this.count, Key? key})
-      : super(key: key);
+  const RouteWaypointItem({this.onDelete, required this.waypoint, required this.idx, required this.count, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -115,11 +103,7 @@ class RouteWaypointItem extends StatelessWidget {
           Container(
             height: 42,
             width: frame.size.width - 106,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.all(Radius.circular(16)),
-              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
-            ),
+            color: Colors.transparent,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
@@ -139,27 +123,11 @@ class RouteWaypointItem extends StatelessWidget {
 
           // A button to remove the waypoint.
           if (onDelete != null)
-            Container(
+            SizedBox(
               width: 42,
               height: 42,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                child: InkWell(
-                  borderRadius: const BorderRadius.all(Radius.circular(16)),
-                  onTap: onDelete,
-                  child: const Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Icon(Icons.close, color: Colors.grey),
-                  ),
-                ),
-              ),
-            )
+              child: SmallIconButtonTertiary(icon: Icons.close, onPressed: onDelete!),
+            ),
         ],
       ),
     );

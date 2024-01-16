@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/settings/models/test.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/settings/views/pretest.dart';
-import 'package:wearable_communicator/wearable_communicator.dart';
 
 class WearPretestsView extends StatefulWidget {
   const WearPretestsView({Key? key}) : super(key: key);
@@ -29,11 +28,11 @@ class WearPretestsViewState extends State<WearPretestsView> {
   }
 
   Future<void> _startListening() async {
-    WearableListener.listenForMessage((msg) {
-      setState(() {
-        messageReceived = msg;
-      });
-    });
+    // WearableListener.listenForMessage((msg) {
+    //   setState(() {
+    //     messageReceived = msg;
+    //   });
+    // });
   }
 
   @override

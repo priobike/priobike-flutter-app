@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/wiki/models/article.dart';
 
 class WikiDetailView extends StatefulWidget {
-  const WikiDetailView({Key? key, required this.article}) : super(key: key);
+  const WikiDetailView({super.key, required this.article});
 
   /// The article to be displayed.
   final Article article;
@@ -186,9 +186,10 @@ class WikiDetailViewState extends State<WikiDetailView> {
 
     final frame = MediaQuery.of(context);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      brightness: Theme.of(context).brightness,
+      systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Stack(

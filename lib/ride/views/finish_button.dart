@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
+import 'package:priobike/home/views/main.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -13,9 +19,10 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class FinishRideButton extends StatefulWidget {
-  const FinishRideButton({Key? key}) : super(key: key);
+  const FinishRideButton({super.key});
 
   @override
   FinishRideButtonState createState() => FinishRideButtonState();
@@ -24,58 +31,51 @@ class FinishRideButton extends StatefulWidget {
 class FinishRideButtonState extends State<FinishRideButton> {
   final log = Logger("FinishButton");
 
-  Widget askForConfirmation(BuildContext context) {
-    return AlertDialog(
-      //contentPadding: const EdgeInsets.all(30),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-      title: SubHeader(
-        text: "Fahrt wirklich beenden?",
-        context: context,
-      ),
-      content: Content(
-        text: "Wenn du die Fahrt beendest, musst du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
-        context: context,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => onTap(),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
+  void showAskForConfirmationDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black.withOpacity(0.6)
+          : Colors.black.withOpacity(0.8),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt wirklich beenden?',
+          text: "Wenn Du die Fahrt beendest, musst Du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
+          actions: [
+            BigButtonPrimary(
+              label: "Fahrt beenden",
+              onPressed: () => onTap(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-          ),
-          child: BoldSubHeader(
-            text: 'Ja',
-            context: context,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
+            BigButtonTertiary(
+              label: "Abbrechen",
+              addPadding: false,
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-          ),
-          child: BoldSubHeader(
-            text: 'Nein',
-            context: context,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap() async {
+    // Allows only portrait mode again when leaving the ride view.
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
+    /// Reenable the bottom navigation bar on Android after hiding it in Speedometer View
+    if (Platform.isAndroid) {
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+      );
+    }
+
     // End the tracking and collect the data.
     final tracking = getIt<Tracking>();
     await tracking.end(); // Performs all needed resets.
@@ -91,6 +91,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // End the recommendations.
     final ride = getIt<Ride>();
     await ride.stopNavigation();
+    // Remove last route since the ride continues.
+    ride.removeLastRoute();
 
     // Reset the ride assist service.
     await getIt<RideAssist>().reset();
@@ -99,59 +101,66 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final position = getIt<Positioning>();
     await position.stopGeolocation();
 
+    // Disable the wakelock which was set when the ride started.
+    WakelockPlus.disable();
+
+    // Show the feedback view.
     if (mounted) {
-      // Show the feedback dialog.
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => WillPopScope(
-            onWillPop: () async => false,
-            child: FeedbackView(
-              onSubmitted: (context) async {
-                // Reset the statistics.
-                await statistics.reset();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => FeedbackView(
+            onSubmitted: (context) async {
+              // Reset the statistics.
+              await statistics.reset();
 
-                // Reset the ride service.
-                await ride.reset();
+              // Reset the ride service.
+              await ride.reset();
 
-                // Reset the position service.
-                await position.reset();
+              // Reset the position service.
+              await position.reset();
 
-                // Reset the route service.
-                final routing = getIt<Routing>();
-                await routing.reset();
+              // Reset the route service.
+              final routing = getIt<Routing>();
+              await routing.reset();
 
-                // Reset the prediction sg status.
-                final predictionSGStatus = getIt<PredictionSGStatus>();
-                await predictionSGStatus.reset();
+              // Reset the prediction sg status.
+              final predictionSGStatus = getIt<PredictionSGStatus>();
+              await predictionSGStatus.reset();
 
-                if (context.mounted) {
-                  // Leave the feedback view.
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
-            ),
+              if (context.mounted) {
+                // Return to the home view.
+                await Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
+                );
+              }
+            },
           ),
         ),
+        (route) => false,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscapeMode = orientation == Orientation.landscape;
+
     return Stack(
       children: [
         Positioned(
           top: 48, // Below the MapBox attribution.
-          right: 0,
+          // Button is on the right in portrait mode and on the left in landscape mode.
+          right: isLandscapeMode ? null : 0,
+          left: isLandscapeMode ? 0 : null,
           child: SafeArea(
             child: Tile(
-              onPressed: () => showDialog(
-                context: context,
-                builder: (context) => askForConfirmation(context),
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                bottomLeft: Radius.circular(24),
+              onPressed: () => showAskForConfirmationDialog(context),
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(24),
+                bottomLeft: const Radius.circular(24),
+                topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
+                bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
               ),
               padding: const EdgeInsets.all(4),
               fill: Colors.black.withOpacity(0.4),

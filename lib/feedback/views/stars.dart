@@ -11,7 +11,10 @@ class StarRatingView extends StatefulWidget {
   /// The text of the question.
   final String text;
 
-  const StarRatingView({required this.text, Key? key}) : super(key: key);
+  /// Whether the the feedback question should be displayed.
+  final bool displayQuestion;
+
+  const StarRatingView({required this.text, required this.displayQuestion, super.key});
 
   @override
   StarRatingViewState createState() => StarRatingViewState();
@@ -84,11 +87,13 @@ class StarRatingViewState extends State<StarRatingView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Small(text: widget.text, context: context, color: Colors.white),
-        const SizedBox(height: 2),
+        if (widget.displayQuestion) ...[
+          Small(text: widget.text, context: context, color: Theme.of(context).colorScheme.tertiary),
+          const SizedBox(height: 2),
+        ],
         LayoutBuilder(
           builder: (context, constraints) {
-            final size = constraints.maxWidth / 6;
+            final size = (constraints.maxWidth / 5) - 8;
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -100,9 +105,9 @@ class StarRatingViewState extends State<StarRatingView> {
                         blastDirectionality: BlastDirectionality.explosive,
                         shouldLoop: false,
                         colors: [
-                          HSLColor.fromColor(Colors.white).withLightness(0.8).toColor(),
-                          HSLColor.fromColor(Colors.white).withLightness(0.9).toColor(),
-                          HSLColor.fromColor(Colors.white).withLightness(1).toColor(),
+                          HSLColor.fromColor(Theme.of(context).colorScheme.primary).withLightness(0.8).toColor(),
+                          HSLColor.fromColor(Theme.of(context).colorScheme.primary).withLightness(0.9).toColor(),
+                          HSLColor.fromColor(Theme.of(context).colorScheme.primary).withLightness(1).toColor(),
                         ],
                         particleDrag: 0.2,
                         createParticlePath: drawConfetti,
@@ -120,7 +125,7 @@ class StarRatingViewState extends State<StarRatingView> {
                             child: Icon(
                               Icons.thumb_up_rounded,
                               size: size,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                           secondChild: Padding(
@@ -128,7 +133,7 @@ class StarRatingViewState extends State<StarRatingView> {
                             child: Icon(
                               Icons.thumb_up_outlined,
                               size: size - 8,
-                              color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
+                              color: Theme.of(context).colorScheme.onTertiary,
                             ),
                           ),
                         ),

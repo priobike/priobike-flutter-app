@@ -129,6 +129,9 @@ class Tracking with ChangeNotifier {
   /// The timer used to sample the sensor data.
   Timer? sensorSamplingTimer;
 
+  /// The key for the tracks in the shared preferences.
+  static const tracksKey = "priobike.tracking.tracks";
+
   Tracking();
 
   /// Set the current tracking submission policy.
@@ -139,7 +142,7 @@ class Tracking with ChangeNotifier {
   /// Load previous tracks from the shared preferences.
   Future<void> loadPreviousTracks() async {
     final prefs = await SharedPreferences.getInstance();
-    final json = prefs.getStringList("priobike.tracking.tracks");
+    final json = prefs.getStringList(tracksKey);
     if (json == null) {
       previousTracks = [];
     } else {
@@ -161,27 +164,9 @@ class Tracking with ChangeNotifier {
   /// Save the previous tracks to the shared preferences.
   Future<void> savePreviousTracks() async {
     if (previousTracks == null) return;
-    if (previousTracks!.isEmpty) return; // Avoid deleting all tracks.
     final prefs = await SharedPreferences.getInstance();
     final json = previousTracks!.map((e) => jsonEncode(e.toJson())).toList();
     await prefs.setStringList("priobike.tracking.tracks", json);
-  }
-
-  /// Delete a specific track.
-  Future<void> deleteTrack(Track track) async {
-    if (previousTracks == null) return;
-    // Don't delete tracks that are currently being uploaded.
-    if (uploadingTracks.containsKey(track.sessionId)) return;
-    previousTracks!.removeWhere((e) => e.sessionId == track.sessionId);
-    try {
-      // Delete the tracking files.
-      (await track.trackDirectory).delete(recursive: true);
-    } catch (e, stack) {
-      final hint = "Failed to delete the track files: $e $stack";
-      log.e(hint);
-    }
-    await savePreviousTracks();
-    notifyListeners();
   }
 
   /// Start a new track.
@@ -243,9 +228,9 @@ class Tracking with ChangeNotifier {
       await savePreviousTracks();
       // Start collecting data to the files of the track.
       await startCollectingGPSData();
-      await startCollectingAccData(accelerometerEvents);
-      await startCollectingGyrData(gyroscopeEvents);
-      await startCollectingMagData(magnetometerEvents);
+      await startCollectingAccData();
+      await startCollectingGyrData();
+      await startCollectingMagData();
       if (sensorSamplingTimer == null || !sensorSamplingTimer!.isActive) {
         sensorSamplingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async => await sampleSensorData());
       }
@@ -297,11 +282,14 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start collecting accelerometer data.
-  Future<void> startCollectingAccData(Stream<AccelerometerEvent> stream) async {
+  Future<void> startCollectingAccData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
+    const samplingPeriod = Duration(milliseconds: 1000);
+    final stream = accelerometerEventStream(samplingPeriod: samplingPeriod);
     accCache = CSVCache(
       header: "timestamp,x,y,z",
       file: await track!.accelerometerCSVFile,
-      maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
+      maxLines: 5, // Flush after 5 lines of data (~5s).
     );
     accSub = stream.listen((event) {
       latestAccEventTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -319,11 +307,14 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start collecting gyroscope data.
-  Future<void> startCollectingGyrData(Stream<GyroscopeEvent> stream) async {
+  Future<void> startCollectingGyrData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
+    const samplingPeriod = Duration(milliseconds: 1000);
+    final stream = gyroscopeEventStream(samplingPeriod: samplingPeriod);
     gyrCache = CSVCache(
       header: "timestamp,x,y,z",
       file: await track!.gyroscopeCSVFile,
-      maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
+      maxLines: 5, // Flush after 5 lines of data (~5s).
     );
     gyrSub = stream.listen((event) {
       latestGyroEventTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -341,11 +332,14 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start collecting magnetometer data.
-  Future<void> startCollectingMagData(Stream<MagnetometerEvent> stream) async {
+  Future<void> startCollectingMagData() async {
+    // Note: The sampling period is a recommendation and can diverge from the actual period.
+    const samplingPeriod = Duration(milliseconds: 1000);
+    final stream = magnetometerEventStream(samplingPeriod: samplingPeriod);
     magCache = CSVCache(
       header: "timestamp,x,y,z",
       file: await track!.magnetometerCSVFile,
-      maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
+      maxLines: 5, // Flush after 5 lines of data (~5s).
     );
     magSub = stream.listen((event) {
       latestMagEventTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -521,7 +515,17 @@ class Tracking with ChangeNotifier {
     log.i("Cleaning up track with id ${track.sessionId}.");
     // Delete the track files.
     final directory = await track.trackDirectory;
-    if (await directory.exists()) await directory.delete(recursive: true);
+    if (await directory.exists()) {
+      final contents = await directory.list().toList();
+      for (final content in contents) {
+        // Delete everything but the GPS file.
+        if (content is! File) {
+          await content.delete(recursive: true);
+        } else if (!content.path.contains("gps")) {
+          await content.delete();
+        }
+      }
+    }
     log.i("Cleaned uploaded files for track with id ${track.sessionId}.");
     track.hasFileData = false;
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
@@ -529,6 +533,31 @@ class Tracking with ChangeNotifier {
     await savePreviousTracks();
     notifyListeners();
     return true;
+  }
+
+  /// Delete a specific track.
+  Future<void> deleteTrack(Track track) async {
+    log.i("Deleting track with id ${track.sessionId}.");
+    // Delete the track files.
+    final directory = await track.trackDirectory;
+    if (await directory.exists()) await directory.delete(recursive: true);
+    previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
+    await savePreviousTracks();
+    notifyListeners();
+  }
+
+  /// Delete all tracks.
+  Future<void> deleteAllTracks() async {
+    if (previousTracks != null || previousTracks!.isNotEmpty) {
+      log.i("Deleting all tracks.");
+      for (final Track track in previousTracks!) {
+        final directory = await track.trackDirectory;
+        if (await directory.exists()) await directory.delete(recursive: true);
+      }
+      previousTracks?.clear();
+    }
+    await savePreviousTracks();
+    notifyListeners();
   }
 
   /// Run a timer that periodically sends tracks to the server.

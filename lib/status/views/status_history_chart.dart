@@ -56,7 +56,7 @@ class StatusHistoryPainter extends CustomPainter {
   /// Draws the axes of the coordinate system.
   void drawCoordSystem() {
     final paintMainAxes = Paint()
-      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..color = !isDark || isProblem ? Colors.black : Colors.white
       ..strokeWidth = 1
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
@@ -77,7 +77,7 @@ class StatusHistoryPainter extends CustomPainter {
     );
 
     final paintHorizontalLine = Paint()
-      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..color = !isDark || isProblem ? Colors.black : Colors.white
       ..strokeWidth = 0.6
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -102,7 +102,7 @@ class StatusHistoryPainter extends CustomPainter {
     const verticalLinesNumber = 5;
 
     final paintVerticalLine = Paint()
-      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..color = !isDark || isProblem ? Colors.black : Colors.white
       ..strokeWidth = 0.2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -129,7 +129,7 @@ class StatusHistoryPainter extends CustomPainter {
   /// Draws labels for the x-axis and y-axis.
   void drawCoordSystemLabels() {
     final TextStyle labelTextStyle = TextStyle(
-      color: isDark || isProblem ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.6),
+      color: !isDark || isProblem ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.6),
       fontSize: 12,
     );
     // Distance for labels to the axis
@@ -232,12 +232,12 @@ class StatusHistoryPainter extends CustomPainter {
   /// Draws the lines of the chart.
   void drawLines() {
     Paint paintLine = Paint()
-      ..color = isProblem ? Colors.white : CI.blue
+      ..color = isProblem ? Colors.black : CI.radkulturRed
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
     Paint paintCircle = Paint()
-      ..color = isProblem ? Colors.white : CI.blue
+      ..color = isProblem ? Colors.black : CI.radkulturRed
       ..strokeWidth = 3
       ..style = PaintingStyle.fill;
 
@@ -291,7 +291,7 @@ class StatusHistoryChart extends StatefulWidget {
   /// If the card should be highlighted as a problematic.
   final bool isProblem;
 
-  const StatusHistoryChart({Key? key, required this.time, required this.isProblem}) : super(key: key);
+  const StatusHistoryChart({super.key, required this.time, required this.isProblem});
 
   @override
   StatusHistoryChartState createState() => StatusHistoryChartState();

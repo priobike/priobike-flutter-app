@@ -58,7 +58,7 @@ class Feature with ChangeNotifier {
     packageName = info.packageName;
 
     if (gitHead.contains('beta')) {
-      defaultBackend = Backend.production;
+      defaultBackend = Backend.release;
     }
 
     hasLoaded = true;

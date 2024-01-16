@@ -28,9 +28,9 @@ class ExpandablePageView extends StatefulWidget {
   final List<Widget> children;
 
   const ExpandablePageView({
-    Key? key,
+    super.key,
     required this.children,
-  }) : super(key: key);
+  });
 
   @override
   State<ExpandablePageView> createState() => _ExpandablePageViewState();
@@ -118,10 +118,10 @@ class SizeReportingWidget extends StatefulWidget {
   final ValueChanged<Size> onSizeChange;
 
   const SizeReportingWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.onSizeChange,
-  }) : super(key: key);
+  });
 
   @override
   State<SizeReportingWidget> createState() => _SizeReportingWidgetState();
@@ -150,7 +150,9 @@ class _SizeReportingWidgetState extends State<SizeReportingWidget> {
 }
 
 class StatusTabsView extends StatefulWidget {
-  const StatusTabsView({Key? key}) : super(key: key);
+  final Function triggerRebuild;
+
+  const StatusTabsView({super.key, required this.triggerRebuild});
 
   @override
   StatusTabsViewState createState() => StatusTabsViewState();
@@ -180,11 +182,11 @@ class StatusTabsViewState extends State<StatusTabsView> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
-      child: const ExpandablePageView(
+      child: ExpandablePageView(
         children: [
-          StatusView(),
-          StatusHistoryView(time: StatusHistoryTime.day),
-          StatusHistoryView(time: StatusHistoryTime.week),
+          StatusView(triggerRebuild: widget.triggerRebuild),
+          const StatusHistoryView(time: StatusHistoryTime.day),
+          const StatusHistoryView(time: StatusHistoryTime.week),
         ],
       ),
     );

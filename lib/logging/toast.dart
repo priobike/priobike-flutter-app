@@ -10,7 +10,7 @@ class ToastMessage {
       msg: "⚠️ $message",
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.TOP,
-      backgroundColor: CI.blue,
+      backgroundColor: CI.radkulturRed,
       textColor: Colors.white,
       fontSize: 20.0,
     );

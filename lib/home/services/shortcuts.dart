@@ -29,7 +29,7 @@ class Shortcuts with ChangeNotifier {
     final routing = getIt<Routing>();
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
-    // Check if waypoint contains "Standort" as address and change it to geolocation
+    // Check if waypoint contains "Standort" as address and change it to geolocation.
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
         final geocoding = getIt<Geocoding>();
@@ -42,7 +42,13 @@ class Shortcuts with ChangeNotifier {
       }
     }
 
-    final newShortcut = ShortcutRoute(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
+    final newShortcut = ShortcutRoute(
+      id: UniqueKey().toString(),
+      name: name,
+      waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList(),
+      routeTimeText: routing.selectedRoute?.timeText,
+      routeLengthText: routing.selectedRoute?.lengthText,
+    );
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
@@ -53,7 +59,7 @@ class Shortcuts with ChangeNotifier {
 
   /// Save a new location shortcut.
   Future<void> saveNewShortcutLocation(String name, Waypoint waypoint) async {
-    final newShortcut = ShortcutLocation(name: name, waypoint: waypoint);
+    final newShortcut = ShortcutLocation(id: UniqueKey().toString(), name: name, waypoint: waypoint);
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
@@ -108,7 +114,7 @@ class Shortcuts with ChangeNotifier {
 
     final backend = getIt<Settings>().backend;
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
-    storage.setString("priobike.home.shortcuts.${backend.name}", jsonStr);
+    storage.setString("priobike.home.shortcuts.${backend.regionName}", jsonStr);
   }
 
   /// Load the custom shortcuts.
@@ -117,40 +123,42 @@ class Shortcuts with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     final backend = getIt<Settings>().backend;
-    final jsonStr = storage.getString("priobike.home.shortcuts.${backend.name}");
+    final jsonStr = storage.getString("priobike.home.shortcuts.${backend.regionName}");
 
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
+      await storeShortcuts();
     } else {
       // Init shortcuts.
-      shortcuts = [];
-      // Loop through all json Shortcuts and add correct shortcuts to shortcuts.
-      for (var e in jsonDecode(jsonStr) as List) {
-        if (e["type"] != null) {
-          switch (e["type"]) {
-            case "ShortcutLocation":
-              shortcuts?.add(ShortcutLocation.fromJson(e));
-              break;
-            case "ShortcutRoute":
-              shortcuts?.add(ShortcutRoute.fromJson(e));
-              break;
-            default:
-              final hint = "Error unknown type ${e["type"]} in loadShortcuts.";
-              log.e(hint);
-          }
-        } else {
-          // Only for backwards compatibility.
-          if (e["waypoint"] != null) {
-            shortcuts?.add(ShortcutLocation.fromJson(e));
-          }
-          if (e["waypoints"] != null) {
-            shortcuts?.add(ShortcutRoute.fromJson(e));
-          }
+      shortcuts = getShortcutsFromJson(jsonStr);
+    }
+    notifyListeners();
+  }
+
+  /// Creates a list of shortcut objects from a json string.
+  List<Shortcut> getShortcutsFromJson(String jsonStr) {
+    List<Shortcut> shortcuts = [];
+    // Loop through all json Shortcuts and add correct shortcuts to shortcuts.
+    for (final e in jsonDecode(jsonStr) as List) {
+      if (e["type"] != null) {
+        switch (e["type"]) {
+          case "ShortcutLocation":
+            shortcuts.add(ShortcutLocation.fromJson(e));
+            break;
+          case "ShortcutRoute":
+            shortcuts.add(ShortcutRoute.fromJson(e));
+            break;
+          default:
+            final hint = "Error unknown type ${e["type"]} in loadShortcuts.";
+            log.e(hint);
         }
+      } else {
+        // Only for backwards compatibility.
+        if (e["waypoint"] != null) shortcuts.add(ShortcutLocation.fromJson(e));
+        if (e["waypoints"] != null) shortcuts.add(ShortcutRoute.fromJson(e));
       }
     }
-
-    notifyListeners();
+    return shortcuts;
   }
 
   /// Delete a shortcut.

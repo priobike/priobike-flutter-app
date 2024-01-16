@@ -6,7 +6,7 @@ import 'package:priobike/wiki/detail.dart';
 import 'package:priobike/wiki/models/article.dart';
 
 class WikiCard extends StatefulWidget {
-  const WikiCard({Key? key, required this.article}) : super(key: key);
+  const WikiCard({super.key, required this.article});
 
   /// The article of the WikiCard.
   final Article article;
@@ -25,7 +25,7 @@ class WikiCardState extends State<WikiCard> {
           Radius.circular(24),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        fill: Theme.of(context).colorScheme.background,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => WikiDetailView(article: widget.article)));
         },
@@ -59,7 +59,7 @@ class WikiCardState extends State<WikiCard> {
               height: 8,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(4)),
-                color: CI.blue,
+                color: CI.radkulturRed,
               ),
             ),
           ],

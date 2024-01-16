@@ -11,17 +11,21 @@ class LicenseView extends StatelessWidget {
   const LicenseView({
     this.appName,
     this.appVersion,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        appBarTheme: const AppBarTheme(
+        appBarTheme: AppBarTheme(
           elevation: 0,
-          titleTextStyle: TextStyle(fontSize: 20),
+          titleTextStyle: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onBackground),
+          toolbarTextStyle: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onBackground),
+          color: Theme.of(context).colorScheme.background,
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onBackground),
         ),
+        cardColor: Theme.of(context).colorScheme.background,
       ),
       child: LicensePage(
         applicationName: appName,

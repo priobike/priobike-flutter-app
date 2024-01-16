@@ -8,7 +8,7 @@ class AssetTextView extends StatelessWidget {
   /// The asset path for the text that will be displayed.
   final String asset;
 
-  const AssetTextView({required this.asset, Key? key}) : super(key: key);
+  const AssetTextView({required this.asset, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class AssetTextView extends StatelessWidget {
         future: DefaultAssetBundle.of(context).loadString(asset),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           return Container(
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.background,
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: [

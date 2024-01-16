@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -15,7 +15,7 @@ class QRCodeView extends StatefulWidget {
   /// The shortcut for which a QR code should be shown.
   final Shortcut? shortcut;
 
-  const QRCodeView({Key? key, this.shortcut}) : super(key: key);
+  const QRCodeView({super.key, this.shortcut});
 
   @override
   QRCodeViewState createState() => QRCodeViewState();
@@ -60,10 +60,11 @@ class QRCodeViewState extends State<QRCodeView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,13 +103,7 @@ class QRCodeViewState extends State<QRCodeView> {
                       duration: const Duration(milliseconds: 1000),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topRight,
-                          end: Alignment.bottomLeft,
-                          stops: const [0.3, 0.9],
-                          colors:
-                              state == QRCodeViewMode.scanning ? [Colors.grey, Colors.grey] : [CI.blueLight, CI.blue],
-                        ),
+                        color: state == QRCodeViewMode.scanning ? Colors.grey : CI.radkulturRed,
                         borderRadius: BorderRadius.circular(48),
                         boxShadow: state == QRCodeViewMode.scanning
                             ? [
@@ -121,7 +116,7 @@ class QRCodeViewState extends State<QRCodeView> {
                               ]
                             : [
                                 BoxShadow(
-                                  color: CI.blue.withOpacity(0.3),
+                                  color: CI.radkulturRed.withOpacity(0.3),
                                   spreadRadius: 4,
                                   blurRadius: 32,
                                   offset: const Offset(0, 24), // changes position of shadow
@@ -171,14 +166,14 @@ class QRCodeViewState extends State<QRCodeView> {
                                   text: "Scanne den QR-Code einer anderen PrioBike-App, um die Route zu erhalten.",
                                   context: context,
                                   textAlign: TextAlign.center,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                                 ),
                               ],
                             ),
                           if (state == QRCodeViewMode.showing)
                             Column(
                               children: [
-                                Content(text: shortcut!.getShortInfo(), context: context),
+                                Content(text: shortcut!.getShortInfo(), context: context, textAlign: TextAlign.center),
                                 const VSpace(),
                                 BoldSmall(
                                   text: "Scanne diesen QR-Code mit einer anderen PrioBike-App, um die Route zu teilen.",
@@ -192,11 +187,12 @@ class QRCodeViewState extends State<QRCodeView> {
                               children: [
                                 Content(text: shortcut!.getShortInfo(), context: context),
                                 const VSpace(),
-                                BigButton(
+                                BigButtonPrimary(
                                   iconColor: Colors.white,
                                   label: "Speichern!",
                                   onPressed: () => saveShortCut(),
-                                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                                  boxConstraints:
+                                      BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                                 ),
                               ],
                             ),

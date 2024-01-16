@@ -3,6 +3,9 @@ import 'package:priobike/routing/models/waypoint.dart';
 
 /// The shortcut represents a saved route or location with a name.
 abstract class Shortcut {
+  /// The unique id of the shortcut.
+  final String id;
+
   /// The type of the shortcut.
   final String type;
 
@@ -24,13 +27,10 @@ abstract class Shortcut {
   /// Returns a String with a short info of the shortcut.
   String getShortInfo();
 
-  /// Returns a Widget with a representation of the shortcut.
-  Widget getRepresentation();
-
   /// Returns the icon of the shortcut type.
   Widget getIcon();
 
-  Shortcut({required this.type, required this.name});
+  Shortcut({required this.type, required this.name, required this.id});
 
   Map<String, dynamic> toJson();
 }

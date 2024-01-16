@@ -16,7 +16,6 @@ import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/test.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:wearable_communicator/wearable_communicator.dart';
 
 // Audios.
 const audioIntervalFaster = "sounds/interval_faster.mp3";
@@ -76,31 +75,31 @@ class RideAssist with ChangeNotifier {
 
   /// Start communication to wear device.
   Future<void> startListening() async {
-    WearableListener.listenForMessage((msg) {
-      Map<String, dynamic> data = jsonDecode(msg);
-
-      // Status message received.
-      if (data["status"] != null && data["status"] == "ready") {
-        wearDeviceReady = true;
-        notifyListeners();
-      }
-    });
+    // WearableListener.listenForMessage((msg) {
+    //   Map<String, dynamic> data = jsonDecode(msg);
+    //
+    //   // Status message received.
+    //   if (data["status"] != null && data["status"] == "ready") {
+    //     wearDeviceReady = true;
+    //     notifyListeners();
+    //   }
+    // });
   }
 
   /// Send start signal to device.
   void sendStart() {
-    WearableCommunicator.sendMessage({
-      "startNavigation": true,
-    });
+    // WearableCommunicator.sendMessage({
+    //   "startNavigation": true,
+    // });
     testData = [];
   }
 
   /// Send start signal to device in standalone mode.
   void sendStartStandalone() {
     if (routing.selectedRoute != null) {
-      WearableCommunicator.sendMessage({
-        "startNavigationStandalone": routing.selectedRoute!.route.map((e) => [e.lon, e.lat]).toList(),
-      });
+      // WearableCommunicator.sendMessage({
+      //   "startNavigationStandalone": routing.selectedRoute!.route.map((e) => [e.lon, e.lat]).toList(),
+      // });
       testData = [];
     }
   }
@@ -108,29 +107,29 @@ class RideAssist with ChangeNotifier {
   /// Send play output message to device.
   void sendOutput(String type) {
     String outputSignal = "${settings.modalityMode.name}-${settings.rideAssistMode.name}-$type";
-    WearableCommunicator.sendMessage({
-      "play": outputSignal,
-    });
+    // WearableCommunicator.sendMessage({
+    //   "play": outputSignal,
+    // });
   }
 
   /// Send play output message to device.
   void sendPosition(double lat, double lon, double bearing, double zoom, double kmh) {
-    WearableCommunicator.sendMessage({
-      "updatePosition": {
-        "lat": lat,
-        "lon": lon,
-        "bearing": bearing,
-        "zoom": zoom > 2 ? zoom - 2 : zoom,
-        "kmh": kmh,
-      },
-    });
+    // WearableCommunicator.sendMessage({
+    //   "updatePosition": {
+    //     "lat": lat,
+    //     "lon": lon,
+    //     "bearing": bearing,
+    //     "zoom": zoom > 2 ? zoom - 2 : zoom,
+    //     "kmh": kmh,
+    //   },
+    // });
   }
 
   /// Send stop message to device.
   void sendStop() {
-    WearableCommunicator.sendMessage({
-      "stopNavigation": true,
-    });
+    // WearableCommunicator.sendMessage({
+    //   "stopNavigation": true,
+    // });
     // Save testData.
     saveTestData();
   }
@@ -178,12 +177,12 @@ class RideAssist with ChangeNotifier {
       gaugeStopsCopy[i] = gaugeStopsCopy[i] * 0.5;
     }
 
-    WearableCommunicator.sendMessage({
-      "gaugeData": {
-        "gaugeColors": gaugeColors.map((e) => [e.red, e.green, e.blue]).toList(),
-        "gaugeStops": gaugeStopsCopy
-      }
-    });
+    // WearableCommunicator.sendMessage({
+    //   "gaugeData": {
+    //     "gaugeColors": gaugeColors.map((e) => [e.red, e.green, e.blue]).toList(),
+    //     "gaugeStops": gaugeStopsCopy
+    //   }
+    // });
   }
 
   /// Update the position.

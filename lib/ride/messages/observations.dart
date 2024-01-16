@@ -77,14 +77,10 @@ class PrimarySignalObservation extends Observation<int> {
   PrimarySignalState get state => PrimarySignalStateExtension.fromRawValue(result);
 
   const PrimarySignalObservation({
-    required DateTime phenomenonTime,
-    required int result,
-    required DateTime resultTime,
-  }) : super(
-          phenomenonTime: phenomenonTime,
-          result: result,
-          resultTime: resultTime,
-        );
+    required super.phenomenonTime,
+    required super.result,
+    required super.resultTime,
+  });
 
   factory PrimarySignalObservation.fromJson(Map<String, dynamic> json) => PrimarySignalObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
@@ -98,14 +94,10 @@ class DetectorCarObservation extends Observation<int> {
   int get pct => result;
 
   const DetectorCarObservation({
-    required DateTime phenomenonTime,
-    required int result,
-    required DateTime resultTime,
-  }) : super(
-          phenomenonTime: phenomenonTime,
-          result: result,
-          resultTime: resultTime,
-        );
+    required super.phenomenonTime,
+    required super.result,
+    required super.resultTime,
+  });
 
   factory DetectorCarObservation.fromJson(Map<String, dynamic> json) => DetectorCarObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
@@ -119,14 +111,10 @@ class DetectorCyclistsObservation extends Observation<int> {
   int get pct => result;
 
   const DetectorCyclistsObservation({
-    required DateTime phenomenonTime,
-    required int result,
-    required DateTime resultTime,
-  }) : super(
-          phenomenonTime: phenomenonTime,
-          result: result,
-          resultTime: resultTime,
-        );
+    required super.phenomenonTime,
+    required super.result,
+    required super.resultTime,
+  });
 
   factory DetectorCyclistsObservation.fromJson(Map<String, dynamic> json) => DetectorCyclistsObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
@@ -140,14 +128,10 @@ class CycleSecondObservation extends Observation<int> {
   int get second => result;
 
   const CycleSecondObservation({
-    required DateTime phenomenonTime,
-    required int result,
-    required DateTime resultTime,
-  }) : super(
-          phenomenonTime: phenomenonTime,
-          result: result,
-          resultTime: resultTime,
-        );
+    required super.phenomenonTime,
+    required super.result,
+    required super.resultTime,
+  });
 
   factory CycleSecondObservation.fromJson(Map<String, dynamic> json) => CycleSecondObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
@@ -161,14 +145,10 @@ class SignalProgramObservation extends Observation<int> {
   int get program => result;
 
   const SignalProgramObservation({
-    required DateTime phenomenonTime,
-    required int result,
-    required DateTime resultTime,
-  }) : super(
-          phenomenonTime: phenomenonTime,
-          result: result,
-          resultTime: resultTime,
-        );
+    required super.phenomenonTime,
+    required super.result,
+    required super.resultTime,
+  });
 
   factory SignalProgramObservation.fromJson(Map<String, dynamic> json) => SignalProgramObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),

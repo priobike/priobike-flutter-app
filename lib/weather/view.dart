@@ -7,7 +7,7 @@ import 'package:priobike/weather/messages.dart';
 import 'package:priobike/weather/service.dart';
 
 class WeatherView extends StatefulWidget {
-  const WeatherView({Key? key}) : super(key: key);
+  const WeatherView({super.key});
 
   @override
   WeatherViewState createState() => WeatherViewState();
@@ -30,20 +30,31 @@ class WeatherViewState extends State<WeatherView> {
   void initState() {
     super.initState();
     weather = getIt<Weather>();
-    weather.addListener(() {
-      setState(() {});
-    });
+    weather.addListener(updateWeather);
+  }
+
+  @override
+  void dispose() {
+    weather.removeListener(updateWeather);
+    super.dispose();
   }
 
   @override
   void didChangeDependencies() {
-    loadIcon();
-    loadSummary();
+    updateWeather();
     super.didChangeDependencies();
+  }
+
+  Future<void> updateWeather() async {
+    await loadIcon();
+    await loadSummary();
+    setState(() {});
   }
 
   /// Load the weather icon from the weather service.
   Future<void> loadIcon() async {
+    if (weather.current == null || weather.current!.icon == null) return;
+
     switch (weather.current?.icon) {
       case "clear-day":
         icon = const Icon(Icons.wb_sunny_rounded, size: 32, color: Colors.white);
@@ -87,6 +98,8 @@ class WeatherViewState extends State<WeatherView> {
   /// Load the weather summary from the weather service.
   Future<void> loadSummary() async {
     warning = false;
+    if (weather.current == null || weather.current!.temperature == null) return;
+
     summary = "";
     final temp = weather.current?.temperature ?? 0;
     if (temp > 40) {
@@ -161,48 +174,48 @@ class WeatherViewState extends State<WeatherView> {
         // Convert the timestamp to a clock time.
         final clock = "${forecast.timestamp.hour.toString()}:${forecast.timestamp.minute.toString().padLeft(2, '0')}";
         final isTomorrow = forecast.timestamp.day != DateTime.now().day;
-        summary = "${summary!}${isTomorrow ? ' Morgen' : ' Heute'} ab $clock Uhr wird es";
+        summary = "${summary!}${isTomorrow ? ' Morgen' : ' Heute'} ab $clock Uhr";
         switch (forecast.icon) {
           case "clear-day":
-            summary = "${summary!} sonnig.";
+            summary = "${summary!} wird es sonnig.";
             break;
           case "clear-night":
-            summary = "${summary!} klar.";
+            summary = "${summary!} wird es klar.";
             break;
           case "partly-cloudy-day":
-            summary = "${summary!} teilweise bewölkt.";
+            summary = "${summary!} wird es teilweise bewölkt.";
             break;
           case "partly-cloudy-night":
-            summary = "${summary!} teilweise bewölkt.";
+            summary = "${summary!} wird es teilweise bewölkt.";
             break;
           case "cloudy":
-            summary = "${summary!} bewölkt.";
+            summary = "${summary!} wird es bewölkt.";
             break;
           case "fog":
-            summary = "${summary!} neblig.";
+            summary = "${summary!} wird es neblig.";
             break;
           case "wind":
-            summary = "${summary!} windig.";
+            summary = "${summary!} wird es windig.";
             warning = true;
             break;
           case "rain":
-            summary = "${summary!} regnerisch.";
+            summary = "${summary!} wird Regen erwartet.";
             warning = true;
             break;
           case "sleet":
-            summary = "${summary!} schneien.";
+            summary = "${summary!} wird Schneeregen erwartet.";
             warning = true;
             break;
           case "snow":
-            summary = "${summary!} schneien.";
+            summary = "${summary!} wird Schneefall erwartet.";
             warning = true;
             break;
           case "hail":
-            summary = "${summary!} hageln.";
+            summary = "${summary!} wird Hagel erwartet.";
             warning = true;
             break;
           case "thunderstorm":
-            summary = "${summary!} gewittern.";
+            summary = "${summary!} wird ein Gewitter erwartet.";
             warning = true;
             break;
         }
@@ -216,29 +229,31 @@ class WeatherViewState extends State<WeatherView> {
     return Expanded(
       child: Row(
         children: [
-          Stack(
-            children: [
-              icon ?? const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
-              if (warning)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      color: CI.red,
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                    ),
-                    child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),
-                  ),
+          weather.hadError
+              ? const Icon(Icons.cloud_off_rounded, size: 32, color: Colors.white)
+              : Stack(
+                  children: [
+                    icon ?? const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
+                    if (warning)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: const BoxDecoration(
+                            color: CI.radkulturYellow,
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                          ),
+                          child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),
+                        ),
+                      ),
+                  ],
                 ),
-            ],
-          ),
           const SmallHSpace(),
           Flexible(
             child: Small(
-              text: summary ?? "Wetterinformationen sind aktuell noch nicht verfügbar.",
+              text: summary ?? "Wetterinformationen sind aktuell nicht verfügbar.",
               color: Colors.white,
               context: context,
             ),

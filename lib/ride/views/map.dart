@@ -25,7 +25,7 @@ class RideMapView extends StatefulWidget {
   /// If the map should follow the user location.
   final bool cameraFollowUserLocation;
 
-  const RideMapView({Key? key, required this.onMapMoved, required this.cameraFollowUserLocation}) : super(key: key);
+  const RideMapView({super.key, required this.onMapMoved, required this.cameraFollowUserLocation});
 
   @override
   State<StatefulWidget> createState() => RideMapViewState();
@@ -47,6 +47,9 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The associated ride assist service, which is injected by the provider.
   late RideAssist rideAssist;
+
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
 
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
@@ -72,6 +75,7 @@ class RideMapViewState extends State<RideMapView> {
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
+    TrafficLightsLayerClickable.layerId,
     TrafficLightsLayer.touchIndicatorsLayerId,
     TrafficLightLayer.layerId,
   ];
@@ -106,6 +110,7 @@ class RideMapViewState extends State<RideMapView> {
     predictionSGStatus = getIt<PredictionSGStatus>();
     predictionSGStatus.addListener(onStatusUpdate);
     rideAssist = getIt<RideAssist>();
+    settings = getIt<Settings>();
   }
 
   @override
@@ -190,6 +195,32 @@ class RideMapViewState extends State<RideMapView> {
 
     const vincenty = Distance(roundResult: false);
 
+    // Portrait/landscape mode
+    final orientation = MediaQuery.of(context).orientation;
+    final mapbox.MbxEdgeInsets padding;
+    if (orientation == Orientation.portrait) {
+      padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0);
+    } else {
+      // Landscape-Mode: Set user-puk to the left and a little down
+      // The padding must be different if battery save mode is enabled by user because the map is rendered differently
+      final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
+      final deviceWidth = MediaQuery.of(context).size.width;
+      final deviceHeight = MediaQuery.of(context).size.height;
+      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+      if (isBatterySaveModeEnabled) {
+        if (Platform.isAndroid) {
+          padding = mapbox.MbxEdgeInsets(
+              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.055);
+        } else {
+          padding =
+              mapbox.MbxEdgeInsets(top: deviceHeight * 0.55, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.2);
+        }
+      } else {
+        padding =
+            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.19);
+      }
+    }
+
     if (routing.hadErrorDuringFetch) {
       // If there was an error during fetching, we don't have a route and thus also can't snap the position.
       // We can only try to display the real user position.
@@ -197,12 +228,14 @@ class RideMapViewState extends State<RideMapView> {
         await snapLocationIndicatorToRouteStart();
         return;
       }
-      mapController!.easeTo(
+      // Note: in the current version ease to is broken on ios devices.
+      mapController!.flyTo(
           mapbox.CameraOptions(
             center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
             bearing: userPos.heading,
             zoom: 16,
             pitch: 60,
+            padding: padding,
           ),
           mapbox.MapAnimationOptions(duration: 1500));
       await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
@@ -255,7 +288,8 @@ class RideMapViewState extends State<RideMapView> {
     }
 
     if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {
-      mapController!.easeTo(
+      // Note: in the current version ease to is broken on ios devices.
+      mapController!.flyTo(
           mapbox.CameraOptions(
             center: mapbox.Point(
                     coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
@@ -263,6 +297,7 @@ class RideMapViewState extends State<RideMapView> {
             bearing: cameraHeading,
             zoom: zoom,
             pitch: 60,
+            padding: padding,
           ),
           mapbox.MapAnimationOptions(duration: 1500));
       // Send to ride Assist.
@@ -334,7 +369,7 @@ class RideMapViewState extends State<RideMapView> {
         // On iOS it seems like the duration is being given in seconds while on Android in milliseconds.
         if (Platform.isAndroid) {
           await mapController!.style
-              .setStyleTransition(mapbox.TransitionOptions(duration: 1500, enablePlacementTransitions: false));
+              .setStyleTransition(mapbox.TransitionOptions(duration: 1000, enablePlacementTransitions: false));
         } else {
           await mapController!.style
               .setStyleTransition(mapbox.TransitionOptions(duration: 1, enablePlacementTransitions: false));
@@ -377,6 +412,13 @@ class RideMapViewState extends State<RideMapView> {
       iconSize: ppi / 5,
       at: index,
     );
+    index = await getIndex(TrafficLightsLayer.layerId);
+    if (!mounted) return;
+    await TrafficLightsLayerClickable(isDark).install(
+      mapController!,
+      iconSize: ppi / 5,
+      at: index,
+    );
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: false)
@@ -414,13 +456,35 @@ class RideMapViewState extends State<RideMapView> {
       ).toJson(),
     );
 
+    // Calculate the correct screen coordinates since the map got scaled.
+    if (settings.saveBatteryModeEnabled) {
+      if (!mounted) return;
+      final frame = MediaQuery.of(context);
+
+      // Get the scaled width and height.
+      double scaleWidth = frame.size.width / settings.scalingFactor;
+      double scaleHeight = frame.size.height / settings.scalingFactor;
+
+      // Normalize the screen coordinate to the scaled area.
+      double normalizedX = actualScreenCoordinate.x - (frame.size.width - scaleWidth) / 2;
+      double normalizedY = actualScreenCoordinate.y - (frame.size.height - scaleHeight) / 2;
+
+      // Get the width and height ratio factor in relation to the scaled screen size.
+      double ratioX = normalizedX / scaleWidth;
+      double ratioY = normalizedY / scaleHeight;
+
+      // Calculate the screen coordinates with the ratio in relation to the actual screen.
+      actualScreenCoordinate.x = frame.size.width * ratioX;
+      actualScreenCoordinate.y = frame.size.height * ratioY;
+    }
+
     final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
       mapbox.RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
         type: mapbox.Type.SCREEN_COORDINATE,
       ),
       mapbox.RenderedQueryOptions(
-        layerIds: [TrafficLightsLayer.layerId, TrafficLightsLayer.touchIndicatorsLayerId],
+        layerIds: [TrafficLightsLayerClickable.layerId],
       ),
     );
 
@@ -433,8 +497,8 @@ class RideMapViewState extends State<RideMapView> {
   onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
     final id = queriedFeature.feature['id'];
-    if ((id as String).startsWith("traffic-light-")) {
-      final sgIdx = int.tryParse(id.split("-")[2]);
+    if ((id as String).startsWith("traffic-light-clickable")) {
+      final sgIdx = int.tryParse(id.split("-")[3]);
       if (sgIdx == null) return;
       ride.userSelectSG(sgIdx);
       if (ride.userSelectedSG != null) {
@@ -445,13 +509,44 @@ class RideMapViewState extends State<RideMapView> {
         if (!mounted) return;
         final isDark = Theme.of(context).brightness == Brightness.dark;
         await TrafficLightLayer(isDark).update(mapController!);
-        await mapController?.flyTo(
-          mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
-            padding: mapbox.MbxEdgeInsets(bottom: 200, top: 0, left: 0, right: 0),
-          ),
-          mapbox.MapAnimationOptions(duration: 200),
-        );
+
+        if (mounted) {
+          // Portrait/landscape mode
+          final orientation = MediaQuery.of(context).orientation;
+          final mapbox.MbxEdgeInsets padding;
+
+          if (orientation == Orientation.portrait) {
+            padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 200, right: 0);
+          } else {
+            // Landscape-Mode: Set user-puk to the left and a little down
+            // The padding must be different if battery save mode is enabled by user because the map is rendered differently
+            final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
+            final deviceWidth = MediaQuery.of(context).size.width;
+            final deviceHeight = MediaQuery.of(context).size.height;
+            final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+            if (isBatterySaveModeEnabled) {
+              if (Platform.isAndroid) {
+                padding = mapbox.MbxEdgeInsets(
+                    top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.165);
+              } else {
+                padding = mapbox.MbxEdgeInsets(
+                    top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.42);
+              }
+            } else {
+              padding = mapbox.MbxEdgeInsets(
+                  top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.42);
+            }
+          }
+
+          await mapController?.flyTo(
+            mapbox.CameraOptions(
+              center:
+                  mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+              padding: padding,
+            ),
+            mapbox.MapAnimationOptions(duration: 200),
+          );
+        }
       }
     }
   }
@@ -463,15 +558,11 @@ class RideMapViewState extends State<RideMapView> {
     // If this is fixed in an upcoming version of the Mapbox plugin, we may be able to remove those workaround adjustments
     // below.
     double marginYLogo = frame.padding.top;
-    double marginYAttribution = 0.0;
-    if (Platform.isAndroid) {
-      final ppi = frame.devicePixelRatio;
-      marginYLogo = marginYLogo * ppi;
-      marginYAttribution = marginYLogo;
-    } else {
-      marginYLogo = marginYLogo * 0.7;
-      marginYAttribution = marginYLogo - (22 * frame.devicePixelRatio);
-    }
+    final double marginYAttribution;
+
+    marginYLogo = marginYLogo * 0.7;
+    marginYAttribution = marginYLogo - 22;
+
     return AppMap(
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
@@ -481,7 +572,7 @@ class RideMapViewState extends State<RideMapView> {
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
-      saveBatteryModeEnabled: getIt<Settings>().saveBatteryModeEnabled,
+      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
     );
   }
 }

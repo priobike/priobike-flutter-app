@@ -15,7 +15,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class News with ChangeNotifier {
   /// The bool that holds the state if the data was loaded at least once.
-  var hasLoaded = false;
+  bool hasLoaded = false;
+
+  /// The bool that holds the state if an error occurred while loading the data.
+  bool hadError = false;
 
   /// The logger for this service.
   final log = Logger("News");
@@ -62,7 +65,7 @@ class News with ChangeNotifier {
 
     // Catch the error if there is no connection to the internet.
     try {
-      http.Response response = await Http.get(newsArticlesEndpoint).timeout(const Duration(seconds: 4));
+      final response = await Http.get(newsArticlesEndpoint).timeout(const Duration(seconds: 4));
 
       if (response.statusCode != 200) {
         final err = "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
@@ -75,9 +78,11 @@ class News with ChangeNotifier {
           articlesFromServer.add(article);
         },
       );
-    } catch (e) {
-      final hint = "Failed to load articles: $e";
+      hadError = false;
+    } catch (e, stacktrace) {
+      final hint = "Failed to load articles from server: $e $stacktrace";
       log.e(hint);
+      hadError = true;
     }
 
     articles = [...articlesFromServer, ...localSavedArticles];

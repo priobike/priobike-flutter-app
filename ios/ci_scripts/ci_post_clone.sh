@@ -9,14 +9,14 @@ set -x
 set -e
 
 # The default execution directory of this script is the ci_scripts directory.
-cd $CI_WORKSPACE # change working directory to the root of your cloned repo.
+cd $CI_PRIMARY_REPOSITORY_PATH # change working directory to the root of your cloned repo.
 
 # Copy the .netrc to the home directory for mapbox
 cp .netrc $HOME/.netrc
 chmod 600 $HOME/.netrc
 
 # Install Flutter using git.
-git clone https://github.com/flutter/flutter.git --depth 1 -b 3.7.3 $HOME/flutter
+git clone https://github.com/flutter/flutter.git --depth 1 -b 3.16.4 $HOME/flutter
 export PATH="$PATH:$HOME/flutter/bin"
 
 # Install Flutter artifacts for iOS (--ios), or macOS (--macos) platforms.

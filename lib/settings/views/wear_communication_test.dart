@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:wearable_communicator/wearable_communicator.dart';
 
 class WearCommunicationTestView extends StatefulWidget {
   const WearCommunicationTestView({Key? key}) : super(key: key);
@@ -26,17 +25,17 @@ class WearCommunicationTestViewState extends State<WearCommunicationTestView> {
   }
 
   Future<void> _startListening() async {
-    WearableListener.listenForMessage((msg) {
-      setState(() {
-        messageReceived = msg;
-      });
-    });
+    // WearableListener.listenForMessage((msg) {
+    //   setState(() {
+    //     messageReceived = msg;
+    //   });
+    // });
   }
 
   void _onSend() {
-    WearableCommunicator.sendMessage({
-      "text": textController.text,
-    });
+    // WearableCommunicator.sendMessage({
+    //   "text": textController.text,
+    // });
   }
 
   @override
@@ -81,10 +80,10 @@ class WearCommunicationTestViewState extends State<WearCommunicationTestView> {
                       decoration: const InputDecoration(hintText: 'Message text ...'),
                     ),
                     const SizedBox(height: 8),
-                    BigButton(
+                    BigButtonPrimary(
                         label: "Send",
                         onPressed: _onSend,
-                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width)),
+                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36)),
                   ],
                 ),
               ),

@@ -7,7 +7,8 @@ import 'package:priobike/main.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 
 class TrafficChart extends StatefulWidget {
-  const TrafficChart({Key? key}) : super(key: key);
+  const TrafficChart({super.key});
+
   @override
   TrafficChartState createState() => TrafficChartState();
 }
@@ -51,7 +52,7 @@ class TrafficChartState extends State<TrafficChart> {
       // Show the current score in a shimmering animation.
       final scaledTrafficFlowNow = min(1, max(0, (((trafficService.scoreNow!) - 0.94) / (0.05))));
       final nowHeight = availableHeight * (1 - scaledTrafficFlowNow);
-      final color = trafficService.trafficColor ?? CI.blue;
+      final color = trafficService.trafficColor ?? CI.radkulturRed;
       wrapper = (widget) => Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -109,7 +110,7 @@ class TrafficChartState extends State<TrafficChart> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(

@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:flutter/material.dart' hide Route;
+import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -12,9 +14,11 @@ import 'package:priobike/ride/services/predictor.dart';
 import 'package:priobike/ride/services/ride_assist.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -34,6 +38,9 @@ class Ride with ChangeNotifier {
 
   /// The currently selected route.
   Route? route;
+
+  /// The id of a corresponding shortcut, if a shortcut was used to create the route.
+  String? shortcutId;
 
   /// The current signal group, calculated periodically.
   Sg? calcCurrentSG;
@@ -66,6 +73,76 @@ class Ride with ChangeNotifier {
 
   /// The wrapper-service for the used prediction mode.
   PredictionComponent? predictionComponent;
+
+  /// List of Waypoints if the last ride got killed by the os.
+  List<Waypoint>? lastRoute;
+
+  /// Selected Route id if the last ride got killed by the os.
+  int lastRouteID = 0;
+
+  static const lastRouteKey = "priobike.ride.lastRoute";
+  static const lastRouteIDKey = "priobike.ride.lastRouteID";
+
+  /// Check for a list of waypoints, if there exists a shortcut covered by the waypoints and save the id if the case.
+  void setShortcut(List<Waypoint> waypoints) {
+    final shortcuts = getIt<Shortcuts>().shortcuts ?? [];
+    for (var shortcut in shortcuts) {
+      if (shortcut.getWaypoints().every((point) => waypoints.contains(point))) {
+        shortcutId = shortcut.id;
+        return;
+      }
+    }
+  }
+
+  /// Set the last route in shared preferences.
+  Future<bool> setLastRoute(List<Waypoint> lastRoute, int lastRouteID, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prevLastRoute = this.lastRoute;
+    final prevLastRouteID = this.lastRouteID;
+    this.lastRoute = lastRoute;
+    this.lastRouteID = lastRouteID;
+    List<String> jsonList = lastRoute.map((Waypoint waypoint) => jsonEncode(waypoint.toJSON())).toList();
+    bool success = await storage.setStringList(lastRouteKey, jsonList);
+    success = success && await storage.setInt(lastRouteIDKey, lastRouteID);
+    if (!success) {
+      log.e("Failed to set lastRoute to $lastRoute");
+      this.lastRoute = prevLastRoute;
+      this.lastRouteID = prevLastRouteID;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  /// Remove the last route from shared preferences.
+  Future<bool> removeLastRoute([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    lastRoute = null;
+    lastRouteID = 0;
+    bool success = await storage.remove(lastRouteKey);
+    success = success && await storage.remove(lastRouteIDKey);
+    if (!success) {
+      log.e("Failed to remove lastRoute");
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  /// Load the last route from shared preferences.
+  Future<void> loadLastRoute() async {
+    final storage = await SharedPreferences.getInstance();
+    try {
+      List<String>? jsonList = storage.getStringList(lastRouteKey);
+      int? lastRouteID = storage.getInt(lastRouteIDKey);
+      if (jsonList != null && lastRouteID != null) {
+        lastRoute = jsonList.map((e) => Waypoint.fromJson(jsonDecode(e))).toList();
+        this.lastRouteID = lastRouteID;
+      }
+    } catch (e) {
+      /* Do nothing. */
+    }
+  }
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
@@ -279,6 +356,7 @@ class Ride with ChangeNotifier {
     calcCurrentSGIndex = null;
     calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
+    shortcutId = null;
     notifyListeners();
   }
 }

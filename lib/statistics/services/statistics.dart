@@ -88,7 +88,8 @@ class Statistics with ChangeNotifier {
     // Get the positioning service.
     final positioning = getIt<Positioning>();
     final positions = positioning.positions;
-    if (positions.isEmpty) return;
+    final snaps = positioning.snaps;
+    if (positions.isEmpty || snaps.isEmpty) return;
 
     // Calculate the summary.
     final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
@@ -101,18 +102,20 @@ class Statistics with ChangeNotifier {
     // Aggregate the elevation.
     var totalElevationGain = 0.0;
     var totalElevationLoss = 0.0;
-    for (var i = 0; i < positions.length - 1; i++) {
-      final elevationChange = positions[i + 1].altitude - positions[i].altitude;
+    for (var i = 0; i < snaps.length - 1; i++) {
+      // We cannot use the GPS position here, since it is not accurate enough.
+      // Using GPS position will aggregate a lot of noise, leading to a wrong elevation gain/loss.
+      // Thus, we calculate the elevation change based on the snapped positions.
+      final elevationChange = snaps[i + 1].altitude - snaps[i].altitude;
       if (elevationChange > 0) {
         totalElevationGain += elevationChange;
       } else {
-        totalElevationLoss += elevationChange;
+        totalElevationLoss -= elevationChange;
       }
     }
     // Aggregate the duration.
     final now = positions.last.timestamp;
     final start = positions.first.timestamp;
-    if (now == null || start == null) return;
     final totalDuration = now.difference(start).inMilliseconds;
 
     // Create the summary.
@@ -122,6 +125,7 @@ class Statistics with ChangeNotifier {
       elevationGain: totalElevationGain,
       elevationLoss: totalElevationLoss,
     );
+
     addSummary(currentSummary!);
   }
 

@@ -9,7 +9,7 @@ class SpeedometerAlert extends StatelessWidget {
   /// The size of the speedometer.
   final Size size;
 
-  const SpeedometerAlert({Key? key, required this.size}) : super(key: key);
+  const SpeedometerAlert({super.key, required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class SpeedometerAlert extends StatelessWidget {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                color: CI.red,
+                color: CI.radkulturYellow,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -47,14 +47,14 @@ class SpeedometerAlert extends StatelessWidget {
             if (getIt<Routing>().waypointsOutOfBoundaries)
               BoldContent(
                 textAlign: TextAlign.center,
-                text: "Du befindest dich jetzt außerhalb der Stadtgrenze\n",
+                text: "Du befindest Dich jetzt außerhalb der Stadtgrenze\n",
                 color: Colors.white,
                 context: context,
               ),
             if (getIt<Routing>().waypointsOutOfBoundaries)
               Content(
                 textAlign: TextAlign.center,
-                text: "Dir wird wieder eine Route berechnet, sobald du wieder in der Stadt bist.",
+                text: "Dir wird wieder eine Route berechnet, sobald Du wieder in der Stadt bist.",
                 color: Colors.white,
                 context: context,
               ),

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/wiki/articles.dart';
 import 'package:priobike/wiki/widgets/wiki_card.dart';
 
 class WikiView extends StatefulWidget {
-  const WikiView({Key? key}) : super(key: key);
+  const WikiView({super.key});
 
   @override
   WikiViewState createState() => WikiViewState();
@@ -38,26 +37,6 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            BoldContent(
-              text: "Wie funktioniert PrioBike?",
-              context: context,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Small(
-              text: "Erfahre mehr über die App.",
-              context: context,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
       SizedBox(
         width: MediaQuery.of(context).size.width,
         height: 164,
@@ -82,7 +61,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
         padding: const EdgeInsets.only(top: 8),
         child: TabPageSelector(
           controller: tabController,
-          selectedColor: CI.blue,
+          selectedColor: CI.radkulturRed,
           indicatorSize: 12,
           borderStyle: BorderStyle.none,
           color: Theme.of(context).colorScheme.primary.withOpacity(0.25),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -24,23 +25,23 @@ final surfaceTypeTranslation = {
 
 /// The color translation of the surface.
 final surfaceTypeColor = {
-  "Asphalt": const Color(0xFF8e44ad),
-  "Kopfsteinpflaster": const Color(0xFF2980b9),
-  "Fester Boden": const Color(0xFFEEB072),
-  "Beton": const Color(0xFF7f8c8d),
-  "Erde": const Color(0xFF402F22),
-  "Feiner Kies": const Color(0xFF7B7B7B),
-  "Graß": const Color(0xFF2ecc71),
-  "Kies": const Color(0xFF2980b9),
-  "Boden": const Color(0xFF2c3e50),
-  "Sonstiges": const Color(0xFF27ae60),
-  "Pflastersteine": const Color(0xFF95a5a6),
-  "Sand": const Color(0xFFf39c12),
-  "Unbefestigter Boden": const Color(0xFFc0392b),
+  "Asphalt": const Color(0xFF555555),
+  "Kopfsteinpflaster": const Color(0xFF8A8A8A),
+  "Fester Boden": const Color(0xFF916735),
+  "Beton": const Color(0xFFC0C0C0),
+  "Erde": const Color(0xFFA15802),
+  "Feiner Kies": const Color(0xFFD6C9A8),
+  "Graß": const Color(0xFF64BA79),
+  "Kies": const Color(0xFFA7A288),
+  "Boden": const Color(0xFF916735),
+  "Sonstiges": const Color(0xFFD694FF),
+  "Pflastersteine": const Color(0xFFA7A7A7),
+  "Sand": const Color(0xFFE7D980),
+  "Unbefestigter Boden": const Color(0xFF703D01),
 };
 
 class SurfaceTypeChart extends StatefulWidget {
-  const SurfaceTypeChart({Key? key}) : super(key: key);
+  const SurfaceTypeChart({super.key});
 
   @override
   SurfaceTypeChartState createState() => SurfaceTypeChartState();
@@ -178,7 +179,7 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
@@ -192,17 +193,16 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
             },
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Content(text: "Oberfläche", context: context),
-              Row(children: [
-                Content(
-                  text: "Details",
-                  context: context,
-                  color: Theme.of(context).colorScheme.primary,
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: SmallIconButtonTertiary(
+                  icon: showSurfaceTypeDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
+                  onPressed: () => setState(() {
+                    showSurfaceTypeDetails = !showSurfaceTypeDetails;
+                  }),
                 ),
-                const SizedBox(width: 4),
-                showSurfaceTypeDetails
-                    ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
-                    : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
-              ]),
+              ),
             ]),
           ),
           const SizedBox(height: 8),

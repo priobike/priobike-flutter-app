@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -29,61 +29,8 @@ import 'package:priobike/routing/views/widgets/compass_button.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-/// Show a sheet to save the current route as a shortcut.
-void showSaveShortcutSheet(context) {
-  final shortcuts = GetIt.instance.get<Shortcuts>();
-  showDialog(
-    context: context,
-    builder: (_) {
-      final nameController = TextEditingController();
-      return AlertDialog(
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-        insetPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40.0),
-        title: BoldContent(
-          text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.',
-          context: context,
-        ),
-        content: SizedBox(
-          height: 78,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: nameController,
-                maxLength: 20,
-                decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
-              ),
-            ],
-          ),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              final name = nameController.text;
-              if (name.trim().isEmpty) {
-                ToastMessage.showError("Name darf nicht leer sein.");
-                return;
-              }
-              await shortcuts.saveNewShortcutRoute(name);
-              ToastMessage.showSuccess("Route gespeichert!");
-              Navigator.pop(context);
-            },
-            child: BoldContent(
-              text: 'Speichern',
-              color: Theme.of(context).colorScheme.primary,
-              context: context,
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
 class RoutingView extends StatefulWidget {
-  const RoutingView({Key? key}) : super(key: key);
+  const RoutingView({super.key});
 
   @override
   State<StatefulWidget> createState() => RoutingViewState();
@@ -111,8 +58,8 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated MapValues service, which is injected by the provider.
   late MapValues mapValues;
 
-  /// The stream that receives notifications when the bottom sheet is dragged.
-  final sheetMovement = StreamController<DraggableScrollableNotification>();
+  /// The timer that updates the location puck position on the map.
+  Timer? timer;
 
   /// The threshold for the location accuracy in meter
   /// NOTE: The accuracy will increase if we move and gain more GPS signal data.
@@ -134,11 +81,24 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        // Calling requestSingleLocation function to fill lastPosition of PositionService
+        // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
         await positioning?.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning!.positionSource);
         });
+        // Calling requestSingleLocation function to fill lastPosition of PositionService regularly.
+        // Note: using dart timer because geolocator has no options for ios to set the gps interval.
+        timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+          await positioning?.requestSingleLocation(onNoPermission: () {
+            Navigator.of(context).pop();
+            showLocationAccessDeniedDialog(context, positioning!.positionSource);
+          });
+          // Move screen if was centered before.
+          if (mapValues.isCentered) {
+            mapFunctions.setCameraCenterOnUserLocation();
+          }
+        });
+
         // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
         // a location shortcut instead of a route shortcut.
         await routing?.loadRoutes();
@@ -171,7 +131,7 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
-    sheetMovement.close();
+    timer?.cancel();
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
@@ -186,44 +146,42 @@ class RoutingViewState extends State<RoutingView> {
     // We need to send a result (true) to inform the result handler in the HomeView that we do not want to reset
     // the services. This is only wanted when we pop the routing view in case of a back navigation (e.g. by back button)
     // from the routing view to the home view.
-    void startRide() => Navigator.pushReplacement<void, bool>(
+    void startRide() {
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => const RideView(),
         ),
-        result: true);
+        (route) => false,
+      ).whenComplete(() => true);
+    }
 
     final settings = getIt<Settings>();
     if (settings.didViewWarning) {
       startRide();
     } else {
-      showDialog(
+      showGeneralDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          content: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                await settings.setDidViewWarning(true);
-                startRide();
-              },
-              child: BoldContent(
-                text: 'OK',
-                color: Theme.of(context).colorScheme.primary,
-                context: context,
-              ),
-            ),
-          ],
-        ),
+        barrierDismissible: true,
+        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierColor: Colors.black.withOpacity(0.4),
+        pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+          return DialogLayout(
+            title: 'Hinweis',
+            text:
+                'Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+            actions: [
+              BigButtonPrimary(
+                label: "Ok",
+                onPressed: () async {
+                  await settings.setDidViewWarning(true);
+                  startRide();
+                },
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+              )
+            ],
+          );
+        },
       );
     }
   }
@@ -239,28 +197,15 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Tile(
-            fill: Theme.of(context).colorScheme.surface,
-            content: Center(
-              child: SizedBox(
-                height: 86,
-                width: 256,
-                child: Column(
-                  children: [
-                    const CircularProgressIndicator(),
-                    const VSpace(),
-                    BoldContent(text: "Lade...", maxLines: 1, context: context),
-                  ],
-                ),
-              ),
-            ),
-          ),
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      child: const Center(
+        child: SizedBox(
+          height: 48,
+          width: 48,
+          child: CircularProgressIndicator(),
         ),
-      ],
+      ),
     );
   }
 
@@ -272,14 +217,14 @@ class RoutingViewState extends State<RoutingView> {
       children: [
         Expanded(
           child: Tile(
-            fill: Theme.of(context).colorScheme.surface,
+            fill: Theme.of(context).colorScheme.background,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
                 const VSpace(),
                 BoldSmall(
-                  text: "Tut uns Leid, aber diese Route konnte nicht geladen werden.",
+                  text: "Tut uns Leid, aber das konnte nicht geladen werden.",
                   context: context,
                   textAlign: TextAlign.center,
                 ),
@@ -296,16 +241,9 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
-                            label: "Letzten Wegpunkt löschen",
-                            onPressed: () async {
-                              if (routing!.selectedWaypoints != null && routing!.selectedWaypoints!.isNotEmpty) {
-                                routing!.selectedWaypoints!.removeLast();
-                              } else {
-                                log.e("Tried to delete last waypoint, but there is no waypoint to delete");
-                              }
-                              await routing!.loadRoutes();
-                            },
+                          BigButtonPrimary(
+                            label: "Zurück zum Hauptmenu",
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
                         ],
                       )
@@ -318,7 +256,7 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
+                          BigButtonPrimary(
                             label: "Erneut versuchen",
                             onPressed: () async {
                               await routing?.loadRoutes();
@@ -338,29 +276,22 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Alert dialog for location accuracy
   void showAlertGPSQualityDialog() {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-          title: BoldSubHeader(text: 'Hinweis', context: context),
-          content: Content(
-            text:
-                'Deine GPS-Position scheint ungenau zu sein. Solltest du während der Fahrt Probleme mit der Ortung feststellen, prüfe deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
-            context: context,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: BoldContent(
-                text: 'Okay',
-                context: context,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Hinweis',
+          text:
+              'Deine GPS-Position scheint ungenau zu sein. Solltest Du während der Fahrt Probleme mit der Ortung feststellen, prüfe Deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
+          actions: [
+            BigButtonPrimary(
+              label: "Ok",
               onPressed: () => Navigator.of(context).pop(),
-            ),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            )
           ],
         );
       },
@@ -369,80 +300,77 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
-        body: NotificationListener<DraggableScrollableNotification>(
-          onNotification: (notification) {
-            sheetMovement.add(notification);
-            return false;
-          },
-          child: Stack(
-            children: [
-              RoutingMapView(sheetMovement: sheetMovement.stream),
+        body: Stack(
+          children: [
+            const RoutingMapView(),
 
-              if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
-              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
+            if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
+            if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
-              // Top Bar
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+            // Top Bar
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: AppBackButton(
+                  icon: Icons.chevron_left_rounded,
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
+            ),
 
-              // Side Bar
-              layers.layersCanBeEnabled
-                  ? SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 80, left: 8),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: 58,
-                              height: 58,
-                              child: Tile(
-                                fill: Theme.of(context).colorScheme.background,
-                                onPressed: onLayerSelection,
-                                content: Icon(
-                                  Icons.layers_rounded,
-                                  color: Theme.of(context).colorScheme.onBackground,
-                                ),
+            // Side Bar
+            layers.layersCanBeEnabled
+                ? SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 80, left: 8),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: 58,
+                            height: 58,
+                            child: Tile(
+                              fill: Theme.of(context).colorScheme.surfaceVariant,
+                              onPressed: onLayerSelection,
+                              content: Icon(
+                                Icons.layers_rounded,
+                                color: Theme.of(context).colorScheme.onBackground,
                               ),
-                            )
-                          ],
-                        ),
+                            ),
+                          )
+                        ],
                       ),
-                    )
-                  : Container(),
+                    ),
+                  )
+                : Container(),
 
-              SafeArea(
+            SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
+                child: const Column(
+                  children: [CenterButton(), SmallVSpace(), CompassButton()],
+                ),
+              ),
+            ),
+
+            const SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
-                  child: Column(
-                    children: const [CenterButton(), SmallVSpace(), CompassButton()],
-                  ),
+                  padding: EdgeInsets.only(bottom: 132),
+                  child: ShortcutsRow(),
                 ),
               ),
+            ),
 
-              const SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: 124),
-                    child: ShortcutsRow(),
-                  ),
-                ),
-              ),
-
-              RouteDetailsBottomSheet(
-                onSelectStartButton: onStartRide,
-                onSelectSaveButton: () => showSaveShortcutSheet(context),
-              ),
-            ],
-          ),
+            RouteDetailsBottomSheet(
+              onSelectStartButton: onStartRide,
+              onSelectSaveButton: () => showSaveShortcutSheet(context),
+            ),
+          ],
         ),
       ),
     );

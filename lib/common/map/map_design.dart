@@ -12,37 +12,49 @@ class MapDesign {
   /// The style string for the light map.
   final String lightStyle;
 
+  /// The style string for the light map without text.
+  final String lightStyleNoText;
+
   /// The light screenshot asset path.
-  final String lightScreenshot;
+  final String fallbackLightScreenshot;
 
   /// The style string for the dark map.
   final String darkStyle;
 
+  /// The style string for the dark map without text.
+  final String darkStyleNoText;
+
   /// The dark screenshot asset path.
-  final String darkScreenshot;
+  final String fallbackDarkScreenshot;
 
   const MapDesign({
     required this.name,
     required this.lightStyle,
-    required this.lightScreenshot,
+    required this.lightStyleNoText,
+    required this.fallbackLightScreenshot,
     required this.darkStyle,
-    required this.darkScreenshot,
+    required this.darkStyleNoText,
+    required this.fallbackDarkScreenshot,
   });
 
   factory MapDesign.fromJson(Map<String, dynamic> json) => MapDesign(
         name: json['name'],
         lightStyle: json['lightStyle'],
-        lightScreenshot: json['lightScreenshot'],
+        lightStyleNoText: json['lightStyleNoText'],
+        fallbackLightScreenshot: json['fallbackLightScreenshot'],
         darkStyle: json['darkStyle'],
-        darkScreenshot: json['darkScreenshot'],
+        darkStyleNoText: json['darkStyleNoText'],
+        fallbackDarkScreenshot: json['fallbackDarkScreenshot'],
       );
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'lightStyle': lightStyle,
-        'lightScreenshot': lightScreenshot,
+        'lightStyleNoText': lightStyleNoText,
+        'fallbackLightScreenshot': fallbackLightScreenshot,
         'darkStyle': darkStyle,
-        'darkScreenshot': darkScreenshot,
+        'darkStyleNoText': darkStyleNoText,
+        'fallbackDarkScreenshot': fallbackDarkScreenshot,
       };
 
   @override
@@ -55,10 +67,12 @@ class MapDesign {
   /// The standard map design.
   static const standard = MapDesign(
     name: 'PrioBike',
-    lightStyle: 'mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu',
-    lightScreenshot: 'assets/images/screenshots/standard-light.png',
-    darkStyle: 'mapbox://styles/snrmtths/cle4gkymg001t01nwazajfyod',
-    darkScreenshot: 'assets/images/screenshots/standard-dark.png',
+    lightStyle: 'mapbox://styles/snrmtths/clnsn1qcm00j601qyf67tekyh',
+    lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
+    fallbackLightScreenshot: 'assets/images/screenshots/standard-light.png',
+    darkStyle: 'mapbox://styles/snrmtths/clnsn1qdk00it01o309z89n70',
+    darkStyleNoText: 'mapbox://styles/snrmtths/cllxh6el000j301pj59tu0e1c',
+    fallbackDarkScreenshot: 'assets/images/screenshots/standard-dark.png',
   );
 
   /// All available map designs.
@@ -67,9 +81,11 @@ class MapDesign {
     MapDesign(
       name: 'Satellit',
       lightStyle: MapboxStyles.SATELLITE_STREETS,
-      lightScreenshot: 'assets/images/screenshots/satellite-streets.png',
+      lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
+      fallbackLightScreenshot: 'assets/images/screenshots/satellite-streets.png',
       darkStyle: MapboxStyles.SATELLITE_STREETS,
-      darkScreenshot: 'assets/images/screenshots/satellite-streets.png',
+      darkStyleNoText: 'mapbox://styles/snrmtths/cllxh6el000j301pj59tu0e1c',
+      fallbackDarkScreenshot: 'assets/images/screenshots/satellite-streets.png',
     ),
   ];
 }
@@ -107,11 +123,26 @@ class MapDesigns with ChangeNotifier {
     if (systemMemory != null && systemMemory >= memoryThreshold) {
       designCanBeChanged = true;
 
-      final mapDesignStr = storage.getString("priobike.layers.style");
-      if (mapDesignStr != null) {
-        mapDesign = MapDesign.fromJson(jsonDecode(mapDesignStr));
-      } else {
-        mapDesign = MapDesign.standard;
+      try {
+        final String? mapDesignName = storage.getString("priobike.layers.styleName");
+        if (mapDesignName != null) {
+          // Load the map design from the preferences.
+          bool found = false;
+          for (final design in MapDesign.designs) {
+            if (design.name == mapDesignName) {
+              mapDesign = design;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            throw Exception("Unknown map design in shared prefs: $mapDesignName. Setting MapDesign to standard.");
+          }
+        } else {
+          throw Exception("No map design found in preferences. Setting MapDesign to standard.");
+        }
+      } catch (e) {
+        await setMapDesign(MapDesign.standard);
       }
     }
     notifyListeners();
@@ -121,7 +152,7 @@ class MapDesigns with ChangeNotifier {
   Future<void> storePreferences() async {
     final storage = await SharedPreferences.getInstance();
 
-    await storage.setString("priobike.layers.style", jsonEncode(mapDesign.toJson()));
+    await storage.setString("priobike.layers.styleName", jsonEncode(mapDesign.name));
 
     notifyListeners();
   }

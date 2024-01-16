@@ -60,9 +60,9 @@ class Traffic with ChangeNotifier {
       return null;
     }
     if (scoreNow! > 0.96) {
-      return CI.blue;
+      return CI.radkulturRed;
     } else {
-      return CI.blue;
+      return CI.radkulturRed;
     }
   }
 

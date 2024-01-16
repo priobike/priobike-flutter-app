@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -10,7 +11,7 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/article_list_item.dart';
 
 class NewsView extends StatefulWidget {
-  const NewsView({Key? key}) : super(key: key);
+  const NewsView({super.key});
 
   @override
   NewsViewState createState() => NewsViewState();
@@ -39,9 +40,9 @@ class NewsViewState extends State<NewsView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    return AnnotatedRegionWrapper(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: Fade(
           child: RefreshIndicator(
@@ -76,7 +77,7 @@ class NewsViewState extends State<NewsView> {
                     ),
                     const SmallVSpace(),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                       child: !news.hasLoaded
                           ? SizedBox(
                               height: MediaQuery.of(context).size.height * 0.5,

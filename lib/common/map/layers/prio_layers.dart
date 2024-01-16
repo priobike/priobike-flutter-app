@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -29,7 +29,7 @@ class GreenWaveLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.15, at = 0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -39,7 +39,7 @@ class GreenWaveLayer {
           mapbox.SymbolLayer(
             sourceId: sourceId,
             id: layerId,
-            iconImage: isDark ? "trafficlightgreenwavedark" : "trafficlightgreenwavelight",
+            iconImage: isDark ? "greenwavedark" : "greenwavelight",
             iconSize: iconSize,
             iconOpacity: 0,
             iconAllowOverlap: true,
@@ -97,7 +97,7 @@ class VeloRoutesLayer {
               id: layerId,
               lineJoin: mapbox.LineJoin.ROUND,
               lineCap: mapbox.LineCap.ROUND,
-              lineColor: CI.blueLight.value,
+              lineColor: const Color.fromARGB(255, 64, 192, 240).value,
               lineWidth: 1.9),
           mapbox.LayerPosition(at: at));
     }

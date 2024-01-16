@@ -1,0 +1,24 @@
+name: Dist / Android / Release
+
+on:
+  push:
+    # Every branch that starts with "release"
+    branches:
+      - release*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: self-hosted
+    container: cirrusci/flutter:3.7.3
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run unit tests
+        run: |
+          flutter pub get
+          flutter test
+
+  # TODO: Distribute app

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -28,8 +30,8 @@ class ArticleListItem extends StatelessWidget {
     required this.wasRead,
     required this.totalNumberOfArticles,
     required this.articleIndex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,20 +48,32 @@ class ArticleListItem extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                 decoration: BoxDecoration(
-                  color: CI.red,
+                  color: CI.radkulturYellow,
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: const Text("NEU", style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: Padding(
+                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                  child: const Text(
+                    "NEU",
+                    style: TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                ),
               ),
             if (category != null)
               Container(
                 margin: const EdgeInsets.only(right: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                 decoration: BoxDecoration(
-                  color: CI.blue,
+                  color: CI.radkulturRed,
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: Text(category!.title, style: const TextStyle(fontSize: 16, color: Colors.white)),
+                child: Padding(
+                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                  child: Text(
+                    category!.title,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
               ),
           ],
         ),

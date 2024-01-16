@@ -15,6 +15,9 @@
 
 default_platform(:android)
 
+# Fix for Google Api Errors (https://github.com/fastlane/fastlane/issues/21507#issuecomment-1723116829)
+ENV['SUPPLY_UPLOAD_MAX_RETRIES']='5'
+
 platform :android do
   desc "Runs all the tests"
   lane :test do

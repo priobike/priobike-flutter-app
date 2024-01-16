@@ -9,7 +9,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
@@ -19,7 +18,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/settings/models/test.dart';
 import 'package:vibration/vibration.dart';
-import 'package:wearable_communicator/wearable_communicator.dart';
 
 const audioPath = "sounds/ding.mp3";
 
@@ -141,34 +139,34 @@ class PretestViewState extends State<PretestView> {
   }
 
   Future<void> _startListening() async {
-    WearableListener.listenForMessage((msg) {
-      Map<String, dynamic> data = jsonDecode(msg);
-      if (data["status"] != null && data["status"] == "ready") {
-        setState(() {
-          synced = true;
-        });
-
-        startCountdown();
-      }
-    });
+    // WearableListener.listenForMessage((msg) {
+    //   Map<String, dynamic> data = jsonDecode(msg);
+    //   if (data["status"] != null && data["status"] == "ready") {
+    //     setState(() {
+    //       synced = true;
+    //     });
+    //
+    //     startCountdown();
+    //   }
+    // });
   }
 
   void _onSendStart() {
-    WearableCommunicator.sendMessage({
-      "testType": widget.testType.description,
-    });
+    // WearableCommunicator.sendMessage({
+    //   "testType": widget.testType.description,
+    // });
   }
 
   void _sendOutput(InputType inputType) {
-    WearableCommunicator.sendMessage({
-      "play": inputType.description,
-    });
+    // WearableCommunicator.sendMessage({
+    //   "play": inputType.description,
+    // });
   }
 
   void _sendStop() {
-    WearableCommunicator.sendMessage({
-      "stop": true,
-    });
+    // WearableCommunicator.sendMessage({
+    //   "stop": true,
+    // });
   }
 
   @override
@@ -416,7 +414,7 @@ class PretestViewState extends State<PretestView> {
                       child: BigIconButton(
                         icon: Icons.keyboard_double_arrow_up_rounded,
                         iconSize: 128,
-                        fillColor: lock.timer != null && lock.timer!.isActive ? Colors.grey : CI.green,
+                        fillColor: lock.timer != null && lock.timer!.isActive ? Colors.grey : Colors.green,
                         splashColor: Colors.white,
                         onPressed: () {
                           lock.run(() {
@@ -446,7 +444,7 @@ class PretestViewState extends State<PretestView> {
                       child: BigIconButton(
                         icon: Icons.keyboard_double_arrow_down_rounded,
                         iconSize: 128,
-                        fillColor: lock.timer != null && lock.timer!.isActive ? Colors.grey : CI.red,
+                        fillColor: lock.timer != null && lock.timer!.isActive ? Colors.grey : Colors.red,
                         splashColor: Colors.white,
                         onPressed: () {
                           lock.run(() {

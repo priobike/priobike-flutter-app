@@ -27,7 +27,7 @@ class RideCenterButtonsView extends StatefulWidget {
   /// The size of the canvas for the custom painter.
   final Size size;
 
-  const RideCenterButtonsView({Key? key, required this.size}) : super(key: key);
+  const RideCenterButtonsView({super.key, required this.size});
 
   @override
   State<StatefulWidget> createState() => RideCenterButtonsViewState();
@@ -206,13 +206,13 @@ class CenterButton extends StatelessWidget {
   final double angle;
 
   const CenterButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.rotation,
     required this.child,
     required this.size,
     required this.angle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -225,8 +225,8 @@ class CenterButton extends StatelessWidget {
         fillColor: Theme.of(context).brightness == Brightness.light
             ? Colors.black.withOpacity(0.25)
             : Colors.white.withOpacity(0.1),
-        splashColor: CI.blueLight,
-        highlightColor: CI.blue,
+        splashColor: Theme.of(context).colorScheme.surfaceTint,
+        highlightColor: CI.radkulturRed,
         elevation: 0,
         child: Transform.rotate(
           angle: -rotation,
@@ -243,7 +243,7 @@ class CenterButtonBorder extends OutlinedBorder {
   /// The angle of the button (what portion of a circle the button is taking, in radians).
   final double angle;
 
-  const CenterButtonBorder(this.angle, {BorderSide side = BorderSide.none}) : super(side: side);
+  const CenterButtonBorder(this.angle, {super.side});
 
   @override
   OutlinedBorder copyWith({BorderSide? side}) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/colors.dart';
@@ -9,7 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 
 class TotalStatisticsView extends StatefulWidget {
-  const TotalStatisticsView({Key? key}) : super(key: key);
+  const TotalStatisticsView({super.key});
 
   @override
   State<TotalStatisticsView> createState() => TotalStatisticsViewState();
@@ -38,23 +39,23 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
     super.dispose();
   }
 
-  Widget renderInfoDialogBox() {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-      title: BoldContent(text: "Fahrtstatistiken", context: context),
-      content: Content(
+  /// Show a sheet to edit the current shortcuts name.
+  void renderInfoDialogBox(context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrtstatistiken',
           text:
-              "Beim gezeigten CO2-Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
-          context: context),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text("Alles klar"),
-        ),
-      ],
+              "Beim gezeigten CO2-Wert handelt es sich um eine Schätzung anhand Deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
+          icon: Icons.update_rounded,
+          iconColor: Theme.of(context).colorScheme.primary,
+          actions: const [],
+        );
+      },
     );
   }
 
@@ -79,14 +80,11 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             child: SizedBox(
               width: 48,
               height: 48,
-              child: SmallIconButton(
+              child: SmallIconButtonPrimary(
                 icon: Icons.info_outline_rounded,
-                fill: Theme.of(context).colorScheme.background,
-                splash: Colors.white,
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => renderInfoDialogBox(),
-                ),
+                fill: Theme.of(context).colorScheme.surfaceVariant,
+                splash: Theme.of(context).colorScheme.surfaceTint,
+                onPressed: () => renderInfoDialogBox(context),
               ),
             ),
           ),

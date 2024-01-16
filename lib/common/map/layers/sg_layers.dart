@@ -181,6 +181,112 @@ class TrafficLightsLayer {
   }
 }
 
+class TrafficLightsLayerClickable {
+  /// The ID of the Mapbox source.
+  static const sourceId = "traffic-lights-clickable";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "traffic-lights-icons-clickable";
+
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  TrafficLightsLayerClickable(bool isDark, {hideBehindPosition = false}) {
+    final routing = getIt<Routing>();
+    final userPosSnap = getIt<Positioning>().snap;
+    if (routing.selectedRoute == null) return;
+    for (int i = 0; i < routing.selectedRoute!.signalGroups.length; i++) {
+      final sg = routing.selectedRoute!.signalGroups[i];
+      final sgDistanceOnRoute = routing.selectedRoute!.signalGroupsDistancesOnRoute[i];
+      // Clamp the value to not unnecessarily update the source.
+      final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
+
+      features.add(
+        {
+          "id": "traffic-light-clickable-$i", // Required for the click listener.
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [sg.position.lon, sg.position.lat],
+          },
+          "properties": {
+            "id": sg.id,
+            "isDark": isDark,
+            "distanceToSgOnRoute": distanceToSgOnRoute,
+            "hideBehindPosition": hideBehindPosition,
+          },
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+
+    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!trafficLightIconsLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: sourceId,
+            id: layerId,
+            iconSize: iconSize,
+            iconAllowOverlap: true,
+            textAllowOverlap: true,
+            textIgnorePlacement: true,
+            iconOpacity: 0,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerId, 'icon-image', 'trafficlightclicklayer');
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-opacity',
+          json.encode(
+            showAfter(zoom: 16, opacity: [
+              "case",
+              ["get", "hideBehindPosition"],
+              [
+                "case",
+                [
+                  "<",
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                ],
+                0,
+                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                  0,
+                  0,
+                  1
+                ],
+              ],
+              1
+            ]),
+          ));
+    }
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (sourceExists) {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
 class TrafficLightLayer {
   /// The ID of the Mapbox source.
   static const sourceId = "traffic-light";

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -16,14 +15,14 @@ class NavBarView extends StatelessWidget {
   /// A callback that is fired when the notification button was pressed.
   final void Function()? onTapNotificationButton;
 
-  const NavBarView({this.onTapSettingsButton, this.onTapNotificationButton, Key? key}) : super(key: key);
+  const NavBarView({this.onTapSettingsButton, this.onTapNotificationButton, super.key});
 
   @override
   Widget build(BuildContext context) {
     final settings = getIt<Settings>();
     return SliverAppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.secondary,
+      foregroundColor: Colors.white,
       pinned: true,
       snap: false,
       floating: false,
@@ -42,17 +41,6 @@ class NavBarView extends StatelessWidget {
             bottom: 32,
             top: MediaQuery.of(context).padding.top + 14,
           ),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              stops: [
-                0.1,
-                0.9,
-              ],
-              colors: [CI.blueLight, CI.blue],
-            ),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -63,10 +51,15 @@ class NavBarView extends StatelessWidget {
                     color: Colors.white,
                     context: context,
                   ),
+                  Content(
+                    text: settings.backend == Backend.staging ? " DD" : " HH",
+                    color: Colors.white,
+                    context: context,
+                  ),
                   Flexible(
                     fit: FlexFit.tight,
-                    child: Content(
-                      text: settings.backend == Backend.staging ? " DD" : " HH",
+                    child: Small(
+                      text: settings.backend == Backend.production ? "  beta" : "",
                       color: Colors.white,
                       context: context,
                     ),
@@ -91,11 +84,13 @@ class NavBarView extends StatelessWidget {
                 },
               ),
               const SmallHSpace(),
-              SmallIconButton(
+              SmallIconButtonSecondary(
                 icon: Icons.settings_rounded,
                 color: Colors.white,
-                splash: Colors.white,
-                fill: const Color.fromARGB(50, 255, 255, 255),
+                splash: Theme.of(context).colorScheme.surfaceTint,
+                fill: Colors.transparent,
+                borderColor: Colors.white,
+                withBorder: true,
                 onPressed: () {
                   onTapSettingsButton?.call();
                 },

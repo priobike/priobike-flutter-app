@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -8,7 +7,9 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 
 class StatusView extends StatefulWidget {
-  const StatusView({Key? key}) : super(key: key);
+  final Function triggerRebuild;
+
+  const StatusView({super.key, required this.triggerRebuild});
 
   @override
   StatusViewState createState() => StatusViewState();
@@ -32,6 +33,7 @@ class StatusViewState extends State<StatusView> {
     text = loadText();
     goodPct = loadGood();
     setState(() {});
+    widget.triggerRebuild;
   }
 
   @override
@@ -85,22 +87,24 @@ class StatusViewState extends State<StatusView> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6),
+      constraints: const BoxConstraints(minHeight: 128),
       child: Tile(
-        fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
+        fill: isProblem ? CI.radkulturYellow : Theme.of(context).colorScheme.surfaceVariant,
         shadowIntensity: isProblem ? 0.2 : 0.05,
-        shadow: isProblem ? CI.red : Colors.black,
+        shadow: isProblem ? CI.radkulturYellow : Colors.black,
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 4),
             BoldSmall(
               text: "Jetzt",
-              color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
               context: context,
+              color: isProblem ? Colors.black : null,
             ),
-            const SmallVSpace(),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -111,21 +115,34 @@ class StatusViewState extends State<StatusView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       isProblem
-                          ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
+                          ? BoldContent(
+                              text: "Vorübergehende Störung",
+                              context: context,
+                              color: Colors.black,
+                            )
                           : BoldContent(text: "Datenverfügbarkeit", context: context),
                       const SizedBox(height: 6),
                       isProblem
                           ? Small(
                               text: text ?? "Lade Daten...",
                               context: context,
-                              color: Colors.white,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             )
                           : Small(
                               text: text ?? "Lade Daten...",
                               context: context,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             ),
                     ],
                   ),
+                ),
+                // Very small divider.
+                const SizedBox(
+                  width: 2,
                 ),
                 // Show a progress indicator with the pct value.
                 Padding(
@@ -139,25 +156,24 @@ class StatusViewState extends State<StatusView> {
                         child: CircularProgressIndicator(
                           value: predictionStatusSummary.isLoading ? null : goodPct,
                           strokeWidth: 6,
-                          backgroundColor:
-                              isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
+                          backgroundColor: isProblem ? Colors.black : CI.radkulturGreen.withOpacity(0.2),
                           valueColor: isProblem
                               ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                              : const AlwaysStoppedAnimation<Color>(CI.green),
+                              : const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
                         ),
                       ),
                       Opacity(
                         opacity: 0.2,
                         child: Icon(
                           Icons.chevron_right_rounded,
-                          color: isProblem ? Colors.white : CI.green,
+                          color: isProblem ? Colors.white : CI.radkulturGreen,
                           size: 42,
                         ),
                       ),
                       BoldSmall(
                         text: "${((goodPct ?? 0) * 100).round()}%",
                         context: context,
-                        color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
+                        color: isProblem ? Colors.black : null,
                       ),
                     ],
                   ),

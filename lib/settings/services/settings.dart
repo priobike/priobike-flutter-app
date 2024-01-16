@@ -1,5 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/fcm.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/news/services/news.dart';
+import 'package:priobike/routing/services/boundary.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -11,12 +17,17 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/status/services/status_history.dart';
+import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings with ChangeNotifier {
   var hasLoaded = false;
 
   static final log = Logger("Settings");
+
+  final double scalingFactor = 2.5;
 
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
@@ -78,6 +89,15 @@ class Settings with ChangeNotifier {
   /// The selected watch mode.
   bool watchStandalone;
 
+  /// Whether the user has seen the user transfer dialog.
+  bool didViewUserTransfer;
+
+  /// If the user is transferring.
+  bool isUserTransferring = false;
+
+  /// If the user had migrate background images.
+  bool didMigrateBackgroundImages = false;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -85,7 +105,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.enablePerformanceOverlay;
     this.enablePerformanceOverlay = enablePerformanceOverlay;
-    bool success = await storage.setBool(enablePerformanceOverlayKey, enablePerformanceOverlay);
+    final bool success = await storage.setBool(enablePerformanceOverlayKey, enablePerformanceOverlay);
     if (!success) {
       log.e("Failed to set enablePerformanceOverlay to $enablePerformanceOverlay");
       this.enablePerformanceOverlay = prev;
@@ -102,7 +122,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.didViewWarning;
     this.didViewWarning = didViewWarning;
-    bool success = await storage.setBool(didViewWarningKey, didViewWarning);
+    final bool success = await storage.setBool(didViewWarningKey, didViewWarning);
     if (!success) {
       log.e("Failed to set didViewWarning to $didViewWarning");
       this.didViewWarning = prev;
@@ -118,7 +138,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.backend;
     this.backend = backend;
-    bool success = await storage.setString(backendKey, backend.name);
+    final bool success = await storage.setString(backendKey, backend.name);
     if (!success) {
       log.e("Failed to set backend to $backend");
       this.backend = prev;
@@ -135,7 +155,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.predictionMode;
     this.predictionMode = predictionMode;
-    bool success = await storage.setString(predictionModeKey, predictionMode.name);
+    final bool success = await storage.setString(predictionModeKey, predictionMode.name);
     if (!success) {
       log.e("Failed to set predictionMode to $predictionMode");
       this.predictionMode = prev;
@@ -152,7 +172,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.positioningMode;
     this.positioningMode = positioningMode;
-    bool success = await storage.setString(positioningModeKey, positioningMode.name);
+    final bool success = await storage.setString(positioningModeKey, positioningMode.name);
     if (!success) {
       log.e("Failed to set positioningMode to $positioningMode");
       this.positioningMode = prev;
@@ -169,7 +189,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.routingEndpoint;
     this.routingEndpoint = routingEndpoint;
-    bool success = await storage.setString(routingEndpointKey, routingEndpoint.name);
+    final bool success = await storage.setString(routingEndpointKey, routingEndpoint.name);
     if (!success) {
       log.e("Failed to set routingEndpoint to $routingEndpoint");
       this.routingEndpoint = prev;
@@ -186,7 +206,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.sgLabelsMode;
     this.sgLabelsMode = sgLabelsMode;
-    bool success = await storage.setString(sgLabelsModeKey, sgLabelsMode.name);
+    final bool success = await storage.setString(sgLabelsModeKey, sgLabelsMode.name);
     if (!success) {
       log.e("Failed to set sgLabelsMode to $sgLabelsMode");
       this.sgLabelsMode = prev;
@@ -203,7 +223,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.colorMode;
     this.colorMode = colorMode;
-    bool success = await storage.setString(colorModeKey, colorMode.name);
+    final bool success = await storage.setString(colorModeKey, colorMode.name);
     if (!success) {
       log.e("Failed to set colorMode to $colorMode");
       this.colorMode = prev;
@@ -220,7 +240,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.speedMode;
     this.speedMode = speedMode;
-    bool success = await storage.setString(speedModeKey, speedMode.name);
+    final bool success = await storage.setString(speedModeKey, speedMode.name);
     if (!success) {
       log.e("Failed to set speedMode to $speedMode");
       this.speedMode = prev;
@@ -237,7 +257,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.datastreamMode;
     this.datastreamMode = datastreamMode;
-    bool success = await storage.setString(datastreamModeKey, datastreamMode.name);
+    final bool success = await storage.setString(datastreamModeKey, datastreamMode.name);
     if (!success) {
       log.e("Failed to set datastreamMode to $datastreamMode");
       this.datastreamMode = prev;
@@ -254,7 +274,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = connectionErrorCounter;
     connectionErrorCounter += 1;
-    bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
+    final bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
     if (!success) {
       log.e("Failed to increment connectionErrorCounter to $connectionErrorCounter");
       connectionErrorCounter = prev;
@@ -271,7 +291,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = useCounter;
     useCounter += 1;
-    bool success = await storage.setInt(useCounterKey, useCounter);
+    final bool success = await storage.setInt(useCounterKey, useCounter);
     if (!success) {
       log.e("Failed to increment useCounter to $useCounter");
       useCounter = prev;
@@ -285,7 +305,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = connectionErrorCounter;
     connectionErrorCounter = defaultConnectionErrorCounter;
-    bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
+    final bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
     if (!success) {
       log.e("Failed to reset connectionErrorCounter to $connectionErrorCounter");
       connectionErrorCounter = prev;
@@ -302,7 +322,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.sgSelector;
     this.sgSelector = sgSelector;
-    bool success = await storage.setString(sgSelectorKey, sgSelector.name);
+    final bool success = await storage.setString(sgSelectorKey, sgSelector.name);
     if (!success) {
       log.e("Failed to set sgSelector to $sgSelector");
       this.sgSelector = prev;
@@ -319,7 +339,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.dismissedSurvey;
     this.dismissedSurvey = dismissedSurvey;
-    bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
+    final bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
     if (!success) {
       log.e("Failed to set sgSelector to $sgSelector");
       this.dismissedSurvey = prev;
@@ -339,7 +359,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.trackingSubmissionPolicy;
     this.trackingSubmissionPolicy = trackingSubmissionPolicy;
-    bool success = await storage.setString(trackingSubmissionPolicyKey, trackingSubmissionPolicy.name);
+    final bool success = await storage.setString(trackingSubmissionPolicyKey, trackingSubmissionPolicy.name);
     if (!success) {
       log.e("Failed to set trackingSubmissionPolicy to $trackingSubmissionPolicy");
       this.trackingSubmissionPolicy = prev;
@@ -356,7 +376,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.saveBatteryModeEnabled;
     this.saveBatteryModeEnabled = saveBatteryModeEnabled;
-    bool success = await storage.setBool(saveBatteryModeEnabledKey, saveBatteryModeEnabled);
+    final bool success = await storage.setBool(saveBatteryModeEnabledKey, saveBatteryModeEnabled);
     if (!success) {
       log.e("Failed to set saveBatteryModeEnabled to $saveBatteryModeEnabled");
       this.saveBatteryModeEnabled = prev;
@@ -373,9 +393,9 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.enableGamification;
     this.enableGamification = enableGamification;
-    bool success = await storage.setBool(enableGamificationKey, enableGamification);
+    final bool success = await storage.setBool(enableGamificationKey, enableGamification);
     if (!success) {
-      log.e("Failed to set enablePerformanceOverlay to $enableGamificationKey");
+      log.e("Failed to set enablePerformanceOverlay to $enableGamification");
       this.enableGamification = prev;
     } else {
       notifyListeners();
@@ -434,6 +454,40 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const didViewUserTransferKey = "priobike.settings.didViewUserTransfer";
+  static const defaultDidViewUserTransfer = false;
+
+  Future<bool> setDidViewUserTransfer(bool didViewUserTransfer, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didViewUserTransfer;
+    this.didViewUserTransfer = didViewUserTransfer;
+    final bool success = await storage.setBool(didViewUserTransferKey, didViewUserTransfer);
+    if (!success) {
+      log.e("Failed to set didViewUserTransfer to $didViewUserTransfer");
+      this.didViewUserTransfer = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackroundImages";
+  static const defaultDidMigrateBackgroundImages = false;
+
+  Future<bool> setDidMigrateBackgroundImages(bool didMigrateBackgroundImages, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didMigrateBackgroundImages;
+    this.didMigrateBackgroundImages = didMigrateBackgroundImages;
+    final bool success = await storage.setBool(didMigrateBackgroundImagesKey, didViewUserTransfer);
+    if (!success) {
+      log.e("Failed to set didMigrateBackgroundImages to $didMigrateBackgroundImagesKey");
+      this.didMigrateBackgroundImages = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings(this.backend,
       {this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
       this.didViewWarning = defaultDidViewWarning,
@@ -451,18 +505,11 @@ class Settings with ChangeNotifier {
       this.useCounter = defaultUseCounter,
       this.dismissedSurvey = defaultDismissedSurvey,
       this.enableGamification = defaultEnableGamification,
-      this.rideAssistMode = defaultRideAssistMode,
+      this.didViewUserTransfer = defaultDidViewUserTransfer,
+      this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
       this.modalityMode = defaultModalityMode,
+      this.rideAssistMode = defaultRideAssistMode,
       this.watchStandalone = defaultWatchStandalone});
-
-  /// Load the beta settings from the shared preferences.
-  Future<void> loadBetaSettings(SharedPreferences storage) async {
-    try {
-      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-  }
 
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
@@ -507,6 +554,7 @@ class Settings with ChangeNotifier {
     }
     try {
       modalityMode = ModalityMode.values.byName(storage.getString(modalityModeKey)!);
+      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
@@ -522,9 +570,6 @@ class Settings with ChangeNotifier {
 
     // All internal settings - use the default values if internal features are disabled.
     if (canEnableInternalFeatures) await loadInternalSettings(storage);
-
-    // All beta settings - use the default values if beta features are disabled.
-    if (canEnableBetaFeatures) await loadBetaSettings(storage);
 
     // All remaining settings.
     connectionErrorCounter = storage.getInt(connectionErrorCounterKey) ?? defaultConnectionErrorCounter;
@@ -555,8 +600,58 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      didViewUserTransfer = storage.getBool(didViewUserTransferKey) ?? defaultDidViewUserTransfer;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      didMigrateBackgroundImages = storage.getBool(didMigrateBackgroundImagesKey) ?? defaultDidMigrateBackgroundImages;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
+    notifyListeners();
+  }
+
+  /// Transfer a user to the given backend.
+  Future<void> transferUser(Backend backend) async {
+    if (isUserTransferring) return;
+    isUserTransferring = true;
+    notifyListeners();
+    // Set release backend.
+    await setBackend(backend);
+
+    // Tell the fcm service that we selected the new backend.
+    await FCM.selectTopic(backend);
+
+    PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
+    StatusHistory statusHistory = getIt<StatusHistory>();
+    Shortcuts shortcuts = getIt<Shortcuts>();
+    Routing routing = getIt<Routing>();
+    News news = getIt<News>();
+    Weather weather = getIt<Weather>();
+    Boundary boundary = getIt<Boundary>();
+
+    // Reset the associated services.
+    await predictionStatusSummary.reset();
+    await statusHistory.reset();
+    await shortcuts.reset();
+    await routing.reset();
+    await news.reset();
+
+    // Load stuff for the new backend.
+    await news.getArticles();
+    await shortcuts.loadShortcuts();
+    await predictionStatusSummary.fetch();
+    await statusHistory.fetch();
+    await weather.fetch();
+    await boundary.loadBoundaryCoordinates();
+
+    // Set did view user transfer screen.
+    await setDidViewUserTransfer(true);
+    isUserTransferring = false;
     notifyListeners();
   }
 

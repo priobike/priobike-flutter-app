@@ -3,9 +3,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -14,11 +16,12 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -27,7 +30,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Loader extends StatefulWidget {
-  const Loader({Key? key}) : super(key: key);
+  const Loader({super.key});
 
   @override
   LoaderState createState() => LoaderState();
@@ -59,32 +62,44 @@ class LoaderState extends State<Loader> {
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Load all other services.
+    // We have 2 types of services:
+    // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
+    // 2. Services that are not critically needed.
+    // Loader-functions for non-critical services should handle their own errors
+    // while critical services should throw their errors.
+
     try {
-      // Load local stuff.
+      await Migration.migrate();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
-      await getIt<Statistics>().loadStatistics();
       await getIt<Layers>().loadPreferences();
       await getIt<MapDesigns>().loadPreferences();
+
       final tracking = getIt<Tracking>();
       await tracking.loadPreviousTracks();
       await tracking.runUploadRoutine();
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
-      // Load stuff from the server.
-      final news = getIt<News>();
-      await news.getArticles();
-      if (!news.hasLoaded) log.i("Could not load news");
+
+      await getIt<News>().getArticles();
+
       final predictionStatusSummary = getIt<PredictionStatusSummary>();
       await predictionStatusSummary.fetch();
-      if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final statusHistory = getIt<StatusHistory>();
-      await statusHistory.fetch();
-      final weather = getIt<Weather>();
-      await weather.fetch();
+      if (predictionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
+
+      await getIt<StatusHistory>().fetch();
+      await getIt<Weather>().fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
+      await getIt<Ride>().loadLastRoute();
+      await MapboxTileImageCache.pruneUnusedImages();
+
+      // Only allow portrait mode.
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+
       settings.incrementUseCounter();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      log.e("Error while loading services $e\n $stacktrace");
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();
@@ -95,8 +110,9 @@ class LoaderState extends State<Loader> {
     setState(() {
       shouldMorph = true;
       hasError = false;
-      settings.resetConnectionErrorCounter();
     });
+    settings.resetConnectionErrorCounter();
+
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
     setState(() => isLoading = false);
@@ -127,40 +143,33 @@ class LoaderState extends State<Loader> {
     await preferences.clear();
   }
 
-  _showResetDialog(BuildContext context) {
-    showDialog(
+  void _showResetDialog(context) {
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-          title: BoldSubHeader(text: "Persönliche Daten zurücksetzen", context: context),
-          content: Content(
-              text:
-                  "Sind sie sich sicher, dass sie ihre persönlichen Daten zurücksetzen wollen? Nach dem Bestätigen werden ihre Daten unwiderruflich verworfen. Dazu gehören unter Anderem ihre erstellten Routen.",
-              context: context),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Persönliche Daten zurücksetzen',
+          text:
+              "Bist Du Dir sicher, dass Du Deine persönlichen Daten zurücksetzen willst? Nach dem Bestätigen werden Deine Daten unwiderruflich verworfen. Dazu gehören unter anderem Deine erstellten Routen.",
           actions: [
-            TextButton(
+            BigButtonPrimary(
+              textColor: Colors.black,
+              fillColor: CI.radkulturYellow,
+              label: "Zurücksetzen",
               onPressed: () async {
                 await _resetData();
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
                 if (mounted) Navigator.of(context).pop();
               },
-              child: Content(
-                text: "Zurücksetzen",
-                context: context,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            TextButton(
+            BigButtonTertiary(
+              label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              child: Content(
-                text: "Abbrechen",
-                context: context,
-              ),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );
@@ -184,29 +193,7 @@ class LoaderState extends State<Loader> {
             margin: shouldMorph
                 ? EdgeInsets.only(bottom: frame.size.height - frame.padding.top - 128)
                 : const EdgeInsets.only(top: 0),
-            decoration: shouldMorph
-                ? const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                      stops: [
-                        0.1,
-                        0.9,
-                      ],
-                      colors: [CI.blueLight, CI.blue],
-                    ),
-                  )
-                : const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                      stops: [
-                        0.1,
-                        0.9,
-                      ],
-                      colors: [CI.blue, CI.blue],
-                    ),
-                  ),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         AnimatedSwitcher(
@@ -237,23 +224,24 @@ class LoaderState extends State<Loader> {
                             textAlign: TextAlign.center,
                           ),
                           Content(
-                            text: "Prüfe deine Verbindung und versuche es später erneut.",
+                            text: "Prüfe Deine Verbindung und versuche es später erneut.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
                           const SmallVSpace(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
-                              ? BigButton(
+                              ? BigButtonPrimary(
                                   label: "Logs teilen",
                                   onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
                               : Container(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
-                              ? BigButton(label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
+                              ? BigButtonPrimary(
+                                  label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
                               : Container(),
                           const SizedBox(height: 16),
-                          BigButton(label: "Erneut versuchen", onPressed: () => init()),
+                          BigButtonPrimary(label: "Erneut versuchen", onPressed: () => init()),
                         ],
                       ),
                     ),

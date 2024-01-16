@@ -2,41 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
-
-/// A list item with icon.
-class IconItem extends Row {
-  IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
-      : super(
-          key: key,
-          children: [
-            SizedBox(
-              width: 64,
-              height: 64,
-              child: Icon(
-                icon,
-                color: Colors.red,
-                size: 64,
-                semanticLabel: text,
-              ),
-            ),
-            const SmallHSpace(),
-            Expanded(
-              child: Content(text: text, context: context),
-            ),
-          ],
-        );
-}
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
   final Widget? child;
 
   /// Create the privacy proxy view with the wrapped view.
-  const PrivacyPolicyView({this.child, Key? key}) : super(key: key);
+  const PrivacyPolicyView({this.child, super.key});
 
   @override
   PrivacyPolicyViewState createState() => PrivacyPolicyViewState();
@@ -93,7 +70,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     return Scaffold(
       body: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.background,
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -105,29 +82,30 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     children: [
                       const SizedBox(height: 164),
                       if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!privacyService.hasChanged!) Header(text: "deinen Daten.", color: CI.blue, context: context),
+                      if (!privacyService.hasChanged!)
+                        Header(text: "Deinen Daten.", color: CI.radkulturRed, context: context),
                       if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
                       if (privacyService.hasChanged!)
-                        Header(text: "Datenschutz aktualisiert.", color: Colors.red, context: context),
+                        Header(text: "Datenschutz aktualisiert.", color: CI.radkulturRed, context: context),
                       const SmallVSpace(),
                       if (!privacyService.hasChanged!)
                         SubHeader(
                             text:
-                                "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:",
+                                "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen. Das Wichtigste zuerst:",
                             context: context),
                       if (privacyService.hasChanged!)
-                        SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
+                        SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
                       IconItem(
                           icon: Icons.route,
                           text:
-                              "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort.",
+                              "Wir speichern Deine Positionsdaten, aber nur anonymisiert und ohne Deinen Start- und Zielort.",
                           context: context),
                       const SmallVSpace(),
                       IconItem(
                           icon: Icons.lock,
                           text:
-                              "Wenn du die App personalisierst, indem du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
+                              "Wenn Du die App personalisierst, indem Du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
                           context: context),
                       const SmallVSpace(),
                       IconItem(
@@ -158,11 +136,10 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
               ),
             if (widget.child != null)
               Pad(
-                child: BigButton(
-                  icon: Icons.check,
-                  iconColor: Colors.white,
+                child: BigButtonPrimary(
                   label: "Akzeptieren",
                   onPressed: onAcceptButtonPressed,
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
                 ),
               ),
           ],
