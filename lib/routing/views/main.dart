@@ -200,7 +200,6 @@ class RoutingViewState extends State<RoutingView> {
                       });
                     }
                     await simulator.sendRouteGPSData(gpsData);
-
                     startRide();
                   } else {
                     Navigator.of(context).pop();
@@ -228,7 +227,19 @@ class RoutingViewState extends State<RoutingView> {
     }
 
     // if on simulator mode, skip warning
-    if (settings.enableSimulatorMode || settings.didViewWarning) {
+    if (settings.enableSimulatorMode) {
+      // send GPS data of route to simulator
+      final List<Map<String, dynamic>> gpsData = [];
+      for (final node in routing!.selectedRoute!.route) {
+        gpsData.add({
+          'index': routing!.selectedRoute!.route.indexOf(node),
+          'lon': node.lon,
+          'lat': node.lat,
+        });
+      }
+      await simulator.sendRouteGPSData(gpsData);
+      startRide();
+    } else if (settings.didViewWarning) {
       startRide();
     } else {
       showGeneralDialog(
