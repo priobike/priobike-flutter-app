@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:typed_data/typed_buffers.dart';
@@ -109,20 +111,31 @@ class Simulator with ChangeNotifier {
     const qualityOfService = MqttQos.atMostOnce;
 
     final Positioning positioning = getIt<Positioning>();
-    final position = positioning.lastPosition;
-    if (position == null) return;
-    final longitude = position.longitude;
-    final latitude = position.latitude;
-    final heading = position.heading;
+    final Position position = positioning.lastPosition!;
+    final double longitude;
+    final double latitude;
+    final double heading;
+    final String type;
 
     // Format:
     // {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.
     // 12345", "latitude":"50.12345", "bearing":"-80"}
 
-    final String type;
+    // if it is the first position, send the starting point of the route
     if (isFirstPosition) {
+      final routing = getIt<Routing>();
+      if (routing.selectedRoute == null) return;
+      if (routing.selectedRoute!.route.isEmpty) return;
+      final startingPoint = routing.selectedRoute!.route.first;
+      longitude = startingPoint.lon;
+      latitude = startingPoint.lat;
+      heading = position.heading;
       type = 'FirstCoordinate';
     } else {
+      if (positioning.lastPosition == null) return;
+      longitude = position.longitude;
+      latitude = position.latitude;
+      heading = position.heading;
       type = 'NextCoordinate';
     }
 
