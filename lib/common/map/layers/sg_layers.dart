@@ -83,7 +83,7 @@ class TrafficLightsLayer {
             iconAllowOverlap: true,
             textAllowOverlap: true,
             textIgnorePlacement: true,
-            iconOpacity: 0,
+            iconOpacity: 0.4,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
@@ -105,21 +105,12 @@ class TrafficLightsLayer {
               [
                 "case",
                 [
-                  "<",
+                  "<=",
                   ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
+                  -5,
                 ],
-                0,
-                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                [
-                  "interpolate",
-                  ["linear"],
-                  ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                  0,
-                  0,
-                  1
-                ],
+                0.4,
+                1
               ],
               1
             ]),
@@ -164,7 +155,21 @@ class TrafficLightsLayer {
             showAfter(zoom: 16, opacity: [
               "case",
               ["get", "showTouchIndicators"],
-              1,
+              [
+                  "case",
+                ["get", "hideBehindPosition"],
+                [
+                  "case",
+                  [
+                    "<=",
+                    ["get", "distanceToSgOnRoute"],
+                    -5,
+                  ],
+                  0.4,
+                  1
+                ],
+                1,
+              ],
               0
             ]),
           ));
@@ -241,7 +246,7 @@ class TrafficLightsLayerClickable {
             iconAllowOverlap: true,
             textAllowOverlap: true,
             textIgnorePlacement: true,
-            iconOpacity: 0,
+            iconOpacity: 0.4,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-image', 'trafficlightclicklayer');
@@ -255,21 +260,12 @@ class TrafficLightsLayerClickable {
               [
                 "case",
                 [
-                  "<",
-                  ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
+                  "<=",
+                  ["get", "distanceToCrossingOnRoute"],
+                  -5,
                 ],
-                0,
-                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                [
-                  "interpolate",
-                  ["linear"],
-                  ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                  0,
-                  0,
-                  1
-                ],
+                0.4,
+                1
               ],
               1
             ]),
@@ -450,7 +446,7 @@ class OfflineCrossingsLayer {
             sourceId: sourceId,
             id: layerId,
             iconSize: iconSize,
-            iconOpacity: 0.0,
+            iconOpacity: 0.4,
             iconAllowOverlap: true,
             textAllowOverlap: true,
             textIgnorePlacement: true,
@@ -475,21 +471,12 @@ class OfflineCrossingsLayer {
               [
                 "case",
                 [
-                  "<",
+                  "<=",
                   ["get", "distanceToCrossingOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
+                  -5,
                 ],
-                0,
-                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                [
-                  "interpolate",
-                  ["linear"],
-                  ["get", "distanceToCrossingOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                  0,
-                  0,
-                  1
-                ],
+                0.4,
+                1
               ],
               1
             ]),

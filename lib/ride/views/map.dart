@@ -136,9 +136,9 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark).update(mapController!);
+    await TrafficLightsLayer(isDark, hideBehindPosition: true).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).update(mapController!);
   }
 
   /// Update the view with the current data.
@@ -147,9 +147,9 @@ class RideMapViewState extends State<RideMapView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark).update(mapController!);
+    await TrafficLightsLayer(isDark, hideBehindPosition: true).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
   }
 
@@ -397,22 +397,21 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().install(mapController!, iconSize: ppi / 8, at: index);
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayer(isDark).install(
+    await TrafficLightsLayer(isDark, hideBehindPosition: true).install(
       mapController!,
       iconSize: ppi / 5,
       at: index,
     );
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayerClickable(isDark).install(
+    await TrafficLightsLayerClickable(isDark, hideBehindPosition: true).install(
       mapController!,
       iconSize: ppi / 5,
       at: index,
     );
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: false)
-        .install(mapController!, iconSize: ppi / 5, at: index);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5, at: index);
     index = await getIndex(TrafficLightLayer.layerId);
     if (!mounted) return;
     await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5, at: index);
