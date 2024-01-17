@@ -12,6 +12,9 @@ import 'package:priobike/settings/services/settings.dart';
 // Rough value on how many lines per route is okay to display the height chart smoothly.
 const maxPointsPerRouteHeightChart = 100;
 
+// Interval in which the maxima and minima will be split of.
+const maximaMinimaInterval = 20;
+
 class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({super.key});
 
@@ -400,22 +403,84 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       // Only pick max number of coords per route.
       // To many lines will make the scrolling laggy.
       // Therefore skip a slight amount of waypoints on big routes.
-      int waypointsOverhead = latlngCoords.length - maxPointsPerRouteHeightChart;
-      // The skip value for the modulo operation. 500 means no skip.
-      int skipValue = maxPointsPerRouteHeightChart;
-      // If there are more waypoints then needed.
-      // Iterate through points until its small enough.
-      while (waypointsOverhead > 0) {
+      // Reduce if to many waypoints.
+      double waypointsOverheadFactor = latlngCoords.length / maxPointsPerRouteHeightChart;
+      if (waypointsOverheadFactor > 1) {
+        // The skip/keep value for the modulo operation.
+        // Greater 2 means we can use modulo to skip values.
+        // Less then 2 means we can use modulo to keep values.
+        // Differentiation due to the limitation of skip and keep for a value less then 2. (natural numbers)
+        bool skip;
+        int skipKeepValue;
+
+        // Determine maxima and minima points to keep.
+        List<int> maximaPointsToKeep = [];
+        List<int> minimaPointsToKeep = [];
+
+        // Loop through coords in chunks of maximaMinimaInterval.
+        for (int i = 0; i < latlngCoords.length; i = i + maximaMinimaInterval) {
+          int? localMaximaIdx;
+          int? localMinimaIdx;
+          double localMaxima = double.negativeInfinity;
+          double localMinima = double.infinity;
+
+          // Loop through chunk.
+          for (int j = i; j < i + maximaMinimaInterval; j++) {
+            // Catch out of range for last chunk.
+            if (j >= latlngCoords.length) continue;
+
+            // Check for local minima.
+            if (latlngCoords[j].elevation != null && latlngCoords[j].elevation! < localMinima) {
+              localMinima = latlngCoords[j].elevation!;
+              localMinimaIdx = j;
+            }
+
+            // Check for local maxima.
+            if (latlngCoords[j].elevation != null && latlngCoords[j].elevation! > localMaxima) {
+              localMaxima = latlngCoords[j].elevation!;
+              localMaximaIdx = j;
+            }
+          }
+
+          // Add local minima and maxima if found.
+          if (localMinimaIdx != null) minimaPointsToKeep.add(localMinimaIdx);
+          if (localMaximaIdx != null) minimaPointsToKeep.add(localMaximaIdx);
+        }
+
+        if (waypointsOverheadFactor > 2) {
+          // We need to keep since we want to remove more then half of the points.
+          skip = false;
+          // Keep every X waypoint.
+          // We need to round the waypoints overhead factor.
+          // E.g. 400 points => factor = 4 => keep every 4th => 100 waypoints.
+          skipKeepValue = waypointsOverheadFactor.toInt();
+        } else {
+          // We need to skip since we want to remove less then half of the points.
+          skip = true;
+          // Skip every X = number coords / percentage overhead. (to int)
+          // Division by 0 can not occur since factor is always greater then 1 and less then or equal 2.
+          // Skip value is at least 2.
+          // E.g. 120 points => factor = 1.2 => 120 / ((1.2 - 1) * 100) = 6 => skip every 6th.
+          skipKeepValue = latlngCoords.length ~/ ((waypointsOverheadFactor - 1) * 100);
+        }
+
         List<GHCoordinate> reducedWaypointList = [];
-        skipValue = latlngCoords.length ~/ waypointsOverhead;
-        // Make sure not everything gets deleted.
-        if (skipValue <= 1) skipValue = 2;
-        for (var i = 0; i < latlngCoords.length; i++) {
-          if (i % skipValue == 0 && i != 0) continue;
-          reducedWaypointList.add(latlngCoords[i]);
+
+        // Separate in skip and keep.
+        if (skip) {
+          for (var i = 0; i < latlngCoords.length; i++) {
+            // Skip coords on skip value except minima/maxima points.
+            if (i % skipKeepValue == 0 && !maximaPointsToKeep.contains(i) && !minimaPointsToKeep.contains(i)) continue;
+            reducedWaypointList.add(latlngCoords[i]);
+          }
+        } else {
+          for (var i = 0; i < latlngCoords.length; i++) {
+            // Keep coords on keep value and minima/maxima points.
+            if (i % skipKeepValue != 0 && !maximaPointsToKeep.contains(i) && !minimaPointsToKeep.contains(i)) continue;
+            reducedWaypointList.add(latlngCoords[i]);
+          }
         }
         latlngCoords = reducedWaypointList;
-        waypointsOverhead = latlngCoords.length - maxPointsPerRouteHeightChart;
       }
 
       for (var i = 0; i < latlngCoords.length; i++) {
