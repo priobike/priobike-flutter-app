@@ -156,7 +156,7 @@ class TrafficLightsLayer {
               "case",
               ["get", "showTouchIndicators"],
               [
-                  "case",
+                "case",
                 ["get", "hideBehindPosition"],
                 [
                   "case",
