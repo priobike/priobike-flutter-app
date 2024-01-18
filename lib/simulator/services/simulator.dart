@@ -146,7 +146,7 @@ class Simulator with ChangeNotifier {
     );
   }
 
-  /// Sends the GPS data of the whole route before the rides startes to the simulator.
+  /// Sends the route points before the rides startes to the simulator.
   /// Format:
   /// [{"type":"RouteDataStart","deviceID":"87c22"},{"lon":9.993686,"lat":53.551085}...{"lon":9.976977980510583,"lat":53.56440493672994}]
   Future<void> sendRouteData() async {
