@@ -189,17 +189,7 @@ class RoutingViewState extends State<RoutingView> {
                   if (simulator.pairSuccessful) {
                     if (simulator.receivedStopRide) return;
                     if (routing!.selectedRoute == null) return;
-
-                    // send GPS data of route to simulator
-                    final List<Map<String, dynamic>> gpsData = [];
-                    for (final node in routing!.selectedRoute!.route) {
-                      gpsData.add({
-                        'index': routing!.selectedRoute!.route.indexOf(node),
-                        'lon': node.lon,
-                        'lat': node.lat,
-                      });
-                    }
-                    await simulator.sendRouteGPSData(gpsData);
+                    await simulator.sendRouteData();
                     startRide();
                   } else {
                     Navigator.of(context).pop();
@@ -211,7 +201,7 @@ class RoutingViewState extends State<RoutingView> {
               BigButtonSecondary(
                 iconColor: Colors.white,
                 icon: Icons.check_rounded,
-                label: "Simulator deaktivieren",
+                label: "Simulator ausschalten",
                 onPressed: () {
                   settings.setSimulatorMode(false);
                   Navigator.of(context).pop();
@@ -228,16 +218,7 @@ class RoutingViewState extends State<RoutingView> {
 
     // if on simulator mode, skip warning
     if (settings.enableSimulatorMode) {
-      // send GPS data of route to simulator
-      final List<Map<String, dynamic>> gpsData = [];
-      for (final node in routing!.selectedRoute!.route) {
-        gpsData.add({
-          'index': routing!.selectedRoute!.route.indexOf(node),
-          'lon': node.lon,
-          'lat': node.lat,
-        });
-      }
-      await simulator.sendRouteGPSData(gpsData);
+      await simulator.sendRouteData();
       startRide();
     } else if (settings.didViewWarning) {
       startRide();

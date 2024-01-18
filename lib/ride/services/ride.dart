@@ -364,7 +364,7 @@ class Ride with ChangeNotifier {
     lastSendSGState = state;
     lastSendSGId = tlID;
 
-    // format {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
+    // Format: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
     final simulator = getIt<Simulator>();
     const type = "TrafficLightChange";
     final deviceID = simulator.deviceId;
