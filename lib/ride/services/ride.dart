@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:latlong2/latlong.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -80,12 +79,6 @@ class Ride with ChangeNotifier {
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
-
-  /// The last send state of the next signal group. Used for the simulator to only send a new state if it changed.
-  String? lastSendSGState;
-
-  // The last send signal group id. Used for the simulator to only send a new state if it changed.
-  String? lastSendSGId;
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -350,34 +343,6 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sends updates of the state of the signal group to the simulator.
-  Future<void> sendUpdatesToSimulator() async {
-    if (getIt<Settings>().enableSimulatorMode == false) return;
-    if (calcCurrentSG == null || predictionComponent == null || predictionComponent!.recommendation == null) return;
-
-    final currentSg = calcCurrentSG!;
-
-    // only send if same traffic light has different state
-    final state = predictionComponent!.recommendation!.calcCurrentSignalPhase.toString().split(".")[1];
-    final tlID = currentSg.id;
-    if (lastSendSGState != null && lastSendSGId != null && lastSendSGState == state && lastSendSGId == tlID) return;
-    lastSendSGState = state;
-    lastSendSGId = tlID;
-
-    // Format: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
-    final simulator = getIt<Simulator>();
-    const type = "TrafficLightChange";
-    final deviceID = simulator.deviceId;
-
-    Map<String, String> json = {};
-    json['type'] = type;
-    json['deviceID'] = deviceID;
-    json['tlID'] = tlID;
-    json['state'] = state;
-    final String message = jsonEncode(json);
-    await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
-  }
-
   /// Reset the service.
   Future<void> reset() async {
     route = null;
@@ -398,6 +363,6 @@ class Ride with ChangeNotifier {
   void notifyListeners() {
     super.notifyListeners();
 
-    if (getIt<Settings>().enableSimulatorMode) sendUpdatesToSimulator();
+    if (getIt<Settings>().enableSimulatorMode) getIt<Simulator>().sendSignalGroupUpdatesToSimulator();
   }
 }

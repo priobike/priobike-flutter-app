@@ -38,6 +38,12 @@ class Simulator with ChangeNotifier {
   /// The subscription for the MQTT messages.
   Subscription? subscription;
 
+  /// The last send state of the next signal group. Used to only send a new state if it changed.
+  String? lastSendSGState;
+
+  // The last send signal group id. Used to only send a new state if it changed.
+  String? lastSendSGId;
+
   askForPermission() {
     // TODO: implement askForPermission
   }
@@ -154,27 +160,9 @@ class Simulator with ChangeNotifier {
     );
   }
 
-  /// Sends a message to the simulator via MQTT.
-  Future<void> sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
-    if (client == null) await connectMQTTClient();
-    if (receivedStopRide) return;
-
-    // convert message to byte array
-    final Uint8List data = Uint8List.fromList(utf8.encode(message));
-    Uint8Buffer dataBuffer = Uint8Buffer();
-    dataBuffer.addAll(data);
-    log.i("Sending to simulator: $message");
-
-    // publish message
-    try {
-      client!.publishMessage(topic, qualityOfService, dataBuffer);
-    } catch (e, stacktrace) {
-      log.e("Error while sending $message to simulator: $e, $stacktrace");
-    }
-  }
-
   /// Sends the GPS data of the whole route before the rides startes to the simulator.
-  /// Format: [{"type":"RouteDataStart","deviceID":"87c22"},{"lon":9.993686,"lat":53.551085}...{"lon":9.976977980510583,"lat":53.56440493672994}]
+  /// Format:
+  /// [{"type":"RouteDataStart","deviceID":"87c22"},{"lon":9.993686,"lat":53.551085}...{"lon":9.976977980510583,"lat":53.56440493672994}]
   Future<void> sendRouteData() async {
     if (client == null) await connectMQTTClient();
 
@@ -237,6 +225,57 @@ class Simulator with ChangeNotifier {
         receivedStopRide = true;
         notifyListeners();
       }
+    }
+  }
+
+  /// Sends updates of the state of the signal group to the simulator.
+  Future<void> sendSignalGroupUpdatesToSimulator() async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
+    final ride = getIt<Ride>();
+
+    if (ride.calcCurrentSG == null ||
+        ride.predictionComponent == null ||
+        ride.predictionComponent!.recommendation == null) return;
+
+    final currentSg = ride.calcCurrentSG!;
+
+    // Only send update if same traffic light has different state
+    final state = ride.predictionComponent!.recommendation!.calcCurrentSignalPhase.toString().split(".")[1];
+    final tlID = currentSg.id;
+    if (lastSendSGState != null && lastSendSGId != null && lastSendSGState == state && lastSendSGId == tlID) return;
+    lastSendSGState = state;
+    lastSendSGId = tlID;
+
+    // Format: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
+    final simulator = getIt<Simulator>();
+    const type = "TrafficLightChange";
+    final deviceID = simulator.deviceId;
+
+    Map<String, String> json = {};
+    json['type'] = type;
+    json['deviceID'] = deviceID;
+    json['tlID'] = tlID;
+    json['state'] = state;
+    final String message = jsonEncode(json);
+    await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
+  }
+
+  /// Helper Funktion to send a message to the simulator via MQTT.
+  Future<void> sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
+    if (client == null) await connectMQTTClient();
+    if (receivedStopRide) return;
+
+    // convert message to byte array
+    final Uint8List data = Uint8List.fromList(utf8.encode(message));
+    Uint8Buffer dataBuffer = Uint8Buffer();
+    dataBuffer.addAll(data);
+    log.i("Sending to simulator: $message");
+
+    // publish message
+    try {
+      client!.publishMessage(topic, qualityOfService, dataBuffer);
+    } catch (e, stacktrace) {
+      log.e("Error while sending $message to simulator: $e, $stacktrace");
     }
   }
 
@@ -319,6 +358,8 @@ class Simulator with ChangeNotifier {
     lastSendPairRequest = null;
     receivedStopRide = false;
     subscription = null;
+    lastSendSGState = null;
+    lastSendSGId = null;
     notifyListeners();
   }
 }
