@@ -88,6 +88,7 @@ class Settings with ChangeNotifier {
 
   /// If the user had migrate background images.
   bool didMigrateBackgroundImages = false;
+
   /// Enable simulator mode for app.
   bool enableSimulatorMode;
 
@@ -447,25 +448,26 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  Settings(this.backend,
-      {this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
-      this.didViewWarning = defaultDidViewWarning,
-      this.predictionMode = defaultPredictionMode,
-      this.positioningMode = defaultPositioningMode,
-      this.routingEndpoint = defaultRoutingEndpoint,
-      this.sgLabelsMode = defaultSGLabelsMode,
-      this.speedMode = defaultSpeedMode,
-      this.colorMode = defaultColorMode,
-      this.datastreamMode = defaultDatastreamMode,
-      this.connectionErrorCounter = defaultConnectionErrorCounter,
-      this.sgSelector = defaultSGSelector,
-      this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
-      this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-      this.useCounter = defaultUseCounter,
-      this.dismissedSurvey = defaultDismissedSurvey,
-      this.enableGamification = defaultEnableGamification,
-      this.didViewUserTransfer = defaultDidViewUserTransfer,
-      this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
+  Settings(
+    this.backend, {
+    this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
+    this.didViewWarning = defaultDidViewWarning,
+    this.predictionMode = defaultPredictionMode,
+    this.positioningMode = defaultPositioningMode,
+    this.routingEndpoint = defaultRoutingEndpoint,
+    this.sgLabelsMode = defaultSGLabelsMode,
+    this.speedMode = defaultSpeedMode,
+    this.colorMode = defaultColorMode,
+    this.datastreamMode = defaultDatastreamMode,
+    this.connectionErrorCounter = defaultConnectionErrorCounter,
+    this.sgSelector = defaultSGSelector,
+    this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
+    this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+    this.useCounter = defaultUseCounter,
+    this.dismissedSurvey = defaultDismissedSurvey,
+    this.enableGamification = defaultEnableGamification,
+    this.didViewUserTransfer = defaultDidViewUserTransfer,
+    this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
   });
 

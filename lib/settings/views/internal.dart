@@ -388,7 +388,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
-                    text: "Hinweis: Aktiviert den Simulator für die Nutzung auf der Output-Messe.",
+                    text: "Hinweis: Aktiviert den Simulator für die Nutzung auf der Output-Messe der TU-Dresden.",
                     context: context,
                   ),
                 ),

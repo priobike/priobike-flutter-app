@@ -332,7 +332,7 @@ class PathMockPositionSource extends PositionSource {
 
       final settings = getIt<Settings>();
       if (settings.enableSimulatorMode) {
-        // Don't use GPS inaccuracy in simulator mode.
+        // Don't use random values in simulator mode.
         bearing = vincenty.bearing(from, to);
         currentLocation = vincenty.offset(from, distanceOnSegment, bearing);
       } else {

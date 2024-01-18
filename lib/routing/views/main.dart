@@ -166,6 +166,8 @@ class RoutingViewState extends State<RoutingView> {
 
     final settings = getIt<Settings>();
     final simulator = getIt<Simulator>();
+
+    // If simulator mode is enabled, we need to pair with the simulator before we can start the ride.
     if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
       simulator.sendReadyPairRequest();
       showGeneralDialog(

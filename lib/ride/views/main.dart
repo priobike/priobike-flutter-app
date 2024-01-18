@@ -102,6 +102,7 @@ class RideViewState extends State<RideView> {
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
 
+        // Send all the signal groups to the simulator, if enabled.
         if (settings.enableSimulatorMode) getIt<Simulator>().sendSignalGroups();
 
         // Connect the datastream mqtt client, if the user enabled real-time data.

@@ -203,14 +203,14 @@ class Positioning with ChangeNotifier {
       locationSettings: locationSettings,
     );
 
-    final Simulator simulator = getIt<Simulator>();
-    final Settings settings = getIt<Settings>();
-
     positionSubscription = positionStream.listen(
       (Position position) {
         if (!isGeolocating) return;
         lastPosition = position;
 
+        // Send the position to the simulator, if enabled.
+        final Simulator simulator = getIt<Simulator>();
+        final Settings settings = getIt<Settings>();
         if (settings.enableSimulatorMode && !simulator.receivedStopRide) {
           simulator.sendCurrentPosition(isFirstPosition: false);
         }

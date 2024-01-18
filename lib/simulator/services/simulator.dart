@@ -38,10 +38,10 @@ class Simulator with ChangeNotifier {
   /// The subscription for the MQTT messages.
   Subscription? subscription;
 
-  /// The last send state of the next signal group. Used to only send a new state if it changed.
+  /// The last send state of the next signal group. Used to only send a state if it changed.
   String? lastSendSGState;
 
-  // The last send signal group id. Used to only send a new state if it changed.
+  // The last send signal group id. Used to only send a state if it changed.
   String? lastSendSGId;
 
   askForPermission() {
@@ -52,6 +52,8 @@ class Simulator with ChangeNotifier {
     // TODO: implement conntectWithDevice
   }
 
+  /// Sends a ready pair request to the simulator via MQTT.
+  /// The simulator must confirm the pairing, before the ride can start.
   Future<void> sendReadyPairRequest() async {
     if (client == null) await connectMQTTClient();
 
@@ -74,25 +76,8 @@ class Simulator with ChangeNotifier {
     );
   }
 
-  /// Sends a start ride message to the simulator via MQTT.
-  Future<void> sendStartRide() async {
-    if (client == null) await connectMQTTClient();
-
-    const qualityOfService = MqttQos.atLeastOnce;
-
-    Map<String, String> json = {};
-    json['type'] = 'StartRide';
-    json['deviceID'] = deviceId;
-
-    final String message = jsonEncode(json);
-
-    await _sendViaMQTT(
-      message: message,
-      qualityOfService: qualityOfService,
-    );
-  }
-
-  /// Sends a ready pair request to the simulator via MQTT.
+  /// Sends a stop ride message to the simulator via MQTT to stop the simulation.
+  /// This will be called when the user ends the ride.
   Future<void> sendStopRide() async {
     if (client == null) await connectMQTTClient();
 
@@ -111,6 +96,7 @@ class Simulator with ChangeNotifier {
   }
 
   /// Send the current position to the simulator via MQTT.
+  /// This will be called every second to update the position in the simulator.
   Future<void> sendCurrentPosition({required bool isFirstPosition}) async {
     if (client == null) await connectMQTTClient();
 
@@ -205,7 +191,7 @@ class Simulator with ChangeNotifier {
         pairSuccessful = true;
         log.i("Pairing with simulator successful.");
 
-        // send pair confirm
+        // Send Pair Confirm to finish pairing
         const qualityOfService = MqttQos.atLeastOnce;
         final String message = '{"type":"PairConfirm", "deviceID":"$deviceId"}';
         await _sendViaMQTT(
@@ -213,13 +199,13 @@ class Simulator with ChangeNotifier {
           qualityOfService: qualityOfService,
         );
 
-        // send first position
+        // Send the first position so the simulator can move the bike to the starting point of the route.
         await sendCurrentPosition(isFirstPosition: true);
 
         notifyListeners();
       }
 
-      // Stop ride
+      // When the simulator sends a stop ride message, the ride ends.
       if (!receivedStopRide && json['type'] == 'StopRide' && json['deviceID'] == deviceId) {
         log.i("Stop ride received from simulator.");
         receivedStopRide = true;
@@ -229,6 +215,7 @@ class Simulator with ChangeNotifier {
   }
 
   /// Sends the traffic lights to the simulator.
+  /// This will be called once before the ride starts to place the traffic lights on the map in the simulator.
   Future<void> sendSignalGroups() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     final routing = getIt<Routing>();
@@ -256,6 +243,7 @@ class Simulator with ChangeNotifier {
   }
 
   /// Sends updates of the state of the signal group to the simulator.
+  /// This will be called throughout the ride whenever the state of the signal group changes.
   Future<void> sendSignalGroupUpdate() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     final ride = getIt<Ride>();
@@ -290,18 +278,18 @@ class Simulator with ChangeNotifier {
     );
   }
 
-  /// Helper Funktion to send a message to the simulator via MQTT.
+  /// Helper function to send a message to the simulator via MQTT.
   Future<void> _sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
     if (client == null) await connectMQTTClient();
     if (receivedStopRide) return;
 
-    // convert message to byte array
+    // Convert message to byte array
     final Uint8List data = Uint8List.fromList(utf8.encode(message));
     Uint8Buffer dataBuffer = Uint8Buffer();
     dataBuffer.addAll(data);
     log.i("Sending to simulator: $message");
 
-    // publish message
+    // Publish message
     try {
       client!.publishMessage(topic, qualityOfService, dataBuffer);
     } catch (e, stacktrace) {
