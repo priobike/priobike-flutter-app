@@ -368,7 +368,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     processRouteData();
-    setState(() {});
   }
 
   @override
@@ -390,9 +389,9 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   /// Process the route data and create the LineElements for the chart.
   /// Care about max number of line elements to not decrease performance on scroll.
-  void processRouteData() {
+  Future<void> processRouteData() async {
     if (routing.allRoutes == null || routing.allRoutes!.isEmpty) return;
-    lineElements = List.empty(growable: true);
+    final List<LineElement> newlineElements = List.empty(growable: true);
     for (var route in routing.allRoutes!) {
       List<GHCoordinate> latlngCoords = route.path.points.coordinates;
 
@@ -496,7 +495,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       final bool isMainLine = (route.path.points.coordinates == routing.selectedRoute!.path.points.coordinates);
 
       // The last item of the data stores the total distance of the route
-      lineElements.add(LineElement(isMainLine, data, data.last.distance));
+      newlineElements.add(LineElement(isMainLine, data, data.last.distance));
 
       // save the start point of the main line to orient the chart
       if (isMainLine) {
@@ -505,16 +504,23 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     }
 
     // find min and max values to scale the chart, reset variables first
-    maxDistance = null;
-    maxHeight = null;
-    minHeight = null;
-    for (var lineElement in lineElements) {
-      maxDistance = maxDistance == null ? lineElement.routeLength : max(maxDistance!, lineElement.routeLength);
+    double? newMaxDistance;
+    double? newMinHeight;
+    double? newMaxHeight;
+    for (var lineElement in newlineElements) {
+      newMaxDistance = newMaxDistance == null ? lineElement.routeLength : max(newMaxDistance, lineElement.routeLength);
       for (HeightData heightData in lineElement.series) {
-        minHeight = minHeight == null ? heightData.height : min(minHeight!, heightData.height);
-        maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
+        newMinHeight = newMinHeight == null ? heightData.height : min(newMinHeight, heightData.height);
+        newMaxHeight = newMaxHeight == null ? heightData.height : max(newMaxHeight, heightData.height);
       }
     }
+
+    setState(() {
+      lineElements = newlineElements;
+      maxDistance = newMaxDistance;
+      minHeight = newMinHeight;
+      maxHeight = newMaxHeight;
+    });
   }
 
   @override
