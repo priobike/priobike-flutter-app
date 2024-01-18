@@ -446,7 +446,8 @@ class RideMapViewState extends State<RideMapView> {
     );
 
     // Calculate the correct screen coordinates since the map got scaled.
-    if (settings.saveBatteryModeEnabled) {
+    // Note: only necessary for IOS. Potential point of failure in future.
+    if (settings.saveBatteryModeEnabled && Platform.isIOS) {
       if (!mounted) return;
       final frame = MediaQuery.of(context);
 
@@ -467,6 +468,8 @@ class RideMapViewState extends State<RideMapView> {
       actualScreenCoordinate.y = frame.size.height * ratioY;
     }
 
+    // Returns the Features for a given screen coordinate.
+    // Note: Android seems to consider the scale factor.
     final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
       mapbox.RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),

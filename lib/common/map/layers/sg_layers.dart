@@ -238,6 +238,7 @@ class TrafficLightsLayerClickable {
             id: layerId,
             iconSize: iconSize,
             iconAllowOverlap: true,
+            iconAnchor: mapbox.IconAnchor.BOTTOM,
             iconOpacity: 1,
           ),
           mapbox.LayerPosition(at: at));

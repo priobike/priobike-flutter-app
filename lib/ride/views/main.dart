@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -200,7 +198,7 @@ class RideViewState extends State<RideView> {
         body: ScreenTrackingView(
           child: SafeArea(
             top: false,
-            bottom: Platform.isAndroid ? true : false,
+            bottom: false,
             child: Stack(
               alignment: Alignment.bottomCenter,
               clipBehavior: Clip.none,
