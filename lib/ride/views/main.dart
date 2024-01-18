@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -103,7 +102,7 @@ class RideViewState extends State<RideView> {
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
 
-        if (settings.enableSimulatorMode) sendTrafficlightsToSimulator();
+        if (settings.enableSimulatorMode) getIt<Simulator>().sendSignalGroups();
 
         // Connect the datastream mqtt client, if the user enabled real-time data.
         if (settings.datastreamMode == DatastreamMode.enabled) {
@@ -159,32 +158,6 @@ class RideViewState extends State<RideView> {
         ]);
       },
     );
-  }
-
-  /// Send the selected route to the simulator at the beginning of the ride.
-  Future<void> sendTrafficlightsToSimulator() async {
-    if (settings.enableSimulatorMode == false) return;
-    if (routing.selectedRoute == null) return;
-
-    for (final sg in routing.selectedRoute!.signalGroups) {
-      // format {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"80"}
-      final tlID = sg.id;
-      const type = "TrafficLight";
-      final deviceID = simulator.deviceId;
-      final longitude = sg.position.lon;
-      final latitude = sg.position.lat;
-      final bearing = sg.bearing ?? 0;
-
-      Map<String, String> json = {};
-      json['type'] = type;
-      json['deviceID'] = deviceID;
-      json['tlID'] = tlID;
-      json['longitude'] = longitude.toString();
-      json['latitude'] = latitude.toString();
-      json['bearing'] = bearing.toString();
-      final String message = jsonEncode(json);
-      await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
-    }
   }
 
   Future<void> stopRide(context) async {

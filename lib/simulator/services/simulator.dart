@@ -68,7 +68,7 @@ class Simulator with ChangeNotifier {
 
     final String message = jsonEncode(json);
 
-    await sendViaMQTT(
+    await _sendViaMQTT(
       message: message,
       qualityOfService: qualityOfService,
     );
@@ -86,7 +86,7 @@ class Simulator with ChangeNotifier {
 
     final String message = jsonEncode(json);
 
-    await sendViaMQTT(
+    await _sendViaMQTT(
       message: message,
       qualityOfService: qualityOfService,
     );
@@ -104,7 +104,7 @@ class Simulator with ChangeNotifier {
 
     final String message = jsonEncode(json);
 
-    await sendViaMQTT(
+    await _sendViaMQTT(
       message: message,
       qualityOfService: qualityOfService,
     );
@@ -154,7 +154,7 @@ class Simulator with ChangeNotifier {
 
     final String message = jsonEncode(json);
 
-    await sendViaMQTT(
+    await _sendViaMQTT(
       message: message,
       qualityOfService: qualityOfService,
     );
@@ -184,7 +184,7 @@ class Simulator with ChangeNotifier {
 
     final String message = jsonEncode(payload);
 
-    await sendViaMQTT(
+    await _sendViaMQTT(
       message: message,
       qualityOfService: qualityOfService,
     );
@@ -208,7 +208,7 @@ class Simulator with ChangeNotifier {
         // send pair confirm
         const qualityOfService = MqttQos.atLeastOnce;
         final String message = '{"type":"PairConfirm", "deviceID":"$deviceId"}';
-        await sendViaMQTT(
+        await _sendViaMQTT(
           message: message,
           qualityOfService: qualityOfService,
         );
@@ -228,8 +228,35 @@ class Simulator with ChangeNotifier {
     }
   }
 
+  /// Sends the traffic lights to the simulator.
+  Future<void> sendSignalGroups() async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
+    final routing = getIt<Routing>();
+    if (routing.selectedRoute == null) return;
+
+    for (final sg in routing.selectedRoute!.signalGroups) {
+      // Format: {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"80"}
+      final tlID = sg.id;
+      const type = "TrafficLight";
+      final deviceID = deviceId;
+      final longitude = sg.position.lon;
+      final latitude = sg.position.lat;
+      final bearing = sg.bearing ?? 0;
+
+      Map<String, String> json = {};
+      json['type'] = type;
+      json['deviceID'] = deviceID;
+      json['tlID'] = tlID;
+      json['longitude'] = longitude.toString();
+      json['latitude'] = latitude.toString();
+      json['bearing'] = bearing.toString();
+      final String message = jsonEncode(json);
+      await _sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
+    }
+  }
+
   /// Sends updates of the state of the signal group to the simulator.
-  Future<void> sendSignalGroupUpdatesToSimulator() async {
+  Future<void> sendSignalGroupUpdate() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     final ride = getIt<Ride>();
 
@@ -257,11 +284,14 @@ class Simulator with ChangeNotifier {
     json['tlID'] = tlID;
     json['state'] = state;
     final String message = jsonEncode(json);
-    await simulator.sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
+    await _sendViaMQTT(
+      message: message,
+      qualityOfService: MqttQos.atLeastOnce,
+    );
   }
 
   /// Helper Funktion to send a message to the simulator via MQTT.
-  Future<void> sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
+  Future<void> _sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
     if (client == null) await connectMQTTClient();
     if (receivedStopRide) return;
 

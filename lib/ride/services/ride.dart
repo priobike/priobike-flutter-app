@@ -363,6 +363,6 @@ class Ride with ChangeNotifier {
   void notifyListeners() {
     super.notifyListeners();
 
-    if (getIt<Settings>().enableSimulatorMode) getIt<Simulator>().sendSignalGroupUpdatesToSimulator();
+    if (getIt<Settings>().enableSimulatorMode) getIt<Simulator>().sendSignalGroupUpdate();
   }
 }
