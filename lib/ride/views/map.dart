@@ -507,26 +507,40 @@ class RideMapViewState extends State<RideMapView> {
           final orientation = MediaQuery.of(context).orientation;
           final mapbox.MbxEdgeInsets padding;
 
+          final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
+          final deviceWidth = MediaQuery.of(context).size.width;
+          final deviceHeight = MediaQuery.of(context).size.height;
+          final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+          // Get the scaled width and height.
+          double scaleWidth = deviceWidth * (pixelRatio / Settings.scalingFactor);
+          double scaleHeight = deviceHeight * (pixelRatio / Settings.scalingFactor);
+
           if (orientation == Orientation.portrait) {
-            padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 200, right: 0);
+            // We need to consider the scale factor in battery save mode.
+            if (isBatterySaveModeEnabled) {
+              // Note: these values can change since only ios currently needs to consider the scale factor.
+              if (Platform.isIOS) {
+                padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: scaleHeight * 0.05, right: 0);
+              } else {
+                padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: deviceHeight * 0.05, right: 0);
+              }
+            } else {
+              padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: deviceHeight * 0.05, right: 0);
+            }
           } else {
             // Landscape-Mode: Set user-puk to the left and a little down
             // The padding must be different if battery save mode is enabled by user because the map is rendered differently
-            final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
-            final deviceWidth = MediaQuery.of(context).size.width;
-            final deviceHeight = MediaQuery.of(context).size.height;
-            final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+            // We need to consider the scale factor in battery save mode for ios.
             if (isBatterySaveModeEnabled) {
-              if (Platform.isAndroid) {
-                padding = mapbox.MbxEdgeInsets(
-                    top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.165);
+              // Note: these values can change since only ios currently needs to consider the scale factor.
+              if (Platform.isIOS) {
+                padding = mapbox.MbxEdgeInsets(top: scaleHeight * 0.05, left: 0, bottom: 0, right: scaleWidth * 0.5);
               } else {
-                padding = mapbox.MbxEdgeInsets(
-                    top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.42);
+                padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: scaleWidth * 0.5);
               }
             } else {
-              padding = mapbox.MbxEdgeInsets(
-                  top: deviceHeight * 0.45, left: 0, bottom: 200, right: deviceWidth * pixelRatio * 0.42);
+              padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.05, left: 0, bottom: 0, right: deviceWidth * 0.5);
             }
           }
 
