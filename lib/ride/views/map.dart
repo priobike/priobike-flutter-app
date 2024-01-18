@@ -519,7 +519,7 @@ class RideMapViewState extends State<RideMapView> {
           if (orientation == Orientation.portrait) {
             // We need to consider the scale factor in battery save mode.
             if (isBatterySaveModeEnabled) {
-              // Note: these values can change since only ios currently needs to consider the scale factor.
+              // Note: ios uses device-independent pixel units and therefore we need to consider the scale factor.
               if (Platform.isIOS) {
                 padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: scaleHeight * 0.05, right: 0);
               } else {
@@ -533,14 +533,15 @@ class RideMapViewState extends State<RideMapView> {
             // The padding must be different if battery save mode is enabled by user because the map is rendered differently
             // We need to consider the scale factor in battery save mode for ios.
             if (isBatterySaveModeEnabled) {
-              // Note: these values can change since only ios currently needs to consider the scale factor.
+              // Note: ios uses device-independent pixel units and therefore we need to consider the scale factor.
               if (Platform.isIOS) {
                 padding = mapbox.MbxEdgeInsets(top: scaleHeight * 0.05, left: 0, bottom: 0, right: scaleWidth * 0.5);
               } else {
-                padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: scaleWidth * 0.5);
+                padding =
+                    mapbox.MbxEdgeInsets(top: deviceHeight * 0.05, left: 0, bottom: 0, right: deviceWidth * 0.175);
               }
             } else {
-              padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.05, left: 0, bottom: 0, right: deviceWidth * 0.5);
+              padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.05, left: 0, bottom: 0, right: deviceWidth * 0.42);
             }
           }
 

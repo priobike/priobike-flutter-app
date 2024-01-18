@@ -142,45 +142,41 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final orientation = MediaQuery.of(context).orientation;
     final isLandscapeMode = orientation == Orientation.landscape;
 
-    return Stack(
-      children: [
-        Positioned(
-          top: 48, // Below the MapBox attribution.
-          // Button is on the right in portrait mode and on the left in landscape mode.
-          right: isLandscapeMode ? null : 0,
-          left: isLandscapeMode ? 0 : null,
-          child: SafeArea(
-            child: Tile(
-              onPressed: () => showAskForConfirmationDialog(context),
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(24),
-                bottomLeft: const Radius.circular(24),
-                topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
-                bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
-              ),
-              padding: const EdgeInsets.all(4),
-              fill: Colors.black.withOpacity(0.4),
-              content: Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.flag_rounded,
-                      color: Colors.white,
-                    ),
-                    const SmallHSpace(),
-                    BoldSmall(
-                      text: "Ende",
-                      context: context,
-                      color: Colors.white,
-                    ),
-                  ],
+    return Positioned(
+      top: 48, // Below the MapBox attribution.
+      // Button is on the right in portrait mode and on the left in landscape mode.
+      right: isLandscapeMode ? null : 0,
+      left: isLandscapeMode ? 0 : null,
+      child: SafeArea(
+        child: Tile(
+          onPressed: () => showAskForConfirmationDialog(context),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(24),
+            bottomLeft: const Radius.circular(24),
+            topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
+            bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
+          ),
+          padding: const EdgeInsets.all(4),
+          fill: Colors.black.withOpacity(0.4),
+          content: Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.flag_rounded,
+                  color: Colors.white,
                 ),
-              ),
+                const SmallHSpace(),
+                BoldSmall(
+                  text: "Ende",
+                  context: context,
+                  color: Colors.white,
+                ),
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
