@@ -109,7 +109,7 @@ class AppMapState extends State<AppMap> {
   Widget build(BuildContext context) {
     double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     if (widget.saveBatteryModeEnabled) {
-      devicePixelRatio = devicePixelRatio / settings.scalingFactor;
+      devicePixelRatio = devicePixelRatio / Settings.scalingFactor;
     }
 
     final Widget map = mapbox.MapWidget(
@@ -155,7 +155,7 @@ class AppMapState extends State<AppMap> {
     // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
     return widget.saveBatteryModeEnabled
         ? Transform.scale(
-            scale: settings.scalingFactor,
+            scale: Settings.scalingFactor,
             child: map,
           )
         : map;

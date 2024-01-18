@@ -404,7 +404,7 @@ class RideMapViewState extends State<RideMapView> {
     );
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayerClickable(isDark, hideBehindPosition: true).install(
+    await TrafficLightsLayerClickable().install(
       mapController!,
       iconSize: ppi / 5,
       at: index,
@@ -451,8 +451,8 @@ class RideMapViewState extends State<RideMapView> {
       final frame = MediaQuery.of(context);
 
       // Get the scaled width and height.
-      double scaleWidth = frame.size.width / settings.scalingFactor;
-      double scaleHeight = frame.size.height / settings.scalingFactor;
+      double scaleWidth = frame.size.width / Settings.scalingFactor;
+      double scaleHeight = frame.size.height / Settings.scalingFactor;
 
       // Normalize the screen coordinate to the scaled area.
       double normalizedX = actualScreenCoordinate.x - (frame.size.width - scaleWidth) / 2;
