@@ -238,7 +238,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                             ),
                           ),
                         ),
-                        const SmallHSpace(),
+                        const HSpace(),
                       ],
                     ),
                   ),
