@@ -546,20 +546,25 @@ class RideMapViewState extends State<RideMapView> {
     // On iOS and Android we documented different behaviour regarding the position of the attribution and logo.
     // If this is fixed in an upcoming version of the Mapbox plugin, we may be able to remove those workaround adjustments
     // below.
-    double marginYLogo = frame.padding.top;
-    final double marginYAttribution;
-
-    marginYLogo = marginYLogo * 0.7;
-    marginYAttribution = marginYLogo - 22;
+    // Note: still not fixed with version 3.16.4 and mapbox 0.5.0.
+    double marginYLogo = 0;
+    double marginYAttribution = 0;
+    if (Platform.isAndroid) {
+      marginYLogo = frame.padding.top + 15;
+      marginYAttribution = frame.padding.top + 15;
+    } else {
+      marginYLogo = 15;
+      marginYAttribution = -5;
+    }
 
     return AppMap(
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
       onMapScroll: onMapScroll,
       onMapTap: onMapTap,
-      logoViewMargins: Point(20, marginYLogo),
+      logoViewMargins: Point(10, marginYLogo),
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
-      attributionButtonMargins: Point(20, marginYAttribution),
+      attributionButtonMargins: Point(10, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
       saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
     );
