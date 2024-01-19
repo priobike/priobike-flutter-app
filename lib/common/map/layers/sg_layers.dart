@@ -196,15 +196,12 @@ class TrafficLightsLayerClickable {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  TrafficLightsLayerClickable(bool isDark, {hideBehindPosition = false}) {
+  TrafficLightsLayerClickable() {
     final routing = getIt<Routing>();
-    final userPosSnap = getIt<Positioning>().snap;
     if (routing.selectedRoute == null) return;
     for (int i = 0; i < routing.selectedRoute!.signalGroups.length; i++) {
       final sg = routing.selectedRoute!.signalGroups[i];
-      final sgDistanceOnRoute = routing.selectedRoute!.signalGroupsDistancesOnRoute[i];
       // Clamp the value to not unnecessarily update the source.
-      final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
 
       features.add(
         {
@@ -216,9 +213,6 @@ class TrafficLightsLayerClickable {
           },
           "properties": {
             "id": sg.id,
-            "isDark": isDark,
-            "distanceToSgOnRoute": distanceToSgOnRoute,
-            "hideBehindPosition": hideBehindPosition,
           },
         },
       );
@@ -244,32 +238,11 @@ class TrafficLightsLayerClickable {
             id: layerId,
             iconSize: iconSize,
             iconAllowOverlap: true,
-            textAllowOverlap: true,
-            textIgnorePlacement: true,
-            iconOpacity: 0.4,
+            iconAnchor: mapbox.IconAnchor.BOTTOM,
+            iconOpacity: 1,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-image', 'trafficlightclicklayer');
-      await mapController.style.setStyleLayerProperty(
-          layerId,
-          'icon-opacity',
-          json.encode(
-            showAfter(zoom: 16, opacity: [
-              "case",
-              ["get", "hideBehindPosition"],
-              [
-                "case",
-                [
-                  "<=",
-                  ["get", "distanceToCrossingOnRoute"],
-                  -5,
-                ],
-                0.4,
-                1
-              ],
-              1
-            ]),
-          ));
     }
   }
 

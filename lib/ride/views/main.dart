@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -198,67 +196,62 @@ class RideViewState extends State<RideView> {
       onPopInvoked: (type) async => false,
       child: Scaffold(
         body: ScreenTrackingView(
-          child: SafeArea(
-            top: false,
-            bottom: Platform.isAndroid ? true : false,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              clipBehavior: Clip.none,
-              children: [
-                RideMapView(
-                  onMapMoved: onMapMoved,
-                  cameraFollowUserLocation: cameraFollowsUserLocation,
-                ),
-                if (settings.saveBatteryModeEnabled)
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 15,
-                    left: 10,
-                    child: const Image(
-                      width: 100,
-                      image: AssetImage('assets/images/mapbox-logo-transparent.png'),
-                    ),
-                  ),
-                if (settings.saveBatteryModeEnabled)
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 5,
-                    right: 10,
-                    child: IconButton(
-                      onPressed: () => MapboxAttribution.showAttribution(context),
-                      icon: const Icon(
-                        Icons.info_outline_rounded,
-                        size: 25,
-                        color: CI.radkulturRed,
-                      ),
-                    ),
-                  ),
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            clipBehavior: Clip.none,
+            children: [
+              RideMapView(
+                onMapMoved: onMapMoved,
+                cameraFollowUserLocation: cameraFollowsUserLocation,
+              ),
+              if (settings.saveBatteryModeEnabled)
                 Positioned(
-                  right: positionSpeedometerRight,
-                  child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
+                  top: MediaQuery.of(context).padding.top + 15,
+                  left: 10,
+                  child: const Image(
+                    width: 100,
+                    image: AssetImage('assets/images/mapbox-logo-transparent.png'),
+                  ),
                 ),
-                const DatastreamView(),
-                const FinishRideButton(),
-                if (!cameraFollowsUserLocation)
-                  SafeArea(
-                    bottom: true,
-                    child: Padding(
-                      padding: paddingCenterButton,
-                      child: BigButtonPrimary(
-                        label: "Zentrieren",
-                        elevation: 20,
-                        onPressed: () {
-                          final ride = getIt<Ride>();
-                          if (ride.userSelectedSG != null) ride.unselectSG();
-                          setState(() {
-                            cameraFollowsUserLocation = true;
-                          });
-                        },
-                        boxConstraints:
-                            BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
-                      ),
+              if (settings.saveBatteryModeEnabled)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 5,
+                  right: 10,
+                  child: IconButton(
+                    onPressed: () => MapboxAttribution.showAttribution(context),
+                    icon: const Icon(
+                      Icons.info_outline_rounded,
+                      size: 25,
+                      color: CI.radkulturRed,
                     ),
                   ),
-              ],
-            ),
+                ),
+              Positioned(
+                right: positionSpeedometerRight,
+                child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
+              ),
+              const DatastreamView(),
+              const FinishRideButton(),
+              if (!cameraFollowsUserLocation)
+                SafeArea(
+                  bottom: true,
+                  child: Padding(
+                    padding: paddingCenterButton,
+                    child: BigButtonPrimary(
+                      label: "Zentrieren",
+                      elevation: 20,
+                      onPressed: () {
+                        final ride = getIt<Ride>();
+                        if (ride.userSelectedSG != null) ride.unselectSG();
+                        setState(() {
+                          cameraFollowsUserLocation = true;
+                        });
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
