@@ -124,7 +124,7 @@ class YourBikeViewState extends State<YourBikeView> {
                   children: [
                     NearbyResultsList(results: [
                       if (poi.rentalResults.isNotEmpty) poi.rentalResults.first,
-                      if (poi.rentalResults.isNotEmpty) poi.bikeAirResults.first,
+                      if (poi.bikeAirResults.isNotEmpty) poi.bikeAirResults.first,
                       if (poi.repairResults.isNotEmpty) poi.repairResults.first,
                     ]),
                   ],

@@ -410,14 +410,14 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackroundImages";
+  static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackgroundImages";
   static const defaultDidMigrateBackgroundImages = false;
 
   Future<bool> setDidMigrateBackgroundImages(bool didMigrateBackgroundImages, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.didMigrateBackgroundImages;
     this.didMigrateBackgroundImages = didMigrateBackgroundImages;
-    final bool success = await storage.setBool(didMigrateBackgroundImagesKey, didViewUserTransfer);
+    final bool success = await storage.setBool(didMigrateBackgroundImagesKey, didMigrateBackgroundImages);
     if (!success) {
       log.e("Failed to set didMigrateBackgroundImages to $didMigrateBackgroundImagesKey");
       this.didMigrateBackgroundImages = prev;
