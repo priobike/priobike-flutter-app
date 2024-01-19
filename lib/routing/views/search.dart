@@ -350,9 +350,21 @@ class RouteSearchState extends State<RouteSearch> {
   /// A callback that is fired when a waypoint is tapped.
   Future<void> tappedWaypoint({required Waypoint waypoint, required bool addToHistory}) async {
     /// The current position is not saved in the search history.
-    if (addToHistory) await geosearch.addToSearchHistory(waypoint);
     geosearch.clearGeosearch();
-    if (mounted) Navigator.of(context).pop(waypoint);
+    // FIXME we should pay attention to release notes if this Flutter bug might be fixed in the future.
+    // Note: still not fixed with flutter 3.16.0.
+    // Prevents the keyboard to be focused on pop screen. This can cause ugly map effects on Android.
+    if (Platform.isAndroid && searchTextFieldFocusNode.hasFocus) {
+      searchTextFieldFocusNode.unfocus();
+      // Waiting for the keyboard to be fully unfocused before popping the current screen.
+      await Future.delayed(const Duration(milliseconds: 500)).then((value) {
+        Navigator.of(context).pop(waypoint);
+        if (addToHistory) geosearch.addToSearchHistory(waypoint);
+      });
+    } else {
+      Navigator.of(context).pop(waypoint);
+      if (addToHistory) geosearch.addToSearchHistory(waypoint);
+    }
   }
 
   /// Calculate distance to the user for each waypoint and optionally sorts the results in ascending order.
