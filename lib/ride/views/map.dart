@@ -371,7 +371,6 @@ class RideMapViewState extends State<RideMapView> {
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
-    final ppi = MediaQuery.of(context).devicePixelRatio;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     await getFirstLabelLayer();
@@ -388,33 +387,33 @@ class RideMapViewState extends State<RideMapView> {
     if (!mounted) return;
     await DiscomfortsLayer(isDark).install(
       mapController!,
-      iconSize: ppi / 14,
+      iconSize: 0.2,
       at: index,
       showLabels: false,
     );
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
-    await WaypointsLayer().install(mapController!, iconSize: ppi / 8, at: index);
+    await WaypointsLayer().install(mapController!, iconSize: 0.33, at: index);
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
     await TrafficLightsLayer(isDark, hideBehindPosition: true).install(
       mapController!,
-      iconSize: ppi / 5,
+      iconSize: 0.5,
       at: index,
     );
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
     await TrafficLightsLayerClickable().install(
       mapController!,
-      iconSize: ppi / 5,
+      iconSize: 0.5,
       at: index,
     );
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5, at: index);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: 0.5, at: index);
     index = await getIndex(TrafficLightLayer.layerId);
     if (!mounted) return;
-    await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5, at: index);
+    await TrafficLightLayer(isDark).install(mapController!, iconSize: 0.5, at: index);
 
     onRoutingUpdate();
     onPositioningUpdate();

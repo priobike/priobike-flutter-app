@@ -500,20 +500,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load all route map layers.
   loadRouteMapLayers() async {
     if (mapController == null) return;
-    final ppi = MediaQuery.of(context).devicePixelRatio;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     var index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark).install(
       mapController!,
-      iconSize: ppi / 10,
+      iconSize: 0.33,
       at: index,
     );
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
     await TrafficLightsLayer(isDark).install(
       mapController!,
-      iconSize: ppi / 10,
+      iconSize: 0.33,
       at: index,
     );
     index = await getIndex(WaypointsLayer.layerId);
@@ -527,7 +526,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await DiscomfortsLayer(isDark).install(
       mapController!,
-      iconSize: ppi / 14,
+      iconSize: 0.2,
       at: index,
     );
     index = await getIndex(SelectedRouteLayer.layerId);
