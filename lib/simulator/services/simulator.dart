@@ -56,6 +56,7 @@ class Simulator with ChangeNotifier {
 
   /// Sends a ready pair request to the simulator via MQTT.
   /// The simulator must confirm the pairing before the ride can start.
+  /// Format: {"type":"PairRequest","deviceID":"5d2b1","deviceName":"Priobike"}
   Future<void> sendReadyPairRequest() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
@@ -81,6 +82,7 @@ class Simulator with ChangeNotifier {
 
   /// Sends a stop ride message to the simulator via MQTT to stop the simulation.
   /// This will be called when the user ends the ride.
+  /// Format: {"type":"StopRide","deviceID":"5d2b1"}
   Future<void> sendStopRide() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
@@ -101,6 +103,8 @@ class Simulator with ChangeNotifier {
 
   /// Send the current position to the simulator via MQTT.
   /// This will be called every second to update the position in the simulator.
+  /// Format: {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.12345",
+  /// "latitude":"50.12345", "bearing":"-80"}
   Future<void> sendCurrentPosition({required bool isFirstPosition}) async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
@@ -113,10 +117,6 @@ class Simulator with ChangeNotifier {
     final double latitude;
     final double heading;
     final String type;
-
-    // Format:
-    // {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.
-    // 12345", "latitude":"50.12345", "bearing":"-80"}
 
     // if it is the first position, send the starting point of the route
     if (isFirstPosition) {
@@ -152,8 +152,8 @@ class Simulator with ChangeNotifier {
   }
 
   /// Sends the route points before the rides startes to the simulator.
-  /// Format:
-  /// [{"type":"RouteDataStart","deviceID":"87c22"},{"lon":9.993686,"lat":53.551085}...{"lon":9.976977980510583,"lat":53.56440493672994}]
+  /// Format: [{"type":"RouteDataStart","deviceID":"87c22"},{"lon":9.993686,"lat":53.551085}
+  /// ... {"lon":9.976977980510583,"lat":53.56440493672994}]
   Future<void> sendRouteData() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
@@ -183,7 +183,7 @@ class Simulator with ChangeNotifier {
   }
 
   /// A callback that is executed when data arrives.
-  Future<void> onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
+  Future<void> _onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
 
@@ -225,6 +225,8 @@ class Simulator with ChangeNotifier {
 
   /// Sends the traffic lights to the simulator.
   /// This will be called once before the ride starts to place the traffic lights on the map in the simulator.
+  /// Format: {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345",
+  /// "latitude":"50.12345", "bearing":"80"}
   Future<void> sendSignalGroups() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
@@ -233,7 +235,6 @@ class Simulator with ChangeNotifier {
     if (routing.selectedRoute == null) return;
 
     for (final sg in routing.selectedRoute!.signalGroups) {
-      // Format: {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"80"}
       final tlID = sg.id;
       const type = "TrafficLight";
       final deviceID = deviceId;
@@ -255,6 +256,7 @@ class Simulator with ChangeNotifier {
 
   /// Sends updates of the state of the signal group to the simulator.
   /// This will be called throughout the ride whenever the state of the signal group changes.
+  /// Format: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
   Future<void> sendSignalGroupUpdate() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
@@ -274,7 +276,6 @@ class Simulator with ChangeNotifier {
     lastSendSGState = state;
     lastSendSGId = tlID;
 
-    // Format: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
     final simulator = getIt<Simulator>();
     const type = "TrafficLightChange";
     final deviceID = simulator.deviceId;
@@ -291,7 +292,7 @@ class Simulator with ChangeNotifier {
     );
   }
 
-  /// Helper function to send a message to the simulator via MQTT.
+  /// Helper function to encode and send a message to the simulator via MQTT.
   Future<void> _sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
@@ -355,7 +356,7 @@ class Simulator with ChangeNotifier {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
 
-      client!.updates?.listen(onData);
+      client!.updates?.listen(_onData);
 
       await sendReadyPairRequest();
       subscription = client?.subscribe(topic, MqttQos.atLeastOnce);
