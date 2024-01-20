@@ -285,6 +285,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
       labelStartRide = "Pair Simulator";
     } else {
+      // If not in simulator mode or pair was successful
       labelStartRide = "Losfahren";
     }
 

@@ -44,17 +44,20 @@ class Simulator with ChangeNotifier {
   // The last send signal group id. Used to only send a state if it changed.
   String? lastSendSGId;
 
+  /// Asks the user for the bluetooth permission to connect the sensor.
   askForPermission() {
     // TODO: implement askForPermission
   }
 
+  /// Connects the device with the sensor.
   connectWithSensor() {
     // TODO: implement conntectWithDevice
   }
 
   /// Sends a ready pair request to the simulator via MQTT.
-  /// The simulator must confirm the pairing, before the ride can start.
+  /// The simulator must confirm the pairing before the ride can start.
   Future<void> sendReadyPairRequest() async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
 
     // Only send a ready pair request every 10 seconds to avoid spamming the simulator.
@@ -79,6 +82,7 @@ class Simulator with ChangeNotifier {
   /// Sends a stop ride message to the simulator via MQTT to stop the simulation.
   /// This will be called when the user ends the ride.
   Future<void> sendStopRide() async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
 
     const qualityOfService = MqttQos.atLeastOnce;
@@ -98,6 +102,7 @@ class Simulator with ChangeNotifier {
   /// Send the current position to the simulator via MQTT.
   /// This will be called every second to update the position in the simulator.
   Future<void> sendCurrentPosition({required bool isFirstPosition}) async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
 
     const qualityOfService = MqttQos.atMostOnce;
@@ -150,6 +155,7 @@ class Simulator with ChangeNotifier {
   /// Format:
   /// [{"type":"RouteDataStart","deviceID":"87c22"},{"lon":9.993686,"lat":53.551085}...{"lon":9.976977980510583,"lat":53.56440493672994}]
   Future<void> sendRouteData() async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
 
     const qualityOfService = MqttQos.atLeastOnce;
@@ -178,6 +184,9 @@ class Simulator with ChangeNotifier {
 
   /// A callback that is executed when data arrives.
   Future<void> onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
+    if (client == null) await connectMQTTClient();
+
     if (messages == null) return;
     for (final message in messages) {
       final recMess = message.payload as MqttPublishMessage;
@@ -218,6 +227,8 @@ class Simulator with ChangeNotifier {
   /// This will be called once before the ride starts to place the traffic lights on the map in the simulator.
   Future<void> sendSignalGroups() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
+    if (client == null) await connectMQTTClient();
+
     final routing = getIt<Routing>();
     if (routing.selectedRoute == null) return;
 
@@ -246,6 +257,8 @@ class Simulator with ChangeNotifier {
   /// This will be called throughout the ride whenever the state of the signal group changes.
   Future<void> sendSignalGroupUpdate() async {
     if (getIt<Settings>().enableSimulatorMode == false) return;
+    if (client == null) await connectMQTTClient();
+
     final ride = getIt<Ride>();
 
     if (ride.calcCurrentSG == null ||
@@ -280,7 +293,9 @@ class Simulator with ChangeNotifier {
 
   /// Helper function to send a message to the simulator via MQTT.
   Future<void> _sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
+    if (getIt<Settings>().enableSimulatorMode == false) return;
     if (client == null) await connectMQTTClient();
+
     if (receivedStopRide) return;
 
     // Convert message to byte array
