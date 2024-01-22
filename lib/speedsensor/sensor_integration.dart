@@ -127,9 +127,10 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     }
     // speed sensor was not in connected devices, so we do a new bluetooth scan
     _scanResultsSubscription = FlutterBluePlus.scanResults.listen((results) {
+      /// the contents here are getting called everytime a new device was found in the scan
       _scanResults = results;
       log.i(_scanResults);
-      // search speed sensor in list of all found devices
+      // search speed sensor in list of all currently found devices
       try {
         ScanResult element = _scanResults.firstWhere((element) =>
         element.advertisementData.advName == _speedSensorName);
