@@ -44,7 +44,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
   Below you can find the service uuid along with it's characteristic uuid
   responsible for delivering new rotation data.
 
-  By looking at the data, we guessed it's structured like this:
+  By looking at the data, i guessed it's structured like this:
   [a, b, c, d, e, f, g]
   a= [constantly 1]
   b= current number of rotations
@@ -101,7 +101,9 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
   late StreamSubscription<bool> _isDisconnectingSubscription;
   late StreamSubscription<int> _mtuSubscription;
 
-  void _initConnectedDevices() async {
+  /// tries connecting to speed sensor, if not already connected
+  /// initializes _device, if not already initialized
+  void _initConnectionToSpeedSensor() async {
     if(!(_device == null)) {
       log.i("device already connected, yay");
       _initServiceDiscovery();
@@ -163,6 +165,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
       setState(() {});
     });
 
+    // subscribe to different parameters to be notified in case of changes
     _mtuSubscription = _device!.mtu.listen((value) {
       _mtuSize = value;
       setState(() {});
@@ -180,30 +183,38 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     _connectToSpeedSensor();
   }
 
+  /// initializes the bluetooth adapter for the speed sensor
+  /// -> makes sure bluetooth is turned on
   void initBluetoothForSpeedSensor() {
     log.i("initializing bluetooth for speed sensor");
     _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       _adapterState = state;
+      // check if bluetooth is turned off
       if(_adapterState == BluetoothAdapterState.off) {
         log.i("ERROR: bluetooth turned off");
         if (Platform.isAndroid) {
+          // turn bluetooth on
+          // Note: only available on android
           log.i("turning bluetooth on");
           FlutterBluePlus.turnOn();
         }
       }
+      // initialize connection to speed sensor
       if(_adapterState == BluetoothAdapterState.on) {
-        _initConnectedDevices();
+        _initConnectionToSpeedSensor();
       }
       setState(() {});
     });
   }
 
+  /// updates the (via class parameter) given positioning based on the current speed
   void updatePositioningViaSpeedSensor() {
     getSpeed();
     widget.callback;
     setState(() {});
   }
 
+  /// init is called, if the speed sensor object is created
   @override
   void initState() {
     super.initState();
@@ -211,8 +222,10 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     widget.positioning.addListener(updatePositioningViaSpeedSensor);
   }
 
+  /// dispose is called, if the speed sensor object (this class) is destroyed
   @override
   void dispose() {
+    // cancel all subscriptions
     super.dispose();
     _connectionStateSubscription.cancel();
     _mtuSubscription.cancel();
@@ -223,6 +236,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     widget.positioning.removeListener(updatePositioningViaSpeedSensor);
   }
 
+  /// returns true, if bluetooth adapter is connected to anything
   bool get isConnected {
     return _connectionState == BluetoothConnectionState.connected;
   }
@@ -240,6 +254,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
   }
 
   /// discovers all services of connected device
+  /// Note: _device has to be initialized
   Future<void> _discoverServicesOfDevice() async {
     setState(() {
       _isDiscoveringServices = true;
@@ -256,27 +271,33 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     });
   }
 
+  /// retrieves the speed characteristic from all available services
   void _getSpeedCharacteristic() async {
     await _discoverServicesOfDevice();
     Iterator<BluetoothService> serviceIter = _services.iterator;
 
+    // iterate over list of all services
     while(serviceIter.moveNext()) {
       BluetoothService service = serviceIter.current;
       if(service.uuid.toString().toUpperCase() == _serviceUuid) {
         log.i("found correct service");
         //correct service found
+        // search for correct characteristic in service
         Iterator<BluetoothCharacteristic> characteristicsIter = service.characteristics.iterator;
         while(characteristicsIter.moveNext()) {
           if(characteristicsIter.current.uuid.toString().toUpperCase() == _characteristicsUuid) {
             //correct characteristic found
             log.i("found correct characteristics");
             _speedCharacteristic = characteristicsIter.current;
+            // exit loop, we found correct characteristic
             break;
           }
         }
+        // exit loop, we found the service we need
         break;
       }
     }
+    // calculate speed from obtained speed characteristic
     if(!(_speedCharacteristic == null)) {
       _speedCharacteristic!.setNotifyValue(_speedCharacteristic!.isNotifying == false);
       _lastValueSubscription = _speedCharacteristic!.lastValueStream.listen((value) {
@@ -288,12 +309,18 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     setState(() {});
   }
 
+  /// calculates the current speed
+  /// based on: wheelsize, sensor data
+  /// @parameter values (data from the speed characteristic,
+  /// the structure of this is described at the start of the class)
   double _calculateSpeed(List<int> values) {
     log.i("calculating speed");
     log.i(values);
     int rotations = values[1];
 
     int rotationDifference = rotations - _lastNumberOfRotations;
+    // we could also check, if value[2] is greater than the last time, but this
+    // implementation was done before i noticed that the sensor has a dedicated parameter for this
     if(rotationDifference < 0) {
       rotationDifference = rotationDifference + 255;
     }
@@ -304,14 +331,19 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     double timeDifference = timeDifferenceInMilliseconds / 3600000;
     _lastNumberOfRotations = rotations;
     _timeOfLastSpeedUpdate = DateTime.timestamp();
+    // return calculated speed in km/h
     return (rotationDifference * _wheelSizeInKm) / timeDifference;
   }
 
+  /// returns value of _speed
   double getSpeed() {
     log.i("current speed: $_speed km/h");
     return _speed;
   }
 
+  /// UNTESTED/WIP popup dialog for more user friendly connection to speed sensor
+  /// user has to select sensor manually from list to be able to choose from
+  /// different sensors
   void showSpeedSensorInitDialog(BuildContext context) {
     showGeneralDialog(
       context: context,
@@ -337,6 +369,9 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     );
   }
 
+  // Since speed sensor is a widget now, it has to return a Widget-object.
+  // In order to be able to replace it with the normally used text-widget,
+  // we return the current speed in form of a text-widget too.
   @override
   Widget build(BuildContext context) {
     return Text(_speed.toString());
