@@ -287,6 +287,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     }
     final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
 
+    // use speedsensor for displayed speed, if usage is enabled in settings of priobike
+    // else: use normal text widget
     Widget speedWidget = getIt<Settings>().enableSpeedSensor
         ? GarminSpeedSensor(
             positioning: positioning, callback: () => loadGauge(ride))

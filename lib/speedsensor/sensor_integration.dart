@@ -16,6 +16,7 @@ final Map<DeviceIdentifier, StreamControllerReemit<bool>> _dglobal = {};
 
 final log = Logger("sensor_integration.dart");
 
+// create Stateful Widget that's interacting with the speed sensor
 class GarminSpeedSensor extends StatefulWidget {
 
   final Positioning positioning;
@@ -26,36 +27,72 @@ class GarminSpeedSensor extends StatefulWidget {
 }
 class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
 
+  /*
+  the name of the speed sensor was acquired by doing a normal scan for bluetooth devices
+  Important: Location has to be enabled, since the used speed sensor is a
+  BLE device, which are only accessible if we can scan for devices nearby
+  */
   final String _speedSensorName = "SPD-BLE0594113";
+  /*
+  To get the correct data from the sensor, we subscribed to all available
+  services. Some of them had multiple characteristics.
+  Some of the characteristics only had constant data. Others were also subscribable
+  with updating data.
+  We subscribed to every one of them & looked at the data they delivered, when
+  we imitated the physical movement of a wheel with the sensor.
+
+  Below you can find the service uuid along with it's characteristic uuid
+  responsible for delivering new rotation data.
+
+  By looking at the data, we guessed it's structured like this:
+  [a, b, c, d, e, f, g]
+  a= [constantly 1]
+  b= current number of rotations
+  c= increased by one, if b would have been higher than 255
+  -> c++, if new_b % 255 < previous_b % 255
+  f= current angle
+  g= difference between current f and previously sent f
+  d= [constantly 0]
+  e= [constantly 0]
+  */
   final String _serviceUuid = "00001816-0000-1000-8000-00805F9B34FB";
   final String _characteristicsUuid = "00002A5B-0000-1000-8000-00805F9B34FB";
 
+  // initialize BluetoothAdapter Object [from FlutterBluePlus plugin]
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
 
   late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
 
+  // list of currently connected devices
   List<BluetoothDevice> _connectedDevices = [];
+  // list of found devices in bluetooth scan
   List<ScanResult> _scanResults = [];
+  // List of found services (offered from bluetooth device we are connected to)
+  List<BluetoothService> _services = [];
   bool _isScanning = false;
   late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
   late StreamSubscription<bool> _isScanningSubscription;
 
+  /* _device is initialized later. It will contain the bluetooth-device,
+  we connect to [from FlutterBluePlus plugin] */
   BluetoothDevice? _device;
 
   int? _rssi;
   int? _mtuSize;
   BluetoothConnectionState _connectionState = BluetoothConnectionState.disconnected;
-  List<BluetoothService> _services = [];
   bool _isConnecting = false;
   bool _isDisconnecting = false;
   bool _isDiscoveringServices = false;
 
+  /* _speedCharacteristic is initialized later. It will contain the characteristic
+  containing the rotation information [from FlutterBluePlus plugin] */
   BluetoothCharacteristic? _speedCharacteristic;
   DateTime _timeOfLastSpeedUpdate = DateTime.timestamp();
   int _lastNumberOfRotations = 0;
 
   //enter wheel size in inch in numerator
   final double _wheelSizeInKm = 28 / 39370;
+  // variable containing the calculated speed
   double _speed = 0;
 
   late StreamSubscription<List<int>> _lastValueSubscription;
@@ -67,34 +104,37 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
   void _initConnectedDevices() async {
     if(!(_device == null)) {
       log.i("device already connected, yay");
-      _discoverServices();
+      _initServiceDiscovery();
       return;
     } else {
       log.i("device not connected yet.");
     }
     log.i("initalizing connected devices");
+    // get all bluetooth devices already connected to the system
     FlutterBluePlus.systemDevices.then((devices) {
       _connectedDevices = devices;
       //setState(() {});
     });
+    // search for speed sensor in connected devices
     try {
       _device = _connectedDevices.firstWhere((element) => element.platformName == _speedSensorName);
-      _discoverServices();
+      _initServiceDiscovery();
       return;
     } catch (e) {
       log.i("speed sensor not in connected devices");
     }
-
+    // speed sensor was not in connected devices, so we do a new bluetooth scan
     _scanResultsSubscription = FlutterBluePlus.scanResults.listen((results) {
       _scanResults = results;
       log.i(_scanResults);
+      // search speed sensor in list of all found devices
       try {
         ScanResult element = _scanResults.firstWhere((element) =>
         element.advertisementData.advName == _speedSensorName);
         FlutterBluePlus.stopScan();
         _device = element.device;
         log.i("found speed sensor!");
-        _discoverServices();
+        _initServiceDiscovery();
       } catch (e) {
         log.i("speed sensor not in scan results");
       }
@@ -105,10 +145,13 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
       setState(() {});
     });
 
+    // start bluetooth scan
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15), continuousUpdates: true, androidUsesFineLocation: true);
   }
 
-  void _discoverServices() {
+  /// inits the discovery of the services
+  /// Note: _device has to be initialized (sensor has to be found in list of available devices)
+  void _initServiceDiscovery() {
     _connectionStateSubscription = _device!.connectionState.listen((state) async {
       _connectionState = state;
       if (state == BluetoothConnectionState.connected) {
@@ -134,7 +177,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
       setState(() {});
     });
 
-    _onConnectPressed();
+    _connectToSpeedSensor();
   }
 
   void initBluetoothForSpeedSensor() {
@@ -184,7 +227,9 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     return _connectionState == BluetoothConnectionState.connected;
   }
 
-  Future _onConnectPressed() async {
+  /// tries connecting to the speed sensor
+  /// Note: _device has to be initialized
+  Future _connectToSpeedSensor() async {
     try {
       await _device!.connectAndUpdateStream();
       log.i("connection success");
@@ -194,12 +239,13 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     }
   }
 
-  Future<void> _onDiscoverServicesPressed() async {
+  /// discovers all services of connected device
+  Future<void> _discoverServicesOfDevice() async {
     setState(() {
       _isDiscoveringServices = true;
     });
     try {
-      _services = await _device!.discoverServices(subscribeToServicesChanged: false);
+      _services = await _device!.discoverServices();
       log.i("got services successfully");
       log.i(_services);
     } catch (e) {
@@ -211,7 +257,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
   }
 
   void _getSpeedCharacteristic() async {
-    await _onDiscoverServicesPressed();
+    await _discoverServicesOfDevice();
     Iterator<BluetoothService> serviceIter = _services.iterator;
 
     while(serviceIter.moveNext()) {
