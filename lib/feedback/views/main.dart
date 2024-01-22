@@ -154,6 +154,8 @@ class FeedbackViewState extends State<FeedbackView> {
       brightness: Theme.of(context).brightness,
       systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
+        // To avoid recalculating the map and its painting when the keyboard appears.
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             SizedBox(
