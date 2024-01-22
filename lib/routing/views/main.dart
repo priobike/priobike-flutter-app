@@ -304,6 +304,7 @@ class RoutingViewState extends State<RoutingView> {
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             const RoutingMapView(),
