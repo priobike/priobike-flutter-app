@@ -175,15 +175,12 @@ class RideViewState extends State<RideView> {
           iconColor: CI.radkulturYellow,
           actions: [
             BigButtonPrimary(
-              iconColor: Colors.black,
-              textColor: Colors.black,
               icon: Icons.home_rounded,
-              fillColor: CI.radkulturRed,
               label: "Okay",
               onPressed: () async {
                 Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
           ],
         );
