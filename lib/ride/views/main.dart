@@ -230,7 +230,7 @@ class RideViewState extends State<RideView> {
                 right: positionSpeedometerRight,
                 child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               ),
-              const DatastreamView(),
+              if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
               const FinishRideButton(),
               if (!cameraFollowsUserLocation)
                 SafeArea(

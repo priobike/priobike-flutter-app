@@ -142,7 +142,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     super.dispose();
   }
 
-  /// Hide the buttom navigation bar on Android. Will be reenabled in the home screen.
+  /// Hide the bottom navigation bar on Android. Will be reenabled in the home screen.
   void hideNavigationBarAndroid() {
     if (Platform.isAndroid) {
       SystemChrome.setEnabledSystemUIMode(
