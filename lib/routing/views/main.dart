@@ -198,7 +198,7 @@ class RoutingViewState extends State<RoutingView> {
                     return;
                   }
                 },
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               ),
               BigButtonSecondary(
                 iconColor: Colors.white,
