@@ -27,7 +27,7 @@ class Simulator with ChangeNotifier {
   bool pairSuccessful = false;
 
   /// The topic for the MQTT messages.
-  final topic = "simulation";
+  static const topic = "simulation";
 
   /// The last time a pair request was sent to the simulator.
   DateTime? lastSendPairRequest;
