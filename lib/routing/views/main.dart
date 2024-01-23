@@ -209,7 +209,7 @@ class RoutingViewState extends State<RoutingView> {
                   Navigator.of(context).pop();
                   setState(() {});
                 },
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               ),
             ],
           );
