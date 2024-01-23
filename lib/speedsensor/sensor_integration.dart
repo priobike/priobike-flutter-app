@@ -210,7 +210,8 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
 
   /// updates the (via class parameter) given positioning based on the current speed
   void updatePositioningViaSpeedSensor() {
-    getSpeed();
+    double speed = getSpeed();
+    widget.positioning.setDebugSpeed(speed / 3.6);
     widget.callback;
     setState(() {});
   }
