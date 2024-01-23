@@ -133,7 +133,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
       // search speed sensor in list of all currently found devices
       try {
         ScanResult element = _scanResults.firstWhere((element) =>
-        element.advertisementData.advName == _speedSensorName);
+        element.advertisementData.localName == _speedSensorName);
         FlutterBluePlus.stopScan();
         _device = element.device;
         log.i("found speed sensor!");
@@ -149,7 +149,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     });
 
     // start bluetooth scan
-    await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15), continuousUpdates: true, androidUsesFineLocation: true);
+    await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15), androidUsesFineLocation: true);
   }
 
   /// inits the discovery of the services
