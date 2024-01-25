@@ -358,7 +358,6 @@ class Simulator with ChangeNotifier {
 
       client!.updates?.listen(_onData);
 
-      await sendReadyPairRequest();
       subscription = client?.subscribe(topic, MqttQos.atLeastOnce);
     } catch (e, stacktrace) {
       client = null;
