@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -15,6 +17,13 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       return DialogLayout(
         title: 'Fahrt abgebrochen',

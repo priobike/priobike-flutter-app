@@ -433,6 +433,13 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Fahrt löschen',

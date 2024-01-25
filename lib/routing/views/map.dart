@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -772,6 +773,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         barrierDismissible: true,
         barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
         barrierColor: Colors.black.withOpacity(0.4),
+        transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        ),
         pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
           return DialogLayout(
             title: 'Wegpunkt außerhalb des Stadtgebiets',

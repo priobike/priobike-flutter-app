@@ -20,6 +20,13 @@ void showInvalidShortcutSheet(context) {
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final backend = getIt<Settings>().backend;
       return DialogLayout(
@@ -45,7 +52,14 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor:
-        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.8),
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
@@ -123,7 +137,14 @@ void showFinishDriveDialog(context, Function submit) {
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor:
-        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.8),
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       return DialogLayout(
         title: 'Dein Feedback zur App',
@@ -254,53 +275,47 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
       duration: const Duration(milliseconds: 200),
       curve: Curves.linear,
       child: Center(
-        child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(32)),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                width: orientation == Orientation.portrait
-                    ? MediaQuery.of(context).size.width * 0.8
-                    : MediaQuery.of(context).size.width * 0.6,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(24)),
-                  color: Theme.of(context).colorScheme.background.withOpacity(0.6),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (widget.icon != null)
-                        Icon(
-                          widget.icon!,
-                          color: widget.iconColor ?? Theme.of(context).colorScheme.primary,
-                          size: 36,
-                        ),
-                      if (widget.icon != null) const SmallVSpace(),
-                      BoldSubHeader(
-                        context: context,
-                        text: widget.title,
-                        textAlign: TextAlign.center,
-                      ),
-                      if (widget.text != null) ...[
-                        const SmallVSpace(),
-                        Content(
-                          context: context,
-                          text: widget.text!,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                      if (widget.actions != null) ...[
-                        const SmallVSpace(),
-                        ...actions,
-                      ]
-                    ],
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: orientation == Orientation.portrait
+                ? MediaQuery.of(context).size.width * 0.8
+                : MediaQuery.of(context).size.width * 0.6,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(24)),
+              color: Theme.of(context).colorScheme.background.withOpacity(1),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.icon != null)
+                    Icon(
+                      widget.icon!,
+                      color: widget.iconColor ?? Theme.of(context).colorScheme.primary,
+                      size: 36,
+                    ),
+                  if (widget.icon != null) const SmallVSpace(),
+                  BoldSubHeader(
+                    context: context,
+                    text: widget.title,
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                  if (widget.text != null) ...[
+                    const SmallVSpace(),
+                    Content(
+                      context: context,
+                      text: widget.text!,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  if (widget.actions != null) ...[
+                    const SmallVSpace(),
+                    ...actions,
+                  ]
+                ],
               ),
             ),
           ),

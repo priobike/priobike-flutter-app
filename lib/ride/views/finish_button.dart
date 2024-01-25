@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,9 +36,14 @@ class FinishRideButtonState extends State<FinishRideButton> {
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Theme.of(context).brightness == Brightness.dark
-          ? Colors.black.withOpacity(0.6)
-          : Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Fahrt wirklich beenden?',
