@@ -44,6 +44,7 @@ class ParkingStationsLayer {
             iconSize: iconSize,
             iconOpacity: 0,
             iconAllowOverlap: true,
+            minZoom: 12.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
@@ -108,6 +109,7 @@ class RentalStationsLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          minZoom: 12.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -197,6 +199,7 @@ class BikeShopLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          minZoom: 12.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -291,6 +294,7 @@ class BikeAirStationLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          minZoom: 12.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -380,6 +384,7 @@ class ConstructionSitesLayer {
           textColor: const Color(0xFFE67E22).value,
           textAllowOverlap: true,
           textOpacity: 0,
+          minZoom: 9.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -456,6 +461,7 @@ class AccidentHotspotsLayer {
           textColor: CI.radkulturYellow.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          minZoom: 8.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -516,12 +522,14 @@ class TrafficLayer {
     if (!layerExists) {
       await mapController.style.addLayerAt(
         mapbox.LineLayer(
-            sourceId: sourceId,
-            sourceLayer: "traffic",
-            id: layerId,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineCap: mapbox.LineCap.ROUND,
-            lineWidth: 1.9),
+          sourceId: sourceId,
+          sourceLayer: "traffic",
+          id: layerId,
+          lineJoin: mapbox.LineJoin.ROUND,
+          lineCap: mapbox.LineCap.ROUND,
+          lineWidth: 1.9,
+          minZoom: 8.0,
+        ),
         mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(

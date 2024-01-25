@@ -43,6 +43,7 @@ class GreenWaveLayer {
             iconSize: iconSize,
             iconOpacity: 0,
             iconAllowOverlap: true,
+            minZoom: 9.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
@@ -93,12 +94,14 @@ class VeloRoutesLayer {
     if (!layerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-              sourceId: sourceId,
-              id: layerId,
-              lineJoin: mapbox.LineJoin.ROUND,
-              lineCap: mapbox.LineCap.ROUND,
-              lineColor: const Color.fromARGB(255, 64, 192, 240).value,
-              lineWidth: 1.9),
+            sourceId: sourceId,
+            id: layerId,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineColor: const Color.fromARGB(255, 64, 192, 240).value,
+            lineWidth: 1.9,
+            minZoom: 5.0,
+          ),
           mapbox.LayerPosition(at: at));
     }
   }

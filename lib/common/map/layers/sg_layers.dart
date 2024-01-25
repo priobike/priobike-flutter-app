@@ -84,6 +84,7 @@ class TrafficLightsLayer {
             textAllowOverlap: true,
             textIgnorePlacement: true,
             iconOpacity: 0.4,
+            minZoom: 13.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
@@ -423,6 +424,7 @@ class OfflineCrossingsLayer {
             iconAllowOverlap: true,
             textAllowOverlap: true,
             textIgnorePlacement: true,
+            minZoom: 13.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
