@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -278,7 +276,7 @@ class RideViewState extends State<RideView> {
                 child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               ),
               if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
-              const FinishRideButton(),
+              finishRideButton,
               if (!cameraFollowsUserLocation)
                 SafeArea(
                   bottom: true,
