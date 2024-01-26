@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
@@ -129,6 +130,33 @@ class Tracking with ChangeNotifier {
   /// The timer used to sample the sensor data.
   Timer? sensorSamplingTimer;
 
+  /// The size of the sliding window for the accelerometer data.
+  int accWindowSize = 10;
+
+  /// The size of the sliding window for the accelerometer data.
+  int gyrWindowSize = 10;
+
+  /// The size of the sliding window for the accelerometer data.
+  int magWindowSize = 10;
+
+  /// The sliding window for the accelerometer data.
+  Queue<(double, double, double)> accWindow = Queue<(double, double, double)>();
+
+  /// The sliding window for the gyroscope data.
+  Queue<(double, double, double)> gyrWindow = Queue<(double, double, double)>();
+
+  /// The sliding window for the magnetometer data.
+  Queue<(double, double, double)> magWindow = Queue<(double, double, double)>();
+
+  /// The moving average of the accelerometer data.
+  (double, double, double) accAvg = (0.0, 0.0, 0.0);
+
+  /// The moving average of the gyroscope data.
+  (double, double, double) gyrAvg = (0.0, 0.0, 0.0);
+
+  /// The moving average of the magnetometer data.
+  (double, double, double) magAvg = (0.0, 0.0, 0.0);
+
   /// The key for the tracks in the shared preferences.
   static const tracksKey = "priobike.tracking.tracks";
 
@@ -232,7 +260,7 @@ class Tracking with ChangeNotifier {
       await startCollectingGyrData();
       await startCollectingMagData();
       if (sensorSamplingTimer == null || !sensorSamplingTimer!.isActive) {
-        sensorSamplingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async => await sampleSensorData());
+        sensorSamplingTimer = Timer.periodic(const Duration(milliseconds: 20), (timer) async => await sampleSensorData());
       }
     } catch (e, stacktrace) {
       final hint = "Could not start a new track: $e $stacktrace";
@@ -246,14 +274,46 @@ class Tracking with ChangeNotifier {
   /// Start sampling the sensor data.
   Future<void> sampleSensorData() async {
     if (latestAccEvent != null && latestAccEventTimestamp != null) {
-      await accCache?.add("$latestAccEventTimestamp,${latestAccEvent?.x},${latestAccEvent?.y},${latestAccEvent?.z}");
+      accWindow.addLast((latestAccEvent!.x, latestAccEvent!.y, latestAccEvent!.z));
+      if (accWindow.length > accWindowSize) {
+        accWindow.removeFirst();
+      }
+      double sumX = 0.0, sumY = 0.0, sumZ= 0.0;
+      for (var tup in accWindow) {
+        sumX += tup.$1;
+        sumY += tup.$2;
+        sumZ += tup.$3;
+      }
+      accAvg = (sumX / accWindow.length, sumY / accWindow.length, sumZ / accWindow.length);
+      await accCache?.add("$latestAccEventTimestamp,${accAvg.$1},${accAvg.$2},${accAvg.$3}");
     }
     if (latestGyroEvent != null && latestGyroEventTimestamp != null) {
-      await gyrCache
-          ?.add("$latestGyroEventTimestamp,${latestGyroEvent?.x},${latestGyroEvent?.y},${latestGyroEvent?.z}");
+      gyrWindow.addLast((latestGyroEvent!.x, latestGyroEvent!.y, latestGyroEvent!.z));
+      if (gyrWindow.length > gyrWindowSize) {
+        gyrWindow.removeFirst();
+      }
+      double sumX = 0.0, sumY = 0.0, sumZ= 0.0;
+      for (var tup in gyrWindow) {
+        sumX += tup.$1;
+        sumY += tup.$2;
+        sumZ += tup.$3;
+      }
+      gyrAvg = (sumX / gyrWindow.length, sumY / gyrWindow.length, sumZ / gyrWindow.length);
+      await gyrCache?.add("$latestGyroEventTimestamp,${gyrAvg.$1},${gyrAvg.$2},${gyrAvg.$3}");
     }
     if (latestMagEvent != null && latestMagEventTimestamp != null) {
-      await magCache?.add("$latestMagEventTimestamp,${latestMagEvent?.x},${latestMagEvent?.y},${latestMagEvent?.z}");
+      magWindow.addLast((latestMagEvent!.x, latestMagEvent!.y, latestMagEvent!.z));
+      if (magWindow.length > magWindowSize) {
+        magWindow.removeFirst();
+      }
+      double sumX = 0.0, sumY = 0.0, sumZ= 0.0;
+      for (var tup in magWindow) {
+        sumX += tup.$1;
+        sumY += tup.$2;
+        sumZ += tup.$3;
+      }
+      magAvg = (sumX / magWindow.length, sumY / magWindow.length, sumZ / magWindow.length);
+      await magCache?.add("$latestMagEventTimestamp,${magAvg.$1},${magAvg.$2},${magAvg.$3}");
     }
   }
 
@@ -284,7 +344,7 @@ class Tracking with ChangeNotifier {
   /// Start collecting accelerometer data.
   Future<void> startCollectingAccData() async {
     // Note: The sampling period is a recommendation and can diverge from the actual period.
-    const samplingPeriod = Duration(milliseconds: 1000);
+    const samplingPeriod = Duration(milliseconds: 20);
     final stream = accelerometerEventStream(samplingPeriod: samplingPeriod);
     accCache = CSVCache(
       header: "timestamp,x,y,z",
@@ -309,7 +369,7 @@ class Tracking with ChangeNotifier {
   /// Start collecting gyroscope data.
   Future<void> startCollectingGyrData() async {
     // Note: The sampling period is a recommendation and can diverge from the actual period.
-    const samplingPeriod = Duration(milliseconds: 1000);
+    const samplingPeriod = Duration(milliseconds: 20);
     final stream = gyroscopeEventStream(samplingPeriod: samplingPeriod);
     gyrCache = CSVCache(
       header: "timestamp,x,y,z",
@@ -334,7 +394,7 @@ class Tracking with ChangeNotifier {
   /// Start collecting magnetometer data.
   Future<void> startCollectingMagData() async {
     // Note: The sampling period is a recommendation and can diverge from the actual period.
-    const samplingPeriod = Duration(milliseconds: 1000);
+    const samplingPeriod = Duration(milliseconds: 20);
     final stream = magnetometerEventStream(samplingPeriod: samplingPeriod);
     magCache = CSVCache(
       header: "timestamp,x,y,z",
@@ -402,6 +462,11 @@ class Tracking with ChangeNotifier {
     // Reset the current track.
     final trackToSend = track;
     track = null;
+    // TODO aggregate sensor data
+    // TODO analyse user behaviour
+    // TODO overwrite speed in GPS_CSV with Kalman result
+    // TODO sub sample ACC to 1Hz
+
     // Try to immediately send the track to the server, but don't wait for it.
     if (trackToSend != null) send(trackToSend);
 
