@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -88,10 +89,12 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
   containing the rotation information [from FlutterBluePlus plugin] */
   BluetoothCharacteristic? _speedCharacteristic;
   DateTime _timeOfLastSpeedUpdate = DateTime.timestamp();
-  int _lastNumberOfRotations = 0;
+  int _lastNumberOfRotations = -1;
+  double _lastRotationsPerSecond = 0;
+  List<int> _lastReadings = [];
+  bool _ignoredReading = false;
 
-  //enter wheel size in inch in numerator
-  final double _wheelSizeInKm = 28 / 39370;
+  final double _wheelSizeInch = 28;
   // variable containing the calculated speed
   double _speed = 0;
 
@@ -213,7 +216,8 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     double speed = getSpeed();
     widget.positioning.setDebugSpeed(speed / 3.6);
     widget.callback;
-    setState(() {});
+    // seems to cause errors
+    //setState(() {});
   }
 
   /// init is called, if the speed sensor object is created
@@ -320,6 +324,11 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     log.i(values);
     int rotations = values[1];
 
+    // we have to initialize _lastNumberOfRotations when we get the first reading
+    if (_lastNumberOfRotations < 0) {
+      _lastNumberOfRotations = rotations;
+    }
+
     int rotationDifference = rotations - _lastNumberOfRotations;
     // we could also check, if value[2] is greater than the last time, but this
     // implementation was done before i noticed that the sensor has a dedicated parameter for this
@@ -327,14 +336,45 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
       rotationDifference = rotationDifference + 255;
     }
 
-    //in milliseconds
-    int timeDifferenceInMilliseconds = DateTime.timestamp().millisecondsSinceEpoch - _timeOfLastSpeedUpdate.millisecondsSinceEpoch;
-    //hours
-    double timeDifference = timeDifferenceInMilliseconds / 3600000;
+    final currentTime = DateTime.timestamp();
+
+    // time passed since the last measurement
+    int timeDifferenceInMilliseconds = currentTime.millisecondsSinceEpoch - _timeOfLastSpeedUpdate.millisecondsSinceEpoch;
+    _timeOfLastSpeedUpdate = currentTime;
+
     _lastNumberOfRotations = rotations;
-    _timeOfLastSpeedUpdate = DateTime.timestamp();
+
+    //log.i("🔵 rotations: $rotations");
+    //log.i("🟡 rotationDifference: $rotationDifference");
+    //log.i("timeDifference: $timeDifference");
+    //log.i("🟣 lastRotations: $_lastRotations");
+
+    // sometimes the sensor seems to randomly repeat the last readings exactly... so we just ignore it *once*
+    if (!listEquals(values, _lastReadings)) {
+      // reset flag when we get an actual new reading
+      _ignoredReading = false;
+    } else if (!_ignoredReading) {
+      _ignoredReading = true;
+      return _speed;
+    }
+
+    _lastReadings = values;
+
+    // exponential smoothing
+    const smoothingFactor = 0.7;
+    double rotationsPerSecond = smoothingFactor * (rotationDifference / timeDifferenceInMilliseconds * 1000)
+        + (1 - smoothingFactor) * _lastRotationsPerSecond;
+    // cut-off to prevent the value from shrinking way too slowly before reaching 0
+    if (rotationsPerSecond < 0.01) {
+      rotationsPerSecond = 0;
+    }
+    _lastRotationsPerSecond = rotationsPerSecond;
+    //log.i("🔴 rotationsPerSecond: $rotationsPerSecond");
+
+    final wheelCircumferenceMeter = math.pi * _wheelSizeInch / 39.37;
+    final speedMetersPerSecond = rotationsPerSecond * wheelCircumferenceMeter;
     // return calculated speed in km/h
-    return (rotationDifference * _wheelSizeInKm) / timeDifference;
+    return speedMetersPerSecond * 3.6;
   }
 
   /// returns value of _speed
