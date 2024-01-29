@@ -7,25 +7,47 @@ import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 /// The translation from of the road class.
+/// Information from: https://wiki.openstreetmap.org/wiki/Key:highway and https://wiki.openstreetmap.org/wiki/Attribuierung_von_Stra%C3%9Fen_in_Deutschland
 final roadClassTranslation = {
+  // A restricted access major divided highway, normally with 2 or more running lanes plus emergency hard shoulder. Equivalent to the Freeway, Autobahn, etc..
   "motorway": "Autobahn",
+  // The most important roads in a country's system that aren't motorways. (Need not necessarily be a divided highway.)
   "trunk": "Fernstraße",
-  "primary": "Hauptstraße",
+  // The next most important roads in a country's system. (Often link larger towns.)
+  "primary": "Bundesstraße",
+  // The next most important roads in a country's system. (Often link towns.)
   "secondary": "Landstraße",
+  // The next most important roads in a country's system. (Often link smaller towns and villages)
+  // For more clarity we leave out "Kreis" from "Kreisstraße".
   "tertiary": "Straße",
-  "residential": "Wohnstraße",
-  "unclassified": "Nicht klassifiziert",
+  // Roads which serve as an access to housing, without function of connecting settlements. Often lined with housing.
+  "residential": "Straße",
+  // The least important through roads in a country's system. The word 'unclassified' is a historical artefact of the UK road system and does not mean that the classification is unknown.
+  // Therefore similar to tertiary. More detailed would be "Nebenstraße".
+  "unclassified": "Straße",
+  // For access roads to, or within an industrial estate, camp site, business park, car park, alleys.
   "service": "Zufahrtsstraße",
-  "road": "Straße",
-  "track": "Rennstrecke",
+  // A road/way/street/motorway/etc. of unknown type. It can stand for anything ranging from a footpath to a motorway.
+  "road": "Unbekannt",
+  // Roads for mostly agricultural or forestry uses.
+  "track": "Feldweg",
+  // For horse riders.
   "bridleway": "Reitweg",
+  // For flights of steps (stairs) on footways.
   "steps": "Treppen",
+  // For designated cycleways.
   "cycleway": "Fahrradweg",
+  // A non-specific path.
   "path": "Weg",
+  // For living streets, which are residential streets where pedestrians have legal priority over cars.
   "living_street": "Spielstraße",
+  // For designated footpaths.
   "footway": "Fußweg",
+  // For roads used mainly/exclusively for pedestrians in shopping and some residential areas which may allow access by motorised vehicles.
   "pedestrian": "Fußgängerzone",
+  // A platform at a bus stop or station.
   "platform": "Bahnsteig",
+  // For a hallway inside of a building.
   "corridor": "Korridor",
   "other": "Sonstiges"
 };
