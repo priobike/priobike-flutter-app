@@ -56,13 +56,12 @@ final roadClassTranslation = {
 final roadClassColor = {
   "Autobahn": const Color(0xFFFA1E41),
   "Fernstraße": const Color(0xFFD4B700),
-  "Hauptstraße": const Color(0xFFA8EDB9),
+  "Bundesstraße": const Color(0xFFE6AA10),
   "Landstraße": const Color(0xFFFFDC00),
-  "Wohnstraße": const Color(0xFF64BA79),
-  "Nicht klassifiziert": const Color(0xFF7C7C7C),
-  "Zufahrtsstraße": const Color(0xFF9C9C9C),
   "Straße": const Color(0xFF8CCF9C),
-  "Rennstrecke": const Color(0xFFE5A028),
+  "Zufahrtsstraße": const Color(0xFF9C9C9C),
+  "Unbekannt": const Color(0xFF7C7C7C),
+  "Feldweg": const Color(0xFFA8EDB9),
   "Reitweg": const Color(0xFFA79000),
   "Treppen": const Color(0xFF9C4452),
   "Fahrradweg": const Color(0xFF28CD50),
@@ -125,10 +124,12 @@ class RoadClassChartState extends State<RoadClassChart> {
         final coordFrom = routing.selectedRoute!.path.points.coordinates[coordIdx];
         final coordTo = routing.selectedRoute!.path.points.coordinates[coordIdx + 1];
         final distance = vincenty.distance(LatLng(coordFrom.lat, coordFrom.lon), LatLng(coordTo.lat, coordTo.lon));
-        if (roadClassDistances.containsKey(segment.value)) {
-          roadClassDistances[segment.value] = roadClassDistances[segment.value]! + distance;
+        // Use translation as key to summarize same translation keys. Use "Unbekannt" as standard value.
+        final key = roadClassTranslation[segment.value] ?? "Unbekannt";
+        if (roadClassDistances.containsKey(key)) {
+          roadClassDistances[key] = roadClassDistances[key]! + distance;
         } else {
-          roadClassDistances[segment.value] = distance;
+          roadClassDistances[key] = distance;
         }
       }
     }
@@ -145,19 +146,21 @@ class RoadClassChartState extends State<RoadClassChart> {
       var pct = (e.value / routing.selectedRoute!.path.distance);
       // Catch case pct > 1.
       pct = pct > 1 ? 1 : pct;
-      elements.add(Container(
-        width: (availableWidth * pct).floorToDouble(),
-        height: 32,
-        decoration: BoxDecoration(
-          color: roadClassColor[roadClassTranslation[e.key] ?? "???"],
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white.withOpacity(0.07)
-                : Colors.black.withOpacity(0.07),
+      elements.add(
+        Container(
+          width: (availableWidth * pct).floorToDouble(),
+          height: 32,
+          decoration: BoxDecoration(
+            color: roadClassColor[e.key],
+            border: Border.all(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withOpacity(0.07)
+                  : Colors.black.withOpacity(0.07),
+            ),
+            borderRadius: BorderRadius.circular(4),
           ),
-          borderRadius: BorderRadius.circular(4),
         ),
-      ));
+      );
     }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -175,35 +178,38 @@ class RoadClassChartState extends State<RoadClassChart> {
       var pct = ((e.value / routing.selectedRoute!.path.distance) * 100);
       // Catch case pct > 100.
       pct = pct > 100 ? 100 : pct;
-      elements.add(Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 14,
-              width: 14,
-              decoration: BoxDecoration(
-                color: roadClassColor[roadClassTranslation[e.key] ?? "???"],
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.07)
-                      : Colors.black.withOpacity(0.07),
+      elements.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 14,
+                width: 14,
+                decoration: BoxDecoration(
+                  color: roadClassColor[e.key],
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.07)
+                        : Colors.black.withOpacity(0.07),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Content(text: roadClassTranslation[e.key] ?? "Unbekannt", context: context),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
+              const SizedBox(width: 8),
+              Content(text: e.key, context: context),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child:
+                      Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ));
+      );
     }
     return Column(children: elements);
   }
