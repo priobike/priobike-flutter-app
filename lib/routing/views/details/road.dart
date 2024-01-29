@@ -7,25 +7,47 @@ import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 /// The translation from of the road class.
+/// Information from: https://wiki.openstreetmap.org/wiki/Key:highway and https://wiki.openstreetmap.org/wiki/Attribuierung_von_Stra%C3%9Fen_in_Deutschland
 final roadClassTranslation = {
+  // A restricted access major divided highway, normally with 2 or more running lanes plus emergency hard shoulder. Equivalent to the Freeway, Autobahn, etc..
   "motorway": "Autobahn",
+  // The most important roads in a country's system that aren't motorways. (Need not necessarily be a divided highway.)
   "trunk": "Fernstraße",
-  "primary": "Hauptstraße",
+  // The next most important roads in a country's system. (Often link larger towns.)
+  "primary": "Bundesstraße",
+  // The next most important roads in a country's system. (Often link towns.)
   "secondary": "Landstraße",
+  // The next most important roads in a country's system. (Often link smaller towns and villages)
+  // For more clarity we leave out "Kreis" from "Kreisstraße".
   "tertiary": "Straße",
-  "residential": "Wohnstraße",
-  "unclassified": "Nicht klassifiziert",
+  // Roads which serve as an access to housing, without function of connecting settlements. Often lined with housing.
+  "residential": "Straße",
+  // The least important through roads in a country's system. The word 'unclassified' is a historical artefact of the UK road system and does not mean that the classification is unknown.
+  // Therefore similar to tertiary. More detailed would be "Nebenstraße".
+  "unclassified": "Straße",
+  // For access roads to, or within an industrial estate, camp site, business park, car park, alleys.
   "service": "Zufahrtsstraße",
-  "road": "Straße",
-  "track": "Rennstrecke",
+  // A road/way/street/motorway/etc. of unknown type. It can stand for anything ranging from a footpath to a motorway.
+  "road": "Unbekannt",
+  // Roads for mostly agricultural or forestry uses.
+  "track": "Feldweg",
+  // For horse riders.
   "bridleway": "Reitweg",
+  // For flights of steps (stairs) on footways.
   "steps": "Treppen",
+  // For designated cycleways.
   "cycleway": "Fahrradweg",
+  // A non-specific path.
   "path": "Weg",
+  // For living streets, which are residential streets where pedestrians have legal priority over cars.
   "living_street": "Spielstraße",
+  // For designated footpaths.
   "footway": "Fußweg",
+  // For roads used mainly/exclusively for pedestrians in shopping and some residential areas which may allow access by motorised vehicles.
   "pedestrian": "Fußgängerzone",
+  // A platform at a bus stop or station.
   "platform": "Bahnsteig",
+  // For a hallway inside of a building.
   "corridor": "Korridor",
   "other": "Sonstiges"
 };
@@ -34,13 +56,12 @@ final roadClassTranslation = {
 final roadClassColor = {
   "Autobahn": const Color(0xFFFA1E41),
   "Fernstraße": const Color(0xFFD4B700),
-  "Hauptstraße": const Color(0xFFA8EDB9),
+  "Bundesstraße": const Color(0xFFE6AA10),
   "Landstraße": const Color(0xFFFFDC00),
-  "Wohnstraße": const Color(0xFF64BA79),
-  "Nicht klassifiziert": const Color(0xFF7C7C7C),
-  "Zufahrtsstraße": const Color(0xFF9C9C9C),
   "Straße": const Color(0xFF8CCF9C),
-  "Rennstrecke": const Color(0xFFE5A028),
+  "Zufahrtsstraße": const Color(0xFF9C9C9C),
+  "Unbekannt": const Color(0xFF7C7C7C),
+  "Feldweg": const Color(0xFFA8EDB9),
   "Reitweg": const Color(0xFFA79000),
   "Treppen": const Color(0xFF9C4452),
   "Fahrradweg": const Color(0xFF28CD50),
@@ -103,10 +124,12 @@ class RoadClassChartState extends State<RoadClassChart> {
         final coordFrom = routing.selectedRoute!.path.points.coordinates[coordIdx];
         final coordTo = routing.selectedRoute!.path.points.coordinates[coordIdx + 1];
         final distance = vincenty.distance(LatLng(coordFrom.lat, coordFrom.lon), LatLng(coordTo.lat, coordTo.lon));
-        if (roadClassDistances.containsKey(segment.value)) {
-          roadClassDistances[segment.value] = roadClassDistances[segment.value]! + distance;
+        // Use translation as key to summarize same translation keys. Use "Unbekannt" as standard value.
+        final key = roadClassTranslation[segment.value] ?? "Unbekannt";
+        if (roadClassDistances.containsKey(key)) {
+          roadClassDistances[key] = roadClassDistances[key]! + distance;
         } else {
-          roadClassDistances[segment.value] = distance;
+          roadClassDistances[key] = distance;
         }
       }
     }
@@ -123,19 +146,21 @@ class RoadClassChartState extends State<RoadClassChart> {
       var pct = (e.value / routing.selectedRoute!.path.distance);
       // Catch case pct > 1.
       pct = pct > 1 ? 1 : pct;
-      elements.add(Container(
-        width: (availableWidth * pct).floorToDouble(),
-        height: 32,
-        decoration: BoxDecoration(
-          color: roadClassColor[roadClassTranslation[e.key] ?? "???"],
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white.withOpacity(0.07)
-                : Colors.black.withOpacity(0.07),
+      elements.add(
+        Container(
+          width: (availableWidth * pct).floorToDouble(),
+          height: 32,
+          decoration: BoxDecoration(
+            color: roadClassColor[e.key],
+            border: Border.all(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withOpacity(0.07)
+                  : Colors.black.withOpacity(0.07),
+            ),
+            borderRadius: BorderRadius.circular(4),
           ),
-          borderRadius: BorderRadius.circular(4),
         ),
-      ));
+      );
     }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,35 +178,38 @@ class RoadClassChartState extends State<RoadClassChart> {
       var pct = ((e.value / routing.selectedRoute!.path.distance) * 100);
       // Catch case pct > 100.
       pct = pct > 100 ? 100 : pct;
-      elements.add(Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 14,
-              width: 14,
-              decoration: BoxDecoration(
-                color: roadClassColor[roadClassTranslation[e.key] ?? "???"],
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.07)
-                      : Colors.black.withOpacity(0.07),
+      elements.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 14,
+                width: 14,
+                decoration: BoxDecoration(
+                  color: roadClassColor[e.key],
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.07)
+                        : Colors.black.withOpacity(0.07),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Content(text: roadClassTranslation[e.key] ?? "Unbekannt", context: context),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
+              const SizedBox(width: 8),
+              Content(text: e.key, context: context),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child:
+                      Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ));
+      );
     }
     return Column(children: elements);
   }
