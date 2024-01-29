@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:csv/csv.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -462,10 +464,164 @@ class Tracking with ChangeNotifier {
     // Reset the current track.
     final trackToSend = track;
     track = null;
-    // TODO aggregate sensor data
-    // TODO analyse user behaviour
-    // TODO overwrite speed in GPS_CSV with Kalman result
-    // TODO sub sample ACC to 1Hz
+
+    // Open sensor data CSV files and convert them to a usable format.
+    if (gpsCache != null && accCache != null && gyrCache != null && magCache != null) {
+      // gps
+      final gpsCsvList = await gpsCache!.file.openRead()
+          .transform(utf8.decoder)
+          .transform(const CsvToListConverter(fieldDelimiter: ',', eol: '\n'))
+          .toList();
+      gpsCsvList.removeAt(0); // remove header: timestamp, x, y, z
+      List<(int, double, double, double)> gpsList = [];
+      for (final line in gpsCsvList) {
+        int timestamp = line[0];
+        double x = line[1];
+        double y = line[2];
+        double z = line[3];
+        gpsList.add((timestamp, x, y, z));
+      }
+
+      // accelerometer
+      final accCsvList = await accCache!.file.openRead()
+          .transform(utf8.decoder)
+          .transform(const CsvToListConverter(fieldDelimiter: ',', eol: '\n'))
+          .toList();
+      List<(int, double, double, double)> accList = [];
+      for (final line in accCsvList) {
+        try {
+          int timestamp = line[0];
+          double x = line[1];
+          double y = line[2];
+          double z = line[3];
+          accList.add((timestamp, x, y, z));
+        } catch (_, __) {
+          continue;
+        }
+      }
+
+      // Kalman
+      int currentGpsIndex = 1;
+      int currentAccIndex = 1;
+      double v = 0.0; // v0
+      double b = 9.809; // b0
+      const double qV = 1.0;
+      const double qA = 0.01;
+      const double Q00 = qV;
+      const double Q01 = 0.0;
+      const double Q10 = 0.0;
+      const double Q11 = qA;
+      double P00_ = Q00;
+      double P01_ = Q01;
+      double P10_ = Q10;
+      double P11_ = Q11;
+      double v_ = 0.0;
+      // double b_ = 0.0;
+      double deltaT;
+      List<(int, double)> vs = [];
+      while (currentGpsIndex < gpsList.length && currentAccIndex < accList.length) {
+        int accTimestamp = accList[currentAccIndex].$1;
+        try {
+          int newGpsTimestamp = gpsList[currentGpsIndex + 1].$1;
+          if (newGpsTimestamp <= accTimestamp) {
+            currentGpsIndex++;
+          }
+        } catch(_, __) {}
+
+        deltaT = (accList[currentAccIndex].$1 - accList[currentAccIndex - 1].$1) / 1000.0;
+        const double A00 = 1.0;
+        final double A01 = -deltaT;
+        const double A10 = 0.0;
+        const double A11 = 1.0;
+        final double a = sqrt(pow(accList[currentAccIndex].$2, 2) + pow(accList[currentAccIndex].$3, 2) + pow(accList[currentAccIndex].$4, 2)); // root-mean-square of accelerometer
+        // X(k|k-1) = A * X (k-1|k-1) + B * U
+        v_ = v + (a - b) * deltaT;
+        // b is regarded as constant
+        // P(k|k-1) = A * P * A^t + Q
+        double P00 = A00 * (A00 * P00_ + A01 * P10_) + A01 * (A00 * P01_ + A01 * P11_) + Q00;
+        double P01 = A10 * (A00 * P00_ + A01 * P10_) + A11 * (A00 * P01_ + A01 * P11_) + Q01;
+        double P10 = A00 * (A10 * P00_ + A11 * P10_) + A01 * (A10 * P01_ + A11 * P11_) + Q10;
+        double P11 = A10 * (A10 * P00_ + A11 * P10_) + A11 * (A10 * P01_ + A11 * P11_) + Q11;
+
+        // G = P(k|k-1) * H^t / (H * P(k|k-1) * H^t + Q)
+        double G0 = 1 / (P00 + qV) * P00;
+        // double G1 = 1 / (P00 + qV) * P10;
+
+        // X(k|k) = X(k|k-1) + G * (gpsSpeed - H * X(k|k-1))
+        v = v_ + G0 * (gpsList[currentGpsIndex].$4 - v_);
+        vs.add((accTimestamp, v));
+        // b is regarded as constant
+
+        // P(k|k) = (I - G * H) * P(k|k-1)
+        double denominator = P00 + qV;
+        P00_ = P00 - P00 * P00 / denominator;
+        P01_ = P01 - P00 * P01 / denominator;
+        P10_ = P10 - P00 * P10 / denominator;
+        P11_ = P11 - P01 * P10 / denominator;
+
+        currentAccIndex++;
+      }
+      // TODO analyse user behaviour
+      // TODO overwrite speed in GPS_CSV with Kalman result
+
+      // sub-sample accelerometer data
+      int subSamplingIndex = 0;
+      int subSamplingModulus = 50;
+      accCache!.file.writeAsString('timestamp,x,y,z\n'); // clear file and write header
+      for (final line in accList) {
+        if (subSamplingIndex == 0) await accCache!.file.writeAsString('${line.$1},${line.$2},${line.$3},${line.$4}\n', mode: FileMode.append, flush: true);
+        subSamplingIndex = (subSamplingIndex + 1) % subSamplingModulus;
+      }
+
+      // gyroscope
+      final gyrCsvList = await gyrCache!.file.openRead()
+          .transform(utf8.decoder)
+          .transform(const CsvToListConverter(fieldDelimiter: ',', eol: '\n'))
+          .toList();
+      List<(int, double, double, double)> gyrList = [];
+      for (final line in gyrCsvList) {
+        try {
+          int timestamp = line[0];
+          double x = line[1];
+          double y = line[2];
+          double z = line[3];
+          gyrList.add((timestamp, x, y, z));
+        } catch (_, __) {}
+      }
+
+      // sub-sample gyroscope data
+      subSamplingIndex = 0;
+      gyrCache!.file.writeAsString('timestamp,x,y,z\n'); // clear file and write header
+      for (final line in gyrList) {
+        if (subSamplingIndex == 0) await gyrCache!.file.writeAsString('${line.$1},${line.$2},${line.$3},${line.$4}\n', mode: FileMode.append, flush: true);
+        subSamplingIndex = (subSamplingIndex + 1) % subSamplingModulus;
+      }
+
+      // magnetometer
+      final magCsvList = await magCache!.file.openRead()
+          .transform(utf8.decoder)
+          .transform(const CsvToListConverter(fieldDelimiter: ',', eol: '\n'))
+          .toList();
+      magCsvList.removeAt(0); // remove header: timestamp, x, y, z
+      List<(int, double, double, double)> magList = [];
+      for (final line in magCsvList) {
+        try {
+          int timestamp = line[0];
+          double x = line[1];
+          double y = line[2];
+          double z = line[3];
+          magList.add((timestamp, x, y, z));
+        } catch (_, __) {}
+      }
+
+      // sub-sample magnetometer data
+      subSamplingIndex = 0;
+      magCache!.file.writeAsString('timestamp,x,y,z\n'); // clear file and write header
+      for (final line in magList) {
+        if (subSamplingIndex == 0) await magCache!.file.writeAsString('${line.$1},${line.$2},${line.$3},${line.$4}\n', mode: FileMode.append, flush: true);
+        subSamplingIndex = (subSamplingIndex + 1) % subSamplingModulus;
+      }
+    }
 
     // Try to immediately send the track to the server, but don't wait for it.
     if (trackToSend != null) send(trackToSend);
