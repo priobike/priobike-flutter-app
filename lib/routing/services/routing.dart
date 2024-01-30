@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -135,6 +136,9 @@ class Routing with ChangeNotifier {
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
+
+  /// The selected POI.
+  POIElement? selectedPOI;
 
   Routing({
     this.fetchedWaypoints,
@@ -621,6 +625,18 @@ class Routing with ChangeNotifier {
     final status = getIt<PredictionSGStatus>();
     await status.fetch(selectedRoute!);
 
+    notifyListeners();
+  }
+
+  /// Set POI Element.
+  void setPOIElement(POIElement poiElement) {
+    selectedPOI = poiElement;
+    notifyListeners();
+  }
+
+  /// Unset POI Element.
+  void unsetPOIElement() {
+    selectedPOI = null;
     notifyListeners();
   }
 }

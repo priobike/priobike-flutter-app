@@ -156,6 +156,9 @@ class RentalStationsLayer {
 }
 
 class BikeShopLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
   /// The ID of the Mapbox source.
   static const sourceId = "bike-shop";
 

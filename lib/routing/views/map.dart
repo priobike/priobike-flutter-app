@@ -21,6 +21,7 @@ import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -268,6 +269,35 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             coordinates: Position(
               positioning.lastPosition!.longitude,
               positioning.lastPosition!.latitude,
+            ),
+          ).toJson(),
+          padding: padding),
+      MapAnimationOptions(duration: duration),
+    );
+  }
+
+  /// Fit the camera to the given position.
+  fitCameraToCoordinate(double lat, double lon) async {
+    if (mapController == null || !mounted) return;
+    // Animation duration.
+    const duration = 1000;
+    final frame = MediaQuery.of(context);
+    MbxEdgeInsets padding = MbxEdgeInsets(
+      // (AppBackButton height + top padding)
+      top: (80 + frame.padding.top),
+      // AppBackButton width
+      left: 0,
+      // (BottomSheet + bottom padding)
+      bottom: (146 + frame.padding.bottom),
+      right: 0,
+    );
+
+    await mapController?.flyTo(
+      CameraOptions(
+          center: Point(
+            coordinates: Position(
+              lon,
+              lat,
             ),
           ).toJson(),
           padding: padding),
@@ -554,17 +584,58 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is called when the user taps a feature.
   onFeatureTapped(QueriedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
+    print(queriedFeature.feature);
     final id = queriedFeature.feature['id'];
-    if ((id as String).startsWith("route-")) {
-      final routeIdx = int.tryParse(id.split("-")[1]);
-      if (routeIdx == null) return;
-      routing.switchToRoute(routeIdx);
-    } else if (id.startsWith("routeLabel-")) {
-      final routeLabelIdx = int.tryParse(id.split("-")[1]);
-      if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
+    Map? properties = queriedFeature.feature["properties"] as Map?;
+    Map? geometry = queriedFeature.feature["geometry"] as Map?;
+
+    if (id != null) {
+      // Route, route label or air station.
+      if ((id as String).startsWith("route-")) {
+        final routeIdx = int.tryParse(id.split("-")[1]);
+        if (routeIdx == null) return;
+        routing.switchToRoute(routeIdx);
+      } else if (id.startsWith("routeLabel-")) {
+        final routeLabelIdx = int.tryParse(id.split("-")[1]);
+        if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
+          return;
+        }
+        routing.switchToRoute(routeLabelIdx);
+      } else if (id.contains("LUFTSTATION")) {
+        // Air station features contain "LUFTSTATION" in the feature id.
+        if (properties == null || geometry == null) return;
+
+        String name = properties["name"] ?? "Luftstation";
+        double lon = geometry["coordinates"][0];
+        double lat = geometry["coordinates"][1];
+
+        routing.setPOIElement(POIElement(name: name, typeDescription: "Luftstation", lon: lon, lat: lat));
+        fitCameraToCoordinate(lat, lon);
         return;
       }
-      routing.switchToRoute(routeLabelIdx);
+    }
+
+    // Check for bike rental or bike shop if id is not set.
+    if (properties != null && geometry != null && properties["fclass"] != null) {
+      if (properties["fclass"] == "bicycle_rental") {
+        // Bike rental poi.
+        String name = properties["name"] ?? "Fahrradleihe";
+        double lon = geometry["coordinates"][0];
+        double lat = geometry["coordinates"][1];
+
+        routing.setPOIElement(POIElement(name: name, typeDescription: "Fahrradleihe", lon: lon, lat: lat));
+        fitCameraToCoordinate(lat, lon);
+        return;
+      } else if (properties["fclass"] == "bicycle_shop") {
+        // Bike shop poi.
+        String name = properties["name"] ?? "Fahrradladen";
+        double lon = geometry["coordinates"][0];
+        double lat = geometry["coordinates"][1];
+
+        routing.setPOIElement(POIElement(name: name, typeDescription: "Fahrradladen", lon: lon, lat: lat));
+        fitCameraToCoordinate(lat, lon);
+        return;
+      }
     }
   }
 
@@ -705,10 +776,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: [AllRoutesLayer.layerIdClick, RouteLabelLayer.layerId],
+        layerIds: [
+          AllRoutesLayer.layerIdClick,
+          RouteLabelLayer.layerId,
+          BikeShopLayer.layerId,
+          BikeAirStationLayer.layerId,
+          RentalStationsLayer.layerId,
+        ],
       ),
     );
 
+    routing.unsetPOIElement();
     if (features.isNotEmpty) {
       // Prioritize discomforts if there are multiple features.
       final discomfortFeature =
