@@ -34,7 +34,7 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/status/views/status_tabs.dart';
+import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tracking/views/track_history.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
@@ -296,7 +296,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ),
                     const VSpace(),
                     BlendIn(
-                      child: StatusTabsView(triggerRebuild: () => setState(() {})),
+                      child: Row(children: [
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: StatusView(triggerRebuild: () => setState(() {}), showPercentage: false),
+                        ),
+                        const SizedBox(width: 20),
+                      ]),
                     ),
                     const VSpace(),
                     BlendIn(

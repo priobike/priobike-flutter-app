@@ -26,6 +26,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/status/views/status_tabs.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -204,6 +205,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     SubHeader(text: "Interne Features", context: context),
                   ],
                 ),
+                const SizedBox(height: 8),
+                StatusTabsView(triggerRebuild: () => setState(() {})),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(

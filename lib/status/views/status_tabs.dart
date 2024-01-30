@@ -184,7 +184,10 @@ class StatusTabsViewState extends State<StatusTabsView> {
       width: MediaQuery.of(context).size.width,
       child: ExpandablePageView(
         children: [
-          StatusView(triggerRebuild: widget.triggerRebuild),
+          StatusView(
+            triggerRebuild: widget.triggerRebuild,
+            showPercentage: true,
+          ),
           const StatusHistoryView(time: StatusHistoryTime.day),
           const StatusHistoryView(time: StatusHistoryTime.week),
         ],

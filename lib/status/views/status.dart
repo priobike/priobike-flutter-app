@@ -8,8 +8,9 @@ import 'package:priobike/status/views/map.dart';
 
 class StatusView extends StatefulWidget {
   final Function triggerRebuild;
+  final bool showPercentage;
 
-  const StatusView({super.key, required this.triggerRebuild});
+  const StatusView({super.key, required this.triggerRebuild, required this.showPercentage});
 
   @override
   StatusViewState createState() => StatusViewState();
@@ -170,11 +171,12 @@ class StatusViewState extends State<StatusView> {
                           size: 42,
                         ),
                       ),
-                      BoldSmall(
-                        text: "${((goodPct ?? 0) * 100).round()}%",
-                        context: context,
-                        color: isProblem ? Colors.black : null,
-                      ),
+                      if (widget.showPercentage)
+                        BoldSmall(
+                          text: "${((goodPct ?? 0) * 100).round()}%",
+                          context: context,
+                          color: isProblem ? Colors.black : null,
+                        ),
                     ],
                   ),
                 ),
