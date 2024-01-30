@@ -205,8 +205,9 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     SubHeader(text: "Interne Features", context: context),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const VSpace(),
                 StatusTabsView(triggerRebuild: () => setState(() {})),
+                const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
