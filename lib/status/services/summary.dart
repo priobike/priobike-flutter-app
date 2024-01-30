@@ -76,7 +76,8 @@ class PredictionStatusSummary with ChangeNotifier {
       final formattedTime = "${time.hour.toString().padLeft(2, "0")}:${time.minute.toString().padLeft(2, "0")}";
       problem =
           "Seit $formattedTime Uhr senden Ampeln keine oder nur noch wenige Daten. Klicke hier für eine Störungskarte.";
-    } else if (current!.numThings != 0 && current!.numPredictions / current!.numThings < 0.5) {
+    } else if (current!.numThings != 0 &&
+        (current!.numPredictions - current!.numBadPredictions) / current!.numThings < 0.5) {
       problem = "Gerade senden weniger Ampeln als gewöhnlich Daten. Klicke hier für eine Störungskarte.";
     } else if (current!.numPredictions != 0 && current!.numBadPredictions / current!.numPredictions > 0.5) {
       problem = "Viele Ampeln senden gerade lückenhafte Daten. Klicke hier für eine Störungskarte.";
