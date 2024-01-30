@@ -295,13 +295,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         ),
                       ),
                     const VSpace(),
-                    BlendIn(
+                    const BlendIn(
                       child: Row(children: [
-                        const SizedBox(width: 20),
+                        SizedBox(width: 20),
                         Expanded(
-                          child: StatusView(triggerRebuild: () => setState(() {}), showPercentage: false),
+                          child: StatusView(showPercentage: false),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: 20),
                       ]),
                     ),
                     const VSpace(),

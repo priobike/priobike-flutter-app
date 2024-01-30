@@ -7,10 +7,9 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 
 class StatusView extends StatefulWidget {
-  final Function triggerRebuild;
   final bool showPercentage;
 
-  const StatusView({super.key, required this.triggerRebuild, required this.showPercentage});
+  const StatusView({super.key, required this.showPercentage});
 
   @override
   StatusViewState createState() => StatusViewState();
@@ -34,7 +33,6 @@ class StatusViewState extends State<StatusView> {
     text = loadText();
     goodPct = loadGood();
     setState(() {});
-    widget.triggerRebuild;
   }
 
   @override

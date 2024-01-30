@@ -206,7 +206,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   ],
                 ),
                 const VSpace(),
-                StatusTabsView(triggerRebuild: () => setState(() {})),
+                const StatusTabsView(),
                 const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
