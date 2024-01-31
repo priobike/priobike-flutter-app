@@ -4,7 +4,9 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
+import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/routing_poi.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -143,6 +145,94 @@ class RentalStationsLayer {
             "Fahrradleihe "
           ]));
       await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+    }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
+    }
+  }
+}
+
+class SelectedPOILayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  /// The ID of the Mapbox source.
+  static const sourceId = "selected-poi";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "selected-poi-icon";
+
+  SelectedPOILayer() {
+    final routingPOI = getIt<RoutingPOI>();
+
+    if (routingPOI.selectedPOI != null) {
+      String iconImage = "";
+      switch (routingPOI.selectedPOI!.type) {
+        case POIType.bikeShop:
+          iconImage = "repairselected";
+          break;
+        case POIType.bikeRental:
+          iconImage = "rentselected";
+          break;
+        case POIType.airStation:
+          iconImage = "airselected";
+          break;
+        case null:
+          break;
+      }
+      print(iconImage);
+      // Set the feature.
+      features.add(
+        {
+          "type": "Feature",
+          "properties": {
+            "iconImage": iconImage,
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [routingPOI.selectedPOI!.lon, routingPOI.selectedPOI!.lat],
+          }
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+
+    print(at);
+
+    final selectedPOILayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!selectedPOILayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: sourceId,
+            id: layerId,
+            iconSize: iconSize,
+            // textAllowOverlap: true,
+            // textIgnorePlacement: true,
+            // iconAllowOverlap: true,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(
+        layerId,
+        'icon-image',
+        json.encode(["get", "iconImage"]),
+      );
     }
   }
 

@@ -38,6 +38,7 @@ class SymbolLoader {
 
     await add("airdark", "assets/images/air-dark.png", 200, 200);
     await add("airlight", "assets/images/air-light.png", 200, 200);
+    await add("airselected", "assets/images/air-selected.png", 200, 200);
     await add("constructiondark", "assets/images/construction-dark.png", 200, 200);
     await add("constructionlight", "assets/images/construction-light.png", 200, 200);
     await add("parkdark", "assets/images/park-dark.png", 200, 200);
@@ -48,8 +49,10 @@ class SymbolLoader {
     await add("positionstaticlight", "assets/images/position-static-light.png", 400, 400);
     await add("rentdark", "assets/images/rent-dark.png", 200, 200);
     await add("rentlight", "assets/images/rent-light.png", 200, 200);
+    await add("rentselected", "assets/images/rent-selected.png", 200, 200);
     await add("repairdark", "assets/images/repair-dark.png", 200, 200);
     await add("repairlight", "assets/images/repair-light.png", 200, 200);
+    await add("repairselected", "assets/images/repair-selected.png", 200, 200);
     await add("accidentdark", "assets/images/accident-dark.png", 200, 200);
     await add("accidentlight", "assets/images/accident-light.png", 200, 200);
     await add("greenwavedark", "assets/images/green-wave-dark.png", 200, 200);

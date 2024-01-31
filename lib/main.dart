@@ -27,6 +27,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_poi.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -85,6 +86,7 @@ Future<void> main() async {
   getIt.registerSingleton<Geocoding>(Geocoding());
   getIt.registerSingleton<Geosearch>(Geosearch());
   getIt.registerSingleton<Routing>(Routing());
+  getIt.registerSingleton<RoutingPOI>(RoutingPOI());
   getIt.registerSingleton<Layers>(Layers());
   getIt.registerSingleton<MapDesigns>(MapDesigns());
   getIt.registerSingleton<Positioning>(Positioning());

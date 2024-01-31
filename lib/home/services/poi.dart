@@ -11,6 +11,12 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
+enum POIType {
+  bikeShop,
+  bikeRental,
+  airStation,
+}
+
 /// A POI element.
 class POIElement {
   /// The name of the POI.
@@ -28,12 +34,16 @@ class POIElement {
   /// The distance of the user to the POI.
   final double? distance;
 
+  /// The type of the POI.
+  final POIType? type;
+
   POIElement({
     required this.name,
     required this.typeDescription,
     required this.lon,
     required this.lat,
     this.distance,
+    this.type,
   });
 }
 

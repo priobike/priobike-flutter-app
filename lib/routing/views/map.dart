@@ -37,6 +37,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_poi.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -59,6 +60,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
+
+  /// The associated routing POI service, which is injected by the provider.
+  late RoutingPOI routingPOI;
 
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
@@ -164,6 +168,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     BikeAirStationLayer.layerId,
     ParkingStationsLayer.layerId,
     RentalStationsLayer.layerId,
+    SelectedPOILayer.layerId,
     userLocationLayerId,
     RouteLabelLayer.layerId,
   ];
@@ -171,6 +176,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Returns the index where the layer should be added in the Mapbox layer stack.
   Future<int> getIndex(String layerId) async {
     final currentLayers = await mapController!.style.getStyleLayers();
+
+    print("currentLayers");
+    print(currentLayers.length);
     // Place the route label layer on top of all other layers.
     if (layerId == RouteLabelLayer.layerId) {
       return currentLayers.length - 1;
@@ -179,6 +187,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     var layersBeforeAdded = 0;
     for (final layer in layerOrder) {
       if (currentLayers.firstWhereOrNull((element) => element?.id == layer) != null) {
+        print(layersBeforeAdded);
         layersBeforeAdded++;
       }
       if (layer == layerId) {
@@ -227,6 +236,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns = getIt<MapDesigns>();
     positioning = getIt<Positioning>();
     routing = getIt<Routing>();
+    routingPOI = getIt<RoutingPOI>();
     discomforts = getIt<Discomforts>();
     status = getIt<PredictionSGStatus>();
     mapFunctions = getIt<MapFunctions>();
@@ -399,6 +409,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Load the map layers.
   loadGeoLayers() async {
+    print("LOADING GEO LAYERS");
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
@@ -428,6 +439,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     if (layers.showRentalStations) {
       final index = await getIndex(RentalStationsLayer.layerId);
+      print(index);
       if (!mounted) return;
       await RentalStationsLayer(isDark).install(mapController!, at: index);
     } else {
@@ -609,8 +621,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         double lon = geometry["coordinates"][0];
         double lat = geometry["coordinates"][1];
 
-        routing.setPOIElement(POIElement(name: name, typeDescription: "Luftstation", lon: lon, lat: lat));
+        // Set the routing POI element.
+        routingPOI.setPOIElement(
+          POIElement(name: name, typeDescription: "Luftstation", lon: lon, lat: lat, type: POIType.airStation),
+        );
+        // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
+        // Replace the POI with a selected version of the POI.
+        final index = await getIndex(SelectedPOILayer.layerId);
+        if (!mounted) return;
+        await SelectedPOILayer().install(mapController!, at: index);
+
         return;
       }
     }
@@ -623,8 +644,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         double lon = geometry["coordinates"][0];
         double lat = geometry["coordinates"][1];
 
-        routing.setPOIElement(POIElement(name: name, typeDescription: "Fahrradleihe", lon: lon, lat: lat));
+        routingPOI.setPOIElement(
+          POIElement(name: name, typeDescription: "Fahrradleihe", lon: lon, lat: lat, type: POIType.bikeRental),
+        );
+        // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
+        // Replace the POI with a selected version of the POI.
+        final index = await getIndex(SelectedPOILayer.layerId);
+        final index2 = await getIndex(RentalStationsLayer.layerId);
+
+        if (!mounted) return;
+        // Somehow mapbox doesn't display the icon above the rental icon if it's only 1 greater. Therefore add 1.
+        await SelectedPOILayer().install(mapController!, at: index + 1);
+
         return;
       } else if (properties["fclass"] == "bicycle_shop") {
         // Bike shop poi.
@@ -632,10 +664,25 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         double lon = geometry["coordinates"][0];
         double lat = geometry["coordinates"][1];
 
-        routing.setPOIElement(POIElement(name: name, typeDescription: "Fahrradladen", lon: lon, lat: lat));
+        routingPOI.setPOIElement(
+          POIElement(name: name, typeDescription: "Fahrradladen", lon: lon, lat: lat, type: POIType.bikeShop),
+        );
+        // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
+        // Replace the POI with a selected version of the POI.
+        final index = await getIndex(SelectedPOILayer.layerId);
+
+        if (!mounted) return;
+        await SelectedPOILayer().install(mapController!, at: index);
+
         return;
       }
+    }
+
+    if (routingPOI.selectedPOI != null) {
+      routingPOI.unsetPOIElement();
+      if (!mounted) return;
+      await SelectedPOILayer.remove(mapController!);
     }
   }
 
@@ -786,7 +833,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
     );
 
-    routing.unsetPOIElement();
     if (features.isNotEmpty) {
       // Prioritize discomforts if there are multiple features.
       final discomfortFeature =
@@ -796,6 +842,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         return;
       }
       onFeatureTapped(features[0]!);
+    } else {
+      if (routingPOI.selectedPOI != null) {
+        routingPOI.unsetPOIElement();
+        if (!mounted) return;
+        await SelectedPOILayer.remove(mapController!);
+      }
     }
   }
 

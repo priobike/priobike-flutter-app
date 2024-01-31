@@ -9,7 +9,6 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/discomforts.dart';
 import 'package:priobike/routing/views/details/height.dart';
-import 'package:priobike/routing/views/details/poi.dart';
 import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
@@ -289,59 +288,46 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               child: SingleChildScrollView(
                 controller: controller,
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: AnimatedCrossFade(
-                  firstCurve: Curves.easeInOutCubic,
-                  secondCurve: Curves.easeInOutCubic,
-                  sizeCurve: Curves.easeInOutCubic,
-                  duration: const Duration(milliseconds: 1000),
-                  firstChild: Column(
-                    children: [
-                      renderDragIndicator(context),
-                      AnimatedCrossFade(
-                        firstCurve: Curves.easeInOutCubic,
-                        secondCurve: Curves.easeInOutCubic,
-                        sizeCurve: Curves.easeInOutCubic,
-                        duration: const Duration(milliseconds: 1000),
-                        firstChild: Container(),
-                        secondChild: renderTopInfoSection(context),
-                        crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
-                            ? CrossFadeState.showFirst
-                            : CrossFadeState.showSecond,
-                      ),
-                      const SmallVSpace(),
-                      AnimatedCrossFade(
-                        firstCurve: Curves.easeInOutCubic,
-                        secondCurve: Curves.easeInOutCubic,
-                        sizeCurve: Curves.easeInOutCubic,
-                        duration: const Duration(milliseconds: 1000),
-                        firstChild: Container(),
-                        secondChild: renderBottomSheetWaypoints(context),
-                        crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                      ),
-                      if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                        const TutorialView(
-                          id: "priobike.tutorial.draw-waypoints",
-                          text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                          padding: EdgeInsets.only(left: 18),
-                        ),
-                      const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                      const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                      const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                      const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                      const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                      // Big button size + padding.
-                      SizedBox(
-                        height: 40 + 8 + frame.padding.bottom,
-                      ),
-                    ],
-                  ),
-                  secondChild: Column(children: [
+                child: Column(
+                  children: [
                     renderDragIndicator(context),
-                    const POIInfo(),
-                  ]),
-                  crossFadeState: routing.selectedPOI == null || routing.isFetchingRoute
-                      ? CrossFadeState.showFirst
-                      : CrossFadeState.showSecond,
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderTopInfoSection(context),
+                      crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                    ),
+                    const SmallVSpace(),
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderBottomSheetWaypoints(context),
+                      crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    ),
+                    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                      const TutorialView(
+                        id: "priobike.tutorial.draw-waypoints",
+                        text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                        padding: EdgeInsets.only(left: 18),
+                      ),
+                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                    // Big button size + padding.
+                    SizedBox(
+                      height: 40 + 8 + frame.padding.bottom,
+                    ),
+                  ],
                 ),
               ),
             );

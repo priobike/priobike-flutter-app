@@ -137,9 +137,6 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  /// The selected POI.
-  POIElement? selectedPOI;
-
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -625,18 +622,6 @@ class Routing with ChangeNotifier {
     final status = getIt<PredictionSGStatus>();
     await status.fetch(selectedRoute!);
 
-    notifyListeners();
-  }
-
-  /// Set POI Element.
-  void setPOIElement(POIElement poiElement) {
-    selectedPOI = poiElement;
-    notifyListeners();
-  }
-
-  /// Unset POI Element.
-  void unsetPOIElement() {
-    selectedPOI = null;
     notifyListeners();
   }
 }
