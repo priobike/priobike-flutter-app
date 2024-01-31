@@ -92,6 +92,9 @@ class Settings with ChangeNotifier {
   /// Enable simulator mode for app.
   bool enableSimulatorMode;
 
+  /// Enable BLE SpeedSensor for app.
+  bool enableSpeedSensor;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -448,6 +451,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const speedSensorKey = "priobike.settings.enableSpeedSensor";
+  static const defaultSpeedSensorUse = false;
+
+  Future<bool> setSpeedSensor(bool enableSpeedSensor, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableSpeedSensor;
+    this.enableSpeedSensor = enableSpeedSensor;
+    final bool success = await storage.setBool(speedSensorKey, enableSpeedSensor);
+    if (!success) {
+      log.e("Failed to set enableSpeedSensor to $enableSpeedSensor");
+      this.enableSpeedSensor = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings(
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -469,6 +489,7 @@ class Settings with ChangeNotifier {
     this.didViewUserTransfer = defaultDidViewUserTransfer,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
+    this.enableSpeedSensor = defaultSpeedSensorUse,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -514,6 +535,7 @@ class Settings with ChangeNotifier {
 
     enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
     enableSimulatorMode = storage.getBool(simulatorModeKey) ?? defaultSimulatorMode;
+    enableSpeedSensor = storage.getBool(speedSensorKey) ?? defaultSpeedSensorUse;
   }
 
   /// Load the stored settings.
@@ -628,6 +650,7 @@ class Settings with ChangeNotifier {
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
         "enableGamification": enableGamification,
-        "enableSimulatorMode": enableSimulatorMode
+        "enableSimulatorMode": enableSimulatorMode,
+        "enableSpeedSensor": enableSpeedSensor
       };
 }

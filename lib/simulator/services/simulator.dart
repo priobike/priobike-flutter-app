@@ -50,8 +50,8 @@ class Simulator with ChangeNotifier {
   }
 
   /// Connects the device with the sensor.
-  connectWithSensor() {
-    // TODO: implement conntectWithDevice
+  connectWithSensor() async {
+    // TODO: implement connectWithDevice
   }
 
   /// Sends a ready pair request to the simulator via MQTT.
