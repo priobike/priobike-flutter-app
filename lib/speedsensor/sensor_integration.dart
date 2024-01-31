@@ -361,7 +361,7 @@ class _GarminSpeedSensorState extends State<GarminSpeedSensor> {
     _lastReadings = values;
 
     // exponential smoothing
-    const smoothingFactor = 0.7;
+    const smoothingFactor = 0.9;
     double rotationsPerSecond = smoothingFactor * (rotationDifference / timeDifferenceInMilliseconds * 1000)
         + (1 - smoothingFactor) * _lastRotationsPerSecond;
     // cut-off to prevent the value from shrinking way too slowly before reaching 0
