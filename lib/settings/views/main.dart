@@ -21,7 +21,6 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/settings/views/text.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
 import 'package:share_plus/share_plus.dart';
@@ -496,24 +495,6 @@ class SettingsViewState extends State<SettingsView> {
                         ),
                       ),
                       const VSpace(),
-                      SettingsElement(
-                        title:
-                            "Simulator aktivieren (ID: ${getIt<Simulator>().deviceId})",
-                        icon: settings.enableSimulatorMode
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        callback: () => settings
-                            .setSimulatorMode(!settings.enableSimulatorMode),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 34, top: 8, bottom: 8, right: 24),
-                        child: Small(
-                          text:
-                              "Hinweis: Aktiviert den Simulator für die Nutzung auf der Output-Messe.",
-                          context: context,
-                        ),
-                      ),
                       SettingsElement(
                         title: "SpeedSensor verwenden",
                         icon: settings.enableSpeedSensor
