@@ -111,7 +111,8 @@ class RentalStationsLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
-          minZoom: 12.0,
+          // To disable clicking on invisible icons.
+          minZoom: 14.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -288,7 +289,8 @@ class BikeShopLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
-          minZoom: 12.0,
+          // To disable clicking on invisible icons.
+          minZoom: 14.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -383,7 +385,8 @@ class BikeAirStationLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
-          minZoom: 12.0,
+          // To disable clicking on invisible icons.
+          minZoom: 14.0,
         ),
         mapbox.LayerPosition(at: at),
       );

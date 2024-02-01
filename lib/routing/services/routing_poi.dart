@@ -9,6 +9,12 @@ class RoutingPOI with ChangeNotifier {
   /// The selected POI.
   POIElement? selectedPOI;
 
+  /// The calculated position x of the POI.
+  double? x;
+
+  /// The calculated position x of the POI.
+  double? y;
+
   RoutingPOI();
 
   /// Set POI Element.
@@ -21,5 +27,20 @@ class RoutingPOI with ChangeNotifier {
   void unsetPOIElement() {
     selectedPOI = null;
     notifyListeners();
+  }
+
+  /// Set the pixel coordinates that are used to display the POI widget.
+  void setPixelCoordinates(double? x, double? y) {
+    this.x = x;
+    this.y = y;
+
+    notifyListeners();
+  }
+
+  /// Resets the service.
+  reset() {
+    x = null;
+    y = null;
+    selectedPOI = null;
   }
 }

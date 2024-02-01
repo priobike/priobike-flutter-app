@@ -1019,6 +1019,23 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Updates the bearing and centering button.
+  Future<void> updatePOIPosition() async {
+    if (mapController == null) return;
+    if (routingPOI.selectedPOI == null) return;
+
+    final position = await mapController!.pixelForCoordinate(
+      Point(
+        coordinates: Position(
+          routingPOI.selectedPOI!.lon,
+          routingPOI.selectedPOI!.lat,
+        ),
+      ).toJson(),
+    );
+
+    routingPOI.setPixelCoordinates(position.x > 0 ? position.x : null, position.y > 0 ? position.y : null);
+  }
+
   /// A callback that is executed when the camera movement changes.
   Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
     if (mapController == null) return;
@@ -1027,21 +1044,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     updateWaypointPixelCoordinates();
 
+    updatePOIPosition();
+
     routeLabelLock.run(() {
       updateRouteLabels();
     });
-  }
-
-  /// A callback that is executed when the camera movement changes.
-  Future<void> onMapScroll(ScreenCoordinate screenCoordinate) async {
-    if (mapController == null) return;
-
-    // If user scrolls unset selected POI.
-    if (routingPOI.selectedPOI != null) {
-      routingPOI.unsetPOIElement();
-      if (!mounted) return;
-      await SelectedPOILayer.remove(mapController!);
-    }
   }
 
   /// When the user drags a waypoint.
@@ -1328,7 +1335,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
-            onMapScroll: onMapScroll,
             onMapTap: onMapTap,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
