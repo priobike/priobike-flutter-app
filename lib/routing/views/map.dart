@@ -168,8 +168,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     BikeAirStationLayer.layerId,
     ParkingStationsLayer.layerId,
     RentalStationsLayer.layerId,
-    SelectedPOILayer.layerId,
     userLocationLayerId,
+    SelectedPOILayer.layerId,
     RouteLabelLayer.layerId,
   ];
 
@@ -177,8 +177,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<int> getIndex(String layerId) async {
     final currentLayers = await mapController!.style.getStyleLayers();
 
-    print("currentLayers");
-    print(currentLayers.length);
     // Place the route label layer on top of all other layers.
     if (layerId == RouteLabelLayer.layerId) {
       return currentLayers.length - 1;
@@ -187,7 +185,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     var layersBeforeAdded = 0;
     for (final layer in layerOrder) {
       if (currentLayers.firstWhereOrNull((element) => element?.id == layer) != null) {
-        print(layersBeforeAdded);
         layersBeforeAdded++;
       }
       if (layer == layerId) {
@@ -409,7 +406,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Load the map layers.
   loadGeoLayers() async {
-    print("LOADING GEO LAYERS");
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
@@ -439,7 +435,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     if (layers.showRentalStations) {
       final index = await getIndex(RentalStationsLayer.layerId);
-      print(index);
       if (!mounted) return;
       await RentalStationsLayer(isDark).install(mapController!, at: index);
     } else {
@@ -596,7 +591,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is called when the user taps a feature.
   onFeatureTapped(QueriedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
-    print(queriedFeature.feature);
     final id = queriedFeature.feature['id'];
     Map? properties = queriedFeature.feature["properties"] as Map?;
     Map? geometry = queriedFeature.feature["geometry"] as Map?;
@@ -651,11 +645,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         fitCameraToCoordinate(lat, lon);
         // Replace the POI with a selected version of the POI.
         final index = await getIndex(SelectedPOILayer.layerId);
-        final index2 = await getIndex(RentalStationsLayer.layerId);
 
         if (!mounted) return;
         // Somehow mapbox doesn't display the icon above the rental icon if it's only 1 greater. Therefore add 1.
-        await SelectedPOILayer().install(mapController!, at: index + 1);
+        await SelectedPOILayer().install(mapController!, at: index);
 
         return;
       } else if (properties["fclass"] == "bicycle_shop") {
@@ -679,6 +672,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
+    // If nothing applies unset selected POI.
     if (routingPOI.selectedPOI != null) {
       routingPOI.unsetPOIElement();
       if (!mounted) return;
@@ -1038,6 +1032,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onMapScroll(ScreenCoordinate screenCoordinate) async {
+    if (mapController == null) return;
+
+    // If user scrolls unset selected POI.
+    if (routingPOI.selectedPOI != null) {
+      routingPOI.unsetPOIElement();
+      if (!mounted) return;
+      await SelectedPOILayer.remove(mapController!);
+    }
+  }
+
   /// When the user drags a waypoint.
   void _dragWaypoint() {
     if (draggedWaypoint == null || mapController == null || dragPosition == null) return;
@@ -1322,6 +1328,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
+            onMapScroll: onMapScroll,
             onMapTap: onMapTap,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,

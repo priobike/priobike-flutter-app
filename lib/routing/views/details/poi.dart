@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/routing_poi.dart';
 
 class POIInfo extends StatefulWidget {

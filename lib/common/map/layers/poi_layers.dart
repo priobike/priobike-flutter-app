@@ -185,7 +185,7 @@ class SelectedPOILayer {
         case null:
           break;
       }
-      print(iconImage);
+
       // Set the feature.
       features.add(
         {
@@ -214,8 +214,6 @@ class SelectedPOILayer {
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
 
-    print(at);
-
     final selectedPOILayerExists = await mapController.style.styleLayerExists(layerId);
     if (!selectedPOILayerExists) {
       await mapController.style.addLayerAt(
@@ -223,9 +221,7 @@ class SelectedPOILayer {
             sourceId: sourceId,
             id: layerId,
             iconSize: iconSize,
-            // textAllowOverlap: true,
-            // textIgnorePlacement: true,
-            // iconAllowOverlap: true,
+            minZoom: 12.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
