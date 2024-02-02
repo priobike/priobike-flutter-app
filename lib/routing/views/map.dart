@@ -639,8 +639,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         double lat = geometry["coordinates"][1];
 
         routingPOI.setPOIElement(
-          POIElement(name: name, typeDescription: "Fahrradleihe", lon: lon, lat: lat, type: POIType.bikeRental),
+          POIElement(
+              name: name,
+              typeDescription: "Fahrradleihe",
+              lon: lon,
+              lat: lat,
+              type: POIType.bikeRental,
+              id: properties["stadtrad_id"]),
         );
+        RentalStationsLayer(isDark).update(mapController!);
         // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
         // Replace the POI with a selected version of the POI.
@@ -670,13 +677,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
         return;
       }
-    }
-
-    // If nothing applies unset selected POI.
-    if (routingPOI.selectedPOI != null) {
-      routingPOI.unsetPOIElement();
-      if (!mounted) return;
-      await SelectedPOILayer.remove(mapController!);
     }
   }
 
@@ -840,10 +840,30 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
       onFeatureTapped(features[0]!);
     } else {
+      // Finally reset the POI selected if nothing applies.
       if (routingPOI.selectedPOI != null) {
+        // Update layer rules for type.
+        final type = routingPOI.selectedPOI!.type;
+
+        // Unset the POI element.
         routingPOI.unsetPOIElement();
         if (!mounted) return;
-        await SelectedPOILayer.remove(mapController!);
+
+        SelectedPOILayer.remove(mapController!);
+
+        switch (type) {
+          case null:
+            break;
+          case POIType.bikeShop:
+            BikeShopLayer(isDark).update(mapController!);
+            break;
+          case POIType.bikeRental:
+            RentalStationsLayer(isDark).update(mapController!);
+            break;
+          case POIType.airStation:
+            BikeAirStationLayer(isDark).update(mapController!);
+            break;
+        }
       }
     }
   }

@@ -185,6 +185,44 @@ class RentalStationsLayer {
     }
   }
 
+  /// Update the layer so that the selected POI can be hidden.
+  update(mapbox.MapboxMap mapController) async {
+    final routingPOI = getIt<RoutingPOI>();
+
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-opacity',
+          json.encode(showAfter(zoom: 15, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "stadtrad_id"],
+              routingPOI.selectedPOI?.id ?? ""
+            ],
+            0,
+            1
+          ])));
+
+      // Overwrite text opacity to hide the unselected icon text.
+      await mapController.style.setStyleLayerProperty(
+          "$layerId-text",
+          'text-opacity',
+          json.encode(showAfter(zoom: 17, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "stadtrad_id"],
+              routingPOI.selectedPOI?.id ?? ""
+            ],
+            0,
+            1
+          ])));
+    }
+  }
+
   /// Remove the layer from the map controller.
   static remove(mapbox.MapboxMap mapController) async {
     final layerExists = await mapController.style.styleLayerExists(layerId);
@@ -321,6 +359,44 @@ class BikeShopLayer {
     }
   }
 
+  /// Update the layer so that the selected POI can be hidden.
+  update(mapbox.MapboxMap mapController) async {
+    final routingPOI = getIt<RoutingPOI>();
+
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-opacity',
+          json.encode(showAfter(zoom: 15, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "stadtrad_id"],
+              routingPOI.selectedPOI?.id ?? ""
+            ],
+            0,
+            1
+          ])));
+
+      // Overwrite text opacity to hide the unselected icon text.
+      await mapController.style.setStyleLayerProperty(
+          "$layerId-text",
+          'text-opacity',
+          json.encode(showAfter(zoom: 17, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "stadtrad_id"],
+              routingPOI.selectedPOI?.id ?? ""
+            ],
+            0,
+            1
+          ])));
+    }
+  }
+
   /// Remove the layer from the map controller.
   static remove(mapbox.MapboxMap mapController) async {
     final layerExists = await mapController.style.styleLayerExists(layerId);
@@ -449,6 +525,44 @@ class BikeAirStationLayer {
     }
   }
 
+  /// Update the layer so that the selected POI can be hidden.
+  update(mapbox.MapboxMap mapController) async {
+    final routingPOI = getIt<RoutingPOI>();
+
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-opacity',
+          json.encode(showAfter(zoom: 15, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "stadtrad_id"],
+              routingPOI.selectedPOI?.id ?? ""
+            ],
+            0,
+            1
+          ])));
+
+      // Overwrite text opacity to hide the unselected icon text.
+      await mapController.style.setStyleLayerProperty(
+          "$layerId-text",
+          'text-opacity',
+          json.encode(showAfter(zoom: 17, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "stadtrad_id"],
+              routingPOI.selectedPOI?.id ?? ""
+            ],
+            0,
+            1
+          ])));
+    }
+  }
+
   /// Remove the layer from the map controller.
   static remove(mapbox.MapboxMap mapController) async {
     final layerExists = await mapController.style.styleLayerExists(layerId);
@@ -512,7 +626,7 @@ class SelectedPOILayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.36, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(

@@ -19,6 +19,9 @@ enum POIType {
 
 /// A POI element.
 class POIElement {
+  /// The optional id of the POI.
+  final String? id;
+
   /// The name of the POI.
   final String name;
 
@@ -44,6 +47,7 @@ class POIElement {
     required this.lat,
     this.distance,
     this.type,
+    this.id,
   });
 }
 
