@@ -36,6 +36,7 @@ class SymbolLoader {
     await add("destination", "assets/images/destination.drawio.png", 84, 84);
     await add("waypoint", "assets/images/waypoint.drawio.png", 84, 84);
 
+    await add("iconclicklayer", "assets/images/icon-click-layer.png", 75, 98);
     await add("airdark", "assets/images/air-dark.png", 200, 200);
     await add("airlight", "assets/images/air-light.png", 200, 200);
     await add("airselected", "assets/images/air-selected.png", 200, 200);

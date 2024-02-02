@@ -820,9 +820,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         layerIds: [
           AllRoutesLayer.layerIdClick,
           RouteLabelLayer.layerId,
-          BikeShopLayer.layerId,
-          BikeAirStationLayer.layerId,
-          RentalStationsLayer.layerId,
+          "${BikeShopLayer.layerId}-click",
+          "${BikeShopLayer.layerId}-text",
+          "${BikeAirStationLayer.layerId}-click",
+          "${BikeAirStationLayer.layerId}-text",
+          "${RentalStationsLayer.layerId}-click",
+          "${RentalStationsLayer.layerId}-text",
         ],
       ),
     );

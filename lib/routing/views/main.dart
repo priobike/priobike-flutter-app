@@ -338,12 +338,12 @@ class RoutingViewState extends State<RoutingView> {
             if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
             if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
-            if (routingPOI.x != null && routingPOI.y != null)
+            if (routingPOI.calculatedX != null && routingPOI.calculatedY != null)
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 150),
                 // Subtract half the width of the widget to center it.
-                left: routingPOI.x! - (frame.width * 0.3),
-                top: routingPOI.y!,
+                left: routingPOI.calculatedX! - (frame.width * 0.3),
+                top: routingPOI.calculatedY!,
                 child: const POIInfo(),
               ),
 
