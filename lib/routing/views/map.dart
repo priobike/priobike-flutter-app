@@ -215,6 +215,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     fitCameraToRouteBounds();
   }
 
+  /// Called when the listener callback of the Routing POI service ChangeNotifier is fired.
+  updateRoutingPOI() async {
+    // Check for resetting.
+    if (routingPOI.needsResetting) {
+      resetPOI();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -788,6 +796,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns.addListener(loadMapDesign);
     positioning.addListener(displayCurrentUserLocation);
     routing.addListener(updateRoute);
+    routingPOI.addListener(updateRoutingPOI);
     discomforts.addListener(updateDiscomforts);
     status.addListener(updateSelectedRouteLayer);
     mapFunctions.addListener(updateMapFunctions);
@@ -870,8 +879,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // Update layer rules for type.
       final type = routingPOI.selectedPOI!.type;
 
-      // Unset the POI element.
-      routingPOI.unsetPOIElement();
+      // Reset the POI service.
+      routingPOI.reset();
+
       if (!mounted) return;
 
       SelectedPOILayer.remove(mapController!);

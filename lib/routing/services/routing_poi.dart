@@ -15,6 +15,9 @@ class RoutingPOI with ChangeNotifier {
   /// The calculated position x of the POI.
   double? calculatedY;
 
+  /// The bool that holds the state if resetting is needed.
+  bool needsResetting = false;
+
   RoutingPOI();
 
   /// Set POI Element.
@@ -37,10 +40,18 @@ class RoutingPOI with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Set needs resetting.
+  void setNeedsResetting() {
+    needsResetting = true;
+    notifyListeners();
+  }
+
   /// Resets the service.
   reset() {
     calculatedX = null;
     calculatedY = null;
     selectedPOI = null;
+    needsResetting = false;
+    notifyListeners();
   }
 }

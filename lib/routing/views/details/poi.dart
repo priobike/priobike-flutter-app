@@ -3,6 +3,9 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/routing_poi.dart';
 
 class POIInfo extends StatefulWidget {
@@ -16,17 +19,15 @@ class POIInfoState extends State<POIInfo> {
   /// The associated routing service, which is injected by the provider.
   late RoutingPOI routingPOI;
 
-  /// The opacity of the POI widget.
-  double opacity = 0;
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
+  /// The associated routing service, which is injected by the provider.
+  late Positioning positioning;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    if (routingPOI.selectedPOI == null) opacity = 0;
     setState(() {});
-    // Add a small delay and then fade the widget in.
-    Future.delayed(const Duration(milliseconds: 750)).then((value) => setState(() {
-          opacity = routingPOI.selectedPOI == null ? 0 : 1;
-        }));
   }
 
   @override
@@ -35,12 +36,37 @@ class POIInfoState extends State<POIInfo> {
 
     routingPOI = getIt<RoutingPOI>();
     routingPOI.addListener(update);
+    routing = getIt<Routing>();
+    positioning = getIt<Positioning>();
   }
 
   @override
   void dispose() {
     routingPOI.removeListener(update);
     super.dispose();
+  }
+
+  /// The callback that is executed when the button is pressed.
+  void onPressed() {
+    if (routingPOI.selectedPOI == null) return;
+    // Add POI to routing and fetch route.
+    final waypoint =
+        Waypoint(routingPOI.selectedPOI!.lat, routingPOI.selectedPOI!.lon, address: routingPOI.selectedPOI!.name);
+    final waypoints = routing.selectedWaypoints ?? [];
+
+    // Add the own location as a start point to the route, if the waypoint selected in the search is the
+    // first waypoint of the route. Thus making it the destination of the route.
+    if (waypoints.isEmpty) {
+      if (positioning.lastPosition != null) {
+        waypoints.add(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
+      }
+    }
+    final newWaypoints = [...waypoints, waypoint];
+
+    routing.selectWaypoints(newWaypoints);
+    routing.loadRoutes();
+    // Reset selected POI.
+    routingPOI.setNeedsResetting();
   }
 
   @override
@@ -79,7 +105,7 @@ class POIInfoState extends State<POIInfo> {
             const SmallVSpace(),
             IconTextButtonPrimary(
               label: "Hier hin routen",
-              onPressed: () {},
+              onPressed: onPressed,
               boxConstraints: BoxConstraints(minWidth: frame.width, minHeight: 28.0),
             )
           ],
