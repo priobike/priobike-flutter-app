@@ -611,14 +611,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         // Air station features contain "LUFTSTATION" in the feature id.
         if (properties == null || geometry == null) return;
 
+        // Reset the old POI from different type.
+        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.airStation) resetPOI();
+
         String name = properties["name"] ?? "Luftstation";
         double lon = geometry["coordinates"][0];
         double lat = geometry["coordinates"][1];
 
         // Set the routing POI element.
         routingPOI.setPOIElement(
-          POIElement(name: name, typeDescription: "Luftstation", lon: lon, lat: lat, type: POIType.airStation),
+          POIElement(name: name, typeDescription: "Luftstation", lon: lon, lat: lat, type: POIType.airStation, id: id),
         );
+        BikeAirStationLayer(isDark).update(mapController!);
         // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
         // Replace the POI with a selected version of the POI.
@@ -638,6 +642,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         double lon = geometry["coordinates"][0];
         double lat = geometry["coordinates"][1];
 
+        // Reset the old POI from different type.
+        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.bikeRental) resetPOI();
+
         routingPOI.setPOIElement(
           POIElement(
               name: name,
@@ -645,7 +652,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               lon: lon,
               lat: lat,
               type: POIType.bikeRental,
-              id: properties["stadtrad_id"]),
+              id: properties["osm_id"]),
         );
         RentalStationsLayer(isDark).update(mapController!);
         // Move the camera to the center of the POI.
@@ -664,9 +671,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         double lon = geometry["coordinates"][0];
         double lat = geometry["coordinates"][1];
 
+        // Reset the old POI from different type.
+        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.bikeShop) resetPOI();
+
         routingPOI.setPOIElement(
-          POIElement(name: name, typeDescription: "Fahrradladen", lon: lon, lat: lat, type: POIType.bikeShop),
+          POIElement(
+              name: name,
+              typeDescription: "Fahrradladen",
+              lon: lon,
+              lat: lat,
+              type: POIType.bikeShop,
+              id: properties["osm_id"]),
         );
+        BikeShopLayer(isDark).update(mapController!);
         // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
         // Replace the POI with a selected version of the POI.
@@ -678,6 +695,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         return;
       }
     }
+    resetPOI();
   }
 
   /// Fit the attribution position to the position of the bottom sheet.
@@ -836,34 +854,40 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           features.firstWhereOrNull((element) => element?.feature['id']?.toString().startsWith("discomfort-") ?? false);
       if (discomfortFeature != null) {
         onFeatureTapped(discomfortFeature);
+        resetPOI();
         return;
       }
       onFeatureTapped(features[0]!);
     } else {
-      // Finally reset the POI selected if nothing applies.
-      if (routingPOI.selectedPOI != null) {
-        // Update layer rules for type.
-        final type = routingPOI.selectedPOI!.type;
+      resetPOI();
+    }
+  }
 
-        // Unset the POI element.
-        routingPOI.unsetPOIElement();
-        if (!mounted) return;
+  /// Resets the selected POI element.
+  void resetPOI() {
+    // Finally reset the POI selected if nothing applies.
+    if (routingPOI.selectedPOI != null) {
+      // Update layer rules for type.
+      final type = routingPOI.selectedPOI!.type;
 
-        SelectedPOILayer.remove(mapController!);
+      // Unset the POI element.
+      routingPOI.unsetPOIElement();
+      if (!mounted) return;
 
-        switch (type) {
-          case null:
-            break;
-          case POIType.bikeShop:
-            BikeShopLayer(isDark).update(mapController!);
-            break;
-          case POIType.bikeRental:
-            RentalStationsLayer(isDark).update(mapController!);
-            break;
-          case POIType.airStation:
-            BikeAirStationLayer(isDark).update(mapController!);
-            break;
-        }
+      SelectedPOILayer.remove(mapController!);
+
+      switch (type) {
+        case null:
+          break;
+        case POIType.bikeShop:
+          BikeShopLayer(isDark).update(mapController!);
+          break;
+        case POIType.bikeRental:
+          RentalStationsLayer(isDark).update(mapController!);
+          break;
+        case POIType.airStation:
+          BikeAirStationLayer(isDark).update(mapController!);
+          break;
       }
     }
   }

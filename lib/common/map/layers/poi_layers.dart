@@ -199,7 +199,7 @@ class RentalStationsLayer {
             "case",
             [
               "==",
-              ["get", "stadtrad_id"],
+              ["get", "osm_id"],
               routingPOI.selectedPOI?.id ?? ""
             ],
             0,
@@ -214,7 +214,7 @@ class RentalStationsLayer {
             "case",
             [
               "==",
-              ["get", "stadtrad_id"],
+              ["get", "osm_id"],
               routingPOI.selectedPOI?.id ?? ""
             ],
             0,
@@ -373,7 +373,7 @@ class BikeShopLayer {
             "case",
             [
               "==",
-              ["get", "stadtrad_id"],
+              ["get", "osm_id"],
               routingPOI.selectedPOI?.id ?? ""
             ],
             0,
@@ -388,7 +388,7 @@ class BikeShopLayer {
             "case",
             [
               "==",
-              ["get", "stadtrad_id"],
+              ["get", "osm_id"],
               routingPOI.selectedPOI?.id ?? ""
             ],
             0,
@@ -539,7 +539,7 @@ class BikeAirStationLayer {
             "case",
             [
               "==",
-              ["get", "stadtrad_id"],
+              ["id"],
               routingPOI.selectedPOI?.id ?? ""
             ],
             0,
@@ -554,7 +554,7 @@ class BikeAirStationLayer {
             "case",
             [
               "==",
-              ["get", "stadtrad_id"],
+              ["id"],
               routingPOI.selectedPOI?.id ?? ""
             ],
             0,
