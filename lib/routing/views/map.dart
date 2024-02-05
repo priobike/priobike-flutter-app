@@ -168,9 +168,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     BikeAirStationLayer.layerId,
     ParkingStationsLayer.layerId,
     RentalStationsLayer.layerId,
-    SelectedPOILayer.layerId,
     userLocationLayerId,
     RouteLabelLayer.layerId,
+    SelectedPOILayer.layerId,
   ];
 
   /// Returns the index where the layer should be added in the Mapbox layer stack.
@@ -884,7 +884,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
       if (!mounted) return;
 
-      SelectedPOILayer.remove(mapController!);
+      // Updates the features.
+      SelectedPOILayer().install(mapController!);
 
       switch (type) {
         case null:
