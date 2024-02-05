@@ -138,22 +138,22 @@ class TrianglePainter extends CustomPainter {
     Paint backgroundPaint = Paint()..color = Theme.of(context).colorScheme.background;
 
     Paint sidePaint = Paint()
+      ..style = PaintingStyle.stroke
       ..color = Theme.of(context).colorScheme.onTertiary
       ..strokeWidth = 1;
 
     // Draw the background;
     canvas.drawPath(getTrianglePath(size.width, size.height), backgroundPaint);
     // Draw border lines to the top.
-    canvas.drawLine(Offset(0, size.height), Offset(size.width / 2, 0), sidePaint);
-    canvas.drawLine(Offset(size.width, size.height), Offset(size.width / 2, 0), sidePaint);
+    canvas.drawPath(getTrianglePath(size.width, size.height), sidePaint);
   }
 
   Path getTrianglePath(double x, double y) {
     return Path()
       ..moveTo(0, y)
-      ..lineTo(x / 2, 0)
-      ..lineTo(x, y)
-      ..lineTo(0, y);
+      ..lineTo(x / 2 - 2, 2)
+      ..cubicTo(x / 2 - 2, 2, x / 2, 0, x / 2 + 2, 2)
+      ..lineTo(x, y);
   }
 
   @override
