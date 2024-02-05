@@ -168,8 +168,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     BikeAirStationLayer.layerId,
     ParkingStationsLayer.layerId,
     RentalStationsLayer.layerId,
-    userLocationLayerId,
     SelectedPOILayer.layerId,
+    userLocationLayerId,
     RouteLabelLayer.layerId,
   ];
 
@@ -196,11 +196,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Updates the centering.
-  updateMapFunctions() {
+  updateMapFunctions() async {
     if (mapFunctions.needsCentering) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
       mapFunctions.needsCentering = false;
+      final currentLayers = await mapController!.style.getStyleLayers();
+      for (var layer in currentLayers) {
+        print(layer?.id);
+      }
     }
 
     if (mapFunctions.needsCenteringNorth) {
@@ -418,6 +422,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
+    final index = await getIndex(SelectedPOILayer.layerId);
+    if (!mounted) return;
+    await SelectedPOILayer().install(mapController!, at: index);
+
     if (layers.showAirStations) {
       final index = await getIndex(BikeAirStationLayer.layerId);
       if (!mounted) return;
@@ -490,9 +498,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
     }
-    final index = await getIndex(SelectedPOILayer.layerId);
-    if (!mounted) return;
-    await SelectedPOILayer().install(mapController!, at: index);
 
     /*
     * Only applies to Android. Due to a data leak on Android-Flutter (https://github.com/flutter/flutter/issues/118384),
