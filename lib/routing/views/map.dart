@@ -196,15 +196,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Updates the centering.
-  updateMapFunctions() async {
+  updateMapFunctions() {
     if (mapFunctions.needsCentering) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
       mapFunctions.needsCentering = false;
-      final currentLayers = await mapController!.style.getStyleLayers();
-      for (var layer in currentLayers) {
-        print(layer?.id);
-      }
     }
 
     if (mapFunctions.needsCenteringNorth) {
