@@ -168,8 +168,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     BikeAirStationLayer.layerId,
     ParkingStationsLayer.layerId,
     RentalStationsLayer.layerId,
-    userLocationLayerId,
     SelectedPOILayer.layerId,
+    userLocationLayerId,
     RouteLabelLayer.layerId,
   ];
 
@@ -490,6 +490,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
     }
+    final index = await getIndex(SelectedPOILayer.layerId);
+    if (!mounted) return;
+    await SelectedPOILayer().install(mapController!, at: index);
 
     /*
     * Only applies to Android. Due to a data leak on Android-Flutter (https://github.com/flutter/flutter/issues/118384),
@@ -667,7 +670,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
         // Replace the POI with a selected version of the POI.
-
         final index = await getIndex(SelectedPOILayer.layerId);
         if (!mounted) return;
         await SelectedPOILayer().install(mapController!, at: index);
