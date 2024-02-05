@@ -216,7 +216,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Called when the listener callback of the Routing POI service ChangeNotifier is fired.
-  updateRoutingPOI() async {
+  updateRoutingPOI() {
     // Check for resetting.
     if (routingPOI.needsResetting) {
       resetPOI();
@@ -256,6 +256,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns.removeListener(loadMapDesign);
     positioning.removeListener(displayCurrentUserLocation);
     routing.removeListener(updateRoute);
+    routingPOI.removeListener(updateRoutingPOI);
     discomforts.removeListener(updateDiscomforts);
     status.removeListener(updateSelectedRouteLayer);
     mapFunctions.removeListener(updateMapFunctions);
@@ -666,10 +667,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         // Move the camera to the center of the POI.
         fitCameraToCoordinate(lat, lon);
         // Replace the POI with a selected version of the POI.
-        final index = await getIndex(SelectedPOILayer.layerId);
 
+        final index = await getIndex(SelectedPOILayer.layerId);
         if (!mounted) return;
-        // Somehow mapbox doesn't display the icon above the rental icon if it's only 1 greater. Therefore add 1.
         await SelectedPOILayer().install(mapController!, at: index);
 
         return;
@@ -696,10 +696,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         fitCameraToCoordinate(lat, lon);
         // Replace the POI with a selected version of the POI.
         final index = await getIndex(SelectedPOILayer.layerId);
-
         if (!mounted) return;
         await SelectedPOILayer().install(mapController!, at: index);
-
         return;
       }
     }

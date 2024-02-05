@@ -136,7 +136,6 @@ class RoutingViewState extends State<RoutingView> {
   void dispose() {
     geocoding!.removeListener(update);
     routing!.removeListener(update);
-    routingPOI.reset();
     routingPOI.removeListener(update);
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);

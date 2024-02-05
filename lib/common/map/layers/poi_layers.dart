@@ -644,7 +644,7 @@ class SelectedPOILayer {
             sourceId: sourceId,
             id: layerId,
             iconSize: iconSize,
-            minZoom: 12.0,
+            minZoom: 5.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
