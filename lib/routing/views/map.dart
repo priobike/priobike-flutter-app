@@ -169,8 +169,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     ParkingStationsLayer.layerId,
     RentalStationsLayer.layerId,
     userLocationLayerId,
-    RouteLabelLayer.layerId,
     SelectedPOILayer.layerId,
+    RouteLabelLayer.layerId,
   ];
 
   /// Returns the index where the layer should be added in the Mapbox layer stack.
@@ -863,13 +863,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           features.firstWhereOrNull((element) => element?.feature['id']?.toString().startsWith("discomfort-") ?? false);
       if (discomfortFeature != null) {
         onFeatureTapped(discomfortFeature);
-        resetPOI();
         return;
       }
       onFeatureTapped(features[0]!);
-    } else {
-      resetPOI();
+      return;
     }
+    resetPOI();
   }
 
   /// Resets the selected POI element.
