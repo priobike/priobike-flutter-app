@@ -56,6 +56,48 @@ class ParkingStationsLayer {
             showAfter(zoom: 15),
           ));
     }
+
+    final clickLayerExists = await mapController.style.styleLayerExists("$layerId-click");
+    if (!clickLayerExists) {
+      // Add the icon click layer to prevent clicking the invisible parts of the icon image.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: "$layerId-click",
+          iconImage: "iconclicklayer",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 1,
+          iconAnchor: mapbox.IconAnchor.BOTTOM,
+          // To disable clicking invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+    }
+  }
+
+  /// Update the layer so that the selected POI can be hidden.
+  update(mapbox.MapboxMap mapController) async {
+    final routingPOI = getIt<RoutingPOI>();
+
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-opacity',
+          json.encode(showAfter(zoom: 15, opacity: [
+            "case",
+            [
+              "==",
+              ["id"],
+              routingPOI.selectedPOI?.id ?? ""
+            ],
+            0,
+            1
+          ])));
+    }
   }
 
   /// Remove the layer from the map controller.
@@ -604,6 +646,9 @@ class SelectedPOILayer {
           break;
         case POIType.airStation:
           iconImage = "airselected";
+          break;
+        case POIType.parking:
+          iconImage = "parkselected";
           break;
         case null:
           break;

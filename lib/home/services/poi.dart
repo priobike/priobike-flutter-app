@@ -15,6 +15,7 @@ enum POIType {
   bikeShop,
   bikeRental,
   airStation,
+  parking,
 }
 
 /// A POI element.

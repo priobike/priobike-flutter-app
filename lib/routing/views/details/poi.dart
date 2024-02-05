@@ -89,11 +89,12 @@ class POIInfoState extends State<POIInfo> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Small(
-              text: routingPOI.selectedPOI!.typeDescription,
-              context: context,
-              textAlign: TextAlign.center,
-            ),
+            if (routingPOI.selectedPOI!.typeDescription != "")
+              Small(
+                text: routingPOI.selectedPOI!.typeDescription,
+                context: context,
+                textAlign: TextAlign.center,
+              ),
             const SizedBox(
               height: 2,
             ),

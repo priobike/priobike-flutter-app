@@ -715,6 +715,35 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         await SelectedPOILayer().install(mapController!, at: index);
         return;
       }
+
+      // Case parking bicycle.
+      if (properties["fclass"] == "parking_bicycle") {
+        // Bike rental poi.
+        double lon = geometry["coordinates"][0];
+        double lat = geometry["coordinates"][1];
+
+        // Reset the old POI from different type.
+        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.bikeRental) resetPOI();
+
+        routingPOI.setPOIElement(
+          POIElement(
+              name: "Fahrradständer",
+              typeDescription: "",
+              lon: lon,
+              lat: lat,
+              type: POIType.parking,
+              id: properties["osm_id"]),
+        );
+        ParkingStationsLayer(isDark).update(mapController!);
+        // Move the camera to the center of the POI.
+        fitCameraToCoordinate(lat, lon);
+        // Replace the POI with a selected version of the POI.
+        final index = await getIndex(SelectedPOILayer.layerId);
+        if (!mounted) return;
+        await SelectedPOILayer().install(mapController!, at: index);
+
+        return;
+      }
     }
 
     // If nothing applies reset the poi.
@@ -868,6 +897,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           "${BikeAirStationLayer.layerId}-text",
           "${RentalStationsLayer.layerId}-click",
           "${RentalStationsLayer.layerId}-text",
+          "${ParkingStationsLayer.layerId}-click",
         ],
       ),
     );
@@ -913,6 +943,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         break;
       case POIType.airStation:
         BikeAirStationLayer(isDark).update(mapController!);
+        break;
+      case POIType.parking:
+        ParkingStationsLayer(isDark).update(mapController!);
         break;
     }
   }

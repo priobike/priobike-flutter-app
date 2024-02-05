@@ -44,6 +44,7 @@ class SymbolLoader {
     await add("constructionlight", "assets/images/construction-light.png", 200, 200);
     await add("parkdark", "assets/images/park-dark.png", 200, 200);
     await add("parklight", "assets/images/park-light.png", 200, 200);
+    await add("parkselected", "assets/images/park-selected.png", 200, 200);
     await add("positiondark", "assets/images/position-dark.png", 400, 400);
     await add("positionlight", "assets/images/position-light.png", 400, 400);
     await add("positionstaticdark", "assets/images/position-static-dark.png", 400, 400);
