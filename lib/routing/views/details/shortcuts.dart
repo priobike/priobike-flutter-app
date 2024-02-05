@@ -21,7 +21,7 @@ class ShortcutsState extends State<ShortcutsRow> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated routing service, which is injected by the provider.
+  /// The associated routing POI service, which is injected by the provider.
   late RoutingPOI routingPOI;
 
   /// The associated shortcuts service, which is injected by the provider.

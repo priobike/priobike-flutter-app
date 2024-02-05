@@ -609,17 +609,26 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     if (id != null) {
       // Route, route label or air station.
+      // Case Route.
       if ((id as String).startsWith("route-")) {
         final routeIdx = int.tryParse(id.split("-")[1]);
         if (routeIdx == null) return;
         routing.switchToRoute(routeIdx);
-      } else if (id.startsWith("routeLabel-")) {
+        return;
+      }
+
+      // Case Route-label.
+      if (id.startsWith("routeLabel-")) {
         final routeLabelIdx = int.tryParse(id.split("-")[1]);
         if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
           return;
         }
         routing.switchToRoute(routeLabelIdx);
-      } else if (id.contains("LUFTSTATION")) {
+        return;
+      }
+
+      // Case Route air station.
+      if (id.contains("LUFTSTATION")) {
         // Air station features contain "LUFTSTATION" in the feature id.
         if (properties == null || geometry == null) return;
 
@@ -641,13 +650,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         final index = await getIndex(SelectedPOILayer.layerId);
         if (!mounted) return;
         await SelectedPOILayer().install(mapController!, at: index);
-
         return;
       }
     }
 
     // Check for bike rental or bike shop if id is not set.
     if (properties != null && geometry != null && properties["fclass"] != null) {
+      // Case bike rental.
       if (properties["fclass"] == "bicycle_rental") {
         // Bike rental poi.
         String name = properties["name"] ?? "Fahrradleihe";
@@ -675,7 +684,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         await SelectedPOILayer().install(mapController!, at: index);
 
         return;
-      } else if (properties["fclass"] == "bicycle_shop") {
+      }
+
+      // Case bike shop.
+      if (properties["fclass"] == "bicycle_shop") {
         // Bike shop poi.
         String name = properties["name"] ?? "Fahrradladen";
         double lon = geometry["coordinates"][0];
@@ -703,6 +715,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         return;
       }
     }
+
+    // If nothing applies reset the poi.
     resetPOI();
   }
 
@@ -873,32 +887,32 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Resets the selected POI element.
   void resetPOI() {
-    // Finally reset the POI selected if nothing applies.
-    if (routingPOI.selectedPOI != null) {
-      // Update layer rules for type.
-      final type = routingPOI.selectedPOI!.type;
+    // Reset the POI selected if nothing applies.
+    if (routingPOI.selectedPOI == null) return;
 
-      // Reset the POI service.
-      routingPOI.reset();
+    // Update layer rules for type.
+    final type = routingPOI.selectedPOI!.type;
 
-      if (!mounted) return;
+    // Reset the POI service.
+    routingPOI.reset();
 
-      // Updates the features.
-      SelectedPOILayer().install(mapController!);
+    if (!mounted) return;
 
-      switch (type) {
-        case null:
-          break;
-        case POIType.bikeShop:
-          BikeShopLayer(isDark).update(mapController!);
-          break;
-        case POIType.bikeRental:
-          RentalStationsLayer(isDark).update(mapController!);
-          break;
-        case POIType.airStation:
-          BikeAirStationLayer(isDark).update(mapController!);
-          break;
-      }
+    // Updates the features.
+    SelectedPOILayer().install(mapController!);
+
+    switch (type) {
+      case null:
+        break;
+      case POIType.bikeShop:
+        BikeShopLayer(isDark).update(mapController!);
+        break;
+      case POIType.bikeRental:
+        RentalStationsLayer(isDark).update(mapController!);
+        break;
+      case POIType.airStation:
+        BikeAirStationLayer(isDark).update(mapController!);
+        break;
     }
   }
 
@@ -1090,6 +1104,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ).toJson(),
     );
 
+    // Set the POI position only if in screen bounds. (Values > 0)
     routingPOI.setPixelCoordinates(position.x > 0 ? position.x : null, position.y > 0 ? position.y : null);
   }
 
