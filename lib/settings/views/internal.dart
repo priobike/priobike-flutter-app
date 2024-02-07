@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -13,6 +14,7 @@ import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
+import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
@@ -66,6 +68,9 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The associated bounding box service, which is injected by the provider.
   late Boundary boundary;
 
+  /// The associated bounding box service, which is injected by the provider.
+  late SpeedSensor speedSensor;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -90,6 +95,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     weather = getIt<Weather>();
     weather.addListener(update);
     boundary = getIt<Boundary>();
+    speedSensor = getIt<SpeedSensor>();
+    speedSensor.addListener(update);
   }
 
   @override
@@ -102,6 +109,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     routing.removeListener(update);
     news.removeListener(update);
     weather.removeListener(update);
+    speedSensor.removeListener(update);
     super.dispose();
   }
 
@@ -229,6 +237,37 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                             callback: onSelectPredictionMode);
                       },
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: BoldContent(
+                    context: context,
+                    text: speedSensor.scanningDevices ? "SCANNING" : "NOT SCANNING",
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: BigButtonPrimary(
+                    label: speedSensor.device?.platformName ?? "init connection",
+                    onPressed: () {
+                      speedSensor.initConnectionToSpeedSensor();
+                      Future.delayed(const Duration(seconds: 3)).then((value) => speedSensor.stopScanningDevices());
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: BigButtonPrimary(
+                    label: speedSensor.connectionState.name,
+                    onPressed: () {
+                      if (speedSensor.connectionState == BluetoothConnectionState.disconnected) {
+                        speedSensor.connectSpeedSensor();
+                      }
+                      if (speedSensor.connectionState == BluetoothConnectionState.connected) {
+                        speedSensor.disconnectSpeedSensor();
+                      }
+                    },
                   ),
                 ),
                 Padding(

@@ -21,6 +21,7 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -99,6 +100,7 @@ Future<void> main() async {
   getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<Simulator>(Simulator());
+  getIt.registerSingleton<SpeedSensor>(SpeedSensor());
   try {
     runApp(const App());
   } on Error catch (error, stack) {
