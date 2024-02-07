@@ -36,9 +36,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated position service, which is injected by the provider.
-  late Positioning positioning;
-
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
@@ -51,8 +48,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
     routing = getIt<Routing>();
     routing.addListener(update);
-    positioning = getIt<Positioning>();
-    positioning.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
   }
@@ -60,7 +55,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   @override
   void dispose() {
     routing.removeListener(update);
-    positioning.removeListener(update);
     status.removeListener(update);
     super.dispose();
   }
@@ -98,6 +92,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     // Add the own location as a start point to the route, if the waypoint selected in the search is the
     // first waypoint of the route. Thus making it the destination of the route.
     if (waypoints.isEmpty) {
+      final positioning = getIt<Positioning>();
       if (positioning.lastPosition != null) {
         waypoints.add(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
       }
@@ -241,32 +236,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     );
   }
 
-  /// Render the start ride button.
-  Widget renderStartRideButton(BuildContext context) {
-    if (routing.selectedRoute == null) return Container();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: BigButtonPrimary(
-        label: "Losfahren",
-        onPressed: widget.onSelectStartButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-      ),
-    );
-  }
-
-  /// Render the save route button.
-  Widget renderSaveRouteButton(BuildContext context) {
-    if (routing.selectedRoute == null) return Container();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-      child: BigButtonSecondary(
-        label: "Strecke speichern",
-        onPressed: widget.onSelectSaveButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -282,7 +251,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
             return Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
               ),
               child: SingleChildScrollView(
@@ -338,7 +307,17 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           left: 0,
           child: Container(
             padding: const EdgeInsets.only(top: 8, bottom: 4),
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
+                  Theme.of(context).colorScheme.surfaceVariant,
+                ],
+                stops: const [0.0, 0.5],
+              ),
+            ),
             width: frame.size.width,
             height: frame.padding.bottom + 48,
             child: Row(
