@@ -116,6 +116,7 @@ class Simulator with ChangeNotifier {
     final double longitude;
     final double latitude;
     final double heading;
+    final double speed;
     final String type;
 
     // if it is the first position, send the starting point of the route
@@ -127,12 +128,14 @@ class Simulator with ChangeNotifier {
       longitude = startingPoint.lon;
       latitude = startingPoint.lat;
       heading = position.heading;
+      speed = position.speed;
       type = 'FirstCoordinate';
     } else {
       if (positioning.lastPosition == null) return;
       longitude = position.longitude;
       latitude = position.latitude;
       heading = position.heading;
+      speed = position.speed;
       type = 'NextCoordinate';
     }
 
@@ -142,6 +145,7 @@ class Simulator with ChangeNotifier {
     json['longitude'] = longitude.toString();
     json['latitude'] = latitude.toString();
     json['bearing'] = heading.toString();
+    json['speed'] = speed.toString();
 
     final String message = jsonEncode(json);
 
