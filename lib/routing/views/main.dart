@@ -315,8 +315,6 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context).size;
-
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
