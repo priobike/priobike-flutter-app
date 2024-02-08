@@ -221,6 +221,7 @@ class RideViewState extends State<RideView> {
     speedSensor.disconnectSpeedSensor();
     speedSensor.stopSpeedCharacteristicListener();
     speedSensor.removeListener(update);
+    speedSensor.reset();
     super.dispose();
   }
 
@@ -344,7 +345,17 @@ class RideViewState extends State<RideView> {
                               ),
                             ),
                           const SmallVSpace(),
-                          Content(context: context, text: speedSensor.statusText)
+                          Content(context: context, text: speedSensor.statusText),
+                          const SmallVSpace(),
+                          if (speedSensor.failure)
+                            BigButtonPrimary(
+                              label: "Erneut versuchen",
+                              onPressed: () {
+                                speedSensor.initConnectionToSpeedSensor();
+                              },
+                              boxConstraints:
+                                  BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                            )
                         ]),
                       ),
                     ),

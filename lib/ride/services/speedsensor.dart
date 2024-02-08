@@ -48,32 +48,44 @@ class SpeedSensor with ChangeNotifier {
   /// Logger for this class.
   final log = Logger("Speed Sensor Service");
 
+  /// The BluetoothDevice
   BluetoothDevice? device;
 
+  /// The bool that holds the state if the sensor is set up.
   bool isSetUp = false;
 
+  /// The bool that holds the state of any loading process.
   bool loading = false;
 
+  /// The bool that holds the state of any failure.
+  bool failure = false;
+
+  /// The scan listener.
   StreamSubscription? _scanListener;
 
-  StreamSubscription? _connectionStateSubscription;
+  /// The connection state listener.
+  StreamSubscription? _connectionStateListener;
 
+  /// The speed characteristic listener.
   StreamSubscription? _speedCharacteristicListener;
 
+  /// The connection state.
   BluetoothConnectionState connectionState = BluetoothConnectionState.disconnected;
 
-  List<BluetoothService> services = [];
-
+  /// The speed characteristic.
   BluetoothCharacteristic? speedCharacteristic;
 
+  /// The current speed.
   double speed = 0;
 
+  /// Probably getting remove...
   int _lastNumberOfRotations = -1;
   List<int> _lastReadings = [];
   bool _ignoredReading = false;
   double _lastRotationsPerSecond = 0;
   DateTime _timeOfLastSpeedUpdate = DateTime.timestamp();
 
+  /// The current status text.
   String statusText = "";
 
   /// tries connecting to speed sensor, if not already connected
@@ -81,6 +93,7 @@ class SpeedSensor with ChangeNotifier {
   Future<void> initConnectionToSpeedSensor() async {
     // Start scanning devices if not connected yet.
     loading = true;
+    failure = false;
     statusText = "Sensor wird gesucht.";
     notifyListeners();
 
@@ -139,6 +152,7 @@ class SpeedSensor with ChangeNotifier {
       _scanListener = null;
       loading = false;
       statusText = "Sensor wurde nicht gefunden.";
+      failure = true;
       notifyListeners();
     }
   }
@@ -170,7 +184,7 @@ class SpeedSensor with ChangeNotifier {
       discoverServicesOfDevice();
     } else {
       statusText = "Sensor konnte nicht verbunden werden";
-      isSetUp = true;
+      failure = true;
       notifyListeners();
     }
   }
@@ -182,11 +196,20 @@ class SpeedSensor with ChangeNotifier {
     await device!.disconnect();
 
     // Cancel connection state listener.
-    _connectionStateSubscription?.cancel();
+    _connectionStateListener?.cancel();
+  }
+
+  void startBluetoothStateListener() {
+    if (device == null) return;
+
+    _connectionStateListener = device!.connectionState.listen((state) {
+      connectionState = state;
+      notifyListeners();
+    });
   }
 
   void stopBluetoothStateListener() {
-    _connectionStateSubscription?.cancel();
+    _connectionStateListener?.cancel();
     notifyListeners();
   }
 
@@ -200,7 +223,7 @@ class SpeedSensor with ChangeNotifier {
     statusText = "Suche nach Speed Service";
     notifyListeners();
 
-    services = await device!.discoverServices();
+    List<BluetoothService> services = await device!.discoverServices();
 
     statusText = "Services werden geprüft";
     notifyListeners();
@@ -327,10 +350,22 @@ class SpeedSensor with ChangeNotifier {
     return speedMetersPerSecond * 3.6;
   }
 
-  /// initializes the bluetooth adapter for the speed sensor
-  /// -> makes sure bluetooth is turned on
-  void turnOnBluetooth() {
-    log.i("check bluetooth");
-    FlutterBluePlus.turnOn();
+  void reset() {
+    device = null;
+    isSetUp = false;
+    loading = false;
+    _scanListener = null;
+    _connectionStateListener = null;
+    _speedCharacteristicListener = null;
+    connectionState = BluetoothConnectionState.disconnected;
+    speedCharacteristic = null;
+    speed = 0;
+    _lastNumberOfRotations = -1;
+    _lastReadings = [];
+    _ignoredReading = false;
+    _lastRotationsPerSecond = 0;
+    _timeOfLastSpeedUpdate = DateTime.timestamp();
+    statusText = "";
+    failure = false;
   }
 }

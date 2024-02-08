@@ -51,6 +51,8 @@
 		<string>Die App benötigt den Standort zur Navigation.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Die App benötigt den Standort zur Navigation.</string>
+		<key>NSBluetoothAlwaysUsageDescription</key>
+		<string>Die App benötigt Bluetooth für den Speedsensor des Simulators.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UIBackgroundModes</key>
