@@ -376,7 +376,7 @@ class RideViewState extends State<RideView> {
                           color: Theme.of(context).colorScheme.background.withOpacity(1),
                         ),
                         child: Center(
-                          child: Content(context: context, text: "Bluetooth anschalten"),
+                          child: BoldContent(context: context, text: "Bluetooth muss anschalten sein!"),
                         ),
                       ),
                     ),

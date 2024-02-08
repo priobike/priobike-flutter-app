@@ -199,6 +199,10 @@ class SpeedSensor with ChangeNotifier {
   void startBluetoothStateListener() {
     _adapterStateListener = FlutterBluePlus.adapterState.listen((state) {
       adapterState = state;
+      if (adapterState == BluetoothAdapterState.off) {
+        isSetUp = false;
+        failure = true;
+      }
       notifyListeners();
     });
   }
