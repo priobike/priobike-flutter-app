@@ -12,6 +12,7 @@ import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/sources/gnss.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
+import 'package:priobike/positioning/sources/sensor.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
@@ -128,6 +129,14 @@ class Positioning with ChangeNotifier {
           [settings.backend.center];
       positionSource = PathMockPositionSource(speed: 40 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (40 km/h).");
+    } else if (settings.positioningMode == PositioningMode.sensor) {
+      final routing = getIt<Routing>();
+      final positions = routing.selectedRoute?.route // Fallback to center location of city.
+              .map((e) => LatLng(e.lat, e.lon))
+              .toList() ??
+          [settings.backend.center];
+      positionSource = SpeedSensorPositioningSource(positions: positions);
+      log.i("Using speed sensor positioning source.");
     } else if (settings.positioningMode == PositioningMode.recordedDresden) {
       positionSource = RecordedMockPositionSource.mockDresden;
       log.i("Using mocked positioning source for Dresden.");
@@ -250,6 +259,9 @@ class Positioning with ChangeNotifier {
     // Currently, this is only supported by the PathMockPositionSource.
     if (positionSource is PathMockPositionSource) {
       (positionSource as PathMockPositionSource).speed = speed;
+    }
+    if (positionSource is SpeedSensorPositioningSource) {
+      (positionSource as SpeedSensorPositioningSource).updateSpeed();
     }
   }
 }

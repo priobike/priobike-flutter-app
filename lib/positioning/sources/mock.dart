@@ -8,9 +8,7 @@ import 'package:geolocator/geolocator.dart';
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/main.dart';
 import 'package:priobike/positioning/sources/interface.dart';
-import 'package:priobike/settings/services/settings.dart';
 
 /// Unwrap a double from a json source safely.
 double checkDouble(dynamic value) {
@@ -327,19 +325,9 @@ class PathMockPositionSource extends PositionSource {
         return;
       }
 
-      final double bearing;
-      final LatLng currentLocation;
-
-      final settings = getIt<Settings>();
-      if (settings.enableSimulatorMode) {
-        // Don't use random values in simulator mode.
-        bearing = vincenty.bearing(from, to);
-        currentLocation = vincenty.offset(from, distanceOnSegment, bearing);
-      } else {
-        final random = Random(); // Simulate GPS inaccuracy.
-        bearing = vincenty.bearing(from, to) - 2.5 + 5 * random.nextDouble(); // [-180°, 180°]
-        currentLocation = vincenty.offset(from, distanceOnSegment - 1 + 2 * random.nextDouble(), bearing);
-      }
+      final random = Random(); // Simulate GPS inaccuracy.
+      final bearing = vincenty.bearing(from, to) - 2.5 + 5 * random.nextDouble(); // [-180°, 180°]
+      final currentLocation = vincenty.offset(from, distanceOnSegment - 1 + 2 * random.nextDouble(), bearing);
       final heading = bearing > 0 ? bearing : 360 + bearing;
 
       lastPosition = Position(
