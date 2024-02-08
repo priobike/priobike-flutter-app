@@ -120,11 +120,9 @@ class RideViewState extends State<RideView> {
           // Send all the signal groups to the simulator, if enabled.
           getIt<Simulator>().sendSignalGroups();
           // Connect to the ble speed sensor.
-          if (speedSensor.connectionState == BluetoothConnectionState.disconnected) {
-            // Open dialog to display process connecting.
-            // Searching the speed sensor.
-            speedSensor.initConnectionToSpeedSensor();
-          }
+          // Searching the speed sensor.
+          speedSensor.initConnectionToSpeedSensor();
+          speedSensor.startBluetoothStateListener();
         }
 
         // Start geolocating. This must only be executed once.
@@ -220,6 +218,7 @@ class RideViewState extends State<RideView> {
     simulator.removeListener(update);
     speedSensor.disconnectSpeedSensor();
     speedSensor.stopSpeedCharacteristicListener();
+    speedSensor.stopBluetoothStateListener();
     speedSensor.removeListener(update);
     speedSensor.reset();
     super.dispose();
@@ -357,6 +356,28 @@ class RideViewState extends State<RideView> {
                                   BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                             )
                         ]),
+                      ),
+                    ),
+                  ),
+                ),
+              if (settings.enableSimulatorMode && speedSensor.adapterState != BluetoothAdapterState.on)
+                Positioned.fill(
+                  child: Center(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        width: orientation == Orientation.portrait
+                            ? MediaQuery.of(context).size.width * 0.8
+                            : MediaQuery.of(context).size.width * 0.6,
+                        height: 200,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(24)),
+                          color: Theme.of(context).colorScheme.background.withOpacity(1),
+                        ),
+                        child: Center(
+                          child: Content(context: context, text: "Bluetooth anschalten"),
+                        ),
                       ),
                     ),
                   ),

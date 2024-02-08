@@ -64,13 +64,13 @@ class SpeedSensor with ChangeNotifier {
   StreamSubscription? _scanListener;
 
   /// The connection state listener.
-  StreamSubscription? _connectionStateListener;
+  StreamSubscription? _adapterStateListener;
 
   /// The speed characteristic listener.
   StreamSubscription? _speedCharacteristicListener;
 
   /// The connection state.
-  BluetoothConnectionState connectionState = BluetoothConnectionState.disconnected;
+  BluetoothAdapterState adapterState = BluetoothAdapterState.unknown;
 
   /// The speed characteristic.
   BluetoothCharacteristic? speedCharacteristic;
@@ -194,23 +194,17 @@ class SpeedSensor with ChangeNotifier {
   Future<void> disconnectSpeedSensor() async {
     if (device == null) return;
     await device!.disconnect();
-
-    // Cancel connection state listener.
-    _connectionStateListener?.cancel();
   }
 
   void startBluetoothStateListener() {
-    if (device == null) return;
-
-    _connectionStateListener = device!.connectionState.listen((state) {
-      connectionState = state;
+    _adapterStateListener = FlutterBluePlus.adapterState.listen((state) {
+      adapterState = state;
       notifyListeners();
     });
   }
 
   void stopBluetoothStateListener() {
-    _connectionStateListener?.cancel();
-    notifyListeners();
+    _adapterStateListener?.cancel();
   }
 
   /// discovers all services of connected device
@@ -354,10 +348,13 @@ class SpeedSensor with ChangeNotifier {
     device = null;
     isSetUp = false;
     loading = false;
+    _scanListener?.cancel();
+    _adapterStateListener?.cancel();
+    _speedCharacteristicListener?.cancel();
     _scanListener = null;
-    _connectionStateListener = null;
+    _adapterStateListener = null;
     _speedCharacteristicListener = null;
-    connectionState = BluetoothConnectionState.disconnected;
+    adapterState = BluetoothAdapterState.unknown;
     speedCharacteristic = null;
     speed = 0;
     _lastNumberOfRotations = -1;
