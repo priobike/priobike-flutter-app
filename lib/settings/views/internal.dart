@@ -243,7 +243,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: BoldContent(
                     context: context,
-                    text: speedSensor.scanningDevices ? "SCANNING" : "NOT SCANNING",
+                    text: speedSensor.loading ? "SCANNING" : "NOT SCANNING",
                   ),
                 ),
                 Padding(

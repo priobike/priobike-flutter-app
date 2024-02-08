@@ -39,12 +39,7 @@ class SettingsElement extends StatelessWidget {
   /// The callback when the element was selected.
   final void Function() callback;
 
-  const SettingsElement(
-      {required this.title,
-      this.subtitle,
-      required this.icon,
-      required this.callback,
-      super.key});
+  const SettingsElement({required this.title, this.subtitle, required this.icon, required this.callback, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +47,7 @@ class SettingsElement extends StatelessWidget {
       padding: const EdgeInsets.only(left: 16),
       child: Tile(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
         fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: callback,
         content: Row(
@@ -65,11 +59,7 @@ class SettingsElement extends StatelessWidget {
                 children: [
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null)
-                    Content(
-                        text: subtitle!,
-                        color: CI.radkulturRed,
-                        context: context),
+                  if (subtitle != null) Content(text: subtitle!, color: CI.radkulturRed, context: context),
                 ],
               ),
             ),
@@ -99,11 +89,7 @@ class SettingsSelection<E> extends StatelessWidget {
   final void Function(E e) callback;
 
   const SettingsSelection(
-      {required this.elements,
-      required this.selected,
-      required this.title,
-      required this.callback,
-      super.key});
+      {required this.elements, required this.selected, required this.title, required this.callback, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -138,9 +124,7 @@ class SettingsSelection<E> extends StatelessWidget {
                   SizedBox(
                     width: 48,
                     height: 48,
-                    child: Icon(elements[index] == selected
-                        ? Icons.check
-                        : Icons.check_box_outline_blank),
+                    child: Icon(elements[index] == selected ? Icons.check : Icons.check_box_outline_blank),
                   ),
                 ],
               ),
@@ -220,8 +204,7 @@ class SettingsViewState extends State<SettingsView> {
   }
 
   /// A callback that is executed when a tracking submission policy is selected.
-  Future<void> onSelectTrackingSubmissionPolicy(
-      TrackingSubmissionPolicy trackingSubmissionPolicy) async {
+  Future<void> onSelectTrackingSubmissionPolicy(TrackingSubmissionPolicy trackingSubmissionPolicy) async {
     // Tell the settings service that we selected the new tracking submission policy.
     await settings.setTrackingSubmissionPolicy(trackingSubmissionPolicy);
     // Tell the tracking service that we selected the new tracking submission policy.
@@ -245,8 +228,7 @@ class SettingsViewState extends State<SettingsView> {
       'body': 'Hallo Priobike-Team,\n\n',
     };
     final query = params.entries
-        .map((MapEntry<String, String> e) =>
-            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .map((MapEntry<String, String> e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
         .join('&');
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
@@ -260,9 +242,7 @@ class SettingsViewState extends State<SettingsView> {
 
   // A callback that is executed when the user wants to switch version.
   void onUserTransfer() {
-    settings.transferUser(settings.backend == Backend.release
-        ? Backend.production
-        : Backend.release);
+    settings.transferUser(settings.backend == Backend.release ? Backend.production : Backend.release);
   }
 
   @override
@@ -282,26 +262,20 @@ class SettingsViewState extends State<SettingsView> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          AppBackButton(
-                              onPressed: () => Navigator.pop(context)),
+                          AppBackButton(onPressed: () => Navigator.pop(context)),
                           const HSpace(),
                           SubHeader(
                               text: "Einstellungen",
                               context: context,
-                              color:
-                                  Theme.of(context).colorScheme.onBackground),
+                              color: Theme.of(context).colorScheme.onBackground),
                         ],
                       ),
                       const SmallVSpace(),
                       Container(
-                        margin: const EdgeInsets.only(
-                            left: 18, top: 12, bottom: 8, right: 18),
+                        margin: const EdgeInsets.only(left: 18, top: 12, bottom: 8, right: 18),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .background
-                              .withOpacity(0.5),
+                          color: Theme.of(context).colorScheme.background.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Row(
@@ -309,8 +283,7 @@ class SettingsViewState extends State<SettingsView> {
                             Content(text: "Version: ", context: context),
                             Flexible(
                               child: BoldContent(
-                                text: feature.gitHead
-                                    .replaceAll("ref: refs/heads/", ""),
+                                text: feature.gitHead.replaceAll("ref: refs/heads/", ""),
                                 context: context,
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -327,8 +300,7 @@ class SettingsViewState extends State<SettingsView> {
                           icon: Icons.code,
                           callback: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => const InternalSettingsView()),
+                              MaterialPageRoute(builder: (_) => const InternalSettingsView()),
                             );
                           },
                         ),
@@ -344,8 +316,7 @@ class SettingsViewState extends State<SettingsView> {
                           child: SettingsElement(
                             title: "Logs senden",
                             icon: Icons.ios_share_rounded,
-                            callback: () => Share.share(Logger.db.join("\n"),
-                                subject: 'Logs für PrioBike'),
+                            callback: () => Share.share(Logger.db.join("\n"), subject: 'Logs für PrioBike'),
                           ),
                         ),
                       ],
@@ -355,35 +326,23 @@ class SettingsViewState extends State<SettingsView> {
                         child: Content(text: "Version", context: context),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 34, top: 8, bottom: 8, right: 24),
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                         child: Text.rich(
                           TextSpan(children: [
                             TextSpan(
                               text: "Du verwendest aktuell die ",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displaySmall!
-                                  .merge(
-                                    const TextStyle(
-                                        fontWeight: FontWeight.normal),
+                              style: Theme.of(context).textTheme.displaySmall!.merge(
+                                    const TextStyle(fontWeight: FontWeight.normal),
                                   ),
                             ),
                             TextSpan(
-                                text: settings.backend == Backend.release
-                                    ? "stabile Version"
-                                    : "Beta-Version",
-                                style:
-                                    Theme.of(context).textTheme.displaySmall!),
+                                text: settings.backend == Backend.release ? "stabile Version" : "Beta-Version",
+                                style: Theme.of(context).textTheme.displaySmall!),
                             TextSpan(
                               text:
                                   " der App. Du hast die Möglichkeit zwischen der stabilen und der Beta-Version zu wechseln. Vorteile der stabilen Version sind die Nutzung stabiler Ampeln und Services.",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displaySmall!
-                                  .merge(
-                                    const TextStyle(
-                                        fontWeight: FontWeight.normal),
+                              style: Theme.of(context).textTheme.displaySmall!.merge(
+                                    const TextStyle(fontWeight: FontWeight.normal),
                                   ),
                             ),
                           ]),
@@ -441,8 +400,7 @@ class SettingsViewState extends State<SettingsView> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 34, top: 8, bottom: 8, right: 24),
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                         child: Small(
                           text:
                               "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell Du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf Deine Umgebung und passe Deine Geschwindigkeit den Verhältnissen an.",
@@ -466,12 +424,9 @@ class SettingsViewState extends State<SettingsView> {
                                 builder: (BuildContext context) {
                                   return SettingsSelection(
                                       elements: TrackingSubmissionPolicy.values,
-                                      selected:
-                                          settings.trackingSubmissionPolicy,
-                                      title: (TrackingSubmissionPolicy e) =>
-                                          e.description,
-                                      callback:
-                                          onSelectTrackingSubmissionPolicy);
+                                      selected: settings.trackingSubmissionPolicy,
+                                      title: (TrackingSubmissionPolicy e) => e.description,
+                                      callback: onSelectTrackingSubmissionPolicy);
                                 },
                               );
                             }),
@@ -479,15 +434,11 @@ class SettingsViewState extends State<SettingsView> {
                       const SmallVSpace(),
                       SettingsElement(
                         title: "Akkuverbrauch reduzieren",
-                        icon: settings.saveBatteryModeEnabled
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        callback: () => settings.setSaveBatteryModeEnabled(
-                            !settings.saveBatteryModeEnabled),
+                        icon: settings.saveBatteryModeEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                        callback: () => settings.setSaveBatteryModeEnabled(!settings.saveBatteryModeEnabled),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 34, top: 8, bottom: 8, right: 24),
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                         child: Small(
                           text:
                               "Hinweis: Wenn aktiviert, wird die Qualität der Kartendarstellung während der Fahrt reduziert.",
@@ -497,15 +448,11 @@ class SettingsViewState extends State<SettingsView> {
                       const VSpace(),
                       SettingsElement(
                         title: "SpeedSensor verwenden",
-                        icon: settings.enableSpeedSensor
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        callback: () => settings
-                            .setSpeedSensor(!settings.enableSpeedSensor),
+                        icon: settings.enableSpeedSensor ? Icons.check_box : Icons.check_box_outline_blank,
+                        callback: () => settings.setSpeedSensor(!settings.enableSpeedSensor),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 34, top: 8, bottom: 8, right: 24),
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                         child: Small(
                           text:
                               "Hinweis: Falls aktiviert, wird der via Bluetooth verbundene SpeedSensor zur Geschwindigkeitsermittlung genutzt",
@@ -518,8 +465,7 @@ class SettingsViewState extends State<SettingsView> {
                         icon: Icons.rate_review_outlined,
                         callback: () {
                           final InAppReview inAppReview = InAppReview.instance;
-                          inAppReview.openStoreListing(
-                              appStoreId: "1634224594");
+                          inAppReview.openStoreListing(appStoreId: "1634224594");
                         },
                       ),
                       const VSpace(),
@@ -535,12 +481,9 @@ class SettingsViewState extends State<SettingsView> {
                       ),
                       const VSpace(),
                       SettingsElement(
-                          title: "Fehler melden",
-                          icon: Icons.report_problem_rounded,
-                          callback: launchMailTo),
+                          title: "Fehler melden", icon: Icons.report_problem_rounded, callback: launchMailTo),
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 34, top: 8, bottom: 8, right: 24),
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                         child: Small(
                           text:
                               "Es öffnet sich das E-Mail-Programm Deines Geräts. Bitte beschreibe die Umstände, unter denen der Fehler aufgetreten ist, so genau wie möglich. Wir werden uns schnellstmöglich um das Problem kümmern. Vielen Dank für die Unterstützung!",
@@ -550,16 +493,14 @@ class SettingsViewState extends State<SettingsView> {
                       const VSpace(),
                       Padding(
                         padding: const EdgeInsets.only(left: 32),
-                        child: Content(
-                            text: "Weitere Informationen", context: context),
+                        child: Content(text: "Weitere Informationen", context: context),
                       ),
                       const VSpace(),
                       SettingsElement(
                         title: "Datenschutz",
                         icon: Icons.info_outline_rounded,
                         callback: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => const PrivacyPolicyView()));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyView()));
                         },
                       ),
                       const SmallVSpace(),
@@ -568,9 +509,7 @@ class SettingsViewState extends State<SettingsView> {
                         icon: Icons.info_outline_rounded,
                         callback: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => LicenseView(
-                                  appName: feature.appName,
-                                  appVersion: feature.appVersion)));
+                              builder: (_) => LicenseView(appName: feature.appName, appVersion: feature.appVersion)));
                         },
                       ),
                       const SmallVSpace(),
@@ -581,8 +520,7 @@ class SettingsViewState extends State<SettingsView> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) {
-                                return const AssetTextView(
-                                    asset: "assets/text/thanks.txt");
+                                return const AssetTextView(asset: "assets/text/thanks.txt");
                               },
                             ),
                           );

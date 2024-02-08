@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
@@ -11,6 +14,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -60,6 +64,9 @@ class RideViewState extends State<RideView> {
   /// The associated simulator service, which is injected by the provider.
   late Simulator simulator;
 
+  /// The associated speed sensor service, which is injected by the provider.
+  late SpeedSensor speedSensor;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {
         if (settings.enableSimulatorMode && simulator.receivedStopRide) stopRide(context);
@@ -73,6 +80,8 @@ class RideViewState extends State<RideView> {
     settings.addListener(update);
     simulator = getIt<Simulator>();
     simulator.addListener(update);
+    speedSensor = getIt<SpeedSensor>();
+    speedSensor.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -100,15 +109,24 @@ class RideViewState extends State<RideView> {
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
 
-        // Send all the signal groups to the simulator, if enabled.
-        if (settings.enableSimulatorMode) getIt<Simulator>().sendSignalGroups();
-
         // Connect the datastream mqtt client, if the user enabled real-time data.
         if (settings.datastreamMode == DatastreamMode.enabled) {
           await datastream.connect();
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
+
+        if (settings.enableSimulatorMode) {
+          // Send all the signal groups to the simulator, if enabled.
+          getIt<Simulator>().sendSignalGroups();
+          // Connect to the ble speed sensor.
+          if (speedSensor.connectionState == BluetoothConnectionState.disconnected) {
+            // Open dialog to display process connecting.
+            // Searching the speed sensor.
+            speedSensor.initConnectionToSpeedSensor();
+          }
+        }
+
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           onNoPermission: () {
@@ -200,6 +218,9 @@ class RideViewState extends State<RideView> {
   void dispose() {
     settings.removeListener(update);
     simulator.removeListener(update);
+    speedSensor.disconnectSpeedSensor();
+    speedSensor.stopSpeedCharacteristicListener();
+    speedSensor.removeListener(update);
     super.dispose();
   }
 
@@ -293,6 +314,39 @@ class RideViewState extends State<RideView> {
                         });
                       },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                    ),
+                  ),
+                ),
+              if (settings.enableSimulatorMode && !speedSensor.isSetUp)
+                Positioned.fill(
+                  child: Center(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        width: orientation == Orientation.portrait
+                            ? MediaQuery.of(context).size.width * 0.8
+                            : MediaQuery.of(context).size.width * 0.6,
+                        height: 200,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(24)),
+                          color: Theme.of(context).colorScheme.background.withOpacity(1),
+                        ),
+                        child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          BoldSubHeader(text: "Verbinde Sensor", context: context),
+                          const VSpace(),
+                          if (speedSensor.loading)
+                            const SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                          const SmallVSpace(),
+                          Content(context: context, text: speedSensor.statusText)
+                        ]),
+                      ),
                     ),
                   ),
                 ),

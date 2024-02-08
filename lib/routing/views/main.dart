@@ -184,8 +184,6 @@ class RoutingViewState extends State<RoutingView> {
             iconColor: Theme.of(context).colorScheme.primary,
             actions: [
               BigButtonPrimary(
-                iconColor: Colors.white,
-                icon: Icons.check_rounded,
                 label: simulator.pairSuccessful ? 'Simulation starten' : 'Okay',
                 onPressed: () async {
                   if (simulator.pairSuccessful) {
@@ -200,10 +198,8 @@ class RoutingViewState extends State<RoutingView> {
                 },
                 boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               ),
-              BigButtonSecondary(
-                iconColor: Colors.white,
-                icon: Icons.check_rounded,
-                label: "Simulator ausschalten",
+              BigButtonTertiary(
+                label: "Abbrechen",
                 onPressed: () {
                   settings.setSimulatorMode(false);
                   Navigator.of(context).pop();

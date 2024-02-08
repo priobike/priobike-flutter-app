@@ -260,8 +260,5 @@ class Positioning with ChangeNotifier {
     if (positionSource is PathMockPositionSource) {
       (positionSource as PathMockPositionSource).speed = speed;
     }
-    if (positionSource is SpeedSensorPositioningSource) {
-      (positionSource as SpeedSensorPositioningSource).updateSpeed();
-    }
   }
 }

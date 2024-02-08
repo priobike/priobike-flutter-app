@@ -249,32 +249,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     );
   }
 
-  /// Render the start ride button.
-  Widget renderStartRideButton(BuildContext context) {
-    if (routing.selectedRoute == null) return Container();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: BigButtonPrimary(
-        label: "Losfahren",
-        onPressed: widget.onSelectStartButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-      ),
-    );
-  }
-
-  /// Render the save route button.
-  Widget renderSaveRouteButton(BuildContext context) {
-    if (routing.selectedRoute == null) return Container();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-      child: BigButtonSecondary(
-        label: "Strecke speichern",
-        onPressed: widget.onSelectSaveButton,
-        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -283,7 +257,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final settings = getIt<Settings>();
     final String labelStartRide;
     if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
-      labelStartRide = "Pair Simulator";
+      labelStartRide = "Pair Sim.";
     } else {
       // If not in simulator mode or pair was successful
       labelStartRide = "Losfahren";

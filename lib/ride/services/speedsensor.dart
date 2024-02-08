@@ -5,6 +5,10 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/sources/interface.dart';
+import 'package:priobike/positioning/sources/sensor.dart';
 
 /*
   the name of the speed sensor was acquired by doing a normal scan for bluetooth devices
@@ -46,7 +50,9 @@ class SpeedSensor with ChangeNotifier {
 
   BluetoothDevice? device;
 
-  bool scanningDevices = false;
+  bool isSetUp = false;
+
+  bool loading = false;
 
   StreamSubscription? _scanListener;
 
@@ -68,21 +74,19 @@ class SpeedSensor with ChangeNotifier {
   double _lastRotationsPerSecond = 0;
   DateTime _timeOfLastSpeedUpdate = DateTime.timestamp();
 
+  String statusText = "";
+
   /// tries connecting to speed sensor, if not already connected
   /// initializes _device, if not already initialized
   Future<void> initConnectionToSpeedSensor() async {
-    // get all bluetooth devices already connected to the system
+    // Start scanning devices if not connected yet.
+    loading = true;
+    statusText = "Sensor wird gesucht.";
+    notifyListeners();
+
+    // get all bluetooth devices already connected to the system. (doesn't  seem to work)
+
     List<BluetoothDevice> connectedDevices = FlutterBluePlus.connectedDevices;
-
-    List<BluetoothDevice> connectedDevices2 = await FlutterBluePlus.systemDevices;
-
-    print("connectedDevices");
-    print(connectedDevices);
-    print("connectedDevices");
-
-    print("connectedDevices2");
-    print(connectedDevices2);
-    print("connectedDevices2");
 
     // search for speed sensor in connected devices
     for (BluetoothDevice bluetoothDevice in connectedDevices) {
@@ -92,18 +96,14 @@ class SpeedSensor with ChangeNotifier {
     // Check device connected.
     if (!(device == null)) {
       log.i("device already connected, yay");
+      statusText = "Sensor gefunden.";
+      notifyListeners();
+      connectSpeedSensor();
       return;
     } else {
       log.i("device not connected yet.");
     }
     log.i("initalizing connected devices");
-
-    // Start scanning devices if not connected yet.
-    scanningDevices = true;
-    notifyListeners();
-
-    // start bluetooth scan
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 3), androidUsesFineLocation: true);
 
     // speed sensor was not in connected devices, so we do a new bluetooth scan
     _scanListener = FlutterBluePlus.scanResults.listen((results) {
@@ -118,18 +118,36 @@ class SpeedSensor with ChangeNotifier {
       if (sensorFound == null) return;
       device = sensorFound.device;
       log.i("found speed sensor!");
+      statusText = "Sensor gefunden.";
       FlutterBluePlus.stopScan();
-      scanningDevices = false;
-
+      loading = false;
       notifyListeners();
+
+      // Next step. Connect to sensor.
+      connectSpeedSensor();
     });
+
+    // start bluetooth scan
+    FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
+
+    // Wait 10 seconds because startScan can't be await.
+    await Future.delayed(const Duration(seconds: 10));
+
+    // Stop listening after scan unsuccessful.
+    if (device == null) {
+      _scanListener?.cancel();
+      _scanListener = null;
+      loading = false;
+      statusText = "Sensor wurde nicht gefunden.";
+      notifyListeners();
+    }
   }
 
   void stopScanningDevices() {
     FlutterBluePlus.stopScan();
     _scanListener?.cancel();
     _scanListener = null;
-    scanningDevices = false;
+    loading = false;
     notifyListeners();
   }
 
@@ -137,13 +155,24 @@ class SpeedSensor with ChangeNotifier {
   /// Note: _device has to be initialized
   Future<void> connectSpeedSensor() async {
     if (device == null) return;
+    loading = true;
+    statusText = "Verbinde Sensor";
+    notifyListeners();
+
     await device!.connect();
 
-    // Start a connection state listener.
-    _connectionStateSubscription = device!.connectionState.listen((state) async {
-      connectionState = state;
+    loading = false;
+    notifyListeners();
+
+    if (device!.isConnected) {
+      statusText = "Sensor verbunden";
       notifyListeners();
-    });
+      discoverServicesOfDevice();
+    } else {
+      statusText = "Sensor konnte nicht verbunden werden";
+      isSetUp = true;
+      notifyListeners();
+    }
   }
 
   /// tries connecting to the speed sensor
@@ -167,7 +196,15 @@ class SpeedSensor with ChangeNotifier {
     if (device == null) return;
     if (!device!.isConnected) return;
 
+    loading = true;
+    statusText = "Suche nach Speed Service";
+    notifyListeners();
+
     services = await device!.discoverServices();
+
+    statusText = "Services werden geprüft";
+    notifyListeners();
+
     log.i("got services successfully");
     log.i(services);
     notifyListeners();
@@ -178,9 +215,20 @@ class SpeedSensor with ChangeNotifier {
         if (bluetoothCharacteristic.uuid.toString().toUpperCase() == _characteristicsUuid) {
           speedCharacteristic = bluetoothCharacteristic;
           notifyListeners();
-          return;
         }
       }
+    }
+
+    loading = false;
+    statusText = speedCharacteristic != null ? "Service gefunden" : "Service nicht gefunden";
+    notifyListeners();
+
+    if (speedCharacteristic != null) {
+      // We finally listen to the speed characteristic and can end the process.
+      startSpeedCharacteristicListener();
+      statusText = "";
+      isSetUp = true;
+      notifyListeners();
     }
   }
 
@@ -188,10 +236,21 @@ class SpeedSensor with ChangeNotifier {
   void startSpeedCharacteristicListener() {
     if (speedCharacteristic == null) return;
 
+    // Enable notifications.
+    speedCharacteristic!.setNotifyValue(true);
     // Listen to last value received.
+
+    Positioning positioning = getIt<Positioning>();
+
     _speedCharacteristicListener = speedCharacteristic!.lastValueStream.listen((value) {
+      log.i(value);
       speed = _calculateSpeed(value);
       log.i(speed);
+      PositionSource? source = positioning.positionSource;
+      if (source != null) {
+        SpeedSensorPositioningSource speedSensorPositioningSource = source as SpeedSensorPositioningSource;
+        speedSensorPositioningSource.updateSpeed(speed);
+      }
       notifyListeners();
     });
   }
@@ -208,6 +267,10 @@ class SpeedSensor with ChangeNotifier {
   double _calculateSpeed(List<int> values) {
     log.i("calculating speed");
     log.i(values);
+
+    // Return 0 if less then 7 elements. [a, b, c, d, e, f, g]
+    if (values.length < 7) return 0;
+
     int rotations = values[1];
 
     // we have to initialize _lastNumberOfRotations when we get the first reading
