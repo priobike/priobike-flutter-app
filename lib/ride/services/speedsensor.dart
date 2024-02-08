@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -43,6 +42,7 @@ const String serviceUuid = "00001816-0000-1000-8000-00805F9B34FB";
 const String _characteristicsUuid = "00002A5B-0000-1000-8000-00805F9B34FB";
 
 const double wheelSizeInch = 28;
+const wheelCircumferenceMeter = math.pi * wheelSizeInch / 39.37;
 
 class SpeedSensor with ChangeNotifier {
   /// Logger for this class.
@@ -75,15 +75,8 @@ class SpeedSensor with ChangeNotifier {
   /// The speed characteristic.
   BluetoothCharacteristic? speedCharacteristic;
 
-  /// The current speed.
-  double speed = 0;
-
   /// Probably getting remove...
-  int _lastNumberOfRotations = -1;
-  List<int> _lastReadings = [];
-  bool _ignoredReading = false;
-  double _lastRotationsPerSecond = 0;
-  DateTime _timeOfLastSpeedUpdate = DateTime.timestamp();
+  int? _lastNumberOfRotations;
 
   /// The current status text.
   String statusText = "";
@@ -264,13 +257,11 @@ class SpeedSensor with ChangeNotifier {
     Positioning positioning = getIt<Positioning>();
 
     _speedCharacteristicListener = speedCharacteristic!.lastValueStream.listen((value) {
-      log.i(value);
-      speed = _calculateSpeed(value);
-      log.i(speed);
+      final drivenDistance = _calculateDrivenDistance(value);
       PositionSource? source = positioning.positionSource;
       if (source != null) {
         SpeedSensorPositioningSource speedSensorPositioningSource = source as SpeedSensorPositioningSource;
-        speedSensorPositioningSource.updateSpeed(speed);
+        speedSensorPositioningSource.addDistance(drivenDistance);
       }
       notifyListeners();
     });
@@ -281,11 +272,11 @@ class SpeedSensor with ChangeNotifier {
     _speedCharacteristicListener?.cancel();
   }
 
-  /// calculates the current speed
+  /// calculates the driven distance since the last update
   /// based on: wheelsize, sensor data
   /// @parameter values (data from the speed characteristic,
   /// the structure of this is described at the start of the class)
-  double _calculateSpeed(List<int> values) {
+  double _calculateDrivenDistance(List<int> values) {
     log.i("calculating speed");
     log.i(values);
 
@@ -295,57 +286,18 @@ class SpeedSensor with ChangeNotifier {
     int rotations = values[1];
 
     // we have to initialize _lastNumberOfRotations when we get the first reading
-    if (_lastNumberOfRotations < 0) {
-      _lastNumberOfRotations = rotations;
-    }
+    _lastNumberOfRotations ??= rotations;
 
-    int rotationDifference = rotations - _lastNumberOfRotations;
+    int rotationDifference = rotations - _lastNumberOfRotations!;
     // we could also check, if value[2] is greater than the last time, but this
     // implementation was done before i noticed that the sensor has a dedicated parameter for this
     if (rotationDifference < 0) {
       rotationDifference = rotationDifference + 255;
     }
 
-    final currentTime = DateTime.timestamp();
-
-    // time passed since the last measurement
-    int timeDifferenceInMilliseconds =
-        currentTime.millisecondsSinceEpoch - _timeOfLastSpeedUpdate.millisecondsSinceEpoch;
-    _timeOfLastSpeedUpdate = currentTime;
-
     _lastNumberOfRotations = rotations;
 
-    //log.i("🔵 rotations: $rotations");
-    //log.i("🟡 rotationDifference: $rotationDifference");
-    //log.i("timeDifference: $timeDifference");
-    //log.i("🟣 lastRotations: $_lastRotations");
-
-    // sometimes the sensor seems to randomly repeat the last readings exactly... so we just ignore it *once*
-    if (!listEquals(values, _lastReadings)) {
-      // reset flag when we get an actual new reading
-      _ignoredReading = false;
-    } else if (!_ignoredReading) {
-      _ignoredReading = true;
-      return speed;
-    }
-
-    _lastReadings = values;
-
-    // exponential smoothing
-    const smoothingFactor = 0.9;
-    double rotationsPerSecond = smoothingFactor * (rotationDifference / timeDifferenceInMilliseconds * 1000) +
-        (1 - smoothingFactor) * _lastRotationsPerSecond;
-    // cut-off to prevent the value from shrinking way too slowly before reaching 0
-    if (rotationsPerSecond < 0.01) {
-      rotationsPerSecond = 0;
-    }
-    _lastRotationsPerSecond = rotationsPerSecond;
-    //log.i("🔴 rotationsPerSecond: $rotationsPerSecond");
-
-    const wheelCircumferenceMeter = math.pi * wheelSizeInch / 39.37;
-    final speedMetersPerSecond = rotationsPerSecond * wheelCircumferenceMeter;
-    // return calculated speed in km/h
-    return speedMetersPerSecond * 3.6;
+    return wheelCircumferenceMeter * rotationDifference;
   }
 
   void reset() {
@@ -360,12 +312,7 @@ class SpeedSensor with ChangeNotifier {
     _speedCharacteristicListener = null;
     adapterState = BluetoothAdapterState.unknown;
     speedCharacteristic = null;
-    speed = 0;
     _lastNumberOfRotations = -1;
-    _lastReadings = [];
-    _ignoredReading = false;
-    _lastRotationsPerSecond = 0;
-    _timeOfLastSpeedUpdate = DateTime.timestamp();
     statusText = "";
     failure = false;
   }

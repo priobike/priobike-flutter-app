@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:geolocator/geolocator.dart';
-
 // l is an alias to not clash with MapBox's dependency.
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
@@ -32,6 +31,9 @@ class SpeedSensorPositioningSource extends PositionSource {
 
   /// The mapped positions.
   List<LatLng>? mappedPositions;
+
+  /// Time of the last distance update.
+  DateTime? lastDistanceUpdate;
 
   final vincenty = const l.Distance();
 
@@ -88,6 +90,7 @@ class SpeedSensorPositioningSource extends PositionSource {
     }
 
     distance = 0;
+    lastDistanceUpdate = DateTime.now();
 
     return streamController!.stream;
   }
@@ -120,13 +123,18 @@ class SpeedSensorPositioningSource extends PositionSource {
   @override
   Future<bool> openLocationSettings() async => true;
 
-  Future<void> updateSpeed(double speed) async {
+  /// Update driven distance.
+  Future<void> addDistance(double drivenDistance) async {
     if (streamController == null) return;
     if (distance == null) return;
     if (dists == null) return;
     if (mappedPositions == null) return;
+    if (lastDistanceUpdate == null) return;
 
-    this.speed = speed;
+    distance = distance! + drivenDistance;
+    final now = DateTime.now();
+    lastDistanceUpdate = now;
+    speed = drivenDistance / now.difference(lastDistanceUpdate!).inSeconds;
 
     // Find the current segment
     l.LatLng? from;
@@ -172,8 +180,6 @@ class SpeedSensorPositioningSource extends PositionSource {
       altitudeAccuracy: 0,
     );
     streamController!.add(lastPosition!);
-
-    distance = distance! + 1 * speed;
   }
 
   /// Stop the geolocation.
