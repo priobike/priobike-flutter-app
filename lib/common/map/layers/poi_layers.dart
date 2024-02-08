@@ -4,9 +4,7 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
-import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/routing_poi.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -16,6 +14,9 @@ class ParkingStationsLayer {
 
   /// The ID of the Mapbox layer.
   static const layerId = "parking-stations-icons";
+
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "parking-stations-click";
 
   /// If the layer should display a dark version of the icons.
   final bool isDark;
@@ -27,7 +28,7 @@ class ParkingStationsLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking_v2.geojson"),
     );
   }
 
@@ -57,13 +58,13 @@ class ParkingStationsLayer {
           ));
     }
 
-    final clickLayerExists = await mapController.style.styleLayerExists("$layerId-click");
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
     if (!clickLayerExists) {
       // Add the icon click layer to prevent clicking the invisible parts of the icon image.
       await mapController.style.addLayerAt(
         mapbox.SymbolLayer(
           sourceId: sourceId,
-          id: "$layerId-click",
+          id: clickLayerId,
           iconImage: "iconclicklayer",
           iconSize: iconSize,
           iconAllowOverlap: true,
@@ -77,26 +78,24 @@ class ParkingStationsLayer {
     }
   }
 
-  /// Update the layer so that the selected POI can be hidden.
-  update(mapbox.MapboxMap mapController) async {
-    final routingPOI = getIt<RoutingPOI>();
-
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (layerExists) {
       // Overwrite icon opacity to hide the unselected icon.
       await mapController.style.setStyleLayerProperty(
           layerId,
-          'icon-opacity',
-          json.encode(showAfter(zoom: 15, opacity: [
+          'icon-image',
+          json.encode([
             "case",
             [
               "==",
-              ["id"],
-              routingPOI.selectedPOI?.id ?? ""
+              ["get", "id"],
+              selectedPOIId ?? ""
             ],
-            0,
-            1
-          ])));
+            "parkselected",
+            isDark ? "parkdark" : "parklight"
+          ]));
     }
   }
 
@@ -116,6 +115,12 @@ class RentalStationsLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "rental-stations-icons";
 
+  /// The ID of the Mapbox text layer.
+  static const textLayerId = "rental-stations-text";
+
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "rental-stations-click";
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
@@ -126,7 +131,7 @@ class RentalStationsLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental_v2.geojson"),
     );
   }
 
@@ -159,13 +164,13 @@ class RentalStationsLayer {
           ));
     }
 
-    final textLayerExists = await mapController.style.styleLayerExists("$layerId-text");
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
     if (!textLayerExists) {
       // Add the text layer separately to prevent clicking invisible text.
       await mapController.style.addLayerAt(
         mapbox.SymbolLayer(
           sourceId: sourceId,
-          id: "$layerId-text",
+          id: textLayerId,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -181,7 +186,7 @@ class RentalStationsLayer {
       );
 
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-offset',
           json.encode(
             [
@@ -190,7 +195,7 @@ class RentalStationsLayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-field',
           json.encode([
             "case",
@@ -198,22 +203,21 @@ class RentalStationsLayer {
             [
               // Concatenate "Ausleihstation" with the name of the station.
               "concat",
-              "Fahrradleihe ",
+              "Ausleihstation ",
               ["get", "name"]
             ],
             "Fahrradleihe "
           ]));
-      await mapController.style
-          .setStyleLayerProperty("$layerId-text", 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(textLayerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
     }
 
-    final clickLayerExists = await mapController.style.styleLayerExists("$layerId-click");
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
     if (!clickLayerExists) {
       // Add the icon click layer to prevent clicking the invisible parts of the icon image.
       await mapController.style.addLayerAt(
         mapbox.SymbolLayer(
           sourceId: sourceId,
-          id: "$layerId-click",
+          id: clickLayerId,
           iconImage: "iconclicklayer",
           iconSize: iconSize,
           iconAllowOverlap: true,
@@ -227,37 +231,35 @@ class RentalStationsLayer {
     }
   }
 
-  /// Update the layer so that the selected POI can be hidden.
-  update(mapbox.MapboxMap mapController) async {
-    final routingPOI = getIt<RoutingPOI>();
-
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (layerExists) {
       // Overwrite icon opacity to hide the unselected icon.
       await mapController.style.setStyleLayerProperty(
           layerId,
-          'icon-opacity',
-          json.encode(showAfter(zoom: 15, opacity: [
+          'icon-image',
+          json.encode([
             "case",
             [
               "==",
-              ["get", "osm_id"],
-              routingPOI.selectedPOI?.id ?? ""
+              ["get", "id"],
+              selectedPOIId ?? ""
             ],
-            0,
-            1
-          ])));
+            "rentselected",
+            isDark ? "rentdark" : "rentlight"
+          ]));
 
       // Overwrite text opacity to hide the unselected icon text.
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-opacity',
           json.encode(showAfter(zoom: 17, opacity: [
             "case",
             [
               "==",
-              ["get", "osm_id"],
-              routingPOI.selectedPOI?.id ?? ""
+              ["get", "id"],
+              selectedPOIId ?? ""
             ],
             0,
             1
@@ -271,13 +273,13 @@ class RentalStationsLayer {
     if (layerExists) {
       await mapController.style.removeStyleLayer(layerId);
     }
-    final textLayerExists = await mapController.style.styleLayerExists("$layerId-text");
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
     if (textLayerExists) {
-      await mapController.style.removeStyleLayer("$layerId-text");
+      await mapController.style.removeStyleLayer(textLayerId);
     }
-    final clickLayerExists = await mapController.style.styleLayerExists("$layerId-click");
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
     if (clickLayerExists) {
-      await mapController.style.removeStyleLayer("$layerId-click");
+      await mapController.style.removeStyleLayer(clickLayerId);
     }
   }
 }
@@ -292,6 +294,12 @@ class BikeShopLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "bike-shop-icons";
 
+  /// The ID of the Mapbox text layer.
+  static const textLayerId = "bike-shop-text";
+
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "bike-shop-click";
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
@@ -302,7 +310,7 @@ class BikeShopLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop_v2.geojson"),
     );
   }
 
@@ -331,7 +339,7 @@ class BikeShopLayer {
       await mapController.style.addLayerAt(
         mapbox.SymbolLayer(
           sourceId: sourceId,
-          id: "$layerId-text",
+          id: textLayerId,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -350,7 +358,7 @@ class BikeShopLayer {
       await mapController.style.addLayerAt(
         mapbox.SymbolLayer(
           sourceId: sourceId,
-          id: "$layerId-click",
+          id: clickLayerId,
           iconImage: "iconclicklayer",
           iconSize: iconSize,
           iconAllowOverlap: true,
@@ -369,7 +377,7 @@ class BikeShopLayer {
             showAfter(zoom: 15),
           ));
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-offset',
           json.encode(
             [
@@ -378,7 +386,7 @@ class BikeShopLayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-field',
           json.encode([
             "case",
@@ -396,42 +404,39 @@ class BikeShopLayer {
             ],
             "Fahrradladen"
           ]));
-      await mapController.style
-          .setStyleLayerProperty("$layerId-text", 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(textLayerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
     }
   }
 
-  /// Update the layer so that the selected POI can be hidden.
-  update(mapbox.MapboxMap mapController) async {
-    final routingPOI = getIt<RoutingPOI>();
-
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (layerExists) {
       // Overwrite icon opacity to hide the unselected icon.
       await mapController.style.setStyleLayerProperty(
           layerId,
-          'icon-opacity',
-          json.encode(showAfter(zoom: 15, opacity: [
+          'icon-image',
+          json.encode([
             "case",
             [
               "==",
-              ["get", "osm_id"],
-              routingPOI.selectedPOI?.id ?? ""
+              ["get", "id"],
+              selectedPOIId ?? ""
             ],
-            0,
-            1
-          ])));
+            "repairselected",
+            isDark ? "repairdark" : "repairlight"
+          ]));
 
       // Overwrite text opacity to hide the unselected icon text.
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-opacity',
           json.encode(showAfter(zoom: 17, opacity: [
             "case",
             [
               "==",
-              ["get", "osm_id"],
-              routingPOI.selectedPOI?.id ?? ""
+              ["get", "id"],
+              selectedPOIId ?? ""
             ],
             0,
             1
@@ -445,13 +450,13 @@ class BikeShopLayer {
     if (layerExists) {
       await mapController.style.removeStyleLayer(layerId);
     }
-    final textLayerExists = await mapController.style.styleLayerExists("$layerId-text");
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
     if (textLayerExists) {
-      await mapController.style.removeStyleLayer("$layerId-text");
+      await mapController.style.removeStyleLayer(textLayerId);
     }
-    final clickLayerExists = await mapController.style.styleLayerExists("$layerId-click");
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
     if (clickLayerExists) {
-      await mapController.style.removeStyleLayer("$layerId-click");
+      await mapController.style.removeStyleLayer(clickLayerId);
     }
   }
 }
@@ -463,6 +468,12 @@ class BikeAirStationLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "bike-air-station-icons";
 
+  /// The ID of the Mapbox text layer.
+  static const textLayerId = "bike-air-station-text";
+
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "bike-air-station-click";
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
@@ -473,7 +484,7 @@ class BikeAirStationLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station_v2.geojson"),
     );
   }
 
@@ -502,7 +513,7 @@ class BikeAirStationLayer {
       await mapController.style.addLayerAt(
         mapbox.SymbolLayer(
           sourceId: sourceId,
-          id: "$layerId-text",
+          id: textLayerId,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -521,7 +532,7 @@ class BikeAirStationLayer {
       await mapController.style.addLayerAt(
         mapbox.SymbolLayer(
           sourceId: sourceId,
-          id: "$layerId-click",
+          id: clickLayerId,
           iconImage: "iconclicklayer",
           iconSize: iconSize,
           iconAllowOverlap: true,
@@ -540,7 +551,7 @@ class BikeAirStationLayer {
             showAfter(zoom: 15),
           ));
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-offset',
           json.encode(
             [
@@ -549,7 +560,7 @@ class BikeAirStationLayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-field',
           json.encode([
             "case",
@@ -562,42 +573,39 @@ class BikeAirStationLayer {
             ],
             "Luftstation"
           ]));
-      await mapController.style
-          .setStyleLayerProperty("$layerId-text", 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(textLayerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
     }
   }
 
-  /// Update the layer so that the selected POI can be hidden.
-  update(mapbox.MapboxMap mapController) async {
-    final routingPOI = getIt<RoutingPOI>();
-
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (layerExists) {
       // Overwrite icon opacity to hide the unselected icon.
       await mapController.style.setStyleLayerProperty(
           layerId,
-          'icon-opacity',
-          json.encode(showAfter(zoom: 15, opacity: [
+          'icon-image',
+          json.encode([
             "case",
             [
               "==",
-              ["id"],
-              routingPOI.selectedPOI?.id ?? ""
+              ["get", "id"],
+              selectedPOIId ?? ""
             ],
-            0,
-            1
-          ])));
+            "airselected",
+            isDark ? "airdark" : "airlight"
+          ]));
 
       // Overwrite text opacity to hide the unselected icon text.
       await mapController.style.setStyleLayerProperty(
-          "$layerId-text",
+          textLayerId,
           'text-opacity',
           json.encode(showAfter(zoom: 17, opacity: [
             "case",
             [
               "==",
-              ["id"],
-              routingPOI.selectedPOI?.id ?? ""
+              ["get", "id"],
+              selectedPOIId ?? ""
             ],
             0,
             1
@@ -611,100 +619,13 @@ class BikeAirStationLayer {
     if (layerExists) {
       await mapController.style.removeStyleLayer(layerId);
     }
-    final textLayerExists = await mapController.style.styleLayerExists("$layerId-text");
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
     if (textLayerExists) {
-      await mapController.style.removeStyleLayer("$layerId-text");
+      await mapController.style.removeStyleLayer(textLayerId);
     }
-    final clickLayerExists = await mapController.style.styleLayerExists("$layerId-click");
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
     if (clickLayerExists) {
-      await mapController.style.removeStyleLayer("$layerId-click");
-    }
-  }
-}
-
-class SelectedPOILayer {
-  /// The features to display.
-  final List<dynamic> features = List.empty(growable: true);
-
-  /// The ID of the Mapbox source.
-  static const sourceId = "selected-poi";
-
-  /// The ID of the Mapbox layer.
-  static const layerId = "selected-poi-icon";
-
-  SelectedPOILayer() {
-    final routingPOI = getIt<RoutingPOI>();
-
-    if (routingPOI.selectedPOI != null) {
-      String iconImage = "";
-      switch (routingPOI.selectedPOI!.type) {
-        case POIType.bikeShop:
-          iconImage = "repairselected";
-          break;
-        case POIType.bikeRental:
-          iconImage = "rentselected";
-          break;
-        case POIType.airStation:
-          iconImage = "airselected";
-          break;
-        case POIType.parking:
-          iconImage = "parkselected";
-          break;
-        case null:
-          break;
-      }
-
-      // Set the feature.
-      features.add(
-        {
-          "type": "Feature",
-          "properties": {
-            "iconImage": iconImage,
-          },
-          "geometry": {
-            "type": "Point",
-            "coordinates": [routingPOI.selectedPOI!.lon, routingPOI.selectedPOI!.lat],
-          }
-        },
-      );
-    }
-  }
-
-  /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.36, at = 0}) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (!sourceExists) {
-      await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
-      );
-    } else {
-      final source = await mapController.style.getSource(sourceId);
-      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
-    }
-
-    final selectedPOILayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!selectedPOILayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.SymbolLayer(
-            sourceId: sourceId,
-            id: layerId,
-            iconSize: iconSize,
-            minZoom: 5.0,
-          ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(
-        layerId,
-        'icon-image',
-        json.encode(["get", "iconImage"]),
-      );
-    }
-  }
-
-  /// Remove the layer from the map controller.
-  static remove(mapbox.MapboxMap mapController) async {
-    final layerExists = await mapController.style.styleLayerExists(layerId);
-    if (layerExists) {
-      await mapController.style.removeStyleLayer(layerId);
+      await mapController.style.removeStyleLayer(clickLayerId);
     }
   }
 }
@@ -726,7 +647,7 @@ class ConstructionSitesLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/construction_sites.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/construction_sites_v2.geojson"),
     );
   }
 

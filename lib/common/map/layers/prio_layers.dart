@@ -24,7 +24,7 @@ class GreenWaveLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/static_green_waves.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/static_green_waves_v2.geojson"),
     );
   }
 
@@ -81,7 +81,7 @@ class VeloRoutesLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/velo_routes.geojson", tolerance: 1),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/velo_routes_v2.geojson", tolerance: 1),
     );
   }
 

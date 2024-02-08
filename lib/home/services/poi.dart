@@ -11,18 +11,8 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-enum POIType {
-  bikeShop,
-  bikeRental,
-  airStation,
-  parking,
-}
-
 /// A POI element.
 class POIElement {
-  /// The optional id of the POI.
-  final String? id;
-
   /// The name of the POI.
   final String name;
 
@@ -38,17 +28,12 @@ class POIElement {
   /// The distance of the user to the POI.
   final double? distance;
 
-  /// The type of the POI.
-  final POIType? type;
-
   POIElement({
     required this.name,
     required this.typeDescription,
     required this.lon,
     required this.lat,
     this.distance,
-    this.type,
-    this.id,
   });
 }
 
@@ -89,7 +74,7 @@ class POI with ChangeNotifier {
   /// Get all rental POI elements.
   Future<void> _fetchRentalData() async {
     try {
-      final data = await _fetchData("/map-data/bicycle_rental.geojson");
+      final data = await _fetchData("/map-data/bicycle_rental_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Fahrradleihe";
@@ -113,7 +98,7 @@ class POI with ChangeNotifier {
   /// Get all bike air POI elements.
   Future<void> _fetchBikeAirData() async {
     try {
-      final data = await _fetchData("/map-data/bike_air_station.geojson");
+      final data = await _fetchData("/map-data/bike_air_station_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Luftstation";
@@ -137,7 +122,7 @@ class POI with ChangeNotifier {
   /// Get all bike repair POI elements.
   Future<void> _fetchRepairData() async {
     try {
-      final data = await _fetchData("/map-data/bicycle_shop.geojson");
+      final data = await _fetchData("/map-data/bicycle_shop_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Fahrradladen";
