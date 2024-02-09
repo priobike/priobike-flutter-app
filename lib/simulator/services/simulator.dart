@@ -35,7 +35,7 @@ class Simulator with ChangeNotifier {
   /// The current state of the next signal group. Used to only send a state if it changed.
   String? currentSGState;
 
-  // The last send signal group id. Used to only send an SG if it changed.
+  /// The last send signal group id. Used to only send an SG if it changed.
   String? currentSGId;
 
   /// The unique key to identify the device in the simulator. Remove the brackets and hash sign.
@@ -46,6 +46,9 @@ class Simulator with ChangeNotifier {
 
   /// If the simulator is paired.
   bool paired = false;
+
+  /// Currently driving?
+  bool driving = false;
 
   /// Positioning service.
   Positioning? positioning;
@@ -66,6 +69,14 @@ class Simulator with ChangeNotifier {
     ride!.addListener(processRideUpdates);
   }
 
+  /// Dispose the simulator.
+  void cleanUp() {
+    disconnectMQTTClient();
+    if (positioning != null) positioning!.removeListener(processPositioningUpdates);
+    if (routing != null) routing!.removeListener(processRoutingUpdates);
+    if (ride != null) ride!.removeListener(processRideUpdates);
+  }
+
   /// Process positioning updates.
   void processPositioningUpdates() {
     if (!ride!.navigationIsActive) return;
@@ -83,7 +94,17 @@ class Simulator with ChangeNotifier {
 
   /// Process ride updates.
   void processRideUpdates() {
-    if (!ride!.navigationIsActive) return;
+    if (!ride!.navigationIsActive) {
+      if (driving) {
+        sendStopRide();
+        driving = false;
+      }
+      return;
+    } else {
+      if (!driving) {
+        driving = true;
+      }
+    }
     sendSignalGroupUpdate();
   }
 
@@ -231,6 +252,7 @@ class Simulator with ChangeNotifier {
       if (paired && json['type'] == 'Unpair') {
         log.i("Unpair received from simulator.");
         paired = false;
+        cleanUp();
         notifyListeners();
       }
     }
@@ -246,6 +268,26 @@ class Simulator with ChangeNotifier {
 
     Map<String, String> json = {};
     json['type'] = 'StopRide';
+    json['deviceID'] = deviceId;
+
+    final String message = jsonEncode(json);
+
+    await _sendViaMQTT(
+      message: message,
+      qualityOfService: qualityOfService,
+    );
+  }
+
+  /// Sends an unpair message to the simulator via MQTT.
+  /// This will be called when the user un-pairs the device from the simulator.
+  /// Format: {"type":"Unpair","deviceID":"5d2b1"}
+  Future<void> sendUnpair() async {
+    if (client == null) await connectMQTTClient();
+
+    const qualityOfService = MqttQos.atLeastOnce;
+
+    Map<String, String> json = {};
+    json['type'] = 'Unpair';
     json['deviceID'] = deviceId;
 
     final String message = jsonEncode(json);
@@ -392,7 +434,6 @@ class Simulator with ChangeNotifier {
   /// Disconnects the MQTT client from the simulator.
   Future<void> disconnectMQTTClient() async {
     if (client != null) {
-      await sendStopRide();
       client!.unsubscribe(topic);
       client!.disconnect();
       client = null;
