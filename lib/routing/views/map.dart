@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
@@ -46,6 +47,9 @@ import 'package:priobike/tutorial/service.dart';
 
 /// The fixed icon size of the cancel button.
 const double cancelButtonIconSize = 50;
+
+/// The value used to calculate the relative space after which the poi pop ups should be fade in or out.
+const double poiScreenMargin = 0.1;
 
 class RoutingMapView extends StatefulWidget {
   const RoutingMapView({super.key});
@@ -149,6 +153,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The state of the POI popup.
   POIPopup? poiPopup;
 
+  /// The relative horizontal padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginLeft;
+
+  /// The relative horizontal padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginRight;
+
+  /// The relative vertical padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginTop;
+
+  /// The relative vertical padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginBottom;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -245,6 +261,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // Calculate the relative padding for the pio pop up.
+      final size = MediaQuery.of(context).size;
+      poiPopUpMarginLeft = size.width * poiScreenMargin;
+      poiPopUpMarginRight = size.width - size.width * poiScreenMargin;
+      poiPopUpMarginTop = size.height * poiScreenMargin;
+      poiPopUpMarginBottom = size.height - size.height * poiScreenMargin;
+    });
   }
 
   @override
@@ -668,7 +693,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   lat: lat,
                 ),
                 screenCoordinateX: position.x,
-                screenCoordinateY: position.y);
+                screenCoordinateY: position.y,
+                poiOpacity: 1);
           });
         }
       }
@@ -1057,9 +1083,27 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ).toJson(),
     );
 
-    setState(() {
-      poiPopup!.updateScreenCoordinates(position.x, position.y);
-    });
+    double x = poiPopup!.screenCoordinateX;
+    double y = poiPopup!.screenCoordinateY;
+    double opacity = poiPopup!.poiOpacity;
+
+    // Only update the position for non negative values to make sure that the pop up doesn't move to the top corner.
+    if (position.x > 0 && position.y > 0) {
+      x = position.x;
+      y = position.y;
+    }
+
+    // Update the poi pop up opacity depending on the position.
+    if (position.x > poiPopUpMarginLeft &&
+        position.x < poiPopUpMarginRight &&
+        position.y > poiPopUpMarginTop &&
+        position.y < poiPopUpMarginBottom) {
+      if (poiPopup!.poiOpacity == 0) opacity = 1;
+    } else {
+      if (poiPopup!.poiOpacity == 1) opacity = 0;
+    }
+
+    setState(() => poiPopup!.updatePopUp(x, y, opacity));
   }
 
   /// A callback that is executed when the camera movement changes.
@@ -1576,7 +1620,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // Subtract half the width of the widget to center it.
             left: poiPopup!.screenCoordinateX - (MediaQuery.of(context).size.width * 0.3),
             top: poiPopup!.screenCoordinateY,
-            child: POIInfoPopup(selectedPOI: poiPopup!.poiElement, onPressed: onPressedPOIPopup),
+            child: AnimatedOpacity(
+              opacity: poiPopup!.poiOpacity,
+              duration: const Duration(milliseconds: 150),
+              child: POIInfoPopup(selectedPOI: poiPopup!.poiElement, onPressed: onPressedPOIPopup),
+            ),
           ),
 
         if (!mapLayersFinishedLoading)

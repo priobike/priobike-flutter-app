@@ -10,14 +10,18 @@ class POIPopup {
   /// The screen coordinate Y.
   double screenCoordinateY;
 
+  double poiOpacity;
+
   POIPopup({
     required this.poiElement,
     required this.screenCoordinateX,
     required this.screenCoordinateY,
+    required this.poiOpacity,
   });
 
-  void updateScreenCoordinates(double x, double y) {
+  void updatePopUp(double x, double y, double opacity) {
     screenCoordinateX = x;
     screenCoordinateY = y;
+    poiOpacity = opacity;
   }
 }
