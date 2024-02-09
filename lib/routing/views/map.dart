@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
@@ -21,10 +22,12 @@ import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/drag_waypoint.dart';
+import 'package:priobike/routing/models/poi_popup.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/screen_edge.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -36,6 +39,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/details/poi_popup.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -43,6 +47,9 @@ import 'package:priobike/tutorial/service.dart';
 
 /// The fixed icon size of the cancel button.
 const double cancelButtonIconSize = 50;
+
+/// The value used to calculate the relative space after which the poi pop ups should be fade in or out.
+const double poiScreenMargin = 0.1;
 
 class RoutingMapView extends StatefulWidget {
   const RoutingMapView({super.key});
@@ -143,6 +150,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The waypoint pixel coordinates
   Map<Waypoint, ScreenCoordinate> waypointPixelCoordinates = {};
 
+  /// The state of the POI popup.
+  POIPopup? poiPopup;
+
+  /// The relative horizontal padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginLeft;
+
+  /// The relative horizontal padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginRight;
+
+  /// The relative vertical padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginTop;
+
+  /// The relative vertical padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginBottom;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -160,9 +182,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     ConstructionSitesLayer.layerId,
     GreenWaveLayer.layerId,
     BikeShopLayer.layerId,
+    BikeShopLayer.textLayerId,
+    BikeShopLayer.clickLayerId,
     BikeAirStationLayer.layerId,
+    BikeAirStationLayer.textLayerId,
+    BikeAirStationLayer.clickLayerId,
     ParkingStationsLayer.layerId,
+    ParkingStationsLayer.clickLayerId,
     RentalStationsLayer.layerId,
+    RentalStationsLayer.textLayerId,
+    RentalStationsLayer.clickLayerId,
     userLocationLayerId,
     RouteLabelLayer.layerId,
   ];
@@ -170,6 +199,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Returns the index where the layer should be added in the Mapbox layer stack.
   Future<int> getIndex(String layerId) async {
     final currentLayers = await mapController!.style.getStyleLayers();
+
     // Place the route label layer on top of all other layers.
     if (layerId == RouteLabelLayer.layerId) {
       return currentLayers.length - 1;
@@ -231,6 +261,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // Calculate the relative padding for the pio pop up.
+      final size = MediaQuery.of(context).size;
+      poiPopUpMarginLeft = size.width * poiScreenMargin;
+      poiPopUpMarginRight = size.width - size.width * poiScreenMargin;
+      poiPopUpMarginTop = size.height * poiScreenMargin;
+      poiPopUpMarginBottom = size.height - size.height * poiScreenMargin;
+    });
   }
 
   @override
@@ -268,6 +307,35 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             coordinates: Position(
               positioning.lastPosition!.longitude,
               positioning.lastPosition!.latitude,
+            ),
+          ).toJson(),
+          padding: padding),
+      MapAnimationOptions(duration: duration),
+    );
+  }
+
+  /// Fit the camera to the given position.
+  fitCameraToCoordinate(double lat, double lon) async {
+    if (mapController == null || !mounted) return;
+    // Animation duration.
+    const duration = 1000;
+    final frame = MediaQuery.of(context);
+    MbxEdgeInsets padding = MbxEdgeInsets(
+      // (AppBackButton height + top padding)
+      top: (80 + frame.padding.top),
+      // AppBackButton width
+      left: 0,
+      // (BottomSheet + bottom padding)
+      bottom: (146 + frame.padding.bottom),
+      right: 0,
+    );
+
+    await mapController?.flyTo(
+      CameraOptions(
+          center: Point(
+            coordinates: Position(
+              lon,
+              lat,
             ),
           ).toJson(),
           padding: padding),
@@ -371,7 +439,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Load the map features.
+
     if (layers.showAirStations) {
       final index = await getIndex(BikeAirStationLayer.layerId);
       if (!mounted) return;
@@ -555,16 +623,81 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onFeatureTapped(QueriedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
     final id = queriedFeature.feature['id'];
-    if ((id as String).startsWith("route-")) {
-      final routeIdx = int.tryParse(id.split("-")[1]);
-      if (routeIdx == null) return;
-      routing.switchToRoute(routeIdx);
-    } else if (id.startsWith("routeLabel-")) {
-      final routeLabelIdx = int.tryParse(id.split("-")[1]);
-      if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
+
+    if (id != null) {
+      // Case Route or Route label.
+      if ((id as String).startsWith("route-") || id.startsWith("routeLabel-")) {
+        final routeIdx = int.tryParse(id.split("-")[1]);
+        if (routeIdx == null || (routing.selectedRoute != null && routeIdx == routing.selectedRoute!.id)) return;
+        routing.switchToRoute(routeIdx);
         return;
       }
-      routing.switchToRoute(routeLabelIdx);
+    }
+
+    Map? properties = queriedFeature.feature["properties"] as Map?;
+    if (properties != null) {
+      if (properties.containsKey("id")) {
+        final propertiesId = properties["id"];
+        // Case POIs.
+        if (propertiesId.contains("bike_air_station") ||
+            propertiesId.contains("bicycle_shop") ||
+            propertiesId.contains("bicycle_rental") ||
+            propertiesId.contains("bicycle_parking")) {
+          if (mapController == null) return;
+          Map? geometry = queriedFeature.feature["geometry"] as Map?;
+          if (geometry == null) return;
+          double lon = geometry["coordinates"][0];
+          double lat = geometry["coordinates"][1];
+
+          var name = "";
+          final type = propertiesId.split("-")[0];
+          switch (type) {
+            case "bike_air_station":
+              name = "Luftstation${properties.containsKey("anmerkungen") ? " ${properties["anmerkungen"]}" : ""}";
+              BikeAirStationLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            case "bicycle_shop":
+              name = properties.containsKey("name") ? properties["name"] : "Fahrradladen";
+              BikeShopLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            case "bicycle_rental":
+              name = "Ausleihstation${properties.containsKey("name") ? " ${properties["name"]}" : ""}";
+              RentalStationsLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            case "bicycle_parking":
+              name = "Fahrradständer";
+              ParkingStationsLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            default:
+              return;
+          }
+
+          // Move the camera to the center of the POI.
+          fitCameraToCoordinate(lat, lon);
+
+          final position = await mapController!.pixelForCoordinate(
+            Point(
+              coordinates: Position(
+                lon,
+                lat,
+              ),
+            ).toJson(),
+          );
+
+          setState(() {
+            poiPopup = POIPopup(
+                poiElement: POIElement(
+                  name: name,
+                  typeDescription: type,
+                  lon: lon,
+                  lat: lat,
+                ),
+                screenCoordinateX: position.x,
+                screenCoordinateY: position.y,
+                poiOpacity: 1);
+          });
+        }
+      }
     }
   }
 
@@ -687,6 +820,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
 
+    if (poiPopup != null) {
+      await resetPOISelection();
+    }
+
     // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
     // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
     // fixed in an upcoming version we need to remove this conversion.
@@ -705,7 +842,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: [AllRoutesLayer.layerIdClick, RouteLabelLayer.layerId],
+        layerIds: [
+          AllRoutesLayer.layerIdClick,
+          RouteLabelLayer.layerId,
+          BikeShopLayer.clickLayerId,
+          BikeShopLayer.textLayerId,
+          BikeAirStationLayer.clickLayerId,
+          BikeAirStationLayer.textLayerId,
+          RentalStationsLayer.clickLayerId,
+          RentalStationsLayer.textLayerId,
+          ParkingStationsLayer.clickLayerId,
+        ],
       ),
     );
 
@@ -718,7 +865,34 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         return;
       }
       onFeatureTapped(features[0]!);
+      return;
     }
+  }
+
+  /// Resets the current POI selection.
+  Future<void> resetPOISelection() async {
+    if (mapController == null || !mounted) return;
+    if (poiPopup == null) return;
+    switch (poiPopup!.poiElement.typeDescription) {
+      case "bike_air_station":
+        BikeAirStationLayer(isDark).toggleSelect(mapController!);
+        break;
+      case "bicycle_shop":
+        BikeShopLayer(isDark).toggleSelect(mapController!);
+        break;
+      case "bicycle_rental":
+        RentalStationsLayer(isDark).toggleSelect(mapController!);
+        break;
+      case "bicycle_parking":
+        ParkingStationsLayer(isDark).toggleSelect(mapController!);
+        break;
+      default:
+        return;
+    }
+
+    setState(() {
+      poiPopup = null;
+    });
   }
 
   /// A callback that is executed when the map was longclicked.
@@ -895,6 +1069,43 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Updates the bearing and centering button.
+  Future<void> updatePOIPopupScreenPosition() async {
+    if (mapController == null) return;
+    if (poiPopup == null) return;
+
+    final position = await mapController!.pixelForCoordinate(
+      Point(
+        coordinates: Position(
+          poiPopup!.poiElement.lon,
+          poiPopup!.poiElement.lat,
+        ),
+      ).toJson(),
+    );
+
+    double x = poiPopup!.screenCoordinateX;
+    double y = poiPopup!.screenCoordinateY;
+    double opacity = poiPopup!.poiOpacity;
+
+    // Only update the position for non negative values to make sure that the pop up doesn't move to the top corner.
+    if (position.x > 0 && position.y > 0) {
+      x = position.x;
+      y = position.y;
+    }
+
+    // Update the poi pop up opacity depending on the position.
+    if (position.x > poiPopUpMarginLeft &&
+        position.x < poiPopUpMarginRight &&
+        position.y > poiPopUpMarginTop &&
+        position.y < poiPopUpMarginBottom) {
+      if (poiPopup!.poiOpacity == 0) opacity = 1;
+    } else {
+      if (poiPopup!.poiOpacity == 1) opacity = 0;
+    }
+
+    setState(() => poiPopup!.updatePopUp(x, y, opacity));
+  }
+
   /// A callback that is executed when the camera movement changes.
   Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
     if (mapController == null) return;
@@ -902,6 +1113,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     updateBearingAndCenteringButtons();
 
     updateWaypointPixelCoordinates();
+
+    updatePOIPopupScreenPosition();
 
     routeLabelLock.run(() {
       updateRouteLabels();
@@ -1107,6 +1320,28 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return false;
   }
 
+  /// The callback that is executed when the POI gets selected in the popup.
+  Future<void> onPressedPOIPopup() async {
+    if (poiPopup == null) return;
+    // Add POI to routing and fetch route.
+    final waypoint = Waypoint(poiPopup!.poiElement.lat, poiPopup!.poiElement.lon, address: poiPopup!.poiElement.name);
+    final waypoints = routing.selectedWaypoints ?? [];
+
+    // Add the own location as a start point to the route, if the waypoint selected in the search is the
+    // first waypoint of the route. Thus making it the destination of the route.
+    if (waypoints.isEmpty) {
+      if (positioning.lastPosition != null) {
+        waypoints.add(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
+      }
+    }
+    final newWaypoints = [...waypoints, waypoint];
+
+    routing.selectWaypoints(newWaypoints);
+    routing.loadRoutes();
+
+    resetPOISelection();
+  }
+
   /// Reset variables for dragging
   void _resetDragging() {
     dragPosition = null;
@@ -1117,6 +1352,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     currentScreenEdge = ScreenEdge.none;
     highlightCancelButton = false;
   }
+
+  /// Set POI popup.
+  Future<void> setPOIPopup() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -1374,6 +1612,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 ),
               ),
             ],
+          ),
+
+        if (poiPopup != null)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 150),
+            // Subtract half the width of the widget to center it.
+            left: poiPopup!.screenCoordinateX - (MediaQuery.of(context).size.width * 0.3),
+            top: poiPopup!.screenCoordinateY,
+            child: AnimatedOpacity(
+              opacity: poiPopup!.poiOpacity,
+              duration: const Duration(milliseconds: 150),
+              child: POIInfoPopup(selectedPOI: poiPopup!.poiElement, onPressed: onPressedPOIPopup),
+            ),
           ),
 
         if (!mapLayersFinishedLoading)

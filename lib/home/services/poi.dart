@@ -74,7 +74,7 @@ class POI with ChangeNotifier {
   /// Get all rental POI elements.
   Future<void> _fetchRentalData() async {
     try {
-      final data = await _fetchData("/map-data/bicycle_rental.geojson");
+      final data = await _fetchData("/map-data/bicycle_rental_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Fahrradleihe";
@@ -98,7 +98,7 @@ class POI with ChangeNotifier {
   /// Get all bike air POI elements.
   Future<void> _fetchBikeAirData() async {
     try {
-      final data = await _fetchData("/map-data/bike_air_station.geojson");
+      final data = await _fetchData("/map-data/bike_air_station_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Luftstation";
@@ -122,7 +122,7 @@ class POI with ChangeNotifier {
   /// Get all bike repair POI elements.
   Future<void> _fetchRepairData() async {
     try {
-      final data = await _fetchData("/map-data/bicycle_shop.geojson");
+      final data = await _fetchData("/map-data/bicycle_shop_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Fahrradladen";

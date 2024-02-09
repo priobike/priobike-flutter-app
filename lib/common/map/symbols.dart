@@ -36,20 +36,25 @@ class SymbolLoader {
     await add("destination", "assets/images/destination.drawio.png", 84, 84);
     await add("waypoint", "assets/images/waypoint.drawio.png", 84, 84);
 
+    await add("iconclicklayer", "assets/images/icon-click-layer.png", 75, 98);
     await add("airdark", "assets/images/air-dark.png", 200, 200);
     await add("airlight", "assets/images/air-light.png", 200, 200);
+    await add("airselected", "assets/images/air-selected.png", 200, 200);
     await add("constructiondark", "assets/images/construction-dark.png", 200, 200);
     await add("constructionlight", "assets/images/construction-light.png", 200, 200);
     await add("parkdark", "assets/images/park-dark.png", 200, 200);
     await add("parklight", "assets/images/park-light.png", 200, 200);
+    await add("parkselected", "assets/images/park-selected.png", 200, 200);
     await add("positiondark", "assets/images/position-dark.png", 400, 400);
     await add("positionlight", "assets/images/position-light.png", 400, 400);
     await add("positionstaticdark", "assets/images/position-static-dark.png", 400, 400);
     await add("positionstaticlight", "assets/images/position-static-light.png", 400, 400);
     await add("rentdark", "assets/images/rent-dark.png", 200, 200);
     await add("rentlight", "assets/images/rent-light.png", 200, 200);
+    await add("rentselected", "assets/images/rent-selected.png", 200, 200);
     await add("repairdark", "assets/images/repair-dark.png", 200, 200);
     await add("repairlight", "assets/images/repair-light.png", 200, 200);
+    await add("repairselected", "assets/images/repair-selected.png", 200, 200);
     await add("accidentdark", "assets/images/accident-dark.png", 200, 200);
     await add("accidentlight", "assets/images/accident-light.png", 200, 200);
     await add("greenwavedark", "assets/images/green-wave-dark.png", 200, 200);
