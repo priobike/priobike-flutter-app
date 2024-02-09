@@ -13,8 +13,6 @@ import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
-import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -44,9 +42,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
-  /// The associated simulator service, which is injected by the provider.
-  late Simulator simulator;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -60,8 +55,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     positioning.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
-    simulator = getIt<Simulator>();
-    simulator.addListener(update);
   }
 
   @override
@@ -69,7 +62,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.removeListener(update);
     positioning.removeListener(update);
     status.removeListener(update);
-    simulator.removeListener(update);
     super.dispose();
   }
 
@@ -253,16 +245,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
 
-    final simulator = getIt<Simulator>();
-    final settings = getIt<Settings>();
-    final String labelStartRide;
-    if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
-      labelStartRide = "Pair Sim.";
-    } else {
-      // If not in simulator mode or pair was successful
-      labelStartRide = "Losfahren";
-    }
-
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: Stack(children: [
@@ -350,7 +332,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 const SmallHSpace(),
                 Expanded(
                   child: BigButtonPrimary(
-                    label: labelStartRide,
+                    label: "Losfahren",
                     onPressed:
                         routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectStartButton,
                     addPadding: false,

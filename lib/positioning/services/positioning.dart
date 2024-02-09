@@ -18,7 +18,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 
 class Positioning with ChangeNotifier {
   final log = Logger("Positioning");
@@ -217,13 +216,6 @@ class Positioning with ChangeNotifier {
         if (!isGeolocating) return;
         lastPosition = position;
 
-        // Send the position to the simulator, if enabled.
-        final Simulator simulator = getIt<Simulator>();
-        final Settings settings = getIt<Settings>();
-        if (settings.enableSimulatorMode && !simulator.receivedStopRide) {
-          simulator.sendCurrentPosition(isFirstPosition: false);
-        }
-
         positions.add(position);
         // Snap the position to the route.
         if (route != null && route!.route.length > 2) {
@@ -247,8 +239,6 @@ class Positioning with ChangeNotifier {
     positionSource = null;
     log.i('Geolocator stopped!');
     isGeolocating = false;
-    final Settings settings = getIt<Settings>();
-    if (settings.enableSimulatorMode) await getIt<Simulator>().disconnectMQTTClient();
   }
 
   /// Set the current speed to a selected value.

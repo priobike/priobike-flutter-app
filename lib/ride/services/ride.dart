@@ -16,7 +16,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -357,13 +356,5 @@ class Ride with ChangeNotifier {
     calcDistanceToNextSG = null;
     shortcutId = null;
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    super.notifyListeners();
-
-    // Send a signal group update to the simulator if enabled.
-    if (getIt<Settings>().enableSimulatorMode) getIt<Simulator>().sendSignalGroupUpdate();
   }
 }

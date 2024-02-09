@@ -15,8 +15,8 @@ import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
-import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/shadow.dart';
+import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -114,19 +114,14 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     });
 
     positioning = getIt<Positioning>();
-
+    positioning.addListener(updateSpeedometer);
     routing = getIt<Routing>();
     routing.addListener(updateLayout);
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
 
-    maxSpeed = getIt<Settings>().speedMode.maxSpeed;
-    if (!getIt<Settings>().enableSpeedSensor) {
-      positioning.addListener(updateSpeedometer);
-    } else {
-      loadGauge(ride);
-    }
-    //updateSpeedometer();
+    updateSpeedometer();
+
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -141,9 +136,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   @override
   void dispose() {
     speedAnimationController.dispose();
-    if (!getIt<Settings>().enableSpeedSensor) {
-      positioning.removeListener(updateSpeedometer);
-    }
+    positioning.removeListener(updateSpeedometer);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
     WidgetsBinding.instance.removeObserver(this);
@@ -158,10 +151,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
         overlays: [SystemUiOverlay.top],
       );
     }
-  }
-
-  double getSpeed() {
-    return minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
   }
 
   /// Load the gauge colors and steps, from the predictor.
@@ -245,7 +234,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   @override
   Widget build(BuildContext context) {
-    //updateSpeedometerViaSpeedSensor();
+    final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
 
     final remainingDistance =
         (((ride.route?.path.distance ?? 0.0) - (positioning.snap?.distanceOnRoute ?? 0.0)) / 1000).abs();
@@ -399,7 +388,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                             maxSpeed: maxSpeed,
                             isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
                             // Scale the animation pct between minSpeed and maxSpeed
-                            speed: getSpeed(),
+                            speed: speedkmh,
                           ),
                         ),
                       ),
@@ -418,7 +407,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
-                          '${getSpeed().toStringAsFixed(0)} km/h',
+                          '${speedkmh.toStringAsFixed(0)} km/h',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 28,

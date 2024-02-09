@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/dialog.dart';
-import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
@@ -14,7 +10,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -23,7 +18,6 @@ import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -58,19 +52,8 @@ class RideViewState extends State<RideView> {
   /// A bool indicating whether the camera should follow the user location.
   bool cameraFollowsUserLocation = true;
 
-  /// The finish ride button.
-  late FinishRideButton finishRideButton;
-
-  /// The associated simulator service, which is injected by the provider.
-  late Simulator simulator;
-
-  /// The associated speed sensor service, which is injected by the provider.
-  late SpeedSensor speedSensor;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {
-        if (settings.enableSimulatorMode && simulator.receivedStopRide) stopRide(context);
-      });
+  void update() => setState(() {});
 
   @override
   void initState() {
@@ -78,10 +61,6 @@ class RideViewState extends State<RideView> {
 
     settings = getIt<Settings>();
     settings.addListener(update);
-    simulator = getIt<Simulator>();
-    simulator.addListener(update);
-    speedSensor = getIt<SpeedSensor>();
-    speedSensor.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -114,15 +93,6 @@ class RideViewState extends State<RideView> {
           await datastream.connect();
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
-        }
-
-        if (settings.enableSimulatorMode) {
-          // Send all the signal groups to the simulator, if enabled.
-          getIt<Simulator>().sendSignalGroups();
-          // Connect to the ble speed sensor.
-          // Searching the speed sensor.
-          speedSensor.initConnectionToSpeedSensor();
-          speedSensor.startBluetoothStateListener();
         }
 
         // Start geolocating. This must only be executed once.
@@ -175,34 +145,6 @@ class RideViewState extends State<RideView> {
     );
   }
 
-  Future<void> stopRide(context) async {
-    if (settings.enableSimulatorMode == false) return;
-    await showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.4),
-      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        return DialogLayout(
-          title: 'Fahrt beendet',
-          text: "Der Simulator hat die Fahrt beendet.",
-          iconColor: CI.radkulturYellow,
-          actions: [
-            BigButtonPrimary(
-              icon: Icons.home_rounded,
-              label: "Okay",
-              onPressed: () async {
-                Navigator.of(context).pop();
-              },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-            ),
-          ],
-        );
-      },
-    );
-    await finishRideButton.endRide(context);
-  }
-
   /// Called when the user moves the map.
   Future<void> onMapMoved() async {
     if (cameraFollowsUserLocation) {
@@ -215,12 +157,6 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
-    simulator.removeListener(update);
-    speedSensor.disconnectSpeedSensor();
-    speedSensor.stopSpeedCharacteristicListener();
-    speedSensor.stopBluetoothStateListener();
-    speedSensor.removeListener(update);
-    speedSensor.reset();
     super.dispose();
   }
 
@@ -255,8 +191,6 @@ class RideViewState extends State<RideView> {
       paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.42);
       positionSpeedometerRight = 6.0;
     }
-
-    finishRideButton = FinishRideButton();
 
     return PopScope(
       onPopInvoked: (type) async => false,
@@ -297,7 +231,7 @@ class RideViewState extends State<RideView> {
                 child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               ),
               if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
-              finishRideButton,
+              FinishRideButton(),
               if (!cameraFollowsUserLocation)
                 SafeArea(
                   bottom: true,
@@ -314,71 +248,6 @@ class RideViewState extends State<RideView> {
                         });
                       },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
-                    ),
-                  ),
-                ),
-              if (settings.enableSimulatorMode && !speedSensor.isSetUp)
-                Positioned.fill(
-                  child: Center(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Container(
-                        width: orientation == Orientation.portrait
-                            ? MediaQuery.of(context).size.width * 0.8
-                            : MediaQuery.of(context).size.width * 0.6,
-                        height: 200,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(Radius.circular(24)),
-                          color: Theme.of(context).colorScheme.background.withOpacity(1),
-                        ),
-                        child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          BoldSubHeader(text: "Verbinde Sensor", context: context),
-                          const VSpace(),
-                          if (speedSensor.loading)
-                            const SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            ),
-                          const SmallVSpace(),
-                          Content(context: context, text: speedSensor.statusText),
-                          const SmallVSpace(),
-                          if (speedSensor.failure)
-                            BigButtonPrimary(
-                              label: "Erneut versuchen",
-                              onPressed: () {
-                                speedSensor.initConnectionToSpeedSensor();
-                              },
-                              boxConstraints:
-                                  BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                            )
-                        ]),
-                      ),
-                    ),
-                  ),
-                ),
-              if (settings.enableSimulatorMode && speedSensor.adapterState != BluetoothAdapterState.on)
-                Positioned.fill(
-                  child: Center(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Container(
-                        width: orientation == Orientation.portrait
-                            ? MediaQuery.of(context).size.width * 0.8
-                            : MediaQuery.of(context).size.width * 0.6,
-                        height: 200,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(Radius.circular(24)),
-                          color: Theme.of(context).colorScheme.background.withOpacity(1),
-                        ),
-                        child: Center(
-                          child: BoldContent(context: context, text: "Bluetooth muss anschalten sein!"),
-                        ),
-                      ),
                     ),
                   ),
                 ),

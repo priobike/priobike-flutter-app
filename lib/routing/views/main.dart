@@ -29,7 +29,6 @@ import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 
 class RoutingView extends StatefulWidget {
   const RoutingView({super.key});
@@ -62,9 +61,6 @@ class RoutingViewState extends State<RoutingView> {
 
   /// The timer that updates the location puck position on the map.
   Timer? timer;
-
-  /// The associated simulator service, which is injected by the provider.
-  late Simulator simulator;
 
   /// The threshold for the location accuracy in meter
   /// NOTE: The accuracy will increase if we move and gain more GPS signal data.
@@ -127,8 +123,6 @@ class RoutingViewState extends State<RoutingView> {
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
-    simulator = getIt<Simulator>();
-    simulator.addListener(update);
   }
 
   @override
@@ -139,7 +133,6 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.removeListener(update);
     layers.removeListener(update);
     timer?.cancel();
-    simulator.removeListener(update);
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
@@ -165,60 +158,7 @@ class RoutingViewState extends State<RoutingView> {
     }
 
     final settings = getIt<Settings>();
-    final simulator = getIt<Simulator>();
-
-    // If simulator mode is enabled, we need to pair with the simulator before we can start the ride.
-    if (settings.enableSimulatorMode && !simulator.pairSuccessful) {
-      simulator.sendReadyPairRequest();
-      showGeneralDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-        barrierColor: Colors.black.withOpacity(0.4),
-        pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-          return DialogLayout(
-            title: 'Hinweis',
-            text:
-                """Du hast den Simulator aktiviert.\n\nBestätige die Verbindung beim Simulator, um die Fahrt zu beginnen oder deaktiviere den Simulator.\n\nDevice ID: ${simulator.deviceId}""",
-            icon: Icons.info_rounded,
-            iconColor: Theme.of(context).colorScheme.primary,
-            actions: [
-              BigButtonPrimary(
-                label: simulator.pairSuccessful ? 'Simulation starten' : 'Okay',
-                onPressed: () async {
-                  if (simulator.pairSuccessful) {
-                    if (simulator.receivedStopRide) return;
-                    if (routing!.selectedRoute == null) return;
-                    await simulator.sendRouteData();
-                    startRide();
-                  } else {
-                    Navigator.of(context).pop();
-                    return;
-                  }
-                },
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-              ),
-              BigButtonTertiary(
-                label: "Abbrechen",
-                onPressed: () {
-                  settings.setSimulatorMode(false);
-                  Navigator.of(context).pop();
-                  setState(() {});
-                },
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
-
-    // if on simulator mode, skip warning
-    if (settings.enableSimulatorMode) {
-      await simulator.sendRouteData();
-      startRide();
-    } else if (settings.didViewWarning) {
+    if (settings.didViewWarning) {
       startRide();
     } else {
       showGeneralDialog(
