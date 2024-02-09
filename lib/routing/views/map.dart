@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
@@ -26,6 +27,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/drag_waypoint.dart';
+import 'package:priobike/routing/models/poi_popup.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/screen_edge.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -37,7 +39,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/services/routing_poi.dart';
+import 'package:priobike/routing/views/details/poi_popup.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -45,6 +47,9 @@ import 'package:priobike/tutorial/service.dart';
 
 /// The fixed icon size of the cancel button.
 const double cancelButtonIconSize = 50;
+
+/// The value used to calculate the relative space after which the poi pop ups should be fade in or out.
+const double poiScreenMargin = 0.1;
 
 class RoutingMapView extends StatefulWidget {
   const RoutingMapView({super.key});
@@ -60,9 +65,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
-
-  /// The associated routing POI service, which is injected by the provider.
-  late RoutingPOI routingPOI;
 
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
@@ -148,6 +150,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The waypoint pixel coordinates
   Map<Waypoint, ScreenCoordinate> waypointPixelCoordinates = {};
 
+  /// The state of the POI popup.
+  POIPopup? poiPopup;
+
+  /// The relative horizontal padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginLeft;
+
+  /// The relative horizontal padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginRight;
+
+  /// The relative vertical padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginTop;
+
+  /// The relative vertical padding in pixel for the poi pop up to be displayed.
+  late double poiPopUpMarginBottom;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -165,10 +182,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     ConstructionSitesLayer.layerId,
     GreenWaveLayer.layerId,
     BikeShopLayer.layerId,
+    BikeShopLayer.textLayerId,
+    BikeShopLayer.clickLayerId,
     BikeAirStationLayer.layerId,
+    BikeAirStationLayer.textLayerId,
+    BikeAirStationLayer.clickLayerId,
     ParkingStationsLayer.layerId,
+    ParkingStationsLayer.clickLayerId,
     RentalStationsLayer.layerId,
-    SelectedPOILayer.layerId,
+    RentalStationsLayer.textLayerId,
+    RentalStationsLayer.clickLayerId,
     userLocationLayerId,
     RouteLabelLayer.layerId,
   ];
@@ -215,14 +238,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     fitCameraToRouteBounds();
   }
 
-  /// Called when the listener callback of the Routing POI service ChangeNotifier is fired.
-  updateRoutingPOI() {
-    // Check for resetting.
-    if (routingPOI.needsResetting) {
-      resetPOI();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -241,12 +256,20 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns = getIt<MapDesigns>();
     positioning = getIt<Positioning>();
     routing = getIt<Routing>();
-    routingPOI = getIt<RoutingPOI>();
     discomforts = getIt<Discomforts>();
     status = getIt<PredictionSGStatus>();
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // Calculate the relative padding for the pio pop up.
+      final size = MediaQuery.of(context).size;
+      poiPopUpMarginLeft = size.width * poiScreenMargin;
+      poiPopUpMarginRight = size.width - size.width * poiScreenMargin;
+      poiPopUpMarginTop = size.height * poiScreenMargin;
+      poiPopUpMarginBottom = size.height - size.height * poiScreenMargin;
+    });
   }
 
   @override
@@ -256,7 +279,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns.removeListener(loadMapDesign);
     positioning.removeListener(displayCurrentUserLocation);
     routing.removeListener(updateRoute);
-    routingPOI.removeListener(updateRoutingPOI);
     discomforts.removeListener(updateDiscomforts);
     status.removeListener(updateSelectedRouteLayer);
     mapFunctions.removeListener(updateMapFunctions);
@@ -417,10 +439,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Load the map features.
-    final index = await getIndex(SelectedPOILayer.layerId);
-    if (!mounted) return;
-    await SelectedPOILayer().install(mapController!, at: index);
 
     if (layers.showAirStations) {
       final index = await getIndex(BikeAirStationLayer.layerId);
@@ -605,149 +623,82 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onFeatureTapped(QueriedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
     final id = queriedFeature.feature['id'];
-    Map? properties = queriedFeature.feature["properties"] as Map?;
-    Map? geometry = queriedFeature.feature["geometry"] as Map?;
 
     if (id != null) {
-      // Route, route label or air station.
-      // Case Route.
-      if ((id as String).startsWith("route-")) {
+      // Case Route or Route label.
+      if ((id as String).startsWith("route-") || id.startsWith("routeLabel-")) {
         final routeIdx = int.tryParse(id.split("-")[1]);
-        if (routeIdx == null) return;
+        if (routeIdx == null || (routing.selectedRoute != null && routeIdx == routing.selectedRoute!.id)) return;
         routing.switchToRoute(routeIdx);
         return;
       }
+    }
 
-      // Case Route-label.
-      if (id.startsWith("routeLabel-")) {
-        final routeLabelIdx = int.tryParse(id.split("-")[1]);
-        if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
-          return;
+    Map? properties = queriedFeature.feature["properties"] as Map?;
+    if (properties != null) {
+      if (properties.containsKey("id")) {
+        final propertiesId = properties["id"];
+        // Case POIs.
+        if (propertiesId.contains("bike_air_station") ||
+            propertiesId.contains("bicycle_shop") ||
+            propertiesId.contains("bicycle_rental") ||
+            propertiesId.contains("bicycle_parking")) {
+          if (mapController == null) return;
+          Map? geometry = queriedFeature.feature["geometry"] as Map?;
+          if (geometry == null) return;
+          double lon = geometry["coordinates"][0];
+          double lat = geometry["coordinates"][1];
+
+          var name = "";
+          final type = propertiesId.split("-")[0];
+          switch (type) {
+            case "bike_air_station":
+              name = "Luftstation${properties.containsKey("anmerkungen") ? " ${properties["anmerkungen"]}" : ""}";
+              BikeAirStationLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            case "bicycle_shop":
+              name = properties.containsKey("name") ? properties["name"] : "Fahrradladen";
+              BikeShopLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            case "bicycle_rental":
+              name = "Ausleihstation${properties.containsKey("name") ? " ${properties["name"]}" : ""}";
+              RentalStationsLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            case "bicycle_parking":
+              name = "Fahrradständer";
+              ParkingStationsLayer(isDark).toggleSelect(mapController!, selectedPOIId: propertiesId);
+              break;
+            default:
+              return;
+          }
+
+          // Move the camera to the center of the POI.
+          fitCameraToCoordinate(lat, lon);
+
+          final position = await mapController!.pixelForCoordinate(
+            Point(
+              coordinates: Position(
+                lon,
+                lat,
+              ),
+            ).toJson(),
+          );
+
+          setState(() {
+            poiPopup = POIPopup(
+                poiElement: POIElement(
+                  name: name,
+                  typeDescription: type,
+                  lon: lon,
+                  lat: lat,
+                ),
+                screenCoordinateX: position.x,
+                screenCoordinateY: position.y,
+                poiOpacity: 1);
+          });
         }
-        routing.switchToRoute(routeLabelIdx);
-        return;
-      }
-
-      // Case Route air station.
-      if (id.contains("LUFTSTATION")) {
-        // Air station features contain "LUFTSTATION" in the feature id.
-        if (properties == null || geometry == null) return;
-
-        // Reset the old POI from different type.
-        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.airStation) resetPOI();
-
-        String name = properties["name"] ?? "Luftstation";
-        double lon = geometry["coordinates"][0];
-        double lat = geometry["coordinates"][1];
-
-        // Set the routing POI element.
-        routingPOI.setPOIElement(
-          POIElement(name: name, typeDescription: "Luftstation", lon: lon, lat: lat, type: POIType.airStation, id: id),
-        );
-        BikeAirStationLayer(isDark).update(mapController!);
-        // Move the camera to the center of the POI.
-        fitCameraToCoordinate(lat, lon);
-        // Replace the POI with a selected version of the POI.
-        final index = await getIndex(SelectedPOILayer.layerId);
-        if (!mounted) return;
-        await SelectedPOILayer().install(mapController!, at: index);
-        return;
       }
     }
-
-    // Check for bike rental or bike shop if id is not set.
-    if (properties != null && geometry != null && properties["fclass"] != null) {
-      // Case bike rental.
-      if (properties["fclass"] == "bicycle_rental") {
-        // Bike rental poi.
-        String name = properties["name"] ?? "Fahrradleihe";
-        double lon = geometry["coordinates"][0];
-        double lat = geometry["coordinates"][1];
-
-        // Reset the old POI from different type.
-        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.bikeRental) resetPOI();
-
-        routingPOI.setPOIElement(
-          POIElement(
-              name: name,
-              typeDescription: "Fahrradleihe",
-              lon: lon,
-              lat: lat,
-              type: POIType.bikeRental,
-              id: properties["osm_id"]),
-        );
-        RentalStationsLayer(isDark).update(mapController!);
-        // Move the camera to the center of the POI.
-        fitCameraToCoordinate(lat, lon);
-        // Replace the POI with a selected version of the POI.
-        final index = await getIndex(SelectedPOILayer.layerId);
-        if (!mounted) return;
-        await SelectedPOILayer().install(mapController!, at: index);
-
-        return;
-      }
-
-      // Case bike shop.
-      if (properties["fclass"] == "bicycle_shop") {
-        // Bike shop poi.
-        String name = properties["name"] ?? "Fahrradladen";
-        double lon = geometry["coordinates"][0];
-        double lat = geometry["coordinates"][1];
-
-        // Reset the old POI from different type.
-        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.bikeShop) resetPOI();
-
-        routingPOI.setPOIElement(
-          POIElement(
-              name: name,
-              typeDescription: "Fahrradladen",
-              lon: lon,
-              lat: lat,
-              type: POIType.bikeShop,
-              id: properties["osm_id"]),
-        );
-        BikeShopLayer(isDark).update(mapController!);
-        // Move the camera to the center of the POI.
-        fitCameraToCoordinate(lat, lon);
-        // Replace the POI with a selected version of the POI.
-        final index = await getIndex(SelectedPOILayer.layerId);
-        if (!mounted) return;
-        await SelectedPOILayer().install(mapController!, at: index);
-        return;
-      }
-
-      // Case parking bicycle.
-      if (properties["fclass"] == "parking_bicycle") {
-        // Bike rental poi.
-        double lon = geometry["coordinates"][0];
-        double lat = geometry["coordinates"][1];
-
-        // Reset the old POI from different type.
-        if (routingPOI.selectedPOI != null && routingPOI.selectedPOI?.type != POIType.bikeRental) resetPOI();
-
-        routingPOI.setPOIElement(
-          POIElement(
-              name: "Fahrradständer",
-              typeDescription: "",
-              lon: lon,
-              lat: lat,
-              type: POIType.parking,
-              id: properties["osm_id"]),
-        );
-        ParkingStationsLayer(isDark).update(mapController!);
-        // Move the camera to the center of the POI.
-        fitCameraToCoordinate(lat, lon);
-        // Replace the POI with a selected version of the POI.
-        final index = await getIndex(SelectedPOILayer.layerId);
-        if (!mounted) return;
-        await SelectedPOILayer().install(mapController!, at: index);
-
-        return;
-      }
-    }
-
-    // If nothing applies reset the poi.
-    resetPOI();
   }
 
   /// Fit the attribution position to the position of the bottom sheet.
@@ -840,7 +791,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns.addListener(loadMapDesign);
     positioning.addListener(displayCurrentUserLocation);
     routing.addListener(updateRoute);
-    routingPOI.addListener(updateRoutingPOI);
     discomforts.addListener(updateDiscomforts);
     status.addListener(updateSelectedRouteLayer);
     mapFunctions.addListener(updateMapFunctions);
@@ -870,6 +820,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
 
+    if (poiPopup != null) {
+      await resetPOISelection();
+    }
+
     // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
     // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
     // fixed in an upcoming version we need to remove this conversion.
@@ -891,13 +845,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         layerIds: [
           AllRoutesLayer.layerIdClick,
           RouteLabelLayer.layerId,
-          "${BikeShopLayer.layerId}-click",
-          "${BikeShopLayer.layerId}-text",
-          "${BikeAirStationLayer.layerId}-click",
-          "${BikeAirStationLayer.layerId}-text",
-          "${RentalStationsLayer.layerId}-click",
-          "${RentalStationsLayer.layerId}-text",
-          "${ParkingStationsLayer.layerId}-click",
+          BikeShopLayer.clickLayerId,
+          BikeShopLayer.textLayerId,
+          BikeAirStationLayer.clickLayerId,
+          BikeAirStationLayer.textLayerId,
+          RentalStationsLayer.clickLayerId,
+          RentalStationsLayer.textLayerId,
+          ParkingStationsLayer.clickLayerId,
         ],
       ),
     );
@@ -913,41 +867,32 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       onFeatureTapped(features[0]!);
       return;
     }
-    resetPOI();
   }
 
-  /// Resets the selected POI element.
-  void resetPOI() {
-    // Reset the POI selected if nothing applies.
-    if (routingPOI.selectedPOI == null) return;
-
-    // Update layer rules for type.
-    final type = routingPOI.selectedPOI!.type;
-
-    // Reset the POI service.
-    routingPOI.reset();
-
-    if (!mounted) return;
-
-    // Updates the features.
-    SelectedPOILayer().install(mapController!);
-
-    switch (type) {
-      case null:
+  /// Resets the current POI selection.
+  Future<void> resetPOISelection() async {
+    if (mapController == null || !mounted) return;
+    if (poiPopup == null) return;
+    switch (poiPopup!.poiElement.typeDescription) {
+      case "bike_air_station":
+        BikeAirStationLayer(isDark).toggleSelect(mapController!);
         break;
-      case POIType.bikeShop:
-        BikeShopLayer(isDark).update(mapController!);
+      case "bicycle_shop":
+        BikeShopLayer(isDark).toggleSelect(mapController!);
         break;
-      case POIType.bikeRental:
-        RentalStationsLayer(isDark).update(mapController!);
+      case "bicycle_rental":
+        RentalStationsLayer(isDark).toggleSelect(mapController!);
         break;
-      case POIType.airStation:
-        BikeAirStationLayer(isDark).update(mapController!);
+      case "bicycle_parking":
+        ParkingStationsLayer(isDark).toggleSelect(mapController!);
         break;
-      case POIType.parking:
-        ParkingStationsLayer(isDark).update(mapController!);
-        break;
+      default:
+        return;
     }
+
+    setState(() {
+      poiPopup = null;
+    });
   }
 
   /// A callback that is executed when the map was longclicked.
@@ -1125,21 +1070,40 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Updates the bearing and centering button.
-  Future<void> updatePOIPosition() async {
+  Future<void> updatePOIPopupScreenPosition() async {
     if (mapController == null) return;
-    if (routingPOI.selectedPOI == null) return;
+    if (poiPopup == null) return;
 
     final position = await mapController!.pixelForCoordinate(
       Point(
         coordinates: Position(
-          routingPOI.selectedPOI!.lon,
-          routingPOI.selectedPOI!.lat,
+          poiPopup!.poiElement.lon,
+          poiPopup!.poiElement.lat,
         ),
       ).toJson(),
     );
 
-    // Set the POI position only if in screen bounds. (Values > 0)
-    routingPOI.setPixelCoordinates(position.x > 0 ? position.x : null, position.y > 0 ? position.y : null);
+    double x = poiPopup!.screenCoordinateX;
+    double y = poiPopup!.screenCoordinateY;
+    double opacity = poiPopup!.poiOpacity;
+
+    // Only update the position for non negative values to make sure that the pop up doesn't move to the top corner.
+    if (position.x > 0 && position.y > 0) {
+      x = position.x;
+      y = position.y;
+    }
+
+    // Update the poi pop up opacity depending on the position.
+    if (position.x > poiPopUpMarginLeft &&
+        position.x < poiPopUpMarginRight &&
+        position.y > poiPopUpMarginTop &&
+        position.y < poiPopUpMarginBottom) {
+      if (poiPopup!.poiOpacity == 0) opacity = 1;
+    } else {
+      if (poiPopup!.poiOpacity == 1) opacity = 0;
+    }
+
+    setState(() => poiPopup!.updatePopUp(x, y, opacity));
   }
 
   /// A callback that is executed when the camera movement changes.
@@ -1150,7 +1114,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     updateWaypointPixelCoordinates();
 
-    updatePOIPosition();
+    updatePOIPopupScreenPosition();
 
     routeLabelLock.run(() {
       updateRouteLabels();
@@ -1356,6 +1320,28 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return false;
   }
 
+  /// The callback that is executed when the POI gets selected in the popup.
+  Future<void> onPressedPOIPopup() async {
+    if (poiPopup == null) return;
+    // Add POI to routing and fetch route.
+    final waypoint = Waypoint(poiPopup!.poiElement.lat, poiPopup!.poiElement.lon, address: poiPopup!.poiElement.name);
+    final waypoints = routing.selectedWaypoints ?? [];
+
+    // Add the own location as a start point to the route, if the waypoint selected in the search is the
+    // first waypoint of the route. Thus making it the destination of the route.
+    if (waypoints.isEmpty) {
+      if (positioning.lastPosition != null) {
+        waypoints.add(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
+      }
+    }
+    final newWaypoints = [...waypoints, waypoint];
+
+    routing.selectWaypoints(newWaypoints);
+    routing.loadRoutes();
+
+    resetPOISelection();
+  }
+
   /// Reset variables for dragging
   void _resetDragging() {
     dragPosition = null;
@@ -1366,6 +1352,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     currentScreenEdge = ScreenEdge.none;
     highlightCancelButton = false;
   }
+
+  /// Set POI popup.
+  Future<void> setPOIPopup() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -1623,6 +1612,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 ),
               ),
             ],
+          ),
+
+        if (poiPopup != null)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 150),
+            // Subtract half the width of the widget to center it.
+            left: poiPopup!.screenCoordinateX - (MediaQuery.of(context).size.width * 0.3),
+            top: poiPopup!.screenCoordinateY,
+            child: AnimatedOpacity(
+              opacity: poiPopup!.poiOpacity,
+              duration: const Duration(milliseconds: 150),
+              child: POIInfoPopup(selectedPOI: poiPopup!.poiElement, onPressed: onPressedPOIPopup),
+            ),
           ),
 
         if (!mapLayersFinishedLoading)

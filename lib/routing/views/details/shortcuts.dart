@@ -8,7 +8,6 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/services/routing_poi.dart';
 
 class ShortcutsRow extends StatefulWidget {
   const ShortcutsRow({super.key});
@@ -20,9 +19,6 @@ class ShortcutsRow extends StatefulWidget {
 class ShortcutsState extends State<ShortcutsRow> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
-
-  /// The associated routing POI service, which is injected by the provider.
-  late RoutingPOI routingPOI;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
@@ -37,7 +33,6 @@ class ShortcutsState extends State<ShortcutsRow> {
     super.initState();
     routing = getIt<Routing>();
     routing.addListener(update);
-    routingPOI = getIt<RoutingPOI>();
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
   }
@@ -51,7 +46,6 @@ class ShortcutsState extends State<ShortcutsRow> {
 
   /// Load route from shortcuts.
   _loadShortcutsRoute(Shortcut shortcut) async {
-    routingPOI.setNeedsResetting();
     routing.selectShortcut(shortcut);
     await routing.loadRoutes();
   }

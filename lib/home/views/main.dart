@@ -28,7 +28,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/services/routing_poi.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
@@ -65,9 +64,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated routing service, which is injected by the provider.
-  late RoutingPOI routingPOI;
-
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
@@ -103,7 +99,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
-    routingPOI = getIt<RoutingPOI>();
     ride = getIt<Ride>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
@@ -244,7 +239,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           routing.reset();
-          routingPOI.reset();
           discomforts.reset();
           predictionSGStatus.reset();
         }

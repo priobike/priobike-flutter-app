@@ -21,8 +21,6 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/services/routing_poi.dart';
-import 'package:priobike/routing/views/details/poi.dart';
 import 'package:priobike/routing/views/details/shortcuts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -45,9 +43,6 @@ class RoutingViewState extends State<RoutingView> {
 
   /// The associated routing service, which is injected by the provider.
   Routing? routing;
-
-  /// The associated routing POI service, which is injected by the provider.
-  late RoutingPOI routingPOI;
 
   /// The associated position service, which is injected by the provider.
   Positioning? positioning;
@@ -120,8 +115,6 @@ class RoutingViewState extends State<RoutingView> {
     geocoding!.addListener(update);
     routing = getIt<Routing>();
     routing!.addListener(update);
-    routingPOI = getIt<RoutingPOI>();
-    routingPOI.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts!.addListener(update);
     positioning = getIt<Positioning>();
@@ -136,7 +129,6 @@ class RoutingViewState extends State<RoutingView> {
   void dispose() {
     geocoding!.removeListener(update);
     routing!.removeListener(update);
-    routingPOI.removeListener(update);
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
@@ -323,8 +315,6 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context).size;
-
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
@@ -336,15 +326,6 @@ class RoutingViewState extends State<RoutingView> {
 
             if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
             if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
-
-            if (routingPOI.calculatedX != null && routingPOI.calculatedY != null)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 150),
-                // Subtract half the width of the widget to center it.
-                left: routingPOI.calculatedX! - (frame.width * 0.3),
-                top: routingPOI.calculatedY!,
-                child: const POIInfo(),
-              ),
 
             // Top Bar
             SafeArea(
