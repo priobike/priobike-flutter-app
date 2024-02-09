@@ -1,46 +1,64 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/link_shortener.dart';
-import 'package:priobike/main.dart';
+import 'package:priobike/logging/toast.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
-class ShowQRCodeView extends StatelessWidget {
+class ShowQRCodeView extends StatefulWidget {
   /// The shortcut for which a QR code should be shown.
   final Shortcut shortcut;
 
   const ShowQRCodeView({super.key, required this.shortcut});
 
   @override
+  ShowQRCodeViewState createState() => ShowQRCodeViewState();
+}
+
+class ShowQRCodeViewState extends State<ShowQRCodeView> {
+  String? shortLink;
+
+  ShowQRCodeViewState();
+
+  @override
+  void initState() {
+    super.initState();
+
+    getBase64();
+  }
+
+  Future<void> getBase64() async {
+    final longLink = widget.shortcut.getLongLink();
+    final newShortLink = await LinkShortener.createShortLink(longLink);
+    if (newShortLink == null) {
+      ToastMessage.showError("Fehler beim Erstellen des QR Codes");
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+    setState(() {
+      shortLink = newShortLink;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    String longLink = getIt<LinkShortener>().getLongLink(shortcut);
-    return FutureBuilder<Uint8List?>(
-      future: getIt<LinkShortener>().getQr(longLink),
-      builder: (BuildContext context, AsyncSnapshot<Uint8List?> snapshot) {
-        if (snapshot.hasError) return Text(snapshot.error.toString());
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-        Uint8List qr = snapshot.data!;
-        return Padding(
-            padding: const EdgeInsets.all(10),
-            child: ColorFiltered(
-              colorFilter: isDark
-                  ? const ColorFilter.matrix(<double>[
-                      -1.0, 0.0, 0.0, 0.0, 255.0, //
-                      0.0, -1.0, 0.0, 0.0, 255.0, //
-                      0.0, 0.0, -1.0, 0.0, 255.0, //
-                      0.0, 0.0, 0.0, 1.0, 0.0, //
-                    ])
-                  : const ColorFilter.matrix(<double>[
-                      1.0, 0.0, 0.0, 0.0, 0.0, //
-                      0.0, 1.0, 0.0, 0.0, 0.0, //
-                      0.0, 0.0, 1.0, 0.0, 0.0, //
-                      0.0, 0.0, 0.0, 1.0, 0.0, //
-                    ]),
-              child: Image.memory(qr),
-            ));
-      },
-    );
+    return shortLink == null
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : QrImageView(
+            data: shortLink!,
+            version: QrVersions.auto,
+            errorCorrectionLevel: QrErrorCorrectLevel.L,
+            eyeStyle: QrEyeStyle(
+              color: isDark ? Colors.white : Colors.black,
+              eyeShape: QrEyeShape.circle,
+            ),
+            dataModuleStyle: QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.circle,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          );
   }
 }

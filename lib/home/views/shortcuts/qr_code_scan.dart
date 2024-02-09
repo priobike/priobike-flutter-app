@@ -11,7 +11,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQRCodeView extends StatefulWidget {
   /// Called when a QR code has been scanned.
-  final void Function(String shortLink) onScan;
+  final void Function(Shortcut shortcut) onScan;
 
   const ScanQRCodeView({super.key, required this.onScan});
 
@@ -64,10 +64,15 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
   /// Start the camera and listen to updates of the barcode stream.
   Future<void> onQRViewCreated(QRViewController controller) async {
     cameraController = controller;
-    listener = controller.scannedDataStream.listen((scanData) {
+    listener = controller.scannedDataStream.listen((scanData) async {
       if (shortcut != null) return;
       if (scanData.code == null) return;
-      widget.onScan(scanData.code!);
+      if (!scanData.code!.contains("https://") && !scanData.code!.contains("/link/")) return;
+      final scannedShortcut = await Shortcut.fromLink(scanData.code!);
+      if (scannedShortcut != null) {
+        shortcut = scannedShortcut;
+        widget.onScan(scannedShortcut);
+      }
     });
   }
 

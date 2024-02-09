@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/http.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -171,37 +170,5 @@ class Shortcuts with ChangeNotifier {
     shortcuts!.remove(shortcutItem);
     await storeShortcuts();
     notifyListeners();
-  }
-
-  Future<Shortcut?> getShortcutFromShortLink(String shortLink) async {
-    List<String> subUrls = shortLink.split('/');
-    try {
-      String backendPath = getIt<Settings>().backend.path;
-      final parseShortLinkEndpoint = Uri.parse('https://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
-      final longLinkResponse =
-          await Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': '8a1e47f1-36ac-44e8-b648-aae112f97208'});
-      final String longUrl = json.decode(longLinkResponse.body)['longUrl'];
-      subUrls = longUrl.split('/');
-      final shortcutBase64 = subUrls.last;
-      final shortcutBytes = base64.decode(shortcutBase64);
-      final shortcutUTF8 = utf8.decode(shortcutBytes);
-      final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
-      shortcutJson['id'] = UniqueKey().toString();
-      Shortcut shortcut;
-      if (shortcutJson['type'] == "ShortcutLocation") {
-        shortcut = ShortcutLocation.fromJson(shortcutJson);
-      } else {
-        shortcut = ShortcutRoute.fromJson(shortcutJson);
-      }
-      return shortcut;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  void createShortcutFromShortLink(String shortLink) {
-    getShortcutFromShortLink(shortLink).then((shortcut) {
-      if (shortcut != null) getIt<Shortcuts>().saveNewShortcutObject(shortcut);
-    });
   }
 }

@@ -9,6 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -102,7 +103,8 @@ class LoaderState extends State<Loader> {
       // Load shared shortcut if app was opened with sharing link
       if (widget.shareUrl != null) {
         String url = widget.shareUrl!;
-        getIt<Shortcuts>().createShortcutFromShortLink(url);
+        final shortcut = await Shortcut.fromLink(url);
+        if (shortcut != null) getIt<Shortcuts>().saveNewShortcutObject(shortcut);
       }
 
       settings.incrementUseCounter();

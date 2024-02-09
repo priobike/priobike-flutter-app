@@ -1,26 +1,13 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class LinkShortener {
-  /// Create sharing link of shortcut.
-  String getLongLink(Shortcut shortcut) {
-    final Map<String, dynamic> shortcutJson = shortcut.toJson();
-    final str = json.encode(shortcutJson);
-    final bytes = utf8.encode(str);
-    final base64Str = base64.encode(bytes);
-    const scheme = 'https';
-    const host = 'priobike.vkw.tu-dresden.de';
-    const route = 'import';
-    return '$scheme://$host/$route/$base64Str';
-  }
-
-  Future<String?> getShortLink(String longLink) async {
+  /// Shorten long link.
+  static Future<String?> createShortLink(String longLink) async {
     String backendPath = getIt<Settings>().backend.path;
     final linkShortenerUrl = 'https://$backendPath/link/rest/v3/short-urls';
     final linkShortenerEndpoint = Uri.parse(linkShortenerUrl);
@@ -45,14 +32,18 @@ class LinkShortener {
     }
   }
 
-  Future<Uint8List?> getQr(String longLink) async {
-    final String? shortLink = await getShortLink(longLink);
-    if (shortLink == null) return null;
-    final String shortCode = shortLink.split('/').last;
-    final String qrUrl =
-        'https://priobike.vkw.tu-dresden.de/staging/link/$shortCode/qr-code?size=300&format=png&errorCorrection=L';
-    final qrEndpoint = Uri.parse(qrUrl);
-    final qrResponse = await Http.get(qrEndpoint);
-    return qrResponse.bodyBytes;
+  /// Resolve short link.
+  static Future<String?> resolveShortLink(String shortLink) async {
+    try {
+      List<String> subUrls = shortLink.split('/');
+      String backendPath = getIt<Settings>().backend.path;
+      final parseShortLinkEndpoint = Uri.parse('https://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
+      final longLinkResponse =
+          await Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': '8a1e47f1-36ac-44e8-b648-aae112f97208'});
+      final String longUrl = json.decode(longLinkResponse.body)['longUrl'];
+      return longUrl;
+    } catch (e) {
+      return null;
+    }
   }
 }
