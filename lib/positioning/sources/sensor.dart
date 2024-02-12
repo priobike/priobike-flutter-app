@@ -35,6 +35,9 @@ class SpeedSensorPositioningSource extends PositionSource {
   /// Time of the last distance update.
   DateTime? lastDistanceUpdate;
 
+  /// Last speed values (for smoothing).
+  final List<double> lastSpeeds = [];
+
   final vincenty = const l.Distance();
 
   SpeedSensorPositioningSource({required this.positions, this.speed = 0});
@@ -133,9 +136,18 @@ class SpeedSensorPositioningSource extends PositionSource {
 
     distance = distance! + drivenDistance;
     final now = DateTime.now();
-    lastDistanceUpdate = now;
-    speed = drivenDistance / now.difference(lastDistanceUpdate!).inSeconds;
 
+    // Need to use milliseconds because often times we don't have a time difference of a full second.
+    var newSpeed = drivenDistance / now.difference(lastDistanceUpdate!).inMilliseconds;
+    // Convert back to m/s
+    newSpeed = newSpeed * 1000;
+    lastSpeeds.add(newSpeed);
+    if (lastSpeeds.length > 6) {
+      lastSpeeds.removeAt(0);
+    }
+    speed = lastSpeeds.reduce((a, b) => a + b) / lastSpeeds.length;
+
+    lastDistanceUpdate = now;
     // Find the current segment
     l.LatLng? from;
     l.LatLng? to;
