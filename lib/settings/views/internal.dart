@@ -66,6 +66,9 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The associated bounding box service, which is injected by the provider.
   late Boundary boundary;
 
+  /// The simulator service, which is injected by the provider.
+  late Simulator simulator;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -89,6 +92,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     news.addListener(update);
     weather = getIt<Weather>();
     weather.addListener(update);
+    simulator = getIt<Simulator>();
+    simulator.addListener(update);
     boundary = getIt<Boundary>();
   }
 
@@ -102,6 +107,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     routing.removeListener(update);
     news.removeListener(update);
     weather.removeListener(update);
+    simulator.removeListener(update);
     super.dispose();
   }
 
@@ -380,17 +386,70 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Simulator aktivieren (ID: ${getIt<Simulator>().deviceId})",
+                    title: "Simulator nutzen (App-ID: ${getIt<Simulator>().appId})",
                     icon: settings.enableSimulatorMode ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setSimulatorMode(!settings.enableSimulatorMode),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                  child: Small(
-                    text: "Hinweis: Aktiviert den Simulator für die Nutzung auf der Output-Messe der TU-Dresden.",
-                    context: context,
-                  ),
+                  child: !settings.enableSimulatorMode
+                      ? Small(
+                          text: "Hinweis: Startet den Verbindungsprozess mit dem PrioBike Simulator.",
+                          context: context,
+                        )
+                      : !simulator.paired
+                          ? simulator.pairingInProgress
+                              ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(
+                                      height: 12,
+                                      width: 12,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    const SmallHSpace(),
+                                    Flexible(
+                                      child: Small(
+                                        text: "Verbindungsanfrage an Simulator gesendet. Bitte warten oder abbrechen.",
+                                        context: context,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : simulator.pairAcknowledgements.isNotEmpty
+                                  ? Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Small(
+                                          text:
+                                              "Folgende(r) Simulator(en) stehen für die Verbindung zur Verfüung. Bitte auswählen.",
+                                          context: context,
+                                        ),
+                                        for (var i = 0; i < simulator.pairAcknowledgements.length; i++)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 8),
+                                            child: SettingsElement(
+                                              title: "Simulator ${simulator.pairAcknowledgements[i]}",
+                                              icon: Icons.computer_rounded,
+                                              callback: () =>
+                                                  simulator.acknowledgePairing(simulator.pairAcknowledgements[i]),
+                                            ),
+                                          ),
+                                      ],
+                                    )
+                                  : Small(
+                                      text:
+                                          "Verbindung mit Simulator konnte nicht hergestellt werden. Grund dafür kann eine zu häufige Anfrage oder ein Fehler im System sein.",
+                                      context: context,
+                                    )
+                          : Small(
+                              text: "Verbindung mit Simulator hergestellt. Du kannst jetzt den Simulator verwenden.",
+                              context: context,
+                            ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),

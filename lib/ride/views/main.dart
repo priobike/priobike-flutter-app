@@ -18,6 +18,7 @@ import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/views/simulator_state.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -192,6 +193,8 @@ class RideViewState extends State<RideView> {
       positionSpeedometerRight = 6.0;
     }
 
+    final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
+
     return PopScope(
       onPopInvoked: (type) async => false,
       child: Scaffold(
@@ -251,6 +254,21 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                 ),
+              simulatorEnabled
+                  ? const Positioned(
+                      left: 0,
+                      top: 0,
+                      child: SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 48),
+                          child: SimulatorState(
+                            tileAlignment: TileAlignment.left,
+                            onlyShowErrors: true,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
             ],
           ),
         ),

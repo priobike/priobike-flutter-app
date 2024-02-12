@@ -16,15 +16,14 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:typed_data/typed_buffers.dart';
 
 class Simulator with ChangeNotifier {
-  ///
-  /// - Positioing (new Position)
-  /// - Ride (Ampeln)
-
   /// The logger.
   final log = Logger("Simulator");
 
-  /// The topic for the MQTT messages.
-  static const topic = "simulation";
+  /// The MQTT topic where we send messages from the app to.
+  static const topicApp = "app";
+
+  /// The MQTT topic where we receive messages from the simulator.
+  static const topicSimulator = "simulator";
 
   /// The mqtt client.
   MqttServerClient? client;
@@ -39,7 +38,7 @@ class Simulator with ChangeNotifier {
   String? currentSGId;
 
   /// The unique key to identify the device in the simulator. Remove the brackets and hash sign.
-  final deviceId = UniqueKey().toString().replaceAll("[", "").replaceAll("]", "").replaceAll("#", "");
+  final appId = UniqueKey().toString().replaceAll("[", "").replaceAll("]", "").replaceAll("#", "");
 
   /// The last time a pair request was sent to the simulator.
   DateTime? lastSentPairRequest;
@@ -59,93 +58,151 @@ class Simulator with ChangeNotifier {
   /// Ride service.
   Ride? ride;
 
+  /// If the pairing is currently in progress.
+  bool pairingInProgress = false;
+
+  /// List of pair acknowledgements (IDs of the simulators).
+  List<String> pairAcknowledgements = [];
+
+  /// The ID of the paired simulator.
+  String? pairedSimulatorID;
+
   /// Make ready for the ride.
   Future<void> makeReadyForRide() async {
-    positioning = getIt<Positioning>();
-    positioning!.addListener(processPositioningUpdates);
-    routing = getIt<Routing>();
-    routing!.addListener(processRoutingUpdates);
-    ride = getIt<Ride>();
-    ride!.addListener(processRideUpdates);
+    pairingInProgress = true;
+    notifyListeners();
+
+    _sendReadyPairRequest();
+
+    positioning ??= getIt<Positioning>();
+    positioning!.addListener(_processPositioningUpdates);
+    routing ??= getIt<Routing>();
+    routing!.addListener(_processRoutingUpdates);
+    ride ??= getIt<Ride>();
+    ride!.addListener(_processRideUpdates);
+
+    notifyListeners();
   }
 
   /// Dispose the simulator.
   void cleanUp() {
-    disconnectMQTTClient();
-    if (positioning != null) positioning!.removeListener(processPositioningUpdates);
-    if (routing != null) routing!.removeListener(processRoutingUpdates);
-    if (ride != null) ride!.removeListener(processRideUpdates);
+    _sendUnpair();
+    _disconnectMQTTClient();
+    paired = false;
+    pairingInProgress = false;
+    pairAcknowledgements = [];
+    pairedSimulatorID = null;
+    if (positioning != null) positioning!.removeListener(_processPositioningUpdates);
+    if (routing != null) routing!.removeListener(_processRoutingUpdates);
+    if (ride != null) ride!.removeListener(_processRideUpdates);
+    notifyListeners();
+  }
+
+  /// Accept the pairing with the simulator.
+  void acknowledgePairing(String simulatorID) {
+    if (pairAcknowledgements.contains(simulatorID)) {
+      paired = true;
+      pairedSimulatorID = simulatorID;
+      pairingInProgress = false;
+      const qualityOfService = MqttQos.atLeastOnce;
+
+      Map<String, String> json = {};
+      json['type'] = 'PairAppAck';
+      json['deviceName'] = 'Priobike';
+
+      _sendViaMQTT(
+        messageData: json,
+        qualityOfService: qualityOfService,
+      );
+
+      notifyListeners();
+
+      pairAcknowledgements = [];
+    }
   }
 
   /// Process positioning updates.
-  void processPositioningUpdates() {
+  void _processPositioningUpdates() {
     if (!ride!.navigationIsActive) return;
-    sendCurrentPosition();
+    _sendCurrentPosition();
   }
 
   /// Process routing updates.
-  void processRoutingUpdates() {
+  void _processRoutingUpdates() {
     if (routing!.selectedRoute != currentRoute) {
       currentRoute = routing!.selectedRoute;
-      sendRouteData();
-      sendSignalGroups();
+      _sendRouteData();
+      _sendSignalGroups();
     }
   }
 
   /// Process ride updates.
-  void processRideUpdates() {
+  void _processRideUpdates() {
     if (!ride!.navigationIsActive) {
       if (driving) {
-        sendStopRide();
+        _sendStopRide();
         driving = false;
       }
       return;
-    } else {
-      if (!driving) {
-        driving = true;
-      }
     }
-    sendSignalGroupUpdate();
+
+    if (!driving) {
+      driving = true;
+    }
+    _sendSignalGroupUpdate();
   }
 
   /// Sends a ready pair request to the simulator via MQTT.
   /// The simulator must confirm the pairing before the ride can start.
-  /// Format: {"type":"PairRequest","deviceID":"5d2b1","deviceName":"Priobike"}
+  /// Format: {"type":"PairRequest","appID":"5d2b1","deviceName":"Priobike"}
   /// Returns true if pair request was sent.
   /// Returns false if the request was not sent because it was sent too recently/an error occured.
-  Future<bool> sendReadyPairRequest() async {
+  Future<void> _sendReadyPairRequest() async {
+    pairingInProgress = true;
+
     if (client == null) {
-      final successfullyConnected = await connectMQTTClient();
-      if (!successfullyConnected) return false;
+      final successfullyConnected = await _connectMQTTClient();
+      if (!successfullyConnected) {
+        pairingInProgress = false;
+      }
     }
 
     // Only send a ready pair request every 10 seconds to avoid spamming the simulator.
-    if (lastSentPairRequest != null && DateTime.now().difference(lastSentPairRequest!).inSeconds < 10) return false;
+    if (lastSentPairRequest != null && DateTime.now().difference(lastSentPairRequest!).inSeconds < 10) {
+      pairingInProgress = false;
+    }
     lastSentPairRequest = DateTime.now();
 
     const qualityOfService = MqttQos.atLeastOnce;
 
     Map<String, String> json = {};
     json['type'] = 'PairRequest';
-    json['deviceID'] = deviceId;
     json['deviceName'] = 'Priobike';
 
-    final String message = jsonEncode(json);
-
     final successfullySent = await _sendViaMQTT(
-      message: message,
+      messageData: json,
       qualityOfService: qualityOfService,
     );
 
-    return successfullySent;
+    if (!successfullySent) {
+      pairingInProgress = false;
+    }
   }
 
   /// Helper function to encode and send a message to the simulator via MQTT.
-  Future<bool> _sendViaMQTT({required String message, required MqttQos qualityOfService}) async {
+  Future<bool> _sendViaMQTT({required Map<String, dynamic> messageData, required MqttQos qualityOfService}) async {
     if (client == null) {
-      final successfullyConnected = await connectMQTTClient();
+      final successfullyConnected = await _connectMQTTClient();
       if (!successfullyConnected) return false;
     }
+
+    // For every other message than PairRequest, we need to have a paired simulator ID.
+    if (pairedSimulatorID == null && messageData['type'] != "PairRequest") return false;
+
+    messageData['appID'] = appId;
+    if (pairedSimulatorID != null) messageData['simulatorID'] = pairedSimulatorID;
+
+    final String message = jsonEncode(messageData);
 
     // Convert message to byte array
     final Uint8List data = Uint8List.fromList(utf8.encode(message));
@@ -155,7 +212,7 @@ class Simulator with ChangeNotifier {
 
     // Publish message
     try {
-      client!.publishMessage(topic, qualityOfService, dataBuffer);
+      client!.publishMessage(topicApp, qualityOfService, dataBuffer);
       return true;
     } catch (e, stacktrace) {
       log.e("Error while sending $message to simulator: $e, $stacktrace");
@@ -164,11 +221,11 @@ class Simulator with ChangeNotifier {
   }
 
   /// Connects the MQTT client to the simulator.
-  Future<bool> connectMQTTClient() async {
+  Future<bool> _connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
 
-    final clientId = deviceId;
+    final clientId = appId;
     try {
       client = MqttServerClient(
         settings.backend.simulatorMQTTPath,
@@ -206,7 +263,7 @@ class Simulator with ChangeNotifier {
 
       client!.updates?.listen(_onData);
 
-      client?.subscribe(topic, MqttQos.atLeastOnce);
+      client?.subscribe(topicSimulator, MqttQos.atLeastOnce);
 
       return true;
     } catch (e, stacktrace) {
@@ -219,7 +276,7 @@ class Simulator with ChangeNotifier {
 
   /// A callback that is executed when data arrives.
   Future<void> _onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
-    if (client == null) await connectMQTTClient();
+    if (client == null) await _connectMQTTClient();
 
     if (messages == null) return;
     for (final message in messages) {
@@ -227,31 +284,20 @@ class Simulator with ChangeNotifier {
       // Decode the payload.
       final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       final json = jsonDecode(data);
-      if (json['deviceID'] != deviceId) return;
+      if (json['appID'] != appId) return;
       log.i("Received from simulator: $json");
 
       // Paring
-      if (!paired && json['type'] == 'PairStart') {
-        paired = true;
-        log.i("Pairing with simulator successful.");
-
-        // Send Pair Confirm to finish pairing
-        const qualityOfService = MqttQos.atLeastOnce;
-        final String message = '{"type":"PairConfirm", "deviceID":"$deviceId"}';
-        await _sendViaMQTT(
-          message: message,
-          qualityOfService: qualityOfService,
-        );
-
-        makeReadyForRide();
-
+      if (!paired && json['type'] == 'PairSimulatorAck') {
+        pairingInProgress = false;
+        log.i("Pair request accepted by ${json['simulatorID']}.");
+        pairAcknowledgements.add(json['simulatorID']);
         notifyListeners();
       }
 
       // Un-pair message from simulator.
       if (paired && json['type'] == 'Unpair') {
         log.i("Unpair received from simulator.");
-        paired = false;
         cleanUp();
         notifyListeners();
       }
@@ -260,50 +306,44 @@ class Simulator with ChangeNotifier {
 
   /// Sends a stop ride message to the simulator via MQTT to stop the simulation.
   /// This will be called when the user ends the ride.
-  /// Format: {"type":"StopRide","deviceID":"5d2b1"}
-  Future<void> sendStopRide() async {
-    if (client == null) await connectMQTTClient();
+  /// Format: {"type":"StopRide","appID":"5d2b1"}
+  Future<void> _sendStopRide() async {
+    if (client == null) await _connectMQTTClient();
 
     const qualityOfService = MqttQos.atLeastOnce;
 
     Map<String, String> json = {};
     json['type'] = 'StopRide';
-    json['deviceID'] = deviceId;
-
-    final String message = jsonEncode(json);
 
     await _sendViaMQTT(
-      message: message,
+      messageData: json,
       qualityOfService: qualityOfService,
     );
   }
 
   /// Sends an unpair message to the simulator via MQTT.
   /// This will be called when the user un-pairs the device from the simulator.
-  /// Format: {"type":"Unpair","deviceID":"5d2b1"}
-  Future<void> sendUnpair() async {
-    if (client == null) await connectMQTTClient();
+  /// Format: {"type":"Unpair","appID":"5d2b1"}
+  Future<void> _sendUnpair() async {
+    if (client == null) await _connectMQTTClient();
 
     const qualityOfService = MqttQos.atLeastOnce;
 
     Map<String, String> json = {};
     json['type'] = 'Unpair';
-    json['deviceID'] = deviceId;
-
-    final String message = jsonEncode(json);
 
     await _sendViaMQTT(
-      message: message,
+      messageData: json,
       qualityOfService: qualityOfService,
     );
   }
 
   /// Send the current position to the simulator via MQTT.
   /// This will be called every second to update the position in the simulator.
-  /// Format: {"type":"NextCoordinate", "deviceID":"1234567890", "longitude":"10.12345",
+  /// Format: {"type":"NextCoordinate", "appID":"1234567890", "longitude":"10.12345",
   /// "latitude":"50.12345", "bearing":"-80"}
-  Future<void> sendCurrentPosition() async {
-    if (client == null) await connectMQTTClient();
+  Future<void> _sendCurrentPosition() async {
+    if (client == null) await _connectMQTTClient();
 
     const qualityOfService = MqttQos.atMostOnce;
 
@@ -320,56 +360,49 @@ class Simulator with ChangeNotifier {
 
     Map<String, String> json = {};
     json['type'] = type;
-    json['deviceID'] = deviceId;
     json['longitude'] = longitude.toString();
     json['latitude'] = latitude.toString();
     json['bearing'] = heading.toString();
     json['speed'] = speed.toString();
 
-    final String message = jsonEncode(json);
-
     await _sendViaMQTT(
-      message: message,
+      messageData: json,
       qualityOfService: qualityOfService,
     );
   }
 
   /// Sends the route points before the rides startes to the simulator.
-  /// Format: [{"type":"RouteDataStart","deviceID":"87c22"},{"lon":9.993686,"lat":53.551085}
+  /// Format: [{"type":"RouteDataStart","appID":"87c22"},{"lon":9.993686,"lat":53.551085}
   /// ... {"lon":9.976977980510583,"lat":53.56440493672994}]
-  Future<void> sendRouteData() async {
-    if (client == null) await connectMQTTClient();
+  Future<void> _sendRouteData() async {
+    if (client == null) await _connectMQTTClient();
 
     const qualityOfService = MqttQos.atLeastOnce;
 
-    final List<Map<String, dynamic>> payload = [];
-    Map<String, String> jsonStart = {};
-    jsonStart['type'] = 'RouteDataStart';
-    jsonStart['deviceID'] = deviceId;
-    payload.add(jsonStart);
+    Map<String, dynamic> json = {};
+    json['type'] = 'RouteDataStart';
+    json['routeData'] = [];
 
     final routing = getIt<Routing>();
     for (final node in routing.selectedRoute!.route) {
-      final Map<String, dynamic> json = {};
-      json['lon'] = node.lon;
-      json['lat'] = node.lat;
-      payload.add(json);
+      final Map<String, dynamic> coordinate = {};
+      coordinate['lon'] = node.lon;
+      coordinate['lat'] = node.lat;
+      json['routeData'].add(coordinate);
     }
 
-    final String message = jsonEncode(payload);
-
     await _sendViaMQTT(
-      message: message,
+      messageData: json,
       qualityOfService: qualityOfService,
     );
   }
 
   /// Sends the traffic lights to the simulator.
   /// This will be called once before the ride starts to place the traffic lights on the map in the simulator.
-  /// Format: {"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345",
+  /// Format: {"type":"TrafficLight", "appID":"123", "tlID":"456", "longitude":"10.12345",
   /// "latitude":"50.12345", "bearing":"80"}
-  Future<void> sendSignalGroups() async {
-    if (client == null) await connectMQTTClient();
+  Future<void> _sendSignalGroups() async {
+    if (client == null) await _connectMQTTClient();
 
     final routing = getIt<Routing>();
     if (routing.selectedRoute == null) return;
@@ -377,28 +410,26 @@ class Simulator with ChangeNotifier {
     for (final sg in routing.selectedRoute!.signalGroups) {
       final tlID = sg.id;
       const type = "TrafficLight";
-      final deviceID = deviceId;
       final longitude = sg.position.lon;
       final latitude = sg.position.lat;
       final bearing = sg.bearing ?? 0;
 
       Map<String, String> json = {};
       json['type'] = type;
-      json['deviceID'] = deviceID;
       json['tlID'] = tlID;
       json['longitude'] = longitude.toString();
       json['latitude'] = latitude.toString();
       json['bearing'] = bearing.toString();
-      final String message = jsonEncode(json);
-      await _sendViaMQTT(message: message, qualityOfService: MqttQos.atLeastOnce);
+
+      await _sendViaMQTT(messageData: json, qualityOfService: MqttQos.atLeastOnce);
     }
   }
 
   /// Sends updates of the state of the signal group to the simulator.
   /// This will be called throughout the ride whenever the state of the signal group changes.
-  /// Format: {"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"red"}
-  Future<void> sendSignalGroupUpdate() async {
-    if (client == null) await connectMQTTClient();
+  /// Format: {"type":"TrafficLightChange", "appID":"123", "tlID":"456", "state":"red"}
+  Future<void> _sendSignalGroupUpdate() async {
+    if (client == null) await _connectMQTTClient();
 
     final ride = getIt<Ride>();
 
@@ -415,26 +446,23 @@ class Simulator with ChangeNotifier {
     currentSGState = state;
     currentSGId = tlID;
 
-    final simulator = getIt<Simulator>();
     const type = "TrafficLightChange";
-    final deviceID = simulator.deviceId;
 
     Map<String, String> json = {};
     json['type'] = type;
-    json['deviceID'] = deviceID;
     json['tlID'] = tlID;
     json['state'] = state;
-    final String message = jsonEncode(json);
+
     await _sendViaMQTT(
-      message: message,
+      messageData: json,
       qualityOfService: MqttQos.atLeastOnce,
     );
   }
 
   /// Disconnects the MQTT client from the simulator.
-  Future<void> disconnectMQTTClient() async {
+  Future<void> _disconnectMQTTClient() async {
     if (client != null) {
-      client!.unsubscribe(topic);
+      client!.unsubscribe(topicSimulator);
       client!.disconnect();
       client = null;
       log.i("Disconnected from simulator MQTT broker.");

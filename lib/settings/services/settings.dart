@@ -6,7 +6,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -16,6 +16,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
@@ -91,9 +92,6 @@ class Settings with ChangeNotifier {
 
   /// Enable simulator mode for app.
   bool enableSimulatorMode;
-
-  /// Enable BLE SpeedSensor for app.
-  bool enableSpeedSensor;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -417,21 +415,16 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const simulatorModeKey = "priobike.settings.enableSimulatorMode";
   static const defaultSimulatorMode = false;
 
-  Future<bool> setSimulatorMode(bool enableSimulatorMode, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.enableSimulatorMode;
+  Future<void> setSimulatorMode(bool enableSimulatorMode) async {
     this.enableSimulatorMode = enableSimulatorMode;
-    final bool success = await storage.setBool(simulatorModeKey, enableSimulatorMode);
-    if (!success) {
-      log.e("Failed to set enableSimulatorMode to $enableSimulatorMode");
-      this.enableSimulatorMode = prev;
+    if (enableSimulatorMode) {
+      getIt<Simulator>().makeReadyForRide();
     } else {
-      notifyListeners();
+      getIt<Simulator>().cleanUp();
     }
-    return success;
+    notifyListeners();
   }
 
   static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackgroundImages";
@@ -445,23 +438,6 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set didMigrateBackgroundImages to $didMigrateBackgroundImagesKey");
       this.didMigrateBackgroundImages = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
-  static const speedSensorKey = "priobike.settings.enableSpeedSensor";
-  static const defaultSpeedSensorUse = false;
-
-  Future<bool> setSpeedSensor(bool enableSpeedSensor, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.enableSpeedSensor;
-    this.enableSpeedSensor = enableSpeedSensor;
-    final bool success = await storage.setBool(speedSensorKey, enableSpeedSensor);
-    if (!success) {
-      log.e("Failed to set enableSpeedSensor to $enableSpeedSensor");
-      this.enableSpeedSensor = prev;
     } else {
       notifyListeners();
     }
@@ -489,7 +465,6 @@ class Settings with ChangeNotifier {
     this.didViewUserTransfer = defaultDidViewUserTransfer,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
-    this.enableSpeedSensor = defaultSpeedSensorUse,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -534,8 +509,6 @@ class Settings with ChangeNotifier {
     }
 
     enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
-    enableSimulatorMode = storage.getBool(simulatorModeKey) ?? defaultSimulatorMode;
-    enableSpeedSensor = storage.getBool(speedSensorKey) ?? defaultSpeedSensorUse;
   }
 
   /// Load the stored settings.
@@ -650,7 +623,5 @@ class Settings with ChangeNotifier {
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
         "enableGamification": enableGamification,
-        "enableSimulatorMode": enableSimulatorMode,
-        "enableSpeedSensor": enableSpeedSensor
       };
 }

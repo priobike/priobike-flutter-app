@@ -447,20 +447,6 @@ class SettingsViewState extends State<SettingsView> {
                       ),
                       const VSpace(),
                       SettingsElement(
-                        title: "SpeedSensor verwenden",
-                        icon: settings.enableSpeedSensor ? Icons.check_box : Icons.check_box_outline_blank,
-                        callback: () => settings.setSpeedSensor(!settings.enableSpeedSensor),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                        child: Small(
-                          text:
-                              "Hinweis: Falls aktiviert, wird der via Bluetooth verbundene SpeedSensor zur Geschwindigkeitsermittlung genutzt",
-                          context: context,
-                        ),
-                      ),
-                      const VSpace(),
-                      SettingsElement(
                         title: "App bewerten",
                         icon: Icons.rate_review_outlined,
                         callback: () {
