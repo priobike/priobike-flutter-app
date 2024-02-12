@@ -288,20 +288,20 @@ class SpeedSensor with ChangeNotifier {
     // we have to initialize _lastNumberOfRotations when we get the first reading
     _lastNumberOfRotations ??= rotations;
 
-    int rotationDifference = rotations - _lastNumberOfRotations!;
+    int completeRotationDifference = rotations - _lastNumberOfRotations!;
 
-    if (rotationDifference < 0) {
+    if (completeRotationDifference < 0) {
       // we could also check, if value[2] is greater than the last time, but this
       // implementation was done before i noticed that the sensor has a dedicated parameter for this
-      rotationDifference = rotationDifference + 255;
-    } else if (rotationDifference == 0) {
-      // if the difference is 0, no complete rotation was made
-      // Therefore we used the angle difference to calculate the driven distance
-      final angleDifference = values[4];
-      return _wheelCircumferenceMeter * (angleDifference / 360);
+      completeRotationDifference = completeRotationDifference + 255;
     }
 
     _lastNumberOfRotations = rotations;
+
+    final rotationAngelDifference = values[4];
+    final partialRotationDifference = rotationAngelDifference / 360;
+
+    final rotationDifference = completeRotationDifference + partialRotationDifference;
 
     return _wheelCircumferenceMeter * rotationDifference;
   }
