@@ -397,6 +397,8 @@ class Simulator with ChangeNotifier {
   /// ... {"lon":9.976977980510583,"lat":53.56440493672994}]
   Future<void> _sendRouteData() async {
     if (client == null) await _connectMQTTClient();
+    final routing = getIt<Routing>();
+    if (routing.selectedRoute == null) return;
 
     const qualityOfService = MqttQos.atLeastOnce;
 
@@ -404,7 +406,6 @@ class Simulator with ChangeNotifier {
     json['type'] = 'RouteDataStart';
     json['routeData'] = [];
 
-    final routing = getIt<Routing>();
     for (final node in routing.selectedRoute!.route) {
       final Map<String, dynamic> coordinate = {};
       coordinate['lon'] = node.lon;
