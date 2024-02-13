@@ -14,6 +14,7 @@ import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -109,7 +110,9 @@ class Simulator with ChangeNotifier {
     if (routing != null) routing!.removeListener(_processRoutingUpdates);
     if (ride != null) ride!.removeListener(_processRideUpdates);
     if (statistics != null) statistics!.removeListener(_processStatisticsUpdates);
-    getIt<SpeedSensor>().reset();
+    if (settings?.positioningMode == PositioningMode.sensor) {
+      getIt<SpeedSensor>().reset();
+    }
     notifyListeners();
   }
 
@@ -156,7 +159,7 @@ class Simulator with ChangeNotifier {
     if (!ride!.navigationIsActive) {
       if (driving) {
         _sendStopRide();
-        getIt<SpeedSensor>().reset();
+        if (settings?.positioningMode == PositioningMode.sensor) getIt<SpeedSensor>().reset();
         driving = false;
       }
       return;
@@ -164,7 +167,7 @@ class Simulator with ChangeNotifier {
 
     if (!driving) {
       driving = true;
-      getIt<SpeedSensor>().initConnectionToSpeedSensor();
+      if (settings?.positioningMode == PositioningMode.sensor) getIt<SpeedSensor>().initConnectionToSpeedSensor();
     }
     _sendSignalGroupUpdate();
   }
