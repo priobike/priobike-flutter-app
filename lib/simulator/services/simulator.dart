@@ -17,7 +17,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/statistics/services/statistics.dart';
-import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:typed_data/typed_buffers.dart';
 
 class Simulator with ChangeNotifier {
@@ -318,7 +317,7 @@ class Simulator with ChangeNotifier {
       }
 
       // Un-pair message from simulator.
-      if (paired && json['type'] == 'Unpair') {
+      if (paired && json['type'] == 'Unpair' && json['simulatorID'] == pairedSimulatorID) {
         log.i("Unpair received from simulator.");
         cleanUp();
         notifyListeners();
