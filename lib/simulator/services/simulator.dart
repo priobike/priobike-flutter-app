@@ -65,6 +65,9 @@ class Simulator with ChangeNotifier {
   /// Statistics service.
   Statistics? statistics;
 
+  /// Statistics service.
+  Settings? settings;
+
   /// If the pairing is currently in progress.
   bool pairingInProgress = false;
 
@@ -89,13 +92,14 @@ class Simulator with ChangeNotifier {
     ride!.addListener(_processRideUpdates);
     statistics ??= getIt<Statistics>();
     statistics!.addListener(_processStatisticsUpdates);
+    settings ??= getIt<Settings>();
 
     notifyListeners();
   }
 
   /// Dispose the simulator.
   void cleanUp() {
-    _sendUnpair();
+    if (paired) _sendUnpair();
     _disconnectMQTTClient();
     paired = false;
     pairingInProgress = false;
@@ -317,9 +321,12 @@ class Simulator with ChangeNotifier {
       }
 
       // Un-pair message from simulator.
-      if (paired && json['type'] == 'Unpair' && json['simulatorID'] == pairedSimulatorID) {
+      if (json['type'] == 'Unpair' &&
+          ((paired && json['simulatorID'] == pairedSimulatorID ||
+              !paired && pairAcknowledgements.contains(json['simulatorID'])))) {
         log.i("Unpair received from simulator.");
-        cleanUp();
+        paired = false;
+        settings!.setSimulatorMode(false);
         notifyListeners();
       }
     }
