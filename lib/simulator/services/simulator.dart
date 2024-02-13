@@ -494,10 +494,10 @@ class Simulator with ChangeNotifier {
     Map<String, dynamic> json = {};
     json['type'] = 'RideSummary';
     json['rideSummary'] = {
-      "averageSpeed": rideSummary.averageSpeedKmH,
-      "distanceMeters": totalDistanceKilometres,
-      "durationSeconds": formattedTime,
-      "savedCo2inG": rideSummary.savedCo2inG
+      "averageSpeed": rideSummary.averageSpeedKmH.toStringAsFixed(2),
+      "distanceKilometers": totalDistanceKilometres.toStringAsFixed(2),
+      "formattedTime": formattedTime,
+      "savedCo2inG": rideSummary.savedCo2inG.toStringAsFixed(2)
     };
 
     await _sendViaMQTT(
