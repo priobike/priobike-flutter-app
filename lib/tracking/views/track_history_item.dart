@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/formatting/duration.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -550,25 +551,5 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
         ],
       ),
     );
-  }
-}
-
-/// Helper method to format the duration of the track.
-String? formatDuration(int? durationSeconds) {
-  if (durationSeconds == null) return null;
-  if (durationSeconds < 60) {
-    // Show only seconds.
-    final seconds = durationSeconds.floor();
-    return "$seconds s";
-  } else if (durationSeconds < 3600) {
-    // Show minutes and seconds.
-    final minutes = (durationSeconds / 60).floor();
-    final seconds = (durationSeconds - (minutes * 60)).floor();
-    return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
-  } else {
-    // Show only hours and minutes.
-    final hours = (durationSeconds / 3600).floor();
-    final minutes = ((durationSeconds - (hours * 3600)) / 60).floor();
-    return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
   }
 }
