@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Summary;
 import 'package:geolocator/geolocator.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -13,6 +13,9 @@ import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/statistics/models/summary.dart';
+import 'package:priobike/statistics/services/statistics.dart';
+import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:typed_data/typed_buffers.dart';
 
 class Simulator with ChangeNotifier {
@@ -58,6 +61,9 @@ class Simulator with ChangeNotifier {
   /// Ride service.
   Ride? ride;
 
+  /// Statistics service.
+  Statistics? statistics;
+
   /// If the pairing is currently in progress.
   bool pairingInProgress = false;
 
@@ -80,6 +86,8 @@ class Simulator with ChangeNotifier {
     routing!.addListener(_processRoutingUpdates);
     ride ??= getIt<Ride>();
     ride!.addListener(_processRideUpdates);
+    statistics ??= getIt<Statistics>();
+    statistics!.addListener(_processStatisticsUpdates);
 
     notifyListeners();
   }
@@ -150,6 +158,14 @@ class Simulator with ChangeNotifier {
       driving = true;
     }
     _sendSignalGroupUpdate();
+  }
+
+  /// Process ride updates.
+  void _processStatisticsUpdates() {
+    if (paired && !driving && statistics!.currentSummary != null) {
+      // Send ride summary to simulator after drive if available.
+      _sendRideSummary(statistics!.currentSummary!);
+    }
   }
 
   /// Sends a ready pair request to the simulator via MQTT.
@@ -456,6 +472,33 @@ class Simulator with ChangeNotifier {
     await _sendViaMQTT(
       messageData: json,
       qualityOfService: MqttQos.atLeastOnce,
+    );
+  }
+
+  /// Sends a stop ride message to the simulator via MQTT to stop the simulation.
+  /// This will be called when the user ends the ride.
+  /// Format: {"type":"StopRide","appID":"5d2b1"}
+  Future<void> _sendRideSummary(Summary rideSummary) async {
+    if (client == null) await _connectMQTTClient();
+
+    const qualityOfService = MqttQos.atLeastOnce;
+
+    final totalDistanceKilometres = rideSummary.distanceMeters / 1000;
+
+    String? formattedTime = formatDuration(rideSummary.durationSeconds.toInt());
+
+    Map<String, dynamic> json = {};
+    json['type'] = 'RideSummary';
+    json['rideSummary'] = {
+      "averageSpeed": rideSummary.averageSpeedKmH,
+      "distanceMeters": totalDistanceKilometres,
+      "durationSeconds": formattedTime,
+      "savedCo2inG": rideSummary.savedCo2inG
+    };
+
+    await _sendViaMQTT(
+      messageData: json,
+      qualityOfService: qualityOfService,
     );
   }
 

@@ -271,7 +271,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
         final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
         final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-        String? formattedTime = _formatDuration(durationSeconds);
+        String? formattedTime = formatDuration(durationSeconds);
 
         const co2PerKm = 0.1187; // Data according to statista.com in KG
         final savedCo2inG =
@@ -473,7 +473,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
     final totalDistanceKilometres = widget.distanceMeters == null ? 0 : widget.distanceMeters! / 1000;
     final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-    String? formattedTime = _formatDuration(widget.durationSeconds);
+    String? formattedTime = formatDuration(widget.durationSeconds);
 
     const co2PerKm = 0.1187; // Data according to statista.com in KG
     final savedCo2inG = widget.distanceMeters == null && widget.durationSeconds == null
@@ -554,7 +554,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
 }
 
 /// Helper method to format the duration of the track.
-String? _formatDuration(int? durationSeconds) {
+String? formatDuration(int? durationSeconds) {
   if (durationSeconds == null) return null;
   if (durationSeconds < 60) {
     // Show only seconds.
