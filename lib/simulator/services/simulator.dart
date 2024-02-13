@@ -104,6 +104,7 @@ class Simulator with ChangeNotifier {
     if (positioning != null) positioning!.removeListener(_processPositioningUpdates);
     if (routing != null) routing!.removeListener(_processRoutingUpdates);
     if (ride != null) ride!.removeListener(_processRideUpdates);
+    if (statistics != null) statistics!.removeListener(_processStatisticsUpdates);
     getIt<SpeedSensor>().reset();
     notifyListeners();
   }
