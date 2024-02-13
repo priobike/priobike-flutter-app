@@ -9,6 +9,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -103,6 +104,7 @@ class Simulator with ChangeNotifier {
     if (positioning != null) positioning!.removeListener(_processPositioningUpdates);
     if (routing != null) routing!.removeListener(_processRoutingUpdates);
     if (ride != null) ride!.removeListener(_processRideUpdates);
+    getIt<SpeedSensor>().reset();
     notifyListeners();
   }
 
@@ -149,6 +151,7 @@ class Simulator with ChangeNotifier {
     if (!ride!.navigationIsActive) {
       if (driving) {
         _sendStopRide();
+        getIt<SpeedSensor>().reset();
         driving = false;
       }
       return;
@@ -156,6 +159,7 @@ class Simulator with ChangeNotifier {
 
     if (!driving) {
       driving = true;
+      getIt<SpeedSensor>().initConnectionToSpeedSensor();
     }
     _sendSignalGroupUpdate();
   }
