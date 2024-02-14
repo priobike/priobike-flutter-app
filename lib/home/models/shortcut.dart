@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/services/link_shortener.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 /// The shortcut represents a saved route or location with a name.
@@ -33,4 +38,36 @@ abstract class Shortcut {
   Shortcut({required this.type, required this.name, required this.id});
 
   Map<String, dynamic> toJson();
+
+  /// Create sharing link of shortcut.
+  String getLongLink();
+
+  /// Returns a shortcut from a sharing link.
+  static Future<Shortcut?> fromLink(String link) async {
+    try {
+      // Try to resolve a potential short link.
+      String? longLink = await LinkShortener.resolveShortLink(link);
+
+      // If resolving failed we don't have a corresponding long link, this either means the link
+      // got created with an old version of the app (thus the short link is already a long link) or the link is invalid.
+      longLink ??= link;
+
+      // Create a new shortcut from the long link.
+      final subUrls = longLink.split('/');
+      final shortcutBase64 = subUrls.last;
+      final shortcutBytes = base64.decode(shortcutBase64);
+      final shortcutUTF8 = utf8.decode(shortcutBytes);
+      final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
+      shortcutJson['id'] = UniqueKey().toString();
+      Shortcut shortcut;
+      if (shortcutJson['type'] == "ShortcutLocation") {
+        shortcut = ShortcutLocation.fromJson(shortcutJson);
+      } else {
+        shortcut = ShortcutRoute.fromJson(shortcutJson);
+      }
+      return shortcut;
+    } catch (e) {
+      return null;
+    }
+  }
 }

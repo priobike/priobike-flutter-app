@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/main.dart';
@@ -125,6 +127,19 @@ class ShortcutRoute implements Shortcut {
   @override
   Widget getIcon() {
     return const Icon(Icons.route);
+  }
+
+  /// Create sharing link of shortcut.
+  @override
+  String getLongLink() {
+    final Map<String, dynamic> shortcutJson = toJson();
+    final str = json.encode(shortcutJson);
+    final bytes = utf8.encode(str);
+    final base64Str = base64.encode(bytes);
+    const scheme = 'https';
+    const host = 'priobike.vkw.tu-dresden.de';
+    const route = 'import';
+    return '$scheme://$host/$route/$base64Str';
   }
 
   String? getFirstAddress() {

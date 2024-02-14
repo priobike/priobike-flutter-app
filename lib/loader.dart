@@ -12,6 +12,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -33,7 +34,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Loader extends StatefulWidget {
-  const Loader({super.key});
+  final String? shareUrl;
+
+  const Loader({super.key, this.shareUrl});
 
   @override
   LoaderState createState() => LoaderState();
@@ -99,6 +102,13 @@ class LoaderState extends State<Loader> {
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
       ]);
+
+      // Load shared shortcut if app was opened with sharing link
+      if (widget.shareUrl != null) {
+        String url = widget.shareUrl!;
+        final shortcut = await Shortcut.fromLink(url);
+        if (shortcut != null) getIt<Shortcuts>().saveNewShortcutObject(shortcut);
+      }
 
       settings.incrementUseCounter();
     } catch (e, stacktrace) {

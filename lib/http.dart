@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:priobike/logging/logger.dart';
 
@@ -47,10 +48,14 @@ class Http {
   }
 
   /// Make a GET request.
-  static Future<http.Response> get(Uri url) async {
+  static Future<http.Response> get(Uri url, {dynamic headers}) async {
     // Add the cookies to the request.
     final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
-    final headers = {"Cookie": cookieString};
+    if (headers == null) {
+      headers = {"Cookie": cookieString};
+    } else {
+      headers["Cookie"] = cookieString;
+    }
     // Passing the sticky cookie will allow us to connect to the same backend.
     http.Response response = await _client.get(url, headers: headers);
     setCookies(response);
@@ -58,9 +63,13 @@ class Http {
   }
 
   /// Make a POST request.
-  static Future<http.Response> post(Uri url, {dynamic body}) async {
+  static Future<http.Response> post(Uri url, {dynamic body, dynamic headers}) async {
     final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
-    final headers = {"Cookie": cookieString};
+    if (headers == null) {
+      headers = {"Cookie": cookieString};
+    } else {
+      headers["Cookie"] = cookieString;
+    }
     // Passing the sticky cookie will allow us to connect to the same backend.
     http.Response response = await _client.post(url, body: body, headers: headers);
     setCookies(response);

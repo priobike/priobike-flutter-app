@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -13,11 +12,12 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/services/link_shortener.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
-
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
@@ -27,8 +27,6 @@ import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:share_plus/share_plus.dart';
-
-import '../../models/shortcut_location.dart';
 
 /// Show a sheet to edit the current shortcuts name.
 void showEditShortcutSheet(context, int idx) {
@@ -263,23 +261,18 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Future<void> onShareShortcut(int idx) async {
     if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
     final Shortcut shortcut = shortcuts.shortcuts![idx];
-    final Map<String, dynamic> shortcutJson = shortcut.toJson();
-    final str = json.encode(shortcutJson);
-    final bytes = utf8.encode(str);
-    final base64Str = base64.encode(bytes);
-    const scheme = 'https';
-    const host = 'priobike.vkw.tu-dresden.de';
-    const route = 'import';
     String shortcutTypeText = '';
     shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
     final text = 'Probiere $shortcutTypeText in der PrioBike-App aus:';
-    final shareLink = '$scheme://$host/$route/$base64Str';
+    String longLink = shortcut.getLongLink();
+    String? shortLink = await LinkShortener.createShortLink(longLink);
+    if (shortLink == null) return;
     const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie dir hier holen:';
     const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
     const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
     String subject = '';
     shortcut.type == "ShortcutLocation" ? subject = 'Ort teilen' : subject = 'Route teilen';
-    await Share.share('$text \n $shareLink \n $getAppText \n $playStoreLink \n $appStoreLink', subject: subject);
+    await Share.share('$text \n$shortLink \n$getAppText \n$playStoreLink \n$appStoreLink', subject: subject);
   }
 
   /// A callback that is executed when the more button is pressed.
