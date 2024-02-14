@@ -23,13 +23,22 @@ class ShortcutRoute implements Shortcut {
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
 
-  ShortcutRoute({required this.name, required this.waypoints, required this.id});
+  /// The length text of the route.
+  String? routeLengthText;
+
+  /// The time text of the route.
+  String? routeTimeText;
+
+  ShortcutRoute(
+      {required this.name, required this.waypoints, required this.id, this.routeLengthText, this.routeTimeText});
 
   factory ShortcutRoute.fromJson(Map<String, dynamic> json) {
     return ShortcutRoute(
       id: json.keys.contains('id') ? json['id'] : UniqueKey().toString(),
       name: json['name'],
       waypoints: (json['waypoints'] as List).map((e) => Waypoint.fromJson(e)).toList(),
+      routeLengthText: json['routeLengthText'],
+      routeTimeText: json['routeTimeText'],
     );
   }
 
@@ -39,6 +48,8 @@ class ShortcutRoute implements Shortcut {
         'id': id,
         'name': name,
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),
+        'routeLengthText': routeLengthText,
+        'routeTimeText': routeTimeText,
       };
 
   /// Get the linebreaked name of the shortcut route. The name is split into at most 2 lines, by a limit of 15 characters.
@@ -131,5 +142,18 @@ class ShortcutRoute implements Shortcut {
       const route = 'import';
       return '$scheme://$host/$route/$base64Str';
     }
+
+  String? getFirstAddress() {
+    if (waypoints.length >= 2) {
+      return waypoints[0].address;
+    }
+    return null;
+  }
+
+  String? getLastAddress() {
+    if (waypoints.length >= 2) {
+      return waypoints[waypoints.length - 1].address;
+    }
+    return null;
   }
 }

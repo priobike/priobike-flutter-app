@@ -35,7 +35,7 @@ class MapboxMapProjection {
   }
 
   /// Calculate a square bounding box using the Mapbox tile projection system (Mercator).
-  static MapboxMapProjectionBoundingBox? mercatorBoundingBox(List<LatLng> coordinates) {
+  static MapboxMapProjectionBoundingBox? mercatorBoundingBox(List<LatLng> coordinates, double padding) {
     double? minLon;
     double? minLat;
     double? maxLon;
@@ -53,7 +53,7 @@ class MapboxMapProjection {
 
     // Calculate the padding for the background image.
     final vectorLength = sqrt(pow(maxLon - minLon, 2) + pow(maxLat - minLat, 2));
-    final mapPadding = vectorLength * 0.45;
+    final mapPadding = vectorLength * padding;
     minLon -= mapPadding;
     minLat -= mapPadding;
     maxLon += mapPadding;

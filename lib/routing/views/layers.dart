@@ -59,10 +59,8 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
       final styleUri = Theme.of(context).brightness == Brightness.light ? design.lightStyle : design.darkStyle;
 
       final future = MapboxTileImageCache.requestTile(
-        coords: coords,
-        brightness: Theme.of(context).brightness,
-        styleUri: styleUri,
-      ).then((image) {
+              coords: coords, brightness: Theme.of(context).brightness, styleUri: styleUri, mapPadding: 0.45)
+          .then((image) {
         if (image == null) return;
         setState(() {
           screenshots[design] = image;

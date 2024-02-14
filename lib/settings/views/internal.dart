@@ -15,7 +15,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
@@ -24,8 +24,10 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/status/views/status_tabs.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -65,6 +67,9 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The associated bounding box service, which is injected by the provider.
   late Boundary boundary;
 
+  /// The simulator service, which is injected by the provider.
+  late Simulator simulator;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -88,6 +93,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     news.addListener(update);
     weather = getIt<Weather>();
     weather.addListener(update);
+    simulator = getIt<Simulator>();
+    simulator.addListener(update);
     boundary = getIt<Boundary>();
   }
 
@@ -101,6 +108,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     routing.removeListener(update);
     news.removeListener(update);
     weather.removeListener(update);
+    simulator.removeListener(update);
     super.dispose();
   }
 
@@ -204,6 +212,9 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     SubHeader(text: "Interne Features", context: context),
                   ],
                 ),
+                const VSpace(),
+                const StatusTabsView(),
+                const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
@@ -379,6 +390,74 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Simulator nutzen (App-ID: ${getIt<Simulator>().appId})",
+                    icon: settings.enableSimulatorMode ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setSimulatorMode(!settings.enableSimulatorMode),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: !settings.enableSimulatorMode
+                      ? Small(
+                          text: "Hinweis: Startet den Verbindungsprozess mit dem PrioBike Simulator.",
+                          context: context,
+                        )
+                      : !simulator.paired
+                          ? simulator.pairingInProgress
+                              ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(
+                                      height: 12,
+                                      width: 12,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    const SmallHSpace(),
+                                    Flexible(
+                                      child: Small(
+                                        text: "Verbindungsanfrage an Simulator gesendet. Bitte warten oder abbrechen.",
+                                        context: context,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : simulator.pairAcknowledgements.isNotEmpty
+                                  ? Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Small(
+                                          text:
+                                              "Folgende(r) Simulator(en) stehen für die Verbindung zur Verfüung. Bitte auswählen.",
+                                          context: context,
+                                        ),
+                                        for (var i = 0; i < simulator.pairAcknowledgements.length; i++)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 8),
+                                            child: SettingsElement(
+                                              title: "Simulator ${simulator.pairAcknowledgements[i]}",
+                                              icon: Icons.computer_rounded,
+                                              callback: () =>
+                                                  simulator.acknowledgePairing(simulator.pairAcknowledgements[i]),
+                                            ),
+                                          ),
+                                      ],
+                                    )
+                                  : Small(
+                                      text:
+                                          "Verbindung mit Simulator konnte nicht hergestellt werden. Grund dafür kann eine zu häufige Anfrage oder ein Fehler im System sein.",
+                                      context: context,
+                                    )
+                          : Small(
+                              text: "Verbindung mit Simulator hergestellt. Du kannst jetzt den Simulator verwenden.",
+                              context: context,
+                            ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "Tutorials zurücksetzen",
                     icon: Icons.recycling,
                     callback: () => getIt<Tutorial>().deleteCompleted(),
@@ -413,7 +492,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Hintergrundbilder löschen (Neustart notw.)",
                     icon: Icons.recycling,
-                    callback: () => MapboxTileImageCache.deleteAllImages(),
+                    callback: () => MapboxTileImageCache.deleteAllImages(true),
                   ),
                 ),
                 Padding(

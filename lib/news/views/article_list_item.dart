@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -49,7 +51,13 @@ class ArticleListItem extends StatelessWidget {
                   color: CI.radkulturYellow,
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: const Text("NEU", style: TextStyle(fontSize: 16, color: Colors.black)),
+                child: Padding(
+                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                  child: const Text(
+                    "NEU",
+                    style: TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                ),
               ),
             if (category != null)
               Container(
@@ -59,7 +67,13 @@ class ArticleListItem extends StatelessWidget {
                   color: CI.radkulturRed,
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: Text(category!.title, style: const TextStyle(fontSize: 16, color: Colors.white)),
+                child: Padding(
+                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                  child: Text(
+                    category!.title,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
               ),
           ],
         ),

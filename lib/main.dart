@@ -8,6 +8,9 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -20,6 +23,7 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -29,6 +33,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
@@ -93,6 +98,8 @@ Future<void> main() async {
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<POI>(POI());
+  getIt.registerSingleton<Simulator>(Simulator());
+  getIt.registerSingleton<SpeedSensor>(SpeedSensor());
   try {
     runApp(const App());
   } on Error catch (error, stack) {
@@ -139,7 +146,10 @@ class App extends StatelessWidget {
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
-              onSecondary: Colors.white,
+              onSecondary: Color(0xFFCCCCCC),
+              // FIXME Radkultur Grey.
+              tertiary: Color(0xFF444444),
+              onTertiary: Color(0xFFDDDDDD),
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
@@ -149,7 +159,7 @@ class App extends StatelessWidget {
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFF000000),
               // For the background of complete views/pages.
-              background: Colors.white,
+              background: Color(0xFFFCFCFC),
               // For content on the background (color with high contrast).
               onBackground: Color(0xFF000000),
               // For the splash effect on buttons.
@@ -171,8 +181,8 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineLarge: TextStyle(
@@ -183,13 +193,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF000000),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -201,13 +211,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFF000000),
               ),
@@ -239,7 +249,10 @@ class App extends StatelessWidget {
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
-              onSecondary: Colors.white,
+              onSecondary: Color(0xFFCCCCCC),
+              // FIXME Radkultur Grey.
+              tertiary: Color(0xFFDDDDDD),
+              onTertiary: Color(0xFF333333),
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
@@ -249,7 +262,7 @@ class App extends StatelessWidget {
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFFFFFFFF),
               // For the background of complete views/pages.
-              background: Colors.black,
+              background: Color(0xFF222222),
               // For content on the background (color with high contrast).
               onBackground: Color(0xFFFFFFFF),
               // For the splash effect on buttons.
@@ -271,8 +284,8 @@ class App extends StatelessWidget {
               ),
               displaySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineLarge: TextStyle(
@@ -283,13 +296,13 @@ class App extends StatelessWidget {
               ),
               headlineMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFFFFFFF),
               ),
               headlineSmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
@@ -301,13 +314,13 @@ class App extends StatelessWidget {
               ),
               bodyMedium: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),
               bodySmall: TextStyle(
                 fontFamily: 'HamburgSans',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w300,
                 color: Color(0xFFFFFFFF),
               ),

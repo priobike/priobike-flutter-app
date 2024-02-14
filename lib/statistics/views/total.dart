@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -46,6 +48,13 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Fahrtstatistiken',
@@ -80,7 +89,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             child: SizedBox(
               width: 48,
               height: 48,
-              child: SmallIconButton(
+              child: SmallIconButtonPrimary(
                 icon: Icons.info_outline_rounded,
                 fill: Theme.of(context).colorScheme.surfaceVariant,
                 splash: Theme.of(context).colorScheme.surfaceTint,

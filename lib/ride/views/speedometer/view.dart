@@ -15,8 +15,8 @@ import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
-import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/shadow.dart';
+import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -34,7 +34,8 @@ class RideSpeedometerView extends StatefulWidget {
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
 }
 
-class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerProviderStateMixin {
+class RideSpeedometerViewState extends State<RideSpeedometerView>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   static const viewId = "ride.views.speedometer";
 
   /// The minimum speed in km/h.
@@ -120,6 +121,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     ride.addListener(updateLayout);
 
     updateSpeedometer();
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  Future<void> didChangeMetrics() async {
+    if (Platform.isAndroid) {
+      await Future.delayed(const Duration(milliseconds: 10));
+      SystemChrome.restoreSystemUIOverlays();
+    }
   }
 
   @override
@@ -128,10 +139,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     positioning.removeListener(updateSpeedometer);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  /// Hide the buttom navigation bar on Android. Will be reenabled in the home screen.
+  /// Hide the bottom navigation bar on Android. Will be reenabled in the home screen.
   void hideNavigationBarAndroid() {
     if (Platform.isAndroid) {
       SystemChrome.setEnabledSystemUIMode(

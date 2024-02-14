@@ -276,13 +276,14 @@ class RouteLabelLayer {
             sourceId: sourceId,
             id: layerId,
             iconSize: iconSize,
-            iconOpacity: 0,
-            textOpacity: 0,
+            iconOpacity: 1,
+            textOpacity: 1,
             iconAllowOverlap: true,
             iconIgnorePlacement: true,
             textSize: textSize,
             textAllowOverlap: true,
             textIgnorePlacement: true,
+            minZoom: 7.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "imageSource"]));
@@ -450,6 +451,7 @@ class DiscomfortsLayer {
             textAnchor: mapbox.TextAnchor.CENTER,
             textAllowOverlap: true,
             textOpacity: 0,
+            minZoom: 12.0,
           ),
           mapbox.LayerPosition(at: at),
         );

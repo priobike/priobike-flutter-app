@@ -24,7 +24,7 @@ class GreenWaveLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/static_green_waves.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/static_green_waves_v2.geojson"),
     );
   }
 
@@ -43,6 +43,7 @@ class GreenWaveLayer {
             iconSize: iconSize,
             iconOpacity: 0,
             iconAllowOverlap: true,
+            minZoom: 9.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
@@ -80,7 +81,7 @@ class VeloRoutesLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/velo_routes.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/velo_routes_v2.geojson", tolerance: 1),
     );
   }
 
@@ -93,12 +94,14 @@ class VeloRoutesLayer {
     if (!layerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-              sourceId: sourceId,
-              id: layerId,
-              lineJoin: mapbox.LineJoin.ROUND,
-              lineCap: mapbox.LineCap.ROUND,
-              lineColor: const Color.fromARGB(255, 64, 192, 240).value,
-              lineWidth: 1.9),
+            sourceId: sourceId,
+            id: layerId,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineColor: const Color.fromARGB(255, 64, 192, 240).value,
+            lineWidth: 1.9,
+            minZoom: 5.0,
+          ),
           mapbox.LayerPosition(at: at));
     }
   }

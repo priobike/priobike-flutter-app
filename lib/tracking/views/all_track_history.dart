@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
@@ -12,6 +13,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -20,6 +22,8 @@ import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+const double shortcutRightPad = 16;
 
 class AllTracksHistoryView extends StatefulWidget {
   const AllTracksHistoryView({super.key});
@@ -44,9 +48,26 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   /// The previous tracks.
   List<Track> previousTracks = List.empty(growable: true);
 
+  /// The tracks that will be displayed.
+  List<Widget> tracksToBeDisplayed = List.empty(growable: true);
+
+  /// The number of tracks being displayed. (Pagination)
+  int numberTracks = 12;
+
+  /// The index of the track that needs to be animated. (Pagination)
+  int animateTracksIndex = 0;
+
+  /// The scroll controller of the single child scroll view.
+  ScrollController scrollController = ScrollController();
+
+  /// The lock to wait for animation of the track widgets.
+  /// Lock time is 2 tracks * animation time.
+  final Lock lock = Lock(milliseconds: 2 * 700);
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   Future<void> update() async {
     await loadTracks();
+    updateTrackWidgets();
     setState(() {});
   }
 
@@ -74,9 +95,95 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         // Needs to be loaded after the tracks are loaded because we use them.
         await loadTracks();
 
+        // Add first 12 tracks.
+        addTrackWidgets();
+
         setState(() {});
+
+        // Add a scroll listener for pagination.
+        scrollController.addListener(() {
+          if (numberTracks < previousTracks.length) {
+            // To only extend the list, when scroll position is close to the end of the list.
+            // Calculation: 0.5 + (half the ratio of tracks displayed - padding to never be to close to 1).
+            if (scrollController.offset >=
+                scrollController.position.maxScrollExtent *
+                    (0.5 + ((numberTracks / previousTracks.length) / 2) - 0.1)) {
+              lock.run(() async {
+                // Add new track history items.
+                numberTracks = numberTracks + 12;
+                animateTracksIndex = animateTracksIndex + 12;
+                addTrackWidgets();
+                await loadStorage();
+                setState(() {});
+              });
+            }
+          }
+        });
       },
     );
+  }
+
+  /// Adds new track widgets.
+  void addTrackWidgets() {
+    for (int i = animateTracksIndex; i < numberTracks; i++) {
+      if (previousTracks.length > i) {
+        final track = previousTracks[i];
+        final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+
+        tracksToBeDisplayed.add(
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: BlendIn(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
+              delay: Duration(milliseconds: 200 * (i - animateTracksIndex)),
+              child: TrackHistoryItemTileView(
+                key: ValueKey(track.sessionId),
+                track: track,
+                width: shortcutWidth,
+                startImage: startImage!,
+                destinationImage: destinationImage!,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Updates all track widgets.
+  void updateTrackWidgets() {
+    if (tracksToBeDisplayed.isEmpty) return;
+    tracksToBeDisplayed = [];
+    for (int i = 0; i < numberTracks; i++) {
+      if (previousTracks.length > i) {
+        final track = previousTracks[i];
+        final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
+
+        tracksToBeDisplayed.add(
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: BlendIn(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
+              child: TrackHistoryItemTileView(
+                key: ValueKey(track.sessionId),
+                track: track,
+                width: shortcutWidth,
+                startImage: startImage!,
+                destinationImage: destinationImage!,
+              ),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   /// Loads the tracks.
@@ -146,16 +253,19 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Alle Fahrten löschen',
           text: "Bitte bestätige, dass Du die gespeicherten Fahrten löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
-              iconColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
+            BigButtonPrimary(
               fillColor: CI.radkulturYellow,
               textColor: Colors.black,
               label: "Löschen",
@@ -164,12 +274,12 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                 update();
                 Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButton(
+            BigButtonTertiary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
           ],
         );
@@ -179,15 +289,13 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
-    final shortcutWidth = ((MediaQuery.of(context).size.width - 36) / 2) - shortcutRightPad;
-
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
         body: Fade(
           child: SingleChildScrollView(
+            controller: scrollController,
             child: SafeArea(
               child: Column(
                 children: [
@@ -215,33 +323,29 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                       child: Wrap(
                         spacing: 18,
                         runSpacing: 18,
-                        children: previousTracks
-                            .asMap()
-                            .entries
-                            .map(
-                              (track) => BlendIn(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeInOutCubic,
-                                delay: Duration(milliseconds: 200 * track.key),
-                                child: TrackHistoryItemTileView(
-                                  key: ValueKey(track.value.sessionId),
-                                  track: track.value,
-                                  width: shortcutWidth,
-                                  startImage: startImage!,
-                                  destinationImage: destinationImage!,
-                                ),
-                              ),
-                            )
-                            .toList(),
+                        children: tracksToBeDisplayed,
                       ),
                     ),
                   const VSpace(),
+                  BlendIn(
+                    delay: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 500),
+                    child: HPad(
+                      child: Content(
+                        text:
+                            "${numberTracks > previousTracks.length ? previousTracks.length : numberTracks} von ${previousTracks.length} Fahrten geladen",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const SmallVSpace(),
                   if (usedDiskSpace != null)
-                    HPad(
-                      child: BlendIn(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOutCubic,
-                        delay: Duration(milliseconds: 200 * previousTracks.length),
+                    BlendIn(
+                      delay: const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 500),
+                      child: HPad(
                         child: Content(
                           text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
                           context: context,

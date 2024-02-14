@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +18,8 @@ import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/views/sensor_state.dart';
+import 'package:priobike/simulator/views/simulator_state.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -72,13 +72,13 @@ class RideViewState extends State<RideView> {
         final tracking = getIt<Tracking>();
         final positioning = getIt<Positioning>();
         final datastream = getIt<Datastream>();
-        final routing = getIt<Routing>();
+        routing = getIt<Routing>();
         final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
-        final ride = getIt<Ride>();
+        ride = getIt<Ride>();
 
         // Save the shortcut id if there exists a matching shortcut for the selected waypoints.
         ride.setShortcut(routing.selectedWaypoints!);
@@ -89,13 +89,14 @@ class RideViewState extends State<RideView> {
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
+
         // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = getIt<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
           await datastream.connect();
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
+
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           onNoPermission: () {
@@ -158,7 +159,6 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
-
     super.dispose();
   }
 
@@ -194,74 +194,88 @@ class RideViewState extends State<RideView> {
       positionSpeedometerRight = 6.0;
     }
 
+    final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
+
     return PopScope(
       onPopInvoked: (type) async => false,
       child: Scaffold(
         body: ScreenTrackingView(
-          child: SafeArea(
-            top: false,
-            bottom: Platform.isAndroid ? true : false,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              clipBehavior: Clip.none,
-              children: [
-                RideMapView(
-                  onMapMoved: onMapMoved,
-                  cameraFollowUserLocation: cameraFollowsUserLocation,
-                ),
-                if (settings.saveBatteryModeEnabled)
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 15,
-                    left: 10,
-                    child: const Image(
-                      width: 100,
-                      image: AssetImage('assets/images/mapbox-logo-transparent.png'),
-                    ),
-                  ),
-                if (settings.saveBatteryModeEnabled)
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 5,
-                    right: 10,
-                    child: IconButton(
-                      onPressed: () => MapboxAttribution.showAttribution(context),
-                      icon: const Icon(
-                        Icons.info_outline_rounded,
-                        size: 25,
-                        color: CI.radkulturRed,
-                      ),
-                    ),
-                  ),
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            clipBehavior: Clip.none,
+            children: [
+              RideMapView(
+                onMapMoved: onMapMoved,
+                cameraFollowUserLocation: cameraFollowsUserLocation,
+              ),
+              if (settings.saveBatteryModeEnabled)
                 Positioned(
-                  right: positionSpeedometerRight,
-                  child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
+                  top: MediaQuery.of(context).padding.top + 15,
+                  left: 10,
+                  child: const Image(
+                    width: 100,
+                    image: AssetImage('assets/images/mapbox-logo-transparent.png'),
+                  ),
                 ),
-                const DatastreamView(),
-                const FinishRideButton(),
-                if (!cameraFollowsUserLocation)
-                  SafeArea(
-                    bottom: true,
+              if (settings.saveBatteryModeEnabled)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 5,
+                  right: 10,
+                  child: IconButton(
+                    onPressed: () => MapboxAttribution.showAttribution(context),
+                    icon: const Icon(
+                      Icons.info_outline_rounded,
+                      size: 25,
+                      color: CI.radkulturRed,
+                    ),
+                  ),
+                ),
+              Positioned(
+                right: positionSpeedometerRight,
+                child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
+              ),
+              if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
+              FinishRideButton(),
+              if (!cameraFollowsUserLocation)
+                SafeArea(
+                  bottom: true,
+                  child: Padding(
+                    padding: paddingCenterButton,
+                    child: BigButtonPrimary(
+                      label: "Zentrieren",
+                      elevation: 20,
+                      onPressed: () {
+                        final ride = getIt<Ride>();
+                        if (ride.userSelectedSG != null) ride.unselectSG();
+                        setState(() {
+                          cameraFollowsUserLocation = true;
+                        });
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                    ),
+                  ),
+                ),
+              if (simulatorEnabled)
+                const Positioned(
+                  left: 0,
+                  top: 0,
+                  child: SafeArea(
                     child: Padding(
-                      padding: paddingCenterButton,
-                      child: BigButton(
-                        icon: Icons.navigation_rounded,
-                        iconColor: Colors.white,
-                        fillColor: Theme.of(context).colorScheme.primary,
-                        label: "Zentrieren",
-                        elevation: 20,
-                        onPressed: () {
-                          final ride = getIt<Ride>();
-                          if (ride.userSelectedSG != null) ride.unselectSG();
-                          setState(() {
-                            cameraFollowsUserLocation = true;
-                          });
-                        },
-                        boxConstraints:
-                            BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                      padding: EdgeInsets.only(top: 48),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SimulatorState(
+                            tileAlignment: TileAlignment.left,
+                            onlyShowErrors: true,
+                          ),
+                          SensorState(),
+                        ],
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),

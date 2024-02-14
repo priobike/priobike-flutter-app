@@ -48,7 +48,7 @@ class ImportGpxInfoState extends State<ImportGpxInfo> {
           ),
           const VSpace(),
           if (gpxConversionState == GpxConversionState.init)
-            BigButton(
+            BigButtonPrimary(
               label: 'Konvertieren',
               onPressed: () => widget.convertCallback.call(),
             ),

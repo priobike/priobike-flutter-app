@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/wiki/articles.dart';
 import 'package:priobike/wiki/widgets/wiki_card.dart';
 
@@ -38,28 +37,6 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.fromLTRB(32, 16, 32, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            BoldContent(
-              text: "Wie funktioniert PrioBike?",
-              context: context,
-              textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            const SizedBox(height: 4),
-            Small(
-              text: "Erfahre mehr über die App.",
-              context: context,
-              textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ],
-        ),
-      ),
       SizedBox(
         width: MediaQuery.of(context).size.width,
         height: 164,

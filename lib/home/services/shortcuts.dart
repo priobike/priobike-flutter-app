@@ -29,7 +29,7 @@ class Shortcuts with ChangeNotifier {
     final routing = getIt<Routing>();
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
-    // Check if waypoint contains "Standort" as address and change it to geolocation
+    // Check if waypoint contains "Standort" as address and change it to geolocation.
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
         final geocoding = getIt<Geocoding>();
@@ -46,6 +46,8 @@ class Shortcuts with ChangeNotifier {
       id: UniqueKey().toString(),
       name: name,
       waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList(),
+      routeTimeText: routing.selectedRoute?.timeText,
+      routeLengthText: routing.selectedRoute?.lengthText,
     );
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;

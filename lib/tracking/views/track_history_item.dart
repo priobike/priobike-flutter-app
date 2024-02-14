@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -6,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/formatting/duration.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -147,8 +149,6 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
       }
     }
-    // Add the time.
-    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
 
     // Determine the duration.
     final trackDurationFormatted = durationSeconds != null
@@ -163,10 +163,14 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         onPressed: () => showAppSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => TrackHistoryItemDetailView(
+          builder: (context) => TrackHistoryItemAppSheetView(
             track: widget.track,
             startImage: widget.startImage,
             destinationImage: widget.destinationImage,
+            height: MediaQuery.of(context).size.width - 40,
+            positions: positions,
+            distanceMeters: distanceMeters,
+            durationSeconds: durationSeconds,
           ),
         ),
         shadow: const Color.fromARGB(255, 0, 0, 0),
@@ -199,10 +203,6 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                       text: relativeTime,
                       context: context,
                     ),
-                    Small(
-                      text: clock,
-                      context: context,
-                    )
                   ],
                 )),
             if (trackDurationFormatted != null)
@@ -220,73 +220,9 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                   ),
                 ),
               ),
-            Positioned(
-              right: 12,
-              bottom: 12,
-              child: Container(
-                height: 42,
-                width: 42,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? Colors.white.withOpacity(0.75)
-                      : Colors.black.withOpacity(0.25),
-                ),
-                child: IconButton(
-                  onPressed: () => _showDeleteDialog(context),
-                  visualDensity: VisualDensity.compact,
-                  icon: Icon(
-                    Icons.delete_rounded,
-                    size: 24,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                  ),
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  /// Show a dialog that asks if the track really shoud be deleted.
-  void _showDeleteDialog(BuildContext context) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.4),
-      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        return DialogLayout(
-          title: 'Fahrt löschen',
-          text: "Bitte bestätige, dass Du diese Fahrt löschen möchtest.",
-          icon: Icons.delete_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
-          actions: [
-            BigButton(
-              iconColor: Colors.black,
-              textColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
-              fillColor: CI.radkulturYellow,
-              label: "Löschen",
-              onPressed: () {
-                getIt<Tracking>().deleteTrack(widget.track);
-                Navigator.of(context).pop();
-              },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            ),
-            BigButton(
-              label: "Abbrechen",
-              onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            ),
-          ],
-        );
-      },
     );
   }
 }
@@ -297,6 +233,9 @@ class TrackHistoryItemDetailView extends StatefulWidget {
 
   /// The width of the view.
   final double? width;
+
+  /// The height of this widget.
+  final double? height;
 
   /// The image of the route start icon.
   final ui.Image startImage;
@@ -310,6 +249,7 @@ class TrackHistoryItemDetailView extends StatefulWidget {
     required this.startImage,
     required this.destinationImage,
     this.width,
+    this.height,
   });
 
   @override
@@ -328,14 +268,11 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
     return FutureBuilder<void>(
       future: _loadTrack(widget.track),
       builder: (context, snapshot) {
-        final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
-        final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
-
         final totalDurationHours = durationSeconds == null ? 0 : durationSeconds! / 3600;
         final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
         final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-        String? formattedTime = _formatDuration();
+        String? formattedTime = formatDuration(durationSeconds);
 
         const co2PerKm = 0.1187; // Data according to statista.com in KG
         final savedCo2inG =
@@ -364,68 +301,166 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
             ),
           ),
         );
+
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
-              ? Tile(
-                  padding: const EdgeInsets.all(0),
-                  borderRadius: BorderRadius.circular(20),
-                  content: TrackPictogram(
-                    key: ValueKey(widget.track.sessionId),
-                    track: positions,
-                    blurRadius: 2,
-                    startImage: widget.startImage,
-                    destinationImage: widget.destinationImage,
-                    iconSize: 16,
-                    lineWidth: 6,
-                  ),
+              ? TrackPictogram(
+                  key: ValueKey(widget.track.sessionId),
+                  track: positions,
+                  blurRadius: 2,
+                  startImage: widget.startImage,
+                  destinationImage: widget.destinationImage,
+                  iconSize: 16,
+                  lineWidth: 6,
+                  // Note: in the feedback view the background image map (1000x1000 pixel) is displayed in full height.
+                  // Therefore the track pictogram needs to be extended outside the screen (logically).
+                  // So we calculate, how much the height is greater then the width.
+                  // This means the ratio is height / width.
+                  imageHeightRatio: MediaQuery.of(context).size.height / MediaQuery.of(context).size.width,
+                  mapboxTop: MediaQuery.of(context).padding.top + 96,
+                  mapboxRight: 20,
+                  mapboxWidth: 64,
+                  // Padding + 2 * button height + padding + padding bottom.
+                  speedLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
+                  speedLegendLeft: 20,
                 )
               : Center(
                   child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
                 );
         }
 
-        return Wrap(
-          children: [
-            Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              BoldContent(text: "Deine Fahrt vom", context: context),
-                              Content(
-                                text: lastTrackDateFormatted,
-                                context: context,
-                                color: Theme.of(context).colorScheme.onBackground,
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SmallVSpace(),
-                        Container(
-                            // use width as height to make it a square
-                            height: MediaQuery.of(context).size.width,
-                            width: MediaQuery.of(context).size.width,
-                            padding: const EdgeInsets.all(24),
-                            child: content),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: trackStats,
-                        )
-                      ],
-                    ),
-                  ],
+        return SizedBox(
+          height: widget.height ?? MediaQuery.of(context).size.height,
+          width: widget.width ?? MediaQuery.of(context).size.width,
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              content,
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                  child: Material(
+                    color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                    child: SizedBox(
+                      height: 86 + MediaQuery.of(context).padding.top,
+                      child: Container(),
+                    ), // Extra container is required for the blur.
+                  ),
                 ),
-                const VSpace(),
-              ],
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
+                  child: trackStats,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class TrackHistoryItemAppSheetView extends StatefulWidget {
+  /// The track to display.
+  final Track track;
+
+  /// The height of this widget.
+  final double height;
+
+  /// The image of the route start icon.
+  final ui.Image startImage;
+
+  /// The image of the route destination icon.
+  final ui.Image destinationImage;
+
+  /// The GPS positions of the driven route.
+  final List<Position> positions;
+
+  /// The driven distance in meters.
+  final double? distanceMeters;
+
+  /// The duration of the track in seconds.
+  final int? durationSeconds;
+
+  const TrackHistoryItemAppSheetView(
+      {super.key,
+      required this.track,
+      required this.startImage,
+      required this.destinationImage,
+      required this.height,
+      required this.positions,
+      this.distanceMeters,
+      this.durationSeconds});
+
+  @override
+  State<StatefulWidget> createState() => TrackHistoryItemAppSheetViewState();
+}
+
+class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetView> {
+  /// The widget that displays the track on a map.
+  Widget trackPictogram = Container();
+
+  @override
+  void initState() {
+    super.initState();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // Create TrackHistory once to prevent getting rebuild on every setState.
+      setState(() {
+        trackPictogram = TrackPictogram(
+          key: ValueKey(widget.track.sessionId),
+          track: widget.positions,
+          blurRadius: 2,
+          startImage: widget.startImage,
+          destinationImage: widget.destinationImage,
+          iconSize: 16,
+          lineWidth: 6,
+          imageWidthRatio: 1,
+          mapboxTop: MediaQuery.of(context).padding.top + 10,
+          mapboxRight: 20,
+          mapboxWidth: 64,
+        );
+      });
+    });
+    initializeDateFormatting();
+  }
+
+  /// Show a dialog that asks if the track really shoud be deleted.
+  void _showDeleteDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Fahrt löschen',
+          text: "Bitte bestätige, dass Du diese Fahrt löschen möchtest.",
+          actions: [
+            BigButtonPrimary(
+              textColor: Colors.black,
+              fillColor: CI.radkulturYellow,
+              label: "Löschen",
+              onPressed: () {
+                getIt<Tracking>().deleteTrack(widget.track);
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+            BigButtonTertiary(
+              label: "Abbrechen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
           ],
         );
@@ -433,23 +468,88 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
     );
   }
 
-  /// Helper method to format the duration of the track.
-  String? _formatDuration() {
-    if (durationSeconds == null) return null;
-    if (durationSeconds! < 60) {
-      // Show only seconds.
-      final seconds = durationSeconds!.floor();
-      return "$seconds s";
-    } else if (durationSeconds! < 3600) {
-      // Show minutes and seconds.
-      final minutes = (durationSeconds! / 60).floor();
-      final seconds = (durationSeconds! - (minutes * 60)).floor();
-      return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
+  @override
+  Widget build(BuildContext context) {
+    final totalDurationHours = widget.durationSeconds == null ? 0 : widget.durationSeconds! / 3600;
+    final totalDistanceKilometres = widget.distanceMeters == null ? 0 : widget.distanceMeters! / 1000;
+    final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
+
+    String? formattedTime = formatDuration(widget.durationSeconds);
+
+    const co2PerKm = 0.1187; // Data according to statista.com in KG
+    final savedCo2inG = widget.distanceMeters == null && widget.durationSeconds == null
+        ? 0
+        : (widget.distanceMeters! / 1000) * co2PerKm * 1000;
+
+    var relativeTime = "";
+    final now = DateTime.now();
+    final trackDate = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime);
+    final isToday = trackDate.day == now.day && trackDate.month == now.month && trackDate.year == now.year;
+    if (isToday) {
+      relativeTime = "Heute";
     } else {
-      // Show only hours and minutes.
-      final hours = (durationSeconds! / 3600).floor();
-      final minutes = ((durationSeconds! - (hours * 3600)) / 60).floor();
-      return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
+      final yesterday = now.subtract(const Duration(days: 1));
+      if (trackDate.day == yesterday.day && trackDate.month == yesterday.month && trackDate.year == yesterday.year) {
+        relativeTime = "Gestern";
+      } else {
+        relativeTime = DateFormat('dd.MM.yy', 'de_DE').format(trackDate);
+      }
     }
+    // Add the time.
+    final clock = "${DateFormat('HH:mm', 'de_DE').format(trackDate)} Uhr";
+
+    final Widget trackStats;
+    if (widget.distanceMeters != null && widget.durationSeconds != null && formattedTime != null) {
+      trackStats = TrackStats(
+        formattedTime: formattedTime,
+        distanceMeters: widget.distanceMeters,
+        averageSpeedKmH: averageSpeedKmH,
+        savedCo2inG: savedCo2inG,
+      );
+    } else {
+      trackStats = const TrackStats();
+    }
+
+    return Container(
+      // VSpace + Content + SmallVSpace + Track map size + 20 + Details + padding + 44 Stats.
+      height: (24 + 32 + 16 + 20 + widget.height + 20 + 42 + 62 + MediaQuery.of(context).padding.bottom),
+      // width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).colorScheme.background,
+      ),
+      child: Column(
+        children: [
+          const VSpace(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              BoldContent(text: relativeTime, context: context),
+              Content(text: clock, context: context),
+            ]),
+          ),
+          const VSpace(),
+          SizedBox(width: MediaQuery.of(context).size.width - 40, height: widget.height, child: trackPictogram),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            child: trackStats,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            height: 42,
+            child: BigButtonTertiary(
+              label: "Fahrt löschen",
+              onPressed: () => _showDeleteDialog(context),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).padding.bottom,
+          ),
+          const SmallVSpace(),
+          // Button to delete track
+        ],
+      ),
+    );
   }
 }

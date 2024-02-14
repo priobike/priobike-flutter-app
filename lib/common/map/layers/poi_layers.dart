@@ -15,6 +15,9 @@ class ParkingStationsLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "parking-stations-icons";
 
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "parking-stations-click";
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
@@ -25,7 +28,7 @@ class ParkingStationsLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking_v2.geojson"),
     );
   }
 
@@ -44,6 +47,7 @@ class ParkingStationsLayer {
             iconSize: iconSize,
             iconOpacity: 0,
             iconAllowOverlap: true,
+            minZoom: 12.0,
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
@@ -52,6 +56,46 @@ class ParkingStationsLayer {
           json.encode(
             showAfter(zoom: 15),
           ));
+    }
+
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
+    if (!clickLayerExists) {
+      // Add the icon click layer to prevent clicking the invisible parts of the icon image.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: clickLayerId,
+          iconImage: "iconclicklayer",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 1,
+          iconAnchor: mapbox.IconAnchor.BOTTOM,
+          // To disable clicking invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+    }
+  }
+
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-image',
+          json.encode([
+            "case",
+            [
+              "==",
+              ["get", "id"],
+              selectedPOIId ?? ""
+            ],
+            "parkselected",
+            isDark ? "parkdark" : "parklight"
+          ]));
     }
   }
 
@@ -71,6 +115,12 @@ class RentalStationsLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "rental-stations-icons";
 
+  /// The ID of the Mapbox text layer.
+  static const textLayerId = "rental-stations-text";
+
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "rental-stations-click";
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
@@ -81,7 +131,7 @@ class RentalStationsLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental_v2.geojson"),
     );
   }
 
@@ -100,6 +150,27 @@ class RentalStationsLayer {
           iconSize: iconSize,
           iconAllowOverlap: true,
           iconOpacity: 0,
+          // To disable clicking invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-opacity',
+          json.encode(
+            showAfter(zoom: 15),
+          ));
+    }
+
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
+    if (!textLayerExists) {
+      // Add the text layer separately to prevent clicking invisible text.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: textLayerId,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -108,17 +179,14 @@ class RentalStationsLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          // To disable clicking on invisible text.
+          minZoom: 16.0,
         ),
         mapbox.LayerPosition(at: at),
       );
+
       await mapController.style.setStyleLayerProperty(
-          layerId,
-          'icon-opacity',
-          json.encode(
-            showAfter(zoom: 15),
-          ));
-      await mapController.style.setStyleLayerProperty(
-          layerId,
+          textLayerId,
           'text-offset',
           json.encode(
             [
@@ -127,7 +195,7 @@ class RentalStationsLayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          layerId,
+          textLayerId,
           'text-field',
           json.encode([
             "case",
@@ -135,12 +203,67 @@ class RentalStationsLayer {
             [
               // Concatenate "Ausleihstation" with the name of the station.
               "concat",
-              "Fahrradleihe ",
+              "Ausleihstation ",
               ["get", "name"]
             ],
             "Fahrradleihe "
           ]));
-      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(textLayerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+    }
+
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
+    if (!clickLayerExists) {
+      // Add the icon click layer to prevent clicking the invisible parts of the icon image.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: clickLayerId,
+          iconImage: "iconclicklayer",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 1,
+          iconAnchor: mapbox.IconAnchor.BOTTOM,
+          // To disable clicking invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+    }
+  }
+
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-image',
+          json.encode([
+            "case",
+            [
+              "==",
+              ["get", "id"],
+              selectedPOIId ?? ""
+            ],
+            "rentselected",
+            isDark ? "rentdark" : "rentlight"
+          ]));
+
+      // Overwrite text opacity to hide the unselected icon text.
+      await mapController.style.setStyleLayerProperty(
+          textLayerId,
+          'text-opacity',
+          json.encode(showAfter(zoom: 17, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "id"],
+              selectedPOIId ?? ""
+            ],
+            0,
+            1
+          ])));
     }
   }
 
@@ -150,15 +273,32 @@ class RentalStationsLayer {
     if (layerExists) {
       await mapController.style.removeStyleLayer(layerId);
     }
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
+    if (textLayerExists) {
+      await mapController.style.removeStyleLayer(textLayerId);
+    }
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
+    if (clickLayerExists) {
+      await mapController.style.removeStyleLayer(clickLayerId);
+    }
   }
 }
 
 class BikeShopLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
   /// The ID of the Mapbox source.
   static const sourceId = "bike-shop";
 
   /// The ID of the Mapbox layer.
   static const layerId = "bike-shop-icons";
+
+  /// The ID of the Mapbox text layer.
+  static const textLayerId = "bike-shop-text";
+
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "bike-shop-click";
 
   /// If the layer should display a dark version of the icons.
   final bool isDark;
@@ -170,7 +310,7 @@ class BikeShopLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop_v2.geojson"),
     );
   }
 
@@ -189,6 +329,17 @@ class BikeShopLayer {
           iconSize: iconSize,
           iconAllowOverlap: true,
           iconOpacity: 0,
+          // To disable clicking on invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+
+      // Add the text layer separately to prevent clicking invisible text.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: textLayerId,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -197,9 +348,28 @@ class BikeShopLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          // To disable clicking on invisible text.
+          minZoom: 16.0,
         ),
         mapbox.LayerPosition(at: at),
       );
+
+      // Add the icon click layer to prevent clicking the invisible parts of the icon image.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: clickLayerId,
+          iconImage: "iconclicklayer",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 1,
+          iconAnchor: mapbox.IconAnchor.BOTTOM,
+          // To disable clicking invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -207,7 +377,7 @@ class BikeShopLayer {
             showAfter(zoom: 15),
           ));
       await mapController.style.setStyleLayerProperty(
-          layerId,
+          textLayerId,
           'text-offset',
           json.encode(
             [
@@ -216,7 +386,7 @@ class BikeShopLayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          layerId,
+          textLayerId,
           'text-field',
           json.encode([
             "case",
@@ -234,7 +404,43 @@ class BikeShopLayer {
             ],
             "Fahrradladen"
           ]));
-      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(textLayerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+    }
+  }
+
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-image',
+          json.encode([
+            "case",
+            [
+              "==",
+              ["get", "id"],
+              selectedPOIId ?? ""
+            ],
+            "repairselected",
+            isDark ? "repairdark" : "repairlight"
+          ]));
+
+      // Overwrite text opacity to hide the unselected icon text.
+      await mapController.style.setStyleLayerProperty(
+          textLayerId,
+          'text-opacity',
+          json.encode(showAfter(zoom: 17, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "id"],
+              selectedPOIId ?? ""
+            ],
+            0,
+            1
+          ])));
     }
   }
 
@@ -243,6 +449,14 @@ class BikeShopLayer {
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (layerExists) {
       await mapController.style.removeStyleLayer(layerId);
+    }
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
+    if (textLayerExists) {
+      await mapController.style.removeStyleLayer(textLayerId);
+    }
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
+    if (clickLayerExists) {
+      await mapController.style.removeStyleLayer(clickLayerId);
     }
   }
 }
@@ -254,6 +468,12 @@ class BikeAirStationLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "bike-air-station-icons";
 
+  /// The ID of the Mapbox text layer.
+  static const textLayerId = "bike-air-station-text";
+
+  /// The ID of the Mapbox click layer.
+  static const clickLayerId = "bike-air-station-click";
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
@@ -264,7 +484,7 @@ class BikeAirStationLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station_v2.geojson"),
     );
   }
 
@@ -283,6 +503,17 @@ class BikeAirStationLayer {
           iconSize: iconSize,
           iconAllowOverlap: true,
           iconOpacity: 0,
+          // To disable clicking on invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+
+      // Add the text layer separately to prevent clicking invisible text.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: textLayerId,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -291,9 +522,28 @@ class BikeAirStationLayer {
           textColor: CI.radkulturRed.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          // To disable clicking on invisible text.
+          minZoom: 16.0,
         ),
         mapbox.LayerPosition(at: at),
       );
+
+      // Add the icon click layer to prevent clicking the invisible parts of the icon image.
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: clickLayerId,
+          iconImage: "iconclicklayer",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 1,
+          iconAnchor: mapbox.IconAnchor.BOTTOM,
+          // To disable clicking invisible icons.
+          minZoom: 14.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -301,7 +551,7 @@ class BikeAirStationLayer {
             showAfter(zoom: 15),
           ));
       await mapController.style.setStyleLayerProperty(
-          layerId,
+          textLayerId,
           'text-offset',
           json.encode(
             [
@@ -310,7 +560,7 @@ class BikeAirStationLayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          layerId,
+          textLayerId,
           'text-field',
           json.encode([
             "case",
@@ -323,7 +573,43 @@ class BikeAirStationLayer {
             ],
             "Luftstation"
           ]));
-      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(textLayerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+    }
+  }
+
+  /// Select/Unselect a specific POI.
+  toggleSelect(mapbox.MapboxMap mapController, {String? selectedPOIId}) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      // Overwrite icon opacity to hide the unselected icon.
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'icon-image',
+          json.encode([
+            "case",
+            [
+              "==",
+              ["get", "id"],
+              selectedPOIId ?? ""
+            ],
+            "airselected",
+            isDark ? "airdark" : "airlight"
+          ]));
+
+      // Overwrite text opacity to hide the unselected icon text.
+      await mapController.style.setStyleLayerProperty(
+          textLayerId,
+          'text-opacity',
+          json.encode(showAfter(zoom: 17, opacity: [
+            "case",
+            [
+              "==",
+              ["get", "id"],
+              selectedPOIId ?? ""
+            ],
+            0,
+            1
+          ])));
     }
   }
 
@@ -332,6 +618,14 @@ class BikeAirStationLayer {
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (layerExists) {
       await mapController.style.removeStyleLayer(layerId);
+    }
+    final textLayerExists = await mapController.style.styleLayerExists(textLayerId);
+    if (textLayerExists) {
+      await mapController.style.removeStyleLayer(textLayerId);
+    }
+    final clickLayerExists = await mapController.style.styleLayerExists(clickLayerId);
+    if (clickLayerExists) {
+      await mapController.style.removeStyleLayer(clickLayerId);
     }
   }
 }
@@ -353,7 +647,7 @@ class ConstructionSitesLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/construction_sites.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/construction_sites_v2.geojson"),
     );
   }
 
@@ -380,6 +674,7 @@ class ConstructionSitesLayer {
           textColor: const Color(0xFFE67E22).value,
           textAllowOverlap: true,
           textOpacity: 0,
+          minZoom: 9.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -456,6 +751,7 @@ class AccidentHotspotsLayer {
           textColor: CI.radkulturYellow.value,
           textAllowOverlap: true,
           textOpacity: 0,
+          minZoom: 8.0,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -516,12 +812,14 @@ class TrafficLayer {
     if (!layerExists) {
       await mapController.style.addLayerAt(
         mapbox.LineLayer(
-            sourceId: sourceId,
-            sourceLayer: "traffic",
-            id: layerId,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineCap: mapbox.LineCap.ROUND,
-            lineWidth: 1.9),
+          sourceId: sourceId,
+          sourceLayer: "traffic",
+          id: layerId,
+          lineJoin: mapbox.LineJoin.ROUND,
+          lineCap: mapbox.LineCap.ROUND,
+          lineWidth: 1.9,
+          minZoom: 8.0,
+        ),
         mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(

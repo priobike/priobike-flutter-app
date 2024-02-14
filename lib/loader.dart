@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -159,18 +162,21 @@ class LoaderState extends State<Loader> {
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Persönliche Daten zurücksetzen',
           text:
               "Bist Du Dir sicher, dass Du Deine persönlichen Daten zurücksetzen willst? Nach dem Bestätigen werden Deine Daten unwiderruflich verworfen. Dazu gehören unter anderem Deine erstellten Routen.",
-          icon: Icons.delete_forever_rounded,
-          iconColor: CI.radkulturYellow,
           actions: [
-            BigButton(
-              iconColor: Colors.black,
+            BigButtonPrimary(
               textColor: Colors.black,
-              icon: Icons.delete_forever_rounded,
               fillColor: CI.radkulturYellow,
               label: "Zurücksetzen",
               onPressed: () async {
@@ -178,12 +184,12 @@ class LoaderState extends State<Loader> {
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
                 if (mounted) Navigator.of(context).pop();
               },
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButton(
+            BigButtonTertiary(
               label: "Abbrechen",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );
@@ -194,95 +200,102 @@ class LoaderState extends State<Loader> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    return Stack(
-      children: [
-        Container(
-          color: Theme.of(context).colorScheme.background,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 1000),
-            curve: Curves.easeInOutCubicEmphasized,
-            width: frame.size.width,
-            height: shouldMorph ? 128 + frame.padding.top : frame.size.height,
-            alignment: shouldMorph ? Alignment.center : Alignment.topCenter,
-            margin: shouldMorph
-                ? EdgeInsets.only(bottom: frame.size.height - frame.padding.top - 128)
-                : const EdgeInsets.only(top: 0),
-            color: Theme.of(context).colorScheme.primary,
+    return AnnotatedRegionWrapper(
+      // Set to light to make sure the system bar is displayed in white on the red background of the loader.
+      statusBarIconBrightness: Brightness.light,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      brightness: Brightness.dark,
+      child: Stack(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.background,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeInOutCubicEmphasized,
+              width: frame.size.width,
+              height: shouldMorph ? 128 + frame.padding.top : frame.size.height,
+              alignment: shouldMorph ? Alignment.center : Alignment.topCenter,
+              margin: shouldMorph
+                  ? EdgeInsets.only(bottom: frame.size.height - frame.padding.top - 128)
+                  : const EdgeInsets.only(top: 0),
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          switchInCurve: Curves.easeInOutCubic,
-          switchOutCurve: Curves.easeInOutCubic,
-          child: hasError
-              ? Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: Tile(
-                      shadowIntensity: 0.2,
-                      fill: Theme.of(context).colorScheme.background,
-                      content: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
-                          const VSpace(),
-                          BoldContent(
-                            text: "Verbindungsfehler",
-                            context: context,
-                          ),
-                          const SmallVSpace(),
-                          Content(
-                            text: "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen.",
-                            context: context,
-                            textAlign: TextAlign.center,
-                          ),
-                          Content(
-                            text: "Prüfe Deine Verbindung und versuche es später erneut.",
-                            context: context,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SmallVSpace(),
-                          settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
-                          settings.connectionErrorCounter >= 3
-                              ? BigButton(
-                                  label: "Logs teilen",
-                                  onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
-                              : Container(),
-                          settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
-                          settings.connectionErrorCounter >= 3
-                              ? BigButton(label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
-                              : Container(),
-                          const SizedBox(height: 16),
-                          BigButton(label: "Erneut versuchen", onPressed: () => init()),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          switchInCurve: Curves.easeInOutCubic,
-          switchOutCurve: Curves.easeInOutCubic,
-          child: isLoading && !hasError && !shouldMorph
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 128),
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-                )
-              : Container(),
-        ),
-        if (!isLoading)
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),
             switchInCurve: Curves.easeInOutCubic,
             switchOutCurve: Curves.easeInOutCubic,
-            child: shouldBlendIn ? const HomeView() : Container(),
-          )
-      ],
+            child: hasError
+                ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Tile(
+                        shadowIntensity: 0.2,
+                        fill: Theme.of(context).colorScheme.background,
+                        content: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
+                            const VSpace(),
+                            BoldContent(
+                              text: "Verbindungsfehler",
+                              context: context,
+                            ),
+                            const SmallVSpace(),
+                            Content(
+                              text: "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen.",
+                              context: context,
+                              textAlign: TextAlign.center,
+                            ),
+                            Content(
+                              text: "Prüfe Deine Verbindung und versuche es später erneut.",
+                              context: context,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SmallVSpace(),
+                            settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
+                            settings.connectionErrorCounter >= 3
+                                ? BigButtonPrimary(
+                                    label: "Logs teilen",
+                                    onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
+                                : Container(),
+                            settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
+                            settings.connectionErrorCounter >= 3
+                                ? BigButtonPrimary(
+                                    label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
+                                : Container(),
+                            const SizedBox(height: 16),
+                            BigButtonPrimary(label: "Erneut versuchen", onPressed: () => init()),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            switchInCurve: Curves.easeInOutCubic,
+            switchOutCurve: Curves.easeInOutCubic,
+            child: isLoading && !hasError && !shouldMorph
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 128),
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  )
+                : Container(),
+          ),
+          if (!isLoading)
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              switchInCurve: Curves.easeInOutCubic,
+              switchOutCurve: Curves.easeInOutCubic,
+              child: shouldBlendIn ? const HomeView() : Container(),
+            )
+        ],
+      ),
     );
   }
 }

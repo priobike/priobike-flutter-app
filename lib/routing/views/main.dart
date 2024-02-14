@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
@@ -26,8 +27,9 @@ import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/views/simulator_state.dart';
 
 class RoutingView extends StatefulWidget {
   const RoutingView({super.key});
@@ -58,8 +60,8 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated MapValues service, which is injected by the provider.
   late MapValues mapValues;
 
-  /// The stream that receives notifications when the bottom sheet is dragged.
-  final sheetMovement = StreamController<DraggableScrollableNotification>();
+  /// The timer that updates the location puck position on the map.
+  Timer? timer;
 
   /// The threshold for the location accuracy in meter
   /// NOTE: The accuracy will increase if we move and gain more GPS signal data.
@@ -81,11 +83,24 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        // Calling requestSingleLocation function to fill lastPosition of PositionService
+        // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
         await positioning?.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning!.positionSource);
         });
+        // Calling requestSingleLocation function to fill lastPosition of PositionService regularly.
+        // Note: using dart timer because geolocator has no options for ios to set the gps interval.
+        timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+          await positioning?.requestSingleLocation(onNoPermission: () {
+            Navigator.of(context).pop();
+            showLocationAccessDeniedDialog(context, positioning!.positionSource);
+          });
+          // Move screen if was centered before.
+          if (mapValues.isCentered) {
+            mapFunctions.setCameraCenterOnUserLocation();
+          }
+        });
+
         // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
         // a location shortcut instead of a route shortcut.
         await routing?.loadRoutes();
@@ -118,7 +133,7 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
-    sheetMovement.close();
+    timer?.cancel();
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
@@ -152,23 +167,26 @@ class RoutingViewState extends State<RoutingView> {
         barrierDismissible: true,
         barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
         barrierColor: Colors.black.withOpacity(0.4),
+        transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        ),
         pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
           return DialogLayout(
             title: 'Hinweis',
             text:
                 'Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-            icon: Icons.info_rounded,
-            iconColor: Theme.of(context).colorScheme.primary,
             actions: [
-              BigButton(
-                iconColor: Colors.white,
-                icon: Icons.check_rounded,
+              BigButtonPrimary(
                 label: "Ok",
                 onPressed: () async {
                   await settings.setDidViewWarning(true);
                   startRide();
                 },
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
               )
             ],
           );
@@ -232,7 +250,7 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
+                          BigButtonPrimary(
                             label: "Zurück zum Hauptmenu",
                             onPressed: () => Navigator.of(context).pop(),
                           ),
@@ -247,7 +265,7 @@ class RoutingViewState extends State<RoutingView> {
                             textAlign: TextAlign.center,
                           ),
                           const VSpace(),
-                          BigButton(
+                          BigButtonPrimary(
                             label: "Erneut versuchen",
                             onPressed: () async {
                               await routing?.loadRoutes();
@@ -272,20 +290,23 @@ class RoutingViewState extends State<RoutingView> {
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Hinweis',
           text:
               'Deine GPS-Position scheint ungenau zu sein. Solltest Du während der Fahrt Probleme mit der Ortung feststellen, prüfe Deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
-          icon: Icons.info_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.check_rounded,
+            BigButtonPrimary(
               label: "Ok",
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             )
           ],
         );
@@ -295,83 +316,96 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
+    final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
+
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
-        body: NotificationListener<DraggableScrollableNotification>(
-          onNotification: (notification) {
-            sheetMovement.add(notification);
-            return false;
-          },
-          child: Stack(
-            children: [
-              RoutingMapView(sheetMovement: sheetMovement.stream),
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          children: [
+            const RoutingMapView(),
 
-              if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
-              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
+            if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
+            if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
-              // Top Bar
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: AppBackButton(
-                    icon: Icons.chevron_left_rounded,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+            // Top Bar
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: AppBackButton(
+                  icon: Icons.chevron_left_rounded,
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
+            ),
 
-              // Side Bar
-              layers.layersCanBeEnabled
-                  ? SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 80, left: 8),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: 58,
-                              height: 58,
-                              child: Tile(
-                                fill: Theme.of(context).colorScheme.background,
-                                onPressed: onLayerSelection,
-                                content: Icon(
-                                  Icons.layers_rounded,
-                                  color: Theme.of(context).colorScheme.onBackground,
-                                ),
+            // Side Bar
+            layers.layersCanBeEnabled
+                ? SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 80, left: 8),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: 58,
+                            height: 58,
+                            child: Tile(
+                              fill: Theme.of(context).colorScheme.surfaceVariant,
+                              onPressed: onLayerSelection,
+                              content: Icon(
+                                Icons.layers_rounded,
+                                color: Theme.of(context).colorScheme.onBackground,
                               ),
-                            )
-                          ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                : Container(),
+
+            SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
+                child: const Column(
+                  children: [CenterButton(), SmallVSpace(), CompassButton()],
+                ),
+              ),
+            ),
+
+            const SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 132),
+                  child: ShortcutsRow(),
+                ),
+              ),
+            ),
+
+            simulatorEnabled
+                ? const Positioned(
+                    right: 0,
+                    top: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: SimulatorState(
+                          tileAlignment: TileAlignment.right,
+                          onlyShowErrors: false,
                         ),
                       ),
-                    )
-                  : Container(),
+                    ),
+                  )
+                : Container(),
 
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
-                  child: const Column(
-                    children: [CenterButton(), SmallVSpace(), CompassButton()],
-                  ),
-                ),
-              ),
-
-              const SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: 124),
-                    child: ShortcutsRow(),
-                  ),
-                ),
-              ),
-
-              RouteDetailsBottomSheet(
-                onSelectStartButton: onStartRide,
-                onSelectSaveButton: () => showSaveShortcutSheet(context),
-              ),
-            ],
-          ),
+            RouteDetailsBottomSheet(
+              onSelectStartButton: onStartRide,
+              onSelectSaveButton: () => showSaveShortcutSheet(context),
+            ),
+          ],
         ),
       ),
     );

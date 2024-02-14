@@ -25,6 +25,9 @@ class Sg {
   /// The datastream id for the signal program, if exists (layerType == signal_program).
   final String? datastreamSignalProgram;
 
+  /// The bearing of the signal group.
+  final double? bearing;
+
   const Sg({
     required this.id,
     required this.label,
@@ -34,6 +37,7 @@ class Sg {
     this.datastreamCycleSecond,
     this.datastreamPrimarySignal,
     this.datastreamSignalProgram,
+    this.bearing,
   });
 
   factory Sg.fromJson(Map<String, dynamic> json) => Sg(
@@ -45,6 +49,7 @@ class Sg {
         datastreamCycleSecond: json['datastreamCycleSecond'],
         datastreamPrimarySignal: json['datastreamPrimarySignal'],
         datastreamSignalProgram: json['datastreamSignalProgram'],
+        bearing: json['bearing'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -56,5 +61,6 @@ class Sg {
         'datastreamCycleSecond': datastreamCycleSecond,
         'datastreamPrimarySignal': datastreamPrimarySignal,
         'datastreamSignalProgram': datastreamSignalProgram,
+        'bearing': bearing,
       };
 }

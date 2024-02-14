@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/widgets.dart';
 
 /// Used for the dection of the screen edge when dragging a waypoint
@@ -42,15 +41,7 @@ ScreenEdge getDragScreenEdge({required double x, required double y, required Bui
 // Calculates how the map should move when dragging a waypoint to the edge of the screen
 Map<String, double> moveCameraWhenDraggingToScreenEdge({required ScreenEdge screenEdge}) {
   // determines how fast the map moves when dragging a waypoint to the edge of the screen
-
-  final double mapMoveSpeed;
-  if (Platform.isAndroid) {
-    mapMoveSpeed = 0.00015;
-  } else if (Platform.isIOS) {
-    mapMoveSpeed = 0.0017;
-  } else {
-    throw Exception("Platform not supported");
-  }
+  const mapMoveSpeed = 0.00033;
 
   final double moveCameraX;
   double moveCameraY;

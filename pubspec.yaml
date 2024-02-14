@@ -47,11 +47,7 @@ dependencies:
   share_plus: ^7.2.1 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^2.23.0 # Used to initialize the connection to Firebase
   firebase_messaging: ^14.7.5 # Used to receive push notifications of news service
-  sensors_plus: # Used to get accelerometer data
-    git:
-      url: https://github.com/priobike/priobike-plus-plugins
-      ref: main
-      path: packages/sensors_plus/sensors_plus
+  sensors_plus: ^4.0.2 # Used to get the IMU data
   flutter_local_notifications: ^16.1.0 # Used to show the push notifications
   mqtt_client: ^10.0.0
   system_info_plus: ^0.0.5 # Used to check the RAM of user device
@@ -69,6 +65,8 @@ dependencies:
   proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
   file_picker: ^6.1.1 # Used to open GPX files
   gpx: ^2.2.1
+  typed_data: ^1.3.2 # Used for encoding messages to send via MQTT for simulator
+  flutter_blue_plus: 1.20.8 # Used for connecting to BLE devices
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Generate app icons
@@ -153,3 +151,6 @@ flutter:
 
     # wiki images
     - assets/images/wiki/
+
+    # Radkultur icons
+    - assets/icons/

@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -18,15 +21,10 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-class FinishRideButton extends StatefulWidget {
-  const FinishRideButton({super.key});
-
-  @override
-  FinishRideButtonState createState() => FinishRideButtonState();
-}
-
-class FinishRideButtonState extends State<FinishRideButton> {
+class FinishRideButton extends StatelessWidget {
   final log = Logger("FinishButton");
+
+  FinishRideButton({super.key});
 
   void showAskForConfirmationDialog(BuildContext context) {
     showGeneralDialog(
@@ -34,26 +32,28 @@ class FinishRideButtonState extends State<FinishRideButton> {
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Fahrt wirklich beenden?',
           text: "Wenn Du die Fahrt beendest, musst Du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
-          icon: Icons.question_mark_rounded,
-          iconColor: Theme.of(context).colorScheme.primary,
           actions: [
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.flag_rounded,
-              label: "Ja",
-              onPressed: () => onTap(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+            BigButtonPrimary(
+              label: "Fahrt beenden",
+              onPressed: () => endRide(context),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
-            BigButton(
-              iconColor: Colors.white,
-              icon: Icons.close_rounded,
-              label: "Nein",
+            BigButtonTertiary(
+              label: "Abbrechen",
+              addPadding: false,
               onPressed: () => Navigator.of(context).pop(),
-              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
           ],
         );
@@ -62,11 +62,19 @@ class FinishRideButtonState extends State<FinishRideButton> {
   }
 
   /// A callback that is executed when the cancel button is pressed.
-  Future<void> onTap() async {
+  Future<void> endRide(context) async {
     // Allows only portrait mode again when leaving the ride view.
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+
+    /// Reenable the bottom navigation bar on Android after hiding it in Speedometer View
+    if (Platform.isAndroid) {
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+      );
+    }
 
     // End the tracking and collect the data.
     final tracking = getIt<Tracking>();
@@ -94,7 +102,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
     WakelockPlus.disable();
 
     // Show the feedback view.
-    if (mounted) {
+    if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => FeedbackView(
@@ -135,45 +143,41 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final orientation = MediaQuery.of(context).orientation;
     final isLandscapeMode = orientation == Orientation.landscape;
 
-    return Stack(
-      children: [
-        Positioned(
-          top: 48, // Below the MapBox attribution.
-          // Button is on the right in portrait mode and on the left in landscape mode.
-          right: isLandscapeMode ? null : 0,
-          left: isLandscapeMode ? 0 : null,
-          child: SafeArea(
-            child: Tile(
-              onPressed: () => showAskForConfirmationDialog(context),
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(24),
-                bottomLeft: const Radius.circular(24),
-                topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
-                bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
-              ),
-              padding: const EdgeInsets.all(4),
-              fill: Colors.black.withOpacity(0.4),
-              content: Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.flag_rounded,
-                      color: Colors.white,
-                    ),
-                    const SmallHSpace(),
-                    BoldSmall(
-                      text: "Ende",
-                      context: context,
-                      color: Colors.white,
-                    ),
-                  ],
+    return Positioned(
+      top: 48, // Below the MapBox attribution.
+      // Button is on the right in portrait mode and on the left in landscape mode.
+      right: isLandscapeMode ? null : 0,
+      left: isLandscapeMode ? 0 : null,
+      child: SafeArea(
+        child: Tile(
+          onPressed: () => showAskForConfirmationDialog(context),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(24),
+            bottomLeft: const Radius.circular(24),
+            topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
+            bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
+          ),
+          padding: const EdgeInsets.all(4),
+          fill: Colors.black.withOpacity(0.4),
+          content: Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.flag_rounded,
+                  color: Colors.white,
                 ),
-              ),
+                const SmallHSpace(),
+                BoldSmall(
+                  text: "Ende",
+                  context: context,
+                  color: Colors.white,
+                ),
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

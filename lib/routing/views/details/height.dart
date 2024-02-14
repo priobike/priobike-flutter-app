@@ -5,8 +5,15 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
+
+// Rough value on how many lines per route is okay to display the height chart smoothly.
+const maxPointsPerRouteHeightChart = 100;
+
+// Interval in which the maxima and minima will be split of.
+const maximaMinimaInterval = 20;
 
 class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({super.key});
@@ -361,7 +368,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     processRouteData();
-    setState(() {});
   }
 
   @override
@@ -382,15 +388,100 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   }
 
   /// Process the route data and create the LineElements for the chart.
-  void processRouteData() {
+  /// Care about max number of line elements to not decrease performance on scroll.
+  Future<void> processRouteData() async {
     if (routing.allRoutes == null || routing.allRoutes!.isEmpty) return;
-    lineElements = List.empty(growable: true);
+    final List<LineElement> newlineElements = List.empty(growable: true);
     for (var route in routing.allRoutes!) {
-      final latlngCoords = route.path.points.coordinates;
+      List<GHCoordinate> latlngCoords = route.path.points.coordinates;
 
       const vincenty = Distance(roundResult: false);
       final data = List<HeightData>.empty(growable: true);
       var prevDist = 0.0;
+
+      // Only pick max number of coords per route.
+      // To many lines will make the scrolling laggy.
+      // Therefore skip a slight amount of waypoints on big routes.
+      // Reduce if to many waypoints.
+      double waypointsOverheadFactor = latlngCoords.length / maxPointsPerRouteHeightChart;
+      if (waypointsOverheadFactor > 1) {
+        // The skip/keep value for the modulo operation.
+        // Greater 2 means we can use modulo to skip values.
+        // Less then 2 means we can use modulo to keep values.
+        // Differentiation due to the limitation of skip and keep for a value less then 2. (natural numbers)
+        bool skip;
+        int skipKeepValue;
+
+        // Determine maxima and minima points to keep.
+        List<int> maximaPointsToKeep = [];
+        List<int> minimaPointsToKeep = [];
+
+        // Loop through coords in chunks of maximaMinimaInterval.
+        for (int i = 0; i < latlngCoords.length; i = i + maximaMinimaInterval) {
+          int? localMaximaIdx;
+          int? localMinimaIdx;
+          double localMaxima = double.negativeInfinity;
+          double localMinima = double.infinity;
+
+          // Loop through chunk.
+          for (int j = i; j < i + maximaMinimaInterval; j++) {
+            // Catch out of range for last chunk.
+            if (j >= latlngCoords.length) continue;
+
+            // Check for local minima.
+            if (latlngCoords[j].elevation != null && latlngCoords[j].elevation! < localMinima) {
+              localMinima = latlngCoords[j].elevation!;
+              localMinimaIdx = j;
+            }
+
+            // Check for local maxima.
+            if (latlngCoords[j].elevation != null && latlngCoords[j].elevation! > localMaxima) {
+              localMaxima = latlngCoords[j].elevation!;
+              localMaximaIdx = j;
+            }
+          }
+
+          // Add local minima and maxima if found.
+          if (localMinimaIdx != null) minimaPointsToKeep.add(localMinimaIdx);
+          if (localMaximaIdx != null) minimaPointsToKeep.add(localMaximaIdx);
+        }
+
+        if (waypointsOverheadFactor > 2) {
+          // We need to keep since we want to remove more then half of the points.
+          skip = false;
+          // Keep every X waypoint.
+          // We need to round the waypoints overhead factor.
+          // E.g. 400 points => factor = 4 => keep every 4th => 100 waypoints.
+          skipKeepValue = waypointsOverheadFactor.toInt();
+        } else {
+          // We need to skip since we want to remove less then half of the points.
+          skip = true;
+          // Skip every X = number coords / percentage overhead. (to int)
+          // Division by 0 can not occur since factor is always greater then 1 and less then or equal 2.
+          // Skip value is at least 2.
+          // E.g. 120 points => factor = 1.2 => 120 / ((1.2 - 1) * 100) = 6 => skip every 6th.
+          skipKeepValue = latlngCoords.length ~/ ((waypointsOverheadFactor - 1) * 100);
+        }
+
+        List<GHCoordinate> reducedWaypointList = [];
+
+        // Separate in skip and keep.
+        if (skip) {
+          for (var i = 0; i < latlngCoords.length; i++) {
+            // Skip coords on skip value except minima/maxima points.
+            if (i % skipKeepValue == 0 && !maximaPointsToKeep.contains(i) && !minimaPointsToKeep.contains(i)) continue;
+            reducedWaypointList.add(latlngCoords[i]);
+          }
+        } else {
+          for (var i = 0; i < latlngCoords.length; i++) {
+            // Keep coords on keep value and minima/maxima points.
+            if (i % skipKeepValue != 0 && !maximaPointsToKeep.contains(i) && !minimaPointsToKeep.contains(i)) continue;
+            reducedWaypointList.add(latlngCoords[i]);
+          }
+        }
+        latlngCoords = reducedWaypointList;
+      }
+
       for (var i = 0; i < latlngCoords.length; i++) {
         var dist = 0.0;
         final p = latlngCoords[i];
@@ -401,10 +492,10 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         prevDist += dist;
         data.add(HeightData(p.elevation ?? 0.0, prevDist / 1000));
       }
-      final bool isMainLine = (latlngCoords == routing.selectedRoute!.path.points.coordinates);
+      final bool isMainLine = (route.path.points.coordinates == routing.selectedRoute!.path.points.coordinates);
 
       // The last item of the data stores the total distance of the route
-      lineElements.add(LineElement(isMainLine, data, data.last.distance));
+      newlineElements.add(LineElement(isMainLine, data, data.last.distance));
 
       // save the start point of the main line to orient the chart
       if (isMainLine) {
@@ -413,16 +504,23 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     }
 
     // find min and max values to scale the chart, reset variables first
-    maxDistance = null;
-    maxHeight = null;
-    minHeight = null;
-    for (var lineElement in lineElements) {
-      maxDistance = maxDistance == null ? lineElement.routeLength : max(maxDistance!, lineElement.routeLength);
+    double? newMaxDistance;
+    double? newMinHeight;
+    double? newMaxHeight;
+    for (var lineElement in newlineElements) {
+      newMaxDistance = newMaxDistance == null ? lineElement.routeLength : max(newMaxDistance, lineElement.routeLength);
       for (HeightData heightData in lineElement.series) {
-        minHeight = minHeight == null ? heightData.height : min(minHeight!, heightData.height);
-        maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
+        newMinHeight = newMinHeight == null ? heightData.height : min(newMinHeight, heightData.height);
+        newMaxHeight = newMaxHeight == null ? heightData.height : max(newMaxHeight, heightData.height);
       }
     }
+
+    setState(() {
+      lineElements = newlineElements;
+      maxDistance = newMaxDistance;
+      minHeight = newMinHeight;
+      maxHeight = newMaxHeight;
+    });
   }
 
   @override
@@ -433,7 +531,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(

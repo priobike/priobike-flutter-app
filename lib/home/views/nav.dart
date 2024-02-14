@@ -84,11 +84,13 @@ class NavBarView extends StatelessWidget {
                 },
               ),
               const SmallHSpace(),
-              SmallIconButton(
+              SmallIconButtonSecondary(
                 icon: Icons.settings_rounded,
                 color: Colors.white,
                 splash: Theme.of(context).colorScheme.surfaceTint,
-                fill: const Color.fromARGB(50, 255, 255, 255),
+                fill: Colors.transparent,
+                borderColor: Colors.white,
+                withBorder: true,
                 onPressed: () {
                   onTapSettingsButton?.call();
                 },

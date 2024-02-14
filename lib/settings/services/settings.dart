@@ -6,7 +6,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -16,6 +16,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
@@ -25,6 +26,9 @@ class Settings with ChangeNotifier {
   var hasLoaded = false;
 
   static final log = Logger("Settings");
+
+  /// The scaling factor of the map for the battery save mode.
+  static const double scalingFactor = 2.5;
 
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
@@ -82,6 +86,12 @@ class Settings with ChangeNotifier {
 
   /// If the user is transferring.
   bool isUserTransferring = false;
+
+  /// If the user had migrate background images.
+  bool didMigrateBackgroundImages = false;
+
+  /// Enable simulator mode for app.
+  bool enableSimulatorMode;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -380,7 +390,7 @@ class Settings with ChangeNotifier {
     this.enableGamification = enableGamification;
     final bool success = await storage.setBool(enableGamificationKey, enableGamification);
     if (!success) {
-      log.e("Failed to set enablePerformanceOverlay to $enableGamificationKey");
+      log.e("Failed to set enablePerformanceOverlay to $enableGamification");
       this.enableGamification = prev;
     } else {
       notifyListeners();
@@ -397,8 +407,37 @@ class Settings with ChangeNotifier {
     this.didViewUserTransfer = didViewUserTransfer;
     final bool success = await storage.setBool(didViewUserTransferKey, didViewUserTransfer);
     if (!success) {
-      log.e("Failed to set didViewUserTransfer to $didViewUserTransferKey");
+      log.e("Failed to set didViewUserTransfer to $didViewUserTransfer");
       this.didViewUserTransfer = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const defaultSimulatorMode = false;
+
+  Future<void> setSimulatorMode(bool enableSimulatorMode) async {
+    this.enableSimulatorMode = enableSimulatorMode;
+    if (enableSimulatorMode) {
+      getIt<Simulator>().makeReadyForRide();
+    } else {
+      getIt<Simulator>().cleanUp();
+    }
+    notifyListeners();
+  }
+
+  static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackgroundImages";
+  static const defaultDidMigrateBackgroundImages = false;
+
+  Future<bool> setDidMigrateBackgroundImages(bool didMigrateBackgroundImages, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didMigrateBackgroundImages;
+    this.didMigrateBackgroundImages = didMigrateBackgroundImages;
+    final bool success = await storage.setBool(didMigrateBackgroundImagesKey, didMigrateBackgroundImages);
+    if (!success) {
+      log.e("Failed to set didMigrateBackgroundImages to $didMigrateBackgroundImagesKey");
+      this.didMigrateBackgroundImages = prev;
     } else {
       notifyListeners();
     }
@@ -424,6 +463,8 @@ class Settings with ChangeNotifier {
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
     this.didViewUserTransfer = defaultDidViewUserTransfer,
+    this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
+    this.enableSimulatorMode = defaultSimulatorMode,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -513,6 +554,11 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      didMigrateBackgroundImages = storage.getBool(didMigrateBackgroundImagesKey) ?? defaultDidMigrateBackgroundImages;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -576,6 +622,6 @@ class Settings with ChangeNotifier {
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
-        "enableGamification": enableGamification
+        "enableGamification": enableGamification,
       };
 }

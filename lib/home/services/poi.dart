@@ -16,6 +16,9 @@ class POIElement {
   /// The name of the POI.
   final String name;
 
+  /// The type of element.
+  final String typeDescription;
+
   /// The longitude of the POI.
   final double lon;
 
@@ -27,6 +30,7 @@ class POIElement {
 
   POIElement({
     required this.name,
+    required this.typeDescription,
     required this.lon,
     required this.lat,
     this.distance,
@@ -70,7 +74,7 @@ class POI with ChangeNotifier {
   /// Get all rental POI elements.
   Future<void> _fetchRentalData() async {
     try {
-      final data = await _fetchData("/map-data/bicycle_rental.geojson");
+      final data = await _fetchData("/map-data/bicycle_rental_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Fahrradleihe";
@@ -78,6 +82,7 @@ class POI with ChangeNotifier {
 
           final POIElement poiElement = POIElement(
             name: name,
+            typeDescription: "Fahrradleihe",
             lon: element["geometry"]["coordinates"][0],
             lat: element["geometry"]["coordinates"][1],
           );
@@ -93,7 +98,7 @@ class POI with ChangeNotifier {
   /// Get all bike air POI elements.
   Future<void> _fetchBikeAirData() async {
     try {
-      final data = await _fetchData("/map-data/bike_air_station.geojson");
+      final data = await _fetchData("/map-data/bike_air_station_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Luftstation";
@@ -101,6 +106,7 @@ class POI with ChangeNotifier {
 
           final POIElement poiElement = POIElement(
             name: name,
+            typeDescription: "Luftstation",
             lon: element["geometry"]["coordinates"][0],
             lat: element["geometry"]["coordinates"][1],
           );
@@ -116,7 +122,7 @@ class POI with ChangeNotifier {
   /// Get all bike repair POI elements.
   Future<void> _fetchRepairData() async {
     try {
-      final data = await _fetchData("/map-data/bicycle_shop.geojson");
+      final data = await _fetchData("/map-data/bicycle_shop_v2.geojson");
       data["features"].forEach(
         (element) {
           var name = element["properties"]["name"] ?? "Fahrradladen";
@@ -124,6 +130,7 @@ class POI with ChangeNotifier {
 
           final POIElement poiElement = POIElement(
             name: name,
+            typeDescription: "Fahrradladen",
             lon: element["geometry"]["coordinates"][0],
             lat: element["geometry"]["coordinates"][1],
           );
@@ -173,6 +180,7 @@ class POI with ChangeNotifier {
       results.add(
         POIElement(
           name: element.name,
+          typeDescription: element.typeDescription,
           distance: distance,
           lon: element.lon,
           lat: element.lat,

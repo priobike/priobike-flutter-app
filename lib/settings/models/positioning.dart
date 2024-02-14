@@ -2,6 +2,7 @@ enum PositioningMode {
   gnss,
   follow18kmh,
   follow40kmh,
+  sensor,
   recordedDresden,
   recordedHamburg,
   hamburgStatic1,
@@ -18,6 +19,8 @@ extension PositioningDescription on PositioningMode {
         return "Route mit 18 km/h folgen";
       case PositioningMode.follow40kmh:
         return "Route mit 40 km/h folgen";
+      case PositioningMode.sensor:
+        return "Speed Sensor Daten";
       case PositioningMode.recordedDresden:
         return "Aufgezeichnet (Dresden, Teststrecke POT)";
       case PositioningMode.recordedHamburg:

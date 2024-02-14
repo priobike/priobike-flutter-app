@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -525,6 +526,87 @@ class Routing with ChangeNotifier {
 
     notifyListeners();
     return routes;
+  }
+
+  /// Load the routes from a route shortcut from the server (lightweight).
+  /// Note: this function should only be used for migration.
+  Future<r.Route?> loadRouteFromShortcutRouteForMigration(ShortcutRoute shortcutRoute) async {
+    if (isFetchingRoute) return null;
+
+    isFetchingRoute = true;
+    hadErrorDuringFetch = false;
+    waypointsOutOfBoundaries = false;
+    notifyListeners();
+
+    // Do not allow shortcuts with waypoints length < 2.
+    if (shortcutRoute.waypoints.length < 2) {
+      hadErrorDuringFetch = true;
+      waypointsOutOfBoundaries = false;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
+
+    // Check if the waypoints are inside of the city boundaries.
+    if (!inCityBoundary(shortcutRoute.waypoints)) {
+      hadErrorDuringFetch = true;
+      waypointsOutOfBoundaries = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
+
+    // Select the correct profile.
+    selectedProfile = await selectProfile();
+
+    // Load the GraphHopper response.
+    final ghResponse = await loadGHRouteResponse(shortcutRoute.waypoints);
+    if (ghResponse == null || ghResponse.paths.isEmpty) {
+      hadErrorDuringFetch = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
+
+    // Create the routes.
+    final routes = ghResponse.paths
+        .asMap()
+        .map((i, path) {
+          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+          // Snap each signal group to the route and calculate the distance.
+          final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
+
+          // Order the crossings by distance.
+          final tuples = List<TupleCrossingsDistances>.empty(growable: true);
+
+          tuples.sort((a, b) => a.distance.compareTo(b.distance));
+          final orderedCrossings = List<Crossing>.empty(growable: true);
+          final orderedCrossingsDistancesOnRoute = List<double>.empty(growable: true);
+          for (final tuple in tuples) {
+            orderedCrossings.add(tuple.crossing);
+            orderedCrossingsDistancesOnRoute.add(tuple.distance);
+          }
+
+          var route = r.Route(
+            id: i,
+            path: path,
+            route: [],
+            signalGroups: sgsInOrderOfRoute,
+            signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+            crossings: orderedCrossings,
+            crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
+          );
+          // Connect the route to the start and end points.
+          route = route.connected(shortcutRoute.waypoints.first, shortcutRoute.waypoints.last);
+          return MapEntry(i, route);
+        })
+        .values
+        .toList();
+
+    isFetchingRoute = false;
+
+    notifyListeners();
+    return routes.first;
   }
 
   /// Select a route.

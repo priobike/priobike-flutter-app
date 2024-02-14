@@ -7,9 +7,9 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 
 class StatusView extends StatefulWidget {
-  final Function triggerRebuild;
+  final bool showPercentage;
 
-  const StatusView({super.key, required this.triggerRebuild});
+  const StatusView({super.key, required this.showPercentage});
 
   @override
   StatusViewState createState() => StatusViewState();
@@ -33,7 +33,6 @@ class StatusViewState extends State<StatusView> {
     text = loadText();
     goodPct = loadGood();
     setState(() {});
-    widget.triggerRebuild;
   }
 
   @override
@@ -126,14 +125,23 @@ class StatusViewState extends State<StatusView> {
                           ? Small(
                               text: text ?? "Lade Daten...",
                               context: context,
-                              color: Colors.black,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             )
                           : Small(
                               text: text ?? "Lade Daten...",
                               context: context,
+                              color: isProblem
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                             ),
                     ],
                   ),
+                ),
+                // Very small divider.
+                const SizedBox(
+                  width: 2,
                 ),
                 // Show a progress indicator with the pct value.
                 Padding(
@@ -161,11 +169,12 @@ class StatusViewState extends State<StatusView> {
                           size: 42,
                         ),
                       ),
-                      BoldSmall(
-                        text: "${((goodPct ?? 0) * 100).round()}%",
-                        context: context,
-                        color: isProblem ? Colors.black : null,
-                      ),
+                      if (widget.showPercentage)
+                        BoldSmall(
+                          text: "${((goodPct ?? 0) * 100).round()}%",
+                          context: context,
+                          color: isProblem ? Colors.black : null,
+                        ),
                     ],
                   ),
                 ),

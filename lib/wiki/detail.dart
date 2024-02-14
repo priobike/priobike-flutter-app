@@ -214,6 +214,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                     child: Row(
                       children: [
                         AppBackButton(onPressed: () => Navigator.pop(context)),
+                        const HSpace(),
                         Expanded(
                           child: Container(
                             width: frame.size.width,
@@ -237,7 +238,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                             ),
                           ),
                         ),
-                        const SmallHSpace(),
+                        const HSpace(),
                       ],
                     ),
                   ),
