@@ -70,7 +70,7 @@ class SpeedSensor with ChangeNotifier {
   StreamSubscription? _speedCharacteristicListener;
 
   /// The connection state.
-  BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
+  BluetoothAdapterState adapterState = BluetoothAdapterState.unknown;
 
   /// The speed characteristic.
   BluetoothCharacteristic? _speedCharacteristic;
@@ -90,8 +90,9 @@ class SpeedSensor with ChangeNotifier {
     statusText = "Sensor wird gesucht.";
     notifyListeners();
 
-    // get all bluetooth devices already connected to the system. (doesn't  seem to work)
+    _startBluetoothStateListener();
 
+    // get all bluetooth devices already connected to the system. (doesn't  seem to work)
     List<BluetoothDevice> connectedDevices = FlutterBluePlus.connectedDevices;
 
     // search for speed sensor in connected devices
@@ -150,14 +151,6 @@ class SpeedSensor with ChangeNotifier {
     }
   }
 
-  void _stopScanningDevices() {
-    FlutterBluePlus.stopScan();
-    _scanListener?.cancel();
-    _scanListener = null;
-    loading = false;
-    notifyListeners();
-  }
-
   /// tries connecting to the speed sensor
   /// Note: _device has to be initialized
   Future<void> _connectSpeedSensor() async {
@@ -191,17 +184,13 @@ class SpeedSensor with ChangeNotifier {
 
   void _startBluetoothStateListener() {
     _adapterStateListener = FlutterBluePlus.adapterState.listen((state) {
-      _adapterState = state;
-      if (_adapterState == BluetoothAdapterState.off) {
+      adapterState = state;
+      if (adapterState == BluetoothAdapterState.off) {
         isSetUp = false;
         failure = true;
       }
       notifyListeners();
     });
-  }
-
-  void _stopBluetoothStateListener() {
-    _adapterStateListener?.cancel();
   }
 
   /// discovers all services of connected device
@@ -267,11 +256,6 @@ class SpeedSensor with ChangeNotifier {
     });
   }
 
-  /// retrieves the speed characteristic from all available services
-  void _stopSpeedCharacteristicListener() {
-    _speedCharacteristicListener?.cancel();
-  }
-
   /// calculates the driven distance since the last update
   /// based on: wheelsize, sensor data
   /// @parameter values (data from the speed characteristic,
@@ -317,7 +301,7 @@ class SpeedSensor with ChangeNotifier {
     _scanListener = null;
     _adapterStateListener = null;
     _speedCharacteristicListener = null;
-    _adapterState = BluetoothAdapterState.unknown;
+    adapterState = BluetoothAdapterState.unknown;
     _speedCharacteristic = null;
     _lastNumberOfRotations = -1;
     statusText = "";
