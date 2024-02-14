@@ -439,22 +439,27 @@ class Simulator with ChangeNotifier {
     final routing = getIt<Routing>();
     if (routing.selectedRoute == null) return;
 
+    Map<String, dynamic> json = {};
+    json['type'] = "TrafficLights";
+    List<Map<String, String>> trafficLightsList = [];
+    json['trafficLights'] = trafficLightsList;
+
     for (final sg in routing.selectedRoute!.signalGroups) {
       final tlID = sg.id;
-      const type = "TrafficLight";
       final longitude = sg.position.lon;
       final latitude = sg.position.lat;
       final bearing = sg.bearing ?? 0;
 
-      Map<String, String> json = {};
-      json['type'] = type;
-      json['tlID'] = tlID;
-      json['longitude'] = longitude.toString();
-      json['latitude'] = latitude.toString();
-      json['bearing'] = bearing.toString();
+      Map<String, String> trafficLight = {};
+      trafficLight['tlID'] = tlID;
+      trafficLight['longitude'] = longitude.toString();
+      trafficLight['latitude'] = latitude.toString();
+      trafficLight['bearing'] = bearing.toString();
 
-      await _sendViaMQTT(messageData: json, qualityOfService: MqttQos.atLeastOnce);
+      trafficLightsList.add(trafficLight);
     }
+
+    await _sendViaMQTT(messageData: json, qualityOfService: MqttQos.atLeastOnce);
   }
 
   /// Sends updates of the state of the signal group to the simulator.
