@@ -91,7 +91,7 @@ class SpeedSensor with ChangeNotifier {
 
     _startBluetoothStateListener();
 
-    // gGt all bluetooth devices already connected to the system. (shows only devices connected by blue plus plugin)
+    // Get all bluetooth devices already connected to the system. (shows only devices connected by blue plus plugin)
     List<BluetoothDevice> connectedDevices = FlutterBluePlus.connectedDevices;
 
     // Search for speed sensor in connected devices.
@@ -131,10 +131,10 @@ class SpeedSensor with ChangeNotifier {
     });
 
     // Start bluetooth scan
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
+    FlutterBluePlus.startScan(timeout: const Duration(seconds: 20));
 
-    // Wait 10 seconds because startScan can't be await.
-    await Future.delayed(const Duration(seconds: 10));
+    // Wait 20 seconds because startScan can't be await.
+    await Future.delayed(const Duration(seconds: 20));
 
     // Stop listening after scan unsuccessful.
     if (_device == null) {
