@@ -101,19 +101,17 @@ class SpeedSensor with ChangeNotifier {
 
     // Check device connected.
     if (!(_device == null)) {
-      log.i("device already connected, yay");
+      log.i("Device already connected.");
       statusText = "Sensor gefunden.";
       notifyListeners();
       _connectSpeedSensor();
       return;
-    } else {
-      log.i("device not connected yet.");
     }
-    log.i("initalizing connected devices");
+
+    log.i("Searching device.");
 
     // Speed sensor was not in connected devices, so we do a new bluetooth scan.
     _scanListener = FlutterBluePlus.scanResults.listen((results) {
-      log.i(results);
       // Search speed sensor in list of all currently found devices.
       ScanResult? sensorFound;
       for (ScanResult scanResult in results) {
@@ -122,7 +120,7 @@ class SpeedSensor with ChangeNotifier {
       // No sensor found yet.
       if (sensorFound == null) return;
       _device = sensorFound.device;
-      log.i("found speed sensor!");
+      log.i("Speedsensor found!");
       statusText = "Sensor gefunden.";
       FlutterBluePlus.stopScan();
       loading = false;
@@ -203,15 +201,12 @@ class SpeedSensor with ChangeNotifier {
     statusText = "Services werden geprüft";
     notifyListeners();
 
-    log.i("got services successfully");
-    log.i(services);
-    notifyListeners();
-
     // Search speed characteristic.
     for (BluetoothService bluetoothService in services) {
       for (BluetoothCharacteristic bluetoothCharacteristic in bluetoothService.characteristics) {
         if (bluetoothCharacteristic.uuid.toString().toUpperCase() == _characteristicsUuid) {
           _speedCharacteristic = bluetoothCharacteristic;
+          log.i("Speed Characteristic found.");
           notifyListeners();
         }
       }
@@ -256,8 +251,7 @@ class SpeedSensor with ChangeNotifier {
   /// @parameter values (data from the speed characteristic,
   /// the structure of this is described at the start of the class)
   double _calculateDrivenDistance(List<int> values) {
-    log.i("calculating speed");
-    log.i(values);
+    log.i("Calculating speed.");
 
     // Return 0 if less then 7 elements. [a, b, c, d, e, f, g]
     if (values.length < 7) return 0;
