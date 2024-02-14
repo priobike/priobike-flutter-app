@@ -33,10 +33,10 @@ const String _speedSensorName = "SPD-BLE0594113";
   b= current number of rotations
   c= increased by one, if b would have been higher than 255
   -> c++, if new_b % 255 < previous_b % 255
-  f= current angle
-  g= difference between current f and previously sent f
   d= [constantly 0]
   e= [constantly 0]
+  f= current angle
+  g= difference between current f and previously sent f
   */
 
 const String _characteristicsUuid = "00002A5B-0000-1000-8000-00805F9B34FB";
@@ -282,7 +282,7 @@ class SpeedSensor with ChangeNotifier {
 
     _lastNumberOfRotations = rotations;
 
-    final rotationAngelDifference = values[4];
+    final rotationAngelDifference = values[6];
     final partialRotationDifference = rotationAngelDifference / 360;
 
     final rotationDifference = completeRotationDifference + partialRotationDifference;
@@ -303,7 +303,7 @@ class SpeedSensor with ChangeNotifier {
     _speedCharacteristicListener = null;
     adapterState = BluetoothAdapterState.unknown;
     _speedCharacteristic = null;
-    _lastNumberOfRotations = -1;
+    _lastNumberOfRotations = null;
     statusText = "";
     failure = false;
   }

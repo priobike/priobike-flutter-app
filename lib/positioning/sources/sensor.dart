@@ -6,7 +6,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' as l;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/sources/interface.dart';
+import 'package:priobike/ride/services/speedsensor.dart';
 
 class SpeedSensorPositioningSource extends PositionSource {
   final log = Logger("SpeedSensorPositioningSource");
@@ -65,6 +67,8 @@ class SpeedSensorPositioningSource extends PositionSource {
       log.i("Stream already initialized.");
       return streamController!.stream;
     }
+
+    getIt<SpeedSensor>().initConnectionToSpeedSensor();
 
     if (positions.length < 2) throw Exception();
 
@@ -202,5 +206,7 @@ class SpeedSensorPositioningSource extends PositionSource {
     distance = null;
     dists = null;
     mappedPositions = null;
+    lastDistanceUpdate = null;
+    getIt<SpeedSensor>().reset();
   }
 }
