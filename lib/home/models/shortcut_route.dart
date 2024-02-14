@@ -132,16 +132,15 @@ class ShortcutRoute implements Shortcut {
   /// Create sharing link of shortcut.
   @override
   String getLongLink() {
-    {
-      final Map<String, dynamic> shortcutJson = toJson();
-      final str = json.encode(shortcutJson);
-      final bytes = utf8.encode(str);
-      final base64Str = base64.encode(bytes);
-      const scheme = 'https';
-      const host = 'priobike.vkw.tu-dresden.de';
-      const route = 'import';
-      return '$scheme://$host/$route/$base64Str';
-    }
+    final Map<String, dynamic> shortcutJson = toJson();
+    final str = json.encode(shortcutJson);
+    final bytes = utf8.encode(str);
+    final base64Str = base64.encode(bytes);
+    const scheme = 'https';
+    const host = 'priobike.vkw.tu-dresden.de';
+    const route = 'import';
+    return '$scheme://$host/$route/$base64Str';
+  }
 
   String? getFirstAddress() {
     if (waypoints.length >= 2) {
