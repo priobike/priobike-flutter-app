@@ -509,7 +509,6 @@ class Simulator with ChangeNotifier {
       "averageSpeed": rideSummary.averageSpeedKmH.toStringAsFixed(2),
       "distanceKilometers": totalDistanceKilometres.toStringAsFixed(2),
       "formattedTime": formattedTime,
-      "savedCo2inG": rideSummary.savedCo2inG.toStringAsFixed(2)
     };
 
     await _sendViaMQTT(
