@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/http.dart';
@@ -54,8 +55,7 @@ class MapboxTileImageCache {
 
     try {
       // See: https://docs.mapbox.com/api/maps/static-images/
-      const accessToken =
-          "access_token=pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+      const accessTokenHeader = "access_token=${Keys.mapboxAccessToken}";
       String styleId = "";
       // remove prefix "mapbox://styles/" from the styles
       if (styleUri != null) {
@@ -70,7 +70,7 @@ class MapboxTileImageCache {
 
       // The background image that should be displayed in the feedback view.
       final feedbackUrl =
-          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessToken";
+          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessTokenHeader";
 
       final feedbackEndpoint = Uri.parse(feedbackUrl);
       final feedbackResponse = await Http.get(feedbackEndpoint).timeout(const Duration(seconds: 4));

@@ -8,7 +8,8 @@ import 'package:priobike/settings/services/settings.dart';
 class LinkShortener {
   /// Shorten long link.
   static Future<String?> createShortLink(String longLink) async {
-    String backendPath = getIt<Settings>().backend.path;
+    final backend = getIt<Settings>().backend;
+    String backendPath = backend.path;
     final linkShortenerUrl = 'https://$backendPath/link/rest/v3/short-urls';
     final linkShortenerEndpoint = Uri.parse(linkShortenerUrl);
     DateTime now = DateTime.now();
@@ -22,8 +23,8 @@ class LinkShortener {
       "validateUrl": false,
       "forwardQuery": true
     });
-    final shortLinkResponse = await Http.post(linkShortenerEndpoint,
-        headers: {'X-Api-Key': '8a1e47f1-36ac-44e8-b648-aae112f97208'}, body: longUrlJson);
+    final apiKey = backend.linkShortenerApiKey;
+    final shortLinkResponse = await Http.post(linkShortenerEndpoint, headers: {'X-Api-Key': apiKey}, body: longUrlJson);
     try {
       return json.decode(shortLinkResponse.body)['shortUrl'];
     } catch (e) {
@@ -36,10 +37,11 @@ class LinkShortener {
   static Future<String?> resolveShortLink(String shortLink) async {
     try {
       List<String> subUrls = shortLink.split('/');
-      String backendPath = getIt<Settings>().backend.path;
+      final backend = getIt<Settings>().backend;
+      String backendPath = backend.path;
       final parseShortLinkEndpoint = Uri.parse('https://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
-      final longLinkResponse =
-          await Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': '8a1e47f1-36ac-44e8-b648-aae112f97208'});
+      final apiKey = backend.linkShortenerApiKey;
+      final longLinkResponse = await Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': apiKey});
       final String longUrl = json.decode(longLinkResponse.body)['longUrl'];
       return longUrl;
     } catch (e) {
