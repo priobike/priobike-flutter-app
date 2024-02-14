@@ -18,6 +18,8 @@ import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/views/sensor_state.dart';
+import 'package:priobike/simulator/views/simulator_state.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -70,13 +72,13 @@ class RideViewState extends State<RideView> {
         final tracking = getIt<Tracking>();
         final positioning = getIt<Positioning>();
         final datastream = getIt<Datastream>();
-        final routing = getIt<Routing>();
+        routing = getIt<Routing>();
         final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
-        final ride = getIt<Ride>();
+        ride = getIt<Ride>();
 
         // Save the shortcut id if there exists a matching shortcut for the selected waypoints.
         ride.setShortcut(routing.selectedWaypoints!);
@@ -87,13 +89,14 @@ class RideViewState extends State<RideView> {
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
+
         // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = getIt<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
           await datastream.connect();
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
+
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           onNoPermission: () {
@@ -156,7 +159,6 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
-
     super.dispose();
   }
 
@@ -191,6 +193,8 @@ class RideViewState extends State<RideView> {
       paddingCenterButton = EdgeInsets.only(bottom: displayHeight * 0.15, right: displayWidth * 0.42);
       positionSpeedometerRight = 6.0;
     }
+
+    final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
 
     return PopScope(
       onPopInvoked: (type) async => false,
@@ -231,7 +235,7 @@ class RideViewState extends State<RideView> {
                 child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               ),
               if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
-              const FinishRideButton(),
+              FinishRideButton(),
               if (!cameraFollowsUserLocation)
                 SafeArea(
                   bottom: true,
@@ -248,6 +252,26 @@ class RideViewState extends State<RideView> {
                         });
                       },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                    ),
+                  ),
+                ),
+              if (simulatorEnabled)
+                const Positioned(
+                  left: 0,
+                  top: 0,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 48),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SimulatorState(
+                            tileAlignment: TileAlignment.left,
+                            onlyShowErrors: true,
+                          ),
+                          SensorState(),
+                        ],
+                      ),
                     ),
                   ),
                 ),

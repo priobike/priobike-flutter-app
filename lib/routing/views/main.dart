@@ -27,8 +27,9 @@ import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/simulator/views/simulator_state.dart';
 
 class RoutingView extends StatefulWidget {
   const RoutingView({super.key});
@@ -315,6 +316,8 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
+    final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
+
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
@@ -381,6 +384,22 @@ class RoutingViewState extends State<RoutingView> {
                 ),
               ),
             ),
+
+            simulatorEnabled
+                ? const Positioned(
+                    right: 0,
+                    top: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: SimulatorState(
+                          tileAlignment: TileAlignment.right,
+                          onlyShowErrors: false,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
 
             RouteDetailsBottomSheet(
               onSelectStartButton: onStartRide,

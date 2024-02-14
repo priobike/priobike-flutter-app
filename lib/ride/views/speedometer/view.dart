@@ -15,8 +15,8 @@ import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
-import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/shadow.dart';
+import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -121,6 +121,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     ride.addListener(updateLayout);
 
     updateSpeedometer();
+
     WidgetsBinding.instance.addObserver(this);
   }
 

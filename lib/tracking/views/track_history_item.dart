@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/formatting/duration.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -271,7 +272,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
         final totalDistanceKilometres = distanceMeters == null ? 0 : distanceMeters! / 1000;
         final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-        String? formattedTime = _formatDuration(durationSeconds);
+        String? formattedTime = formatDuration(durationSeconds);
 
         const co2PerKm = 0.1187; // Data according to statista.com in KG
         final savedCo2inG =
@@ -473,7 +474,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
     final totalDistanceKilometres = widget.distanceMeters == null ? 0 : widget.distanceMeters! / 1000;
     final averageSpeedKmH = totalDurationHours == 0 ? 0 : (totalDistanceKilometres / totalDurationHours);
 
-    String? formattedTime = _formatDuration(widget.durationSeconds);
+    String? formattedTime = formatDuration(widget.durationSeconds);
 
     const co2PerKm = 0.1187; // Data according to statista.com in KG
     final savedCo2inG = widget.distanceMeters == null && widget.durationSeconds == null
@@ -550,25 +551,5 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
         ],
       ),
     );
-  }
-}
-
-/// Helper method to format the duration of the track.
-String? _formatDuration(int? durationSeconds) {
-  if (durationSeconds == null) return null;
-  if (durationSeconds < 60) {
-    // Show only seconds.
-    final seconds = durationSeconds.floor();
-    return "$seconds s";
-  } else if (durationSeconds < 3600) {
-    // Show minutes and seconds.
-    final minutes = (durationSeconds / 60).floor();
-    final seconds = (durationSeconds - (minutes * 60)).floor();
-    return "${minutes.toString().padLeft(2, "0")}:${seconds.toString().padLeft(2, "0")} min";
-  } else {
-    // Show only hours and minutes.
-    final hours = (durationSeconds / 3600).floor();
-    final minutes = ((durationSeconds - (hours * 3600)) / 60).floor();
-    return "${hours.toString().padLeft(2, "0")}:${minutes.toString().padLeft(2, "0")} h";
   }
 }

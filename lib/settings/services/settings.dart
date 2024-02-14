@@ -6,7 +6,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -16,6 +16,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
@@ -88,6 +89,9 @@ class Settings with ChangeNotifier {
 
   /// If the user had migrate background images.
   bool didMigrateBackgroundImages = false;
+
+  /// Enable simulator mode for app.
+  bool enableSimulatorMode;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -411,6 +415,18 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const defaultSimulatorMode = false;
+
+  Future<void> setSimulatorMode(bool enableSimulatorMode) async {
+    this.enableSimulatorMode = enableSimulatorMode;
+    if (enableSimulatorMode) {
+      getIt<Simulator>().makeReadyForRide();
+    } else {
+      getIt<Simulator>().cleanUp();
+    }
+    notifyListeners();
+  }
+
   static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackgroundImages";
   static const defaultDidMigrateBackgroundImages = false;
 
@@ -428,25 +444,28 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  Settings(this.backend,
-      {this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
-      this.didViewWarning = defaultDidViewWarning,
-      this.predictionMode = defaultPredictionMode,
-      this.positioningMode = defaultPositioningMode,
-      this.routingEndpoint = defaultRoutingEndpoint,
-      this.sgLabelsMode = defaultSGLabelsMode,
-      this.speedMode = defaultSpeedMode,
-      this.colorMode = defaultColorMode,
-      this.datastreamMode = defaultDatastreamMode,
-      this.connectionErrorCounter = defaultConnectionErrorCounter,
-      this.sgSelector = defaultSGSelector,
-      this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
-      this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-      this.useCounter = defaultUseCounter,
-      this.dismissedSurvey = defaultDismissedSurvey,
-      this.enableGamification = defaultEnableGamification,
-      this.didViewUserTransfer = defaultDidViewUserTransfer,
-      this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages});
+  Settings(
+    this.backend, {
+    this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
+    this.didViewWarning = defaultDidViewWarning,
+    this.predictionMode = defaultPredictionMode,
+    this.positioningMode = defaultPositioningMode,
+    this.routingEndpoint = defaultRoutingEndpoint,
+    this.sgLabelsMode = defaultSGLabelsMode,
+    this.speedMode = defaultSpeedMode,
+    this.colorMode = defaultColorMode,
+    this.datastreamMode = defaultDatastreamMode,
+    this.connectionErrorCounter = defaultConnectionErrorCounter,
+    this.sgSelector = defaultSGSelector,
+    this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
+    this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+    this.useCounter = defaultUseCounter,
+    this.dismissedSurvey = defaultDismissedSurvey,
+    this.enableGamification = defaultEnableGamification,
+    this.didViewUserTransfer = defaultDidViewUserTransfer,
+    this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
+    this.enableSimulatorMode = defaultSimulatorMode,
+  });
 
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
@@ -603,6 +622,6 @@ class Settings with ChangeNotifier {
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
-        "enableGamification": enableGamification
+        "enableGamification": enableGamification,
       };
 }

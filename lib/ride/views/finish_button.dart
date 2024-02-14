@@ -21,15 +21,10 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-class FinishRideButton extends StatefulWidget {
-  const FinishRideButton({super.key});
-
-  @override
-  FinishRideButtonState createState() => FinishRideButtonState();
-}
-
-class FinishRideButtonState extends State<FinishRideButton> {
+class FinishRideButton extends StatelessWidget {
   final log = Logger("FinishButton");
+
+  FinishRideButton({super.key});
 
   void showAskForConfirmationDialog(BuildContext context) {
     showGeneralDialog(
@@ -51,7 +46,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
           actions: [
             BigButtonPrimary(
               label: "Fahrt beenden",
-              onPressed: () => onTap(),
+              onPressed: () => endRide(context),
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
             BigButtonTertiary(
@@ -67,7 +62,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
   }
 
   /// A callback that is executed when the cancel button is pressed.
-  Future<void> onTap() async {
+  Future<void> endRide(context) async {
     // Allows only portrait mode again when leaving the ride view.
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -107,7 +102,7 @@ class FinishRideButtonState extends State<FinishRideButton> {
     WakelockPlus.disable();
 
     // Show the feedback view.
-    if (mounted) {
+    if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => FeedbackView(

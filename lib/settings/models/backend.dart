@@ -268,3 +268,49 @@ extension BackendShortcuts on Backend {
     }
   }
 }
+
+extension Simulator on Backend {
+  String get simulatorMQTTPath {
+    switch (this) {
+      case Backend.production:
+        return "priobike.vkw.tu-dresden.de";
+      case Backend.staging:
+        return "priobike.vkw.tu-dresden.de";
+      case Backend.release:
+        return "priobike.vkw.tu-dresden.de";
+    }
+  }
+
+  int get simulatorMQTTPort {
+    switch (this) {
+      case Backend.production:
+        return 20036;
+      case Backend.staging:
+        return 20036;
+      case Backend.release:
+        return 20036;
+    }
+  }
+
+  String get simulatorMQTTPublishPassword {
+    switch (this) {
+      case Backend.production:
+        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
+      case Backend.staging:
+        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
+      case Backend.release:
+        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
+    }
+  }
+
+  String get simulatorMQTTPublishUsername {
+    switch (this) {
+      case Backend.production:
+        return "app";
+      case Backend.staging:
+        return "app";
+      case Backend.release:
+        return "app";
+    }
+  }
+}
