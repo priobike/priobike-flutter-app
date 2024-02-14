@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -113,8 +114,7 @@ class AppMapState extends State<AppMap> {
     }
 
     final Widget map = mapbox.MapWidget(
-      resourceOptions: mapbox.ResourceOptions(
-          accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA"),
+      resourceOptions: mapbox.ResourceOptions(accessToken: Keys.mapboxAccessToken),
       key: const ValueKey("mapbox-map"),
       styleUri: Theme.of(context).colorScheme.brightness == Brightness.light
           ? mapDesigns.mapDesign.lightStyle

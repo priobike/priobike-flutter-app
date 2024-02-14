@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/keys.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -24,7 +25,7 @@ extension BackendPath on Backend {
       case Backend.staging:
         return "priobike.vkw.tu-dresden.de/staging";
       case Backend.release:
-        return "priobike.flow-d.de";
+        return "priobike-release.inf.tu-dresden.de";
     }
   }
 }
@@ -311,6 +312,17 @@ extension Simulator on Backend {
         return "app";
       case Backend.release:
         return "app";
+    }
+  }
+
+  String get linkShortenerApiKey {
+    switch (this) {
+      case Backend.production:
+        return Keys.linkShortenerApiKeyProduction;
+      case Backend.staging:
+        return Keys.linkShortenerApiKeyStaging;
+      case Backend.release:
+        return Keys.linkShortenerApiKeyRelease;
     }
   }
 }
