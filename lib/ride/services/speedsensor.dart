@@ -81,10 +81,9 @@ class SpeedSensor with ChangeNotifier {
   /// The current status text.
   String statusText = "";
 
-  /// tries connecting to speed sensor, if not already connected
-  /// initializes _device, if not already initialized
+  /// Tries connecting to speed sensor, if not already connected.
+  /// Initializes _device, if not already initialized.
   Future<void> initConnectionToSpeedSensor() async {
-    // Start scanning devices if not connected yet.
     loading = true;
     failure = false;
     statusText = "Sensor wird gesucht.";
@@ -92,10 +91,10 @@ class SpeedSensor with ChangeNotifier {
 
     _startBluetoothStateListener();
 
-    // get all bluetooth devices already connected to the system. (doesn't  seem to work)
+    // gGt all bluetooth devices already connected to the system. (shows only devices connected by blue plus plugin)
     List<BluetoothDevice> connectedDevices = FlutterBluePlus.connectedDevices;
 
-    // search for speed sensor in connected devices
+    // Search for speed sensor in connected devices.
     for (BluetoothDevice bluetoothDevice in connectedDevices) {
       if (bluetoothDevice.platformName == _speedSensorName) _device = bluetoothDevice;
     }
@@ -112,11 +111,10 @@ class SpeedSensor with ChangeNotifier {
     }
     log.i("initalizing connected devices");
 
-    // speed sensor was not in connected devices, so we do a new bluetooth scan
+    // Speed sensor was not in connected devices, so we do a new bluetooth scan.
     _scanListener = FlutterBluePlus.scanResults.listen((results) {
-      /// the contents here are getting called everytime a new device was found in the scan
       log.i(results);
-      // search speed sensor in list of all currently found devices
+      // Search speed sensor in list of all currently found devices.
       ScanResult? sensorFound;
       for (ScanResult scanResult in results) {
         if (scanResult.advertisementData.localName == _speedSensorName) sensorFound = scanResult;
@@ -134,7 +132,7 @@ class SpeedSensor with ChangeNotifier {
       _connectSpeedSensor();
     });
 
-    // start bluetooth scan
+    // Start bluetooth scan
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
 
     // Wait 10 seconds because startScan can't be await.
@@ -151,8 +149,7 @@ class SpeedSensor with ChangeNotifier {
     }
   }
 
-  /// tries connecting to the speed sensor
-  /// Note: _device has to be initialized
+  /// Tries connecting to the speed sensor.
   Future<void> _connectSpeedSensor() async {
     if (_device == null) return;
     loading = true;
@@ -175,8 +172,7 @@ class SpeedSensor with ChangeNotifier {
     }
   }
 
-  /// tries connecting to the speed sensor
-  /// Note: _device has to be initialized
+  /// Tries disconnecting the speed sensor.
   Future<void> _disconnectSpeedSensor() async {
     if (_device == null) return;
     await _device!.disconnect();
@@ -193,8 +189,7 @@ class SpeedSensor with ChangeNotifier {
     });
   }
 
-  /// discovers all services of connected device
-  /// Note: _device has to be initialized
+  /// Discovers all services of connected device.
   Future<void> _discoverServicesOfDevice() async {
     if (_device == null) return;
     if (!_device!.isConnected) return;
@@ -235,7 +230,7 @@ class SpeedSensor with ChangeNotifier {
     }
   }
 
-  /// retrieves the speed characteristic from all available services
+  /// Starts listening on the speed characteristic and updates the positioning source.
   void _startSpeedCharacteristicListener() {
     if (_speedCharacteristic == null) return;
 
