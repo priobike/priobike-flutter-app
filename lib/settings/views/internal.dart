@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
+import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -49,6 +50,9 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
+  /// The associated load status service, which is injected by the provider.
+  late LoadStatus loadStatus;
+
   /// The associated status history service, which is injected by the provider.
   late StatusHistory statusHistory;
 
@@ -83,6 +87,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     position.addListener(update);
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);
+    loadStatus = getIt<LoadStatus>();
     statusHistory = getIt<StatusHistory>();
     statusHistory.addListener(update);
     shortcuts = getIt<Shortcuts>();
@@ -165,6 +170,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await news.getArticles();
     await shortcuts.loadShortcuts();
     await predictionStatusSummary.fetch();
+    await loadStatus.fetch();
     await statusHistory.fetch();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
