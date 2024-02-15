@@ -1099,6 +1099,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             "coordinates": [newCoordinate.lon, newCoordinate.lat]
           });
         }
+
+        // Set the route label coordinate to not calculate this again until the coordinate is out of view.
+        routeLabel.coordinate = newCoordinate;
       }
 
       // Update screen position.
