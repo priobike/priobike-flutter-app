@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/main.dart';
 
@@ -22,6 +23,24 @@ class LoadStatusViewState extends State<LoadStatusView> {
     super.initState();
     loadStatus = getIt<LoadStatus>();
   }
+
+  /// Alert dialog for location accuracy
+  void showMoreInformationDialog() => showDialog<String>(
+        context: context,
+        builder: (BuildContext context) {
+          return DialogLayout(
+            title: "Vermehrte Anzahl an Nutzenden",
+            text: loadStatus.text ?? "",
+            actions: [
+              BigButtonTertiary(
+                label: "Schließen",
+                onPressed: () => Navigator.pop(context),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+              ),
+            ],
+          );
+        },
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +71,7 @@ class LoadStatusViewState extends State<LoadStatusView> {
               fill: Colors.transparent,
               borderColor: Theme.of(context).colorScheme.onSurface,
               withBorder: false,
-              onPressed: () {},
+              onPressed: () => showMoreInformationDialog(),
             ),
           ],
         ),
