@@ -122,7 +122,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   List<Map> routeLabelCoordinates = [];
 
   /// A lock that avoids rapid relocating of route labels.
-  final routeLabelLock = Lock(milliseconds: 500);
+  final routeLabelLock = Lock(milliseconds: 250);
 
   /// The index of the basemap layers where the first label layer is located (the label layers are top most).
   var firstBaseMapLabelLayerIndex = 0;
@@ -168,6 +168,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The state of the route labels.
   List<RouteLabel> routeLabels = [];
+
+  /// The relative horizontal margin in pixel for the route label to be displayed.
+  late double routeLabelMarginLeft;
+
+  /// The relative horizontal margin in pixel for the route label to be displayed.
+  late double routeLabelMarginRight;
+
+  /// The relative vertical margin in pixel for the route label to be displayed.
+  late double routeLabelMarginTop;
+
+  /// The relative vertical margin in pixel for the route label to be displayed.
+  late double routeLabelMarginBottom;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -269,12 +281,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     tutorial = getIt<Tutorial>();
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      // Calculate the relative padding for the pio pop up.
-      final size = MediaQuery.of(context).size;
-      poiPopUpMarginLeft = size.width * poiScreenMargin;
-      poiPopUpMarginRight = size.width - size.width * poiScreenMargin;
-      poiPopUpMarginTop = size.height * poiScreenMargin;
-      poiPopUpMarginBottom = size.height - size.height * poiScreenMargin;
+      // Calculate the relative margin for the pio pop up.
+      final frame = MediaQuery.of(context);
+      poiPopUpMarginLeft = frame.size.width * poiScreenMargin;
+      poiPopUpMarginRight = frame.size.width - frame.size.width * poiScreenMargin;
+      poiPopUpMarginTop = frame.size.height * poiScreenMargin;
+      poiPopUpMarginBottom = frame.size.height - frame.size.height * poiScreenMargin;
+
+      // Calculate the relative margin for the route label.
+      routeLabelMarginLeft = 10;
+      routeLabelMarginRight = frame.size.width - 10;
+      routeLabelMarginTop = frame.padding.top;
+      // Fit initial bottom sheet size of 128px.
+      routeLabelMarginBottom = frame.size.height - 128;
     });
   }
 
@@ -1083,29 +1102,40 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
       // Check coordinate valid.
       ScreenCoordinate? screenCoordinate = routeLabel.coordinate != null
-          ? await mapController!.pixelForCoordinate({
-              "coordinates": [routeLabel.coordinate!.lon, routeLabel.coordinate!.lat]
-            })
+          ? await mapController!.pixelForCoordinate(
+              Point(
+                coordinates: Position(routeLabel.coordinate!.lon, routeLabel.coordinate!.lat),
+              ).toJson(),
+            )
           : null;
 
-      // Either no coordinate is set or the current coordinate is out of the screen (x or y == -1).
-      if (screenCoordinate == null || screenCoordinate.x == -1 || screenCoordinate.y == -1) {
-        // Find new coordinate if old coordinate not in screen dimensions.
-        GHCoordinate? newCoordinate = await getCoordinateForRouteLabels(routeLabel);
+      // Either no coordinate is set or the current coordinate is out of the screen.
+      if (screenCoordinate == null || !_routeLabelInScreenBounds(screenCoordinate)) {
+        // Update route label with coordinate null => opacity is not displayed.
+        routeLabel.coordinate = null;
 
-        if (newCoordinate != null) {
-          // This coordinate has to have values != -1.
-          screenCoordinate = await mapController!.pixelForCoordinate({
-            "coordinates": [newCoordinate.lon, newCoordinate.lat]
-          });
-        }
+        // Find new coordinate if old coordinate not in screen dimensions asynchronously and with lock to prevent starting to many recalculations.
+        routeLabelLock.run(() async {
+          GHCoordinate? newCoordinate = await getCoordinateForRouteLabels(routeLabel);
 
-        // Set the route label coordinate to not calculate this again until the coordinate is out of view.
-        routeLabel.coordinate = newCoordinate;
+          if (newCoordinate != null) {
+            // This coordinate has to have values in route label margins.
+            screenCoordinate = await mapController!.pixelForCoordinate(
+              Point(
+                coordinates: Position(newCoordinate.lon, newCoordinate.lat),
+              ).toJson(),
+            );
+          }
+          // Set the route label coordinate to not calculate this again until the coordinate is out of view.
+          routeLabel.coordinate = newCoordinate;
+        });
       }
 
       // Update screen position.
-      routeLabel.updateScreenPosition(screenCoordinate?.x, screenCoordinate?.y);
+      // Only set if coordinate is set.
+      if (routeLabel.coordinate != null) {
+        routeLabel.updateScreenPosition(screenCoordinate?.x, screenCoordinate?.y);
+      }
       updatedRouteLabels.add(routeLabel);
     }
 
@@ -1243,10 +1273,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     List<GHCoordinate> coordinatesVisible = [];
     for (GHCoordinate coordinate in routeLabel.uniqueCoordinates) {
       // Check coordinates in screen bounds.
-      ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
-        "coordinates": [coordinate.lon, coordinate.lat]
-      });
-      if (screenCoordinate.x != -1 || screenCoordinate.y != -1) {
+      ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate(
+        Point(
+          coordinates: Position(coordinate.lon, coordinate.lat),
+        ).toJson(),
+      );
+
+      if (_routeLabelInScreenBounds(screenCoordinate)) {
         coordinatesVisible.add(coordinate);
       }
     }
@@ -1365,6 +1398,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing.loadRoutes();
 
     resetPOISelection();
+  }
+
+  /// Returns a bool whether the given screen coordinate fits for the route label margins.
+  bool _routeLabelInScreenBounds(ScreenCoordinate screenCoordinate) {
+    if (screenCoordinate.x > routeLabelMarginLeft &&
+        screenCoordinate.x < routeLabelMarginRight &&
+        screenCoordinate.y > routeLabelMarginTop &&
+        screenCoordinate.y < routeLabelMarginBottom) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /// Reset variables for dragging
@@ -1639,6 +1684,24 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ],
           ),
 
+        ...routeLabels.map(
+          (RouteLabel routeLabel) => AnimatedPositioned(
+            duration: const Duration(milliseconds: 150),
+            // Subtract half the width of the widget to center it.
+            left: routeLabel.screenCoordinateX,
+            top: routeLabel.screenCoordinateY,
+            child: AnimatedOpacity(
+              opacity: routeLabel.coordinate == null ? 0 : 1,
+              duration: const Duration(milliseconds: 150),
+              child: Container(
+                width: 20,
+                height: 20,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ),
+
         if (poiPopup != null)
           AnimatedPositioned(
             duration: const Duration(milliseconds: 150),
@@ -1651,20 +1714,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               child: POIInfoPopup(selectedPOI: poiPopup!.poiElement, onPressed: onPressedPOIPopup),
             ),
           ),
-
-        ...routeLabels.map(
-          (RouteLabel routeLabel) => AnimatedPositioned(
-            duration: const Duration(milliseconds: 150),
-            // Subtract half the width of the widget to center it.
-            left: routeLabel.screenCoordinateX,
-            top: routeLabel.screenCoordinateY,
-            child: Container(
-              width: 20,
-              height: 20,
-              color: Colors.blue,
-            ),
-          ),
-        ),
 
         if (!mapLayersFinishedLoading)
           Center(
