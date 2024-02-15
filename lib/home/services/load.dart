@@ -22,7 +22,7 @@ class LoadStatus with ChangeNotifier {
 
   LoadStatus();
 
-  /// Fetches the status history data from priobike-prediction-monitor.
+  /// Fetches the status data from the priobike-load-service.
   Future<void> fetch() async {
     if (isLoading) return;
     isLoading = true;
