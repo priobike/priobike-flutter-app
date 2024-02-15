@@ -26,7 +26,6 @@ class LoadStatus with ChangeNotifier {
   Future<void> fetch() async {
     if (isLoading) return;
     isLoading = true;
-    notifyListeners();
 
     try {
       final settings = getIt<Settings>();
