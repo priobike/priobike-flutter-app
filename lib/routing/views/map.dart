@@ -1090,6 +1090,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             id: route.id,
             selected: routing.selectedRoute!.id == route.id,
             timeText: route.timeText,
+            secondaryText: "gleichschnell",
             uniqueCoordinates: uniqueCoordinatesPerRoute[route.id],
           ),
         );
