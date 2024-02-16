@@ -1697,14 +1697,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // Subtract half the width of the widget to center it.
             left: routeLabel.screenCoordinateX,
             top: routeLabel.screenCoordinateY,
-            child: AnimatedOpacity(
-              opacity: routeLabel.coordinate == null ? 0 : 1,
-              duration: const Duration(milliseconds: 150),
-              child: FractionalTranslation(
-                translation: Offset(
-                  routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? 0 : -1,
-                  routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? 0 : -1,
-                ),
+            child: FractionalTranslation(
+              translation: Offset(
+                routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? 0 : -1,
+                routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? 0 : -1,
+              ),
+              child: AnimatedOpacity(
+                opacity: routeLabel.coordinate == null ? 0 : 1,
+                duration: const Duration(milliseconds: 150),
                 child: GestureDetector(
                   onTap: () {
                     onPressedRouteLabel(routeLabel.id);
