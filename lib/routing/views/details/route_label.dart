@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/models/route_label.dart';
 
@@ -7,9 +8,7 @@ const double cornerMargin = 13.5;
 class RouteLabelIcon extends StatelessWidget {
   final RouteLabel routeLabel;
 
-  final Function onPressed;
-
-  const RouteLabelIcon({super.key, required this.routeLabel, required this.onPressed});
+  const RouteLabelIcon({super.key, required this.routeLabel});
 
   @override
   Widget build(BuildContext context) {
@@ -36,31 +35,6 @@ class RouteLabelIcon extends StatelessWidget {
     }
 
     return Stack(children: [
-      Container(
-        // 1 pixel less then the height of the triangle so that the border gets hidden.
-        margin: EdgeInsets.only(
-          left: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? cornerMargin : 0,
-          top: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? cornerMargin : 0,
-          right: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.right ? cornerMargin : 0,
-          bottom: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.bottom ? cornerMargin : 0,
-        ),
-        decoration: BoxDecoration(
-          color: routeLabel.selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(width: 1, color: Theme.of(context).colorScheme.onTertiary),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            BoldSmall(
-              text: routeLabel.text,
-              context: context,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
       Positioned.fill(
         child: Align(
           alignment: pointerAlignment,
@@ -70,6 +44,7 @@ class RouteLabelIcon extends StatelessWidget {
             child: CustomPaint(
               painter: PointerPainter(
                 context: context,
+                color: routeLabel.selected ? CI.route : CI.secondaryRoute,
               ),
               child: const SizedBox(
                 height: 20,
@@ -79,6 +54,30 @@ class RouteLabelIcon extends StatelessWidget {
           ),
         ),
       ),
+      Container(
+        // 1 pixel less then the height of the triangle so that the border gets hidden.
+        margin: EdgeInsets.only(
+          left: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? cornerMargin : 0,
+          top: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? cornerMargin : 0,
+          right: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.right ? cornerMargin : 0,
+          bottom: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.bottom ? cornerMargin : 0,
+        ),
+        decoration: BoxDecoration(
+          color: routeLabel.selected ? CI.route : CI.secondaryRoute,
+          borderRadius: BorderRadius.circular(7.5),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            BoldSmall(
+              text: routeLabel.timeText,
+              context: context,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     ]);
   }
 }
@@ -86,21 +85,16 @@ class RouteLabelIcon extends StatelessWidget {
 class PointerPainter extends CustomPainter {
   final BuildContext context;
 
-  PointerPainter({required this.context});
+  final Color color;
+
+  PointerPainter({required this.context, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint backgroundPaint = Paint()..color = Theme.of(context).colorScheme.background;
-
-    Paint sidePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..color = Theme.of(context).colorScheme.onTertiary
-      ..strokeWidth = 1;
+    Paint backgroundPaint = Paint()..color = color;
 
     // Draw the background;
     canvas.drawPath(getTrianglePath(size.width, size.height), backgroundPaint);
-    // Draw border lines to the top.
-    canvas.drawPath(getTrianglePath(size.width, size.height), sidePaint);
   }
 
   Path getTrianglePath(double x, double y) {

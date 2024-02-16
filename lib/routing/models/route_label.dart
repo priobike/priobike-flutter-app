@@ -12,8 +12,11 @@ class RouteLabel {
   /// The selected state of the route label.
   bool selected;
 
-  /// The text of the route label.
-  String text;
+  /// The time text of the route label.
+  String timeText;
+
+  /// The secondary text of the route label.
+  String? secondaryText;
 
   /// The GHCoordinate of the waypoint.
   GHCoordinate? coordinate;
@@ -33,7 +36,12 @@ class RouteLabel {
   /// The unique coordinates of the route.
   List<GHCoordinate> uniqueCoordinates;
 
-  RouteLabel({required this.id, required this.selected, required this.text, required this.uniqueCoordinates});
+  RouteLabel(
+      {required this.id,
+      required this.selected,
+      required this.timeText,
+      required this.uniqueCoordinates,
+      this.secondaryText});
 
   void updateScreenPosition(double? x, double? y) {
     screenCoordinateX = x;

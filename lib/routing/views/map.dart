@@ -1089,7 +1089,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           RouteLabel(
             id: route.id,
             selected: routing.selectedRoute!.id == route.id,
-            text: "TODO",
+            timeText: route.timeText,
             uniqueCoordinates: uniqueCoordinatesPerRoute[route.id],
           ),
         );
@@ -1402,6 +1402,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     resetPOISelection();
   }
 
+  /// The callback that is executed when the route label got pressed.
+  void onPressedRouteLabel(int id) async {
+    routing.switchToRoute(id);
+  }
+
   /// Returns a bool whether the given screen coordinate fits for the route label margins.
   bool _routeLabelInScreenBounds(ScreenCoordinate screenCoordinate) {
     if (screenCoordinate.x > routeLabelMarginLeft &&
@@ -1695,16 +1700,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             child: AnimatedOpacity(
               opacity: routeLabel.coordinate == null ? 0 : 1,
               duration: const Duration(milliseconds: 150),
-              child: Center(
-                // Center the route label icon to the given orientation.
-                child: FractionalTranslation(
-                  translation: Offset(
-                    routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? 0 : -1,
-                    routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? 0 : -1,
-                  ),
+              child: FractionalTranslation(
+                translation: Offset(
+                  routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? 0 : -1,
+                  routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? 0 : -1,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    onPressedRouteLabel(routeLabel.id);
+                  },
                   child: RouteLabelIcon(
                     routeLabel: routeLabel,
-                    onPressed: () {},
                   ),
                 ),
               ),
