@@ -26,6 +26,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/free.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -338,6 +339,17 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                                 ),
                               ],
                             ),
+                          ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          SmallIconButtonPrimary(
+                            onPressed: () =>
+                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FreeRideView())),
+                            icon: Icons.directions_bike_rounded,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fill: Theme.of(context).colorScheme.surface,
+                            splash: Theme.of(context).colorScheme.surfaceTint,
                           ),
                           const SizedBox(
                             width: 8,

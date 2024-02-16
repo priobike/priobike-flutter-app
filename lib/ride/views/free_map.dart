@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -6,25 +6,16 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
-import 'package:priobike/common/map/layers/route_layers.dart';
-import 'package:priobike/common/map/layers/sg_layers.dart';
+import 'package:priobike/common/map/layers/sg_layers_free.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/ride/services/free_ride.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/status/services/sg.dart';
 
 class FreeRideMapView extends StatefulWidget {
-  /// Callback that is called when the map is moved by the user.
-  final Function onMapMoved;
-
-  /// If the map should follow the user location.
-  final bool cameraFollowUserLocation;
-
-  const FreeRideMapView({super.key, required this.onMapMoved, required this.cameraFollowUserLocation});
+  const FreeRideMapView({super.key});
 
   @override
   State<StatefulWidget> createState() => FreeRideMapViewState();
@@ -38,11 +29,11 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// The associated positioning service, which is injected by the provider.
   late Positioning positioning;
 
-  /// The associated ride service, which is injected by the provider.
-  late FreeRide freeRide;
-
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
+
+  /// The associated free ride service, which is injected by the provider.
+  late FreeRide freeRide;
 
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
@@ -50,14 +41,16 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// The index of the basemap layers where the first label layer is located (the label layers are top most).
   int firstBaseMapLabelLayerIndex = 0;
 
+  /// The timer which updates the SGs that are currently visible on the map.
+  Timer? updateVisibleSgsTimer;
+
+  /// The timer which updates the predictions on the visible SGs.
+  Timer? updateSgPredictionsTimer;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
+    AllTrafficLightsLayer.layerId,
     userLocationLayerId,
-    OfflineCrossingsLayer.layerId,
-    TrafficLightsLayer.layerId,
-    TrafficLightsLayerClickable.layerId,
-    TrafficLightsLayer.touchIndicatorsLayerId,
-    TrafficLightLayer.layerId,
   ];
 
   /// Returns the index where the layer should be added in the Mapbox layer stack.
@@ -81,159 +74,50 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   void initState() {
     super.initState();
 
-    freeRide = getIt<Ride>();
-    freeRide.addListener(onRideUpdate);
     positioning = getIt<Positioning>();
     positioning.addListener(onPositioningUpdate);
+    freeRide = getIt<FreeRide>();
+    freeRide.addListener(onFreeRideUpdate);
     settings = getIt<Settings>();
+  }
+
+  void onFreeRideUpdate() {
+    setState(() {});
   }
 
   @override
   void dispose() {
-    freeRide.removeListener(onRideUpdate);
     positioning.removeListener(onPositioningUpdate);
+    freeRide.removeListener(onFreeRideUpdate);
+    updateVisibleSgsTimer?.cancel();
+    updateVisibleSgsTimer = null;
+    updateSgPredictionsTimer?.cancel();
+    updateSgPredictionsTimer = null;
     super.dispose();
   }
 
   /// Update the view with the current data.
   Future<void> onPositioningUpdate() async {
     if (mapController == null) return;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Only hide the traffic lights behind the position if the user hasn't selected a SG.
-    if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: true).update(mapController!);
-    if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
-  }
-
-  /// Update the view with the current data.
-  Future<void> onRideUpdate() async {
-    if (mapController == null) return;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (!mounted) return;
-    await TrafficLightLayer(isDark).update(mapController!);
   }
 
   /// Adapt the map controller to a changed position.
   Future<void> adaptToChangedPosition() async {
     if (mapController == null) return;
-    if (routing.selectedRoute == null) return;
 
-    // Get some data that we will need for adaptive camera control.
-    final sgPos = ride.calcCurrentSG?.position;
-    final sgPosLatLng = sgPos == null ? null : LatLng(sgPos.lat, sgPos.lon);
     final userPos = getIt<Positioning>().lastPosition;
-    final userPosSnap = positioning.snap;
 
-    const vincenty = Distance(roundResult: false);
+    if (userPos == null) return;
 
-    // Portrait/landscape mode
-    final orientation = MediaQuery.of(context).orientation;
-    final mapbox.MbxEdgeInsets padding;
-    if (orientation == Orientation.portrait) {
-      padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0);
-    } else {
-      // Landscape-Mode: Set user-puk to the left and a little down
-      // The padding must be different if battery save mode is enabled by user because the map is rendered differently
-      final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
-      final deviceWidth = MediaQuery.of(context).size.width;
-      final deviceHeight = MediaQuery.of(context).size.height;
-      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-      if (isBatterySaveModeEnabled) {
-        if (Platform.isAndroid) {
-          padding = mapbox.MbxEdgeInsets(
-              top: deviceHeight * 0.25, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.055);
-        } else {
-          padding =
-              mapbox.MbxEdgeInsets(top: deviceHeight * 0.55, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.2);
-        }
-      } else {
-        padding =
-            mapbox.MbxEdgeInsets(top: deviceHeight * 0.7, left: 0, bottom: 0, right: deviceWidth * pixelRatio * 0.19);
-      }
-    }
-
-    if (routing.hadErrorDuringFetch) {
-      // If there was an error during fetching, we don't have a route and thus also can't snap the position.
-      // We can only try to display the real user position.
-      if (userPos == null) {
-        await snapLocationIndicatorToRouteStart();
-        return;
-      }
-      // Note: in the current version ease to is broken on ios devices.
-      mapController!.flyTo(
-          mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
-            bearing: userPos.heading,
-            zoom: 16,
-            pitch: 60,
-            padding: padding,
-          ),
-          mapbox.MapAnimationOptions(duration: 1500));
-      await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
-        if (value) {
-          mapController!.style.updateLayer(
-            mapbox.LocationIndicatorLayer(
-              id: userLocationLayerId,
-              bearing: userPos.heading,
-              location: [userPos.latitude, userPos.longitude, userPos.altitude],
-              accuracyRadius: userPos.accuracy,
-            ),
-          );
-        }
-      });
-      return;
-    }
-
-    if (userPos == null || userPosSnap == null) {
-      await snapLocationIndicatorToRouteStart();
-      return;
-    }
-
-    // Calculate the bearing to the next traffic light.
-    double? sgBearing = sgPosLatLng == null ? null : vincenty.bearing(userPosSnap.position, sgPosLatLng);
-
-    // Adapt the focus dynamically to the next interesting feature.
-    final distanceOfInterest = min(
-      ride.calcDistanceToNextTurn ?? double.infinity,
-      ride.calcDistanceToNextSG ?? double.infinity,
-    );
-    // Scale the zoom level with the distance of interest.
-    // Between 0 meters: zoom 18 and 500 meters: zoom 18.
-    double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
-
-    // Within those thresholds the bearing to the next SG is used.
-    // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
-    // min-threshold: Often the SGs are slightly on the left or right side of the route and
-    //                without this threshold the camera would orient away from the route
-    //                when it's close to the SG.
-    double? cameraHeading;
-    if (ride.calcDistanceToNextSG != null &&
-        sgBearing != null &&
-        ride.calcDistanceToNextSG! < 500 &&
-        ride.calcDistanceToNextSG! > 10) {
-      cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
-    }
-    // Avoid looking too far away from the route.
-    if (cameraHeading == null || (cameraHeading - userPosSnap.heading).abs() > 20) {
-      cameraHeading = userPosSnap.heading; // Look into the direction of the user.
-    }
-
-    if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {
-      // Note: in the current version ease to is broken on ios devices.
-      mapController!.flyTo(
-          mapbox.CameraOptions(
-            center: mapbox.Point(
-                    coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
-                .toJson(),
-            bearing: cameraHeading,
-            zoom: zoom,
-            pitch: 60,
-            padding: padding,
-          ),
-          mapbox.MapAnimationOptions(duration: 1500));
-    }
+    mapController!.flyTo(
+        mapbox.CameraOptions(
+          center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
+          bearing: userPos.heading,
+          zoom: 18,
+          pitch: 60,
+        ),
+        mapbox.MapAnimationOptions(duration: 1500));
 
     await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
       if (value) {
@@ -241,7 +125,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
           mapbox.LocationIndicatorLayer(
             id: userLocationLayerId,
             bearing: userPos.heading,
-            location: [userPosSnap.position.latitude, userPosSnap.position.longitude, userPos.altitude],
+            location: [userPos.latitude, userPos.longitude, userPos.altitude],
             accuracyRadius: userPos.accuracy,
           ),
         );
@@ -309,7 +193,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     await getFirstLabelLayer();
 
@@ -318,181 +201,61 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
     await showUserLocationIndicator();
 
-    var index = await getIndex(SelectedRouteLayer.layerId);
+    var index = await getIndex(AllTrafficLightsLayer.layerId);
     if (!mounted) return;
-    await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
-    index = await getIndex(DiscomfortsLayer.layerId);
-    if (!mounted) return;
-    await DiscomfortsLayer(isDark).install(
-      mapController!,
-      iconSize: 0.2,
-      at: index,
-      showLabels: false,
-    );
-    index = await getIndex(WaypointsLayer.layerId);
-    if (!mounted) return;
-    await WaypointsLayer().install(mapController!, iconSize: 0.33, at: index);
-    index = await getIndex(TrafficLightsLayer.layerId);
-    if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: true).install(
-      mapController!,
-      iconSize: 0.5,
-      at: index,
-    );
-    index = await getIndex(TrafficLightsLayer.layerId);
-    if (!mounted) return;
-    await TrafficLightsLayerClickable().install(
-      mapController!,
-      iconSize: 0.5,
-      at: index,
-    );
-    index = await getIndex(OfflineCrossingsLayer.layerId);
-    if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: 0.5, at: index);
-    index = await getIndex(TrafficLightLayer.layerId);
-    if (!mounted) return;
-    await TrafficLightLayer(isDark).install(mapController!, iconSize: 0.5, at: index);
+    await AllTrafficLightsLayer().install(mapController!, at: index);
 
-    onRoutingUpdate();
     onPositioningUpdate();
-    onRideUpdate();
-  }
 
-  /// A callback which is executed when the map is scrolled.
-  Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
-    widget.onMapMoved();
-  }
+    updateVisibleSgsTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      if (mapController == null) return;
+      final cameraBounds = await mapController!.getBounds();
+      final cameraState = await mapController!.getCameraState();
+      final List coordinates = cameraState.center["coordinates"] as List;
+      if (coordinates.length != 2) return;
+      final double lat = coordinates[1];
+      final double lon = coordinates[0];
+      freeRide.updateVisibleSgs(cameraBounds, LatLng(lat, lon), cameraState.zoom);
+    });
 
-  /// A callback which is executed when a tap on the map is registered.
-  /// This also resolves if a certain feature is being tapped on. This function
-  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
-  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
-  Future<void> onMapTap(mapbox.ScreenCoordinate screenCoordinate) async {
-    if (mapController == null || !mounted) return;
-
-    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
-    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
-    // fixed in an upcoming version we need to remove this conversion.
-    final mapbox.ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
-      mapbox.Point(
-        coordinates: mapbox.Position(
-          screenCoordinate.y,
-          screenCoordinate.x,
-        ),
-      ).toJson(),
-    );
-
-    // Calculate the correct screen coordinates since the map got scaled.
-    // Note: only necessary for IOS. Potential point of failure in future.
-    if (settings.saveBatteryModeEnabled && Platform.isIOS) {
-      if (!mounted) return;
-      final frame = MediaQuery.of(context);
-
-      // Get the scaled width and height.
-      double scaleWidth = frame.size.width / Settings.scalingFactor;
-      double scaleHeight = frame.size.height / Settings.scalingFactor;
-
-      // Normalize the screen coordinate to the scaled area.
-      double normalizedX = actualScreenCoordinate.x - (frame.size.width - scaleWidth) / 2;
-      double normalizedY = actualScreenCoordinate.y - (frame.size.height - scaleHeight) / 2;
-
-      // Get the width and height ratio factor in relation to the scaled screen size.
-      double ratioX = normalizedX / scaleWidth;
-      double ratioY = normalizedY / scaleHeight;
-
-      // Calculate the screen coordinates with the ratio in relation to the actual screen.
-      actualScreenCoordinate.x = frame.size.width * ratioX;
-      actualScreenCoordinate.y = frame.size.height * ratioY;
-    }
-
-    // Returns the Features for a given screen coordinate.
-    // Note: Android seems to consider the scale factor.
-    final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
-      mapbox.RenderedQueryGeometry(
-        value: json.encode(actualScreenCoordinate.encode()),
-        type: mapbox.Type.SCREEN_COORDINATE,
-      ),
-      mapbox.RenderedQueryOptions(
-        layerIds: [TrafficLightsLayerClickable.layerId],
-      ),
-    );
-
-    if (features.isNotEmpty) {
-      onFeatureTapped(features[0]!);
-    }
-  }
-
-  /// A callback that is called when the user taps a feature.
-  onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
-    // Map the id of the layer to the corresponding feature.
-    final id = queriedFeature.feature['id'];
-    if ((id as String).startsWith("traffic-light-clickable")) {
-      final sgIdx = int.tryParse(id.split("-")[3]);
-      if (sgIdx == null) return;
-      ride.userSelectSG(sgIdx);
-      if (ride.userSelectedSG != null) {
-        if (mapController == null) return;
-        if (widget.cameraFollowUserLocation) widget.onMapMoved();
-        // The camera target is the selected SG.
-        final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
-        if (!mounted) return;
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        await TrafficLightLayer(isDark).update(mapController!);
-
-        if (mounted) {
-          // Portrait/landscape mode
-          final orientation = MediaQuery.of(context).orientation;
-          final mapbox.MbxEdgeInsets padding;
-
-          final isBatterySaveModeEnabled = getIt<Settings>().saveBatteryModeEnabled;
-          final deviceWidth = MediaQuery.of(context).size.width;
-          final deviceHeight = MediaQuery.of(context).size.height;
-          final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-
-          // Get the scaled width and height.
-          double scaleWidth = deviceWidth * (pixelRatio / Settings.scalingFactor);
-          double scaleHeight = deviceHeight * (pixelRatio / Settings.scalingFactor);
-
-          if (orientation == Orientation.portrait) {
-            // We need to consider the scale factor in battery save mode.
-            if (isBatterySaveModeEnabled) {
-              // Note: ios uses device-independent pixel units and therefore we need to consider the scale factor.
-              if (Platform.isIOS) {
-                padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: scaleHeight * 0.05, right: 0);
-              } else {
-                padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: deviceHeight * 0.05, right: 0);
-              }
-            } else {
-              padding = mapbox.MbxEdgeInsets(top: 0, left: 0, bottom: deviceHeight * 0.05, right: 0);
-            }
-          } else {
-            // Landscape-Mode: Set user-puk to the left and a little down
-            // The padding must be different if battery save mode is enabled by user because the map is rendered differently
-            // We need to consider the scale factor in battery save mode for ios.
-            if (isBatterySaveModeEnabled) {
-              // Note: ios uses device-independent pixel units and therefore we need to consider the scale factor.
-              if (Platform.isIOS) {
-                padding = mapbox.MbxEdgeInsets(top: scaleHeight * 0.05, left: 0, bottom: 0, right: scaleWidth * 0.5);
-              } else {
-                padding =
-                    mapbox.MbxEdgeInsets(top: deviceHeight * 0.05, left: 0, bottom: 0, right: deviceWidth * 0.175);
-              }
-            } else {
-              padding = mapbox.MbxEdgeInsets(top: deviceHeight * 0.05, left: 0, bottom: 0, right: deviceWidth * 0.42);
-            }
+    updateSgPredictionsTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (mapController == null) return;
+      final Map<String, dynamic> propertiesBySgId = {};
+      for (final entries in freeRide.receivedPredictions.entries) {
+        // Check if we have all necessary information.
+        if (entries.value.greentimeThreshold == -1) continue;
+        if (entries.value.predictionQuality == -1) continue;
+        if (entries.value.value.isEmpty) continue;
+        // Calculate the seconds since the start of the prediction.
+        final now = DateTime.now();
+        final secondsSinceStart = max(0, now.difference(entries.value.startTime).inSeconds);
+        // Chop off the seconds that are not in the prediction vector.
+        final secondsInVector = entries.value.value.length;
+        if (secondsSinceStart >= secondsInVector) continue;
+        // Calculate the current vector.
+        final currentVector = entries.value.value.sublist(secondsSinceStart);
+        if (currentVector.isEmpty) continue;
+        // Calculate the seconds to the next phase change.
+        int secondsToPhaseChange = 0;
+        // Check if the phase changes within the current vector.
+        bool greenNow = currentVector[0] >= entries.value.greentimeThreshold;
+        for (int i = 1; i < currentVector.length; i++) {
+          final greenThen = currentVector[i] >= entries.value.greentimeThreshold;
+          if ((greenNow && !greenThen) || (!greenNow && greenThen)) {
+            break;
           }
-
-          await mapController?.flyTo(
-            mapbox.CameraOptions(
-              center:
-                  mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
-              padding: padding,
-            ),
-            mapbox.MapAnimationOptions(duration: 200),
-          );
+          secondsToPhaseChange++;
         }
+
+        propertiesBySgId[entries.key] = {
+          "greenNow": greenNow,
+          "countdown": secondsToPhaseChange,
+        };
+
+        // Update the layer.
+        AllTrafficLightsLayer(propertiesBySgId: propertiesBySgId).update(mapController!);
       }
-    }
+    });
   }
 
   @override
@@ -515,8 +278,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     return AppMap(
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
-      onMapScroll: onMapScroll,
-      onMapTap: onMapTap,
       logoViewMargins: Point(10, marginYLogo),
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(10, marginYAttribution),
