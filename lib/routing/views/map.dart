@@ -41,6 +41,7 @@ import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/poi_popup.dart';
+import 'package:priobike/routing/views/details/route_label.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -1694,10 +1695,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             child: AnimatedOpacity(
               opacity: routeLabel.coordinate == null ? 0 : 1,
               duration: const Duration(milliseconds: 150),
-              child: Container(
-                width: 20,
-                height: 20,
-                color: Colors.blue,
+              child: Center(
+                // Center the route label icon to the given orientation.
+                child: FractionalTranslation(
+                  translation: Offset(
+                    routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? 0 : -1,
+                    routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? 0 : -1,
+                  ),
+                  child: RouteLabelIcon(
+                    routeLabel: routeLabel,
+                    onPressed: () {},
+                  ),
+                ),
               ),
             ),
           ),
