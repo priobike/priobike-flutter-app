@@ -1086,10 +1086,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
         routeLabels.add(
           RouteLabel(
-              id: route.id,
-              selected: routing.selectedRoute!.id == route.id,
-              text: "TODO",
-              uniqueCoordinates: uniqueCoordinatesPerRoute[route.id]),
+            id: route.id,
+            selected: routing.selectedRoute!.id == route.id,
+            text: "TODO",
+            uniqueCoordinates: uniqueCoordinatesPerRoute[route.id],
+          ),
         );
       }
     }
@@ -1127,15 +1128,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             );
           }
           // Set the route label coordinate to not calculate this again until the coordinate is out of view.
-          routeLabel.coordinate = newCoordinate;
+          routeLabel.updateCoordinate(newCoordinate);
         });
       }
 
-      // Update screen position.
       // Only set if coordinate is set.
       if (routeLabel.coordinate != null) {
         routeLabel.updateScreenPosition(screenCoordinate?.x, screenCoordinate?.y);
       }
+
       updatedRouteLabels.add(routeLabel);
     }
 
