@@ -13,6 +13,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -76,6 +77,8 @@ class LoaderState extends State<Loader> {
 
     try {
       await Migration.migrate();
+      await getIt<LoadStatus>().sendAppStartNotification();
+      await getIt<LoadStatus>().fetch();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();

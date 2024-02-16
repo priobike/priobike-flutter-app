@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/fcm.dart';
+import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -576,6 +577,7 @@ class Settings with ChangeNotifier {
     await FCM.selectTopic(backend);
 
     PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
+    LoadStatus loadStatus = getIt<LoadStatus>();
     StatusHistory statusHistory = getIt<StatusHistory>();
     Shortcuts shortcuts = getIt<Shortcuts>();
     Routing routing = getIt<Routing>();
@@ -594,6 +596,8 @@ class Settings with ChangeNotifier {
     await news.getArticles();
     await shortcuts.loadShortcuts();
     await predictionStatusSummary.fetch();
+    await loadStatus.fetch();
+    loadStatus.sendAppStartNotification();
     await statusHistory.fetch();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();

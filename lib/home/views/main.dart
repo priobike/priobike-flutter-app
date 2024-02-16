@@ -11,8 +11,10 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/load_status.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/poi/your_bike.dart';
 import 'package:priobike/home/views/profile.dart';
@@ -79,6 +81,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated status history service, which is injected by the provider.
   late StatusHistory statusHistory;
 
+  /// The load status service, which is injected by the provider.
+  late LoadStatus loadStatus;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -97,6 +102,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     predictionStatusSummary = getIt<PredictionStatusSummary>();
+    loadStatus = getIt<LoadStatus>();
     statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
     ride = getIt<Ride>();
@@ -145,6 +151,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       predictionStatusSummary.fetch();
+      loadStatus.fetch();
       statusHistory.fetch();
       news.getArticles();
     }
@@ -153,6 +160,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   @override
   void didPopNext() {
     predictionStatusSummary.fetch();
+    loadStatus.fetch();
     statusHistory.fetch();
     news.getArticles();
   }
@@ -262,6 +270,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
         onRefresh: () async {
           HapticFeedback.lightImpact();
           await predictionStatusSummary.fetch();
+          await loadStatus.fetch();
           await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
@@ -284,6 +293,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
               SliverToBoxAdapter(
                 child: Column(
                   children: [
+                    const LoadStatusView(),
                     if (settings.useCounter >= 3 && !settings.dismissedSurvey) const VSpace(),
                     if (settings.useCounter >= 3 && !settings.dismissedSurvey)
                       BlendIn(
