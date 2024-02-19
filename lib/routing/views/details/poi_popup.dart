@@ -38,7 +38,7 @@ class POIInfoPopup extends StatelessWidget {
             const SmallVSpace(),
             IconTextButtonPrimary(
               label: "Als Wegpunkt hinzufügen",
-              onPressed: () => onPressed,
+              onPressed: () => onPressed(),
               boxConstraints: BoxConstraints(minWidth: frame.width, minHeight: 28.0),
             )
           ],
