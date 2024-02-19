@@ -1,3 +1,4 @@
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 
 enum RouteLabelOrientationHorizontal { left, right }
@@ -34,7 +35,15 @@ class RouteLabel {
   RouteLabelOrientationHorizontal? routeLabelOrientationHorizontal;
 
   /// The unique coordinates of the route.
+  List<ScreenCoordinate>? allScreenCoordinates;
+
+  /// The unique coordinates of the route.
   List<GHCoordinate> uniqueCoordinates;
+
+  /// The unique coordinates of the route.
+  List<ScreenCoordinate>? candidates;
+
+  List<RouteLabelCandidate>? filteredCandidates;
 
   RouteLabel(
       {required this.id,
@@ -47,61 +56,14 @@ class RouteLabel {
     screenCoordinateX = x;
     screenCoordinateY = y;
   }
+}
 
-  void updateCoordinate(GHCoordinate? coordinate) {
-    // Calculate more vertical or horizontal.
-    this.coordinate = coordinate;
+class RouteLabelCandidate {
+  final bool topLeft;
+  final bool topRight;
+  final bool bottomLeft;
+  final bool bottomRight;
+  final ScreenCoordinate screenCoordinate;
 
-    // Update route label orientation.
-    if (uniqueCoordinates.length < 2 || coordinate == null) return;
-    GHCoordinate start = uniqueCoordinates[0];
-    GHCoordinate end = uniqueCoordinates[uniqueCoordinates.length - 1];
-
-    // Note: this code has to be adjusted for different regions in the world.
-    // For region hamburg the following works.
-    // To reduce complexity and use of costly functions this is not considered currently.
-
-    // Switch start and end if start is above end.
-    if (start.lat > end.lat) {
-      var tmp = start;
-      start = end;
-      end = tmp;
-    }
-
-    // Calculate right or left from viewpoint north.
-    double vector1X = end.lon - start.lon;
-    double vector1Y = end.lat - start.lat;
-    double vector2X = coordinate.lon - start.lon;
-    double vector2Y = coordinate.lat - start.lat;
-    double crossProduct = vector1X * vector2Y - vector1Y * vector2X;
-
-    // Setting route label orientation due to cross product and start end relation.
-    if (crossProduct > 0) {
-      // Coordinate is on the left.
-      // Therefore place the corner right.
-      routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.right;
-      if (start.lon > end.lon) {
-        // Start is more right and therefore place the label top.
-        routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
-      } else {
-        // Start is more left and therefore place the label bottom.
-        routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
-      }
-    } else if (crossProduct < 0) {
-      // Coordinate is on the right.
-      // Therefore place the corner left
-      routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
-      if (start.lon > end.lon) {
-        // Start is more right and therefore place the label bottom.
-        routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
-      } else {
-        // Start is more left and therefore place the label top.
-        routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
-      }
-    } else {
-      // Default value.
-      routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
-      routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
-    }
-  }
+  RouteLabelCandidate(this.topLeft, this.topRight, this.bottomLeft, this.bottomRight, this.screenCoordinate);
 }

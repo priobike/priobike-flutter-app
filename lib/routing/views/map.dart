@@ -52,6 +52,10 @@ const double cancelButtonIconSize = 50;
 
 /// The value used to calculate the relative space after which the poi pop ups should be fade in or out.
 const double poiScreenMargin = 0.1;
+const double routeLabelScreenMargin = 0.2;
+// The assumptions for the route label box dimensions for the candidate evaluation.
+const double routeLabelBoxWidth = 100;
+const double routeLabelBoxHeight = 40;
 
 class RoutingMapView extends StatefulWidget {
   const RoutingMapView({super.key});
@@ -169,6 +173,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The state of the route labels.
   List<RouteLabel> routeLabels = [];
+
+  /// The bool that holds the state of map moving.
+  bool isMapMoving = false;
 
   /// The relative horizontal margin in pixel for the route label to be displayed.
   late double routeLabelMarginLeft;
@@ -290,11 +297,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       poiPopUpMarginBottom = frame.size.height - frame.size.height * poiScreenMargin;
 
       // Calculate the relative margin for the route label.
-      routeLabelMarginLeft = 10;
-      routeLabelMarginRight = frame.size.width - 10;
-      routeLabelMarginTop = frame.padding.top;
+      routeLabelMarginLeft = frame.size.width * routeLabelScreenMargin;
+      routeLabelMarginRight = frame.size.width - frame.size.width * routeLabelScreenMargin;
+      routeLabelMarginTop = frame.padding.top + frame.size.width * routeLabelScreenMargin;
       // Fit initial bottom sheet size of 128px.
-      routeLabelMarginBottom = frame.size.height - 128;
+      routeLabelMarginBottom = frame.size.height - 128 - frame.size.width * routeLabelScreenMargin;
     });
   }
 
@@ -1075,9 +1082,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Check conditions for displaying route labels.
     if (mapController == null) return;
     if (routing.allRoutes == null) return;
-    if (routing.allRoutes!.length != 2) return;
+    if (routing.allRoutes!.length < 2) return;
 
-    // initialize route label for routes. (Only set text when routes change)
+    // Initialize route label for routes. (Only set text when routes change)
     if (routeLabels.isEmpty) {
       // Init unique waypoints per route.
       List<List<GHCoordinate>> uniqueCoordinatesPerRoute = getUniqueCoordinatesPerRoute();
@@ -1091,56 +1098,113 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             id: route.id,
             selected: routing.selectedRoute!.id == route.id,
             timeText: route.timeText,
-            secondaryText: "gleichschnell",
+            secondaryText: "gleich schnell",
             uniqueCoordinates: uniqueCoordinatesPerRoute[route.id],
           ),
         );
       }
     }
 
-    // The new route label list set at the end of this function.
+    // The new route label list is set at the end of this function.
     List<RouteLabel> updatedRouteLabels = [];
+
+    // Calculate new candidates for the route labels since map stopped moving.
+    // Preprocess calculate screen coordinates.
+    print("GETTING ALL SCREEN COORDS");
+    DateTime _now = DateTime.now();
+    print('timestamp: ${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}');
     for (RouteLabel routeLabel in routeLabels) {
       // Update selected.
       routeLabel.selected = routing.selectedRoute!.id == routeLabel.id;
 
-      // Check coordinate valid.
-      ScreenCoordinate? screenCoordinate = routeLabel.coordinate != null
-          ? await mapController!.pixelForCoordinate(
-              Point(
-                coordinates: Position(routeLabel.coordinate!.lon, routeLabel.coordinate!.lat),
-              ).toJson(),
-            )
-          : null;
+      // Find new coordinate for route label.
+      // Get all coordinate Candidates for the current view for this route label.
+      var (allCoordinates, candidates) = await getScreenCoordinates(routeLabel);
+      routeLabel.allScreenCoordinates = allCoordinates;
+      routeLabel.candidates = candidates;
+    }
 
-      // Either no coordinate is set or the current coordinate is out of the screen.
-      if (screenCoordinate == null || !_routeLabelInScreenBounds(screenCoordinate)) {
-        // Update route label with coordinate null => opacity is not displayed.
-        routeLabel.coordinate = null;
+    print("GETTING ALL ROUTE INTERSECTIONS");
+    _now = DateTime.now();
+    print('timestamp: ${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}');
+    // Calculate intersections with route coordinates and filter those candidates.
+    for (RouteLabel routeLabel in routeLabels) {
+      if (routeLabel.candidates == null || routeLabel.candidates!.isEmpty) break;
+      // Filtered candidates in decreasing order.
+      List<RouteLabelCandidate> filteredCandidates = [];
 
-        // Find new coordinate if old coordinate not in screen dimensions asynchronously and with lock to prevent starting to many recalculations.
-        routeLabelLock.run(() async {
-          GHCoordinate? newCoordinate = await getCoordinateForRouteLabels(routeLabel);
+      // Loop through candidates and filter.
+      for (ScreenCoordinate candidate in routeLabel.candidates!) {
+        // Check intersection with route waypoints in different orientations.
+        // Note: better would be segments. Potential.
+        var (topLeft, topRight, bottomLeft, bottomRight) = _checkRouteLabelIntersectionWithRoute(candidate);
 
-          if (newCoordinate != null) {
-            // This coordinate has to have values in route label margins.
-            screenCoordinate = await mapController!.pixelForCoordinate(
-              Point(
-                coordinates: Position(newCoordinate.lon, newCoordinate.lat),
-              ).toJson(),
-            );
-          }
-          // Set the route label coordinate to not calculate this again until the coordinate is out of view.
-          routeLabel.updateCoordinate(newCoordinate);
-        });
+        // If intersects in all directions skip.
+        if (topLeft && topRight && bottomLeft && bottomRight) break;
+        filteredCandidates.add(RouteLabelCandidate(topLeft, topRight, bottomLeft, bottomRight, candidate));
       }
 
-      // Only set if coordinate is set.
-      if (routeLabel.coordinate != null) {
-        routeLabel.updateScreenPosition(screenCoordinate?.x, screenCoordinate?.y);
-      }
+      // Set filtered candidates.
+      routeLabel.filteredCandidates = filteredCandidates;
+    }
 
-      updatedRouteLabels.add(routeLabel);
+    // Choose route label candidates that do not intersect with each other.
+    // bool combinationFound = false;
+    // for (RouteLabel routeLabel in routeLabels) {
+    //   if (combinationFound) break;
+    //   // Nothing found the skip.
+    //   if (routeLabel.filteredCandidates == null) break;
+    //
+    //   for (RouteLabelCandidate routeLabelCandidate in routeLabel.filteredCandidates!) {
+    //     if (combinationFound) break;
+    //
+    //     // Look for possible placements and check intersection.
+    //     if (routeLabelCandidate.topLeft) {
+    //     } else if (routeLabelCandidate.topRight) {
+    //     } else if (routeLabelCandidate.bottomLeft) {
+    //     } else if (routeLabelCandidate.bottomRight) {}
+    //   }
+    // }
+
+    print("CHOOSING CANDIDATE");
+    _now = DateTime.now();
+    print('timestamp: ${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}');
+    for (RouteLabel routeLabel in routeLabels) {
+      if (routeLabel.filteredCandidates == null) break;
+      bool found = false;
+      for (RouteLabelCandidate routeLabelCandidate in routeLabel.filteredCandidates!) {
+        if (found) break;
+        // Look for possible placements and check intersection.
+        if (!routeLabelCandidate.topLeft) {
+          routeLabel.updateScreenPosition(
+              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
+          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
+          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
+          updatedRouteLabels.add(routeLabel);
+          found = true;
+        } else if (!routeLabelCandidate.topRight) {
+          routeLabel.updateScreenPosition(
+              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
+          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
+          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.right;
+          updatedRouteLabels.add(routeLabel);
+          found = true;
+        } else if (!routeLabelCandidate.bottomLeft) {
+          routeLabel.updateScreenPosition(
+              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
+          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
+          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
+          updatedRouteLabels.add(routeLabel);
+          found = true;
+        } else if (!routeLabelCandidate.bottomRight) {
+          routeLabel.updateScreenPosition(
+              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
+          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
+          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.right;
+          updatedRouteLabels.add(routeLabel);
+          found = true;
+        }
+      }
     }
 
     // Update route labels list.
@@ -1148,6 +1212,184 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       routeLabels = updatedRouteLabels;
     });
   }
+
+  /// Returns the bool of an intersection with any route and any orientation. (returns topLeft, topRight, bottomLeft, bottomRight)
+  (bool, bool, bool, bool) _checkRouteLabelIntersectionWithRoute(ScreenCoordinate candidate) {
+    bool topLeftIntersects = false;
+    bool topRightIntersects = false;
+    bool bottomLeftIntersects = false;
+    bool bottomRightIntersects = false;
+
+    // Top left box constraints.
+    double topLeftMinX = candidate.x + RouteLabelIcon.cornerMargin;
+    double topLeftMinY = candidate.y + RouteLabelIcon.cornerMargin;
+    double topLeftMaxX = candidate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
+    double topLeftMaxY = candidate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+
+    // Top right box.
+    double topRightMinX = candidate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
+    double topRightMinY = candidate.y + RouteLabelIcon.cornerMargin;
+    double topRightMaxX = candidate.x - RouteLabelIcon.cornerMargin;
+    double topRightMaxY = candidate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+
+    // Bottom left box.
+    double bottomLeftMinX = candidate.x + RouteLabelIcon.cornerMargin;
+    double bottomLeftMinY = candidate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
+    double bottomLeftMaxX = candidate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
+    double bottomLeftMaxY = candidate.y - RouteLabelIcon.cornerMargin;
+
+    // Bottom right box.
+    double bottomRightMinX = candidate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
+    double bottomRightMinY = candidate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
+    double bottomRightMaxX = candidate.x - RouteLabelIcon.cornerMargin;
+    double bottomRightMaxY = candidate.y - RouteLabelIcon.cornerMargin;
+
+    for (RouteLabel routeLabel in routeLabels) {
+      if (routeLabel.allScreenCoordinates == null) break;
+
+      for (ScreenCoordinate screenCoordinate in routeLabel.allScreenCoordinates!) {
+        if (topLeftIntersects && topRightIntersects && bottomLeftIntersects && bottomRightIntersects) break;
+        // Top left.
+        // Check top left if we haven't found one yet.
+        if (!topLeftIntersects) {
+          // If screen coordinate intersects with bounding box.
+          if (screenCoordinate.x > topLeftMinX &&
+              screenCoordinate.x < topLeftMaxX &&
+              screenCoordinate.y > topLeftMinY &&
+              screenCoordinate.y < topLeftMaxY) {
+            topLeftIntersects = true;
+          }
+        }
+
+        // Top right.
+        // Check top left if we haven't found one yet.
+        if (!topLeftIntersects) {
+          // If screen coordinate intersects with bounding box.
+          if (screenCoordinate.x > topRightMinX &&
+              screenCoordinate.x < topRightMaxX &&
+              screenCoordinate.y > topRightMinY &&
+              screenCoordinate.y < topRightMaxY) {
+            topRightIntersects = true;
+          }
+        }
+
+        // Bottom left.
+        // Check top left if we haven't found one yet.
+        if (!topLeftIntersects) {
+          // If screen coordinate intersects with bounding box.
+          if (screenCoordinate.x > bottomLeftMinX &&
+              screenCoordinate.x < bottomLeftMaxX &&
+              screenCoordinate.y > bottomLeftMinY &&
+              screenCoordinate.y < bottomLeftMaxY) {
+            bottomLeftIntersects = true;
+          }
+        }
+
+        // Bottom right.
+        // Check top left if we haven't found one yet.
+        if (!topLeftIntersects) {
+          // If screen coordinate intersects with bounding box.
+          if (screenCoordinate.x > bottomRightMinX &&
+              screenCoordinate.x < bottomRightMaxX &&
+              screenCoordinate.y > bottomRightMinY &&
+              screenCoordinate.y < bottomRightMaxY) {
+            bottomRightIntersects = true;
+          }
+        }
+      }
+    }
+
+    return (topLeftIntersects, topRightIntersects, bottomLeftIntersects, bottomRightIntersects);
+  }
+
+  /// Returns the bool of an intersection with any route and any orientation. (returns topLeft, topRight, bottomLeft, bottomRight)
+  // bool _checkRouteLabelIntersectionWithRouteLabel(RouteLabelCandidate candidate1, RouteLabelCandidate candidate2) {
+  //   bool topLeftIntersects = false;
+  //   bool topRightIntersects = false;
+  //   bool bottomLeftIntersects = false;
+  //   bool bottomRightIntersects = false;
+  //
+  //   // Top left box constraints.
+  //   double topLeftMinX = candidate.x + RouteLabelIcon.cornerMargin;
+  //   double topLeftMinY = candidate.y + RouteLabelIcon.cornerMargin;
+  //   double topLeftMaxX = candidate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
+  //   double topLeftMaxY = candidate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+  //
+  //   // Top right box.
+  //   double topRightMinX = candidate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
+  //   double topRightMinY = candidate.y + RouteLabelIcon.cornerMargin;
+  //   double topRightMaxX = candidate.x - RouteLabelIcon.cornerMargin;
+  //   double topRightMaxY = candidate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+  //
+  //   // Bottom left box.
+  //   double bottomLeftMinX = candidate.x + RouteLabelIcon.cornerMargin;
+  //   double bottomLeftMinY = candidate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
+  //   double bottomLeftMaxX = candidate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
+  //   double bottomLeftMaxY = candidate.y - RouteLabelIcon.cornerMargin;
+  //
+  //   // Bottom right box.
+  //   double bottomRightMinX = candidate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
+  //   double bottomRightMinY = candidate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
+  //   double bottomRightMaxX = candidate.x - RouteLabelIcon.cornerMargin;
+  //   double bottomRightMaxY = candidate.y - RouteLabelIcon.cornerMargin;
+  //
+  //   for (RouteLabel routeLabel in routeLabels) {
+  //     if (routeLabel.allScreenCoordinates == null) break;
+  //
+  //     for (ScreenCoordinate screenCoordinate in routeLabel.allScreenCoordinates!) {
+  //       if (topLeftIntersects && topRightIntersects && bottomLeftIntersects && bottomRightIntersects) break;
+  //       // Top left.
+  //       // Check top left if we haven't found one yet.
+  //       if (!topLeftIntersects) {
+  //         // If screen coordinate intersects with bounding box.
+  //         if (screenCoordinate.x > topLeftMinX &&
+  //             screenCoordinate.x < topLeftMaxX &&
+  //             screenCoordinate.y > topLeftMinY &&
+  //             screenCoordinate.y < topLeftMaxY) {
+  //           topLeftIntersects = true;
+  //         }
+  //       }
+  //
+  //       // Top right.
+  //       // Check top left if we haven't found one yet.
+  //       if (!topLeftIntersects) {
+  //         // If screen coordinate intersects with bounding box.
+  //         if (screenCoordinate.x > topRightMinX &&
+  //             screenCoordinate.x < topRightMaxX &&
+  //             screenCoordinate.y > topRightMinY &&
+  //             screenCoordinate.y < topRightMaxY) {
+  //           topRightIntersects = true;
+  //         }
+  //       }
+  //
+  //       // Bottom left.
+  //       // Check top left if we haven't found one yet.
+  //       if (!topLeftIntersects) {
+  //         // If screen coordinate intersects with bounding box.
+  //         if (screenCoordinate.x > bottomLeftMinX &&
+  //             screenCoordinate.x < bottomLeftMaxX &&
+  //             screenCoordinate.y > bottomLeftMinY &&
+  //             screenCoordinate.y < bottomLeftMaxY) {
+  //           bottomLeftIntersects = true;
+  //         }
+  //       }
+  //
+  //       // Bottom right.
+  //       // Check top left if we haven't found one yet.
+  //       if (!topLeftIntersects) {
+  //         // If screen coordinate intersects with bounding box.
+  //         if (screenCoordinate.x > bottomRightMinX &&
+  //             screenCoordinate.x < bottomRightMaxX &&
+  //             screenCoordinate.y > bottomRightMinY &&
+  //             screenCoordinate.y < bottomRightMaxY) {
+  //           bottomRightIntersects = true;
+  //         }
+  //       }
+  //     }
+  //   }
+  //
+  //   return (topLeftIntersects, topRightIntersects, bottomLeftIntersects, bottomRightIntersects);
+  // }
 
   /// Updates the bearing and centering button.
   Future<void> updatePOIPopupScreenPosition() async {
@@ -1188,6 +1430,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is executed when the camera movement changes.
   Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+    // Set map moving.
+    if (!isMapMoving) {
+      setState(() {
+        isMapMoving = true;
+      });
+    }
+
     if (mapController == null) return;
 
     updateBearingAndCenteringButtons();
@@ -1195,8 +1444,20 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     updateWaypointPixelCoordinates();
 
     updatePOIPopupScreenPosition();
+  }
 
-    updateRouteLabels();
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onMapIdle(MapIdleEventData mapIdleEventData) async {
+    routeLabelLock.run(() {
+      updateRouteLabels().then((value) {
+        // Set map not moving.
+        if (isMapMoving) {
+          setState(() {
+            isMapMoving = false;
+          });
+        }
+      });
+    });
   }
 
   /// When the user drags a waypoint.
@@ -1269,12 +1530,40 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Calculates the screen coordinates for a given route label.
+  Future<(List<ScreenCoordinate>?, List<ScreenCoordinate>?)> getScreenCoordinates(RouteLabel routeLabel) async {
+    if (mapController == null) return (null, null);
+
+    // Store all visible unique coordinates.
+    List<ScreenCoordinate> coordinates = [];
+    List<ScreenCoordinate> coordinatesUniqueAndVisible = [];
+
+    for (GHCoordinate coordinate in routing.allRoutes![routeLabel.id].path.points.coordinates) {
+      // Check coordinates in screen bounds.
+      ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate(
+        Point(
+          coordinates: Position(coordinate.lon, coordinate.lat),
+        ).toJson(),
+      );
+
+      // Add the screen coordinate to list.
+      coordinates.add(screenCoordinate);
+
+      if (routeLabel.uniqueCoordinates.contains(coordinate) && _routeLabelInScreenBounds(screenCoordinate)) {
+        // Add the screen coordinate to list if visible and unique.
+        coordinatesUniqueAndVisible.add(screenCoordinate);
+      }
+    }
+
+    return (coordinates, coordinatesUniqueAndVisible);
+  }
+
   /// Calculates the coordinates for the route labels.
-  Future<GHCoordinate?> getCoordinateForRouteLabels(RouteLabel routeLabel) async {
+  Future<List<ScreenCoordinate>?> getCoordinateCandidatesForRouteLabels(RouteLabel routeLabel) async {
     if (mapController == null) return null;
 
     // Store all visible unique coordinates.
-    List<GHCoordinate> coordinatesVisible = [];
+    List<ScreenCoordinate> coordinatesVisible = [];
     for (GHCoordinate coordinate in routeLabel.uniqueCoordinates) {
       // Check coordinates in screen bounds.
       ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate(
@@ -1284,17 +1573,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       );
 
       if (_routeLabelInScreenBounds(screenCoordinate)) {
-        coordinatesVisible.add(coordinate);
+        coordinatesVisible.add(screenCoordinate);
       }
     }
 
-    // Determine which coordinate to use.
-    if (coordinatesVisible.isNotEmpty) {
-      // Use the middlemost coordinate.
-      return coordinatesVisible[coordinatesVisible.length ~/ 2];
-    }
-
-    return null;
+    return coordinatesVisible;
   }
 
   /// Returns a List of lists of unique coordinates for every route.
@@ -1509,6 +1792,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
+            onMapIdle: onMapIdle,
             onMapTap: onMapTap,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
@@ -1694,9 +1978,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
 
         ...routeLabels.map(
-          (RouteLabel routeLabel) => AnimatedPositioned(
-            duration: const Duration(milliseconds: 150),
-            // Subtract half the width of the widget to center it.
+          (RouteLabel routeLabel) => Positioned(
             left: routeLabel.screenCoordinateX,
             top: routeLabel.screenCoordinateY,
             child: FractionalTranslation(
@@ -1705,7 +1987,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? 0 : -1,
               ),
               child: AnimatedOpacity(
-                opacity: routeLabel.coordinate == null ? 0 : 1,
+                opacity:
+                    routeLabel.screenCoordinateX == null || routeLabel.screenCoordinateY == null || isMapMoving ? 0 : 1,
                 duration: const Duration(milliseconds: 150),
                 child: GestureDetector(
                   onTap: () {
@@ -1719,6 +2002,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ),
           ),
         ),
+
+        if (routeLabels.isNotEmpty)
+          ...routeLabels[1].allScreenCoordinates!.map(
+                (ScreenCoordinate sc) => Positioned(
+                  left: sc.x,
+                  top: sc.y,
+                  child: Container(
+                    width: 2,
+                    height: 2,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
 
         if (poiPopup != null)
           AnimatedPositioned(

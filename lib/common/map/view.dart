@@ -44,6 +44,9 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the map is scrolled.
   final void Function(mapbox.ScreenCoordinate)? onMapScroll;
 
+  /// A callback that is executed when the map is scrolled.
+  final void Function(mapbox.MapIdleEventData)? onMapIdle;
+
   /// The margins for the Mapbox logo.
   /// (where those margins get applied depends on the corresponding ornament position)
   final Point<num>? logoViewMargins;
@@ -66,6 +69,7 @@ class AppMap extends StatefulWidget {
       this.onStyleLoaded,
       this.onCameraChanged,
       this.onMapLongClick,
+      this.onMapIdle,
       this.onMapTap,
       this.onMapScroll,
       this.logoViewMargins,
@@ -123,6 +127,7 @@ class AppMapState extends State<AppMap> {
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,
       onCameraChangeListener: widget.onCameraChanged,
+      onMapIdleListener: widget.onMapIdle,
       onScrollListener: widget.onMapScroll,
       // ONLY AFFECTS ANDROID
       // If set to false, surfaceView is used instead.

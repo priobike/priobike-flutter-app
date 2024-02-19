@@ -3,10 +3,10 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/models/route_label.dart';
 
-const double cornerMargin = 13.5;
-
 class RouteLabelIcon extends StatelessWidget {
   final RouteLabel routeLabel;
+
+  static const double cornerMargin = 13.5;
 
   const RouteLabelIcon({super.key, required this.routeLabel});
 
