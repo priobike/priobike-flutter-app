@@ -50,6 +50,8 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     AllTrafficLightsLayer.layerId,
+    AllTrafficLightsPredictionLayer.layerId,
+    AllTrafficLightsPredictionLayer.countdownLayerId,
     userLocationLayerId,
   ];
 
@@ -204,6 +206,9 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     var index = await getIndex(AllTrafficLightsLayer.layerId);
     if (!mounted) return;
     await AllTrafficLightsLayer().install(mapController!, at: index);
+    index = await getIndex(AllTrafficLightsPredictionLayer.layerId);
+    if (!mounted) return;
+    await AllTrafficLightsPredictionLayer().install(mapController!, at: index);
 
     onPositioningUpdate();
 
@@ -253,7 +258,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         };
 
         // Update the layer.
-        AllTrafficLightsLayer(propertiesBySgId: propertiesBySgId).update(mapController!);
+        AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId).update(mapController!);
       }
     });
   }

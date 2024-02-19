@@ -41,7 +41,7 @@ class FreeRideViewState extends State<FreeRideView> {
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         final positioning = getIt<Positioning>();
-        freeRide.fetchSgs();
+        freeRide.prepare();
 
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
