@@ -29,6 +29,12 @@ class FreeRide with ChangeNotifier {
   /// All SGs.
   Map<String, LatLng>? sgs;
 
+  /// Clustered SGs by intersection.
+  Map<String, LatLng>? clusteredSgs;
+
+  /// The SGs that belong to a cluster.
+  Map<String, List<String>>? sgsInCluster;
+
   /// The current SGs we are subscribed to.
   final Set<String> subscriptions = {};
 
@@ -43,46 +49,84 @@ class FreeRide with ChangeNotifier {
   /// The received predictions by their sg id.
   Map<String, PredictionServicePrediction> receivedPredictions = {};
 
-  /// Fetch all SGs from the backend.
-  Future<void> fetchSgs() async {
+  /// Prepares the required data for the free ride view.
+  Future<void> prepare() async {
     if (isLoading) return;
-    connectMQTTClient();
     isLoading = true;
     notifyListeners();
 
     try {
-      final settings = getIt<Settings>();
-      final baseUrl = settings.backend.path;
-
-      final url = "https://$baseUrl/sg-selector-backend/routing/all";
-      final endpoint = Uri.parse(url);
-
-      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
-      if (response.statusCode != 200) {
-        isLoading = false;
-        notifyListeners();
-        final err = "Error while fetching SGs from $endpoint: ${response.statusCode}";
-        throw Exception(err);
-      }
-
-      final json = jsonDecode(response.body);
-
-      sgs = {};
-      for (final sg in json) {
-        final id = sg["id"];
-        final lat = sg["position"]["lat"];
-        final lon = sg["position"]["lon"];
-        sgs![id] = LatLng(lat, lon);
-      }
-
+      await fetchSgs();
+      await clusterSgs();
+      connectMQTTClient();
       isLoading = false;
       notifyListeners();
     } catch (e, stacktrace) {
       isLoading = false;
       notifyListeners();
-      final hint = "Error while fetching SGs: $e $stacktrace";
+      final hint = "Error while preparing the free ride view: $e $stacktrace";
       log.e(hint);
     }
+  }
+
+  /// Fetch all SGs from the backend.
+  Future<void> fetchSgs() async {
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+
+    final url = "https://$baseUrl/sg-selector-backend/routing/all";
+    final endpoint = Uri.parse(url);
+
+    final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
+    if (response.statusCode != 200) {
+      final err = "Error while fetching SGs from $endpoint: ${response.statusCode}";
+      throw Exception(err);
+    }
+
+    final json = jsonDecode(response.body);
+
+    sgs = {};
+    for (final sg in json) {
+      final id = sg["id"];
+      final lat = sg["position"]["lat"];
+      final lon = sg["position"]["lon"];
+      sgs![id] = LatLng(lat, lon);
+    }
+
+    log.i("Fetched ${sgs!.length} SGs.");
+  }
+
+  /// Cluster the SGs.
+  Future<void> clusterSgs() async {
+    if (sgs == null || sgs!.isEmpty) return;
+    Map<String, List<LatLng>> clusters = {};
+    sgsInCluster = {};
+    for (final entry in sgs!.entries) {
+      final lat = entry.value.latitude;
+      final lon = entry.value.longitude;
+      final coordinate = LatLng(lat, lon);
+      final key = entry.key.replaceAll("hamburg/", "").split("_").first;
+      if (!clusters.containsKey(key)) {
+        clusters[key] = [coordinate];
+        sgsInCluster![key] = [entry.key];
+      } else {
+        clusters[key]!.add(coordinate);
+        sgsInCluster![key]!.add(entry.key);
+      }
+    }
+
+    Map<String, LatLng> clusterCenters = {};
+    for (final entry in clusters.entries) {
+      final key = entry.key;
+      final coordinates = entry.value;
+      final lat = coordinates.map((e) => e.latitude).reduce((a, b) => a + b) / coordinates.length;
+      final lon = coordinates.map((e) => e.longitude).reduce((a, b) => a + b) / coordinates.length;
+      clusterCenters[key] = LatLng(lat, lon);
+    }
+
+    clusteredSgs = clusterCenters;
+
+    log.i("Clustered ${sgs!.length} SGs into ${clusterCenters.length} clusters.");
   }
 
   /// Update the SGs that should receive predictions.
@@ -98,14 +142,16 @@ class FreeRide with ChangeNotifier {
       final n = coordinatesNortheast[1] as double;
       final e = coordinatesNortheast[0] as double;
 
-      for (final entry in sgs!.entries) {
+      for (final entry in clusteredSgs!.entries) {
         if (entry.value.latitude < s || entry.value.latitude > n) continue;
         if (entry.value.longitude < w || entry.value.longitude > e) continue;
         if (vincenty.distance(cameraCenter, entry.value) > maxDistance) continue;
-        onScreenSGs.add(entry.key);
+        final key = entry.key;
+        final sgs = sgsInCluster![key];
+        onScreenSGs.addAll(sgs!);
       }
     }
-    log.i("On screen SGs: $onScreenSGs");
+    log.i("Updating subscriptions for ${onScreenSGs.length} SGs.");
     updateSubscriptions(onScreenSGs);
   }
 
@@ -161,7 +207,7 @@ class FreeRide with ChangeNotifier {
     } catch (e) {
       client = null;
       final hint = "Failed to connect the prediction MQTT client: $e";
-      log.e(hint);
+      throw Exception(hint);
     }
   }
 

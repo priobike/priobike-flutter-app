@@ -12,13 +12,10 @@ class AllTrafficLightsLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "all-traffic-lights-icons";
 
-  /// The ID of the Mapbox countdown layer.
-  static const countdownLayerId = "all-traffic-lights-countdown";
-
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  AllTrafficLightsLayer({Map<String, dynamic>? propertiesBySgId}) {
+  AllTrafficLightsLayer() {
     final freeRide = getIt<FreeRide>();
     if (freeRide.sgs == null || freeRide.sgs!.isEmpty) return;
 
@@ -27,9 +24,6 @@ class AllTrafficLightsLayer {
         "id": entry.key,
       };
 
-      if (propertiesBySgId != null && propertiesBySgId.containsKey(entry.key)) {
-        properties.addAll(propertiesBySgId[entry.key]);
-      }
       features.add(
         {
           "type": "Feature",
@@ -52,6 +46,107 @@ class AllTrafficLightsLayer {
       );
     } else {
       await update(mapController);
+    }
+
+    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!trafficLightIconsLayerExists) {
+      await mapController.style.addLayerAt(
+        mapbox.CircleLayer(
+          sourceId: sourceId,
+          id: layerId,
+          circleRadius: iconSize * 10,
+          circleColor: Colors.black.value,
+          circleOpacity: 1,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+    }
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (sourceExists) {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class AllTrafficLightsPredictionLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "all-traffic-lights-predictions";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "all-traffic-lights-icons-predictions";
+
+  /// The ID of the Mapbox countdown layer.
+  static const countdownLayerId = "all-traffic-lights-predictions-countdown";
+
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  AllTrafficLightsPredictionLayer({Map<String, dynamic>? propertiesBySgId}) {
+    final freeRide = getIt<FreeRide>();
+    if (freeRide.sgs == null || freeRide.sgs!.isEmpty) return;
+
+    for (final sg in freeRide.subscriptions) {
+      final Map<String, dynamic> properties = {
+        "id": sg,
+      };
+
+      if (propertiesBySgId != null && propertiesBySgId.containsKey(sg)) {
+        properties.addAll(propertiesBySgId[sg]);
+      }
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [freeRide.sgs![sg]!.longitude, freeRide.sgs![sg]!.latitude],
+          },
+          "properties": properties,
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+
+    final layerPredictionsCountdownExists = await mapController.style.styleLayerExists(countdownLayerId);
+    if (!layerPredictionsCountdownExists) {
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: countdownLayerId,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textColor: Colors.white.value,
+          textAllowOverlap: true,
+          textHaloColor: Colors.black.value,
+          textHaloWidth: 1,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+
+      await mapController.style.setStyleLayerProperty(
+          countdownLayerId,
+          'text-field',
+          jsonEncode([
+            "case",
+            ["has", "countdown"],
+            ["get", "countdown"],
+            "?"
+          ]));
     }
 
     final trafficLightIconsLayerExists = await mapController.style.styleLayerExists(layerId);
@@ -87,45 +182,6 @@ class AllTrafficLightsLayer {
           "#000000",
         ]),
       );
-    }
-
-    final layerPredictionsCountdownExists = await mapController.style.styleLayerExists(countdownLayerId);
-    if (!layerPredictionsCountdownExists) {
-      await mapController.style.addLayer(
-        mapbox.SymbolLayer(
-          sourceId: sourceId,
-          id: countdownLayerId,
-          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          textSize: 12,
-          textColor: Colors.white.value,
-          textAllowOverlap: true,
-          textHaloColor: Colors.black.value,
-          textHaloWidth: 1,
-        ),
-      );
-
-      await mapController.style.setStyleLayerProperty(
-          countdownLayerId,
-          'text-field',
-          jsonEncode(
-            ["get", "countdown"],
-          ));
-      await mapController.style.setStyleLayerProperty(
-          countdownLayerId,
-          'text-opacity',
-          jsonEncode(
-            [
-              "interpolate",
-              ["linear"],
-              ["zoom"],
-              0,
-              0,
-              16,
-              0,
-              17,
-              0.75,
-            ],
-          ));
     }
   }
 
