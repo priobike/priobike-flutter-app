@@ -162,7 +162,7 @@ class StatusViewState extends State<StatusView> {
                         ),
                       ),
                       Opacity(
-                        opacity: 0.2,
+                        opacity: isProblem ? 0.6 : 0.2,
                         child: Icon(
                           Icons.chevron_right_rounded,
                           color: isProblem ? Colors.white : CI.radkulturGreen,
