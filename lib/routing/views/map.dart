@@ -1084,6 +1084,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
       for (r.Route route in routing.allRoutes!) {
         // TODO Find text to be displayed for routes.
+        String? secondaryText = routing.findMostUniqueAttributeForRoute(route.id);
 
         routeLabels.add(
           RouteLabel(

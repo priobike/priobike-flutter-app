@@ -74,14 +74,14 @@ class RouteLabelIcon extends StatelessWidget {
               text: routeLabel.timeText,
               context: context,
               textAlign: TextAlign.center,
-              color: routeLabel.selected ? Colors.white : null,
+              color: routeLabel.selected ? Colors.white : Colors.black,
             ),
             if (routeLabel.secondaryText != null)
               Small(
                 text: routeLabel.secondaryText!,
                 context: context,
                 textAlign: TextAlign.center,
-                color: routeLabel.selected ? Colors.white : null,
+                color: routeLabel.selected ? Colors.white : Colors.black,
               ),
           ],
         ),

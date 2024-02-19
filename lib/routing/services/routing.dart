@@ -623,4 +623,27 @@ class Routing with ChangeNotifier {
 
     notifyListeners();
   }
+
+  String? findMostUniqueAttributeForRoute(int id) {
+    if (allRoutes == null && allRoutes!.length <= id) return null;
+    r.Route currentRoute = allRoutes![id];
+
+    // Time
+    // Go through routes and compare times.
+    for (r.Route route in allRoutes!) {
+      if (route.path.time < currentRoute.path.time) {}
+    }
+
+    // TL
+
+    // Distance
+
+    // Way type
+
+    // Height
+
+    // OSM discomforts?
+
+    return null;
+  }
 }
