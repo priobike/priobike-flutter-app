@@ -1146,7 +1146,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     List<List<RouteLabelCandidate>> filteredCoordsDebug = [];
 
-    // Calculate intersections with route coordinates and filter those candidates.
+    // Calculate intersections with route coordinates and screen bounds and filter those candidates.
     for (RouteLabel routeLabel in routeLabels) {
       if (routeLabel.candidates == null || routeLabel.candidates!.isEmpty) continue;
       // Filtered candidates in decreasing order.
@@ -1192,24 +1192,63 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
 
     // Choose route label candidates that do not intersect with each other.
+    // Go through route labels and find the first combination, that do not intersect for all route labels.
+    bool combinationFound = false;
+    int maxFilterCandidates = 0;
+    int routeLabelLength = routeLabels.length;
 
-    // bool combinationFound = false;
-    // for (RouteLabel routeLabel in routeLabels) {
-    //   if (combinationFound) break;
-    //   // Nothing found the skip.
-    //   if (routeLabel.filteredCandidates == null) break;
-    //
-    //   for (RouteLabelCandidate routeLabelCandidate in routeLabel.filteredCandidates!) {
-    //     if (combinationFound) break;
-    //
-    //     // Look for possible placements and check intersection.
-    //     if (routeLabelCandidate.topLeft) {
-    //     } else if (routeLabelCandidate.topRight) {
-    //     } else if (routeLabelCandidate.bottomLeft) {
-    //     } else if (routeLabelCandidate.bottomRight) {
-    //     }
-    //   }
-    // }
+    int maxLength = routeLabels.fold(
+        0,
+        (int max, RouteLabel routeLabel) => max =
+            (routeLabel.filteredCandidates != null && routeLabel.filteredCandidates!.length > max
+                ? routeLabel.filteredCandidates!.length
+                : max));
+
+    print(maxLength);
+
+    // Test candidate combinations until one fits.
+    // Hypothetically a combination is found quickly.
+    /*
+    x0 y0 z0 (tl, tr, bl, br)
+    x1 y0 z0
+    x0 y1 z0
+    x0 y0 z1
+    x1 y1 z1
+
+     */
+
+    for (int i = 0; i < maxLength; i++) {
+      // Try first combination.
+
+      // Iterate every combination plus one for index j.
+      for (int j = -1; j < routeLabels.length; j++) {
+        List<RouteLabelCandidate> candidateCombination = [];
+        // Fill candidates.
+        for (int k = 0; k < routeLabels.length; k++) {
+          if (routeLabels[k].filteredCandidates!.length > i + 1) {
+            candidateCombination.add(routeLabels[k].filteredCandidates![i + (k == j ? 1 : 0)]);
+          } else {
+            // Add last candidate.
+            candidateCombination.add(routeLabels[k].filteredCandidates![routeLabels[k].filteredCandidates!.length - 1]);
+          }
+          // Test combination with all label options and break if the first fits.
+        }
+      }
+    }
+
+    for (RouteLabel routeLabel in routeLabels) {
+      if (routeLabel.filteredCandidates == null) break;
+      for (RouteLabelCandidate routeLabelCandidate in routeLabel.filteredCandidates!) {
+        // Try top left.
+        if (routeLabelCandidate.topLeft) {}
+        // Try top right.
+        if (routeLabelCandidate.topRight) {}
+        // Try bottom left.
+        if (routeLabelCandidate.bottomLeft) {}
+        // Try bottom right.
+        if (routeLabelCandidate.bottomRight) {}
+      }
+    }
 
     for (RouteLabel routeLabel in routeLabels) {
       // Reset the route label if no candidate fits.
