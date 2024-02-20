@@ -53,9 +53,10 @@ const double cancelButtonIconSize = 50;
 /// The value used to calculate the relative space after which the poi pop ups should be fade in or out.
 const double poiScreenMargin = 0.1;
 const double routeLabelScreenMargin = 0.2;
-// The assumptions for the route label box dimensions for the candidate evaluation.
-const double routeLabelBoxWidth = 100;
-const double routeLabelBoxHeight = 40;
+
+/// Assumptions for the width and height of the route label box dimensions for the candidate evaluation. (Overestimated)
+const double routeLabelBoxWidth = 120;
+const double routeLabelBoxHeight = 60;
 
 class RoutingMapView extends StatefulWidget {
   const RoutingMapView({super.key});
@@ -173,6 +174,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The state of the route labels.
   List<RouteLabel> routeLabels = [];
+
+  List<ScreenCoordinate> allCoords = [];
 
   /// The bool that holds the state of map moving.
   bool isMapMoving = false;
@@ -1107,45 +1110,55 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // The new route label list is set at the end of this function.
     List<RouteLabel> updatedRouteLabels = [];
+    // The list with all screen coordinates.
+    List<ScreenCoordinate> allCoordinates = [];
 
     // Calculate new candidates for the route labels since map stopped moving.
     // Preprocess calculate screen coordinates.
-    print("GETTING ALL SCREEN COORDS");
-    DateTime _now = DateTime.now();
-    print('timestamp: ${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}');
     for (RouteLabel routeLabel in routeLabels) {
       // Update selected.
       routeLabel.selected = routing.selectedRoute!.id == routeLabel.id;
 
       // Find new coordinate for route label.
       // Get all coordinate Candidates for the current view for this route label.
-      var (allCoordinates, candidates) = await getScreenCoordinates(routeLabel);
-      routeLabel.allScreenCoordinates = allCoordinates;
+      var (allCoordinatesRouteLabel, candidates) = await getScreenCoordinates(routeLabel);
+      if (allCoordinatesRouteLabel != null) {
+        // Add to all coordinates.
+        allCoordinates.addAll(allCoordinatesRouteLabel);
+      }
+      print("ROUTELABEL ${routeLabel.id} CANDIDATES: ${candidates?.length}");
       routeLabel.candidates = candidates;
     }
 
-    print("GETTING ALL ROUTE INTERSECTIONS");
-    _now = DateTime.now();
-    print('timestamp: ${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}');
+    setState(() {
+      allCoords = allCoordinates;
+    });
+
     // Calculate intersections with route coordinates and filter those candidates.
     for (RouteLabel routeLabel in routeLabels) {
-      if (routeLabel.candidates == null || routeLabel.candidates!.isEmpty) break;
+      if (routeLabel.candidates == null || routeLabel.candidates!.isEmpty) continue;
       // Filtered candidates in decreasing order.
       List<RouteLabelCandidate> filteredCandidates = [];
 
       // Loop through candidates and filter.
+      print("ROUTE LABEL: ${routeLabel.id}");
       for (ScreenCoordinate candidate in routeLabel.candidates!) {
         // Check intersection with route waypoints in different orientations.
         // Note: better would be segments. Potential.
-        var (topLeft, topRight, bottomLeft, bottomRight) = _checkRouteLabelIntersectionWithRoute(candidate);
+        var (topLeft, topRight, bottomLeft, bottomRight) =
+            _checkRouteLabelIntersectionWithRoute(candidate, allCoordinates);
+
+        print("$topLeft, $topRight, $bottomLeft, $bottomRight");
 
         // If intersects in all directions skip.
-        if (topLeft && topRight && bottomLeft && bottomRight) break;
+        if (topLeft && topRight && bottomLeft && bottomRight) continue;
         filteredCandidates.add(RouteLabelCandidate(topLeft, topRight, bottomLeft, bottomRight, candidate));
       }
 
       // Set filtered candidates.
       routeLabel.filteredCandidates = filteredCandidates;
+
+      print("ROUTE LABEL ${routeLabel.id} filtered: ${filteredCandidates.length}");
     }
 
     // Choose route label candidates that do not intersect with each other.
@@ -1166,12 +1179,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     //   }
     // }
 
-    print("CHOOSING CANDIDATE");
-    _now = DateTime.now();
-    print('timestamp: ${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}');
     for (RouteLabel routeLabel in routeLabels) {
-      if (routeLabel.filteredCandidates == null) break;
       bool found = false;
+      if (routeLabel.filteredCandidates == null) break;
       for (RouteLabelCandidate routeLabelCandidate in routeLabel.filteredCandidates!) {
         if (found) break;
         // Look for possible placements and check intersection.
@@ -1180,31 +1190,28 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
           routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
           routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
-          updatedRouteLabels.add(routeLabel);
           found = true;
         } else if (!routeLabelCandidate.topRight) {
           routeLabel.updateScreenPosition(
               routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
           routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
           routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.right;
-          updatedRouteLabels.add(routeLabel);
           found = true;
         } else if (!routeLabelCandidate.bottomLeft) {
           routeLabel.updateScreenPosition(
               routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
           routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
           routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
-          updatedRouteLabels.add(routeLabel);
           found = true;
         } else if (!routeLabelCandidate.bottomRight) {
           routeLabel.updateScreenPosition(
               routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
           routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
           routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.right;
-          updatedRouteLabels.add(routeLabel);
           found = true;
         }
       }
+      updatedRouteLabels.add(routeLabel);
     }
 
     // Update route labels list.
@@ -1214,92 +1221,142 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Returns the bool of an intersection with any route and any orientation. (returns topLeft, topRight, bottomLeft, bottomRight)
-  (bool, bool, bool, bool) _checkRouteLabelIntersectionWithRoute(ScreenCoordinate candidate) {
+  (bool, bool, bool, bool) _checkRouteLabelIntersectionWithRoute(
+      ScreenCoordinate candidate, List<ScreenCoordinate> allCoordinates) {
     bool topLeftIntersects = false;
     bool topRightIntersects = false;
     bool bottomLeftIntersects = false;
     bool bottomRightIntersects = false;
 
     // Top left box constraints.
-    double topLeftMinX = candidate.x + RouteLabelIcon.cornerMargin;
-    double topLeftMinY = candidate.y + RouteLabelIcon.cornerMargin;
-    double topLeftMaxX = candidate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
-    double topLeftMaxY = candidate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+    double topLeftRectX = candidate.x;
+    double topLeftRectY = candidate.y;
+    double topLeftWidth = routeLabelBoxWidth;
+    double topLeftHeight = routeLabelBoxHeight;
 
     // Top right box.
-    double topRightMinX = candidate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
-    double topRightMinY = candidate.y + RouteLabelIcon.cornerMargin;
-    double topRightMaxX = candidate.x - RouteLabelIcon.cornerMargin;
-    double topRightMaxY = candidate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+    double topRightRectX = candidate.x;
+    double topRightRectY = candidate.y;
+    double topRightWidth = -routeLabelBoxWidth;
+    double topRightHeight = routeLabelBoxHeight;
 
     // Bottom left box.
-    double bottomLeftMinX = candidate.x + RouteLabelIcon.cornerMargin;
-    double bottomLeftMinY = candidate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
-    double bottomLeftMaxX = candidate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
-    double bottomLeftMaxY = candidate.y - RouteLabelIcon.cornerMargin;
+    double bottomLeftRectX = candidate.x;
+    double bottomLeftRectY = candidate.y;
+    double bottomLeftWidth = routeLabelBoxWidth;
+    double bottomLeftHeight = -routeLabelBoxHeight;
 
     // Bottom right box.
-    double bottomRightMinX = candidate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
-    double bottomRightMinY = candidate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
-    double bottomRightMaxX = candidate.x - RouteLabelIcon.cornerMargin;
-    double bottomRightMaxY = candidate.y - RouteLabelIcon.cornerMargin;
+    double bottomRightRectX = candidate.x;
+    double bottomRightRectY = candidate.y;
+    double bottomRightWidth = -routeLabelBoxWidth;
+    double bottomRightHeight = -routeLabelBoxHeight;
 
-    for (RouteLabel routeLabel in routeLabels) {
-      if (routeLabel.allScreenCoordinates == null) break;
+    // The first end second coordinate of a segment.
+    ScreenCoordinate? first;
+    ScreenCoordinate? second;
 
-      for (ScreenCoordinate screenCoordinate in routeLabel.allScreenCoordinates!) {
-        if (topLeftIntersects && topRightIntersects && bottomLeftIntersects && bottomRightIntersects) break;
+    for (ScreenCoordinate screenCoordinate in allCoordinates) {
+      // All position intersect remove skip candidate.
+      if (topLeftIntersects && topRightIntersects && bottomLeftIntersects && bottomRightIntersects) break;
+
+      // Set second to the next coordinate.
+      second = screenCoordinate;
+
+      if (first != null) {
         // Top left.
         // Check top left if we haven't found one yet.
         if (!topLeftIntersects) {
-          // If screen coordinate intersects with bounding box.
-          if (screenCoordinate.x > topLeftMinX &&
-              screenCoordinate.x < topLeftMaxX &&
-              screenCoordinate.y > topLeftMinY &&
-              screenCoordinate.y < topLeftMaxY) {
-            topLeftIntersects = true;
-          }
+          topLeftIntersects = _checkLineIntersectsRect(
+              topLeftRectX, topLeftRectY, topLeftWidth, topLeftHeight, first.x, first.y, second.x, second.y);
         }
 
         // Top right.
-        // Check top left if we haven't found one yet.
-        if (!topLeftIntersects) {
-          // If screen coordinate intersects with bounding box.
-          if (screenCoordinate.x > topRightMinX &&
-              screenCoordinate.x < topRightMaxX &&
-              screenCoordinate.y > topRightMinY &&
-              screenCoordinate.y < topRightMaxY) {
-            topRightIntersects = true;
-          }
+        // Check top right if we haven't found one yet.
+        if (!topRightIntersects) {
+          topRightIntersects = _checkLineIntersectsRect(
+              topRightRectX, topRightRectY, topRightWidth, topRightHeight, first.x, first.y, second.x, second.y);
         }
 
         // Bottom left.
-        // Check top left if we haven't found one yet.
-        if (!topLeftIntersects) {
+        // Check bottom left if we haven't found one yet.
+        if (!bottomLeftIntersects) {
           // If screen coordinate intersects with bounding box.
-          if (screenCoordinate.x > bottomLeftMinX &&
-              screenCoordinate.x < bottomLeftMaxX &&
-              screenCoordinate.y > bottomLeftMinY &&
-              screenCoordinate.y < bottomLeftMaxY) {
-            bottomLeftIntersects = true;
-          }
+          bottomLeftIntersects = _checkLineIntersectsRect(bottomLeftRectX, bottomLeftRectY, bottomLeftWidth,
+              bottomLeftHeight, first.x, first.y, second.x, second.y);
         }
 
         // Bottom right.
-        // Check top left if we haven't found one yet.
-        if (!topLeftIntersects) {
+        // Check bottom right if we haven't found one yet.
+        if (!bottomRightIntersects) {
           // If screen coordinate intersects with bounding box.
-          if (screenCoordinate.x > bottomRightMinX &&
-              screenCoordinate.x < bottomRightMaxX &&
-              screenCoordinate.y > bottomRightMinY &&
-              screenCoordinate.y < bottomRightMaxY) {
-            bottomRightIntersects = true;
-          }
+          bottomRightIntersects = _checkLineIntersectsRect(bottomRightRectX, bottomRightRectY, bottomRightWidth,
+              bottomRightHeight, first.x, first.y, second.x, second.y);
         }
       }
+
+      // Set first to the last coordinate.
+      first = screenCoordinate;
     }
 
     return (topLeftIntersects, topRightIntersects, bottomLeftIntersects, bottomRightIntersects);
+  }
+
+  // Helper function that returns a bool if a line intersects with a rect or not.
+  bool _checkLineIntersectsRect(
+      startXRect, startYRect, rectWidth, rectHeight, startXLine, startYLine, endXLine, endYLine) {
+    // Check if line intersects with one side of the rect.
+    // Side 1 (start and width).
+    if (_doLinesIntersect(
+        startXRect, startYRect, startXRect + rectWidth, startYRect, startXLine, startYLine, endXLine, endYLine)) {
+      return true;
+    }
+    // Side 2 (start and height).
+    if (_doLinesIntersect(
+        startXRect, startYRect, startXRect, startYRect + rectHeight, startXLine, startYLine, endXLine, endYLine)) {
+      return true;
+    }
+    // Side 3 (start + height and width).
+    if (_doLinesIntersect(startXRect, startYRect + rectHeight, startXRect + rectWidth, startYRect + rectHeight,
+        startXLine, startYLine, endXLine, endYLine)) {
+      return true;
+    }
+    // Side 4 (start + width and height).
+    if (_doLinesIntersect(startXRect + rectWidth, startYRect, startXRect + rectWidth, startYRect + rectHeight,
+        startXLine, startYLine, endXLine, endYLine)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Helper function that checks if lines intersect.
+  bool _doLinesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+    // Calculate orientations for the line of 1 to 2 with the points 3 and 4.
+    double orientation1 = _orientation(x1, y1, x2, y2, x3, y3);
+    double orientation2 = _orientation(x1, y1, x2, y2, x4, y4);
+
+    // Calculate orientations for the line 3 to 4 with points 1 and 2.
+    double orientation3 = _orientation(x3, y3, x4, y4, x1, y1);
+    double orientation4 = _orientation(x3, y3, x4, y4, x2, y2);
+
+    // Orientation 1 and 2 have to be different (clockwise and anti clockwise). This makes sure that point 3 and 4 are on different side.
+    // Orientation 3 and 4 have to be different (clockwise and anti clockwise). This makes sure that point 1 and 2 are on different side.
+    // If these conditions are true the lines have to intersect.
+    // We leave out collinear lines to simplify this step. It's an edge case we can skip.
+    if ((orientation1 * orientation2 < 0) && (orientation3 * orientation4 < 0)) {
+      return true;
+    }
+    return false;
+  }
+
+  // Helper function that calculates the orientation of three points.
+  // Means if they are collinear, clockwise or anti clockwise oriented.
+  // 0 means collinear, <0 means anti clockwise and >0 means clockwise.
+  // Formula from:
+  // https://math.stackexchange.com/questions/405966/if-i-have-three-points-is-there-an-easy-way-to-tell-if-they-are-collinear
+  double _orientation(x1, y1, x2, y2, x3, y3) {
+    return (y2 - y1) * (x3 - x2) - (y3 - y2) * (x2 - x1);
   }
 
   /// Returns the bool of an intersection with any route and any orientation. (returns topLeft, topRight, bottomLeft, bottomRight)
@@ -2003,18 +2060,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
         ),
 
-        if (routeLabels.isNotEmpty)
-          ...routeLabels[1].allScreenCoordinates!.map(
-                (ScreenCoordinate sc) => Positioned(
-                  left: sc.x,
-                  top: sc.y,
-                  child: Container(
-                    width: 2,
-                    height: 2,
-                    color: Colors.red,
-                  ),
-                ),
+        if (allCoords.isNotEmpty)
+          ...allCoords.map(
+            (ScreenCoordinate sc) => Positioned(
+              left: sc.x,
+              top: sc.y,
+              child: Container(
+                width: 2,
+                height: 2,
+                color: Colors.red,
               ),
+            ),
+          ),
 
         if (poiPopup != null)
           AnimatedPositioned(
