@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -37,9 +36,6 @@ class Ride with ChangeNotifier {
 
   /// The currently selected route.
   Route? route;
-
-  /// The id of a corresponding shortcut, if a shortcut was used to create the route.
-  String? shortcutId;
 
   /// The current signal group, calculated periodically.
   Sg? calcCurrentSG;
@@ -81,17 +77,6 @@ class Ride with ChangeNotifier {
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
-
-  /// Check for a list of waypoints, if there exists a shortcut covered by the waypoints and save the id if the case.
-  void setShortcut(List<Waypoint> waypoints) {
-    final shortcuts = getIt<Shortcuts>().shortcuts ?? [];
-    for (var shortcut in shortcuts) {
-      if (shortcut.getWaypoints().every((point) => waypoints.contains(point))) {
-        shortcutId = shortcut.id;
-        return;
-      }
-    }
-  }
 
   /// Set the last route in shared preferences.
   Future<bool> setLastRoute(List<Waypoint> lastRoute, int lastRouteID, [SharedPreferences? storage]) async {
@@ -354,7 +339,6 @@ class Ride with ChangeNotifier {
     calcCurrentSGIndex = null;
     calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
-    shortcutId = null;
     notifyListeners();
   }
 }
