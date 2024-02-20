@@ -50,6 +50,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     AllTrafficLightsLayer.layerId,
+    AllTrafficLightsPredictionGeometryLayer.layerId,
     AllTrafficLightsPredictionLayer.layerId,
     AllTrafficLightsPredictionLayer.countdownLayerId,
     userLocationLayerId,
@@ -116,8 +117,9 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         mapbox.CameraOptions(
           center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
           bearing: userPos.heading,
-          zoom: 18,
+          zoom: 18.5,
           pitch: 60,
+          padding: mapbox.MbxEdgeInsets(top: 200, bottom: 0, right: 0, left: 0),
         ),
         mapbox.MapAnimationOptions(duration: 1500));
 
@@ -206,6 +208,9 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     var index = await getIndex(AllTrafficLightsLayer.layerId);
     if (!mounted) return;
     await AllTrafficLightsLayer().install(mapController!, at: index);
+    index = await getIndex(AllTrafficLightsPredictionGeometryLayer.layerId);
+    if (!mounted) return;
+    await AllTrafficLightsPredictionGeometryLayer().install(mapController!, at: index);
     index = await getIndex(AllTrafficLightsPredictionLayer.layerId);
     if (!mounted) return;
     await AllTrafficLightsPredictionLayer().install(mapController!, at: index);
@@ -258,7 +263,11 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         };
 
         // Update the layer.
-        AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId).update(mapController!);
+        final heading = positioning.lastPosition?.heading;
+        AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: heading)
+            .update(mapController!);
+        AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: heading)
+            .update(mapController!);
       }
     });
   }

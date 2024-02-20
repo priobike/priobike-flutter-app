@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:latlong2/latlong.dart';
@@ -29,6 +30,12 @@ class FreeRide with ChangeNotifier {
   /// All SGs.
   Map<String, LatLng>? sgs;
 
+  /// All SG geometries (GeoJSONs).
+  Map<String, Map<String, dynamic>>? sgGeometries;
+
+  /// All SG bearings.
+  Map<String, double>? sgBearings;
+
   /// Clustered SGs by intersection.
   Map<String, LatLng>? clusteredSgs;
 
@@ -57,6 +64,7 @@ class FreeRide with ChangeNotifier {
 
     try {
       await fetchSgs();
+      await fetchSgGeometries();
       await clusterSgs();
       connectMQTTClient();
       isLoading = false;
@@ -74,7 +82,7 @@ class FreeRide with ChangeNotifier {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
 
-    final url = "https://$baseUrl/sg-selector-backend/routing/all";
+    final url = "https://$baseUrl/sg-selector-nginx/sgs_min.json.gz";
     final endpoint = Uri.parse(url);
 
     final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
@@ -83,7 +91,10 @@ class FreeRide with ChangeNotifier {
       throw Exception(err);
     }
 
-    final json = jsonDecode(response.body);
+    final uncompressed = gzip.decode(response.bodyBytes);
+    final decoded = utf8.decode(uncompressed);
+
+    final json = jsonDecode(decoded);
 
     sgs = {};
     for (final sg in json) {
@@ -94,6 +105,40 @@ class FreeRide with ChangeNotifier {
     }
 
     log.i("Fetched ${sgs!.length} SGs.");
+  }
+
+  /// Fetch all SG geometries from the backend.
+  Future<void> fetchSgGeometries() async {
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+
+    final url = "https://$baseUrl/sg-selector-nginx/sgs_geo.json.gz";
+    final endpoint = Uri.parse(url);
+
+    final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
+    if (response.statusCode != 200) {
+      final err = "Error while fetching SGs from $endpoint: ${response.statusCode}";
+      throw Exception(err);
+    }
+
+    final uncompressed = gzip.decode(response.bodyBytes);
+    final decoded = utf8.decode(uncompressed);
+
+    final json = jsonDecode(decoded);
+
+    sgGeometries = {};
+    sgBearings = {};
+    for (final sg in json) {
+      final id = sg["id"];
+      final geometry = jsonDecode(sg["geometry"]);
+      final first = geometry["coordinates"].first;
+      final second = geometry["coordinates"][1];
+      final bearing = vincenty.bearing(LatLng(first[1], first[0]), LatLng(second[1], second[0]));
+      sgGeometries![id] = geometry;
+      sgBearings![id] = bearing;
+    }
+
+    log.i("Fetched ${sgGeometries!.length} SG geometries.");
   }
 
   /// Cluster the SGs.
@@ -157,15 +202,13 @@ class FreeRide with ChangeNotifier {
 
   /// Update the prediction subscriptions.
   Future<void> updateSubscriptions(Set<String> onScreenSGs) async {
-    for (final sg in subscriptions) {
-      if (!onScreenSGs.contains(sg)) {
-        unsubscribe(sg);
-      } else {
-        onScreenSGs.remove(sg);
-      }
+    final newSgsToSubscribeTo = onScreenSGs.difference(subscriptions);
+    final outdatedSgs = subscriptions.difference(onScreenSGs);
+    for (final sg in newSgsToSubscribeTo) {
+      await subscribe(sg);
     }
-    for (final sg in onScreenSGs) {
-      subscribe(sg);
+    for (final sg in outdatedSgs) {
+      await unsubscribe(sg);
     }
   }
 
@@ -247,6 +290,7 @@ class FreeRide with ChangeNotifier {
     sgUpdateTimer = null;
     isLoading = false;
     sgs = null;
+    sgGeometries = null;
     subscriptions.clear();
     receivedPredictions.clear();
     client?.disconnect();
