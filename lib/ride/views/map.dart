@@ -66,7 +66,6 @@ class RideMapViewState extends State<RideMapView> {
   final List layerOrder = [
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
-    DiscomfortsLayer.layerId,
     WaypointsLayer.layerId,
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
@@ -130,8 +129,6 @@ class RideMapViewState extends State<RideMapView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
-    if (!mounted) return;
-    await DiscomfortsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
@@ -383,14 +380,6 @@ class RideMapViewState extends State<RideMapView> {
     var index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
-    index = await getIndex(DiscomfortsLayer.layerId);
-    if (!mounted) return;
-    await DiscomfortsLayer(isDark).install(
-      mapController!,
-      iconSize: 0.2,
-      at: index,
-      showLabels: false,
-    );
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
     await WaypointsLayer().install(mapController!, iconSize: 0.33, at: index);

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -35,18 +34,22 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   }
 
   Widget alternativeView(String message) => Container(
-        width: widget.size.width * 0.35,
-        height: widget.size.width * 0.35,
+        width: widget.size.width * 0.7,
+        height: widget.size.width * 0.7,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(100),
+          borderRadius: BorderRadius.circular(200),
         ),
         child: Center(
-          child: BoldContent(
+          child: Text(
+            message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 28,
+              height: 1.1,
+            ),
             textAlign: TextAlign.center,
-            text: message,
-            color: Colors.white,
-            context: context,
           ),
         ),
       );
@@ -82,8 +85,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final currentPhase = recommendation.calcCurrentSignalPhase;
 
     final trafficLight = Container(
-      width: widget.size.width * 0.35,
-      height: widget.size.width * 0.35,
+      width: widget.size.width * 0.7,
+      height: widget.size.width * 0.7,
       decoration: BoxDecoration(
         gradient: RadialGradient(
           stops: const [0.2, 0.8, 1],
@@ -100,7 +103,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
           countdownLabel,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 64,
+            fontSize: 128,
             shadows: [
               Shadow(
                 blurRadius: 32,

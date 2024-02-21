@@ -173,7 +173,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     AllRoutesLayer.layerIdClick,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
-    DiscomfortsLayer.layerId,
     DiscomfortsLayer.layerIdMarker,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
@@ -591,7 +590,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       iconSize: 0.2,
       at: index,
     );
-    index = await getIndex(DiscomfortsLayer.layerId);
+    index = await getIndex(DiscomfortsLayer.layerIdMarker);
     if (!mounted) return;
     await DiscomfortsLayer(isDark).install(
       mapController!,

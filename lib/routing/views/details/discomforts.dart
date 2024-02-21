@@ -61,8 +61,6 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
     discomfortDistances = {};
     discomfortColors = {};
     for (final discomfort in discomforts.foundDiscomforts!) {
-      if (discomfort.description == Discomforts.userReportedDangerDescription &&
-          discomfort.weight! < Discomforts.userReportedDiscomfortWeightThreshold) continue;
       for (var idx = 0; idx < discomfort.coordinates.length - 1; idx++) {
         final distance = vincenty.distance(
             LatLng(discomfort.coordinates[idx].latitude, discomfort.coordinates[idx].longitude),
@@ -129,9 +127,6 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
       // Catch case pct > 100.
       pct = pct > 100 ? 100 : pct;
       var text = e.key;
-      if (text == Discomforts.userReportedDangerDescription) {
-        text += " (von Nutzenden gemeldet)";
-      }
       elements.add(Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Row(

@@ -19,16 +19,12 @@ class DiscomfortSegment {
   /// The color for the visualization of this discomfort.
   final Color color;
 
-  /// The weight/trust value of the discomfort.
-  final int? weight;
-
   DiscomfortSegment({
     String? id,
     required this.description,
     required this.coordinates,
     required this.distanceOnRoute,
     required this.color,
-    this.weight,
   }) {
     if (id == null) {
       this.id = UniqueKey().toString();
@@ -49,7 +45,6 @@ class DiscomfortSegment {
         'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
         'distanceOnRoute': distanceOnRoute,
         'color': color.toString(),
-        'weight': weight,
       };
 
   factory DiscomfortSegment.fromJson(dynamic json) => DiscomfortSegment(
@@ -58,6 +53,5 @@ class DiscomfortSegment {
         coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
         distanceOnRoute: json['distanceOnRoute'],
         color: json['color'],
-        weight: json['weight'],
       );
 }
