@@ -1136,7 +1136,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         // Add to all coordinates.
         allCoordinates.add(allCoordinatesRouteLabel);
       }
-      print("ROUTELABEL ${routeLabel.id} CANDIDATES: ${candidates?.length}");
       routeLabel.candidates = candidates;
     }
 
@@ -1157,7 +1156,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
 
       // Loop through candidates and filter.
-      print("ROUTE LABEL: ${routeLabel.id}");
       for (ScreenCoordinate candidate in routeLabel.candidates!) {
         // Check intersection with route waypoints in different orientations.
         // Note: better would be segments. Potential.
@@ -1179,13 +1177,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       routeLabel.filteredCandidates = filteredCandidates;
 
       filteredCoordsDebug.add(filteredCandidates);
-
-      print("ROUTE LABEL ${routeLabel.id} filtered: ${filteredCandidates.length}");
-      print("MID x${widthMid} - y${heightMid}");
-
-      for (RouteLabelCandidate routeLabelCandidate in filteredCandidates) {
-        print("CANDIDATE: ${routeLabelCandidate.screenCoordinate.x}, ${routeLabelCandidate.screenCoordinate.y}");
-      }
     }
 
     setState(() {
@@ -1201,8 +1192,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             (routeLabel.filteredCandidates != null && routeLabel.filteredCandidates!.length > max
                 ? routeLabel.filteredCandidates!.length
                 : max));
-
-    print(maxLength);
 
     // Test candidate combinations until one fits.
     // Hypothetically a combination is found quickly.
@@ -1242,7 +1231,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
           // If candidate list contains only one element, just pick one.
           // This can happen, when the second route is not visible.
-          print("CANDIDATE LENGTH: ${candidateCombination.length}");
 
           if (candidateCombination.length < 2) {
             // Has to be not null if only one element is set as candidate combination.
@@ -1266,8 +1254,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
           // Stop searching and update route labels.
           if (foundCombination.isNotEmpty) {
-            print("COMBINATION FOUND");
-            print(foundCombination.length);
             // Update route labels.
             for (int i = 0; i < foundCombination.length; i++) {
               routeLabels[i].screenCoordinateX = foundCombination[i]?.x;
