@@ -61,9 +61,9 @@ class RouteLabel {
 class RouteLabelCandidate {
   final ScreenCoordinate screenCoordinate;
 
-  final List<RouteLabelBox> possibleboxes;
+  final List<RouteLabelBox> possibleBoxes;
 
-  RouteLabelCandidate(this.possibleboxes, this.screenCoordinate);
+  RouteLabelCandidate(this.screenCoordinate, this.possibleBoxes);
 }
 
 class RouteLabelBox {
@@ -75,5 +75,10 @@ class RouteLabelBox {
 
   final double height;
 
-  RouteLabelBox(this.x, this.y, this.width, this.height);
+  final RouteLabelOrientationVertical routeLabelOrientationVertical;
+
+  final RouteLabelOrientationHorizontal routeLabelOrientationHorizontal;
+
+  RouteLabelBox(this.x, this.y, this.width, this.height, this.routeLabelOrientationVertical,
+      this.routeLabelOrientationHorizontal);
 }
