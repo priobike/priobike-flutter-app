@@ -1157,14 +1157,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       for (ScreenCoordinate candidate in routeLabel.candidates!) {
         // Check intersection with route waypoints in different orientations.
         // Note: better would be segments. Potential.
-        var (topLeft, topRight, bottomLeft, bottomRight) =
-            _checkRouteLabelIntersectsWithRoute(candidate, allCoordinates);
+        List<RouteLabelBox> possibleBoxes = _checkRouteLabelIntersectsWithRoute(candidate, allCoordinates);
 
-        print("$topLeft, $topRight, $bottomLeft, $bottomRight");
+        print(possibleBoxes);
 
         // If intersects in all directions skip.
-        if (topLeft && topRight && bottomLeft && bottomRight) continue;
-        filteredCandidates.add(RouteLabelCandidate(topLeft, topRight, bottomLeft, bottomRight, candidate));
+        if (possibleBoxes.isEmpty) continue;
+        filteredCandidates.add(RouteLabelCandidate(possibleBoxes, candidate));
       }
       // Start with the middlemost to the center of the screen.
       // Therefore sort the filtered candidates.
@@ -1193,9 +1192,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Choose route label candidates that do not intersect with each other.
     // Go through route labels and find the first combination, that do not intersect for all route labels.
-    bool combinationFound = false;
-    int maxFilterCandidates = 0;
-    int routeLabelLength = routeLabels.length;
 
     int maxLength = routeLabels.fold(
         0,
@@ -1214,16 +1210,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     x0 y1 z0
     x0 y0 z1
     x1 y1 z1
-
      */
-
     for (int i = 0; i < maxLength; i++) {
-      // Try first combination.
-
       // Iterate every combination plus one for index j.
       for (int j = -1; j < routeLabels.length; j++) {
         List<RouteLabelCandidate> candidateCombination = [];
-        // Fill candidates.
+        // Fill candidates for iteration.
         for (int k = 0; k < routeLabels.length; k++) {
           if (routeLabels[k].filteredCandidates!.length > i + 1) {
             candidateCombination.add(routeLabels[k].filteredCandidates![i + (k == j ? 1 : 0)]);
@@ -1231,68 +1223,27 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // Add last candidate.
             candidateCombination.add(routeLabels[k].filteredCandidates![routeLabels[k].filteredCandidates!.length - 1]);
           }
-          // Test combination with all label options and break if the first fits.
         }
-      }
-    }
+        // Candidate list complete for this iteration.
 
-    for (RouteLabel routeLabel in routeLabels) {
-      if (routeLabel.filteredCandidates == null) break;
-      for (RouteLabelCandidate routeLabelCandidate in routeLabel.filteredCandidates!) {
-        // Try top left.
-        if (routeLabelCandidate.topLeft) {}
-        // Try top right.
-        if (routeLabelCandidate.topRight) {}
-        // Try bottom left.
-        if (routeLabelCandidate.bottomLeft) {}
-        // Try bottom right.
-        if (routeLabelCandidate.bottomRight) {}
-      }
-    }
-
-    for (RouteLabel routeLabel in routeLabels) {
-      // Reset the route label if no candidate fits.
-      bool found = false;
-      routeLabel.screenCoordinateX = null;
-      routeLabel.screenCoordinateY = null;
-      routeLabel.routeLabelOrientationVertical = null;
-      routeLabel.routeLabelOrientationHorizontal = null;
-
-      if (routeLabel.filteredCandidates == null) break;
-      for (RouteLabelCandidate routeLabelCandidate in routeLabel.filteredCandidates!) {
-        if (found) break;
-        // Look for possible placements and check intersection.
-        if (!routeLabelCandidate.topLeft) {
-          routeLabel.updateScreenPosition(
-              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
-          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
-          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
-          found = true;
-          break;
-        } else if (!routeLabelCandidate.topRight) {
-          routeLabel.updateScreenPosition(
-              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
-          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.top;
-          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.right;
-          found = true;
-          break;
-        } else if (!routeLabelCandidate.bottomLeft) {
-          routeLabel.updateScreenPosition(
-              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
-          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
-          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.left;
-          found = true;
-          break;
-        } else if (!routeLabelCandidate.bottomRight) {
-          routeLabel.updateScreenPosition(
-              routeLabelCandidate.screenCoordinate.x, routeLabelCandidate.screenCoordinate.y);
-          routeLabel.routeLabelOrientationVertical = RouteLabelOrientationVertical.bottom;
-          routeLabel.routeLabelOrientationHorizontal = RouteLabelOrientationHorizontal.right;
-          found = true;
+        // If candidate list contains only one element, just pick one.
+        // This can happen, when the second route is not visible.
+        if (candidateCombination.length < 2) {
+          // TODO set route label.
           break;
         }
+
+        // Test combination with all label options and break when first combination fits.
+        // Reset new route label.
+        // Checks combinations and return true, if combination is found.
+
+        // Get orientation combinations
+        List<RouteLabelBox> foundCombination =
+            _findCombinationOrientations(candidateCombination[0], candidateCombination.slice(1), []);
+
+        // Stop searching and update route labels.
+        if (foundCombination.isNotEmpty) {}
       }
-      updatedRouteLabels.add(routeLabel);
     }
 
     // Update route labels list.
@@ -1301,8 +1252,86 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
+  // returns max 4 to the power of combinations. (which are max 2 currently so max 16 elements)
+  List<RouteLabelBox> _findCombinationOrientations(RouteLabelCandidate routeLabelCandidate,
+      List<RouteLabelCandidate> leftCandidates, List<RouteLabelBox> routeLabelBoxList) {
+    // End reached. Check combination.
+    if (leftCandidates.isEmpty) {
+      // CHECK.
+
+      return [];
+    }
+
+    for (RouteLabelBox routeLabelBox in routeLabelCandidate.possibleboxes) {
+      // Add the current orientation.
+      routeLabelBoxList.add(routeLabelBox);
+      // Recursive call of this function to go through the possible orientations.
+      List<RouteLabelBox> workingRouteLabelBox =
+          _findCombinationOrientations(leftCandidates[0], leftCandidates.slice(1), routeLabelBoxList);
+
+      // Returns the working orientation back to the first call of the function.
+      if (workingRouteLabelBox.isNotEmpty) {
+        return workingRouteLabelBox;
+      }
+    }
+    return [];
+  }
+
+  // Checks for a given list of orientations and candidates if the geometrically do not intersect.
+  bool _doesOrientationCombinationIntersect(List<RouteLabelBox> routeLabelBoxCombination) {
+    bool intersect = false;
+
+    return intersect;
+  }
+
+  // (bool, List<RouteLabelCandidate>) _checkRouteLabelCandidate(RouteLabelCandidate routeLabelCandidate, List<RouteLabelCandidate> leftCandidates, double? minX, double? minY, double? maxX, double? maxY) {
+  //   if (leftCandidates.isEmpty) return (true, []);
+  //
+  //   if (!routeLabelCandidate.topLeft) {
+  //     // Calculate bounding box.
+  //     double minX = routeLabelCandidate.screenCoordinate.x + RouteLabelIcon.cornerMargin;
+  //     double minY = routeLabelCandidate.screenCoordinate.y + RouteLabelIcon.cornerMargin;
+  //     double maxX = routeLabelCandidate.screenCoordinate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
+  //     double maxY = routeLabelCandidate.screenCoordinate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+  //
+  //     var (combinationFits, orientations) = _checkRouteLabelIntersect(routeLabelCandidate, leftCandidates);
+  //     if (combinationFits) {
+  //       // Update Route Labels here.
+  //       return;
+  //     }
+  //   }
+  //   if (!routeLabelCandidate.topRight) {
+  //     double minX = routeLabelCandidate.screenCoordinate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
+  //     double minY = routeLabelCandidate.screenCoordinate.y + RouteLabelIcon.cornerMargin;
+  //     double maxX = routeLabelCandidate.screenCoordinate.x - RouteLabelIcon.cornerMargin;
+  //     double maxY = routeLabelCandidate.screenCoordinate.y + RouteLabelIcon.cornerMargin + routeLabelBoxHeight;
+  //
+  //     _checkRouteLabelIntersect(routeLabelCandidate, leftCandidates);
+  //   }
+  //   if (!routeLabelCandidate.bottomLeft) {
+  //     double minX = routeLabelCandidate.screenCoordinate.x + RouteLabelIcon.cornerMargin;
+  //     double minY = routeLabelCandidate.screenCoordinate.y - RouteLabelIcon.cornerMargin;
+  //     double maxX = routeLabelCandidate.screenCoordinate.x + RouteLabelIcon.cornerMargin + routeLabelBoxWidth;
+  //     double maxY = routeLabelCandidate.screenCoordinate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
+  //
+  //     _checkRouteLabelIntersect(routeLabelCandidate, leftCandidates);
+  //   }
+  //   if (!routeLabelCandidate.bottomRight) {
+  //     double minX = routeLabelCandidate.screenCoordinate.x - RouteLabelIcon.cornerMargin;
+  //     double minY = routeLabelCandidate.screenCoordinate.y - RouteLabelIcon.cornerMargin;
+  //     double maxX = routeLabelCandidate.screenCoordinate.x - RouteLabelIcon.cornerMargin - routeLabelBoxWidth;
+  //     double maxY = routeLabelCandidate.screenCoordinate.y - RouteLabelIcon.cornerMargin - routeLabelBoxHeight;
+  //
+  //     _checkRouteLabelIntersect(routeLabelCandidate, leftCandidates);
+  //   }
+  // }
+
+  // _checkRouteLabelIntersect(RouteLabelCandidate routeLabelCandidate, List<RouteLabelCandidate> leftCandidates) {
+  //   if ()
+  // }
+
   /// Returns the bool of an intersection with any route and any orientation. (returns topLeft, topRight, bottomLeft, bottomRight)
-  (bool, bool, bool, bool) _checkRouteLabelIntersectsWithRoute(
+  List<RouteLabelBox> _checkRouteLabelIntersectsWithRoute(
       ScreenCoordinate candidate, List<List<ScreenCoordinate>> allCoordinates) {
     bool topLeftIntersects = false;
     bool topRightIntersects = false;
@@ -1327,29 +1356,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Add a small offset accordingly to prevent filtering good candidates.
     double pointOffset = RouteLabelIcon.cornerMargin * 0.05;
 
-    // Top left box constraints.
-    double topLeftRectX = candidate.x + pointOffset;
-    double topLeftRectY = candidate.y + pointOffset;
-    double topLeftWidth = routeLabelBoxWidth;
-    double topLeftHeight = routeLabelBoxHeight;
+    // Top left box.
+    RouteLabelBox topLeftBox =
+        RouteLabelBox(candidate.x + pointOffset, candidate.y + pointOffset, routeLabelBoxWidth, routeLabelBoxHeight);
 
     // Top right box.
-    double topRightRectX = candidate.x - pointOffset;
-    double topRightRectY = candidate.y + pointOffset;
-    double topRightWidth = -routeLabelBoxWidth;
-    double topRightHeight = routeLabelBoxHeight;
+    RouteLabelBox topRightBox =
+        RouteLabelBox(candidate.x - pointOffset, candidate.y + pointOffset, -routeLabelBoxWidth, routeLabelBoxHeight);
 
     // Bottom left box.
-    double bottomLeftRectX = candidate.x + pointOffset;
-    double bottomLeftRectY = candidate.y - pointOffset;
-    double bottomLeftWidth = routeLabelBoxWidth;
-    double bottomLeftHeight = -routeLabelBoxHeight;
+    RouteLabelBox bottomLeftBox =
+        RouteLabelBox(candidate.x + pointOffset, candidate.y - pointOffset, routeLabelBoxWidth, -routeLabelBoxHeight);
 
     // Bottom right box.
-    double bottomRightRectX = candidate.x - pointOffset;
-    double bottomRightRectY = candidate.y - pointOffset;
-    double bottomRightWidth = -routeLabelBoxWidth;
-    double bottomRightHeight = -routeLabelBoxHeight;
+    RouteLabelBox bottomRightBox =
+        RouteLabelBox(candidate.x - pointOffset, candidate.y - pointOffset, -routeLabelBoxWidth, -routeLabelBoxHeight);
 
     // The first end second coordinate of a segment.
     ScreenCoordinate? first;
@@ -1370,30 +1391,30 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           // Check top left if we haven't found one yet.
           if (!topLeftIntersects) {
             topLeftIntersects = _checkLineIntersectsRect(
-                topLeftRectX, topLeftRectY, topLeftWidth, topLeftHeight, first.x, first.y, second.x, second.y);
+                topLeftBox.x, topLeftBox.y, topLeftBox.width, topLeftBox.height, first.x, first.y, second.x, second.y);
           }
 
           // Top right.
           // Check top right if we haven't found one yet.
           if (!topRightIntersects) {
-            topRightIntersects = _checkLineIntersectsRect(
-                topRightRectX, topRightRectY, topRightWidth, topRightHeight, first.x, first.y, second.x, second.y);
+            topRightIntersects = _checkLineIntersectsRect(topRightBox.x, topRightBox.y, topRightBox.width,
+                topRightBox.height, first.x, first.y, second.x, second.y);
           }
 
           // Bottom left.
           // Check bottom left if we haven't found one yet.
           if (!bottomLeftIntersects) {
             // If screen coordinate intersects with bounding box.
-            bottomLeftIntersects = _checkLineIntersectsRect(bottomLeftRectX, bottomLeftRectY, bottomLeftWidth,
-                bottomLeftHeight, first.x, first.y, second.x, second.y);
+            bottomLeftIntersects = _checkLineIntersectsRect(bottomLeftBox.x, bottomLeftBox.y, bottomLeftBox.width,
+                bottomLeftBox.height, first.x, first.y, second.x, second.y);
           }
 
           // Bottom right.
           // Check bottom right if we haven't found one yet.
           if (!bottomRightIntersects) {
             // If screen coordinate intersects with bounding box.
-            bottomRightIntersects = _checkLineIntersectsRect(bottomRightRectX, bottomRightRectY, bottomRightWidth,
-                bottomRightHeight, first.x, first.y, second.x, second.y);
+            bottomRightIntersects = _checkLineIntersectsRect(bottomRightBox.x, bottomRightBox.y, bottomRightBox.width,
+                bottomRightBox.height, first.x, first.y, second.x, second.y);
           }
         }
 
@@ -1402,7 +1423,22 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
-    return (topLeftIntersects, topRightIntersects, bottomLeftIntersects, bottomRightIntersects);
+    List<RouteLabelBox> possibleBoxes = [];
+
+    if (!topLeftIntersects) {
+      possibleBoxes.add(topLeftBox);
+    }
+    if (!topRightIntersects) {
+      possibleBoxes.add(topRightBox);
+    }
+    if (!bottomLeftIntersects) {
+      possibleBoxes.add(bottomLeftBox);
+    }
+    if (!bottomRightIntersects) {
+      possibleBoxes.add(bottomRightBox);
+    }
+
+    return possibleBoxes;
   }
 
   // Helper function that returns a bool if a line intersects with a rect or not.

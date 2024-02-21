@@ -59,11 +59,21 @@ class RouteLabel {
 }
 
 class RouteLabelCandidate {
-  final bool topLeft;
-  final bool topRight;
-  final bool bottomLeft;
-  final bool bottomRight;
   final ScreenCoordinate screenCoordinate;
 
-  RouteLabelCandidate(this.topLeft, this.topRight, this.bottomLeft, this.bottomRight, this.screenCoordinate);
+  final List<RouteLabelBox> possibleboxes;
+
+  RouteLabelCandidate(this.possibleboxes, this.screenCoordinate);
+}
+
+class RouteLabelBox {
+  final double x;
+
+  final double y;
+
+  final double width;
+
+  final double height;
+
+  RouteLabelBox(this.x, this.y, this.width, this.height);
 }
