@@ -43,6 +43,7 @@ class RouteLabel {
   /// The unique coordinates of the route.
   List<ScreenCoordinate>? candidates;
 
+  /// The filtered candidates for the new route label.
   List<RouteLabelCandidate>? filteredCandidates;
 
   RouteLabel(

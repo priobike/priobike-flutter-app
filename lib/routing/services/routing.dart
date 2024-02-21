@@ -624,15 +624,9 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns a string with the most unique attribute for the given route.
   String? findMostUniqueAttributeForRoute(int id) {
     if (allRoutes == null && allRoutes!.length <= id) return null;
-    r.Route currentRoute = allRoutes![id];
-
-    // Time
-    // Go through routes and compare times.
-    for (r.Route route in allRoutes!) {
-      if (route.path.time < currentRoute.path.time) {}
-    }
 
     // TL
 

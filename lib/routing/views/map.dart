@@ -176,9 +176,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The state of the route labels.
   List<RouteLabel> routeLabels = [];
 
-  List<List<ScreenCoordinate>> allCoords = [];
-  List<List<RouteLabelCandidate>> filterdebug = [];
-
   /// The bool that holds the state of map moving.
   bool isMapMoving = false;
 
@@ -1082,7 +1079,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     waypointPixelCoordinates = newWaypointPixelCoordinates;
   }
 
-  /// Updates the route labels.
+  /// Function that Updates the route labels.
   Future<void> updateRouteLabels() async {
     // Reset route label everytime a new route is fetching.
     if (routing.isFetchingRoute) {
@@ -1097,7 +1094,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (routing.allRoutes == null) return;
     if (routing.allRoutes!.length < 2) return;
 
-    // Initialize route label for routes. (Only set text when routes change)
+    // Initialize route label.
+    // Init id, time text, secondary text and unique coordinates per route once.
     if (routeLabels.isEmpty) {
       // Init unique waypoints per route.
       List<List<GHCoordinate>> uniqueCoordinatesPerRoute = getUniqueCoordinatesPerRoute();
@@ -1111,7 +1109,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             id: route.id,
             selected: routing.selectedRoute!.id == route.id,
             timeText: route.timeText,
-            secondaryText: "gleich schnell",
+            secondaryText: null,
             uniqueCoordinates: uniqueCoordinatesPerRoute[route.id],
           ),
         );
@@ -1120,17 +1118,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // The new route label list is set at the end of this function.
     List<RouteLabel> updatedRouteLabels = [];
-    // The list with all screen coordinates.
+    // The list of lists with all screen coordinates.
+    // Separated in different lists to avoid connecting screen coordinates of different routes to segments.
     List<List<ScreenCoordinate>> allCoordinates = [];
 
-    // Calculate new candidates for the route labels since map stopped moving.
-    // Preprocess calculate screen coordinates.
+    // Preprocess data and calculate new candidates for the route labels.
     for (RouteLabel routeLabel in routeLabels) {
-      // Update selected.
+      // Update selected route label.
       routeLabel.selected = routing.selectedRoute!.id == routeLabel.id;
 
-      // Find new coordinate for route label.
-      // Get all coordinate Candidates for the current view for this route label.
+      // Get all screen coordinates of the route labels route and all candidates for this route label.
       var (allCoordinatesRouteLabel, candidates) = await getScreenCoordinates(routeLabel);
       if (allCoordinatesRouteLabel != null) {
         // Add to all coordinates.
@@ -1139,17 +1136,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       routeLabel.candidates = candidates;
     }
 
-    setState(() {
-      allCoords = allCoordinates;
-    });
-
-    List<List<RouteLabelCandidate>> filteredCoordsDebug = [];
-
     // Calculate intersections with route coordinates and screen bounds and filter those candidates.
     for (RouteLabel routeLabel in routeLabels) {
       // Filtered candidates in decreasing order.
       List<RouteLabelCandidate> filteredCandidates = [];
 
+      // Leave filteredCandidates empty if not candidates are in view.
       if (routeLabel.candidates == null || routeLabel.candidates!.isEmpty) {
         routeLabel.filteredCandidates = filteredCandidates;
         continue;
@@ -1157,35 +1149,40 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
       // Loop through candidates and filter.
       for (ScreenCoordinate candidate in routeLabel.candidates!) {
-        // Check intersection with route waypoints in different orientations.
-        // Note: better would be segments. Potential.
-        List<RouteLabelBox> possibleBoxes = _checkRouteLabelIntersectsWithRoute(candidate, allCoordinates);
+        // Check intersection with route segments for different orientations and return possible route label boxes.
+        List<RouteLabelBox> possibleBoxes = _getPossibleRouteLabelBoxes(candidate, allCoordinates);
 
-        // If intersects in all directions skip.
+        // Skip candidate if no possible box found.
         if (possibleBoxes.isEmpty) continue;
         filteredCandidates.add(RouteLabelCandidate(candidate, possibleBoxes));
       }
-      // Start with the middlemost to the center of the screen.
-      // Therefore sort the filtered candidates.
+
+      // Sort the filtered candidates so that the middlemost are the first ones to check compatibility.
       filteredCandidates.sort((a, b) =>
           ((a.screenCoordinate.x - widthMid).abs() + (a.screenCoordinate.y - heightMid).abs()) >
                   ((b.screenCoordinate.x - widthMid).abs() + (b.screenCoordinate.y - heightMid).abs())
               ? 1
               : 0);
 
-      // Set filtered candidates.
+      // Finally set filtered candidates for route label.
       routeLabel.filteredCandidates = filteredCandidates;
-
-      filteredCoordsDebug.add(filteredCandidates);
     }
 
-    setState(() {
-      filterdebug = filteredCoordsDebug;
-    });
+    // Choose route label boxes that do not intersect with each other.
+    // Therefore go through route labels and find the first combination, that do not intersect for all route labels given.
 
-    // Choose route label candidates that do not intersect with each other.
-    // Go through route labels and find the first combination, that do not intersect for all route labels.
+    // Test candidate combinations until one fits.
+    // Hypothetically order of checks is as follows:
+    /*
+    x0 y0 z0
+    x1 y0 z0
+    x0 y1 z0
+    x0 y0 z1
+    x1 y1 z1
+     */
+    // The assumption is that a combination can be quickly.
 
+    // Calculate max depth for the algorithm.
     int maxLength = routeLabels.fold(
         0,
         (int max, RouteLabel routeLabel) => max =
@@ -1193,15 +1190,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 ? routeLabel.filteredCandidates!.length
                 : max));
 
-    // Test candidate combinations until one fits.
-    // Hypothetically a combination is found quickly.
-    /*
-    x0 y0 z0 (tl, tr, bl, br)
-    x1 y0 z0
-    x0 y1 z0
-    x0 y0 z1
-    x1 y1 z1
-     */
     bool combinationFound = false;
     if (maxLength > 0) {
       for (int i = 0; i < maxLength; i++) {
@@ -1413,8 +1401,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return false;
   }
 
-  /// Returns the bool of an intersection with any route and any orientation. (returns topLeft, topRight, bottomLeft, bottomRight)
-  List<RouteLabelBox> _checkRouteLabelIntersectsWithRoute(
+  /// Returns possible route label boxes that do not intersect with any route segment.
+  List<RouteLabelBox> _getPossibleRouteLabelBoxes(
       ScreenCoordinate candidate, List<List<ScreenCoordinate>> allCoordinates) {
     bool topLeftIntersects = false;
     bool topRightIntersects = false;
@@ -2202,56 +2190,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ),
           ),
         ),
-
-        if (allCoords.isNotEmpty && allCoords.length == 2)
-          ...allCoords[0].map(
-            (ScreenCoordinate sc) => Positioned(
-              left: sc.x,
-              top: sc.y,
-              child: Container(
-                width: 2,
-                height: 2,
-                color: Colors.red,
-              ),
-            ),
-          ),
-        if (allCoords.isNotEmpty && allCoords.length == 2)
-          ...allCoords[1].map(
-            (ScreenCoordinate sc) => Positioned(
-              left: sc.x,
-              top: sc.y,
-              child: Container(
-                width: 2,
-                height: 2,
-                color: Colors.red,
-              ),
-            ),
-          ),
-
-        if (filterdebug.isNotEmpty && filterdebug.length == 2)
-          ...filterdebug[0].mapIndexed(
-            (int index, RouteLabelCandidate sc) => Positioned(
-              left: sc.screenCoordinate.x,
-              top: sc.screenCoordinate.y,
-              child: Container(
-                width: 2,
-                height: 2,
-                color: Color.fromARGB(255, 255, 150, ((5 * index) % 255).toInt()),
-              ),
-            ),
-          ),
-        if (filterdebug.isNotEmpty && filterdebug.length == 2)
-          ...filterdebug[1].mapIndexed(
-            (int index, RouteLabelCandidate sc) => Positioned(
-              left: sc.screenCoordinate.x,
-              top: sc.screenCoordinate.y,
-              child: Container(
-                width: 2,
-                height: 2,
-                color: Color.fromARGB(255, ((5 * index) % 255).toInt(), 0, 255),
-              ),
-            ),
-          ),
 
         if (poiPopup != null)
           AnimatedPositioned(
