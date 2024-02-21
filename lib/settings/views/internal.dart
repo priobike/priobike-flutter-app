@@ -89,6 +89,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     predictionStatusSummary.addListener(update);
     loadStatus = getIt<LoadStatus>();
     statusHistory = getIt<StatusHistory>();
+    statusHistory.fetch();
     statusHistory.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
