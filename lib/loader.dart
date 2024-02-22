@@ -27,7 +27,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
@@ -75,10 +74,17 @@ class LoaderState extends State<Loader> {
     // Loader-functions for non-critical services should handle their own errors
     // while critical services should throw their errors.
 
+    // Non critical services:
+    final loadStatus = getIt<LoadStatus>();
+    loadStatus.sendAppStartNotification();
+    loadStatus.fetch();
+    getIt<News>().getArticles();
+    getIt<PredictionStatusSummary>().fetch();
+    getIt<Weather>().fetch();
+
+    // Critical services:
     try {
       await Migration.migrate();
-      await getIt<LoadStatus>().sendAppStartNotification();
-      await getIt<LoadStatus>().fetch();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();
       await getIt<Layers>().loadPreferences();
@@ -89,14 +95,6 @@ class LoaderState extends State<Loader> {
       await tracking.runUploadRoutine();
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
 
-      await getIt<News>().getArticles();
-
-      final predictionStatusSummary = getIt<PredictionStatusSummary>();
-      await predictionStatusSummary.fetch();
-      if (predictionStatusSummary.hadError) throw Exception("Error while fetching prediction status summary");
-
-      await getIt<StatusHistory>().fetch();
-      await getIt<Weather>().fetch();
       await getIt<Boundary>().loadBoundaryCoordinates();
       await getIt<Ride>().loadLastRoute();
       await MapboxTileImageCache.pruneUnusedImages();
