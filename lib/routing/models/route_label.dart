@@ -19,9 +19,6 @@ class RouteLabel {
   /// The secondary text of the route label.
   String? secondaryText;
 
-  /// The GHCoordinate of the waypoint.
-  GHCoordinate? coordinate;
-
   /// The screen coordinate X of the label.
   double? screenCoordinateX;
 
@@ -35,15 +32,12 @@ class RouteLabel {
   RouteLabelOrientationHorizontal? routeLabelOrientationHorizontal;
 
   /// The unique coordinates of the route.
-  List<ScreenCoordinate>? allScreenCoordinates;
-
-  /// The unique coordinates of the route.
   List<GHCoordinate> uniqueCoordinates;
 
-  /// The unique coordinates of the route.
+  /// The unique coordinates of the route that are in screen sight.
   List<ScreenCoordinate>? candidates;
 
-  /// The filtered candidates for the new route label.
+  /// The filtered candidates not intersecting route segments for the new route label.
   List<RouteLabelCandidate>? filteredCandidates;
 
   RouteLabel(

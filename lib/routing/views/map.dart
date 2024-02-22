@@ -1136,7 +1136,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       routeLabel.candidates = candidates;
     }
 
-    // Calculate intersections with route coordinates and screen bounds and filter those candidates.
+    // Calculate intersections with route segments and screen bounds and filter those candidates out.
     for (RouteLabel routeLabel in routeLabels) {
       // Filtered candidates in decreasing order.
       List<RouteLabelCandidate> filteredCandidates = [];
@@ -1171,7 +1171,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Choose route label boxes that do not intersect with each other.
     // Therefore go through route labels and find the first combination, that do not intersect for all route labels given.
 
-    // Test candidate combinations until one fits.
     // Hypothetically order of checks is as follows:
     /*
     x0 y0 z0
@@ -1180,7 +1179,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     x0 y0 z1
     x1 y1 z1
      */
-    // The assumption is that a combination can be quickly.
+    // The assumption is that a combination can be quickly and therefore can be simplified.
 
     // Calculate max depth for the algorithm.
     int maxLength = routeLabels.fold(
@@ -1192,34 +1191,40 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     bool combinationFound = false;
     if (maxLength > 0) {
+      // Width search through filtered candidates.
       for (int i = 0; i < maxLength; i++) {
         if (combinationFound) break;
 
         // Iterate every combination plus one for index j.
+        // Start at index -1 so that we have number route labels + 1 iterations.
         for (int j = -1; j < routeLabels.length; j++) {
           if (combinationFound) break;
 
           List<RouteLabelCandidate?> candidateCombination = [];
           // Fill candidates for iteration.
+          // Increment index where k == j.
           for (int k = 0; k < routeLabels.length; k++) {
-            if (routeLabels[k].filteredCandidates!.length > i + 1) {
-              candidateCombination.add(routeLabels[k].filteredCandidates![i + (k == j ? 1 : 0)]);
-            } else {
-              // Add last candidate.
-              if (routeLabels[k].filteredCandidates!.isNotEmpty) {
-                candidateCombination
-                    .add(routeLabels[k].filteredCandidates![routeLabels[k].filteredCandidates!.length - 1]);
+            if (routeLabels[k].filteredCandidates!.isNotEmpty) {
+              // Only increment if filtered candidate length is greater then i + 1.
+              // This means increment if there is one more element or use the last element.
+              if (routeLabels[k].filteredCandidates!.length > i + 1) {
+                candidateCombination.add(routeLabels[k].filteredCandidates![i + (k == j ? 1 : 0)]);
               } else {
-                // No candidate found.
-                candidateCombination.add(null);
+                // Add last candidate.
+                if (routeLabels[k].filteredCandidates!.isNotEmpty) {
+                  candidateCombination
+                      .add(routeLabels[k].filteredCandidates![routeLabels[k].filteredCandidates!.length - 1]);
+                }
               }
+            } else {
+              // No candidate found after filter for this route label.
+              candidateCombination.add(null);
             }
           }
           // Candidate list complete for this iteration.
 
-          // If candidate list contains only one element, just pick one.
+          // If candidate list contains only one element, just pick first one.
           // This can happen, when the second route is not visible.
-
           if (candidateCombination.length < 2) {
             // Has to be not null if only one element is set as candidate combination.
             routeLabels[0].screenCoordinateX = candidateCombination[0]!.screenCoordinate.x;
@@ -1233,14 +1238,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           }
 
           // Test combination with all label options and break when first combination fits.
-          // Reset new route label.
-          // Checks combinations and return true, if combination is found.
 
-          // Get orientation combinations
+          // Get working combination or null.
           List<RouteLabelBox?> foundCombination =
-              _findCombinationOrientations(candidateCombination[0], candidateCombination.slice(1), []);
+              _findCombinationForRouteLabelBoxes(candidateCombination[0], candidateCombination.slice(1), []);
 
-          // Stop searching and update route labels.
+          // Stop searching and update route labels if combination found.
           if (foundCombination.isNotEmpty) {
             // Update route labels.
             for (int i = 0; i < foundCombination.length; i++) {
@@ -1254,10 +1257,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           }
         }
       }
-    } else {
-      // no filtered route labels.
+    }
+
+    // No combination could be found.
+    if (!combinationFound) {
+      // No filtered route labels left.
+      // Update all route labels with null.
       for (RouteLabel routeLabel in routeLabels) {
-        routeLabel.screenCoordinateX = null;
+        routeLabel.updateScreenPosition(null, null);
         routeLabel.screenCoordinateY = null;
         routeLabel.routeLabelOrientationVertical = null;
         routeLabel.routeLabelOrientationHorizontal = null;
@@ -1271,19 +1278,25 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
-  // returns max 4 to the power of combinations. (which are max 2 currently so max 16 elements)
-  List<RouteLabelBox?> _findCombinationOrientations(RouteLabelCandidate? routeLabelCandidate,
+  /// Returns a list of route label box updates or empty list if no combination was found.
+  /// Recursive function that tests a list of candidates with a given candidate.
+  /// Hypothetically order: x1<->x2, x1<->x3, x2<->x3, done.
+  List<RouteLabelBox?> _findCombinationForRouteLabelBoxes(RouteLabelCandidate? routeLabelCandidate,
       List<RouteLabelCandidate?> leftCandidates, List<RouteLabelBox?> routeLabelBoxList) {
-    // End reached. Check combination.
+    // Nothing left to compare.
     if (leftCandidates.isEmpty) {
       if (routeLabelCandidate == null) {
         routeLabelBoxList.add(null);
-        return routeLabelBoxList;
+        // Check if combination intersects.
+        if (!_doesOrientationCombinationIntersect(routeLabelBoxList)) {
+          // Return route label box list if fits.
+          return routeLabelBoxList;
+        }
       } else {
         for (RouteLabelBox routeLabelBox in routeLabelCandidate.possibleBoxes) {
           // Add the current orientation.
           routeLabelBoxList.add(routeLabelBox);
-          // Recursive call of this function to go through the possible orientations.
+          // Check if combination intersects.
           if (!_doesOrientationCombinationIntersect(routeLabelBoxList)) {
             // Return route label box list on first fit.
             return routeLabelBoxList;
@@ -1291,7 +1304,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         }
       }
 
-      // Return empty list.
+      // No combination found, return empty list.
       return [];
     }
 
@@ -1299,7 +1312,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       routeLabelBoxList.add(null);
 
       List<RouteLabelBox?> workingRouteLabelBox =
-          _findCombinationOrientations(leftCandidates[0], leftCandidates.slice(1), routeLabelBoxList);
+          _findCombinationForRouteLabelBoxes(leftCandidates[0], leftCandidates.slice(1), routeLabelBoxList);
 
       // Returns the working orientation back to the first call of the function.
       if (workingRouteLabelBox.isNotEmpty) {
@@ -1311,7 +1324,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         routeLabelBoxList.add(routeLabelBox);
         // Recursive call of this function to go through the possible orientations.
         List<RouteLabelBox?> workingRouteLabelBox =
-            _findCombinationOrientations(leftCandidates[0], leftCandidates.slice(1), routeLabelBoxList);
+            _findCombinationForRouteLabelBoxes(leftCandidates[0], leftCandidates.slice(1), routeLabelBoxList);
 
         // Returns the working orientation back to the first call of the function.
         if (workingRouteLabelBox.isNotEmpty) {
@@ -1322,7 +1335,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return [];
   }
 
-  // Checks for a given list of orientations and candidates if the geometrically do not intersect.
+  /// Checks for a given list of route label boxes if they do not intersect geometrically.
   bool _doesOrientationCombinationIntersect(List<RouteLabelBox?> routeLabelBoxCombination) {
     // Does not intersect since only one element.
     if (routeLabelBoxCombination.length < 2) return false;
@@ -1343,7 +1356,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return _doesOrientationCombinationIntersect(leftRouteLabelBoxes);
   }
 
-  /// Checks if two route label boxes intersect.
+  /// Checks if two given route label boxes intersect.
   _doRouteLabelBoxesIntersect(RouteLabelBox? routeLabelBox1, RouteLabelBox? routeLabelBox2) {
     // Return false if one box is null since no route label will be shown.
     if (routeLabelBox1 == null || routeLabelBox2 == null) return false;
@@ -1425,7 +1438,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
 
     // Add a small offset accordingly to prevent filtering good candidates.
-    double pointOffset = RouteLabelIcon.cornerMargin * 0.05;
+    double pointOffset = RouteLabelIcon.cornerIconMargin * 0.05;
 
     // Top left box.
     RouteLabelBox topLeftBox = RouteLabelBox(candidate.x + pointOffset, candidate.y + pointOffset, routeLabelBoxWidth,
@@ -1522,7 +1535,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return possibleBoxes;
   }
 
-  // Helper function that returns a bool if a line intersects with a rect or not.
+  /// Returns a bool if a route segment intersects with a rect.
   bool _checkLineIntersectsRect(
       startXRect, startYRect, rectWidth, rectHeight, startXLine, startYLine, endXLine, endYLine) {
     // Check if line intersects with one side of the rect.
@@ -1550,7 +1563,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return false;
   }
 
-  // Helper function that checks if lines intersect.
+  /// Returns a bool on whether two lines intersect each other.
   bool _doLinesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
     // Calculate orientations for the line of 1 to 2 with the points 3 and 4.
     double orientation1 = _orientation(x1, y1, x2, y2, x3, y3);
@@ -1570,11 +1583,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return false;
   }
 
-  // Helper function that calculates the orientation of three points.
-  // Means if they are collinear, clockwise or anti clockwise oriented.
-  // 0 means collinear, <0 means anti clockwise and >0 means clockwise.
-  // Formula from:
-  // https://math.stackexchange.com/questions/405966/if-i-have-three-points-is-there-an-easy-way-to-tell-if-they-are-collinear
+  /// Helper function that calculates the orientation of three points.
+  /// Means if they are collinear, clockwise or anti clockwise oriented.
+  /// 0 means collinear, <0 means anti clockwise and >0 means clockwise.
+  /// Formula from:
+  /// https://math.stackexchange.com/questions/405966/if-i-have-three-points-is-there-an-easy-way-to-tell-if-they-are-collinear
   double _orientation(x1, y1, x2, y2, x3, y3) {
     return (y2 - y1) * (x3 - x2) - (y3 - y2) * (x2 - x1);
   }

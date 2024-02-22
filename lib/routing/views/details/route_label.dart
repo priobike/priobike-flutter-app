@@ -6,7 +6,17 @@ import 'package:priobike/routing/models/route_label.dart';
 class RouteLabelIcon extends StatelessWidget {
   final RouteLabel routeLabel;
 
-  static const double cornerMargin = 13.5;
+  /// The corner margin for the icon that is applied to the route label.
+  static const double cornerIconMargin = 10;
+
+  /// The corner icon size for the route label.
+  static const double cornerIconSize = 20;
+
+  /// The max width used for calculations.
+  static const double maxWidth = 160;
+
+  /// The max height used for calculations.
+  static const double maxHeight = 60;
 
   const RouteLabelIcon({super.key, required this.routeLabel});
 
@@ -47,20 +57,23 @@ class RouteLabelIcon extends StatelessWidget {
                 color: routeLabel.selected ? CI.route : CI.secondaryRoute,
               ),
               child: const SizedBox(
-                height: 20,
-                width: 20,
+                height: cornerIconSize,
+                width: cornerIconSize,
               ),
             ),
           ),
         ),
       ),
       Container(
-        // 1 pixel less then the height of the triangle so that the border gets hidden.
         margin: EdgeInsets.only(
-          left: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? cornerMargin : 0,
-          top: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? cornerMargin : 0,
-          right: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.right ? cornerMargin : 0,
-          bottom: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.bottom ? cornerMargin : 0,
+          left:
+              routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? cornerIconMargin : 0,
+          top: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? cornerIconMargin : 0,
+          right: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.right
+              ? cornerIconMargin
+              : 0,
+          bottom:
+              routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.bottom ? cornerIconMargin : 0,
         ),
         decoration: BoxDecoration(
           color: routeLabel.selected ? CI.route : CI.secondaryRoute,
@@ -68,6 +81,7 @@ class RouteLabelIcon extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             BoldSmall(
@@ -107,9 +121,10 @@ class PointerPainter extends CustomPainter {
 
   Path getTrianglePath(double x, double y) {
     return Path()
-      ..moveTo(x * 0.75, y)
-      ..lineTo(0, 0)
-      ..lineTo(x, y * 0.75);
+      ..moveTo(x * 0.6, y)
+      ..lineTo(x * 0.2, y * 0.3)
+      ..cubicTo(x * 0.2, y * 0.3, x * 0.2, y * 0.2, x * 0.3, y * 0.2)
+      ..lineTo(x, y * 0.6);
   }
 
   @override
