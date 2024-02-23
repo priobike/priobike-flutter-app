@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/routing/models/route_label.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/route_labels.dart';
+import 'package:priobike/routing/services/routing.dart';
 
-class RouteLabelIcon extends StatelessWidget {
-  final RouteLabel routeLabel;
+enum RouteLabelOrientationHorizontal { left, right }
+
+enum RouteLabelOrientationVertical { bottom, top }
+
+class RouteLabel extends StatefulWidget {
+  /// The id of the route.
+  final int routId;
+
+  /// The alignment of the route label.
+  final RouteLabelAlignment alignment;
+
+  const RouteLabel({
+    super.key,
+    required this.routId,
+    required this.alignment,
+  });
+
+  @override
+  RouteLabelState createState() => RouteLabelState();
+}
+
+class RouteLabelState extends State<RouteLabel> {
+  /// The selected state of the route label.
+  bool selected = false;
+
+  /// The time text of the route label.
+  String timeText = "";
+
+  /// The secondary text of the route label.
+  String? secondaryText;
 
   /// The corner margin for the icon that is applied to the route label.
   static const double cornerIconMargin = 10;
@@ -18,7 +48,18 @@ class RouteLabelIcon extends StatelessWidget {
   /// The max height used for calculations.
   static const double maxHeight = 60;
 
-  const RouteLabelIcon({super.key, required this.routeLabel});
+  @override
+  void initState() {
+    super.initState();
+
+    final routing = getIt<Routing>();
+
+    if (routing.selectedRoute != null) selected = routing.selectedRoute!.id == widget.routId;
+    if (routing.allRoutes != null && routing.allRoutes!.length > widget.routId) {
+      final route = routing.allRoutes![widget.routId];
+      timeText = route.timeText;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,23 +67,31 @@ class RouteLabelIcon extends StatelessWidget {
     bool flipX = false;
     bool flipY = false;
 
-    if (routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left) {
-      if (routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top) {
+    switch (widget.alignment) {
+      case RouteLabelAlignment.topLeft:
         pointerAlignment = Alignment.topLeft;
-      } else {
+        break;
+      case RouteLabelAlignment.bottomLeft:
         pointerAlignment = Alignment.bottomLeft;
         flipY = true;
-      }
-    } else {
-      if (routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top) {
+        break;
+      case RouteLabelAlignment.topRight:
         pointerAlignment = Alignment.topRight;
         flipX = true;
-      } else {
+        break;
+      case RouteLabelAlignment.bottomRight:
         pointerAlignment = Alignment.bottomRight;
         flipX = true;
         flipY = true;
-      }
+        break;
     }
+
+    bool top = widget.alignment == RouteLabelAlignment.topLeft || widget.alignment == RouteLabelAlignment.topRight;
+    bool bottom =
+        widget.alignment == RouteLabelAlignment.bottomLeft || widget.alignment == RouteLabelAlignment.bottomRight;
+    bool left = widget.alignment == RouteLabelAlignment.topLeft || widget.alignment == RouteLabelAlignment.bottomLeft;
+    bool right =
+        widget.alignment == RouteLabelAlignment.topRight || widget.alignment == RouteLabelAlignment.bottomRight;
 
     return Stack(children: [
       Positioned.fill(
@@ -54,7 +103,7 @@ class RouteLabelIcon extends StatelessWidget {
             child: CustomPaint(
               painter: PointerPainter(
                 context: context,
-                color: routeLabel.selected ? CI.route : CI.secondaryRoute,
+                color: selected ? CI.route : CI.secondaryRoute,
               ),
               child: const SizedBox(
                 height: cornerIconSize,
@@ -66,17 +115,13 @@ class RouteLabelIcon extends StatelessWidget {
       ),
       Container(
         margin: EdgeInsets.only(
-          left:
-              routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.left ? cornerIconMargin : 0,
-          top: routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.top ? cornerIconMargin : 0,
-          right: routeLabel.routeLabelOrientationHorizontal == RouteLabelOrientationHorizontal.right
-              ? cornerIconMargin
-              : 0,
-          bottom:
-              routeLabel.routeLabelOrientationVertical == RouteLabelOrientationVertical.bottom ? cornerIconMargin : 0,
+          left: left ? cornerIconMargin : 0,
+          top: top ? cornerIconMargin : 0,
+          right: right ? cornerIconMargin : 0,
+          bottom: bottom ? cornerIconMargin : 0,
         ),
         decoration: BoxDecoration(
-          color: routeLabel.selected ? CI.route : CI.secondaryRoute,
+          color: selected ? CI.route : CI.secondaryRoute,
           borderRadius: BorderRadius.circular(7.5),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -85,17 +130,17 @@ class RouteLabelIcon extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             BoldSmall(
-              text: routeLabel.timeText,
+              text: timeText,
               context: context,
               textAlign: TextAlign.center,
-              color: routeLabel.selected ? Colors.white : Colors.black,
+              color: selected ? Colors.white : Colors.black,
             ),
-            if (routeLabel.secondaryText != null)
+            if (secondaryText != null)
               Small(
-                text: routeLabel.secondaryText!,
+                text: secondaryText!,
                 context: context,
                 textAlign: TextAlign.center,
-                color: routeLabel.selected ? Colors.white : Colors.black,
+                color: selected ? Colors.white : Colors.black,
               ),
           ],
         ),
