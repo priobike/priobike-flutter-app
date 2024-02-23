@@ -1,19 +1,14 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
-import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
-import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
-import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/services/settings.dart';
 
 enum WarnType {
   warnSensitiveBikes,
@@ -26,12 +21,6 @@ class Discomforts with ChangeNotifier {
   /// The found discomforts.
   List<DiscomfortSegment>? foundDiscomforts;
 
-  /// The description for user reported dangers.
-  static const userReportedDangerDescription = "Unkomfortabler Abschnitt";
-
-  /// The lower threshold for the weight of user reported discomforts under which they are not shown.
-  static const userReportedDiscomfortWeightThreshold = 5;
-
   Discomforts({
     this.foundDiscomforts,
   });
@@ -40,46 +29,6 @@ class Discomforts with ChangeNotifier {
   Future<void> reset() async {
     foundDiscomforts = null;
     notifyListeners();
-  }
-
-  /// Load dangers along a route.
-  Future<List<DiscomfortSegment>> fetchUserReportedDangerSpots(Route route) async {
-    final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
-    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
-    final request = {
-      "route": route.path.points.coordinates.map((e) => {"lat": e.lat, "lon": e.lon}).toList(),
-    };
-    try {
-      final response = await Http.post(endpoint, body: json.encode(request)).timeout(const Duration(seconds: 4));
-      if (response.statusCode != 200) {
-        log.e("Error fetching dangers from $endpoint: ${response.body}");
-      } else {
-        log.i("Fetched dangers from $endpoint");
-        final decoded = json.decode(response.body);
-        final List<DiscomfortSegment> userReportedDangerSpots = List.empty(growable: true);
-        for (final danger in decoded["dangers"]) {
-          final weight = danger["weight"] ?? 0;
-          final List<LatLng> coordinates = List.empty(growable: true);
-          for (final point in danger["coordinates"]) {
-            coordinates.add(LatLng(point[1], point[0]));
-          }
-          final snapper = Snapper(nodes: route.route, position: coordinates[0]);
-          userReportedDangerSpots.add(DiscomfortSegment(
-            description: userReportedDangerDescription,
-            coordinates: coordinates,
-            weight: weight,
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color(0xFF9F2B68),
-          ));
-        }
-        return userReportedDangerSpots;
-      }
-    } catch (error) {
-      final hint = "Error fetching danger spots from $endpoint: $error";
-      log.e(hint);
-    }
-    return [];
   }
 
   /// Get the coordinates for a given segment.
@@ -93,7 +42,6 @@ class Discomforts with ChangeNotifier {
   }
 
   Future<void> findDiscomforts(Route route) async {
-    final List<DiscomfortSegment> userReportedDangerSpots = await fetchUserReportedDangerSpots(route);
     final path = route.path;
 
     final profile = getIt<Profile>();
@@ -301,40 +249,8 @@ class Discomforts with ChangeNotifier {
       }
     }
 
-    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed, ...userReportedDangerSpots];
+    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
     foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
     notifyListeners();
-  }
-
-  /// Report a new discomfort.
-  Future<void> submitNew(Snap? snap, String type) async {
-    if (snap == null) {
-      log.w("Cannot report a $type without a position.");
-      return;
-    }
-    log.i("Reporting a new $type.");
-    var category = "PrioBike_uncomfortable_segment";
-    if (type == "recommendation") {
-      category = "PrioBike_comfortable_segment";
-    }
-    final discomfort = {
-      "lat": snap.position.latitude,
-      "lon": snap.position.longitude,
-      "category": category,
-    };
-    final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
-    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/post/?type=$type');
-    try {
-      final response = await Http.post(endpoint, body: json.encode(discomfort)).timeout(const Duration(seconds: 4));
-      if (response.statusCode != 200) {
-        log.e("Error sending $type to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
-      } else {
-        log.i("Sent $type to $endpoint");
-      }
-    } catch (error) {
-      final hint = "Error sending $type to $endpoint: $error";
-      log.e(hint);
-    }
   }
 }
