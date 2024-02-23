@@ -234,7 +234,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         // Init with null to make sure bearing calculation and style adjustments will be made.
         propertiesBySgId[entries.key] = {
           "greenNow": null,
-          "countdown": null,
         };
         // Check if we have all necessary information.
         if (entries.value.greentimeThreshold == -1) continue;

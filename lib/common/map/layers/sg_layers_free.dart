@@ -101,6 +101,7 @@ class AllTrafficLightsPredictionLayer {
           textHaloWidth: 1,
           textAnchor: mapbox.TextAnchor.BOTTOM,
           textOffset: [0, -1],
+          textOpacity: 0.8,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -158,14 +159,6 @@ class AllTrafficLightsPredictionLayer {
           jsonEncode([
             "get",
             "textSize",
-          ]));
-
-      await mapController.style.setStyleLayerProperty(
-          layerId,
-          'text-opacity',
-          jsonEncode([
-            "get",
-            "opacity",
           ]));
     }
   }
