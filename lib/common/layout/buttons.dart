@@ -287,10 +287,7 @@ class BigButtonPrimary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: onPressed != null
-          ? fillColor ?? Theme.of(context).colorScheme.surface
-          : (fillColor?.withOpacity(disabledOpacity) ??
-              Theme.of(context).colorScheme.surface.withOpacity(disabledOpacity)),
+      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.surfaceTint : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -395,9 +392,7 @@ class BigButtonSecondary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: onPressed != null
-          ? fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5)
-          : (fillColor?.withOpacity(disabledOpacity) ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5)),
+      fillColor: fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.onSecondary : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
