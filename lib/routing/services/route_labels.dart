@@ -217,20 +217,22 @@ class RouteLabelManager extends ChangeNotifier {
   ) {
     bool last = (possibleRouteLabelScreenCoordinates.length == 1);
     int n = possibleRouteLabelScreenCoordinates[0].length;
+    final previousCombination = combination.toList();
 
     for (int i = 0; i < n; i++) {
       ManagedRouteLabelCandidate candidate = possibleRouteLabelScreenCoordinates[0][i];
-      combination.add(candidate);
+      final combinationToCheck = previousCombination.toList();
+      combinationToCheck.add(candidate);
       if (last) {
-        if (_isValidCombination(combination, indicesToCheckPerCombination)) {
-          return combination;
+        if (_isValidCombination(combinationToCheck, indicesToCheckPerCombination)) {
+          return combinationToCheck;
         } else {
           return null;
         }
       } else {
         final completeCombination = _getValidCombination(
           possibleRouteLabelScreenCoordinates.sublist(1),
-          combination,
+          combinationToCheck,
           indicesToCheckPerCombination,
         );
         if (completeCombination != null) {
