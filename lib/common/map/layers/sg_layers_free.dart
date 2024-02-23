@@ -40,8 +40,8 @@ class AllTrafficLightsPredictionLayer {
           double sgBearing = freeRide.sgBearings![sg]!;
           // Fix user bearing to compare with sg bearing.
           if (userBearing > 180) {
-            // SG bearing goes form -180 to 180.
-            // Map to 360.
+            // SG bearing goes from -180 to 180.
+            // Map to 180 to -180.
             userBearing = -(180 - userBearing % 180);
           }
 
