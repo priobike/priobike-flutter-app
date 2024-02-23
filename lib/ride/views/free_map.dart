@@ -260,14 +260,12 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
           "greenNow": greenNow,
           "countdown": secondsToPhaseChange,
         };
-
-        // Update the layer.
-        final heading = positioning.lastPosition?.heading;
-        AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: heading)
-            .update(mapController!);
-        AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: heading)
-            .update(mapController!);
       }
+      // Update the layer.
+      final heading = positioning.lastPosition?.heading;
+      AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: heading).update(mapController!);
+      AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: heading)
+          .update(mapController!);
     });
   }
 

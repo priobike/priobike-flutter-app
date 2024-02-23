@@ -152,6 +152,7 @@ class AllTrafficLightsPredictionLayer {
             "get",
             "textSize",
           ]));
+
       await mapController.style.setStyleLayerProperty(
           layerId,
           'text-opacity',
