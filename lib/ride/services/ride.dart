@@ -13,10 +13,13 @@ import 'package:priobike/ride/services/predictor.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../positioning/models/snap.dart';
+import '../../routing/messages/graphhopper.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -74,6 +77,8 @@ class Ride with ChangeNotifier {
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
+
+  int currentInstruction = 0;
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -226,6 +231,16 @@ class Ride with ChangeNotifier {
     this.onNewPredictionStatusDuringRide = onNewPredictionStatusDuringRide;
   }
 
+  bool isPointInCurrentSergment(Snap snap) {
+    var segmentStartPoint = route!.path.instructions[currentInstruction].interval.first;
+    var segmentEndPoint = route!.path.instructions[currentInstruction].interval.last;
+    var segmentStartCoordinates = route!.path.points.coordinates[segmentStartPoint];
+    var segmentEndCoordinates = route!.path.points.coordinates[segmentEndPoint];
+    double crossproduct = (segmentStartCoordinates.lon - snap.position.longitude) * (segmentEndCoordinates.lat - snap.position.latitude)
+        - (segmentEndCoordinates.lon - snap.position.longitude) * (segmentStartCoordinates.lat - snap.position.latitude);
+    return crossproduct.abs() < 0.0000001;
+  }
+
   /// Update the position.
   Future<void> updatePosition() async {
     if (!navigationIsActive) return;
@@ -245,6 +260,28 @@ class Ride with ChangeNotifier {
       if ((b - snap.bearing).abs() > bearingThreshold) break;
     }
     this.calcDistanceToNextTurn = calcDistanceToNextTurn;
+
+    // var instructionList = route!.path.instructions;
+    // var currentInstruction = instructionList.firstWhere((element) => element.interval.first. == snap.)
+
+    if (currentInstruction < route!.path.instructions.length && isPointInCurrentSergment(snap)) {
+      var instruction = route!.path.instructions[currentInstruction];
+      currentInstruction++;
+    }
+    if (currentInstruction == route!.path.instructions.length) {
+      currentInstruction = 0;
+      // TODO: need to reset currentSegment after ending of ride (better than here)
+    }
+
+    // if (this.calcDistanceToNextTurn! < 100) {
+    //   var instructions = route!.path.instructions;
+    //
+    //   List<String> points = [];
+    //   for (GHInstruction i in instructions) {
+    //     points.add("${i.interval.first} + ${i.interval.last}");
+    //   }
+    //   String huhu = "huhu";
+    // }
 
     // Find the next signal group.
     Sg? nextSg;
