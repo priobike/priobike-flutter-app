@@ -856,13 +856,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     if (features.isNotEmpty) {
-      // Prioritize discomforts if there are multiple features.
-      final discomfortFeature =
-          features.firstWhereOrNull((element) => element?.feature['id']?.toString().startsWith("discomfort-") ?? false);
-      if (discomfortFeature != null) {
-        onFeatureTapped(discomfortFeature);
-        return;
-      }
       onFeatureTapped(features[0]!);
       return;
     }

@@ -384,7 +384,6 @@ class DiscomfortsLayer {
 
       features.add(
         {
-          "id": "discomfort-${e.key}", // Required for click listener.
           "type": "Feature",
           "properties": {
             "description": e.value.description,
