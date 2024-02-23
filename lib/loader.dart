@@ -74,14 +74,6 @@ class LoaderState extends State<Loader> {
     // Loader-functions for non-critical services should handle their own errors
     // while critical services should throw their errors.
 
-    // Non critical services:
-    final loadStatus = getIt<LoadStatus>();
-    loadStatus.sendAppStartNotification();
-    loadStatus.fetch();
-    getIt<News>().getArticles();
-    getIt<PredictionStatusSummary>().fetch();
-    getIt<Weather>().fetch();
-
     // Critical services:
     try {
       await Migration.migrate();
@@ -119,6 +111,14 @@ class LoaderState extends State<Loader> {
       settings.incrementConnectionErrorCounter();
       return;
     }
+
+    // Non critical services:
+    final loadStatus = getIt<LoadStatus>();
+    loadStatus.sendAppStartNotification();
+    loadStatus.fetch();
+    getIt<News>().getArticles();
+    getIt<PredictionStatusSummary>().fetch();
+    getIt<Weather>().fetch();
 
     // Finish loading.
     setState(() {
