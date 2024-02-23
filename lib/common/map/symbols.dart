@@ -68,6 +68,11 @@ class SymbolLoader {
     await add("route-label-secondary-right", "assets/images/route-label-secondary-right.png", 200, 63);
     await add("route-label-secondary-top", "assets/images/route-label-secondary-top.png", 150, 113);
     await add("route-label-secondary-bottom", "assets/images/route-label-secondary-bottom.png", 150, 113);
+
+    await add("free-ride-green", "assets/images/trafficlights/free-ride-green.png", 200, 200);
+    await add("free-ride-red", "assets/images/trafficlights/free-ride-red.png", 200, 200);
+    await add("free-ride-none-light", "assets/images/trafficlights/free-ride-none-light.png", 200, 200);
+    await add("free-ride-none-dark", "assets/images/trafficlights/free-ride-none-dark.png", 200, 200);
   }
 
   /// Adds an asset image to the currently displayed style

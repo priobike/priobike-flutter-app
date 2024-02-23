@@ -49,7 +49,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
-    AllTrafficLightsLayer.layerId,
     AllTrafficLightsPredictionGeometryLayer.layerId,
     AllTrafficLightsPredictionLayer.layerId,
     AllTrafficLightsPredictionLayer.countdownLayerId,
@@ -205,10 +204,10 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
     await showUserLocationIndicator();
 
-    var index = await getIndex(AllTrafficLightsLayer.layerId);
-    if (!mounted) return;
-    await AllTrafficLightsLayer().install(mapController!, at: index);
-    index = await getIndex(AllTrafficLightsPredictionGeometryLayer.layerId);
+    // var index = await getIndex(AllTrafficLightsLayer.layerId);
+    // if (!mounted) return;
+    // await AllTrafficLightsLayer().install(mapController!, at: index);
+    var index = await getIndex(AllTrafficLightsPredictionGeometryLayer.layerId);
     if (!mounted) return;
     await AllTrafficLightsPredictionGeometryLayer().install(mapController!, at: index);
     index = await getIndex(AllTrafficLightsPredictionLayer.layerId);
