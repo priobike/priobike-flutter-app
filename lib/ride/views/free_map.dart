@@ -231,6 +231,11 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       if (mapController == null) return;
       final Map<String, dynamic> propertiesBySgId = {};
       for (final entries in freeRide.receivedPredictions.entries) {
+        // Init with null to make sure bearing calculation and style adjustments will be made.
+        propertiesBySgId[entries.key] = {
+          "greenNow": null,
+          "countdown": null,
+        };
         // Check if we have all necessary information.
         if (entries.value.greentimeThreshold == -1) continue;
         if (entries.value.predictionQuality == -1) continue;
