@@ -161,6 +161,20 @@ class GHCoordinate {
         lat,
         if (elevation != null) elevation!,
       ];
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is GHCoordinate &&
+        other.runtimeType == runtimeType &&
+        other.lon == lon &&
+        other.lat == lat &&
+        other.elevation == elevation;
+  }
+
+  @override
+  int get hashCode => Object.hash(lon, lat, elevation);
 }
 
 class GHBoundingBox {

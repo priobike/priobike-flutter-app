@@ -4,7 +4,6 @@ import 'package:priobike/common/lock.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/route_label.dart';
 
@@ -152,9 +151,8 @@ class RouteLabelManager extends ChangeNotifier {
   }
 
   /// Calculates all possible route label candidates for a given route independent of other route labels.
-  Future<List<ManagedRouteLabelCandidate>> _getPossibleRouteLabelCandidates(Route route) async {
+  Future<List<ManagedRouteLabelCandidate>> _getPossibleRouteLabelCandidates(Set<GHCoordinate> coordinates) async {
     List<ManagedRouteLabelCandidate> candidates = [];
-    Set<ScreenCoordinate> uniqueScreenCoordinates = {};
     List<RouteLabelAlignment> alignments = [
       RouteLabelAlignment.topLeft,
       RouteLabelAlignment.topRight,
@@ -162,18 +160,13 @@ class RouteLabelManager extends ChangeNotifier {
       RouteLabelAlignment.bottomRight,
     ];
 
-    for (GHCoordinate coordinate in route.path.points.coordinates) {
+    for (GHCoordinate coordinate in coordinates) {
       ScreenCoordinate screenCoordinate = await mapController.pixelForCoordinate(
         Point(
           coordinates: Position(coordinate.lon, coordinate.lat),
         ).toJson(),
       );
 
-      // Avoid duplicate screen coordinates.
-      if (uniqueScreenCoordinates.contains(screenCoordinate)) {
-        continue;
-      }
-      uniqueScreenCoordinates.add(screenCoordinate);
       for (final alignment in alignments) {
         final candidate = ManagedRouteLabelCandidate(screenCoordinate, alignment);
         log.i(_routeLabelCandidateInBounds(candidate));
@@ -260,9 +253,33 @@ class RouteLabelManager extends ChangeNotifier {
       // Possible route label screen coordinates for all routes.
       List<List<ManagedRouteLabelCandidate>> possibleRouteLabelCandidates = [];
 
-      // Preprocess data and calculate candidates for the route labels.
+      // Find disjoint parts of both routes.
+      List<Set<GHCoordinate>> allCoordinates = [];
+      List<Set<GHCoordinate>> disjointParts = [];
+
       for (final route in routing.allRoutes!) {
-        possibleRouteLabelCandidates.add(await _getPossibleRouteLabelCandidates(route));
+        allCoordinates.add(route.path.points.coordinates.toSet());
+      }
+
+      Set<GHCoordinate> intersection = {};
+      for (int i = 0; i < allCoordinates.length; i++) {
+        if (i >= allCoordinates.length - 1) {
+          break;
+        }
+        if (intersection.isEmpty) {
+          intersection = allCoordinates[i].intersection(allCoordinates[i + 1]);
+        } else {
+          intersection = intersection.intersection(allCoordinates[i + 1]);
+        }
+      }
+
+      for (int i = 0; i < allCoordinates.length; i++) {
+        disjointParts.add(allCoordinates[i].difference(intersection));
+      }
+
+      // Preprocess data and calculate candidates for the route labels.
+      for (final uniqueRouteCoordinates in disjointParts) {
+        possibleRouteLabelCandidates.add(await _getPossibleRouteLabelCandidates(uniqueRouteCoordinates));
       }
 
       // Choose route label coordinates where all route labels do not intersect with each other (Brut Force).
