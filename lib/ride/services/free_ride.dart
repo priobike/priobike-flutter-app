@@ -24,9 +24,6 @@ class FreeRide with ChangeNotifier {
   /// Whether the service is currently loading data.
   bool isLoading = false;
 
-  /// The timer which triggers updates to all SGs that should receive predictions.
-  Timer? sgUpdateTimer;
-
   /// All SGs.
   Map<String, LatLng>? sgs;
 
@@ -286,8 +283,6 @@ class FreeRide with ChangeNotifier {
 
   /// Reset the service.
   Future<void> reset() async {
-    sgUpdateTimer?.cancel();
-    sgUpdateTimer = null;
     isLoading = false;
     sgs = null;
     sgGeometries = null;
