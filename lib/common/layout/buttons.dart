@@ -7,6 +7,7 @@ const double disabledOpacity = 0.5;
 
 /// The value of the lightness of a disabled button.
 const double disabledLightness = 0.9;
+const double disabledSaturation = 0.75;
 
 /// A small icon button (primary).
 class SmallIconButtonPrimary extends StatelessWidget {
@@ -256,6 +257,9 @@ class BigButtonPrimary extends StatelessWidget {
   /// The optional fill color of the button.
   final Color? fillColor;
 
+  /// The disabled fill color of the button.
+  final Color? disabledColor;
+
   /// The optional splash color of the button.
   final Color? splashColor;
 
@@ -280,6 +284,7 @@ class BigButtonPrimary extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.fillColor,
+    this.disabledColor,
     this.splashColor,
     this.iconColor,
     this.textColor,
@@ -290,11 +295,19 @@ class BigButtonPrimary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final disabledColor = HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.surface)
-        .withLightness(disabledLightness)
-        .toColor();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final defaultDisabledColor = isDark
+        ? HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.surface)
+            .withSaturation(disabledSaturation)
+            .toColor()
+        : HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.surface)
+            .withLightness(disabledLightness)
+            .toColor();
+
     return RawMaterialButton(
-      fillColor: onPressed != null ? fillColor ?? Theme.of(context).colorScheme.surface : disabledColor,
+      fillColor: onPressed != null
+          ? fillColor ?? Theme.of(context).colorScheme.surface
+          : disabledColor ?? defaultDisabledColor,
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.surfaceTint : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -364,6 +377,9 @@ class BigButtonSecondary extends StatelessWidget {
   /// The optional fill color of the button.
   final Color? fillColor;
 
+  /// The disabled fill color of the button.
+  final Color? disabledColor;
+
   /// The optional splash color of the button.
   final Color? splashColor;
 
@@ -388,6 +404,7 @@ class BigButtonSecondary extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.fillColor,
+    this.disabledColor,
     this.splashColor,
     this.iconColor,
     this.textColor,
@@ -398,12 +415,19 @@ class BigButtonSecondary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final disabledColor = HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.onTertiary)
-        .withLightness(disabledLightness)
-        .toColor();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final defaultDisabledColor = isDark
+        ? HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5))
+            .withSaturation(disabledSaturation)
+            .toColor()
+        : HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5))
+            .withLightness(disabledLightness)
+            .toColor();
+
     return RawMaterialButton(
-      fillColor:
-          onPressed != null ? fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5) : disabledColor,
+      fillColor: onPressed != null
+          ? fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5)
+          : disabledColor ?? defaultDisabledColor,
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.onSecondary : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -480,6 +504,9 @@ class BigButtonTertiary extends StatelessWidget {
   /// The optional fill color of the button.
   final Color? fillColor;
 
+  /// The disabled fill color of the button.
+  final Color? disabledColor;
+
   /// The optional splash color of the button.
   final Color? splashColor;
 
@@ -504,6 +531,7 @@ class BigButtonTertiary extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.fillColor,
+    this.disabledColor,
     this.splashColor,
     this.iconColor,
     this.textColor,
@@ -514,8 +542,19 @@ class BigButtonTertiary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final defaultDisabledColor = isDark
+        ? HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5))
+            .withSaturation(disabledSaturation)
+            .toColor()
+        : HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5))
+            .withLightness(disabledLightness)
+            .toColor();
+
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
+      fillColor: onPressed != null
+          ? fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5)
+          : disabledColor ?? defaultDisabledColor,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
