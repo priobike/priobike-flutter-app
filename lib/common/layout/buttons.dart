@@ -1,8 +1,12 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 /// The value of the opacity of a disabled button.
 const double disabledOpacity = 0.5;
+
+/// The value of the lightness of a disabled button.
+const double disabledLightness = 0.9;
 
 /// A small icon button (primary).
 class SmallIconButtonPrimary extends StatelessWidget {
@@ -286,8 +290,11 @@ class BigButtonPrimary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final disabledColor = HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.surface)
+        .withLightness(disabledLightness)
+        .toColor();
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
+      fillColor: onPressed != null ? fillColor ?? Theme.of(context).colorScheme.surface : disabledColor,
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.surfaceTint : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -391,8 +398,12 @@ class BigButtonSecondary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final disabledColor = HSLColor.fromColor(fillColor ?? Theme.of(context).colorScheme.onTertiary)
+        .withLightness(disabledLightness)
+        .toColor();
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
+      fillColor:
+          onPressed != null ? fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5) : disabledColor,
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.onSecondary : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
