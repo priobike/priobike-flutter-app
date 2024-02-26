@@ -6,7 +6,6 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
@@ -167,12 +166,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The bool that holds the state of map moving.
   bool isMapMoving = false;
 
-  /// The relative vertical margin in pixel for the route label to be displayed.
-  late double widthMid;
-
-  /// The relative vertical margin in pixel for the route label to be displayed.
-  late double heightMid;
-
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -271,18 +264,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
-
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      // Calculate the relative margin for the pio pop up.
-      final frame = MediaQuery.of(context);
-      poiPopUpMarginLeft = frame.size.width * poiScreenMargin;
-      poiPopUpMarginRight = frame.size.width - frame.size.width * poiScreenMargin;
-      poiPopUpMarginTop = frame.size.height * poiScreenMargin;
-      poiPopUpMarginBottom = frame.size.height - frame.size.height * poiScreenMargin;
-
-      widthMid = frame.size.width / 2;
-      heightMid = frame.size.height / 2;
-    });
   }
 
   @override
@@ -775,11 +756,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final routeLabelMarginTop = frame.padding.top;
     // Fit initial bottom sheet size of 128px.
     final routeLabelMarginBottom = frame.size.height - 128;
+    final widthMid = frame.size.width / 2;
+    final heightMid = frame.size.height / 2;
     routeLabelManager = RouteLabelManager(
       routeLabelMarginLeft: routeLabelMarginLeft,
       routeLabelMarginRight: routeLabelMarginRight,
       routeLabelMarginTop: routeLabelMarginTop,
       routeLabelMarginBottom: routeLabelMarginBottom,
+      widthMid: widthMid,
+      heightMid: heightMid,
       mapController: mapController!,
     );
   }
@@ -1570,7 +1555,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                     },
                     child: RouteLabel(
                       routId: managedRouteLabel.routeId,
-                      alignment: managedRouteLabel.alignment,
+                      alignment: managedRouteLabel.alignment!,
                     ),
                   ),
                 ),
