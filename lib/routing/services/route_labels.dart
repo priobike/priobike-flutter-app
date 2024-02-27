@@ -152,73 +152,6 @@ class RouteLabelManager extends ChangeNotifier {
     required this.mapController,
   });
 
-  /// Returns a List of lists of unique coordinates for every route.
-  /// Could be placed in Route service but since we don't always need this we can leave it here.
-  List<List<GHCoordinate>> getUniqueCoordinatesPerRoute(List<Route> routes) {
-    List<HashSet<GHCoordinate>> coordinatesPerRoute = [];
-
-    for (final route in routes) {
-      HashSet<GHCoordinate> coordinates = HashSet();
-      for (GHCoordinate coordinate in route.path.points.coordinates) {
-        coordinates.add(coordinate);
-      }
-      coordinatesPerRoute.add(coordinates);
-    }
-
-    List<List<GHCoordinate>> uniqueCoordinatesPerRoute = [];
-
-    for (final coordinates in coordinatesPerRoute) {
-      List<GHCoordinate> uniqueCoordinates = [];
-      for (final coordinate in coordinates) {
-        bool unique = true;
-        for (final coordinatesToBeChecked in coordinatesPerRoute) {
-          if (coordinatesToBeChecked != coordinates) {
-            if (coordinatesToBeChecked.contains(coordinate)) {
-              unique = false;
-              break;
-            }
-          }
-        }
-        if (unique) {
-          uniqueCoordinates.add(coordinate);
-        }
-      }
-      uniqueCoordinatesPerRoute.add(uniqueCoordinates);
-    }
-
-    return uniqueCoordinatesPerRoute;
-  }
-
-  /// Returns a bool whether the given screen coordinate fits for the route label margins.
-  bool _inScreenBounds(ScreenCoordinate screenCoordinate) {
-    if (screenCoordinate.x > routeLabelMarginLeft &&
-        screenCoordinate.x < routeLabelMarginRight &&
-        screenCoordinate.y > routeLabelMarginTop &&
-        screenCoordinate.y < routeLabelMarginBottom) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /// Calculates the screen coordinates for a given route label.
-  Future<List<ScreenCoordinate>> _getVisibleScreenCoordinates(List<GHCoordinate> coordinates) async {
-    List<ScreenCoordinate> screenCoordinates = [];
-    for (final coordinate in coordinates) {
-      final screenCoordinate = await mapController.pixelForCoordinate(
-        Point(
-          coordinates: Position(coordinate.lon, coordinate.lat),
-        ).toJson(),
-      );
-
-      if (_inScreenBounds(screenCoordinate)) {
-        screenCoordinates.add(screenCoordinate);
-      }
-    }
-
-    return screenCoordinates;
-  }
-
   /// Function that resets the route labels.
   void resetService() {
     managedRouteLabels.clear();
@@ -317,6 +250,75 @@ class RouteLabelManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns a List of lists of unique coordinates for every route.
+  List<List<GHCoordinate>> getUniqueCoordinatesPerRoute(List<Route> routes) {
+    List<HashSet<GHCoordinate>> coordinatesPerRoute = [];
+
+    for (final route in routes) {
+      HashSet<GHCoordinate> coordinates = HashSet();
+      for (GHCoordinate coordinate in route.path.points.coordinates) {
+        coordinates.add(coordinate);
+      }
+      coordinatesPerRoute.add(coordinates);
+    }
+
+    List<List<GHCoordinate>> uniqueCoordinatesPerRoute = [];
+
+    for (final coordinates in coordinatesPerRoute) {
+      List<GHCoordinate> uniqueCoordinates = [];
+      for (final coordinate in coordinates) {
+        bool unique = true;
+        for (final coordinatesToBeChecked in coordinatesPerRoute) {
+          if (coordinatesToBeChecked != coordinates) {
+            if (coordinatesToBeChecked.contains(coordinate)) {
+              unique = false;
+              break;
+            }
+          }
+        }
+        if (unique) {
+          uniqueCoordinates.add(coordinate);
+        }
+      }
+      uniqueCoordinatesPerRoute.add(uniqueCoordinates);
+    }
+
+    return uniqueCoordinatesPerRoute;
+  }
+
+  /// Returns a bool whether the given screen coordinate fits for the route label margins.
+  bool _inScreenBounds(ScreenCoordinate screenCoordinate) {
+    if (screenCoordinate.x > routeLabelMarginLeft &&
+        screenCoordinate.x < routeLabelMarginRight &&
+        screenCoordinate.y > routeLabelMarginTop &&
+        screenCoordinate.y < routeLabelMarginBottom) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /// Calculates the visible screen coordinates for a given list of route coordinates.
+  Future<List<ScreenCoordinate>> _getVisibleScreenCoordinates(List<GHCoordinate> coordinates) async {
+    List<ScreenCoordinate> screenCoordinates = [];
+    for (final coordinate in coordinates) {
+      final screenCoordinate = await mapController.pixelForCoordinate(
+        Point(
+          coordinates: Position(coordinate.lon, coordinate.lat),
+        ).toJson(),
+      );
+
+      if (_inScreenBounds(screenCoordinate)) {
+        screenCoordinates.add(screenCoordinate);
+      }
+    }
+
+    return screenCoordinates;
+  }
+
+  /// Recursive implementation of a depth search through all possible combinations
+  /// of route label candidates until a valid combination is found.
+  /// Also considers cases where no route label candidate is available for a route.
   List<ManagedRouteLabelCandidate?>? _getValidCombination(
     List<List<ManagedRouteLabelCandidate>> possibleRouteLabelCandidates,
     List<ManagedRouteLabelCandidate?> combination,
