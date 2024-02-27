@@ -89,7 +89,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The associated tutorial service, which is injected by the provider.
   late Tutorial tutorial;
 
-  /// The assoiated route label management service, which is created in the init.
+  /// The associated route label management service, which is created in the init.
   RouteLabelManager? routeLabelManager;
 
   /// A map controller for the map.
