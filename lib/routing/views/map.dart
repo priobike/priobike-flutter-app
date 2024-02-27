@@ -238,6 +238,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     updateRouteMapLayers();
     fitCameraToRouteBounds();
 
+    routeLabelManager?.resetService();
     routeLabelManager?.updateRouteLabels();
   }
 
@@ -1114,6 +1115,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is executed when the camera movement changes.
   Future<void> onMapIdle(MapIdleEventData mapIdleEventData) async {
+    setState(() {
+      isMapMoving = false;
+    });
     routeLabelManager?.updateRouteLabels();
   }
 
@@ -1531,24 +1535,22 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
 
         if (routeLabelManager != null && routeLabelManager!.managedRouteLabels.isNotEmpty)
-          ...routeLabelManager!.managedRouteLabels.map(
-            (ManagedRouteLabel managedRouteLabel) => Positioned(
-              left: managedRouteLabel.screenCoordinateX,
-              top: managedRouteLabel.screenCoordinateY,
-              child: FractionalTranslation(
-                translation: Offset(
-                  managedRouteLabel.alignment == RouteLabelAlignment.topLeft ||
-                          managedRouteLabel.alignment == RouteLabelAlignment.bottomLeft
-                      ? 0
-                      : -1,
-                  managedRouteLabel.alignment == RouteLabelAlignment.topLeft ||
-                          managedRouteLabel.alignment == RouteLabelAlignment.topRight
-                      ? 0
-                      : -1,
-                ),
-                child: AnimatedOpacity(
-                  opacity: 1,
-                  duration: const Duration(milliseconds: 150),
+          ...routeLabelManager!.managedRouteLabels.map((ManagedRouteLabel managedRouteLabel) {
+            if (managedRouteLabel.ready()) {
+              return Positioned(
+                left: managedRouteLabel.screenCoordinateX,
+                top: managedRouteLabel.screenCoordinateY,
+                child: FractionalTranslation(
+                  translation: Offset(
+                    managedRouteLabel.alignment == RouteLabelAlignment.topLeft ||
+                            managedRouteLabel.alignment == RouteLabelAlignment.bottomLeft
+                        ? 0
+                        : -1,
+                    managedRouteLabel.alignment == RouteLabelAlignment.topLeft ||
+                            managedRouteLabel.alignment == RouteLabelAlignment.topRight
+                        ? 0
+                        : -1,
+                  ),
                   child: GestureDetector(
                     onTap: () {
                       onPressedRouteLabel(managedRouteLabel.routeId);
@@ -1556,12 +1558,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                     child: RouteLabel(
                       routId: managedRouteLabel.routeId,
                       alignment: managedRouteLabel.alignment!,
+                      isMapMoving: isMapMoving,
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
+              );
+            } else {
+              return Container();
+            }
+          }),
 
         if (poiPopup != null)
           AnimatedPositioned(

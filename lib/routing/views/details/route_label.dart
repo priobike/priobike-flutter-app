@@ -1,13 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/route_labels.dart';
 import 'package:priobike/routing/services/routing.dart';
-
-enum RouteLabelOrientationHorizontal { left, right }
-
-enum RouteLabelOrientationVertical { bottom, top }
 
 class RouteLabel extends StatefulWidget {
   /// The id of the route.
@@ -16,10 +14,14 @@ class RouteLabel extends StatefulWidget {
   /// The alignment of the route label.
   final RouteLabelAlignment alignment;
 
+  /// If the map is currently moving.
+  final bool isMapMoving;
+
   const RouteLabel({
     super.key,
     required this.routId,
     required this.alignment,
+    required this.isMapMoving,
   });
 
   @override
@@ -48,6 +50,12 @@ class RouteLabelState extends State<RouteLabel> {
   /// The max height used for calculations.
   static const double maxHeight = 60;
 
+  /// The opacity of the route label.
+  double opacity = 0;
+
+  /// The timer for the opacity animation.
+  Timer? opacityTimer;
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +67,21 @@ class RouteLabelState extends State<RouteLabel> {
       final route = routing.allRoutes![widget.routId];
       timeText = route.timeText;
     }
+  }
+
+  Future<void> animateOpacity() async {
+    opacityTimer?.cancel();
+    opacityTimer = Timer(const Duration(milliseconds: 150), () {
+      setState(() {
+        opacity = 1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    opacityTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -93,59 +116,67 @@ class RouteLabelState extends State<RouteLabel> {
     bool right =
         widget.alignment == RouteLabelAlignment.topRight || widget.alignment == RouteLabelAlignment.bottomRight;
 
-    return Stack(children: [
-      Positioned.fill(
-        child: Align(
-          alignment: pointerAlignment,
-          child: Transform.flip(
-            flipX: flipX,
-            flipY: flipY,
-            child: CustomPaint(
-              painter: PointerPainter(
-                context: context,
-                color: selected ? CI.route : CI.secondaryRoute,
-              ),
-              child: const SizedBox(
-                height: cornerIconSize,
-                width: cornerIconSize,
+    animateOpacity();
+
+    return AnimatedOpacity(
+      opacity: widget.isMapMoving ? 0 : opacity,
+      duration: const Duration(milliseconds: 150),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Align(
+              alignment: pointerAlignment,
+              child: Transform.flip(
+                flipX: flipX,
+                flipY: flipY,
+                child: CustomPaint(
+                  painter: PointerPainter(
+                    context: context,
+                    color: selected ? CI.route : CI.secondaryRoute,
+                  ),
+                  child: const SizedBox(
+                    height: cornerIconSize,
+                    width: cornerIconSize,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-      Container(
-        margin: EdgeInsets.only(
-          left: left ? cornerIconMargin : 0,
-          top: top ? cornerIconMargin : 0,
-          right: right ? cornerIconMargin : 0,
-          bottom: bottom ? cornerIconMargin : 0,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? CI.route : CI.secondaryRoute,
-          borderRadius: BorderRadius.circular(7.5),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            BoldSmall(
-              text: timeText,
-              context: context,
-              textAlign: TextAlign.center,
-              color: selected ? Colors.white : Colors.black,
+          Container(
+            margin: EdgeInsets.only(
+              left: left ? cornerIconMargin : 0,
+              top: top ? cornerIconMargin : 0,
+              right: right ? cornerIconMargin : 0,
+              bottom: bottom ? cornerIconMargin : 0,
             ),
-            if (secondaryText != null)
-              Small(
-                text: secondaryText!,
-                context: context,
-                textAlign: TextAlign.center,
-                color: selected ? Colors.white : Colors.black,
-              ),
-          ],
-        ),
+            decoration: BoxDecoration(
+              color: selected ? CI.route : CI.secondaryRoute,
+              borderRadius: BorderRadius.circular(7.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                BoldSmall(
+                  text: timeText,
+                  context: context,
+                  textAlign: TextAlign.center,
+                  color: selected ? Colors.white : Colors.black,
+                ),
+                if (secondaryText != null)
+                  Small(
+                    text: secondaryText!,
+                    context: context,
+                    textAlign: TextAlign.center,
+                    color: selected ? Colors.white : Colors.black,
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
-    ]);
+    );
   }
 }
 
