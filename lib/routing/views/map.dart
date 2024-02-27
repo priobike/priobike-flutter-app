@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
@@ -265,6 +266,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // Calculate the relative padding for the pio pop up.
+      final size = MediaQuery.of(context).size;
+      poiPopUpMarginLeft = size.width * poiScreenMargin;
+      poiPopUpMarginRight = size.width - size.width * poiScreenMargin;
+      poiPopUpMarginTop = size.height * poiScreenMargin;
+      poiPopUpMarginBottom = size.height - size.height * poiScreenMargin;
+    });
   }
 
   @override
