@@ -45,13 +45,13 @@ class AllTrafficLightsPredictionLayer {
             userBearing = -(180 - userBearing % 180);
           }
 
-          final bearingDiff = (userBearing - sgBearing).abs();
-          final oHalf = 0.5 * opacity;
-          final tsHalf = 0.5 * textSize;
-          final sHalf = size * 0.5;
-          opacity = oHalf + oHalf * (1 - (bearingDiff / 180));
-          size = sHalf + sHalf * (1 - (bearingDiff / 180));
-          textSize = tsHalf + tsHalf * (1 - (bearingDiff / 180));
+          // final bearingDiff = (userBearing - sgBearing).abs();
+          // final oHalf = 0.5 * opacity;
+          // final tsHalf = 0.5 * textSize;
+          // final sHalf = size * 0.5;
+          // opacity = oHalf + oHalf * (1 - (bearingDiff / 180));
+          // size = sHalf + sHalf * (1 - (bearingDiff / 180));
+          // textSize = tsHalf + tsHalf * (1 - (bearingDiff / 180));
         }
       }
 

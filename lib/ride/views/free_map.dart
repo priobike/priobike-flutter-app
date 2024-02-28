@@ -26,6 +26,8 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
   static const userLocationLayerId = "user-ride-location-puck";
 
+  static const bearingDiffThreshold = 90;
+
   /// The associated positioning service, which is injected by the provider.
   late Positioning positioning;
 
@@ -230,43 +232,117 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     updateSgPredictionsTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (mapController == null) return;
       final Map<String, dynamic> propertiesBySgId = {};
-      for (final entries in freeRide.receivedPredictions.entries) {
-        // Init with null to make sure bearing calculation and style adjustments will be made.
-        propertiesBySgId[entries.key] = {
-          "greenNow": null,
+      double? heading = positioning.lastPosition?.heading;
+
+      for (final entry in freeRide.receivedPredictions.entries) {
+        bool isGood = false;
+        // Check if the sg is relevant.
+        // Check if sg lane is in user ride direction.
+        // TODO heading
+        if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty || heading == null) continue;
+        final sgGeometry = freeRide.sgGeometries![entry.key];
+        double sgBearing = freeRide.sgBearings![entry.key]!;
+
+        // Fix sg bearing to compare with sg bearing.
+        if (sgBearing < 0) {
+          sgBearing = 180 + (180 - sgBearing.abs());
+        }
+
+        // 1. sg bearing chance.
+        // Going from -180 to 180.
+        // TODO better.
+        final bearingDiff = heading - sgBearing;
+        if (-45 < bearingDiff && bearingDiff < 45) {
+          isGood = true;
+        }
+
+        // 2. check direction of lane.
+        final coordinates = sgGeometry?['coordinates'];
+
+        if (45 < bearingDiff && bearingDiff < 135) {
+          if (coordinates != null && coordinates.length > 1) {
+            final secondLast = coordinates[coordinates.length - 2];
+            final last = coordinates[coordinates.length - 1];
+            double laneEndBearing = vincenty.bearing(LatLng(secondLast[1], secondLast[0]), LatLng(last[1], last[0]));
+            if (laneEndBearing < 0) {
+              laneEndBearing = 180 + (180 - laneEndBearing.abs());
+            }
+
+            final bearingDiffLastSegment = heading - laneEndBearing;
+
+            // relative left is okay.
+            // Just not
+            if (45 < bearingDiffLastSegment && bearingDiffLastSegment < 135) {
+              // Left sg.
+              isGood = true;
+            }
+          }
+        }
+
+        // 3. check relative position to user.
+        // For right lanes check relative position to user.
+        if (225 < bearingDiff && bearingDiff < 360) {
+          final lastPosition = positioning.lastPosition;
+          if (coordinates != null && coordinates.length > 1 && lastPosition != null) {
+            final last = coordinates[coordinates.length - 1];
+            double laneEndPositionBearing =
+                vincenty.bearing(LatLng(lastPosition.longitude, lastPosition.latitude), LatLng(last[1], last[0]));
+            if (laneEndPositionBearing < 0) {
+              laneEndPositionBearing = 180 + (180 - laneEndPositionBearing.abs());
+            }
+
+            final bearingDiffUserSG = heading - laneEndPositionBearing;
+
+            // relative left is okay.
+            // Just not
+            if (170 < bearingDiffUserSG && bearingDiffUserSG < 360) {
+              // Left sg.
+              isGood = true;
+            }
+          }
+        }
+
+        propertiesBySgId[entry.key] = {
+          "greenNow": isGood,
+          "countdown": bearingDiff.toInt(),
         };
+
+        // Init with null to make sure bearing calculation and style adjustments will be made.
+        // propertiesBySgId[entry.key] = {
+        //   "greenNow": null,
+        // };
         // Check if we have all necessary information.
-        if (entries.value.greentimeThreshold == -1) continue;
-        if (entries.value.predictionQuality == -1) continue;
-        if (entries.value.value.isEmpty) continue;
+        if (entry.value.greentimeThreshold == -1) continue;
+        if (entry.value.predictionQuality == -1) continue;
+        if (entry.value.value.isEmpty) continue;
         // Calculate the seconds since the start of the prediction.
         final now = DateTime.now();
-        final secondsSinceStart = max(0, now.difference(entries.value.startTime).inSeconds);
+        final secondsSinceStart = max(0, now.difference(entry.value.startTime).inSeconds);
         // Chop off the seconds that are not in the prediction vector.
-        final secondsInVector = entries.value.value.length;
+        final secondsInVector = entry.value.value.length;
         if (secondsSinceStart >= secondsInVector) continue;
         // Calculate the current vector.
-        final currentVector = entries.value.value.sublist(secondsSinceStart);
+        final currentVector = entry.value.value.sublist(secondsSinceStart);
         if (currentVector.isEmpty) continue;
         // Calculate the seconds to the next phase change.
         int secondsToPhaseChange = 0;
         // Check if the phase changes within the current vector.
-        bool greenNow = currentVector[0] >= entries.value.greentimeThreshold;
+        bool greenNow = currentVector[0] >= entry.value.greentimeThreshold;
         for (int i = 1; i < currentVector.length; i++) {
-          final greenThen = currentVector[i] >= entries.value.greentimeThreshold;
+          final greenThen = currentVector[i] >= entry.value.greentimeThreshold;
           if ((greenNow && !greenThen) || (!greenNow && greenThen)) {
             break;
           }
           secondsToPhaseChange++;
         }
 
-        propertiesBySgId[entries.key] = {
-          "greenNow": greenNow,
-          "countdown": secondsToPhaseChange,
+        propertiesBySgId[entry.key] = {
+          "greenNow": isGood,
+          "countdown": bearingDiff.toInt(),
         };
       }
       // Update the layer.
-      final heading = positioning.lastPosition?.heading;
+
       AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: heading).update(mapController!);
       AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: heading)
           .update(mapController!);
