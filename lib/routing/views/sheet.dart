@@ -175,13 +175,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       text = routing.selectedProfile!.explanation;
     }
     final int okTrafficLights = status.ok;
-    final int allTrafficLights = status.ok + status.bad + status.offline + status.disconnected;
+    final int allTrafficLights = status.ok + status.bad + status.offline;
 
     String textTrafficLights;
-    double percentageTrafficLights = 0;
     if (allTrafficLights > 0) {
-      textTrafficLights = "$okTrafficLights von $allTrafficLights Ampeln verbunden";
-      percentageTrafficLights = okTrafficLights / allTrafficLights;
+      textTrafficLights =
+          "$allTrafficLights Ampeln angebunden, $okTrafficLights davon haben Geschwindigkeitsempfehlungen";
     } else {
       textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
     }
@@ -197,38 +196,13 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   "${routing.selectedRoute!.timeText} - ${routing.selectedRoute!.arrivalTimeText}, ${routing.selectedRoute!.lengthText}",
               context: context),
           const SizedBox(height: 2),
-          Row(
-            children: [
-              Small(
-                text: textTrafficLights,
-                context: context,
-              ),
-              const SmallHSpace(),
-              SizedBox(
-                width: 18,
-                height: 18,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      value: percentageTrafficLights,
-                      strokeWidth: 4,
-                      backgroundColor: allTrafficLights > 0
-                          ? CI.radkulturGreen.withOpacity(0.2)
-                          : Theme.of(context).colorScheme.onTertiary,
-                      valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: percentageTrafficLights > 0
-                          ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
-                          : Theme.of(context).colorScheme.onTertiary,
-                      size: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
+            child: Small(
+              text: textTrafficLights,
+              context: context,
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: 2),
         ]),
