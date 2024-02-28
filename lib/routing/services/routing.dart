@@ -623,4 +623,21 @@ class Routing with ChangeNotifier {
 
     notifyListeners();
   }
+
+  /// Returns a string with the most unique attribute for the given route.
+  String? findMostUniqueAttributeForRoute(int id) {
+    if (allRoutes == null && allRoutes!.length <= id) return null;
+
+    // TL
+
+    // Distance
+
+    // Way type
+
+    // Height
+
+    // OSM discomforts?
+
+    return null;
+  }
 }
