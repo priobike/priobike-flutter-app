@@ -194,17 +194,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     RentalStationsLayer.textLayerId,
     RentalStationsLayer.clickLayerId,
     userLocationLayerId,
-    RouteLabelLayer.layerId,
   ];
 
   /// Returns the index where the layer should be added in the Mapbox layer stack.
   Future<int> getIndex(String layerId) async {
     final currentLayers = await mapController!.style.getStyleLayers();
 
-    // Place the route label layer on top of all other layers.
-    if (layerId == RouteLabelLayer.layerId) {
-      return currentLayers.length - 1;
-    }
     // Find out how many of our layers are before the layer that should be added.
     var layersBeforeAdded = 0;
     for (final layer in layerOrder) {
@@ -621,7 +616,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     if (id != null) {
       // Case Route or Route label.
-      if ((id as String).startsWith("route-") || id.startsWith("routeLabel-")) {
+      if ((id as String).startsWith("route-")) {
         final routeIdx = int.tryParse(id.split("-")[1]);
         if (routeIdx == null || (routing.selectedRoute != null && routeIdx == routing.selectedRoute!.id)) return;
         routing.switchToRoute(routeIdx);
@@ -860,7 +855,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       RenderedQueryOptions(
         layerIds: [
           AllRoutesLayer.layerIdClick,
-          RouteLabelLayer.layerId,
           BikeShopLayer.clickLayerId,
           BikeShopLayer.textLayerId,
           BikeAirStationLayer.clickLayerId,
