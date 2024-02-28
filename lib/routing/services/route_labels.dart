@@ -233,9 +233,17 @@ class RouteLabelManager extends ChangeNotifier {
       managedRouteLabels[i].availableRouteLabelCandidates = filteredCandidates;
     }
 
+    List<List<ManagedRouteLabelCandidate>> possibleCandidates = [];
+    for (final routeLabel in managedRouteLabels) {
+      if (routeLabel.availableRouteLabelCandidates != null) {
+        possibleCandidates.add(routeLabel.availableRouteLabelCandidates!);
+      } else {
+        possibleCandidates.add([]);
+      }
+    }
+
     // Searching a valid combination where all route labels do not intersect each other.
-    List<ManagedRouteLabelCandidate?>? combination =
-        _getValidCombination(managedRouteLabels.map((e) => e.availableRouteLabelCandidates ?? []).toList(), []);
+    List<ManagedRouteLabelCandidate?>? combination = _getValidCombination(possibleCandidates, []);
 
     if (combination == null) {
       for (int i = 0; i < managedRouteLabels.length; i++) {
