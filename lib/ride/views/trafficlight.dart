@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -98,23 +99,40 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         ),
         borderRadius: BorderRadius.circular(64),
       ),
-      child: Center(
-        child: Text(
-          countdownLabel,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 128,
-            shadows: [
-              Shadow(
-                blurRadius: 32,
-                offset: Offset(0, 0),
-                color: Color.fromARGB(255, 0, 0, 0),
+      child: Stack(
+        children: [
+          Center(
+            child: Text(
+              countdownLabel,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 128,
+                shadows: [
+                  Shadow(
+                    blurRadius: 32,
+                    offset: Offset(0, 0),
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ],
+                fontWeight: FontWeight.w500,
+                color: Color.fromARGB(255, 255, 255, 255),
               ),
-            ],
-            fontWeight: FontWeight.w500,
-            color: Color.fromARGB(255, 255, 255, 255),
+            ),
           ),
-        ),
+          if (countdownLabel.isNotEmpty)
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.only(top: widget.size.height * 0.08),
+                child: Small(
+                  text: "Sekunden\nbis zur nächsten Farbe",
+                  context: context,
+                  textAlign: TextAlign.center,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+            ),
+        ],
       ),
     );
 
