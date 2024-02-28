@@ -63,7 +63,7 @@ class TrafficLightsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0, showTouchIndicator = false}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -127,53 +127,55 @@ class TrafficLightsLayer {
           ]));
     }
 
-    final trafficLightTouchIndicatorsLayerExists = await mapController.style.styleLayerExists(touchIndicatorsLayerId);
-    if (!trafficLightTouchIndicatorsLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.SymbolLayer(
-            sourceId: sourceId,
-            id: touchIndicatorsLayerId,
-            iconSize: iconSize,
-            iconAllowOverlap: true,
-            textAllowOverlap: true,
-            textIgnorePlacement: true,
-            iconOpacity: 0,
-          ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(
-          touchIndicatorsLayerId,
-          'icon-image',
-          json.encode([
-            "case",
-            ["get", "isDark"],
-            "trafficlighttouchindicatordark",
-            "trafficlighttouchindicatorlight",
-          ]));
-      await mapController.style.setStyleLayerProperty(
-          touchIndicatorsLayerId,
-          'icon-opacity',
-          json.encode(
-            showAfter(zoom: 16, opacity: [
+    if (showTouchIndicator) {
+      final trafficLightTouchIndicatorsLayerExists = await mapController.style.styleLayerExists(touchIndicatorsLayerId);
+      if (!trafficLightTouchIndicatorsLayerExists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: sourceId,
+              id: touchIndicatorsLayerId,
+              iconSize: iconSize,
+              iconAllowOverlap: true,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+              iconOpacity: 0,
+            ),
+            mapbox.LayerPosition(at: at));
+        await mapController.style.setStyleLayerProperty(
+            touchIndicatorsLayerId,
+            'icon-image',
+            json.encode([
               "case",
-              ["get", "showTouchIndicators"],
-              [
+              ["get", "isDark"],
+              "trafficlighttouchindicatordark",
+              "trafficlighttouchindicatorlight",
+            ]));
+        await mapController.style.setStyleLayerProperty(
+            touchIndicatorsLayerId,
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 16, opacity: [
                 "case",
-                ["get", "hideBehindPosition"],
+                ["get", "showTouchIndicators"],
                 [
                   "case",
+                  ["get", "hideBehindPosition"],
                   [
-                    "<=",
-                    ["get", "distanceToSgOnRoute"],
-                    -5,
+                    "case",
+                    [
+                      "<=",
+                      ["get", "distanceToSgOnRoute"],
+                      -5,
+                    ],
+                    0.4,
+                    1
                   ],
-                  0.4,
-                  1
+                  1,
                 ],
-                1,
-              ],
-              0
-            ]),
-          ));
+                0
+              ]),
+            ));
+      }
     }
   }
 
