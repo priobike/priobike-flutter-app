@@ -25,8 +25,6 @@ class AllTrafficLightsPredictionLayer {
 
     for (final sg in freeRide.subscriptions) {
       // Max opacity
-      double opacity = 0.8;
-      // Max size
       double size = 0.5;
       // Max text size
       double textSize = 30;
@@ -36,26 +34,8 @@ class AllTrafficLightsPredictionLayer {
 
       if (propertiesBySgId != null && propertiesBySgId.containsKey(sg)) {
         properties.addAll(propertiesBySgId[sg]);
-        if (userBearing != null) {
-          double sgBearing = freeRide.sgBearings![sg]!;
-          // Fix user bearing to compare with sg bearing.
-          if (userBearing > 180) {
-            // SG bearing goes from -180 to 180.
-            // Map to 180 to -180.
-            userBearing = -(180 - userBearing % 180);
-          }
-
-          // final bearingDiff = (userBearing - sgBearing).abs();
-          // final oHalf = 0.5 * opacity;
-          // final tsHalf = 0.5 * textSize;
-          // final sHalf = size * 0.5;
-          // opacity = oHalf + oHalf * (1 - (bearingDiff / 180));
-          // size = sHalf + sHalf * (1 - (bearingDiff / 180));
-          // textSize = tsHalf + tsHalf * (1 - (bearingDiff / 180));
-        }
       }
 
-      properties["opacity"] = opacity;
       properties["size"] = size;
       properties["textSize"] = textSize;
       features.add(
@@ -222,7 +202,6 @@ class AllTrafficLightsPredictionGeometryLayer {
         mapbox.LineLayer(
           sourceId: sourceId,
           id: layerId,
-          lineWidth: 1,
         ),
         mapbox.LayerPosition(at: at),
       );
@@ -247,6 +226,22 @@ class AllTrafficLightsPredictionGeometryLayer {
           "#000000",
         ]),
       );
+
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'line-opacity',
+          jsonEncode([
+            "get",
+            "opacity",
+          ]));
+
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'line-width',
+          jsonEncode([
+            "get",
+            "lineWidth",
+          ]));
     }
   }
 

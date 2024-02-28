@@ -235,28 +235,37 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       double? heading = positioning.lastPosition?.heading;
 
       for (final entry in freeRide.receivedPredictions.entries) {
-        bool isGood = false;
-        // Check if the sg is relevant.
-        // Check if sg lane is in user ride direction.
-        // TODO heading
+        // Bool that holds the state if a sg is most likely relevant for the user or not.
+        bool isRelevant = false;
+
         if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty || heading == null) continue;
         final sgGeometry = freeRide.sgGeometries![entry.key];
         double sgBearing = freeRide.sgBearings![entry.key]!;
 
-        // Fix sg bearing to compare with sg bearing.
+        // Fix sg bearing to make it comparable with user bearing.
         if (sgBearing < 0) {
           sgBearing = 180 + (180 - sgBearing.abs());
         }
 
-        // 1. sg bearing chance.
-        // Going from -180 to 180.
-        // TODO better.
-        final bearingDiff = heading - sgBearing;
-        if (-45 < bearingDiff && bearingDiff < 45) {
-          isGood = true;
+        // 1. A sg facing towards the user is considered as relevant.
+        // 360 need to be considered.
+
+        double _getBearingDiff(double bearing1, double bearing2) {
+          double diff = bearing1 - bearing2;
+          if (diff < -180) {
+            diff = 360 + diff;
+          } else if (diff > 180) {
+            diff = 360 - diff;
+          }
+          return diff;
         }
 
-        // 2. check direction of lane.
+        final bearingDiff = _getBearingDiff(heading, sgBearing);
+        if (-45 < bearingDiff && bearingDiff < 45) {
+          isRelevant = true;
+        }
+
+        // 2. A sg facing to the left of the user with a lane going left from the user is considered as relevant.
         final coordinates = sgGeometry?['coordinates'];
 
         if (45 < bearingDiff && bearingDiff < 135) {
@@ -268,20 +277,19 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
               laneEndBearing = 180 + (180 - laneEndBearing.abs());
             }
 
-            final bearingDiffLastSegment = heading - laneEndBearing;
+            final bearingDiffLastSegment = _getBearingDiff(heading, laneEndBearing);
 
             // relative left is okay.
             // Just not
             if (45 < bearingDiffLastSegment && bearingDiffLastSegment < 135) {
               // Left sg.
-              isGood = true;
+              isRelevant = true;
             }
           }
         }
 
-        // 3. check relative position to user.
-        // For right lanes check relative position to user.
-        if (225 < bearingDiff && bearingDiff < 360) {
+        // 3. A sg facing to the right of the user and being oriented towards the right side of the user is considered as relevant.
+        if (-180 < bearingDiff && bearingDiff < 0) {
           final lastPosition = positioning.lastPosition;
           if (coordinates != null && coordinates.length > 1 && lastPosition != null) {
             final last = coordinates[coordinates.length - 1];
@@ -291,26 +299,19 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
               laneEndPositionBearing = 180 + (180 - laneEndPositionBearing.abs());
             }
 
-            final bearingDiffUserSG = heading - laneEndPositionBearing;
+            final bearingDiffUserSG = _getBearingDiff(heading, laneEndPositionBearing);
 
-            // relative left is okay.
-            // Just not
-            if (170 < bearingDiffUserSG && bearingDiffUserSG < 360) {
-              // Left sg.
-              isGood = true;
+            if (170 < bearingDiffUserSG && bearingDiffUserSG < 0) {
+              isRelevant = true;
             }
           }
         }
 
-        propertiesBySgId[entry.key] = {
-          "greenNow": isGood,
-          "countdown": bearingDiff.toInt(),
-        };
-
         // Init with null to make sure bearing calculation and style adjustments will be made.
-        // propertiesBySgId[entry.key] = {
-        //   "greenNow": null,
-        // };
+        propertiesBySgId[entry.key] = {
+          "greenNow": null,
+          "opacity": isRelevant ? 1 : 0.33,
+        };
         // Check if we have all necessary information.
         if (entry.value.greentimeThreshold == -1) continue;
         if (entry.value.predictionQuality == -1) continue;
@@ -337,8 +338,10 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         }
 
         propertiesBySgId[entry.key] = {
-          "greenNow": isGood,
-          "countdown": bearingDiff.toInt(),
+          "greenNow": greenNow,
+          "countdown": secondsToPhaseChange.toInt(),
+          "opacity": isRelevant ? 1 : 0.25,
+          "lineWidth": isRelevant ? 5 : 1,
         };
       }
       // Update the layer.
