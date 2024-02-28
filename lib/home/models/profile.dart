@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum BikeType {
-  ebike,
+  citybike,
   racingbike,
   mountainbike,
   cargobike,
@@ -10,8 +10,8 @@ enum BikeType {
 extension BikeTypeDescription on BikeType {
   String description() {
     switch (this) {
-      case BikeType.ebike:
-        return "E-Bike";
+      case BikeType.citybike:
+        return "Stadtrad";
       case BikeType.racingbike:
         return "Rennrad";
       case BikeType.mountainbike:
@@ -25,8 +25,8 @@ extension BikeTypeDescription on BikeType {
 extension BikeTypeIcon on BikeType {
   IconData? icon() {
     switch (this) {
-      case BikeType.ebike:
-        return Icons.electric_bike;
+      case BikeType.citybike:
+        return null;
       case BikeType.racingbike:
         return Icons.directions_bike;
       case BikeType.mountainbike:
@@ -40,8 +40,8 @@ extension BikeTypeIcon on BikeType {
 extension BikeTypeIconAsSting on BikeType {
   String? iconAsString() {
     switch (this) {
-      case BikeType.ebike:
-        return null;
+      case BikeType.citybike:
+        return "assets/icons/fahrrad.png";
       case BikeType.racingbike:
         return null;
       case BikeType.mountainbike:
@@ -53,17 +53,17 @@ extension BikeTypeIconAsSting on BikeType {
 }
 
 enum PreferenceType {
+  balanced,
   fast,
-  comfortible,
 }
 
 extension PreferenceTypeDescription on PreferenceType {
   String description() {
     switch (this) {
+      case PreferenceType.balanced:
+        return "Ausgeglichen";
       case PreferenceType.fast:
         return "Zeit";
-      case PreferenceType.comfortible:
-        return "Komfort";
     }
   }
 }
@@ -71,10 +71,10 @@ extension PreferenceTypeDescription on PreferenceType {
 extension PreferenceTypeIcon on PreferenceType {
   IconData icon() {
     switch (this) {
+      case PreferenceType.balanced:
+        return Icons.balance_rounded;
       case PreferenceType.fast:
         return Icons.access_time_outlined;
-      case PreferenceType.comfortible:
-        return Icons.chair_outlined;
     }
   }
 }

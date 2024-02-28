@@ -71,25 +71,27 @@ extension RoutingProfileExtension on RoutingProfile {
   }
 
   String get explanation {
+    // Required for the racing bike profile since we map cargo bike and racing bike to this profile.
+    final bikeTypeName = getIt<Profile>().bikeType.description();
     switch (this) {
       case RoutingProfile.bikeDefault:
-        return "Standard";
+        return "Stadtrad";
       case RoutingProfile.bikeShortest:
-        return "Kürzeste Strecke";
+        return "Stadtrad - Kürzeste Strecke";
       case RoutingProfile.bikeFastest:
-        return "Schnellste Strecke";
+        return "Stadtrad - Schnellste Strecke";
       case RoutingProfile.bike2Default:
-        return "Anstiege vermeiden";
+        return "Stadtrad - Anstiege vermeiden";
       case RoutingProfile.bike2Shortest:
-        return "Anstiege vermeiden - Kürzeste Strecke";
+        return "Stadtrad - Anstiege vermeiden - Kürzeste Strecke";
       case RoutingProfile.bike2Fastest:
-        return "Anstiege vermeiden - Schnellste Strecke";
+        return "Stadtrad - Anstiege vermeiden - Schnellste Strecke";
       case RoutingProfile.racingbikeDefault:
-        return "Rennrad";
+        return bikeTypeName;
       case RoutingProfile.racingbikeShortest:
-        return "Rennrad - Kürzeste Strecke";
+        return "$bikeTypeName - Kürzeste Strecke";
       case RoutingProfile.racingbikeFastest:
-        return "Rennrad - Schnellste Strecke";
+        return "$bikeTypeName - Schnellste Strecke";
       case RoutingProfile.mtbDefault:
         return "Mountainbike";
       case RoutingProfile.mtbShortest:
@@ -299,7 +301,8 @@ class Routing with ChangeNotifier {
         return RoutingProfile.mtbDefault;
       }
     }
-    if (profile.bikeType == BikeType.racingbike) {
+    // Assumption is that cargo bikes have similar requirements like racing bikes (no bad surfaces, less curves).
+    if (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike) {
       if (profile.preferenceType == PreferenceType.fast) {
         return RoutingProfile.racingbikeFastest;
       } else {

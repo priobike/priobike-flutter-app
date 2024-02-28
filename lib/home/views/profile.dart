@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
@@ -224,66 +225,39 @@ class ProfileViewState extends State<ProfileView> {
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return ScaleTransition(scale: animation, child: child);
               },
-              child: profileService.bikeType == null
-                  ? ProfileElementButton(
-                      key: const ValueKey<String>("None"),
-                      // icon: Icons.electric_bike_rounded,
-                      iconAsString: "assets/icons/fahrrad.png",
-                      title: "Radtyp",
-                      showShadow: true,
-                      color: bikeSelectionActive
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                      backgroundColor:
-                          bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: toggleBikeSelection)
-                  : ProfileElementButton(
-                      key: ValueKey<String>(profileService.bikeType!.description()),
-                      icon: profileService.bikeType!.icon(),
-                      iconAsString: profileService.bikeType!.iconAsString(),
-                      title: profileService.bikeType!.description(),
-                      showShadow: true,
-                      color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                      backgroundColor:
-                          bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: toggleBikeSelection,
-                    ),
+              child: ProfileElementButton(
+                key: ValueKey<String>(profileService.bikeType.description()),
+                icon: profileService.bikeType.icon(),
+                iconAsString: profileService.bikeType.iconAsString(),
+                title: profileService.bikeType.description(),
+                showShadow: true,
+                color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                backgroundColor: bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                onPressed: toggleBikeSelection,
+              ),
             ),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return ScaleTransition(scale: animation, child: child);
               },
-              child: profileService.preferenceType == null
-                  ? ProfileElementButton(
-                      key: const ValueKey<String>("None"),
-                      icon: Icons.thumbs_up_down,
-                      title: "Präferenz",
-                      showShadow: true,
-                      color: preferenceSelectionActive
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                      backgroundColor:
-                          preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: togglePreferenceSelection,
-                    )
-                  : ProfileElementButton(
-                      key: ValueKey<String>(profileService.preferenceType!.description()),
-                      icon: profileService.preferenceType!.icon(),
-                      title: profileService.preferenceType!.description(),
-                      showShadow: true,
-                      color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                      backgroundColor:
-                          preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: togglePreferenceSelection,
-                    ),
+              child: ProfileElementButton(
+                key: ValueKey<String>(profileService.preferenceType.description()),
+                icon: profileService.preferenceType.icon(),
+                title: profileService.preferenceType.description(),
+                showShadow: true,
+                color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                backgroundColor:
+                    preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                onPressed: togglePreferenceSelection,
+              ),
             ),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return ScaleTransition(scale: animation, child: child);
               },
-              child: profileService.activityType == null
+              child: profileService.bikeType != BikeType.citybike
                   ? ProfileElementButton(
                       key: const ValueKey<String>("None"),
                       icon: Icons.landscape,
@@ -294,12 +268,14 @@ class ProfileViewState extends State<ProfileView> {
                           : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                       backgroundColor:
                           activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: toggleActivitySelection,
+                      onPressed: () {
+                        ToastMessage.showError("Diese Option ist nur für Stadträder verfügbar.");
+                      },
                     )
                   : ProfileElementButton(
-                      key: ValueKey<String>(profileService.activityType!.description()),
-                      icon: profileService.activityType!.icon(),
-                      title: profileService.activityType!.description(),
+                      key: ValueKey<String>(profileService.activityType.description()),
+                      icon: profileService.activityType.icon(),
+                      title: profileService.activityType.description(),
                       showShadow: true,
                       color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                       backgroundColor:
@@ -374,44 +350,30 @@ class ProfileViewState extends State<ProfileView> {
         ),
         const VSpace(),
         GridView.count(
-          shrinkWrap: true,
-          crossAxisSpacing: 8,
-          padding: EdgeInsets.zero,
-          mainAxisSpacing: 8,
-          crossAxisCount: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          children: BikeType.values
-                  .map(
-                    (bikeType) => ProfileElementButton(
-                      icon: bikeType.icon(),
-                      iconAsString: bikeType.iconAsString(),
-                      title: bikeType.description(),
-                      color: profileService.bikeType == bikeType
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                      onPressed: () {
-                        profileService.bikeType = bikeType;
-                        profileService.store();
-                        toggleBikeSelection();
-                      },
-                    ),
-                  )
-                  .toList() +
-              [
-                ProfileElementButton(
-                  icon: Icons.cancel_outlined,
-                  title: "Auswahl entfernen",
-                  color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.background,
-                  onPressed: () {
-                    profileService.bikeType = null;
-                    profileService.store();
-                    toggleBikeSelection();
-                  },
+            shrinkWrap: true,
+            crossAxisSpacing: 8,
+            padding: EdgeInsets.zero,
+            mainAxisSpacing: 8,
+            crossAxisCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            children: BikeType.values
+                .map(
+                  (bikeType) => ProfileElementButton(
+                    icon: bikeType.icon(),
+                    iconAsString: bikeType.iconAsString(),
+                    title: bikeType.description(),
+                    color: profileService.bikeType == bikeType
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onBackground,
+                    backgroundColor: Theme.of(context).colorScheme.background,
+                    onPressed: () {
+                      profileService.bikeType = bikeType;
+                      profileService.store();
+                      toggleBikeSelection();
+                    },
+                  ),
                 )
-              ],
-        ),
+                .toList()),
         const SizedBox(height: 18),
       ],
     );
@@ -450,43 +412,29 @@ class ProfileViewState extends State<ProfileView> {
         ),
         const VSpace(),
         GridView.count(
-          shrinkWrap: true,
-          crossAxisSpacing: 8,
-          padding: EdgeInsets.zero,
-          mainAxisSpacing: 8,
-          crossAxisCount: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          children: PreferenceType.values
-                  .map(
-                    (preferenceType) => ProfileElementButton(
-                      icon: preferenceType.icon(),
-                      title: preferenceType.description(),
-                      color: profileService.preferenceType == preferenceType
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                      onPressed: () {
-                        profileService.preferenceType = preferenceType;
-                        profileService.store();
-                        togglePreferenceSelection();
-                      },
-                    ),
-                  )
-                  .toList() +
-              [
-                ProfileElementButton(
-                  icon: Icons.cancel_outlined,
-                  title: "Auswahl entfernen",
-                  color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.background,
-                  onPressed: () {
-                    profileService.preferenceType = null;
-                    profileService.store();
-                    togglePreferenceSelection();
-                  },
+            shrinkWrap: true,
+            crossAxisSpacing: 8,
+            padding: EdgeInsets.zero,
+            mainAxisSpacing: 8,
+            crossAxisCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            children: PreferenceType.values
+                .map(
+                  (preferenceType) => ProfileElementButton(
+                    icon: preferenceType.icon(),
+                    title: preferenceType.description(),
+                    color: profileService.preferenceType == preferenceType
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onBackground,
+                    backgroundColor: Theme.of(context).colorScheme.background,
+                    onPressed: () {
+                      profileService.preferenceType = preferenceType;
+                      profileService.store();
+                      togglePreferenceSelection();
+                    },
+                  ),
                 )
-              ],
-        ),
+                .toList()),
         const SizedBox(height: 18),
       ],
     );
@@ -525,43 +473,29 @@ class ProfileViewState extends State<ProfileView> {
         ),
         const VSpace(),
         GridView.count(
-          shrinkWrap: true,
-          crossAxisSpacing: 8,
-          padding: EdgeInsets.zero,
-          mainAxisSpacing: 8,
-          crossAxisCount: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          children: ActivityType.values
-                  .map(
-                    (activityType) => ProfileElementButton(
-                      icon: activityType.icon(),
-                      title: activityType.description(),
-                      color: profileService.activityType == activityType
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                      onPressed: () {
-                        profileService.activityType = activityType;
-                        profileService.store();
-                        toggleActivitySelection();
-                      },
-                    ),
-                  )
-                  .toList() +
-              [
-                ProfileElementButton(
-                  icon: Icons.cancel_outlined,
-                  title: "Auswahl entfernen",
-                  color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.background,
-                  onPressed: () {
-                    profileService.activityType = null;
-                    profileService.store();
-                    toggleActivitySelection();
-                  },
+            shrinkWrap: true,
+            crossAxisSpacing: 8,
+            padding: EdgeInsets.zero,
+            mainAxisSpacing: 8,
+            crossAxisCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            children: ActivityType.values
+                .map(
+                  (activityType) => ProfileElementButton(
+                    icon: activityType.icon(),
+                    title: activityType.description(),
+                    color: profileService.activityType == activityType
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onBackground,
+                    backgroundColor: Theme.of(context).colorScheme.background,
+                    onPressed: () {
+                      profileService.activityType = activityType;
+                      profileService.store();
+                      toggleActivitySelection();
+                    },
+                  ),
                 )
-              ],
-        ),
+                .toList()),
         const SizedBox(height: 18),
       ],
     );
