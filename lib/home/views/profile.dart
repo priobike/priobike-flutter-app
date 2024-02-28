@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
@@ -224,66 +225,39 @@ class ProfileViewState extends State<ProfileView> {
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return ScaleTransition(scale: animation, child: child);
               },
-              child: profileService.bikeType == null
-                  ? ProfileElementButton(
-                      key: const ValueKey<String>("None"),
-                      // icon: Icons.electric_bike_rounded,
-                      iconAsString: "assets/icons/fahrrad.png",
-                      title: "Stadtrad",
-                      showShadow: true,
-                      color: bikeSelectionActive
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                      backgroundColor:
-                          bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: toggleBikeSelection)
-                  : ProfileElementButton(
-                      key: ValueKey<String>(profileService.bikeType!.description()),
-                      icon: profileService.bikeType!.icon(),
-                      iconAsString: profileService.bikeType!.iconAsString(),
-                      title: profileService.bikeType!.description(),
-                      showShadow: true,
-                      color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                      backgroundColor:
-                          bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: toggleBikeSelection,
-                    ),
+              child: ProfileElementButton(
+                key: ValueKey<String>(profileService.bikeType.description()),
+                icon: profileService.bikeType.icon(),
+                iconAsString: profileService.bikeType.iconAsString(),
+                title: profileService.bikeType.description(),
+                showShadow: true,
+                color: bikeSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                backgroundColor: bikeSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                onPressed: toggleBikeSelection,
+              ),
             ),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return ScaleTransition(scale: animation, child: child);
               },
-              child: profileService.preferenceType == null
-                  ? ProfileElementButton(
-                      key: const ValueKey<String>("None"),
-                      icon: Icons.thumbs_up_down,
-                      title: "Präferenz",
-                      showShadow: true,
-                      color: preferenceSelectionActive
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                      backgroundColor:
-                          preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: togglePreferenceSelection,
-                    )
-                  : ProfileElementButton(
-                      key: ValueKey<String>(profileService.preferenceType!.description()),
-                      icon: profileService.preferenceType!.icon(),
-                      title: profileService.preferenceType!.description(),
-                      showShadow: true,
-                      color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
-                      backgroundColor:
-                          preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: togglePreferenceSelection,
-                    ),
+              child: ProfileElementButton(
+                key: ValueKey<String>(profileService.preferenceType.description()),
+                icon: profileService.preferenceType.icon(),
+                title: profileService.preferenceType.description(),
+                showShadow: true,
+                color: preferenceSelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
+                backgroundColor:
+                    preferenceSelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
+                onPressed: togglePreferenceSelection,
+              ),
             ),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return ScaleTransition(scale: animation, child: child);
               },
-              child: profileService.activityType == null
+              child: profileService.bikeType != BikeType.citybike
                   ? ProfileElementButton(
                       key: const ValueKey<String>("None"),
                       icon: Icons.landscape,
@@ -294,12 +268,14 @@ class ProfileViewState extends State<ProfileView> {
                           : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                       backgroundColor:
                           activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
-                      onPressed: toggleActivitySelection,
+                      onPressed: () {
+                        ToastMessage.showError("Diese Option ist nur für den Stadträder verfügbar.");
+                      },
                     )
                   : ProfileElementButton(
-                      key: ValueKey<String>(profileService.activityType!.description()),
-                      icon: profileService.activityType!.icon(),
-                      title: profileService.activityType!.description(),
+                      key: ValueKey<String>(profileService.activityType.description()),
+                      icon: profileService.activityType.icon(),
+                      title: profileService.activityType.description(),
                       showShadow: true,
                       color: activitySelectionActive ? Colors.white : Theme.of(context).colorScheme.primary,
                       backgroundColor:

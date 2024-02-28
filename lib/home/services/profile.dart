@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile with ChangeNotifier {
+  /// The logger for this service.
+  final log = Logger("Profile");
+
   /// Whether the profile has already been loaded.
   bool hasLoaded = false;
 
-  /// The selected type of bike.
-  BikeType? bikeType;
+  /// The selected type of bike. Default is [BikeType.citybike].
+  BikeType bikeType = BikeType.citybike;
 
-  /// The selected route preference.
-  PreferenceType? preferenceType;
+  /// The selected route preference. Default is [PreferenceType.balanced].
+  PreferenceType preferenceType = PreferenceType.balanced;
 
-  /// The type of activity.
-  ActivityType? activityType;
-
-  Profile({
-    this.bikeType,
-    this.preferenceType,
-    this.activityType,
-  });
+  /// The type of activity. Default is [ActivityType.avoidIncline].
+  ActivityType activityType = ActivityType.avoidIncline;
 
   /// Load the stored profile.
   Future<void> loadProfile() async {
@@ -31,36 +29,27 @@ class Profile with ChangeNotifier {
       try {
         bikeType = BikeType.values.byName(bikeTypeStr);
       } catch (e) {
-        bikeType = null;
+        log.e("Failed to load bike type: $e");
       }
     }
-
-    // Set default
-    bikeType ??= BikeType.citybike;
 
     final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
     if (preferenceTypeStr != null) {
       try {
         preferenceType = PreferenceType.values.byName(preferenceTypeStr);
       } catch (e) {
-        preferenceType = null;
+        log.e("Failed to load preference type: $e");
       }
     }
-
-    // Set default
-    preferenceType ??= PreferenceType.balanced;
 
     final activityTypeStr = storage.getString("priobike.home.profile.activity");
     if (activityTypeStr != null) {
       try {
         activityType = ActivityType.values.byName(activityTypeStr);
       } catch (e) {
-        activityType = null;
+        log.e("Failed to load activity type: $e");
       }
     }
-
-    // Set default
-    activityType ??= ActivityType.avoidIncline;
 
     hasLoaded = true;
     notifyListeners();
@@ -70,21 +59,9 @@ class Profile with ChangeNotifier {
   Future<void> store() async {
     final storage = await SharedPreferences.getInstance();
 
-    if (bikeType != null) {
-      await storage.setString("priobike.home.profile.bike", bikeType!.name);
-    } else {
-      await storage.remove("priobike.home.profile.bike");
-    }
-    if (preferenceType != null) {
-      await storage.setString("priobike.home.profile.preferences", preferenceType!.name);
-    } else {
-      await storage.remove("priobike.home.profile.preferences");
-    }
-    if (activityType != null) {
-      await storage.setString("priobike.home.profile.activity", activityType!.name);
-    } else {
-      await storage.remove("priobike.home.profile.activity");
-    }
+    await storage.setString("priobike.home.profile.bike", bikeType.name);
+    await storage.setString("priobike.home.profile.preferences", preferenceType.name);
+    await storage.setString("priobike.home.profile.activity", activityType.name);
 
     notifyListeners();
   }
