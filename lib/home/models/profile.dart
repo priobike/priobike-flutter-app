@@ -55,7 +55,6 @@ extension BikeTypeIconAsSting on BikeType {
 enum PreferenceType {
   balanced,
   fast,
-  comfortible,
 }
 
 extension PreferenceTypeDescription on PreferenceType {
@@ -65,8 +64,6 @@ extension PreferenceTypeDescription on PreferenceType {
         return "Ausgeglichen";
       case PreferenceType.fast:
         return "Zeit";
-      case PreferenceType.comfortible:
-        return "Komfort";
     }
   }
 }
@@ -78,8 +75,6 @@ extension PreferenceTypeIcon on PreferenceType {
         return Icons.balance_rounded;
       case PreferenceType.fast:
         return Icons.access_time_outlined;
-      case PreferenceType.comfortible:
-        return Icons.chair_outlined;
     }
   }
 }

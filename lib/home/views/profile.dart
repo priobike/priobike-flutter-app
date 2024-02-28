@@ -269,7 +269,7 @@ class ProfileViewState extends State<ProfileView> {
                       backgroundColor:
                           activitySelectionActive ? CI.radkulturRed : Theme.of(context).colorScheme.surfaceVariant,
                       onPressed: () {
-                        ToastMessage.showError("Diese Option ist nur für den Stadträder verfügbar.");
+                        ToastMessage.showError("Diese Option ist nur für Stadträder verfügbar.");
                       },
                     )
                   : ProfileElementButton(

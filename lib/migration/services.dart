@@ -35,8 +35,10 @@ class Migration {
     // Then the background images will load again when they are needed.
     await migrateBackgroundImages();
 
-    // Migrate the eBike routing profile to the citybike profile.
+    // Migrate the ebike routing profile to the citybike profile.
     await migrateEBikeToCityBike();
+    // Migrate the comfortable routing profile to the balanced profile.
+    await migrateComfortableToBalanced();
   }
 
   /// Migrate all background images.
@@ -310,6 +312,18 @@ class Migration {
     final bikeTypeStr = storage.getString("priobike.home.profile.bike");
     if (bikeTypeStr != null && bikeTypeStr == "ebike") {
       await storage.setString("priobike.home.profile.bike", BikeType.citybike.name);
+    }
+  }
+
+  /// Migrates the comfortable profile to the new balanced profile.
+  static Future<void> migrateComfortableToBalanced() async {
+    final storage = await SharedPreferences.getInstance();
+
+    final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
+    // "comfortible" contains a type but is not an accident.
+    // It was a typo in the past and we need to reference it like that.
+    if (preferenceTypeStr != null && preferenceTypeStr == "comfortible") {
+      await storage.setString("priobike.home.profile.preferences", PreferenceType.balanced.name);
     }
   }
 }
