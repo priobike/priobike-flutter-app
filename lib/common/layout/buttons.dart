@@ -291,7 +291,10 @@ class BigButtonPrimary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final usedFillColor = fillColor ?? Theme.of(context).colorScheme.surface;
-    final disabledColor = HSLColor.fromColor(usedFillColor).withSaturation(disabledSaturation).toColor();
+    final usedFillColorHSL = HSLColor.fromColor(usedFillColor);
+    final fillSaturation = usedFillColorHSL.saturation;
+    final disabledColor =
+        HSLColor.fromColor(usedFillColor).withSaturation(fillSaturation * disabledSaturation).toColor();
 
     return RawMaterialButton(
       fillColor: onPressed != null ? usedFillColor : disabledColor,
@@ -399,10 +402,16 @@ class BigButtonSecondary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final usedFillColor = fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5);
-    final disabledColor = HSLColor.fromColor(usedFillColor).withSaturation(disabledSaturation).toColor();
+    final usedFillColorHSL = HSLColor.fromColor(usedFillColor);
+    final fillSaturation = usedFillColorHSL.saturation;
+    final disabledColor =
+        HSLColor.fromColor(usedFillColor).withSaturation(fillSaturation * disabledSaturation).toColor();
 
     final borderColor = Theme.of(context).colorScheme.primary;
-    final disabledBorderColor = HSLColor.fromColor(borderColor).withSaturation(disabledSaturation).toColor();
+    final borderColorHSL = HSLColor.fromColor(borderColor);
+    final borderSaturation = borderColorHSL.saturation;
+    final disabledBorderColor =
+        HSLColor.fromColor(borderColor).withSaturation(borderSaturation * disabledSaturation).toColor();
 
     return RawMaterialButton(
       fillColor: onPressed != null ? usedFillColor : disabledColor,
@@ -513,7 +522,10 @@ class BigButtonTertiary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final usedFillColor = fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5);
-    final disabledColor = HSLColor.fromColor(usedFillColor).withSaturation(disabledSaturation).toColor();
+    final usedFillColorHSL = HSLColor.fromColor(usedFillColor);
+    final fillSaturation = usedFillColorHSL.saturation;
+    final disabledColor =
+        HSLColor.fromColor(usedFillColor).withSaturation(fillSaturation * disabledSaturation).toColor();
 
     return RawMaterialButton(
       fillColor: onPressed != null ? usedFillColor : disabledColor,
