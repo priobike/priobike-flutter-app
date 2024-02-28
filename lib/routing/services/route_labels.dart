@@ -97,10 +97,18 @@ class ManagedRouteLabelCandidate {
   }
 }
 
+/// The route label box which represents the dimensions of a route label.
 class RouteLabelBox {
+  /// The top left screen coordinate of the route label box.
   final ScreenCoordinate topLeft;
+
+  /// The top right screen coordinate of the route label box.
   final ScreenCoordinate topRight;
+
+  /// The bottom left screen coordinate of the route label box.
   final ScreenCoordinate bottomLeft;
+
+  /// The bottom right screen coordinate of the route label box.
   final ScreenCoordinate bottomRight;
 
   RouteLabelBox({
@@ -225,13 +233,9 @@ class RouteLabelManager extends ChangeNotifier {
       managedRouteLabels[i].availableRouteLabelCandidates = filteredCandidates;
     }
 
-    List<List<ManagedRouteLabelCandidate>> possibleCandidates = [];
-    for (final routeLabel in managedRouteLabels) {
-      if (routeLabel.availableRouteLabelCandidates != null) {
-        possibleCandidates.add(routeLabel.availableRouteLabelCandidates!);
-      }
-    }
-    List<ManagedRouteLabelCandidate?>? combination = _getValidCombination(possibleCandidates, []);
+    // Searching a valid combination where all route labels do not intersect each other.
+    List<ManagedRouteLabelCandidate?>? combination =
+        _getValidCombination(managedRouteLabels.map((e) => e.availableRouteLabelCandidates ?? []).toList(), []);
 
     if (combination == null) {
       for (int i = 0; i < managedRouteLabels.length; i++) {
@@ -333,7 +337,7 @@ class RouteLabelManager extends ChangeNotifier {
       final combinationToCheck = previousCombination.toList();
       combinationToCheck.add(null);
       if (last) {
-        if (_doesRouteLabelCombinationIntersect(combinationToCheck)) {
+        if (!_doesRouteLabelCombinationIntersect(combinationToCheck)) {
           return combinationToCheck;
         } else {
           return null;
@@ -419,7 +423,10 @@ class RouteLabelManager extends ChangeNotifier {
       topRightIntersects = true;
       bottomRightIntersects = true;
     }
-    if (candidate.y + RouteLabelState.maxHeight > heightMid * 2) {}
+    if (candidate.y + RouteLabelState.maxHeight > heightMid * 2) {
+      topRightIntersects = true;
+      topLeftIntersects = true;
+    }
     if (candidate.y - RouteLabelState.maxHeight < 0) {
       bottomLeftIntersects = true;
       bottomRightIntersects = true;
@@ -450,11 +457,11 @@ class RouteLabelManager extends ChangeNotifier {
     ScreenCoordinate? first;
     ScreenCoordinate? second;
 
-    // Check all Coordinates of each route.
+    // Check all screen coordinates of each route.
     for (List<ScreenCoordinate> screenCoordinateRoute in allCoordinates) {
       // Go through screen coordinates of route.
       for (ScreenCoordinate screenCoordinate in screenCoordinateRoute) {
-        // All position intersect remove skip candidate.
+        // If all position intersect, we skip the candidate.
         if (topLeftIntersects && topRightIntersects && bottomLeftIntersects && bottomRightIntersects) break;
 
         // Set second to the next coordinate.
