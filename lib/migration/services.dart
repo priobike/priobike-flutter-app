@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/map/image_cache.dart';
+import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -15,7 +17,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:priobike/routing/models/route.dart' as r;
 
 class Migration {
   /// Load the privacy policy.
@@ -33,6 +34,9 @@ class Migration {
     // Since beta 8.0 check if the image directory has images and remove them.
     // Then the background images will load again when they are needed.
     await migrateBackgroundImages();
+
+    // Migrate the eBike routing profile to the citybike profile.
+    await migrateEBikeToCityBike();
   }
 
   /// Migrate all background images.
@@ -297,5 +301,15 @@ class Migration {
     await shortcuts.storeShortcuts();
     // Save the migrated shortcuts to skip them in the future.
     storage.setStringList("priobike.shortcuts.checked.${backend.regionName}", checkedShortcutsList);
+  }
+
+  /// Migrates the ebike profile to the new citybike profile.
+  static Future<void> migrateEBikeToCityBike() async {
+    final storage = await SharedPreferences.getInstance();
+
+    final bikeTypeStr = storage.getString("priobike.home.profile.bike");
+    if (bikeTypeStr != null && bikeTypeStr == "ebike") {
+      await storage.setString("priobike.home.profile.bike", BikeType.citybike.name);
+    }
   }
 }

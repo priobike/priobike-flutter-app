@@ -299,7 +299,8 @@ class Routing with ChangeNotifier {
         return RoutingProfile.mtbDefault;
       }
     }
-    if (profile.bikeType == BikeType.racingbike) {
+    // Assumption is that cargo bikes have similar requirements like racing bikes (no bad surfaces, less curves).
+    if (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike) {
       if (profile.preferenceType == PreferenceType.fast) {
         return RoutingProfile.racingbikeFastest;
       } else {

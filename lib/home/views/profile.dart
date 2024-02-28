@@ -229,7 +229,7 @@ class ProfileViewState extends State<ProfileView> {
                       key: const ValueKey<String>("None"),
                       // icon: Icons.electric_bike_rounded,
                       iconAsString: "assets/icons/fahrrad.png",
-                      title: "Radtyp",
+                      title: "Stadtrad",
                       showShadow: true,
                       color: bikeSelectionActive
                           ? Colors.white
@@ -374,44 +374,30 @@ class ProfileViewState extends State<ProfileView> {
         ),
         const VSpace(),
         GridView.count(
-          shrinkWrap: true,
-          crossAxisSpacing: 8,
-          padding: EdgeInsets.zero,
-          mainAxisSpacing: 8,
-          crossAxisCount: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          children: BikeType.values
-                  .map(
-                    (bikeType) => ProfileElementButton(
-                      icon: bikeType.icon(),
-                      iconAsString: bikeType.iconAsString(),
-                      title: bikeType.description(),
-                      color: profileService.bikeType == bikeType
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                      onPressed: () {
-                        profileService.bikeType = bikeType;
-                        profileService.store();
-                        toggleBikeSelection();
-                      },
-                    ),
-                  )
-                  .toList() +
-              [
-                ProfileElementButton(
-                  icon: Icons.cancel_outlined,
-                  title: "Auswahl entfernen",
-                  color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.background,
-                  onPressed: () {
-                    profileService.bikeType = null;
-                    profileService.store();
-                    toggleBikeSelection();
-                  },
+            shrinkWrap: true,
+            crossAxisSpacing: 8,
+            padding: EdgeInsets.zero,
+            mainAxisSpacing: 8,
+            crossAxisCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            children: BikeType.values
+                .map(
+                  (bikeType) => ProfileElementButton(
+                    icon: bikeType.icon(),
+                    iconAsString: bikeType.iconAsString(),
+                    title: bikeType.description(),
+                    color: profileService.bikeType == bikeType
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onBackground,
+                    backgroundColor: Theme.of(context).colorScheme.background,
+                    onPressed: () {
+                      profileService.bikeType = bikeType;
+                      profileService.store();
+                      toggleBikeSelection();
+                    },
+                  ),
                 )
-              ],
-        ),
+                .toList()),
         const SizedBox(height: 18),
       ],
     );
@@ -450,43 +436,29 @@ class ProfileViewState extends State<ProfileView> {
         ),
         const VSpace(),
         GridView.count(
-          shrinkWrap: true,
-          crossAxisSpacing: 8,
-          padding: EdgeInsets.zero,
-          mainAxisSpacing: 8,
-          crossAxisCount: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          children: PreferenceType.values
-                  .map(
-                    (preferenceType) => ProfileElementButton(
-                      icon: preferenceType.icon(),
-                      title: preferenceType.description(),
-                      color: profileService.preferenceType == preferenceType
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                      onPressed: () {
-                        profileService.preferenceType = preferenceType;
-                        profileService.store();
-                        togglePreferenceSelection();
-                      },
-                    ),
-                  )
-                  .toList() +
-              [
-                ProfileElementButton(
-                  icon: Icons.cancel_outlined,
-                  title: "Auswahl entfernen",
-                  color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.background,
-                  onPressed: () {
-                    profileService.preferenceType = null;
-                    profileService.store();
-                    togglePreferenceSelection();
-                  },
+            shrinkWrap: true,
+            crossAxisSpacing: 8,
+            padding: EdgeInsets.zero,
+            mainAxisSpacing: 8,
+            crossAxisCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            children: PreferenceType.values
+                .map(
+                  (preferenceType) => ProfileElementButton(
+                    icon: preferenceType.icon(),
+                    title: preferenceType.description(),
+                    color: profileService.preferenceType == preferenceType
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onBackground,
+                    backgroundColor: Theme.of(context).colorScheme.background,
+                    onPressed: () {
+                      profileService.preferenceType = preferenceType;
+                      profileService.store();
+                      togglePreferenceSelection();
+                    },
+                  ),
                 )
-              ],
-        ),
+                .toList()),
         const SizedBox(height: 18),
       ],
     );
@@ -525,43 +497,29 @@ class ProfileViewState extends State<ProfileView> {
         ),
         const VSpace(),
         GridView.count(
-          shrinkWrap: true,
-          crossAxisSpacing: 8,
-          padding: EdgeInsets.zero,
-          mainAxisSpacing: 8,
-          crossAxisCount: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          children: ActivityType.values
-                  .map(
-                    (activityType) => ProfileElementButton(
-                      icon: activityType.icon(),
-                      title: activityType.description(),
-                      color: profileService.activityType == activityType
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                      onPressed: () {
-                        profileService.activityType = activityType;
-                        profileService.store();
-                        toggleActivitySelection();
-                      },
-                    ),
-                  )
-                  .toList() +
-              [
-                ProfileElementButton(
-                  icon: Icons.cancel_outlined,
-                  title: "Auswahl entfernen",
-                  color: Theme.of(context).colorScheme.tertiary,
-                  backgroundColor: Theme.of(context).colorScheme.background,
-                  onPressed: () {
-                    profileService.activityType = null;
-                    profileService.store();
-                    toggleActivitySelection();
-                  },
+            shrinkWrap: true,
+            crossAxisSpacing: 8,
+            padding: EdgeInsets.zero,
+            mainAxisSpacing: 8,
+            crossAxisCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            children: ActivityType.values
+                .map(
+                  (activityType) => ProfileElementButton(
+                    icon: activityType.icon(),
+                    title: activityType.description(),
+                    color: profileService.activityType == activityType
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onBackground,
+                    backgroundColor: Theme.of(context).colorScheme.background,
+                    onPressed: () {
+                      profileService.activityType = activityType;
+                      profileService.store();
+                      toggleActivitySelection();
+                    },
+                  ),
                 )
-              ],
-        ),
+                .toList()),
         const SizedBox(height: 18),
       ],
     );

@@ -35,6 +35,9 @@ class Profile with ChangeNotifier {
       }
     }
 
+    // Set default
+    bikeType ??= BikeType.citybike;
+
     final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
     if (preferenceTypeStr != null) {
       try {
@@ -44,6 +47,9 @@ class Profile with ChangeNotifier {
       }
     }
 
+    // Set default
+    preferenceType ??= PreferenceType.balanced;
+
     final activityTypeStr = storage.getString("priobike.home.profile.activity");
     if (activityTypeStr != null) {
       try {
@@ -52,6 +58,9 @@ class Profile with ChangeNotifier {
         activityType = null;
       }
     }
+
+    // Set default
+    activityType ??= ActivityType.avoidIncline;
 
     hasLoaded = true;
     notifyListeners();
