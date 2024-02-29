@@ -187,7 +187,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
               });
             },
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Content(text: "Gefahrenstellen", context: context),
+              Content(text: "Unwegsamkeiten", context: context),
               SizedBox(
                 width: 40,
                 height: 40,
