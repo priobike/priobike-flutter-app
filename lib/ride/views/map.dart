@@ -389,6 +389,7 @@ class RideMapViewState extends State<RideMapView> {
       mapController!,
       iconSize: 0.5,
       at: index,
+      showTouchIndicator: true,
     );
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
