@@ -702,7 +702,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final frame = MediaQuery.of(context);
     final sheetHeightAbs = sheetHeightRelative == null
         // Bottom padding + sheet init size + padding + shortcut height + padding.
-        ? 124.0 + 8 + 40 + 8 // Default value.
+        ? 136.0 + 8 + 40 + 8 // Default value.
         // Bottom padding + sheet relative size + padding + shortcut height + padding.
         : sheetHeightRelative * frame.size.height + 40 + 8;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
@@ -718,7 +718,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
     );
     // Bottom padding + sheet init size + padding + shortcut height + padding.
-    const attributionMargins = math.Point(10, 124 + 8 + 40 + 8);
+    const attributionMargins = math.Point(10, 136 + 8 + 40 + 8);
     mapController!.attribution.updateSettings(AttributionSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginRight: attributionMargins.x.toDouble(),
@@ -765,7 +765,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final routeLabelMarginRight = frame.size.width - frame.size.width * routeLabelScreenMarginHorizontal;
     final routeLabelMarginTop = frame.padding.top;
     // Fit initial bottom sheet size of 128px.
-    final routeLabelMarginBottom = frame.size.height - 128;
+    final routeLabelMarginBottom = frame.size.height - 140;
     final widthMid = frame.size.width / 2;
     final heightMid = frame.size.height / 2;
     routeLabelManager = RouteLabelManager(
@@ -1364,8 +1364,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             child: Stack(
               children: [
                 Positioned(
-                  left: tapPosition!.dx - animation.value * 128 - 12,
-                  top: tapPosition!.dy - animation.value * 128 - 12,
+                  left: tapPosition!.dx - animation.value * 140 - 12,
+                  top: tapPosition!.dy - animation.value * 140 - 12,
                   child: Opacity(
                     opacity: math.max(0, math.min(1, (animation.value) * 4)),
                     child: Container(
@@ -1438,7 +1438,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             children: [
               Positioned(
                 left: 0,
-                top: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 270,
+                top: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 282,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: Column(

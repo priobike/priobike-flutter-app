@@ -178,9 +178,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final int allTrafficLights = status.ok + status.bad + status.offline;
 
     String textTrafficLights;
+    double percentageTrafficLights = 0;
+
     if (allTrafficLights > 0) {
       textTrafficLights =
           "$allTrafficLights Ampeln angebunden, $okTrafficLights davon haben Geschwindigkeitsempfehlungen";
+      percentageTrafficLights = okTrafficLights / allTrafficLights;
     } else {
       textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
     }
@@ -196,15 +199,43 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   "${routing.selectedRoute!.timeText} - ${routing.selectedRoute!.arrivalTimeText}, ${routing.selectedRoute!.lengthText}",
               context: context),
           const SizedBox(height: 2),
-          Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
-            child: Small(
-              text: textTrafficLights,
-              context: context,
-              textAlign: TextAlign.center,
+          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Container(
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
+              child: Small(
+                text: textTrafficLights,
+                context: context,
+                textAlign: TextAlign.center,
+                height: 1.1,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
+            const SmallHSpace(),
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: percentageTrafficLights,
+                    strokeWidth: 4,
+                    backgroundColor: allTrafficLights > 0
+                        ? CI.radkulturGreen.withOpacity(0.2)
+                        : Theme.of(context).colorScheme.onTertiary,
+                    valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: percentageTrafficLights > 0
+                        ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
+                        : Theme.of(context).colorScheme.onTertiary,
+                    size: 18,
+                  ),
+                ],
+              ),
+            ),
+          ]),
+          const SmallVSpace(),
         ]),
       ]),
     );
@@ -218,9 +249,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       height: frame.size.height, // Needed for reorderable list.
       child: Stack(children: [
         DraggableScrollableSheet(
-          initialChildSize: 128 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          initialChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
           maxChildSize: 1,
-          minChildSize: 128 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          minChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
           builder: (BuildContext context, ScrollController controller) {
             return Container(
               decoration: BoxDecoration(
