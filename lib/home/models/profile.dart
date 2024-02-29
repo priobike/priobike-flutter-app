@@ -28,9 +28,9 @@ extension BikeTypeIcon on BikeType {
       case BikeType.citybike:
         return null;
       case BikeType.racingbike:
-        return Icons.directions_bike;
+        return null;
       case BikeType.mountainbike:
-        return Icons.pedal_bike;
+        return null;
       case BikeType.cargobike:
         return null;
     }
@@ -43,9 +43,9 @@ extension BikeTypeIconAsSting on BikeType {
       case BikeType.citybike:
         return "assets/icons/fahrrad.png";
       case BikeType.racingbike:
-        return null;
+        return "assets/icons/rennrad.png";
       case BikeType.mountainbike:
-        return null;
+        return "assets/icons/mtb.png";
       case BikeType.cargobike:
         return "assets/icons/lastenrad.png";
     }
