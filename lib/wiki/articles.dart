@@ -67,13 +67,13 @@ final Article articleSGSelector = Article(
 /// Article about PrioBike
 final Article articlePrioBike = Article(
   "Das Projekt",
-  "Wenn Radfahren zur Raketenwissenschaft wird",
+  "Wenn Radfahren zur Wissenschaft wird",
   "3 min.",
   "assets/images/wiki/wiki-das-projekt-icon.png",
   [
-    "Hallo liebe Radfahrerinnen und Radfahrer! Ich bin PrioBike, eure freundliche Fahrrad-App. Aber ich bin nicht nur eine App, sondern Teil eines großen Projekts, das Hamburg zu einer fahrradfreundlichen Stadt machen will. Das Projekt ist so cool, dass man fast vergisst, dass es sich um Stadtplanung handelt.",
-    "Unser neuestes Ding ist die \"Grüne Welle\" entlang dreier Velorouten. Wenn ihr diese Routen benutzt, werdet ihr nicht nur mit frischer Luft und einer schönen Aussicht belohnt, sondern auch mit einer dynamischen Ampelschaltung, die euch mit 18 km/h bei Grün durchfahren lässt. Wenn das kein Grund ist, sich aufs Rad zu schwingen, weiß ich auch nicht weiter.",
-    "Aber das ist noch lange nicht alles. Habt ihr schon die PrioBike-Säule auf der Rothenbaumchaussee entdeckt? Sie ist einzigartig in Deutschland und berechnet für jeden Radfahrenden eine individuelle Geschwindigkeitsempfehlung. Das ist fast so cool wie ein Fahrrad mit Raketenantrieb.",
+    "Hallo liebe Radfahrerinnen und Radfahrer! Ich bin PrioBike, eure freundliche Fahrrad-App. Aber ich bin nicht nur eine App, sondern Teil eines großen Projekts, das Hamburg zu einer fahrradfreundlichen Stadt machen will.",
+    "Unser neuestes Ding ist die \"Grüne Welle\" entlang dreier Velorouten. Wenn ihr diese Routen benutzt, werdet ihr nicht nur mit frischer Luft und einer schönen Aussicht belohnt, sondern auch mit einer statischen Grünen Welle, die euch mit 18 km/h bei Grün durchfahren lässt. Wenn das kein Grund ist, sich aufs Rad zu schwingen...",
+    "Aber das ist noch lange nicht alles. Habt ihr schon die PrioBike-Säule auf der Rothenbaumchaussee entdeckt? Sie ist einzigartig in Deutschland und berechnet für jeden Radfahrenden eine individuelle Geschwindigkeitsempfehlung.",
     "Und als ob das noch nicht genug wäre, gibt es an einer Kreuzung sogar eine Umkehrung der klassischen Ampel-Priorisierung. Hier wird der Fuß- und Radverkehr bevorzugt, während der Kfz-Verkehr grünes Licht nur bei Bedarf erhält. Das ist wie ein Fußballspiel, bei dem die Fans die Schiedsrichter sind.",
     "Und wenn ihr denkt, das war schon alles, täuscht ihr euch. Wir haben noch viele weitere Radinfrastrukturverbesserungen in petto, wie die Erweiterung der Velorouten und vieles mehr. In Zukunft werden wir euch noch mehr coole Dinge bieten, damit ihr eure Radtouren in vollen Zügen genießen könnt.",
     "Also schnappt euch euer Fahrrad und macht euch auf den Weg. Und wer weiß, vielleicht findet ihr ja sogar ein paar versteckte Witze auf eurem Weg.",
