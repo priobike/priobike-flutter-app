@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -203,6 +201,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
               physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
               children: [
                 // The layer for the elevation.
                 LayerSelectionItem(
@@ -279,7 +278,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
               ],
             ),
-            if (Platform.isAndroid) const SmallVSpace(),
+            const SmallVSpace(),
             GestureDetector(
               onTap: () => setState(() {
                 showLayerExplanations = !showLayerExplanations;
@@ -307,7 +306,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
               secondChild: Container(),
               crossFadeState: showLayerExplanations ? CrossFadeState.showFirst : CrossFadeState.showSecond,
             ),
-            if (Platform.isAndroid) const VSpace(),
+            const VSpace(),
             Content(text: "Kartendesign", context: context),
             const SmallVSpace(),
             GridView.count(
