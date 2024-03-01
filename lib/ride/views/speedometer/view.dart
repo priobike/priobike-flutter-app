@@ -211,11 +211,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     List<double> stopsFiltered = [];
     Color? lastColor;
     for (var i = 0; i < colors.length; i++) {
-      if (lastColor != null && lastColor != colors[i]) {
+      if (lastColor == null || lastColor != colors[i]) {
         colorsFiltered.add(colors[i]);
         stopsFiltered.add(stops[i]);
+        lastColor = colors[i];
       }
-      lastColor = colors[i];
     }
 
     // Duplicate each color and stop to create "hard edges" instead of a gradient between steps
