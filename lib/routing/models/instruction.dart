@@ -1,15 +1,17 @@
 import 'package:latlong2/latlong.dart';
 
 class Instruction {
-  /// The instruction location
-  final LatLng location;
+  /// The instruction latitude.
+  final double lat;
 
-  ///  The instruction text
-  final String text;
+  /// The instruction longitude.
+  final double lon;
 
-  /// If the instruction has already been executed
+  ///  The instruction text.
+  String text;
+
+  /// If the instruction has already been executed.
   bool executed = false;
 
-  Instruction({required this.location, required this.text});
-
+  Instruction({required this.lat, required this.lon, required this.text});
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
@@ -24,6 +25,8 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
+
+import '../models/instruction.dart';
 
 enum RoutingProfile {
   bikeDefault, // Bike doesn't consider elevation data.
@@ -497,6 +500,10 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
+          // Add an instruction for each relevant waypoint
+          List<Instruction> instructions =
+              createInstructions(sgSelectorResponse, path);
+
           var route = r.Route(
             id: i,
             path: path,
@@ -505,6 +512,7 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
             crossings: orderedCrossings,
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
+            instructions: instructions,
           );
           // Connect the route to the start and end points.
           route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
@@ -526,6 +534,58 @@ class Routing with ChangeNotifier {
 
     notifyListeners();
     return routes;
+  }
+
+  List<Instruction> createInstructions(
+      SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
+    final instructions = List<Instruction>.empty(growable: true);
+    for (var i = 0; i < sgSelectorResponse.route.length; i++) {
+      final waypoint = sgSelectorResponse.route[i];
+      Instruction customInstruction;
+
+      // get the GraphHopper coordinates that matches lat and long of current SGSelectorResponse waypoint
+      final ghCoordinate = path.points.coordinates.firstWhereOrNull((element) =>
+          element.lat == waypoint.lat && element.lon == waypoint.lon);
+
+      if (ghCoordinate != null) {
+        // get GraphHopper instruction that matches the index of the coordinate
+        final index = path.points.coordinates.indexOf(ghCoordinate);
+        final ghInstruction = path.instructions
+            .firstWhereOrNull((element) => element.interval.first == index);
+
+        if (ghInstruction != null) {
+          //check if there is also a signal group (sg) near the instruction point
+          if (waypoint.distanceToNextSignal != null &&
+              waypoint.distanceToNextSignal! <= 50.0 &&
+              waypoint.signalGroupId != null) {
+            // case 1: create custom instruction as combination of GraphHopper instruction and sg information
+            customInstruction = Instruction(
+                lat: waypoint.lat,
+                lon: waypoint.lon,
+                text: "${ghInstruction.text} + Ampel in ${waypoint.distanceToNextSignal!}m");
+          } else {
+            // case 2: create custom instruction based on GraphHopper instruction
+            customInstruction = Instruction(
+                lat: waypoint.lat, lon: waypoint.lon, text: ghInstruction.text);
+          }
+          instructions.add(customInstruction);
+          continue;
+        }
+      }
+      // no GraphHopper instruction belongs to the current waypoint
+      // check if sg belongs to current waypoint
+      if (waypoint.distanceToNextSignal == 0.0 &&
+          waypoint.signalGroupId != null) {
+        // case 3: create customInstruction based on geometry information of sg
+        // TODO extract and use geometry information
+        customInstruction = Instruction(
+            lat: waypoint.lat,
+            lon: waypoint.lon,
+            text: "Ampel ${waypoint.signalGroupId}");
+        instructions.add(customInstruction);
+      }
+    }
+    return instructions;
   }
 
   /// Load the routes from a route shortcut from the server (lightweight).
@@ -587,6 +647,7 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
+          // TODO: add method for calculating instructions
           var route = r.Route(
             id: i,
             path: path,
@@ -595,6 +656,7 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
             crossings: orderedCrossings,
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
+            instructions: [],
           );
           // Connect the route to the start and end points.
           route = route.connected(shortcutRoute.waypoints.first, shortcutRoute.waypoints.last);

@@ -8,6 +8,8 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
+import 'instruction.dart';
+
 class Route {
   /// The route id.
   final int id;
@@ -33,6 +35,9 @@ class Route {
   /// A list of crossing distances on the route, in the order of `crossings`.
   final List<double> crossingsDistancesOnRoute;
 
+  /// A list of instructions.
+  final List<Instruction> instructions;
+
   const Route({
     required this.id,
     required this.path,
@@ -41,6 +46,7 @@ class Route {
     required this.signalGroupsDistancesOnRoute,
     required this.crossings,
     required this.crossingsDistancesOnRoute,
+    required this.instructions,
   });
 
   Map<String, dynamic> toJson() => {
@@ -61,6 +67,7 @@ class Route {
         signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
         crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
+        instructions: [],
       );
 
   /// The route, connected to the start and end point.
@@ -97,6 +104,7 @@ class Route {
       ],
       crossings: crossings,
       crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+      instructions: instructions,
     );
   }
 
