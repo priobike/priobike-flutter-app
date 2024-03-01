@@ -153,7 +153,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   }
 
   /// Load the gauge colors and steps, from the predictor.
-  Future<void> loadGauge(Ride ride) async {
+  void loadGauge(Ride ride) {
     if (ride.predictionComponent?.recommendation == null || ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
@@ -195,7 +195,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       },
     ).toList();
 
-    // Add stops and colos to indicate unavailable prediction ranges
+    // Add stops and colors to indicate unavailable prediction ranges
     if (stops.isNotEmpty) {
       stops.add(stops.last);
       stops.add(0.0);
@@ -205,16 +205,29 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       colors.add(defaultGaugeColor);
     }
 
+    // Filter unnecessary color steps.
+    // This step is needed to prevent calculating unnecessary gradiant steps in the speedometer arc.
+    List<Color> colorsFiltered = [];
+    List<double> stopsFiltered = [];
+    Color? lastColor;
+    for (var i = 0; i < colors.length; i++) {
+      if (lastColor != null && lastColor != colors[i]) {
+        colorsFiltered.add(colors[i]);
+        stopsFiltered.add(stops[i]);
+      }
+      lastColor = colors[i];
+    }
+
     // Duplicate each color and stop to create "hard edges" instead of a gradient between steps
     // Such that green 0.1, red 0.3 -> green 0.1, green 0.3, red 0.3
     List<Color> hardEdgeColors = [];
     List<double> hardEdgeStops = [];
-    for (var i = 0; i < colors.length; i++) {
-      hardEdgeColors.add(colors[i]);
-      hardEdgeStops.add(stops[i]);
-      if (i + 1 < colors.length) {
-        hardEdgeColors.add(colors[i]);
-        hardEdgeStops.add(stops[i + 1]);
+    for (var i = 0; i < colorsFiltered.length; i++) {
+      hardEdgeColors.add(colorsFiltered[i]);
+      hardEdgeStops.add(stopsFiltered[i]);
+      if (i + 1 < colorsFiltered.length) {
+        hardEdgeColors.add(colorsFiltered[i]);
+        hardEdgeStops.add(stopsFiltered[i + 1]);
       }
     }
 
