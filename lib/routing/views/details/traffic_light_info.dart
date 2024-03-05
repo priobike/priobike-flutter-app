@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -58,16 +57,21 @@ class TrafficLightInfoState extends State<TrafficLightInfo> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
+        color: Theme
+            .of(context)
+            .colorScheme
+            .onTertiary
+            .withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
-            onTap: () => setState(() {
-              showTrafficLightDetails = !showTrafficLightDetails;
-            }),
+            onTap: () =>
+                setState(() {
+                  showTrafficLightDetails = !showTrafficLightDetails;
+                }),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Content(text: "Ampeln", context: context),
               const HSpace(),
@@ -99,9 +103,10 @@ class TrafficLightInfoState extends State<TrafficLightInfo> {
                 height: 40,
                 child: SmallIconButtonTertiary(
                   icon: showTrafficLightDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
-                  onPressed: () => setState(() {
-                    showTrafficLightDetails = !showTrafficLightDetails;
-                  }),
+                  onPressed: () =>
+                      setState(() {
+                        showTrafficLightDetails = !showTrafficLightDetails;
+                      }),
                 ),
               ),
             ]),
@@ -112,9 +117,10 @@ class TrafficLightInfoState extends State<TrafficLightInfo> {
             sizeCurve: Curves.easeInOutCubic,
             duration: const Duration(milliseconds: 1000),
             firstChild: GestureDetector(
-              onTap: () => setState(() {
-                showTrafficLightDetails = !showTrafficLightDetails;
-              }),
+              onTap: () =>
+                  setState(() {
+                    showTrafficLightDetails = !showTrafficLightDetails;
+                  }),
               child: const _TrafficLightInfoDetailWidget(),
             ),
             secondChild: Container(),
@@ -142,7 +148,9 @@ class _TrafficLightInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme
+        .of(context)
+        .brightness == Brightness.dark;
 
     String assetPath = "assets/images/trafficlights/$assetName-${isDark ? "dark" : "light"}-info.png";
 
@@ -155,6 +163,7 @@ class _TrafficLightInfoWidget extends StatelessWidget {
             numberTrafficLights.toString(),
             style: TextStyle(
               color: textColor,
+              fontFamily: 'HamburgSans',
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -162,7 +171,11 @@ class _TrafficLightInfoWidget extends StatelessWidget {
         ),
         SizedBox(
           height: 30,
-          child: Image.asset(assetPath),
+          child: assetName == "online-green"
+              ? _AnimatedTrafficLightIcon(
+            isDark: isDark,
+          )
+              : Image.asset(assetPath),
         ),
       ],
     );
@@ -171,15 +184,17 @@ class _TrafficLightInfoWidget extends StatelessWidget {
 
 /// The traffic light info widget for the traffic light row.
 class _TrafficLightInfoDetailWidget extends StatelessWidget {
+
   const _TrafficLightInfoDetailWidget();
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme
+        .of(context)
+        .brightness == Brightness.dark;
 
     String assetPathDisconnected = "assets/images/trafficlights/disconnected-${isDark ? "dark" : "light"}-info.png";
     String assetPathConnected = "assets/images/trafficlights/online-${isDark ? "dark" : "light"}-info.png";
-    String assetPathOk = "assets/images/trafficlights/online-green-${isDark ? "dark" : "light"}-info.png";
 
     return Column(
       children: [
@@ -207,7 +222,9 @@ class _TrafficLightInfoDetailWidget extends StatelessWidget {
           children: [
             SizedBox(
               height: 24,
-              child: _AnimatedTrafficLightIcon(),
+              child: _AnimatedTrafficLightIcon(
+                isDark: isDark,
+              ),
             ),
             const HSpace(),
             Flexible(
@@ -228,7 +245,7 @@ class _TrafficLightInfoDetailWidget extends StatelessWidget {
             Flexible(
               child: Content(
                   text:
-                      "Weitere Kreuzungen, an welchen Ampeln liegen könnten, welche jedoch nicht im System vorhanden sind.",
+                  "Weitere Kreuzungen, an welchen Ampeln liegen könnten, welche jedoch nicht im System vorhanden sind.",
                   context: context),
             ),
           ],
@@ -240,6 +257,11 @@ class _TrafficLightInfoDetailWidget extends StatelessWidget {
 
 /// The traffic light info widget for the traffic light row.
 class _AnimatedTrafficLightIcon extends StatefulWidget {
+  /// The bool that holds the state of the theme brightness.
+  final bool isDark;
+
+  const _AnimatedTrafficLightIcon({required this.isDark});
+
   @override
   _AnimatedTrafficLightIconState createState() => _AnimatedTrafficLightIconState();
 }
@@ -259,11 +281,8 @@ class _AnimatedTrafficLightIconState extends State<_AnimatedTrafficLightIcon> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      final isDark = Theme.of(context).brightness == Brightness.dark;
-      assetPathRedLight = "assets/images/trafficlights/online-red-${isDark ? "dark" : "light"}-info.png";
-      assetPathGreenLight = "assets/images/trafficlights/online-green-${isDark ? "dark" : "light"}-info.png";
-    });
+    assetPathRedLight = "assets/images/trafficlights/online-red-${widget.isDark ? "dark" : "light"}-info.png";
+    assetPathGreenLight = "assets/images/trafficlights/online-green-${widget.isDark ? "dark" : "light"}-info.png";
 
     animationTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       final tmpOpacity = opacityRedLight;
@@ -285,19 +304,13 @@ class _AnimatedTrafficLightIconState extends State<_AnimatedTrafficLightIcon> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        SizedBox(
-          height: 24,
-          child: Opacity(
-            opacity: opacityRedLight,
-            child: Image.asset(assetPathRedLight),
-          ),
+        Opacity(
+          opacity: opacityRedLight,
+          child: Image.asset(assetPathRedLight),
         ),
-        SizedBox(
-          height: 24,
-          child: Opacity(
-            opacity: opacityGreenLight,
-            child: Image.asset(assetPathGreenLight),
-          ),
+        Opacity(
+          opacity: opacityGreenLight,
+          child: Image.asset(assetPathGreenLight),
         ),
       ],
     );

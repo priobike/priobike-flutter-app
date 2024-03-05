@@ -178,16 +178,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final int okTrafficLights = status.ok;
     final int allTrafficLights = status.ok + status.bad + status.offline;
 
-    String textTrafficLights;
-    double percentageTrafficLights = 0;
-
-    if (allTrafficLights > 0) {
-      textTrafficLights =
-          "$allTrafficLights Ampel${allTrafficLights == 1 ? "" : "n"} angebunden, $okTrafficLights davon ${okTrafficLights == 1 ? "hat" : "haben"} Geschwindigkeitsempfehlungen";
-      percentageTrafficLights = okTrafficLights / allTrafficLights;
-    } else {
-      textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
-    }
+    double percentageTrafficLights = allTrafficLights > 0 ? okTrafficLights / allTrafficLights : 0;
 
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
@@ -203,12 +194,38 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
             Container(
               constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
-              child: Small(
-                text: textTrafficLights,
-                context: context,
-                textAlign: TextAlign.center,
-                height: 1.1,
-              ),
+              child: allTrafficLights > 0
+                  ? Text.rich(
+                      textAlign: TextAlign.center,
+                      TextSpan(
+                          style: const TextStyle(
+                            height: 1.1,
+                            fontFamily: 'HamburgSans',
+                            fontSize: 13,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: allTrafficLights.toString(),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(
+                              text: " Ampel${allTrafficLights == 1 ? "" : "n"} angebunden, ",
+                            ),
+                            TextSpan(
+                              text: okTrafficLights.toString(),
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: CI.radkulturGreen),
+                            ),
+                            TextSpan(
+                              text: " davon ${okTrafficLights == 1 ? "hat" : "haben"} Geschwindigkeitsempfehlungen",
+                            ),
+                          ]),
+                    )
+                  : Small(
+                      text: "Es befinden sich keine Ampeln auf der Route",
+                      context: context,
+                      textAlign: TextAlign.center,
+                      height: 1.1,
+                    ),
             ),
             const SmallHSpace(),
             SizedBox(
