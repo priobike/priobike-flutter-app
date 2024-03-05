@@ -57,21 +57,16 @@ class TrafficLightInfoState extends State<TrafficLightInfo> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme
-            .of(context)
-            .colorScheme
-            .onTertiary
-            .withOpacity(0.5),
+        color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
-            onTap: () =>
-                setState(() {
-                  showTrafficLightDetails = !showTrafficLightDetails;
-                }),
+            onTap: () => setState(() {
+              showTrafficLightDetails = !showTrafficLightDetails;
+            }),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Content(text: "Ampeln", context: context),
               const HSpace(),
@@ -103,10 +98,9 @@ class TrafficLightInfoState extends State<TrafficLightInfo> {
                 height: 40,
                 child: SmallIconButtonTertiary(
                   icon: showTrafficLightDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
-                  onPressed: () =>
-                      setState(() {
-                        showTrafficLightDetails = !showTrafficLightDetails;
-                      }),
+                  onPressed: () => setState(() {
+                    showTrafficLightDetails = !showTrafficLightDetails;
+                  }),
                 ),
               ),
             ]),
@@ -117,10 +111,9 @@ class TrafficLightInfoState extends State<TrafficLightInfo> {
             sizeCurve: Curves.easeInOutCubic,
             duration: const Duration(milliseconds: 1000),
             firstChild: GestureDetector(
-              onTap: () =>
-                  setState(() {
-                    showTrafficLightDetails = !showTrafficLightDetails;
-                  }),
+              onTap: () => setState(() {
+                showTrafficLightDetails = !showTrafficLightDetails;
+              }),
               child: const _TrafficLightInfoDetailWidget(),
             ),
             secondChild: Container(),
@@ -148,9 +141,7 @@ class _TrafficLightInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme
-        .of(context)
-        .brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     String assetPath = "assets/images/trafficlights/$assetName-${isDark ? "dark" : "light"}-info.png";
 
@@ -173,8 +164,8 @@ class _TrafficLightInfoWidget extends StatelessWidget {
           height: 30,
           child: assetName == "online-green"
               ? _AnimatedTrafficLightIcon(
-            isDark: isDark,
-          )
+                  isDark: isDark,
+                )
               : Image.asset(assetPath),
         ),
       ],
@@ -184,14 +175,11 @@ class _TrafficLightInfoWidget extends StatelessWidget {
 
 /// The traffic light info widget for the traffic light row.
 class _TrafficLightInfoDetailWidget extends StatelessWidget {
-
   const _TrafficLightInfoDetailWidget();
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme
-        .of(context)
-        .brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     String assetPathDisconnected = "assets/images/trafficlights/disconnected-${isDark ? "dark" : "light"}-info.png";
     String assetPathConnected = "assets/images/trafficlights/online-${isDark ? "dark" : "light"}-info.png";
@@ -245,7 +233,7 @@ class _TrafficLightInfoDetailWidget extends StatelessWidget {
             Flexible(
               child: Content(
                   text:
-                  "Weitere Kreuzungen, an welchen Ampeln liegen könnten, welche jedoch nicht im System vorhanden sind.",
+                      "Weitere Kreuzungen, an welchen Ampeln liegen könnten, welche jedoch nicht im System vorhanden sind.",
                   context: context),
             ),
           ],

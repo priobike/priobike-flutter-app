@@ -193,6 +193,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     RentalStationsLayer.layerId,
     RentalStationsLayer.textLayerId,
     RentalStationsLayer.clickLayerId,
+    IntersectionsLayer.layerId,
     userLocationLayerId,
   ];
 
@@ -511,6 +512,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else {
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
+    }
+    if (layers.showIntersectionsLayer) {
+      final index = await getIndex(IntersectionsLayer.layerId);
+      if (!mounted) return;
+      await const IntersectionsLayer().install(mapController!, at: index);
+    } else {
+      if (!mounted) return;
+      await IntersectionsLayer.remove(mapController!);
     }
 
     /*
