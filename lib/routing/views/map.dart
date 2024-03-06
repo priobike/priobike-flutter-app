@@ -173,8 +173,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     TrafficLayer.layerId,
     AllRoutesLayer.layerId,
     AllRoutesLayer.layerIdClick,
+    IntersectionsLayer.layerId,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
+    RouteCrossingsCircleLayer.layerId,
     DiscomfortsLayer.layerIdMarker,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
@@ -193,7 +195,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     RentalStationsLayer.layerId,
     RentalStationsLayer.textLayerId,
     RentalStationsLayer.clickLayerId,
-    IntersectionsLayer.layerId,
     userLocationLayerId,
   ];
 
@@ -513,14 +514,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
     }
-    if (layers.showIntersectionsLayer) {
-      final index = await getIndex(IntersectionsLayer.layerId);
-      if (!mounted) return;
-      await const IntersectionsLayer().install(mapController!, at: index);
-    } else {
-      if (!mounted) return;
-      await IntersectionsLayer.remove(mapController!);
-    }
+
+    final index = await getIndex(IntersectionsLayer.layerId);
+    if (!mounted) return;
+    await const IntersectionsLayer().install(mapController!, at: index);
 
     /*
     * Only applies to Android. Due to a data leak on Android-Flutter (https://github.com/flutter/flutter/issues/118384),
@@ -553,6 +550,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
+    if (!mounted) return;
+    await RouteCrossingsCircleLayer().update(mapController!);
   }
 
   /// Update all route map layers.
@@ -613,6 +612,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(AllRoutesLayer.layerId);
     if (!mounted) return;
     await AllRoutesLayer().install(
+      mapController!,
+      at: index,
+    );
+    index = await getIndex(RouteCrossingsCircleLayer.layerId);
+    if (!mounted) return;
+    await RouteCrossingsCircleLayer().install(
       mapController!,
       at: index,
     );
