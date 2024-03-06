@@ -244,7 +244,7 @@ class TrackHistoryItemDetailView extends StatefulWidget {
   /// The image of the route destination icon.
   final ui.Image destinationImage;
 
-  TrackHistoryItemDetailView({
+  const TrackHistoryItemDetailView({
     super.key,
     required this.track,
     required this.startImage,
