@@ -159,9 +159,20 @@ class IntersectionsLayer {
     if (!layerExists) {
       await mapController.style.addLayerAt(
           mapbox.CircleLayer(
-              sourceId: sourceId, id: layerId, circleRadius: 3, circleColor: Colors.blue.value, minZoom: 5.0),
+              sourceId: sourceId,
+              id: layerId,
+              circleRadius: 3,
+              circleColor: const Color.fromRGBO(94, 166, 255, 255).value,
+              minZoom: 8.0),
           mapbox.LayerPosition(at: at));
     }
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-opacity',
+        json.encode(
+          showAfter(zoom: 10),
+        ));
   }
 
   /// Remove the layer from the map controller.
