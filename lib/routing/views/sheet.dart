@@ -117,6 +117,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   }
 
   Widget renderBottomSheetWaypoints(BuildContext context) {
+    if (routing.isFetchingRoute) return Container();
     var widgets = <Widget>[];
     for (int i = 0; i < (routing.selectedWaypoints?.length ?? 0); i++) {
       final waypoint = routing.selectedWaypoints![i];
