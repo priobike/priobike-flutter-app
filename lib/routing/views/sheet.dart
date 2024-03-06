@@ -271,6 +271,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                       height: routing.isFetchingRoute ? 48 : 0,
                       child: Icon(
                         Icons.directions_bike,
+                        size: routing.isFetchingRoute ? 48 : 0,
                         color: Theme.of(context).colorScheme.onTertiary,
                       ),
                     ),
