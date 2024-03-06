@@ -336,10 +336,7 @@ class RoutingViewState extends State<RoutingView> {
                 padding: const EdgeInsets.only(top: 8),
                 child: AppBackButton(
                   icon: Icons.chevron_left_rounded,
-                  onPressed: () {
-                    if (routing != null) routing!.reset();
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
             ),
