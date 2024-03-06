@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/scheduler.dart';
@@ -155,7 +154,7 @@ class FeedbackViewState extends State<FeedbackView> {
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withOpacity(0.4),
       transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        filter: ui.ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
         child: FadeTransition(
           opacity: animation,
           child: child,
