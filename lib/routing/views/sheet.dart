@@ -245,107 +245,115 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
 
-    final bool bottomSheetIsReady = routing.selectedRoute != null && !routing.isFetchingRoute;
-
-    return AnimatedSlide(
-      offset: bottomSheetIsReady ? const Offset(0, 0) : const Offset(0, 1),
-      duration: const Duration(milliseconds: 1000),
-      child: SizedBox(
-        height: frame.size.height, // Needed for reorderable list.
-        child: Stack(
-          children: [
-            DraggableScrollableSheet(
-              initialChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
-              maxChildSize: 1,
-              minChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
-              builder: (BuildContext context, ScrollController controller) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
-                  ),
-                  child: SingleChildScrollView(
-                    controller: controller,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: Column(
-                      children: [
-                        renderDragIndicator(context),
-                        renderTopInfoSection(context),
-                        const SmallVSpace(),
-                        renderBottomSheetWaypoints(context),
-                        (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                            ? const TutorialView(
-                                id: "priobike.tutorial.draw-waypoints",
-                                text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                                padding: EdgeInsets.only(left: 18),
-                              )
-                            : Container(),
-                        const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                        const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                        const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                        const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                        const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                        // Big button size + padding.
-                        SizedBox(
-                          height: 40 + 8 + frame.padding.bottom,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              child: Container(
-                padding: const EdgeInsets.only(top: 8, bottom: 4),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
-                      Theme.of(context).colorScheme.surfaceVariant,
-                    ],
-                    stops: const [0.0, 0.5],
-                  ),
-                ),
-                width: frame.size.width,
-                height: frame.padding.bottom + 48,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return SizedBox(
+      height: frame.size.height, // Needed for reorderable list.
+      child: Stack(children: [
+        DraggableScrollableSheet(
+          initialChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          maxChildSize: 1,
+          minChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          builder: (BuildContext context, ScrollController controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
+              ),
+              child: SingleChildScrollView(
+                controller: controller,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
                   children: [
-                    const SmallHSpace(),
-                    Expanded(
-                      child: BigButtonSecondary(
-                        label: "Speichern",
-                        fillColor: Theme.of(context).colorScheme.surfaceVariant,
-                        onPressed:
-                            routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectSaveButton,
-                        addPadding: false,
-                      ),
+                    renderDragIndicator(context),
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderTopInfoSection(context),
+                      crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
                     ),
-                    const SmallHSpace(),
-                    Expanded(
-                      child: BigButtonPrimary(
-                        label: "Losfahren",
-                        onPressed: routing.isFetchingRoute || routing.selectedRoute == null
-                            ? null
-                            : widget.onSelectStartButton,
-                        addPadding: false,
-                      ),
+                    const SmallVSpace(),
+                    AnimatedCrossFade(
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 1000),
+                      firstChild: Container(),
+                      secondChild: renderBottomSheetWaypoints(context),
+                      crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                     ),
-                    const SmallHSpace(),
+                    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                      const TutorialView(
+                        id: "priobike.tutorial.draw-waypoints",
+                        text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                        padding: EdgeInsets.only(left: 18),
+                      ),
+                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                    const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                    // Big button size + padding.
+                    SizedBox(
+                      height: 40 + 8 + frame.padding.bottom,
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          child: Container(
+            padding: const EdgeInsets.only(top: 8, bottom: 4),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
+                  Theme.of(context).colorScheme.surfaceVariant,
+                ],
+                stops: const [0.0, 0.5],
+              ),
+            ),
+            width: frame.size.width,
+            height: frame.padding.bottom + 48,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SmallHSpace(),
+                Expanded(
+                  child: BigButtonSecondary(
+                    label: "Speichern",
+                    fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                    onPressed:
+                        routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectSaveButton,
+                    addPadding: false,
+                  ),
+                ),
+                const SmallHSpace(),
+                Expanded(
+                  child: BigButtonPrimary(
+                    label: "Losfahren",
+                    onPressed:
+                        routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectStartButton,
+                    addPadding: false,
+                  ),
+                ),
+                const SmallHSpace(),
+              ],
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }
