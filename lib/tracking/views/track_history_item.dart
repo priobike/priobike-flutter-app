@@ -466,6 +466,8 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
               label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
+                // We want to pop two times.
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
