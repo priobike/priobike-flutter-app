@@ -16,6 +16,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
@@ -243,7 +244,7 @@ class TrackHistoryItemDetailView extends StatefulWidget {
   /// The image of the route destination icon.
   final ui.Image destinationImage;
 
-  const TrackHistoryItemDetailView({
+  TrackHistoryItemDetailView({
     super.key,
     required this.track,
     required this.startImage,
@@ -302,6 +303,16 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
           ),
         );
 
+        int? firstTimestamp;
+        widget.track.routes.forEach((key, _) {
+          if (firstTimestamp == null) {
+            firstTimestamp = key;
+          } else if (key < firstTimestamp!) {
+            firstTimestamp = key;
+          }
+        });
+        List<NavigationNode> routeNodes = widget.track.routes[firstTimestamp]!.route;
+
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
               ? TrackPictogram(
@@ -323,6 +334,9 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   // Padding + 2 * button height + padding + padding bottom.
                   speedLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
                   speedLegendLeft: 20,
+                  routeNodes: routeNodes,
+                  routeLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
+                  routeLegendRight: 20,
                 )
               : Center(
                   child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
@@ -452,7 +466,6 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
               label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
-                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

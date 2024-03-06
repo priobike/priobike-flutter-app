@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/scheduler.dart';
@@ -103,6 +104,9 @@ class FeedbackViewState extends State<FeedbackView> {
         }
 
         setState(() {});
+
+        if (!mounted) return;
+        if (tracking.previousTracks!.last.routes.length > 4) _showReroutingWarning(context);
       },
     );
   }
@@ -141,6 +145,38 @@ class FeedbackViewState extends State<FeedbackView> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showReroutingWarning(context) async {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Hinweis',
+          text: "Du bist während der Fahrt häufig von der ursprünglich geplanten Route abgewichen. \n\n"
+              "Die Geschwindigkeitsempfehlungen werden dadurch potentiell beeinträchtigt, da diese nur entlang der Route funktionieren. \n\n"
+              "Trotz der automatischen Neu-Berechnung der Route während der Fahrt empfehlen wir daher eine möglichst genaue Erstellung der Route vor Fahrtantritt. "
+              "Nutze dafür Funktionen wie das Setzen von Zwischenzielen oder das Verschieben von Wegpunkten. ",
+          actions: [
+            BigButtonPrimary(
+              label: "Schließen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+          ],
+        );
+      },
     );
   }
 
