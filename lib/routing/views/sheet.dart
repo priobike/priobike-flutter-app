@@ -265,41 +265,42 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    AnimatedCrossFade(
-                      firstCurve: Curves.easeInOutCubic,
-                      secondCurve: Curves.easeInOutCubic,
-                      sizeCurve: Curves.easeInOutCubic,
+                    AnimatedContainer(
                       duration: const Duration(milliseconds: 1000),
-                      firstChild: Container(),
-                      secondChild: renderTopInfoSection(context),
-                      crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
-                    ),
-                    const SmallVSpace(),
-                    AnimatedCrossFade(
-                      firstCurve: Curves.easeInOutCubic,
-                      secondCurve: Curves.easeInOutCubic,
-                      sizeCurve: Curves.easeInOutCubic,
-                      duration: const Duration(milliseconds: 1000),
-                      firstChild: Container(),
-                      secondChild: renderBottomSheetWaypoints(context),
-                      crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                    ),
-                    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                      const TutorialView(
-                        id: "priobike.tutorial.draw-waypoints",
-                        text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                        padding: EdgeInsets.only(left: 18),
+                      curve: Curves.easeInOut,
+                      height: routing.isFetchingRoute ? 48 : 0,
+                      child: Icon(
+                        Icons.directions_bike,
+                        color: Theme.of(context).colorScheme.onTertiary,
                       ),
-                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                    // Big button size + padding.
-                    SizedBox(
-                      height: 40 + 8 + frame.padding.bottom,
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 1000),
+                      curve: Curves.easeInOut,
+                      // Hides the content while fetching the route, then slides it in.
+                      height: routing.isFetchingRoute ? 0 : null,
+                      child: Column(
+                        children: [
+                          renderTopInfoSection(context),
+                          const SmallVSpace(),
+                          renderBottomSheetWaypoints(context),
+                          if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                            const TutorialView(
+                              id: "priobike.tutorial.draw-waypoints",
+                              text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                              padding: EdgeInsets.only(left: 18),
+                            ),
+                          const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                          // Big button size + padding.
+                          SizedBox(
+                            height: 40 + 8 + frame.padding.bottom,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
