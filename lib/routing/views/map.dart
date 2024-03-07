@@ -177,6 +177,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
     RouteCrossingsCircleLayer.layerId,
+    SelectedRouteCrossingsCircleLayer.layerId,
     DiscomfortsLayer.layerIdMarker,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
@@ -552,6 +553,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await SelectedRouteLayer().update(mapController!);
     if (!mounted) return;
     await RouteCrossingsCircleLayer().update(mapController!);
+    if (!mounted) return;
+    await SelectedRouteCrossingsCircleLayer().update(mapController!);
   }
 
   /// Update all route map layers.
@@ -618,6 +621,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(RouteCrossingsCircleLayer.layerId);
     if (!mounted) return;
     await RouteCrossingsCircleLayer().install(
+      mapController!,
+      at: index,
+    );
+    index = await getIndex(SelectedRouteCrossingsCircleLayer.layerId);
+    if (!mounted) return;
+    await SelectedRouteCrossingsCircleLayer().install(
       mapController!,
       at: index,
     );

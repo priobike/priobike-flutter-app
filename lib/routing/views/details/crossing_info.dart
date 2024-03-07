@@ -81,33 +81,31 @@ class CrossingInfoState extends State<CrossingInfo> {
               height: 64,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: EdgeInsets.zero,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 14,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color.fromRGBO(0, 255, 106, 1),
-                            border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
-                          ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color.fromRGBO(0, 255, 106, 1),
+                          border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
                         ),
-                        const SizedBox(
-                          width: 2,
+                      ),
+                      const SizedBox(
+                        width: 2,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                        child: Small(
+                          context: context,
+                          text: routing.selectedRoute != null ? status.ok.toString() : "-",
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                          child: Small(
-                            context: context,
-                            text: routing.selectedRoute != null ? status.ok.toString() : "-",
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,7 +159,7 @@ class CrossingInfoState extends State<CrossingInfo> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
+              padding: const EdgeInsets.only(left: 8, right: 8, top: 12, bottom: 12),
               child: Icon(
                 Icons.info_outline,
                 size: 32,
