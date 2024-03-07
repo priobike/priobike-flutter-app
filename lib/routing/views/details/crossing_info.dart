@@ -178,6 +178,8 @@ class CrossingInfoState extends State<CrossingInfo> {
 class _CrossingExplanationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -187,7 +189,7 @@ class _CrossingExplanationView extends StatelessWidget {
             Content(
                 context: context,
                 text:
-                    "Um dich bei der Erstellung deiner Route zu unterstützen, zeigen wir dir, welche Kreuzungen auf deiner Strecke liegen."),
+                    "Um dich bei der Erstellung deiner Route zu unterstützen, zeigen wir dir, welche Kreuzungen und Ampeln auf deiner Strecke liegen."),
             const VSpace(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +264,7 @@ class _CrossingExplanationView extends StatelessWidget {
                   height: 14,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color.fromRGBO(196, 220, 248, 1),
+                    color: isDark ? const Color.fromRGBO(0, 75, 130, 1) : const Color.fromRGBO(196, 220, 248, 1),
                     border: Border.all(color: const Color.fromRGBO(196, 220, 248, 1), width: 1),
                   ),
                 ),
