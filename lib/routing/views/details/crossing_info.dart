@@ -103,7 +103,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                           padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
                           child: Small(
                             context: context,
-                            text: status.ok.toString(),
+                            text: routing.selectedRoute != null ? status.ok.toString() : "-",
                           ),
                         ),
                       ],
@@ -128,7 +128,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
                         child: Small(
                           context: context,
-                          text: (status.bad + status.offline).toString(),
+                          text: routing.selectedRoute != null ? (status.bad + status.offline).toString() : "-",
                         ),
                       ),
                     ],
@@ -152,7 +152,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
                         child: Small(
                           context: context,
-                          text: status.disconnected.toString(),
+                          text: routing.selectedRoute != null ? status.disconnected.toString() : "-",
                         ),
                       ),
                     ],
@@ -265,7 +265,6 @@ class _CrossingExplanationView extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isDark ? const Color.fromRGBO(0, 75, 130, 1) : const Color.fromRGBO(196, 220, 248, 1),
-                    border: Border.all(color: const Color.fromRGBO(196, 220, 248, 1), width: 1),
                   ),
                 ),
                 const HSpace(),
