@@ -246,7 +246,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final frame = MediaQuery.of(context);
 
     // The bottom sheet is ready when the route is not being fetched or if the free ride mode was used.
-    final bottomSheetIsReady = (!routing.isFetchingRoute && routing.hasloaded) || routing.selectedWaypoints == null;
+    final bottomSheetIsReady =
+        (!routing.isFetchingRoute && routing.hasloaded && !status.isLoading) || routing.selectedWaypoints == null;
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
@@ -268,21 +269,21 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    AnimatedContainer(
+                    AnimatedOpacity(
                       duration: const Duration(milliseconds: 750),
-                      curve: Curves.easeInOut,
-                      height: bottomSheetIsReady ? 0 : 48,
+                      curve: Curves.linear,
+                      opacity: bottomSheetIsReady ? 0 : 1,
                       child: Icon(
                         Icons.directions_bike,
                         size: bottomSheetIsReady ? 0 : 48,
                         color: Theme.of(context).colorScheme.onTertiary,
                       ),
                     ),
-                    AnimatedContainer(
+                    AnimatedOpacity(
                       duration: const Duration(milliseconds: 750),
-                      curve: Curves.easeInOut,
+                      curve: Curves.linear,
                       // Hides the content of the bottom sheet until the route is loaded.
-                      height: bottomSheetIsReady ? null : 0,
+                      opacity: bottomSheetIsReady ? 1 : 0,
                       child: Column(
                         children: [
                           renderTopInfoSection(context),
