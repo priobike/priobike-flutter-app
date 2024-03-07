@@ -270,15 +270,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 1000),
-                      curve: Curves.linear,
-                      opacity: bottomSheetIsReady ? 0 : 1,
-                      child: Icon(
-                        Icons.directions_bike,
-                        size: bottomSheetIsReady ? 0 : 48,
-                        color: Theme.of(context).colorScheme.onTertiary,
-                      ),
+                    Icon(
+                      Icons.directions_bike,
+                      size: bottomSheetIsReady ? 0 : 48,
+                      color: Theme.of(context).colorScheme.onTertiary,
                     ),
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 1000),
