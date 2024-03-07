@@ -171,9 +171,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   final List layerOrder = [
     VeloRoutesLayer.layerId,
     TrafficLayer.layerId,
+    IntersectionsLayer.layerId,
     AllRoutesLayer.layerId,
     AllRoutesLayer.layerIdClick,
-    IntersectionsLayer.layerId,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
     RouteCrossingsCircleLayer.layerId,
@@ -517,7 +517,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final index = await getIndex(IntersectionsLayer.layerId);
     if (!mounted) return;
-    await const IntersectionsLayer().install(mapController!, at: index);
+    await IntersectionsLayer(isDark).install(mapController!, at: index);
 
     /*
     * Only applies to Android. Due to a data leak on Android-Flutter (https://github.com/flutter/flutter/issues/118384),

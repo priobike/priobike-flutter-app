@@ -21,6 +21,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/details/crossing_info.dart';
 import 'package:priobike/routing/views/details/shortcuts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -371,6 +372,17 @@ class RoutingViewState extends State<RoutingView> {
                 padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
                 child: const Column(
                   children: [CenterButton(), SmallVSpace(), CompassButton()],
+                ),
+              ),
+            ),
+
+            // Side Bar right
+            const Positioned(
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: CrossingInfo(),
                 ),
               ),
             ),

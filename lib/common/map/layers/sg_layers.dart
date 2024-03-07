@@ -569,6 +569,13 @@ class RouteCrossingsCircleLayer {
         ));
 
     await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-stroke-opacity',
+        json.encode(
+          showAfter(zoom: 10),
+        ));
+
+    await mapController.style.setStyleLayerProperty(
       layerId,
       'circle-color',
       json.encode(["get", "circle-color"]),

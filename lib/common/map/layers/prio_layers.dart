@@ -125,7 +125,10 @@ class IntersectionsLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "intersections-points";
 
-  const IntersectionsLayer();
+  /// If the dark mode is enabled.
+  final bool isDark;
+
+  const IntersectionsLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
@@ -161,7 +164,8 @@ class IntersectionsLayer {
               sourceId: sourceId,
               id: layerId,
               circleRadius: 3,
-              circleColor: const Color.fromRGBO(94, 166, 255, 255).value,
+              circleColor:
+                  isDark ? const Color.fromRGBO(0, 75, 130, 1).value : const Color.fromRGBO(196, 220, 248, 1).value,
               minZoom: 8.0),
           mapbox.LayerPosition(at: at));
     }
@@ -171,6 +175,13 @@ class IntersectionsLayer {
         'circle-opacity',
         json.encode(
           showAfter(zoom: 10),
+        ));
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-radius',
+        json.encode(
+          reduceRadius(zoom: 12, radius: 3),
         ));
   }
 
