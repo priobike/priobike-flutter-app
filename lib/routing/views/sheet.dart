@@ -3,8 +3,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -15,6 +13,7 @@ import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
+import 'package:priobike/routing/views/widgets/loading_icon.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -272,12 +271,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    // The icon shown during loading.
-                    Image.asset(
-                      getIt<Profile>().bikeType.iconAsString()!,
-                      color: Theme.of(context).colorScheme.onTertiary,
-                      height: bottomSheetIsReady ? 0 : 54,
-                    ),
+                    const LoadingIcon(),
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 1000),
                       curve: Curves.linear,
