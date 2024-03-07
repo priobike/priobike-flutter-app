@@ -270,7 +270,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   children: [
                     renderDragIndicator(context),
                     AnimatedOpacity(
-                      duration: const Duration(milliseconds: 750),
+                      duration: const Duration(milliseconds: 1000),
                       curve: Curves.linear,
                       opacity: bottomSheetIsReady ? 0 : 1,
                       child: Icon(
@@ -280,7 +280,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                       ),
                     ),
                     AnimatedOpacity(
-                      duration: const Duration(milliseconds: 750),
+                      duration: const Duration(milliseconds: 1000),
                       curve: Curves.linear,
                       // Hides the content of the bottom sheet until the route is loaded.
                       opacity: bottomSheetIsReady ? 1 : 0,
