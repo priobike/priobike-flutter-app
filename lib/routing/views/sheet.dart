@@ -269,7 +269,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   children: [
                     renderDragIndicator(context),
                     AnimatedContainer(
-                      duration: const Duration(milliseconds: 1000),
+                      duration: const Duration(milliseconds: 750),
                       curve: Curves.easeInOut,
                       height: bottomSheetIsReady ? 0 : 48,
                       child: Icon(
@@ -279,7 +279,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                       ),
                     ),
                     AnimatedContainer(
-                      duration: const Duration(milliseconds: 1000),
+                      duration: const Duration(milliseconds: 750),
                       curve: Curves.easeInOut,
                       // Hides the content of the bottom sheet until the route is loaded.
                       height: bottomSheetIsReady ? null : 0,
