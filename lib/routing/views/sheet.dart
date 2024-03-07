@@ -3,6 +3,8 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/models/profile.dart';
+import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -270,10 +272,11 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    Icon(
-                      Icons.directions_bike,
-                      size: bottomSheetIsReady ? 0 : 48,
+                    // The icon shown during loading.
+                    Image.asset(
+                      getIt<Profile>().bikeType.iconAsString()!,
                       color: Theme.of(context).colorScheme.onTertiary,
+                      height: bottomSheetIsReady ? 0 : 54,
                     ),
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 1000),
