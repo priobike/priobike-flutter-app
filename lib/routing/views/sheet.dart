@@ -117,7 +117,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   }
 
   Widget renderBottomSheetWaypoints(BuildContext context) {
-    if (routing.isFetchingRoute) return Container();
     var widgets = <Widget>[];
     for (int i = 0; i < (routing.selectedWaypoints?.length ?? 0); i++) {
       final waypoint = routing.selectedWaypoints![i];
@@ -246,6 +245,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
 
+    // The bottom sheet is ready when the route is not being fetched or if the free ride mode was used.
+    final bottomSheetIsReady = (!routing.isFetchingRoute && routing.hasloaded) || routing.selectedWaypoints == null;
+
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: Stack(children: [
@@ -269,18 +271,18 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 1000),
                       curve: Curves.easeInOut,
-                      height: routing.isFetchingRoute ? 48 : 0,
+                      height: bottomSheetIsReady ? 0 : 48,
                       child: Icon(
                         Icons.directions_bike,
-                        size: routing.isFetchingRoute ? 48 : 0,
+                        size: bottomSheetIsReady ? 0 : 48,
                         color: Theme.of(context).colorScheme.onTertiary,
                       ),
                     ),
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 1000),
                       curve: Curves.easeInOut,
-                      // Hides the content while fetching the route, then slides it in.
-                      height: routing.isFetchingRoute ? 0 : null,
+                      // Hides the content of the bottom sheet until the route is loaded.
+                      height: bottomSheetIsReady ? null : 0,
                       child: Column(
                         children: [
                           renderTopInfoSection(context),

@@ -138,6 +138,9 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
+  /// A boolean indicating if the route has been loaded.
+  bool hasloaded = false;
+
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -157,6 +160,7 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+      hasloaded = false;
     }
     notifyListeners();
   }
@@ -245,6 +249,7 @@ class Routing with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
+    hasloaded = false;
     notifyListeners();
   }
 
@@ -413,6 +418,7 @@ class Routing with ChangeNotifier {
         hadErrorDuringFetch = true;
         waypointsOutOfBoundaries = false;
         isFetchingRoute = false;
+        hasloaded = true;
         notifyListeners();
         return null;
       }
@@ -423,6 +429,7 @@ class Routing with ChangeNotifier {
       hadErrorDuringFetch = true;
       waypointsOutOfBoundaries = true;
       isFetchingRoute = false;
+      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -435,6 +442,7 @@ class Routing with ChangeNotifier {
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -444,6 +452,7 @@ class Routing with ChangeNotifier {
     if (sgSelectorResponses.contains(null)) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -451,6 +460,7 @@ class Routing with ChangeNotifier {
     if (ghResponse.paths.length != sgSelectorResponses.length) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -520,6 +530,7 @@ class Routing with ChangeNotifier {
     allRoutes = routes;
     fetchedWaypoints = selectedWaypoints!;
     isFetchingRoute = false;
+    hasloaded = true;
 
     final discomforts = getIt<Discomforts>();
     await discomforts.findDiscomforts(routes.first);
@@ -546,6 +557,7 @@ class Routing with ChangeNotifier {
       hadErrorDuringFetch = true;
       waypointsOutOfBoundaries = false;
       isFetchingRoute = false;
+      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -555,6 +567,7 @@ class Routing with ChangeNotifier {
       hadErrorDuringFetch = true;
       waypointsOutOfBoundaries = true;
       isFetchingRoute = false;
+      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -567,6 +580,7 @@ class Routing with ChangeNotifier {
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -607,6 +621,7 @@ class Routing with ChangeNotifier {
         .toList();
 
     isFetchingRoute = false;
+    hasloaded = true;
 
     notifyListeners();
     return routes.first;
