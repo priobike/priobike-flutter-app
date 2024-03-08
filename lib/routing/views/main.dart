@@ -200,6 +200,7 @@ class RoutingViewState extends State<RoutingView> {
     showAppSheet(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (_) => const LayerSelectionView(),
     );
   }

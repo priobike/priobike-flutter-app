@@ -1,11 +1,14 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
+import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -82,6 +85,120 @@ class AllRoutesLayer {
             lineColor: const Color(0xFFC6C6C6).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineWidth: lineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
+    }
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (sourceExists) {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class HashableLatLng {
+  final LatLng coord;
+
+  HashableLatLng(this.coord);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is HashableLatLng &&
+        other.runtimeType == runtimeType &&
+        other.coord.longitude == coord.longitude &&
+        other.coord.latitude == coord.latitude;
+  }
+
+  @override
+  int get hashCode => Object.hash(coord.longitude, coord.latitude);
+}
+
+class RoutePushBikeLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "pushbike";
+
+  /// The ID of the main Mapbox layer.
+  static const layerId = "pushbike-layer";
+
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  RoutePushBikeLayer() {
+    final routing = getIt<Routing>();
+    HashSet<HashableLatLng> uniqueCoords = HashSet<HashableLatLng>();
+
+    for (Route route in routing.allRoutes ?? []) {
+      for (GHSegment segment in route.path.details.getOffBike) {
+        if (segment.value) {
+          Map<String, dynamic> feature = {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [],
+            },
+          };
+
+          int? lastAddedOriginalCoordIdx;
+          for (var coordIdx = segment.from; coordIdx <= segment.to; coordIdx++) {
+            final coord = route.path.points.coordinates[coordIdx];
+            final hashableCoord = HashableLatLng(LatLng(coord.lat, coord.lon));
+            // Since we add push-bike-segments for all routes, it can be that there are redundant segments for overlapping parts of the routes.
+            // We don't want to add them multiple times.
+            // We only add them, if the successor or predecessor is unique (can happen at parts where multiple routes are merging or splitting), to avoid gaps.
+            if (!uniqueCoords.contains(hashableCoord)) {
+              uniqueCoords.add(hashableCoord);
+              // Successor gap closing (previous coord was not unique, but the current is unique, so we close the gap to the previous coord)
+              if (feature["geometry"]!["coordinates"].isEmpty) {
+                if (coordIdx - 1 >= segment.from) {
+                  feature["geometry"]!["coordinates"].add([
+                    route.path.points.coordinates[coordIdx - 1].lon,
+                    route.path.points.coordinates[coordIdx - 1].lat
+                  ]);
+                }
+              }
+              feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
+              lastAddedOriginalCoordIdx = coordIdx;
+            } else {
+              // Predecessor gap closing (previous coord was unique, but the current is not unique, so we close the gap to the current coord)
+              if (lastAddedOriginalCoordIdx == coordIdx - 1 && feature["geometry"]!["coordinates"].isNotEmpty) {
+                feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
+              }
+            }
+          }
+
+          features.add(feature);
+        }
+      }
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {lineWidth = 5.0, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+    final pushBikeLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!pushBikeLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerId,
+            lineColor: const Color(0xFF313131).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: lineWidth,
+            lineDasharray: [1, 2],
           ),
           mapbox.LayerPosition(at: at));
     }
