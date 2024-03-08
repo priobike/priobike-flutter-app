@@ -181,7 +181,7 @@ class IntersectionsLayer {
         layerId,
         'circle-radius',
         json.encode(
-          reduceRadius(zoom: 12, radius: 3),
+          reduceRadius(zoom: 14, radius: 3),
         ));
   }
 

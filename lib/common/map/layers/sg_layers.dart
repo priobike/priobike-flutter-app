@@ -623,7 +623,7 @@ class RouteCrossingsCircleLayer {
         layerId,
         'circle-radius',
         json.encode(
-          reduceRadius(zoom: 12, radius: 6),
+          reduceRadius(zoom: 14, radius: 6),
         ));
   }
 
@@ -741,7 +741,7 @@ class SelectedRouteCrossingsCircleLayer {
         layerId,
         'circle-radius',
         json.encode(
-          reduceRadius(zoom: 12, radius: 6),
+          reduceRadius(zoom: 14, radius: 6),
         ));
   }
 
