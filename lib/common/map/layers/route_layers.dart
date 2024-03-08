@@ -131,7 +131,6 @@ class RoutePushBikeLayer {
   final List<dynamic> features = List.empty(growable: true);
 
   RoutePushBikeLayer() {
-    final logger = Logger("Test");
     final routing = getIt<Routing>();
     HashSet<HashableLatLng> uniqueCoords = HashSet<HashableLatLng>();
 
