@@ -19,7 +19,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
@@ -182,8 +181,12 @@ class LoaderState extends State<Loader> {
               label: "Zurücksetzen",
               onPressed: () async {
                 await _resetData();
-                ToastMessage.showSuccess("Daten zurück gesetzt!");
-                if (mounted) Navigator.of(context).pop();
+                // remove all views and push RestartApp view, so the user can only restart the app
+                await Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RestartApp()),
+                  (Route<dynamic> route) => false,
+                );
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
@@ -240,17 +243,12 @@ class LoaderState extends State<Loader> {
                             Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
                             const VSpace(),
                             BoldContent(
-                              text: "Verbindungsfehler",
+                              text: "Fehler beim Starten der App",
                               context: context,
                             ),
                             const SmallVSpace(),
                             Content(
-                              text: "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen.",
-                              context: context,
-                              textAlign: TextAlign.center,
-                            ),
-                            Content(
-                              text: "Prüfe Deine Verbindung und versuche es später erneut.",
+                              text: "Ein unbekannter Fehler ist aufgetreten. Die App kann nicht gestartet werden.",
                               context: context,
                               textAlign: TextAlign.center,
                             ),
@@ -296,6 +294,37 @@ class LoaderState extends State<Loader> {
               child: shouldBlendIn ? const HomeView() : Container(),
             )
         ],
+      ),
+    );
+  }
+}
+
+class RestartApp extends StatelessWidget {
+  const RestartApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error, color: Colors.red, size: 48),
+            const VSpace(),
+            BoldContent(text: "Bitte App neustarten", context: context),
+            const SmallVSpace(),
+            Content(
+              text: "Die Daten wurden zurückgesetzt.\nDie App muss neu gestartet werden, um fortzufahren.",
+              context: context,
+              textAlign: TextAlign.center,
+            ),
+            const SmallVSpace(),
+            BigButtonPrimary(
+              label: "App beenden",
+              onPressed: () => SystemNavigator.pop(),
+            ),
+          ],
+        ),
       ),
     );
   }
