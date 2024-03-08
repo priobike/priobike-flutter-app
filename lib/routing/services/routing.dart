@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
@@ -230,11 +229,6 @@ class Routing with ChangeNotifier {
     List<Waypoint> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
     remaining += selectedWaypoints!.sublist(shortestWaypointToIdx);
     return await selectWaypoints(remaining);
-  }
-
-  // Select waypoints from shortcut and save shortcut.
-  Future<void> selectShortcut(Shortcut shortcut) async {
-    selectWaypoints(shortcut.getWaypoints());
   }
 
   // Reset the routing service.

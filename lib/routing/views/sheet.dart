@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -13,6 +15,7 @@ import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
+import 'package:priobike/routing/views/widgets/loading_icon.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -39,6 +42,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
+  /// The scroll controller for the bottom sheet.
+  late DraggableScrollableController controller;
+
+  /// The initial child size of the bottom sheet.
+  late double initialChildSize;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -50,6 +59,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+    controller = DraggableScrollableController();
   }
 
   @override
@@ -81,6 +91,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch() async {
+    // Close the bottom sheet to the initial size.
+    controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 100), curve: Curves.easeInOutCubic);
+
     final bool showOwnLocationInSearch = routing.selectedWaypoints != null ? true : false;
     final result = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => RouteSearch(showCurrentPositionAsWaypoint: showOwnLocationInSearch)));
@@ -99,8 +112,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     }
     final newWaypoints = [...waypoints, waypoint];
 
-    routing.selectWaypoints(newWaypoints);
-    routing.loadRoutes();
+    await routing.selectWaypoints(newWaypoints);
+    // load asynchronously and check in build method if route is ready
+    unawaited(routing.loadRoutes());
   }
 
   Widget renderDragIndicator(BuildContext context) {
@@ -244,14 +258,21 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
+    initialChildSize = 140 / frame.size.height + (frame.padding.bottom / frame.size.height);
+
+    // The bottom sheet is ready when the route is not being fetched or if free routing was selected (no waypoints selected yet).
+    final bottomSheetIsReady = (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) ||
+        routing.selectedWaypoints == null ||
+        routing.selectedWaypoints!.isEmpty;
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: Stack(children: [
         DraggableScrollableSheet(
-          initialChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          initialChildSize: initialChildSize,
           maxChildSize: 1,
-          minChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          minChildSize: initialChildSize,
+          controller: controller,
           builder: (BuildContext context, ScrollController controller) {
             return Container(
               decoration: BoxDecoration(
@@ -265,41 +286,39 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    AnimatedCrossFade(
-                      firstCurve: Curves.easeInOutCubic,
-                      secondCurve: Curves.easeInOutCubic,
-                      sizeCurve: Curves.easeInOutCubic,
+                    if (!bottomSheetIsReady) const LoadingIcon(),
+                    AnimatedOpacity(
                       duration: const Duration(milliseconds: 1000),
-                      firstChild: Container(),
-                      secondChild: renderTopInfoSection(context),
-                      crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
-                    ),
-                    const SmallVSpace(),
-                    AnimatedCrossFade(
-                      firstCurve: Curves.easeInOutCubic,
-                      secondCurve: Curves.easeInOutCubic,
-                      sizeCurve: Curves.easeInOutCubic,
-                      duration: const Duration(milliseconds: 1000),
-                      firstChild: Container(),
-                      secondChild: renderBottomSheetWaypoints(context),
-                      crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                    ),
-                    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                      const TutorialView(
-                        id: "priobike.tutorial.draw-waypoints",
-                        text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                        padding: EdgeInsets.only(left: 18),
-                      ),
-                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                    // Big button size + padding.
-                    SizedBox(
-                      height: 40 + 8 + frame.padding.bottom,
+                      curve: Curves.easeInOutCubic,
+                      opacity: bottomSheetIsReady ? 1 : 0,
+                      child: bottomSheetIsReady
+                          // This additional check is needed to prevent a flickering behavior when we add a new waypoint.
+                          // (Stuff like the top info section would change during the animation and thus would cause a flickering effect.)
+                          // A major refactor of the bottom sheet is needed to fix this properly.
+                          ? Column(
+                              children: [
+                                renderTopInfoSection(context),
+                                const SmallVSpace(),
+                                renderBottomSheetWaypoints(context),
+                                if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                                  const TutorialView(
+                                    id: "priobike.tutorial.draw-waypoints",
+                                    text:
+                                        "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                                    padding: EdgeInsets.only(left: 18),
+                                  ),
+                                const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                                // Big button size + padding.
+                                SizedBox(
+                                  height: 40 + 8 + frame.padding.bottom,
+                                ),
+                              ],
+                            )
+                          : Container(),
                     ),
                   ],
                 ),
