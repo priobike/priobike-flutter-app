@@ -91,30 +91,6 @@ class CrossingInfoState extends State<CrossingInfo> {
                         height: 14,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color.fromRGBO(0, 255, 106, 1),
-                          border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 2,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                        child: Small(
-                          context: context,
-                          text: routing.selectedRoute != null ? status.ok.toString() : "-",
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
                           color: const Color.fromRGBO(0, 115, 255, 1),
                           border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
                         ),
@@ -127,6 +103,30 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Small(
                           context: context,
                           text: routing.selectedRoute != null ? (status.bad + status.offline).toString() : "-",
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color.fromRGBO(0, 255, 106, 1),
+                          border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 2,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                        child: Small(
+                          context: context,
+                          text: routing.selectedRoute != null ? status.ok.toString() : "-",
                         ),
                       ),
                     ],
@@ -197,8 +197,8 @@ class _CrossingExplanationView extends StatelessWidget {
                   height: 14,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color.fromRGBO(0, 255, 106, 1),
-                    border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
+                    color: const Color.fromRGBO(0, 115, 255, 1),
+                    border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
                   ),
                 ),
                 const HSpace(),
@@ -220,8 +220,8 @@ class _CrossingExplanationView extends StatelessWidget {
                   height: 14,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color.fromRGBO(0, 115, 255, 1),
-                    border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
+                    color: const Color.fromRGBO(0, 255, 106, 1),
+                    border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
                   ),
                 ),
                 const HSpace(),

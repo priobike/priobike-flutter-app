@@ -60,6 +60,7 @@ class AllRoutesLayer {
             features.add(currentFeature);
           }
           currentFeature = {
+            "id": "route-${route.id}", // Required for click listener.
             "type": "Feature",
             "properties": {
               "color": colorString,

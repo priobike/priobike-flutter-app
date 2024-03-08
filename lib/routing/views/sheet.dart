@@ -11,7 +11,6 @@ import 'package:priobike/routing/views/details/discomforts.dart';
 import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
-import 'package:priobike/routing/views/details/traffic_light_info.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -310,8 +309,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                         text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
                         padding: EdgeInsets.only(left: 18),
                       ),
-                    const Padding(padding: EdgeInsets.only(top: 24), child: TrafficLightInfo()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: RoadClassChart()),
+                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
                     const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
                     const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
                     const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
