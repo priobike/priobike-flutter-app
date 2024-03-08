@@ -7,7 +7,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/utils.dart';
-import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
@@ -175,8 +174,6 @@ class RoutePushBikeLayer {
         }
       }
     }
-
-    logger.i({"type": "FeatureCollection", "features": features});
   }
 
   /// Install the overlay on the map controller.

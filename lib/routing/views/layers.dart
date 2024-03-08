@@ -186,165 +186,162 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      heightFactor: 0.95,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Content(text: "Orte anzeigen", context: context),
-              const SmallVSpace(),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 3,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                children: [
-                  // The layer for the elevation.
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/rent-light.png")
-                        : Image.asset("assets/images/rent-dark.png"),
-                    title: 'Ausleihen',
-                    selected: layers.showRentalStations,
-                    onTap: () => layers.setShowRentalStations(!layers.showRentalStations),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/park-light.png")
-                        : Image.asset("assets/images/park-dark.png"),
-                    title: 'Parken',
-                    selected: layers.showParkingStations,
-                    onTap: () => layers.setShowParkingStations(!layers.showParkingStations),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/construction-light.png")
-                        : Image.asset("assets/images/construction-dark.png"),
-                    title: 'Baustellen',
-                    selected: layers.showConstructionSites,
-                    onTap: () => layers.setShowConstructionSites(!layers.showConstructionSites),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/air-light.png")
-                        : Image.asset("assets/images/air-dark.png"),
-                    title: 'Aufpumpen',
-                    selected: layers.showAirStations,
-                    onTap: () => layers.setShowAirStations(!layers.showAirStations),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/repair-light.png")
-                        : Image.asset("assets/images/repair-dark.png"),
-                    title: 'Reparieren',
-                    selected: layers.showRepairStations,
-                    onTap: () => layers.setShowRepairStations(!layers.showRepairStations),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/accident-light.png")
-                        : Image.asset("assets/images/accident-dark.png"),
-                    title: 'Unfallstellen¹',
-                    selected: layers.showAccidentHotspots,
-                    onTap: () => layers.setShowAccidentHotspots(!layers.showAccidentHotspots),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/green-wave-light.png")
-                        : Image.asset("assets/images/green-wave-dark.png"),
-                    title: 'Grüne Wellen²',
-                    selected: layers.showGreenWaveLayer,
-                    onTap: () => layers.setShowGreenWaveLayer(!layers.showGreenWaveLayer),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/velo-routes-light.png")
-                        : Image.asset("assets/images/velo-routes-dark.png"),
-                    title: 'Velorouten³',
-                    selected: layers.showVeloRoutesLayer,
-                    onTap: () => layers.setShowVeloRoutesLayer(!layers.showVeloRoutesLayer),
-                  ),
-                  LayerSelectionItem(
-                    icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Image.asset("assets/images/traffic-layer-light.png")
-                        : Image.asset("assets/images/traffic-layer-dark.png"),
-                    title: 'Verkehr',
-                    selected: layers.showTrafficLayer,
-                    onTap: () => layers.setShowTrafficLayer(!layers.showTrafficLayer),
-                  ),
-                ],
-              ),
-              const SmallVSpace(),
-              GestureDetector(
-                onTap: () => setState(() {
-                  showLayerExplanations = !showLayerExplanations;
-                }),
-                child: Center(
-                  child: Text(
-                    "Mehr Informationen",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      decorationColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                      decoration: TextDecoration.underline,
-                    ),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Content(text: "Orte anzeigen", context: context),
+            const SmallVSpace(),
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 3,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              children: [
+                // The layer for the elevation.
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/rent-light.png")
+                      : Image.asset("assets/images/rent-dark.png"),
+                  title: 'Ausleihen',
+                  selected: layers.showRentalStations,
+                  onTap: () => layers.setShowRentalStations(!layers.showRentalStations),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/park-light.png")
+                      : Image.asset("assets/images/park-dark.png"),
+                  title: 'Parken',
+                  selected: layers.showParkingStations,
+                  onTap: () => layers.setShowParkingStations(!layers.showParkingStations),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/construction-light.png")
+                      : Image.asset("assets/images/construction-dark.png"),
+                  title: 'Baustellen',
+                  selected: layers.showConstructionSites,
+                  onTap: () => layers.setShowConstructionSites(!layers.showConstructionSites),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/air-light.png")
+                      : Image.asset("assets/images/air-dark.png"),
+                  title: 'Aufpumpen',
+                  selected: layers.showAirStations,
+                  onTap: () => layers.setShowAirStations(!layers.showAirStations),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/repair-light.png")
+                      : Image.asset("assets/images/repair-dark.png"),
+                  title: 'Reparieren',
+                  selected: layers.showRepairStations,
+                  onTap: () => layers.setShowRepairStations(!layers.showRepairStations),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/accident-light.png")
+                      : Image.asset("assets/images/accident-dark.png"),
+                  title: 'Unfallstellen¹',
+                  selected: layers.showAccidentHotspots,
+                  onTap: () => layers.setShowAccidentHotspots(!layers.showAccidentHotspots),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/green-wave-light.png")
+                      : Image.asset("assets/images/green-wave-dark.png"),
+                  title: 'Grüne Wellen²',
+                  selected: layers.showGreenWaveLayer,
+                  onTap: () => layers.setShowGreenWaveLayer(!layers.showGreenWaveLayer),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/velo-routes-light.png")
+                      : Image.asset("assets/images/velo-routes-dark.png"),
+                  title: 'Velorouten³',
+                  selected: layers.showVeloRoutesLayer,
+                  onTap: () => layers.setShowVeloRoutesLayer(!layers.showVeloRoutesLayer),
+                ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/traffic-layer-light.png")
+                      : Image.asset("assets/images/traffic-layer-dark.png"),
+                  title: 'Verkehr',
+                  selected: layers.showTrafficLayer,
+                  onTap: () => layers.setShowTrafficLayer(!layers.showTrafficLayer),
+                ),
+              ],
+            ),
+            const SmallVSpace(),
+            GestureDetector(
+              onTap: () => setState(() {
+                showLayerExplanations = !showLayerExplanations;
+              }),
+              child: Center(
+                child: Text(
+                  "Mehr Informationen",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    decorationColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
-              AnimatedCrossFade(
-                firstCurve: Curves.easeInOutCubic,
-                secondCurve: Curves.easeInOutCubic,
-                sizeCurve: Curves.easeInOutCubic,
-                duration: const Duration(milliseconds: 1000),
-                firstChild: Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: showExplanations(),
-                ),
-                secondChild: Container(),
-                crossFadeState: showLayerExplanations ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            ),
+            AnimatedCrossFade(
+              firstCurve: Curves.easeInOutCubic,
+              secondCurve: Curves.easeInOutCubic,
+              sizeCurve: Curves.easeInOutCubic,
+              duration: const Duration(milliseconds: 1000),
+              firstChild: Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: showExplanations(),
               ),
-              const VSpace(),
-              Content(text: "Kartendesign", context: context),
-              const SmallVSpace(),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 3,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                physics: const NeverScrollableScrollPhysics(),
-                children: loadingCounter >= MapDesign.designs.length
-                    ? MapDesign.designs
-                        .map(
-                          (design) => LayerSelectionItem(
-                            isScreenshot: true,
-                            icon: !screenshots.containsKey(design) || screenshots[design] == null
-                                ? Theme.of(context).colorScheme.brightness == Brightness.light
-                                    ? Image.asset(design.fallbackLightScreenshot)
-                                    : Image.asset(design.fallbackDarkScreenshot)
-                                : Image.memory(screenshots[design]!.bytes),
-                            title: design.name,
-                            selected: mapDesigns.mapDesign == design,
-                            onTap: () => mapDesigns.setMapDesign(design),
-                          ),
-                        )
-                        .toList()
-                    : [
-                        LayerSelectionItem(
-                          isScreenshot: false,
-                          icon: const SizedBox(),
-                          title: "Lädt..",
-                          selected: false,
-                          onTap: () => {},
-                        )
-                      ],
-              ),
-              const VSpace(),
-            ],
-          ),
+              secondChild: Container(),
+              crossFadeState: showLayerExplanations ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            ),
+            const VSpace(),
+            Content(text: "Kartendesign", context: context),
+            const SmallVSpace(),
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 3,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              physics: const NeverScrollableScrollPhysics(),
+              children: loadingCounter >= MapDesign.designs.length
+                  ? MapDesign.designs
+                      .map(
+                        (design) => LayerSelectionItem(
+                          isScreenshot: true,
+                          icon: !screenshots.containsKey(design) || screenshots[design] == null
+                              ? Theme.of(context).colorScheme.brightness == Brightness.light
+                                  ? Image.asset(design.fallbackLightScreenshot)
+                                  : Image.asset(design.fallbackDarkScreenshot)
+                              : Image.memory(screenshots[design]!.bytes),
+                          title: design.name,
+                          selected: mapDesigns.mapDesign == design,
+                          onTap: () => mapDesigns.setMapDesign(design),
+                        ),
+                      )
+                      .toList()
+                  : [
+                      LayerSelectionItem(
+                        isScreenshot: false,
+                        icon: const SizedBox(),
+                        title: "Lädt..",
+                        selected: false,
+                        onTap: () => {},
+                      )
+                    ],
+            ),
+            const VSpace(),
+          ],
         ),
       ),
     );
