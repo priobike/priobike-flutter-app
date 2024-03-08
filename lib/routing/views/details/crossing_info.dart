@@ -271,18 +271,13 @@ class _CrossingExplanationView extends StatelessWidget {
                     SizedBox(
                       width: 32,
                       height: 8,
-                      child: Row(
-                        children: List.generate(
-                          70 ~/ 10,
-                          (index) => Expanded(
-                            child: Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                                color: index % 2 == 0 ? Colors.transparent : Colors.black,
-                              ),
-                            ),
-                          ),
+                      child: CustomPaint(
+                        painter: GetOffBikeLegendPainter(
+                          context: context,
+                        ),
+                        child: const SizedBox(
+                          height: 32,
+                          width: 8,
                         ),
                       ),
                     ),
@@ -388,5 +383,75 @@ class _CrossingExplanationView extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class GetOffBikeLegendPainter extends CustomPainter {
+  final BuildContext context;
+
+  GetOffBikeLegendPainter({required this.context});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint frontPaint = Paint()..color = CI.radkulturGreen;
+    final frontPath = Path()
+      ..moveTo(size.width * 0.36, 0)
+      ..lineTo(size.width * 0.3, size.height)
+      ..lineTo(size.width * 0.15, size.height)
+      ..cubicTo(0, size.height, 0, size.height * 0.5, 0, size.height * 0.5)
+      ..cubicTo(0, 0, size.width * 0.15, 0, size.width * 0.15, 0)
+      ..lineTo(size.width * 0.36, 0);
+
+    Paint middlePaint = Paint()..color = CI.route;
+    final middlePath = Path()
+      ..moveTo(size.width * 0.36, 0)
+      ..lineTo(size.width * 0.3, size.height)
+      ..lineTo(size.width * 0.63, size.height)
+      ..lineTo(size.width * 0.69, 0)
+      ..lineTo(size.width * 0.36, 0);
+
+    Paint backPaint = Paint()..color = CI.secondaryRoute;
+    final backPath = Path()
+      ..moveTo(size.width * 0.69, 0)
+      ..lineTo(size.width * 0.63, size.height)
+      ..lineTo(size.width * 0.85, size.height)
+      ..cubicTo(size.width, size.height, size.width, size.height * 0.5, size.width, size.height * 0.5)
+      ..cubicTo(size.width, 0, size.width * 0.85, 0, size.width * 0.85, 0)
+      ..lineTo(size.width * 0.69, 0);
+
+    Paint dashedPaint = Paint()..color = Colors.black;
+
+    // Draw the front path;
+    canvas.drawPath(frontPath, frontPaint);
+    // Draw the middle path.
+    canvas.drawPath(middlePath, middlePaint);
+    // Draw the back path.
+    canvas.drawPath(backPath, backPaint);
+
+    // Draw the dashed part 1.
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromLTWH(size.width * 0.075, size.height * 0.15, size.width * 0.23, size.height * 0.7),
+            const Radius.circular(4.0)),
+        dashedPaint);
+
+    // Draw the dashed part 2.
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromLTWH(size.width * 0.37, size.height * 0.15, size.width * 0.23, size.height * 0.7),
+            const Radius.circular(4.0)),
+        dashedPaint);
+
+    // Draw the dashed part 3.
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromLTWH(size.width * 0.7, size.height * 0.15, size.width * 0.23, size.height * 0.7),
+            const Radius.circular(4.0)),
+        dashedPaint);
+  }
+
+  @override
+  bool shouldRepaint(GetOffBikeLegendPainter oldDelegate) {
+    return false;
   }
 }
