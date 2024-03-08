@@ -123,7 +123,7 @@ class IntersectionsLayer {
   static const sourceId = "intersections";
 
   /// The ID of the Mapbox layer.
-  static const layerId = "intersections-points";
+  static const layerId = "intersection-points";
 
   /// If the dark mode is enabled.
   final bool isDark;

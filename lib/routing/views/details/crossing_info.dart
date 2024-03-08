@@ -19,9 +19,6 @@ class CrossingInfoState extends State<CrossingInfo> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The details state of road class.
-  bool showTrafficLightDetails = false;
-
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 

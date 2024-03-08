@@ -32,7 +32,6 @@ class AllRoutesLayer {
     if (routing.allRoutes == null) return;
 
     for (Route route in routing.allRoutes!) {
-      if (routing.selectedRoute!.id == route.id) continue;
       final navNodes = route.route;
 
       final status = getIt<PredictionSGStatus>();
