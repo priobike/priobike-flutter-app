@@ -145,16 +145,17 @@ class RoutePushBikeLayer {
               "coordinates": [],
             },
           };
-          logger.i(segment.from);
-          logger.i(segment.to);
 
-          // TODO auffüllen am Anfang und Ende checken
+          int? lastAddedOrignalCoordIdx;
           for (var coordIdx = segment.from; coordIdx <= segment.to; coordIdx++) {
             final coord = route.path.points.coordinates[coordIdx];
             final hashableCoord = HashableLatLng(LatLng(coord.lat, coord.lon));
+            // Since we add push-bike-segments for all routes, it can be that there are redundant segments for overlapping parts of the routes.
+            // We don't want to add them multiple times.
+            // We only add them, if the successor or predecessor is unique (can happen at parts where multiple routes are merging or splitting), to avoid gaps.
             if (!uniqueCoords.contains(hashableCoord)) {
               uniqueCoords.add(hashableCoord);
-              // If we discarded the predecessor, we add it again to make sure the line is not broken.
+              // Successor gap closing (previous coord was not unique, but the current is unique, so we close the gap to the previous coord)
               if (feature["geometry"]!["coordinates"].isEmpty) {
                 if (coordIdx - 1 >= segment.from) {
                   feature["geometry"]!["coordinates"]
@@ -162,9 +163,10 @@ class RoutePushBikeLayer {
                 }
               }
               feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
+              lastAddedOrignalCoordIdx = coordIdx;
             } else {
-              // If we already have at least one coordinate in the list, we also add a duplicate to make sure the line is not broken.
-              if (feature["geometry"]!["coordinates"].isNotEmpty) {
+              // Predecessor gap closing (previous coord was unique, but the current is not unique, so we close the gap to the current coord)
+              if (lastAddedOrignalCoordIdx == coordIdx - 1 && feature["geometry"]!["coordinates"].isNotEmpty) {
                 feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
               }
             }
