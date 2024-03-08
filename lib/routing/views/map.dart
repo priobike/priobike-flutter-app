@@ -176,6 +176,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
     DiscomfortsLayer.layerIdMarker,
+    RoutePushBikeLayer.layerId,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
@@ -561,6 +562,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await updateSelectedRouteLayer();
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
+    if (!mounted) return;
+    await RoutePushBikeLayer().update(mapController!);
   }
 
   /// Load all route map layers.
@@ -604,6 +607,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(AllRoutesLayer.layerId);
     if (!mounted) return;
     await AllRoutesLayer().install(
+      mapController!,
+      at: index,
+    );
+    index = await getIndex(RoutePushBikeLayer.layerId);
+    if (!mounted) return;
+    await RoutePushBikeLayer().install(
       mapController!,
       at: index,
     );

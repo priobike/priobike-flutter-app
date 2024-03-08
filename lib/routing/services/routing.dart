@@ -342,7 +342,7 @@ class Routing with ChangeNotifier {
       ghUrl += "&details=surface";
       ghUrl += "&details=max_speed";
       ghUrl += "&details=smoothness";
-      ghUrl += "&details=lanes";
+      ghUrl += "&details=get_off_bike";
       ghUrl += "&details=road_class";
       if (waypoints.length == 2) {
         ghUrl += "&algorithm=alternative_route";
