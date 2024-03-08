@@ -378,7 +378,7 @@ class RoutingViewState extends State<RoutingView> {
 
             // Side Bar right
             const Positioned(
-              right: 0,
+              right: 8,
               child: SafeArea(
                 child: Padding(
                   padding: EdgeInsets.only(top: 8),

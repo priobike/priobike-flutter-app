@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -54,118 +55,127 @@ class CrossingInfoState extends State<CrossingInfo> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 64,
-      child: RawMaterialButton(
-        fillColor: Theme.of(context).colorScheme.surfaceVariant,
-        splashColor: Theme.of(context).colorScheme.surfaceTint,
-        onPressed: () => showCrossingInfoSheet(),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white.withOpacity(0.07)
-                : Colors.black.withOpacity(0.07),
-          ),
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-        ),
-        child: Row(
-          children: [
-            const HSpace(),
-            SizedBox(
-              height: 64,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color.fromRGBO(0, 115, 255, 1),
-                          border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 3,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                        child: Small(
-                          context: context,
-                          text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color.fromRGBO(0, 255, 106, 1),
-                          border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 2,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                        child: Small(
-                          context: context,
-                          text: routing.isFetchingRoute ? "-" : status.ok.toString(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color.fromRGBO(217, 217, 217, 1),
-                          border: Border.all(color: const Color.fromRGBO(152, 152, 152, 1), width: 1),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 3,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                        child: Small(
-                          context: context,
-                          text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8, top: 12, bottom: 12),
-              child: Icon(
-                Icons.info_outline,
-                size: 32,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+  /// The widget that is shown, when the info should be hidden.
+  Widget _hideInfo() {
+    return Container(
+      width: 58,
+      height: 58,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(24),
         ),
       ),
+    );
+  }
+
+  /// The info widget.
+  Widget _showInfo() {
+    return Container(
+      width: 58,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 58,
+          ),
+          const SmallVSpace(),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color.fromRGBO(0, 115, 255, 1),
+              border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+              child: Center(
+                child: Small(
+                  context: context,
+                  text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SmallVSpace(),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color.fromRGBO(0, 255, 106, 1),
+              border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+              child: Center(
+                child: Small(
+                  context: context,
+                  text: routing.isFetchingRoute ? "-" : status.ok.toString(),
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+          const SmallVSpace(),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color.fromRGBO(217, 217, 217, 1),
+              border: Border.all(color: const Color.fromRGBO(152, 152, 152, 1), width: 1),
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+              child: Center(
+                child: Small(
+                  context: context,
+                  text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+          const SmallVSpace(),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 1000),
+          sizeCurve: Curves.easeInOutCubic,
+          firstChild: _hideInfo(),
+          secondChild: _showInfo(),
+          crossFadeState: routing.isFetchingRoute || routing.selectedRoute == null
+              ? CrossFadeState.showFirst
+              : CrossFadeState.showSecond,
+        ),
+        SizedBox(
+          width: 58,
+          height: 58,
+          child: Tile(
+            fill: Theme.of(context).colorScheme.surfaceVariant,
+            onPressed: showCrossingInfoSheet,
+            content: Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
