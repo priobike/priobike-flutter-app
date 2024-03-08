@@ -52,6 +52,7 @@ class CrossingInfoState extends State<CrossingInfo> {
     showAppSheet(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (_) => _CrossingExplanationView(),
     );
   }
