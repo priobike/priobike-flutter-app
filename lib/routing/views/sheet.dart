@@ -246,10 +246,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
 
-    // The bottom sheet is ready when the route is not being fetched or if the free ride mode was used.
-    final bottomSheetIsReady = (!routing.isFetchingRoute && routing.hasloaded && !status.isLoading) ||
+    // The bottom sheet is ready when the route is not being fetched or if free routing was selected (no waypoints selected yet).
+    final bottomSheetIsReady = (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) ||
         routing.selectedWaypoints == null ||
         routing.selectedWaypoints!.isEmpty;
+
+    log.i("bottomSheetIsReady: $bottomSheetIsReady");
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
@@ -271,39 +273,36 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    const LoadingIcon(),
-                    AnimatedOpacity(
+                    if (!bottomSheetIsReady) const LoadingIcon(),
+                    AnimatedCrossFade(
                       duration: const Duration(milliseconds: 1000),
-                      curve: Curves.linear,
-                      // Hides the content of the bottom sheet until the route is loaded.
-                      opacity: bottomSheetIsReady ? 1 : 0,
-                      child: bottomSheetIsReady
-                          // Hide the content via opacity and by not rendering it to avoid the content being shown for a
-                          // short time before the route is loaded.
-                          ? Column(
-                              children: [
-                                renderTopInfoSection(context),
-                                const SmallVSpace(),
-                                renderBottomSheetWaypoints(context),
-                                if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                                  const TutorialView(
-                                    id: "priobike.tutorial.draw-waypoints",
-                                    text:
-                                        "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                                    padding: EdgeInsets.only(left: 18),
-                                  ),
-                                const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                                const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                                const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                                const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                                const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                                // Big button size + padding.
-                                SizedBox(
-                                  height: 40 + 8 + frame.padding.bottom,
-                                ),
-                              ],
-                            )
-                          : Container(),
+                      firstCurve: Curves.easeInOutCubic,
+                      secondCurve: Curves.easeInOutCubic,
+                      sizeCurve: Curves.easeInOutCubic,
+                      crossFadeState: bottomSheetIsReady ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                      firstChild: Column(
+                        children: [
+                          renderTopInfoSection(context),
+                          const SmallVSpace(),
+                          renderBottomSheetWaypoints(context),
+                          if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                            const TutorialView(
+                              id: "priobike.tutorial.draw-waypoints",
+                              text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                              padding: EdgeInsets.only(left: 18),
+                            ),
+                          const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                          const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                          // Big button size + padding.
+                          SizedBox(
+                            height: 40 + 8 + frame.padding.bottom,
+                          ),
+                        ],
+                      ),
+                      secondChild: Container(),
                     ),
                   ],
                 ),
