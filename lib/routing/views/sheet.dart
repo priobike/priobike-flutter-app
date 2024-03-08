@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -40,6 +42,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
+  /// The scroll controller for the bottom sheet.
+  late DraggableScrollableController controller;
+
+  /// The initial child size of the bottom sheet.
+  late double initialChildSize;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -51,6 +59,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+    controller = DraggableScrollableController();
   }
 
   @override
@@ -82,6 +91,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch() async {
+    // Close the bottom sheet to the initial size.
+    controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 100), curve: Curves.easeInOutCubic);
+
     final bool showOwnLocationInSearch = routing.selectedWaypoints != null ? true : false;
     final result = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => RouteSearch(showCurrentPositionAsWaypoint: showOwnLocationInSearch)));
@@ -100,8 +112,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     }
     final newWaypoints = [...waypoints, waypoint];
 
-    routing.selectWaypoints(newWaypoints);
-    routing.loadRoutes();
+    await routing.selectWaypoints(newWaypoints);
+    // load asynchronously and check in build method if route is ready
+    unawaited(routing.loadRoutes());
   }
 
   Widget renderDragIndicator(BuildContext context) {
@@ -245,6 +258,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
+    initialChildSize = 140 / frame.size.height + (frame.padding.bottom / frame.size.height);
 
     // The bottom sheet is ready when the route is not being fetched or if free routing was selected (no waypoints selected yet).
     final bottomSheetIsReady = (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) ||
@@ -255,9 +269,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       height: frame.size.height, // Needed for reorderable list.
       child: Stack(children: [
         DraggableScrollableSheet(
-          initialChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          initialChildSize: initialChildSize,
           maxChildSize: 1,
-          minChildSize: 140 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          minChildSize: initialChildSize,
+          controller: controller,
           builder: (BuildContext context, ScrollController controller) {
             return Container(
               decoration: BoxDecoration(
