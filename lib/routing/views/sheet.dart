@@ -251,8 +251,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         routing.selectedWaypoints == null ||
         routing.selectedWaypoints!.isEmpty;
 
-    log.i("bottomSheetIsReady: $bottomSheetIsReady");
-
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: Stack(children: [
