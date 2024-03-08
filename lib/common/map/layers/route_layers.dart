@@ -43,10 +43,10 @@ class AllRoutesLayer {
         var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
         // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
         if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
-        // Interpolate between green and blue, by the prediction quality.
+        // Interpolate between green and grey, by the prediction quality.
 
         Color color = Color.fromRGBO(
-            (0 * q + 0 * (1 - q)).round(), (255 * q + 115 * (1 - q)).round(), (106 * q + 255 * (1 - q)).round(), 1);
+            (0 * q + 198 * (1 - q)).round(), (255 * q + 198 * (1 - q)).round(), (106 * q + 198 * (1 - q)).round(), 1);
 
         final colorHSL = HSLColor.fromColor(color);
         color = colorHSL.withSaturation(colorHSL.saturation * 0.25).toColor();
