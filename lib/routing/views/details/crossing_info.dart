@@ -337,7 +337,8 @@ class _CrossingExplanationView extends StatelessWidget {
                 const HSpace(),
                 Flexible(
                   child: Content(
-                      text: "Davon Ampeln, welche derzeit über Geschwindigkeitsprognosen verfügen", context: context),
+                      text: "Davon Ampeln, welche derzeit über Geschwindigkeitsempfehlungen verfügen",
+                      context: context),
                 ),
               ],
             ),

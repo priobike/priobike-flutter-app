@@ -204,18 +204,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                           ),
                           children: [
                             TextSpan(
-                              text: allTrafficLights.toString(),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            TextSpan(
-                              text: " Ampel${allTrafficLights == 1 ? "" : "n"} angebunden, ",
-                            ),
-                            TextSpan(
                               text: okTrafficLights.toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold, color: CI.radkulturGreen),
                             ),
                             TextSpan(
-                              text: " davon ${okTrafficLights == 1 ? "hat" : "haben"} Geschwindigkeitsempfehlungen",
+                              text:
+                                  " Ampel${allTrafficLights == 1 ? "" : "n"} ${okTrafficLights == 1 ? "hat" : "haben"} Geschwindigkeitsempfehlungen",
                             ),
                           ]),
                     )
