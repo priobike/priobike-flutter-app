@@ -144,7 +144,7 @@ class RoutePushBikeLayer {
             },
           };
 
-          int? lastAddedOrignalCoordIdx;
+          int? lastAddedOriginalCoordIdx;
           for (var coordIdx = segment.from; coordIdx <= segment.to; coordIdx++) {
             final coord = route.path.points.coordinates[coordIdx];
             final hashableCoord = HashableLatLng(LatLng(coord.lat, coord.lon));
@@ -156,15 +156,17 @@ class RoutePushBikeLayer {
               // Successor gap closing (previous coord was not unique, but the current is unique, so we close the gap to the previous coord)
               if (feature["geometry"]!["coordinates"].isEmpty) {
                 if (coordIdx - 1 >= segment.from) {
-                  feature["geometry"]!["coordinates"]
-                      .add([route.route[coordIdx - 1].lon, route.route[coordIdx - 1].lat]);
+                  feature["geometry"]!["coordinates"].add([
+                    route.path.points.coordinates[coordIdx - 1].lon,
+                    route.path.points.coordinates[coordIdx - 1].lat
+                  ]);
                 }
               }
               feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
-              lastAddedOrignalCoordIdx = coordIdx;
+              lastAddedOriginalCoordIdx = coordIdx;
             } else {
               // Predecessor gap closing (previous coord was unique, but the current is not unique, so we close the gap to the current coord)
-              if (lastAddedOrignalCoordIdx == coordIdx - 1 && feature["geometry"]!["coordinates"].isNotEmpty) {
+              if (lastAddedOriginalCoordIdx == coordIdx - 1 && feature["geometry"]!["coordinates"].isNotEmpty) {
                 feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
               }
             }
