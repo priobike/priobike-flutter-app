@@ -16,6 +16,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/pictogram.dart';
@@ -302,6 +303,18 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
           ),
         );
 
+        // We only want to visualize the first calculated route.
+        // Therefore we compare the timestamps of all routes and take the earliest one.
+        int? timestampOfFirstRoute;
+        widget.track.routes.forEach((timestamp, _) {
+          if (timestampOfFirstRoute == null) {
+            timestampOfFirstRoute = timestamp;
+          } else if (timestamp < timestampOfFirstRoute!) {
+            timestampOfFirstRoute = timestamp;
+          }
+        });
+        List<NavigationNode> routeNodes = widget.track.routes[timestampOfFirstRoute]!.route;
+
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
               ? TrackPictogram(
@@ -323,6 +336,9 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   // Padding + 2 * button height + padding + padding bottom.
                   speedLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
                   speedLegendLeft: 20,
+                  routeNodes: routeNodes,
+                  routeLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
+                  routeLegendRight: 20,
                 )
               : Center(
                   child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
@@ -452,6 +468,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
               label: "Löschen",
               onPressed: () {
                 getIt<Tracking>().deleteTrack(widget.track);
+                // We want to pop two times.
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
