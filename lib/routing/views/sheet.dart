@@ -272,35 +272,38 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   children: [
                     renderDragIndicator(context),
                     if (!bottomSheetIsReady) const LoadingIcon(),
-                    AnimatedCrossFade(
+                    AnimatedOpacity(
                       duration: const Duration(milliseconds: 1000),
-                      firstCurve: Curves.easeInOutCubic,
-                      secondCurve: Curves.easeInOutCubic,
-                      sizeCurve: Curves.easeInOutCubic,
-                      crossFadeState: bottomSheetIsReady ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                      firstChild: Column(
-                        children: [
-                          renderTopInfoSection(context),
-                          const SmallVSpace(),
-                          renderBottomSheetWaypoints(context),
-                          if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                            const TutorialView(
-                              id: "priobike.tutorial.draw-waypoints",
-                              text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                              padding: EdgeInsets.only(left: 18),
-                            ),
-                          const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                          const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                          const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                          const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                          const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                          // Big button size + padding.
-                          SizedBox(
-                            height: 40 + 8 + frame.padding.bottom,
-                          ),
-                        ],
-                      ),
-                      secondChild: Container(),
+                      curve: Curves.easeInOutCubic,
+                      opacity: bottomSheetIsReady ? 1 : 0,
+                      child: bottomSheetIsReady
+                          // This additional check is needed to prevent a flickering behavior when we add a new waypoint.
+                          // (Stuff like the top info section would change during the animation and thus would cause a flickering effect.)
+                          // A major refactor of the bottom sheet is needed to fix this properly.
+                          ? Column(
+                              children: [
+                                renderTopInfoSection(context),
+                                const SmallVSpace(),
+                                renderBottomSheetWaypoints(context),
+                                if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                                  const TutorialView(
+                                    id: "priobike.tutorial.draw-waypoints",
+                                    text:
+                                        "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                                    padding: EdgeInsets.only(left: 18),
+                                  ),
+                                const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                                // Big button size + padding.
+                                SizedBox(
+                                  height: 40 + 8 + frame.padding.bottom,
+                                ),
+                              ],
+                            )
+                          : Container(),
                     ),
                   ],
                 ),
