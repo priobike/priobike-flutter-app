@@ -5,9 +5,11 @@ void showAppSheet({
   required BuildContext context,
   required WidgetBuilder builder,
   isScrollControlled = false,
+  showDragHandle = false,
 }) {
   showModalBottomSheet(
     context: context,
+    showDragHandle: showDragHandle,
     builder: builder,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
