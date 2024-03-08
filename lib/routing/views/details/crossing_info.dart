@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -187,14 +188,116 @@ class _CrossingExplanationView extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
           children: [
-            const VSpace(),
-            Content(
-                context: context,
-                text:
-                    "Um dich bei der Erstellung deiner Route zu unterstützen, zeigen wir dir, welche Kreuzungen und Ampeln auf deiner Strecke liegen."),
+            Content(text: "Legende", context: context),
+            const SmallVSpace(),
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 2,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 5 / 1,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: CI.route,
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    Flexible(
+                      child: Text(
+                        "Ausgewählte Route",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: CI.secondaryRoute,
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    Flexible(
+                      child: Text(
+                        "Alternative Route",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: CI.radkulturGreen,
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    Flexible(
+                      child: Text(
+                        "Prognosen vorhanden",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 32,
+                      height: 8,
+                      child: Row(
+                        children: List.generate(
+                          70 ~/ 10,
+                          (index) => Expanded(
+                            child: Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                color: index % 2 == 0 ? Colors.transparent : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    Flexible(
+                      child: Text(
+                        "Absteigen",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
             const VSpace(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
