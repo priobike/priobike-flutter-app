@@ -99,7 +99,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
                         child: Small(
                           context: context,
-                          text: routing.selectedRoute != null ? (status.bad + status.offline).toString() : "-",
+                          text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
                         ),
                       ),
                     ],
@@ -123,7 +123,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
                         child: Small(
                           context: context,
-                          text: routing.selectedRoute != null ? status.ok.toString() : "-",
+                          text: routing.isFetchingRoute ? "-" : status.ok.toString(),
                         ),
                       ),
                     ],
@@ -147,7 +147,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
                         child: Small(
                           context: context,
-                          text: routing.selectedRoute != null ? status.disconnected.toString() : "-",
+                          text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
                         ),
                       ),
                     ],
