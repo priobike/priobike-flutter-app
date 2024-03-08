@@ -189,10 +189,10 @@ class _CrossingExplanationView extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
         child: Column(
           children: [
-            Content(text: "Legende", context: context),
+            BoldContent(text: "Legende", context: context),
             const SmallVSpace(),
             GridView.count(
               shrinkWrap: true,
@@ -215,11 +215,9 @@ class _CrossingExplanationView extends StatelessWidget {
                     ),
                     const SmallHSpace(),
                     Flexible(
-                      child: Text(
-                        "Ausgewählte Route",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      child: Content(
+                        text: "Ausgewählte Route",
+                        context: context,
                       ),
                     ),
                   ],
@@ -236,11 +234,9 @@ class _CrossingExplanationView extends StatelessWidget {
                     ),
                     const SmallHSpace(),
                     Flexible(
-                      child: Text(
-                        "Alternative Route",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      child: Content(
+                        text: "Alternative Route",
+                        context: context,
                       ),
                     ),
                   ],
@@ -252,16 +248,14 @@ class _CrossingExplanationView extends StatelessWidget {
                       height: 8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: CI.radkulturGreen,
+                        color: const Color.fromRGBO(0, 255, 106, 1),
                       ),
                     ),
                     const SmallHSpace(),
                     Flexible(
-                      child: Text(
-                        "Prognosen vorhanden",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      child: Content(
+                        text: "Prognosen vorhanden",
+                        context: context,
                       ),
                     ),
                   ],
@@ -283,11 +277,9 @@ class _CrossingExplanationView extends StatelessWidget {
                     ),
                     const SmallHSpace(),
                     Flexible(
-                      child: Text(
-                        "Absteigen",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      child: Content(
+                        text: "Absteigen",
+                        context: context,
                       ),
                     ),
                   ],
@@ -296,7 +288,26 @@ class _CrossingExplanationView extends StatelessWidget {
             ),
             const VSpace(),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color.fromRGBO(0, 255, 106, 1),
+                    border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
+                  ),
+                ),
+                const HSpace(),
+                Flexible(
+                  child: Content(text: "Ampeln entlang deiner Route mit Geschwindigkeitsempfehlung.", context: context),
+                ),
+              ],
+            ),
+            const VSpace(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 14,
@@ -310,37 +321,17 @@ class _CrossingExplanationView extends StatelessWidget {
                 const HSpace(),
                 Flexible(
                   child: Content(
-                    text: "Ampeln, welche im System angebunden sind (entlang deiner Route)",
+                    text:
+                        "Weitere angebundene Ampeln entlang deiner Route, die aktuell jedoch keine Geschwindigkeitsempfehlung haben.",
                     context: context,
                     maxLines: 5,
                   ),
                 ),
               ],
             ),
-            const SmallVSpace(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color.fromRGBO(0, 255, 106, 1),
-                    border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
-                  ),
-                ),
-                const HSpace(),
-                Flexible(
-                  child: Content(
-                      text: "Davon Ampeln, welche derzeit über Geschwindigkeitsempfehlungen verfügen",
-                      context: context),
-                ),
-              ],
-            ),
             const VSpace(),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 14,
@@ -355,14 +346,14 @@ class _CrossingExplanationView extends StatelessWidget {
                 Flexible(
                   child: Content(
                       text:
-                          "Weitere Kreuzungen, an welchen Ampeln liegen könnten, welche jedoch nicht im System vorhanden sind.",
+                          "Weitere Kreuzungen, an welchen Ampeln liegen könnten, die jedoch nicht im System angebunden sind.",
                       context: context),
                 ),
               ],
             ),
             const VSpace(),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 14,
@@ -393,7 +384,7 @@ class GetOffBikeLegendPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint frontPaint = Paint()..color = CI.radkulturGreen;
+    Paint frontPaint = Paint()..color = const Color.fromRGBO(0, 255, 106, 1);
     final frontPath = Path()
       ..moveTo(size.width * 0.36, 0)
       ..lineTo(size.width * 0.3, size.height)
@@ -428,24 +419,17 @@ class GetOffBikeLegendPainter extends CustomPainter {
     // Draw the back path.
     canvas.drawPath(backPath, backPaint);
 
-    // Draw the dashed part 1.
+    // Draw the dash.
     canvas.drawRRect(
         RRect.fromRectAndRadius(
-            Rect.fromLTWH(size.width * 0.075, size.height * 0.15, size.width * 0.23, size.height * 0.7),
+            Rect.fromLTWH(size.width * 0.15, size.height * 0.15, size.width * 0.25, size.height * 0.7),
             const Radius.circular(4.0)),
         dashedPaint);
 
     // Draw the dashed part 2.
     canvas.drawRRect(
         RRect.fromRectAndRadius(
-            Rect.fromLTWH(size.width * 0.37, size.height * 0.15, size.width * 0.23, size.height * 0.7),
-            const Radius.circular(4.0)),
-        dashedPaint);
-
-    // Draw the dashed part 3.
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(size.width * 0.7, size.height * 0.15, size.width * 0.23, size.height * 0.7),
+            Rect.fromLTWH(size.width * 0.55, size.height * 0.15, size.width * 0.25, size.height * 0.7),
             const Radius.circular(4.0)),
         dashedPaint);
   }
