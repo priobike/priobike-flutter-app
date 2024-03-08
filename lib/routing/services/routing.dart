@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
@@ -138,9 +137,6 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  /// A boolean indicating if the route has been loaded.
-  bool hasloaded = false;
-
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -160,7 +156,6 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
-      hasloaded = false;
     }
     notifyListeners();
   }
@@ -236,11 +231,6 @@ class Routing with ChangeNotifier {
     return await selectWaypoints(remaining);
   }
 
-  // Select waypoints from shortcut and save shortcut.
-  Future<void> selectShortcut(Shortcut shortcut) async {
-    selectWaypoints(shortcut.getWaypoints());
-  }
-
   // Reset the routing service.
   Future<void> reset() async {
     hadErrorDuringFetch = false;
@@ -249,7 +239,6 @@ class Routing with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
-    hasloaded = false;
     notifyListeners();
   }
 
@@ -418,7 +407,6 @@ class Routing with ChangeNotifier {
         hadErrorDuringFetch = true;
         waypointsOutOfBoundaries = false;
         isFetchingRoute = false;
-        hasloaded = true;
         notifyListeners();
         return null;
       }
@@ -429,7 +417,6 @@ class Routing with ChangeNotifier {
       hadErrorDuringFetch = true;
       waypointsOutOfBoundaries = true;
       isFetchingRoute = false;
-      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -442,7 +429,6 @@ class Routing with ChangeNotifier {
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
-      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -452,7 +438,6 @@ class Routing with ChangeNotifier {
     if (sgSelectorResponses.contains(null)) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
-      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -460,7 +445,6 @@ class Routing with ChangeNotifier {
     if (ghResponse.paths.length != sgSelectorResponses.length) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
-      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -530,7 +514,6 @@ class Routing with ChangeNotifier {
     allRoutes = routes;
     fetchedWaypoints = selectedWaypoints!;
     isFetchingRoute = false;
-    hasloaded = true;
 
     final discomforts = getIt<Discomforts>();
     await discomforts.findDiscomforts(routes.first);
@@ -557,7 +540,6 @@ class Routing with ChangeNotifier {
       hadErrorDuringFetch = true;
       waypointsOutOfBoundaries = false;
       isFetchingRoute = false;
-      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -567,7 +549,6 @@ class Routing with ChangeNotifier {
       hadErrorDuringFetch = true;
       waypointsOutOfBoundaries = true;
       isFetchingRoute = false;
-      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -580,7 +561,6 @@ class Routing with ChangeNotifier {
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
-      hasloaded = true;
       notifyListeners();
       return null;
     }
@@ -621,7 +601,6 @@ class Routing with ChangeNotifier {
         .toList();
 
     isFetchingRoute = false;
-    hasloaded = true;
 
     notifyListeners();
     return routes.first;

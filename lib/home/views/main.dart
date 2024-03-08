@@ -227,7 +227,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       throw UnimplementedError();
     }
 
-    routing.selectShortcut(newShortcut);
+    routing.selectWaypoints(newShortcut.getWaypoints());
 
     pushRoutingView();
   }
