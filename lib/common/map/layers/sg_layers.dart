@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -511,11 +510,14 @@ class RouteCrossingsCircleLayer {
         Color color = const Color(0xFFD9D9D9);
         Color strokeColor = const Color(0xFF989898);
 
-        final colorHSL = HSLColor.fromColor(color);
-        color = HSLColor.fromColor(color).withSaturation(colorHSL.saturation * 0.33).toColor();
+        HSLColor colorHSL = HSLColor.fromColor(color);
+        color = colorHSL.withSaturation(colorHSL.saturation * 0.33).withLightness(colorHSL.lightness * 0.75).toColor();
 
-        final strokeColorHSL = HSLColor.fromColor(strokeColor);
-        strokeColor = HSLColor.fromColor(strokeColor).withSaturation(strokeColorHSL.saturation * 0.33).toColor();
+        HSLColor strokeColorHSL = HSLColor.fromColor(strokeColor);
+        strokeColor = strokeColorHSL
+            .withSaturation(strokeColorHSL.saturation * 0.33)
+            .withLightness(strokeColorHSL.lightness * 0.75)
+            .toColor();
 
         String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
         String strokeColorString = "rgb(${strokeColor.red}, ${strokeColor.green}, ${strokeColor.blue})";
@@ -548,10 +550,10 @@ class RouteCrossingsCircleLayer {
 
         // Reduce saturation if not selected route.
         final colorHSL = HSLColor.fromColor(color);
-        color = HSLColor.fromColor(color).withSaturation(colorHSL.saturation * 0.5).toColor();
+        color = colorHSL.withSaturation(colorHSL.saturation * 0.33).toColor();
 
         final strokeColorHSL = HSLColor.fromColor(color);
-        strokeColor = HSLColor.fromColor(color).withSaturation(strokeColorHSL.saturation * 0.5).toColor();
+        strokeColor = strokeColorHSL.withSaturation(strokeColorHSL.saturation * 0.33).toColor();
 
         String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
         String strokeColorString = "rgb(${strokeColor.red}, ${strokeColor.green}, ${strokeColor.blue})";
@@ -616,6 +618,13 @@ class RouteCrossingsCircleLayer {
       'circle-stroke-color',
       json.encode(["get", "circle-stroke-color"]),
     );
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-radius',
+        json.encode(
+          reduceRadius(zoom: 12, radius: 6),
+        ));
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -727,6 +736,13 @@ class SelectedRouteCrossingsCircleLayer {
       'circle-stroke-color',
       json.encode(["get", "circle-stroke-color"]),
     );
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-radius',
+        json.encode(
+          reduceRadius(zoom: 12, radius: 6),
+        ));
   }
 
   /// Update the overlay on the map controller (without updating the layers).

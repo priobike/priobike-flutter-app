@@ -50,7 +50,7 @@ class AllRoutesLayer {
             (0 * q + 0 * (1 - q)).round(), (255 * q + 115 * (1 - q)).round(), (106 * q + 255 * (1 - q)).round(), 1);
 
         final colorHSL = HSLColor.fromColor(color);
-        color = HSLColor.fromColor(color).withSaturation(colorHSL.saturation * 0.33).toColor();
+        color = colorHSL.withSaturation(colorHSL.saturation * 0.25).toColor();
 
         String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
 
