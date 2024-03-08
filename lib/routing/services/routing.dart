@@ -525,7 +525,10 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(routes.first);
 
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(routes.first);
+    // Load status for all routes but in reversed so that the first route is displayed in the bottom sheet.
+    for (r.Route route in routes.reversed) {
+      await status.fetch(route);
+    }
 
     notifyListeners();
     return routes;

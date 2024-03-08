@@ -204,7 +204,7 @@ class _CrossingExplanationView extends StatelessWidget {
                 const HSpace(),
                 Flexible(
                   child: Content(
-                    text: "Ampeln, welche im System angebunden sind (entlang der Route)",
+                    text: "Ampeln, welche im System angebunden sind (entlang deiner Route)",
                     context: context,
                     maxLines: 5,
                   ),
