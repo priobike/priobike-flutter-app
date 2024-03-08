@@ -303,15 +303,17 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
           ),
         );
 
-        int? firstTimestamp;
-        widget.track.routes.forEach((key, _) {
-          if (firstTimestamp == null) {
-            firstTimestamp = key;
-          } else if (key < firstTimestamp!) {
-            firstTimestamp = key;
+        // We only want to visualize the first calculated route.
+        // Therefore we compare the timestamps of all routes and take the earliest one.
+        int? timestampOfFirstRoute;
+        widget.track.routes.forEach((timestamp, _) {
+          if (timestampOfFirstRoute == null) {
+            timestampOfFirstRoute = timestamp;
+          } else if (timestamp < timestampOfFirstRoute!) {
+            timestampOfFirstRoute = timestamp;
           }
         });
-        List<NavigationNode> routeNodes = widget.track.routes[firstTimestamp]!.route;
+        List<NavigationNode> routeNodes = widget.track.routes[timestampOfFirstRoute]!.route;
 
         if (snapshot.connectionState == ConnectionState.done) {
           content = positions.isNotEmpty
