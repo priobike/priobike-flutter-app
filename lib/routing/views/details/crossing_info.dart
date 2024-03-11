@@ -294,7 +294,7 @@ class _CrossingExplanationView extends StatelessWidget {
                 ),
                 const HSpace(),
                 Flexible(
-                  child: Content(text: "Ampeln entlang deiner Route mit Geschwindigkeitsempfehlung.", context: context),
+                  child: Content(text: "Ampeln entlang Deiner Route mit Geschwindigkeitsempfehlung.", context: context),
                 ),
               ],
             ),
@@ -315,7 +315,7 @@ class _CrossingExplanationView extends StatelessWidget {
                 Flexible(
                   child: Content(
                     text:
-                        "Weitere angebundene Ampeln entlang deiner Route, die aktuell jedoch keine Geschwindigkeitsempfehlung haben.",
+                        "Weitere angebundene Ampeln entlang Deiner Route, die aktuell jedoch keine Geschwindigkeitsempfehlung haben.",
                     context: context,
                     maxLines: 5,
                   ),
