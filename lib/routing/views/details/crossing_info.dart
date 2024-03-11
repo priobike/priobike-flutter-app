@@ -99,13 +99,13 @@ class CrossingInfoState extends State<CrossingInfo> {
                       height: 24,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color.fromRGBO(0, 115, 255, 1),
-                        border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
+                        color: CI.route,
+                        border: Border.all(color: CI.routeBackground, width: 2),
                       ),
                       child: Padding(
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
                         child: Center(
-                          child: Small(
+                          child: BoldSmall(
                             context: context,
                             text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
                             color: Colors.white,
@@ -120,12 +120,12 @@ class CrossingInfoState extends State<CrossingInfo> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: const Color.fromRGBO(0, 255, 106, 1),
-                        border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
+                        border: Border.all(color: CI.radkulturGreen, width: 2),
                       ),
                       child: Padding(
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
                         child: Center(
-                          child: Small(
+                          child: BoldSmall(
                             context: context,
                             text: routing.isFetchingRoute ? "-" : status.ok.toString(),
                             color: Colors.black,
@@ -140,12 +140,12 @@ class CrossingInfoState extends State<CrossingInfo> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: const Color.fromRGBO(217, 217, 217, 1),
-                        border: Border.all(color: const Color.fromRGBO(152, 152, 152, 1), width: 1),
+                        border: Border.all(color: const Color.fromRGBO(152, 152, 152, 1), width: 2),
                       ),
                       child: Padding(
                         padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
                         child: Center(
-                          child: Small(
+                          child: BoldSmall(
                             context: context,
                             text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
                             color: Colors.black,

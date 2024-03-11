@@ -16,6 +16,9 @@ class CI {
   /// The color for the route in the app.
   static const Color route = Color.fromARGB(255, 0, 115, 255);
 
+  /// The background color of the route.
+  static const Color routeBackground = Color.fromARGB(255, 0, 69, 154);
+
   /// The color for the secondary routes in the app.
   static const Color secondaryRoute = Color.fromARGB(255, 198, 198, 198);
 }

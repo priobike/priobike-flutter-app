@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
@@ -169,8 +170,9 @@ class IntersectionsLayer {
               sourceId: sourceId,
               id: layerId,
               circleRadius: 4,
-              circleColor:
-                  isDark ? const Color.fromRGBO(0, 75, 130, 1).value : const Color.fromRGBO(196, 220, 248, 1).value,
+              circleStrokeColor: CI.routeBackground.value,
+              circleStrokeWidth: 0.5,
+              circleColor: CI.route.value,
               minZoom: 8.0),
           mapbox.LayerPosition(at: at));
     }
@@ -179,7 +181,7 @@ class IntersectionsLayer {
         layerId,
         'circle-opacity',
         json.encode(
-          showAfter(zoom: 10),
+          showAfter(zoom: 10, opacity: isDark ? 0.8 : 0.4),
         ));
 
     await mapController.style.setStyleLayerProperty(
