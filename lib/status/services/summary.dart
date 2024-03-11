@@ -122,15 +122,16 @@ class PredictionStatusSummary with ChangeNotifier {
   /// Loads the percentage of good predictions.
   double loadGood() {
     if (current == null) return 0.0;
-    final status = current!;
-    if (status.mostRecentPredictionTime == null) return 0.0;
-    if (status.mostRecentPredictionTime! - status.statusUpdateTime > const Duration(minutes: 5).inSeconds) {
+    if (current!.mostRecentPredictionTime == null) return 0.0;
+
+    if (current!.mostRecentPredictionTime! - current!.statusUpdateTime > const Duration(minutes: 5).inSeconds) {
       // Sometimes we may have a prediction "from the future".
-      if (status.mostRecentPredictionTime! < status.statusUpdateTime) return 0.0;
+      if (current!.mostRecentPredictionTime! < current!.statusUpdateTime) return 0.0;
     }
-    if (status.numPredictions == 0) return 0.0;
-    if (status.numThings == 0) return 0.0;
-    return (status.numPredictions - status.numBadPredictions) / status.numThings;
+    if (current!.numPredictions == 0) return 0.0;
+    if (current!.numThings == 0) return 0.0;
+
+    return (current!.numPredictions - current!.numBadPredictions) / current!.numThings;
   }
 
   /// Reset the status.
