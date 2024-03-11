@@ -85,8 +85,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final waypoint = reorderedWaypoints.removeAt(oldIndex);
     reorderedWaypoints.insert(newIndex, waypoint);
 
-    routing.selectWaypoints(reorderedWaypoints);
-    routing.loadRoutes();
+    await routing.selectWaypoints(reorderedWaypoints);
+    // load asynchronously and check in build method if route is ready
+    unawaited(routing.loadRoutes());
   }
 
   /// A callback that is executed when the search page is opened.
@@ -266,15 +267,24 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     );
   }
 
+  /// Helper function to determine if the bottom sheet is ready to be displayed.
+  bool _checkIfBottomSheetIsReady() {
+    // After loading Route
+    if (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) return true;
+
+    // Free Routing or Shortcut Location
+    if (routing.selectedWaypoints == null) return true;
+    if (routing.selectedWaypoints!.length <= 1) return true;
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
     initialChildSize = 140 / frame.size.height + (frame.padding.bottom / frame.size.height);
 
-    // The bottom sheet is ready when the route is not being fetched or if free routing was selected (no waypoints selected yet).
-    final bottomSheetIsReady = (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) ||
-        routing.selectedWaypoints == null ||
-        routing.selectedWaypoints!.length <= 1;
+    final bottomSheetIsReady = _checkIfBottomSheetIsReady();
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
