@@ -132,24 +132,29 @@ class IntersectionsLayer {
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    try {
+      final settings = getIt<Settings>();
+      final baseUrl = settings.backend.path;
 
-    final url = "https://$baseUrl/sg-selector-nginx/intersections.json.gz";
-    final endpoint = Uri.parse(url);
+      final url = "https://$baseUrl/sg-selector-nginx/intersections.json.gz";
+      final endpoint = Uri.parse(url);
 
-    final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
-    if (response.statusCode != 200) {
-      final err = "Error while fetching SGs from $endpoint: ${response.statusCode}";
-      throw Exception(err);
+      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        final err = "Error while fetching SGs from $endpoint: ${response.statusCode}";
+        throw Exception(err);
+      }
+
+      final uncompressed = gzip.decode(response.bodyBytes);
+      final jsonString = utf8.decode(uncompressed);
+
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: jsonString, tolerance: 1),
+      );
+    } catch (e, stacktrace) {
+      final hint = "Failed to load intersections from server: $e $stacktrace";
+      log.e(hint);
     }
-
-    final uncompressed = gzip.decode(response.bodyBytes);
-    final jsonString = utf8.decode(uncompressed);
-
-    await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: jsonString, tolerance: 1),
-    );
   }
 
   /// Install the layer on the map controller.
