@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -47,7 +46,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 28,
+              fontSize: 18,
               height: 1.1,
             ),
             textAlign: TextAlign.center,
@@ -102,36 +101,50 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       child: Stack(
         children: [
           Center(
-            child: Text(
-              countdownLabel,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 128,
-                shadows: [
-                  Shadow(
-                    blurRadius: 32,
-                    offset: Offset(0, 0),
-                    color: Color.fromARGB(255, 0, 0, 0),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    countdownLabel,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 86,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 32,
+                          offset: Offset(0, 0),
+                          color: Color.fromARGB(255, 0, 0, 0),
+                        ),
+                      ],
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
                   ),
+                  if (countdownLabel.isNotEmpty)
+                    const Text(
+                      "s",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 32,
+                            offset: Offset(0, 0),
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ],
+                        fontWeight: FontWeight.w500,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ),
+                    ),
                 ],
-                fontWeight: FontWeight.w500,
-                color: Color.fromARGB(255, 255, 255, 255),
               ),
             ),
           ),
-          if (countdownLabel.isNotEmpty)
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: EdgeInsets.only(top: widget.size.height * 0.08),
-                child: Small(
-                  text: "Sekunden\nbis zur nächsten Farbe",
-                  context: context,
-                  textAlign: TextAlign.center,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-            ),
         ],
       ),
     );
