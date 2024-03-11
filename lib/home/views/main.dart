@@ -261,7 +261,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   @override
   Widget build(BuildContext context) {
-    final showStatusView = predictionStatusSummary.loadGood() <= 0.2;
+    final showStatusView = predictionStatusSummary.getProblem() != null;
 
     return Scaffold(
       body: RefreshIndicator(
