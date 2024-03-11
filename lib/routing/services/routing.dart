@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
@@ -232,11 +231,6 @@ class Routing with ChangeNotifier {
     return await selectWaypoints(remaining);
   }
 
-  // Select waypoints from shortcut and save shortcut.
-  Future<void> selectShortcut(Shortcut shortcut) async {
-    selectWaypoints(shortcut.getWaypoints());
-  }
-
   // Reset the routing service.
   Future<void> reset() async {
     hadErrorDuringFetch = false;
@@ -342,7 +336,7 @@ class Routing with ChangeNotifier {
       ghUrl += "&details=surface";
       ghUrl += "&details=max_speed";
       ghUrl += "&details=smoothness";
-      ghUrl += "&details=lanes";
+      ghUrl += "&details=get_off_bike";
       ghUrl += "&details=road_class";
       if (waypoints.length == 2) {
         ghUrl += "&algorithm=alternative_route";

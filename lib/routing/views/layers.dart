@@ -186,10 +186,9 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    // Show a grid view with all available layers.
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

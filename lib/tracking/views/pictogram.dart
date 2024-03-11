@@ -10,11 +10,15 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_projection.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
+import 'package:priobike/routing/models/navigation.dart';
 
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
   /// The Positions of the track.
   final List<Position> track;
+
+  /// The optional positions of the route.
+  final List<NavigationNode>? routeNodes;
 
   /// The list of colors for the speed gradient.
   final List<Color> colors;
@@ -37,11 +41,17 @@ class TrackPictogram extends StatefulWidget {
   /// If the speed should be displayed.
   final bool showSpeedLegend;
 
-  /// If the speed should be displayed.
+  /// The bottom position of the speed legend.
   final double? speedLegendBottom;
 
-  /// If the speed should be displayed.
+  /// The left position of the speed legend.
   final double? speedLegendLeft;
+
+  /// The bottom position of the route legend.
+  final double? routeLegendBottom;
+
+  /// The right position of the route legend.
+  final double? routeLegendRight;
 
   /// The ratio of the height of the fetched image.
   /// Has to be between 0 and 1.
@@ -88,6 +98,9 @@ class TrackPictogram extends StatefulWidget {
     this.mapboxWidth = 32,
     this.speedLegendBottom = 10,
     this.speedLegendLeft = 10,
+    this.routeLegendBottom = 10,
+    this.routeLegendRight = 10,
+    this.routeNodes,
   });
 
   @override
@@ -115,9 +128,14 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     final fetchedBrightness = Theme.of(context).brightness;
     if (fetchedBrightness == backgroundImageBrightness) return;
 
+    List<LatLng> coords = widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    if (widget.routeNodes != null && widget.routeNodes!.isNotEmpty) {
+      coords.addAll(widget.routeNodes!.map((e) => LatLng(e.lat, e.lon)).toList());
+    }
+
     backgroundImageFuture?.ignore();
     backgroundImageFuture = MapboxTileImageCache.requestTile(
-      coords: widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList(),
+      coords: coords,
       brightness: fetchedBrightness,
       // To make sure tracks fit horizontally.
       // 1 - screen ratio + 0.1 padding.
@@ -206,6 +224,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             // To make sure tracks fit horizontally.
             // 1 - screen ratio + 0.1 padding.
             mapPadding: 1 - (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) + 0.1,
+            routeNodes: widget.routeNodes,
           ),
         ),
 
@@ -254,6 +273,48 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
               ),
             ),
           ),
+
+        // Legend for route.
+        if (widget.routeNodes != null && widget.routeNodes!.isNotEmpty)
+          Positioned(
+            bottom: widget.routeLegendBottom,
+            right: widget.routeLegendRight,
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.white.withOpacity(0.75)
+                    : Colors.black.withOpacity(0.25),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: CI.secondaryRoute,
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    Text(
+                      'Urspr. geplante Route',
+                      style: TextStyle(
+                        fontSize: 8,
+                        color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         //Mapbox Attribution Logo
         MapboxAttribution(
           top: widget.mapboxTop,
@@ -282,6 +343,7 @@ class TrackPainter extends CustomPainter {
   final double heightRatio;
   final double widthRatio;
   final double mapPadding;
+  final List<NavigationNode>? routeNodes;
 
   TrackPainter({
     required this.fraction,
@@ -298,18 +360,11 @@ class TrackPainter extends CustomPainter {
     this.minSpeed,
     this.startImage,
     this.destinationImage,
+    this.routeNodes,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..strokeWidth = lineWidth
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    if (blurRadius > 0) {
-      paint.maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
-    }
-
     // If the track is too long, it will slow down the app.
     // Therefore, we need to reduce the number of points.
     // If the number of points is > threshold, we reduce it to threshold.
@@ -330,12 +385,84 @@ class TrackPainter extends CustomPainter {
       trackToDraw.addAll(track);
     }
 
+    List<LatLng> coords = trackToDraw.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    if (routeNodes != null && routeNodes!.isNotEmpty) {
+      coords.addAll(routeNodes!.map((e) => LatLng(e.lat, e.lon)).toList());
+    }
+
+    final bbox = MapboxMapProjection.mercatorBoundingBox(coords, mapPadding);
+    if (bbox == null) return;
+
+    if (routeNodes != null && routeNodes!.isNotEmpty) {
+      drawRoute(canvas, routeNodes!, size, bbox);
+    }
+    drawGps(canvas, trackToDraw, size, bbox);
+  }
+
+  /// Draws the initial calculated route.
+  void drawRoute(Canvas canvas, List<NavigationNode> routeToDraw, Size size, MapboxMapProjectionBoundingBox bbox) {
+    final paint = Paint()
+      ..strokeWidth = lineWidth / 2
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    if (blurRadius > 0) {
+      paint.maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
+    }
+    final routeCount = routeToDraw.length;
+    final routeCountFraction = routeCount * fraction;
+
+    // Draw the lines between the coordinates
+    for (var i = 0; i < routeCountFraction - 1; i++) {
+      final p1 = routeToDraw[i];
+      final p2 = routeToDraw[i + 1];
+
+      // Calculation:
+      // longitude/latitude - bbox / (bbox max - bbox min) (Ratio) * Space available (height or width).
+      // If not square: multiply the opposite ratio to make sure, the route is displayed square.
+      // Also add half the size of the site with ratio to the point to center it.
+      final x1 = (p1.lon - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y1 = (p1.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
+      final x2 = (p2.lon - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y2 = (p2.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
+
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint..color = CI.secondaryRoute);
+    }
+
+    // Interpolate the last segment
+    if (routeCountFraction + 1 < routeCount) {
+      final p1 = routeToDraw[routeCountFraction.toInt()];
+      final p2 = routeToDraw[routeCountFraction.toInt() + 1];
+      final pct = routeCountFraction - routeCountFraction.toInt();
+      final x1 = (p1.lon - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y1 = (p1.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
+      final x2 = (p2.lon - bbox.minLon) / (bbox.maxLon - bbox.minLon) * (size.width * (heightRatio)) +
+          (size.width * (1 - heightRatio) * 0.5);
+      final y2 = (p2.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
+          (size.height * (1 - widthRatio) * 0.5);
+      final x2i = x1 + (x2 - x1) * pct;
+      final y2i = y1 + (y2 - y1) * pct;
+
+      canvas.drawLine(Offset(x1, y1), Offset(x2i, y2i), paint..color = CI.secondaryRoute);
+    }
+  }
+
+  /// Draws the driven track (List of GPS coordinates).
+  void drawGps(Canvas canvas, List<Position> trackToDraw, Size size, MapboxMapProjectionBoundingBox bbox) {
+    final paint = Paint()
+      ..strokeWidth = lineWidth
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    if (blurRadius > 0) {
+      paint.maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
+    }
     final trackCount = trackToDraw.length;
     final trackCountFraction = trackCount * fraction;
-
-    final bbox = MapboxMapProjection.mercatorBoundingBox(
-        trackToDraw.map((Position p) => LatLng(p.latitude, p.longitude)).toList(), mapPadding);
-    if (bbox == null) return;
 
     // Draw the lines between the coordinates
     for (var i = 0; i < trackCountFraction - 1; i++) {
