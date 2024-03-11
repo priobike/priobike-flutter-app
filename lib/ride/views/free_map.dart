@@ -24,12 +24,7 @@ class FreeRideMapView extends StatefulWidget {
 class FreeRideMapViewState extends State<FreeRideMapView> {
   static const viewId = "free.ride.views.map";
 
-  static const userLocationLayerId = "user-ride-location-puck";
-
   static const bearingDiffThreshold = 90;
-
-  /// The associated positioning service, which is injected by the provider.
-  late Positioning positioning;
 
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
@@ -49,12 +44,14 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// The timer which updates the predictions on the visible SGs.
   Timer? updateSgPredictionsTimer;
 
+  /// The timer that controls positioning updates.
+  Timer? positionUpdateTimer;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     AllTrafficLightsPredictionGeometryLayer.layerId,
     AllTrafficLightsPredictionLayer.layerId,
     AllTrafficLightsPredictionLayer.countdownLayerId,
-    userLocationLayerId,
   ];
 
   /// Returns the index where the layer should be added in the Mapbox layer stack.
@@ -78,8 +75,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   void initState() {
     super.initState();
 
-    positioning = getIt<Positioning>();
-    positioning.addListener(onPositioningUpdate);
     freeRide = getIt<FreeRide>();
     freeRide.addListener(onFreeRideUpdate);
     settings = getIt<Settings>();
@@ -91,7 +86,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
   @override
   void dispose() {
-    positioning.removeListener(onPositioningUpdate);
     freeRide.removeListener(onFreeRideUpdate);
     updateVisibleSgsTimer?.cancel();
     updateVisibleSgsTimer = null;
@@ -113,29 +107,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     final userPos = getIt<Positioning>().lastPosition;
 
     if (userPos == null) return;
-
-    mapController!.flyTo(
-        mapbox.CameraOptions(
-          center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
-          bearing: userPos.heading,
-          zoom: 18.5,
-          pitch: 60,
-          padding: mapbox.MbxEdgeInsets(top: 200, bottom: 0, right: 0, left: 0),
-        ),
-        mapbox.MapAnimationOptions(duration: 1500));
-
-    await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
-      if (value) {
-        mapController!.style.updateLayer(
-          mapbox.LocationIndicatorLayer(
-            id: userLocationLayerId,
-            bearing: userPos.heading,
-            location: [userPos.latitude, userPos.longitude, userPos.altitude],
-            accuracyRadius: userPos.accuracy,
-          ),
-        );
-      }
-    });
   }
 
   /// Used to get the index of the first label layer in the layer stack. This is used to place our layers below the
@@ -168,33 +139,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     mapController = controller;
   }
 
-  /// Show the user location on the map.
-  Future<void> showUserLocationIndicator() async {
-    final index = await getIndex(userLocationLayerId);
-    await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
-      if (!value) {
-        await mapController!.style.addLayerAt(
-          mapbox.LocationIndicatorLayer(
-            id: userLocationLayerId,
-            bearingImage: Theme.of(context).brightness == Brightness.dark ? "positiondark" : "positionlight",
-            bearingImageSize: 0.35,
-            accuracyRadiusColor: const Color(0x00000000).value,
-            accuracyRadiusBorderColor: const Color(0x00000000).value,
-          ),
-          mapbox.LayerPosition(at: index),
-        );
-        // On iOS it seems like the duration is being given in seconds while on Android in milliseconds.
-        if (Platform.isAndroid) {
-          await mapController!.style
-              .setStyleTransition(mapbox.TransitionOptions(duration: 1000, enablePlacementTransitions: false));
-        } else {
-          await mapController!.style
-              .setStyleTransition(mapbox.TransitionOptions(duration: 1, enablePlacementTransitions: false));
-        }
-      }
-    });
-  }
-
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
@@ -203,8 +147,6 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
-
-    await showUserLocationIndicator();
 
     // var index = await getIndex(AllTrafficLightsLayer.layerId);
     // if (!mounted) return;
@@ -217,6 +159,38 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     await AllTrafficLightsPredictionLayer().install(mapController!, at: index);
 
     onPositioningUpdate();
+
+    // The current user bearing.
+    var currentBearing = 0.0;
+    var currentLat = 0.0;
+    var currentLon = 0.0;
+
+    positionUpdateTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) async {
+      if (mapController == null) return;
+      mapbox.Layer? puckLayer;
+      if (Platform.isAndroid) {
+        puckLayer = await mapController?.style.getLayer("mapbox-location-indicator-layer");
+      } else {
+        puckLayer = await mapController?.style.getLayer("puck");
+      }
+
+      var location = (puckLayer as mapbox.LocationIndicatorLayer).location;
+      if (location == null) return;
+      if (location.isEmpty) return;
+      currentLat = location[0] ?? currentLat;
+      currentLon = location[1] ?? currentLon;
+      currentBearing = puckLayer.bearing ?? currentBearing;
+      mapController!.flyTo(
+        mapbox.CameraOptions(
+          center: mapbox.Point(coordinates: mapbox.Position(currentLon, currentLat)).toJson(),
+          bearing: currentBearing,
+          zoom: 18.5,
+          pitch: 60,
+          padding: mapbox.MbxEdgeInsets(top: 200, bottom: 0, right: 0, left: 0),
+        ),
+        mapbox.MapAnimationOptions(duration: 250),
+      );
+    });
 
     updateVisibleSgsTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       if (mapController == null) return;
@@ -232,13 +206,12 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     updateSgPredictionsTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (mapController == null) return;
       final Map<String, dynamic> propertiesBySgId = {};
-      double? heading = positioning.lastPosition?.heading;
 
       for (final entry in freeRide.receivedPredictions.entries) {
         // Bool that holds the state if a sg is most likely relevant for the user or not.
         bool isRelevant = false;
 
-        if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty || heading == null) continue;
+        if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty) continue;
         final sgGeometry = freeRide.sgGeometries![entry.key];
         double sgBearing = freeRide.sgBearings![entry.key]!;
 
@@ -250,7 +223,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         // 1. A sg facing towards the user is considered as relevant.
         // 360 need to be considered.
 
-        double _getBearingDiff(double bearing1, double bearing2) {
+        double getBearingDiff(double bearing1, double bearing2) {
           double diff = bearing1 - bearing2;
           if (diff < -180) {
             diff = 360 + diff;
@@ -260,7 +233,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
           return diff;
         }
 
-        final bearingDiff = _getBearingDiff(heading, sgBearing);
+        final bearingDiff = getBearingDiff(currentBearing, sgBearing);
         if (-45 < bearingDiff && bearingDiff < 45) {
           isRelevant = true;
         }
@@ -277,7 +250,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
               laneEndBearing = 180 + (180 - laneEndBearing.abs());
             }
 
-            final bearingDiffLastSegment = _getBearingDiff(heading, laneEndBearing);
+            final bearingDiffLastSegment = getBearingDiff(currentBearing, laneEndBearing);
 
             // relative left is okay.
             // Just not
@@ -290,16 +263,14 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
         // 3. A sg facing to the right of the user and being oriented towards the right side of the user is considered as relevant.
         if (-180 < bearingDiff && bearingDiff < 0) {
-          final lastPosition = positioning.lastPosition;
-          if (coordinates != null && coordinates.length > 1 && lastPosition != null) {
+          if (coordinates != null && coordinates.length > 1) {
             final last = coordinates[coordinates.length - 1];
-            double laneEndPositionBearing =
-                vincenty.bearing(LatLng(lastPosition.longitude, lastPosition.latitude), LatLng(last[1], last[0]));
+            double laneEndPositionBearing = vincenty.bearing(LatLng(currentLon, currentLat), LatLng(last[1], last[0]));
             if (laneEndPositionBearing < 0) {
               laneEndPositionBearing = 180 + (180 - laneEndPositionBearing.abs());
             }
 
-            final bearingDiffUserSG = _getBearingDiff(heading, laneEndPositionBearing);
+            final bearingDiffUserSG = getBearingDiff(currentBearing, laneEndPositionBearing);
 
             if (170 < bearingDiffUserSG && bearingDiffUserSG < 0) {
               isRelevant = true;
@@ -346,8 +317,9 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       }
       // Update the layer.
 
-      AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: heading).update(mapController!);
-      AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: heading)
+      AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: currentBearing)
+          .update(mapController!);
+      AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: currentBearing)
           .update(mapController!);
     });
   }

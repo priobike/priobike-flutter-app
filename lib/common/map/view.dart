@@ -169,7 +169,11 @@ class AppMapState extends State<AppMap> {
   /// A wrapper for the default onMapCreated callback.
   /// In this callback we configure the default settings.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
-    controller.location.updateSettings(mapbox.LocationComponentSettings(enabled: false));
+    controller.location.updateSettings(mapbox.LocationComponentSettings(
+      enabled: true,
+      puckBearingEnabled: true,
+      puckBearingSource: mapbox.PuckBearingSource.HEADING,
+    ));
     controller.compass.updateSettings(mapbox.CompassSettings(enabled: false));
     controller.scaleBar.updateSettings(mapbox.ScaleBarSettings(enabled: false));
     controller.attribution.updateSettings(mapbox.AttributionSettings(
