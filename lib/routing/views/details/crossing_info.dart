@@ -66,93 +66,96 @@ class CrossingInfoState extends State<CrossingInfo> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-          width: 58,
-          constraints: const BoxConstraints(minHeight: 58),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            borderRadius: const BorderRadius.all(
-              Radius.circular(24),
+        GestureDetector(
+          onTap: showCrossingInfoSheet,
+          child: Container(
+            width: 58,
+            constraints: const BoxConstraints(minHeight: 58),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              borderRadius: const BorderRadius.all(
+                Radius.circular(24),
+              ),
             ),
-          ),
-          child: AnimatedCrossFade(
-            crossFadeState: showInfo ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-            duration: const Duration(milliseconds: 1000),
-            firstCurve: Curves.easeInOutCubic,
-            secondCurve: Curves.easeInOutCubic,
-            sizeCurve: Curves.easeInOutCubic,
-            secondChild: Container(),
-            firstChild: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  const SizedBox(
-                    height: 58,
-                  ),
-                  const SmallVSpace(),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color.fromRGBO(0, 115, 255, 1),
-                      border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
+            child: AnimatedCrossFade(
+              crossFadeState: showInfo ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+              duration: const Duration(milliseconds: 1000),
+              firstCurve: Curves.easeInOutCubic,
+              secondCurve: Curves.easeInOutCubic,
+              sizeCurve: Curves.easeInOutCubic,
+              secondChild: Container(),
+              firstChild: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const SizedBox(
+                      height: 58,
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
-                      child: Center(
-                        child: Small(
-                          context: context,
-                          text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
-                          color: Colors.white,
+                    const SmallVSpace(),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color.fromRGBO(0, 115, 255, 1),
+                        border: Border.all(color: const Color.fromRGBO(0, 69, 150, 1), width: 1),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+                        child: Center(
+                          child: Small(
+                            context: context,
+                            text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SmallVSpace(),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color.fromRGBO(0, 255, 106, 1),
-                      border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
-                      child: Center(
-                        child: Small(
-                          context: context,
-                          text: routing.isFetchingRoute ? "-" : status.ok.toString(),
-                          color: Colors.black,
+                    const SmallVSpace(),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color.fromRGBO(0, 255, 106, 1),
+                        border: Border.all(color: const Color.fromRGBO(0, 179, 74, 1), width: 1),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+                        child: Center(
+                          child: Small(
+                            context: context,
+                            text: routing.isFetchingRoute ? "-" : status.ok.toString(),
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SmallVSpace(),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color.fromRGBO(217, 217, 217, 1),
-                      border: Border.all(color: const Color.fromRGBO(152, 152, 152, 1), width: 1),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
-                      child: Center(
-                        child: Small(
-                          context: context,
-                          text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
-                          color: Colors.black,
+                    const SmallVSpace(),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color.fromRGBO(217, 217, 217, 1),
+                        border: Border.all(color: const Color.fromRGBO(152, 152, 152, 1), width: 1),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+                        child: Center(
+                          child: Small(
+                            context: context,
+                            text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SmallVSpace(),
-                ],
+                    const SmallVSpace(),
+                  ],
+                ),
               ),
             ),
           ),

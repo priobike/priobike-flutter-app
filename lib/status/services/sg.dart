@@ -48,7 +48,7 @@ class PredictionSGStatus with ChangeNotifier {
     notifyListeners();
 
     final pending = List<Future>.empty(growable: true);
-    for (final sg in route.signalGroups ?? []) {
+    for (final sg in route.signalGroups) {
       if (cache.containsKey(sg.id)) {
         final now = DateTime.now().millisecondsSinceEpoch / 1000;
         final lastFetched = cache[sg.id]!.statusUpdateTime;
