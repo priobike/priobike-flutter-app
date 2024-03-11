@@ -261,6 +261,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   @override
   Widget build(BuildContext context) {
+    final showStatusView = predictionStatusSummary.loadGood() <= 0.2;
+
     return Scaffold(
       body: RefreshIndicator(
         edgeOffset: 128 + MediaQuery.of(context).padding.top,
@@ -305,16 +307,19 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         ),
                       ),
                     const VSpace(),
-                    const BlendIn(
-                      child: Row(children: [
-                        SizedBox(width: 20),
-                        Expanded(
-                          child: StatusView(showPercentage: false),
+                    if (showStatusView)
+                      const BlendIn(
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20),
+                            Expanded(
+                              child: StatusView(showPercentage: false),
+                            ),
+                            SizedBox(width: 20),
+                          ],
                         ),
-                        SizedBox(width: 20),
-                      ]),
-                    ),
-                    const VSpace(),
+                      ),
+                    if (showStatusView) const VSpace(),
                     BlendIn(
                       delay: const Duration(milliseconds: 250),
                       child: Row(

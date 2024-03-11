@@ -31,7 +31,7 @@ class StatusViewState extends State<StatusView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     text = loadText();
-    goodPct = loadGood();
+    goodPct = predictionStatusSummary.loadGood();
     setState(() {});
   }
 
@@ -43,7 +43,7 @@ class StatusViewState extends State<StatusView> {
     predictionStatusSummary.addListener(update);
 
     text = loadText();
-    goodPct = loadGood();
+    goodPct = predictionStatusSummary.loadGood();
   }
 
   @override
@@ -68,20 +68,6 @@ class StatusViewState extends State<StatusView> {
     // If there is no problem, return a text with interesting information.
     isProblem = false;
     return statusText;
-  }
-
-  /// Loads the percentage of good predictions.
-  double loadGood() {
-    if (predictionStatusSummary.current == null) return 0.0;
-    final status = predictionStatusSummary.current!;
-    if (status.mostRecentPredictionTime == null) return 0.0;
-    if (status.mostRecentPredictionTime! - status.statusUpdateTime > const Duration(minutes: 5).inSeconds) {
-      // Sometimes we may have a prediction "from the future".
-      if (status.mostRecentPredictionTime! < status.statusUpdateTime) return 0.0;
-    }
-    if (status.numPredictions == 0) return 0.0;
-    if (status.numThings == 0) return 0.0;
-    return (status.numPredictions - status.numBadPredictions) / status.numThings;
   }
 
   @override
