@@ -248,7 +248,7 @@ class LoaderState extends State<Loader> {
                             ),
                             const SmallVSpace(),
                             Content(
-                              text: "Ein unbekannter Fehler ist aufgetreten. Die App kann nicht gestartet werden.",
+                              text: "Ein unbekannter Fehler ist aufgetreten.\nDie App kann nicht gestartet werden.",
                               context: context,
                               textAlign: TextAlign.center,
                             ),
@@ -317,11 +317,6 @@ class RestartApp extends StatelessWidget {
               text: "Die Daten wurden zurückgesetzt.\nDie App muss neu gestartet werden, um fortzufahren.",
               context: context,
               textAlign: TextAlign.center,
-            ),
-            const SmallVSpace(),
-            BigButtonPrimary(
-              label: "App beenden",
-              onPressed: () => SystemNavigator.pop(),
             ),
           ],
         ),
