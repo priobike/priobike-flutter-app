@@ -630,6 +630,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(SelectedRouteCrossingsCircleLayer.layerId);
     if (!mounted) return;
     await SelectedRouteCrossingsCircleLayer().install(
+      mapController!,
+      at: index,
+    );
     index = await getIndex(RoutePushBikeLayer.layerId);
     if (!mounted) return;
     await RoutePushBikeLayer().install(
