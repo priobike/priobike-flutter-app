@@ -168,7 +168,7 @@ class IntersectionsLayer {
           mapbox.CircleLayer(
               sourceId: sourceId,
               id: layerId,
-              circleRadius: 3,
+              circleRadius: 4,
               circleColor:
                   isDark ? const Color.fromRGBO(0, 75, 130, 1).value : const Color.fromRGBO(196, 220, 248, 1).value,
               minZoom: 8.0),
@@ -186,7 +186,7 @@ class IntersectionsLayer {
         layerId,
         'circle-radius',
         json.encode(
-          reduceRadius(zoom: 14, radius: 3),
+          reduceRadius(zoom: 14, radius: 4),
         ));
   }
 
