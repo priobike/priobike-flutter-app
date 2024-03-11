@@ -283,7 +283,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
         child: AnnotatedRegionWrapper(
           backgroundColor: Theme.of(context).colorScheme.background,
           brightness: Theme.of(context).brightness,
-          statusBarIconBrightness: Brightness.light,
           child: CustomScrollView(
             slivers: <Widget>[
               NavBarView(
