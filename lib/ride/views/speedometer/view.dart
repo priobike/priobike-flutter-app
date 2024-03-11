@@ -263,6 +263,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       sizedBoxWidth = originalSpeedometerWidth;
     }
     final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
+    // The traffic light view should not fill the complete available space and leave a small margin.
+    final trafficLightViewSize = Size(originalSpeedometerWidth * 0.75, originalSpeedometerHeight * 0.75);
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -366,7 +368,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                         offset: const Offset(0, 42),
                         child: Center(
                           child: RideTrafficLightView(
-                            size: size,
+                            size: trafficLightViewSize,
                           ),
                         ),
                       ),
@@ -393,7 +395,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                             text:
                                 "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
                             context: context,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white,
                           ),
                         ),
                       Padding(
@@ -413,10 +415,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       child: Text(
                         'PrioBike App - Work in Progress.',
                         style: Theme.of(context).textTheme.displaySmall!.merge(
-                              TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: 8,
-                              ),
+                              const TextStyle(color: Colors.white, fontSize: 8),
                             ),
                       ),
                     ),
