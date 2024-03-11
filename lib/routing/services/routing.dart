@@ -516,12 +516,6 @@ class Routing with ChangeNotifier {
         .values
         .toList();
 
-    final status = getIt<PredictionSGStatus>();
-    // Load status for all routes but in reversed so that the first route is displayed in the bottom sheet.
-    for (r.Route route in routes.reversed) {
-      await status.fetch(route);
-    }
-
     selectedRoute = routes.first;
     allRoutes = routes;
     fetchedWaypoints = selectedWaypoints!;
@@ -529,6 +523,12 @@ class Routing with ChangeNotifier {
 
     final discomforts = getIt<Discomforts>();
     await discomforts.findDiscomforts(routes.first);
+
+    final status = getIt<PredictionSGStatus>();
+    for (r.Route route in routes) {
+      await status.fetch(route);
+    }
+    status.updateStatus(routes.first);
 
     notifyListeners();
     return routes;
@@ -625,7 +625,10 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(selectedRoute!);
 
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(selectedRoute!);
+    for (r.Route route in allRoutes!) {
+      await status.fetch(route);
+    }
+    status.updateStatus(selectedRoute!);
 
     notifyListeners();
   }

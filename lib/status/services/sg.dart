@@ -34,12 +34,11 @@ class PredictionSGStatus with ChangeNotifier {
 
   PredictionSGStatus();
 
-  /// Populate the sg status cache with the current route and
-  /// Recalculate the status for this route.
-  Future<void> fetch(Route? route) async {
+  /// Populate the sg status cache for all SGs of the given route.
+  Future<void> fetch(Route route) async {
     if (isLoading) return;
 
-    log.i("Fetching sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
+    log.i("Fetching sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
 
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
@@ -49,7 +48,7 @@ class PredictionSGStatus with ChangeNotifier {
     notifyListeners();
 
     final pending = List<Future>.empty(growable: true);
-    for (final sg in route?.signalGroups ?? []) {
+    for (final sg in route.signalGroups ?? []) {
       if (cache.containsKey(sg.id)) {
         final now = DateTime.now().millisecondsSinceEpoch / 1000;
         final lastFetched = cache[sg.id]!.statusUpdateTime;
@@ -86,10 +85,17 @@ class PredictionSGStatus with ChangeNotifier {
     // Wait for all requests to finish.
     await Future.wait(pending);
 
+    log.i("Updated sg status cache for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// Recalculate the status for the given route.
+  void updateStatus(Route route) {
     ok = 0;
     offline = 0;
     bad = 0;
-    for (final sg in route?.signalGroups ?? []) {
+    for (final sg in route.signalGroups) {
       if (!cache.containsKey(sg.id)) {
         offline++;
         continue;
@@ -108,10 +114,9 @@ class PredictionSGStatus with ChangeNotifier {
       }
     }
 
-    disconnected = route?.crossings.where((c) => !c.connected).length ?? 0;
+    disconnected = route.crossings.where((c) => !c.connected).length;
 
-    log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
-    isLoading = false;
+    log.i("Fetched sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
     notifyListeners();
   }
 
