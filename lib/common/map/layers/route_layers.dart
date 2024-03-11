@@ -32,18 +32,52 @@ class AllRoutesLayer {
 
   AllRoutesLayer() {
     final routing = getIt<Routing>();
-    for (MapEntry<int, Route> entry in routing.allRoutes?.asMap().entries ?? []) {
-      final geometry = {
-        "type": "LineString",
-        "coordinates": entry.value.route.map((e) => [e.lon, e.lat]).toList(),
-      };
-      features.add(
-        {
-          "id": "route-${entry.key}", // Required for click listener.
-          "type": "Feature",
-          "geometry": geometry,
-        },
-      );
+    if (routing.allRoutes == null) return;
+
+    for (Route route in routing.allRoutes!) {
+      final navNodes = route.route;
+
+      final status = getIt<PredictionSGStatus>();
+      Map<String, dynamic>? currentFeature;
+      for (int i = navNodes.length - 1; i >= 0; i--) {
+        final navNode = navNodes[i];
+        final sgStatus = status.cache[navNode.signalGroupId];
+
+        var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+        // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+        if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
+        // Interpolate between green and grey, by the prediction quality.
+
+        Color color = Color.fromRGBO(
+            (0 * q + 198 * (1 - q)).round(), (255 * q + 198 * (1 - q)).round(), (106 * q + 198 * (1 - q)).round(), 1);
+
+        final colorHSL = HSLColor.fromColor(color);
+        color = colorHSL.withSaturation(colorHSL.saturation * 0.25).toColor();
+
+        String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
+
+        if (currentFeature == null || currentFeature["color"] != color) {
+          if (currentFeature != null) {
+            currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+            features.add(currentFeature);
+          }
+          currentFeature = {
+            "id": "route-${route.id}", // Required for click listener.
+            "type": "Feature",
+            "properties": {
+              "color": colorString,
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [navNode.lon, navNode.lat]
+              ],
+            },
+          };
+        } else {
+          currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+        }
+      }
     }
   }
 
@@ -84,10 +118,13 @@ class AllRoutesLayer {
             id: layerId,
             lineColor: const Color(0xFFC6C6C6).value,
             lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
             lineWidth: lineWidth,
           ),
           mapbox.LayerPosition(at: at));
     }
+
+    await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
   }
 
   /// Update the overlay on the map controller (without updating the layers).

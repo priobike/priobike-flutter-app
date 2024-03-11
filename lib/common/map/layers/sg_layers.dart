@@ -1,15 +1,19 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
+import 'package:priobike/status/services/sg.dart';
 
 class TrafficLightsLayer {
   /// The ID of the Mapbox source.
@@ -468,6 +472,277 @@ class OfflineCrossingsLayer {
             ""
           ]));
     }
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (sourceExists) {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class RouteCrossingsCircleLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "route-crossings-circle";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "route-crossing-circles";
+
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  RouteCrossingsCircleLayer() {
+    final routing = getIt<Routing>();
+    if (routing.selectedRoute == null) return;
+    if (routing.allRoutes == null) return;
+
+    for (Route route in routing.allRoutes!) {
+      if (route.id == routing.selectedRoute!.id) continue;
+
+      // Add all crossings that are not connected. (grey circles)
+      for (int i = 0; i < route.crossings.length; i++) {
+        final crossing = route.crossings[i];
+        if (crossing.connected) continue;
+
+        Color color = const Color(0xFFD9D9D9);
+        Color strokeColor = const Color(0xFF989898);
+
+        HSLColor colorHSL = HSLColor.fromColor(color);
+        color = colorHSL.withSaturation(colorHSL.saturation * 0.33).withLightness(colorHSL.lightness * 0.75).toColor();
+
+        HSLColor strokeColorHSL = HSLColor.fromColor(strokeColor);
+        strokeColor = strokeColorHSL
+            .withSaturation(strokeColorHSL.saturation * 0.33)
+            .withLightness(strokeColorHSL.lightness * 0.75)
+            .toColor();
+
+        String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
+        String strokeColorString = "rgb(${strokeColor.red}, ${strokeColor.green}, ${strokeColor.blue})";
+
+        features.add(
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [crossing.position.lon, crossing.position.lat],
+            },
+            "properties": {
+              "circle-color": colorString,
+              "circle-stroke-color": strokeColorString,
+            },
+          },
+        );
+      }
+
+      // Add all sgs. (blue and green circles)
+      final status = getIt<PredictionSGStatus>();
+      for (int i = 0; i < route.signalGroups.length; i++) {
+        final sg = route.signalGroups[i];
+        final sgStatus = status.cache[sg.id];
+
+        Color color =
+            sgStatus?.predictionState == SGPredictionState.ok ? const Color(0xFF00FF6A) : const Color(0xFF0073FF);
+        Color strokeColor =
+            sgStatus?.predictionState == SGPredictionState.ok ? const Color(0xFF00B34A) : const Color(0xFF004596);
+
+        // Reduce saturation if not selected route.
+        final colorHSL = HSLColor.fromColor(color);
+        color = colorHSL.withSaturation(colorHSL.saturation * 0.33).toColor();
+
+        final strokeColorHSL = HSLColor.fromColor(color);
+        strokeColor = strokeColorHSL.withSaturation(strokeColorHSL.saturation * 0.33).toColor();
+
+        String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
+        String strokeColorString = "rgb(${strokeColor.red}, ${strokeColor.green}, ${strokeColor.blue})";
+
+        features.add(
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [sg.position.lon, sg.position.lat],
+            },
+            "properties": {
+              "circle-color": colorString,
+              "circle-stroke-color": strokeColorString,
+            },
+          },
+        );
+      }
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+
+    final crossingCircleLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!crossingCircleLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.CircleLayer(sourceId: sourceId, id: layerId, circleRadius: 6, circleStrokeWidth: 1, minZoom: 8.0),
+          mapbox.LayerPosition(at: at));
+    }
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-opacity',
+        json.encode(
+          showAfter(zoom: 10),
+        ));
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-stroke-opacity',
+        json.encode(
+          showAfter(zoom: 10),
+        ));
+
+    await mapController.style.setStyleLayerProperty(
+      layerId,
+      'circle-color',
+      json.encode(["get", "circle-color"]),
+    );
+
+    await mapController.style.setStyleLayerProperty(
+      layerId,
+      'circle-stroke-color',
+      json.encode(["get", "circle-stroke-color"]),
+    );
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-radius',
+        json.encode(
+          reduceRadius(zoom: 14, radius: 6),
+        ));
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (sourceExists) {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class SelectedRouteCrossingsCircleLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "selected-route-crossings-circle";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "selected-route-crossing-circles";
+
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  SelectedRouteCrossingsCircleLayer() {
+    final routing = getIt<Routing>();
+    if (routing.selectedRoute == null) return;
+
+    // Add all crossings that are not connected. (grey circles)
+    for (int i = 0; i < routing.selectedRoute!.crossings.length; i++) {
+      final crossing = routing.selectedRoute!.crossings[i];
+      if (crossing.connected) continue;
+
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [crossing.position.lon, crossing.position.lat],
+          },
+          "properties": {
+            "circle-color": "#D9D9D9",
+            "circle-stroke-color": "#989898",
+          },
+        },
+      );
+    }
+
+    // Add all sgs. (blue and green circles)
+    final status = getIt<PredictionSGStatus>();
+    for (int i = 0; i < routing.selectedRoute!.signalGroups.length; i++) {
+      final sg = routing.selectedRoute!.signalGroups[i];
+      final sgStatus = status.cache[sg.id];
+
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [sg.position.lon, sg.position.lat],
+          },
+          "properties": {
+            "circle-color": sgStatus?.predictionState == SGPredictionState.ok ? "#00FF6A" : "#0073FF",
+            "circle-stroke-color": sgStatus?.predictionState == SGPredictionState.ok ? "#00B34A" : "#004596",
+          },
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+
+    final crossingCircleLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!crossingCircleLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.CircleLayer(sourceId: sourceId, id: layerId, circleRadius: 6, circleStrokeWidth: 1, minZoom: 8.0),
+          mapbox.LayerPosition(at: at));
+    }
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-opacity',
+        json.encode(
+          showAfter(zoom: 10),
+        ));
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-stroke-opacity',
+        json.encode(
+          showAfter(zoom: 10),
+        ));
+
+    await mapController.style.setStyleLayerProperty(
+      layerId,
+      'circle-color',
+      json.encode(["get", "circle-color"]),
+    );
+
+    await mapController.style.setStyleLayerProperty(
+      layerId,
+      'circle-stroke-color',
+      json.encode(["get", "circle-stroke-color"]),
+    );
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-radius',
+        json.encode(
+          reduceRadius(zoom: 14, radius: 6),
+        ));
   }
 
   /// Update the overlay on the map controller (without updating the layers).

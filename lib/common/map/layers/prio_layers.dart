@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -104,6 +107,87 @@ class VeloRoutesLayer {
           ),
           mapbox.LayerPosition(at: at));
     }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
+    }
+  }
+}
+
+class IntersectionsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "intersections";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "intersection-points";
+
+  /// If the dark mode is enabled.
+  final bool isDark;
+
+  const IntersectionsLayer(this.isDark);
+
+  /// Install the source of the layer on the map controller.
+  _installSource(mapbox.MapboxMap mapController) async {
+    try {
+      final settings = getIt<Settings>();
+      final baseUrl = settings.backend.path;
+
+      final url = "https://$baseUrl/sg-selector-nginx/intersections.json.gz";
+      final endpoint = Uri.parse(url);
+
+      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        final err = "Error while fetching SGs from $endpoint: ${response.statusCode}";
+        throw Exception(err);
+      }
+
+      final uncompressed = gzip.decode(response.bodyBytes);
+      final jsonString = utf8.decode(uncompressed);
+
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: jsonString, tolerance: 1),
+      );
+    } catch (e, stacktrace) {
+      final hint = "Failed to load intersections from server: $e $stacktrace";
+      log.e(hint);
+    }
+  }
+
+  /// Install the layer on the map controller.
+  install(mapbox.MapboxMap mapController, {circleRadius = 3, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) await _installSource(mapController);
+
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (!layerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.CircleLayer(
+              sourceId: sourceId,
+              id: layerId,
+              circleRadius: 4,
+              circleColor:
+                  isDark ? const Color.fromRGBO(0, 75, 130, 1).value : const Color.fromRGBO(196, 220, 248, 1).value,
+              minZoom: 8.0),
+          mapbox.LayerPosition(at: at));
+    }
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-opacity',
+        json.encode(
+          showAfter(zoom: 10),
+        ));
+
+    await mapController.style.setStyleLayerProperty(
+        layerId,
+        'circle-radius',
+        json.encode(
+          reduceRadius(zoom: 14, radius: 4),
+        ));
   }
 
   /// Remove the layer from the map controller.

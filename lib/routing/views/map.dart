@@ -171,10 +171,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   final List layerOrder = [
     VeloRoutesLayer.layerId,
     TrafficLayer.layerId,
+    IntersectionsLayer.layerId,
     AllRoutesLayer.layerId,
     AllRoutesLayer.layerIdClick,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
+    RouteCrossingsCircleLayer.layerId,
+    SelectedRouteCrossingsCircleLayer.layerId,
     DiscomfortsLayer.layerIdMarker,
     RoutePushBikeLayer.layerId,
     WaypointsLayer.layerId,
@@ -514,6 +517,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       await VeloRoutesLayer.remove(mapController!);
     }
 
+    final index = await getIndex(IntersectionsLayer.layerId);
+    if (!mounted) return;
+    await IntersectionsLayer(isDark).install(mapController!, at: index);
+
     /*
     * Only applies to Android. Due to a data leak on Android-Flutter (https://github.com/flutter/flutter/issues/118384),
     * we use a TextureView instead of the SurfaceView (for the Mapbox map), which causes the problem that
@@ -545,6 +552,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
+    if (!mounted) return;
+    await RouteCrossingsCircleLayer().update(mapController!);
+    if (!mounted) return;
+    await SelectedRouteCrossingsCircleLayer().update(mapController!);
   }
 
   /// Update all route map layers.
@@ -607,6 +618,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(AllRoutesLayer.layerId);
     if (!mounted) return;
     await AllRoutesLayer().install(
+      mapController!,
+      at: index,
+    );
+    index = await getIndex(RouteCrossingsCircleLayer.layerId);
+    if (!mounted) return;
+    await RouteCrossingsCircleLayer().install(
+      mapController!,
+      at: index,
+    );
+    index = await getIndex(SelectedRouteCrossingsCircleLayer.layerId);
+    if (!mounted) return;
+    await SelectedRouteCrossingsCircleLayer().install(
       mapController!,
       at: index,
     );

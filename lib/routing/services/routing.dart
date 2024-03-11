@@ -519,7 +519,10 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(routes.first);
 
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(routes.first);
+    for (r.Route route in routes) {
+      await status.fetch(route);
+    }
+    status.updateStatus(routes.first);
 
     notifyListeners();
     return routes;
@@ -616,7 +619,10 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(selectedRoute!);
 
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(selectedRoute!);
+    for (r.Route route in allRoutes!) {
+      await status.fetch(route);
+    }
+    status.updateStatus(selectedRoute!);
 
     notifyListeners();
   }
