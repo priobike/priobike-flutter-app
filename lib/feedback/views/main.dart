@@ -187,7 +187,6 @@ class FeedbackViewState extends State<FeedbackView> {
     return AnnotatedRegionWrapper(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       brightness: Theme.of(context).brightness,
-      systemNavigationBarIconBrightness: Brightness.light,
       child: Scaffold(
         // To avoid recalculating the map and its painting when the keyboard appears.
         resizeToAvoidBottomInset: false,
