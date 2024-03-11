@@ -274,7 +274,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     // The bottom sheet is ready when the route is not being fetched or if free routing was selected (no waypoints selected yet).
     final bottomSheetIsReady = (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) ||
         routing.selectedWaypoints == null ||
-        routing.selectedWaypoints!.isEmpty;
+        routing.selectedWaypoints!.length <= 1;
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.

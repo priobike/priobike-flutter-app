@@ -37,7 +37,7 @@ class LoadingIconState extends State<LoadingIcon> {
       onEnd: () {
         setState(
           () {
-            // Swap the begin and end opacity to restart the animation in reverse.
+            // Restart the animation in reverse.
             final temp = beginOpacity;
             beginOpacity = endOpacity;
             endOpacity = temp;
