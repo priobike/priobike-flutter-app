@@ -525,79 +525,71 @@ class Routing with ChangeNotifier {
     final double arrivalTime = route.path.time.toDouble();
     final double distance = route.path.distance;
     final double ascend = route.path.ascend;
-    print("Charly =====================================");
-    print("Charly arrivalTime: $arrivalTime with id $id");
-    print("Charly distance: $distance with id $id");
-    print("Charly ascend: $ascend with id $id");
 
-    bool hasEarliestArrivalTime = true;
-    r.Route? secondEarliestRoute;
+    final Map<String, bool> hasBestAttribute = {
+      "earliestArrival": true,
+      "shortest": true,
+      "leastAscend": true,
+    };
 
-    bool hasShortestDistance = true;
-    r.Route? secondShortestRoute;
+    final Map<String, r.Route?> secondBestRoute = {
+      "earliestArrival": null,
+      "shortest": null,
+      "leastAscend": null,
+    };
 
-    bool hasLeastAscend = true;
-    r.Route? secondLeastAscendRoute;
-
-    //TODO: Umschreiben, indem man Attribute in einer Map speichert
+    final Map<String, double> percentDifference = {
+      "earliestArrival": double.negativeInfinity,
+      "shortest": double.negativeInfinity,
+      "leastAscend": double.negativeInfinity,
+    };
 
     // Find if route has a unique attribute and find the second best route for each attribute
     for (final r.Route otherRoute in allRoutes!) {
       if (otherRoute.id == id) continue;
 
-      if (otherRoute.path.time < arrivalTime) {
-        hasEarliestArrivalTime = false;
-      }
-      if (secondEarliestRoute == null || otherRoute.path.time < secondEarliestRoute.path.time) {
-        secondEarliestRoute = otherRoute;
-      }
-
-      if (otherRoute.path.distance < distance) {
-        hasShortestDistance = false;
-      }
-      if (secondShortestRoute == null || otherRoute.path.distance < secondShortestRoute.path.distance) {
-        secondShortestRoute = otherRoute;
+      if (otherRoute.path.time < arrivalTime) hasBestAttribute["earliestArrival"] = false;
+      if (secondBestRoute["earliestArrival"] == null ||
+          otherRoute.path.time < secondBestRoute["earliestArrival"]!.path.time) {
+        secondBestRoute["earliestArrival"] = otherRoute;
       }
 
-      if (otherRoute.path.ascend < ascend) {
-        hasLeastAscend = false;
+      if (otherRoute.path.distance < distance) hasBestAttribute["shortest"] = false;
+      if (secondBestRoute["shortest"] == null ||
+          otherRoute.path.distance < secondBestRoute["shortest"]!.path.distance) {
+        secondBestRoute["shortest"] = otherRoute;
       }
-      if (secondLeastAscendRoute == null || otherRoute.path.ascend < secondLeastAscendRoute.path.ascend) {
-        secondLeastAscendRoute = otherRoute;
+
+      if (otherRoute.path.ascend < ascend) hasBestAttribute["leastAscend"] = false;
+      if (secondBestRoute["leastAscend"] == null ||
+          otherRoute.path.ascend < secondBestRoute["leastAscend"]!.path.ascend) {
+        secondBestRoute["leastAscend"] = otherRoute;
       }
     }
 
-    print("Charly hasEarliestArrivalTime: $hasEarliestArrivalTime with id $id");
-    print("Charly hasShortestDistance: $hasShortestDistance with id $id");
-    print("Charly hasLeastAscend: $hasLeastAscend with id $id");
-
-    double percentEarlier = double.negativeInfinity;
-    double percentShorter = double.negativeInfinity;
-    double percentLessAscend = double.negativeInfinity;
-
-    if (hasEarliestArrivalTime && secondEarliestRoute != null) {
-      percentEarlier = (secondEarliestRoute.path.time - arrivalTime) / arrivalTime * 100;
-      print("Charly: percentEarlier: $percentEarlier with id $id");
+    // Calculate the percent difference for each attribute
+    if (hasBestAttribute["earliestArrival"]! && secondBestRoute["earliestArrival"] != null) {
+      percentDifference["earliestArrival"] =
+          (secondBestRoute["earliestArrival"]!.path.time - arrivalTime) / arrivalTime * 100;
     }
-
-    if (hasShortestDistance && secondShortestRoute != null) {
-      percentShorter = (secondShortestRoute.path.distance - distance) / distance * 100;
-      print("Charly: percentShorter: $percentShorter with id $id");
+    if (hasBestAttribute["shortest"]! && secondBestRoute["shortest"] != null) {
+      percentDifference["shortest"] = (secondBestRoute["shortest"]!.path.distance - distance) / distance * 100;
     }
-
-    if (hasLeastAscend && secondLeastAscendRoute != null) {
-      percentLessAscend = (secondLeastAscendRoute.path.ascend - ascend) / ascend * 100;
-      print("Charly: percentLessAscend: $percentLessAscend with id $id");
+    if (hasBestAttribute["leastAscend"]! && secondBestRoute["leastAscend"] != null) {
+      percentDifference["leastAscend"] = (secondBestRoute["leastAscend"]!.path.ascend - ascend) / ascend * 100;
     }
 
     // Checks which attribute is the most unique i.e. has the highest difference to the second best route
-    if (percentEarlier >= percentShorter && percentEarlier >= percentLessAscend) {
+    if (percentDifference["earliestArrival"]! >= percentDifference["shortest"]! &&
+        percentDifference["earliestArrival"]! >= percentDifference["leastAscend"]!) {
       return "Schnellste Ankunftszeit.";
     }
-    if (percentShorter >= percentEarlier && percentShorter >= percentLessAscend) {
+    if (percentDifference["shortest"]! >= percentDifference["earliestArrival"]! &&
+        percentDifference["shortest"]! >= percentDifference["leastAscend"]!) {
       return "Kürzeste Distanz.";
     }
-    if (percentLessAscend >= percentEarlier && percentLessAscend >= percentShorter) {
+    if (percentDifference["leastAscend"]! >= percentDifference["earliestArrival"]! &&
+        percentDifference["leastAscend"]! >= percentDifference["shortest"]!) {
       return "Geringster Anstieg.";
     }
     return null;
