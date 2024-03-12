@@ -93,12 +93,6 @@ class Track {
   /// The bike type used to calculate the route.
   BikeType? bikeType;
 
-  /// The preference type used to calculate the route.
-  PreferenceType? preferenceType;
-
-  /// The activity type used to calculate the route.
-  ActivityType? activityType;
-
   /// The routes of this track by their generation time: (time, route).
   /// This may only contain one route, if the user did not deviate from the route.
   /// Otherwise we can identify the time when the route was recalculated.
@@ -161,8 +155,6 @@ class Track {
     required this.predictorPredictions,
     required this.selectedWaypoints,
     required this.bikeType,
-    required this.preferenceType,
-    required this.activityType,
     required this.routes,
     required this.subVersion,
     this.canUseGamification = false,
@@ -193,8 +185,6 @@ class Track {
       'predictorPredictions': predictorPredictions.map((e) => e.toJson()).toList(),
       'selectedWaypoints': selectedWaypoints.map((e) => e!.toJSON()).toList(),
       'bikeType': bikeType?.name,
-      'preferenceType': preferenceType?.name,
-      'activityType': activityType?.name,
       'routes': routes.entries
           .map((e) => {
                 'time': e.key,
@@ -232,8 +222,6 @@ class Track {
           (json['predictorPredictions'] as List<dynamic>).map((e) => PredictorPrediction.fromJson(e)).toList(),
       selectedWaypoints: (json['selectedWaypoints'] as List<dynamic>).map((e) => Waypoint.fromJson(e)).toList(),
       bikeType: json['bikeType'] == null ? null : BikeType.values.byName(json['bikeType']),
-      preferenceType: json['preferenceType'] == null ? null : PreferenceType.values.byName(json['preferenceType']),
-      activityType: json['activityType'] == null ? null : ActivityType.values.byName(json['activityType']),
       routes: Map.fromEntries(
           (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
       subVersion: json['subVersion'],

@@ -37,8 +37,6 @@ class Migration {
 
     // Migrate the ebike routing profile to the citybike bike type.
     await migrateEBikeToCityBike();
-    // Migrate the comfortable routing profile to the balanced preference type.
-    await migrateComfortableToBalanced();
   }
 
   /// Migrate all background images.
@@ -313,19 +311,6 @@ class Migration {
     if (bikeTypeStr != null && bikeTypeStr == "ebike") {
       await storage.setString("priobike.home.profile.bike", BikeType.citybike.name);
       log.i("Migrated ebike to citybike bike type.");
-    }
-  }
-
-  /// Migrates the comfortable profile to the new balanced preference type.
-  static Future<void> migrateComfortableToBalanced() async {
-    final storage = await SharedPreferences.getInstance();
-
-    final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
-    // "comfortible" contains a type but is not an accident.
-    // It was a typo in the past and we need to reference it like that.
-    if (preferenceTypeStr != null && preferenceTypeStr == "comfortible") {
-      await storage.setString("priobike.home.profile.preferences", PreferenceType.balanced.name);
-      log.i("Migrated comfortable to balanced preference type.");
     }
   }
 }

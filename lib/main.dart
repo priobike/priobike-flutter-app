@@ -10,7 +10,7 @@ import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/poi.dart';
-import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';

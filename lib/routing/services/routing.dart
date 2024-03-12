@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -23,83 +23,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-
-enum RoutingProfile {
-  bikeDefault, // Bike doesn't consider elevation data.
-  bikeShortest,
-  bikeFastest,
-  bike2Default, // Bike2 considers elevation data (avoid uphills).
-  bike2Shortest,
-  bike2Fastest,
-  racingbikeDefault,
-  racingbikeShortest,
-  racingbikeFastest,
-  mtbDefault,
-  mtbShortest,
-  mtbFastest,
-}
-
-extension RoutingProfileExtension on RoutingProfile {
-  String get ghConfigName {
-    switch (this) {
-      case RoutingProfile.bikeDefault:
-        return "bike_default";
-      case RoutingProfile.bikeShortest:
-        return "bike_shortest";
-      case RoutingProfile.bikeFastest:
-        return "bike_fastest";
-      case RoutingProfile.bike2Default:
-        return "bike2_default";
-      case RoutingProfile.bike2Shortest:
-        return "bike2_shortest";
-      case RoutingProfile.bike2Fastest:
-        return "bike2_fastest";
-      case RoutingProfile.racingbikeDefault:
-        return "racingbike_default";
-      case RoutingProfile.racingbikeShortest:
-        return "racingbike_shortest";
-      case RoutingProfile.racingbikeFastest:
-        return "racingbike_fastest";
-      case RoutingProfile.mtbDefault:
-        return "mtb_default";
-      case RoutingProfile.mtbShortest:
-        return "mtb_shortest";
-      case RoutingProfile.mtbFastest:
-        return "mtb_fastest";
-    }
-  }
-
-  String get explanation {
-    // Required for the racing bike profile since we map cargo bike and racing bike to this profile.
-    final bikeTypeName = getIt<Profile>().bikeType.description();
-    switch (this) {
-      case RoutingProfile.bikeDefault:
-        return "Stadtrad";
-      case RoutingProfile.bikeShortest:
-        return "Stadtrad - Kürzeste Strecke";
-      case RoutingProfile.bikeFastest:
-        return "Stadtrad - Schnellste Strecke";
-      case RoutingProfile.bike2Default:
-        return "Stadtrad - Anstiege vermeiden";
-      case RoutingProfile.bike2Shortest:
-        return "Stadtrad - Anstiege vermeiden - Kürzeste Strecke";
-      case RoutingProfile.bike2Fastest:
-        return "Stadtrad - Anstiege vermeiden - Schnellste Strecke";
-      case RoutingProfile.racingbikeDefault:
-        return bikeTypeName;
-      case RoutingProfile.racingbikeShortest:
-        return "$bikeTypeName - Kürzeste Strecke";
-      case RoutingProfile.racingbikeFastest:
-        return "$bikeTypeName - Schnellste Strecke";
-      case RoutingProfile.mtbDefault:
-        return "Mountainbike";
-      case RoutingProfile.mtbShortest:
-        return "Mountainbike - Kürzeste Strecke";
-      case RoutingProfile.mtbFastest:
-        return "Mountainbike - Schnellste Strecke";
-    }
-  }
-}
 
 /// A typed tuple for a crossing and its distance.
 class TupleCrossingsDistances {
@@ -125,8 +48,8 @@ class Routing with ChangeNotifier {
   /// The waypoints of the loaded route, if provided.
   List<Waypoint>? fetchedWaypoints;
 
-  /// The selected graphhopper routing profile.
-  RoutingProfile? selectedProfile;
+  /// The bike type of the loaded route, if provided.
+  BikeType? fetchedBikeType;
 
   /// The waypoints of the selected route, if provided.
   List<Waypoint>? selectedWaypoints;
@@ -156,6 +79,7 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+      fetchedBikeType = null;
     }
     notifyListeners();
   }
@@ -178,6 +102,7 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+      fetchedBikeType = null;
 
       if (!inCityBoundary(selectedWaypoints!)) {
         hadErrorDuringFetch = true;
@@ -199,6 +124,7 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+      fetchedBikeType = null;
 
       final discomforts = getIt<Discomforts>();
       await discomforts.reset();
@@ -236,6 +162,7 @@ class Routing with ChangeNotifier {
     hadErrorDuringFetch = false;
     isFetchingRoute = false;
     fetchedWaypoints = null;
+    fetchedBikeType = null;
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
@@ -283,46 +210,10 @@ class Routing with ChangeNotifier {
     }
   }
 
-  /// Select the correct profile.
-  Future<RoutingProfile> selectProfile() async {
-    final profile = getIt<Profile>();
-
-    // Look for specific bike types first.
-    if (profile.bikeType == BikeType.mountainbike) {
-      if (profile.preferenceType == PreferenceType.fast) {
-        return RoutingProfile.mtbFastest;
-      } else {
-        return RoutingProfile.mtbDefault;
-      }
-    }
-    // Assumption is that cargo bikes have similar requirements like racing bikes (no bad surfaces, less curves).
-    if (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike) {
-      if (profile.preferenceType == PreferenceType.fast) {
-        return RoutingProfile.racingbikeFastest;
-      } else {
-        return RoutingProfile.racingbikeDefault;
-      }
-    }
-
-    // Check if the user wants to do sport - if so, ignore elevation.
-    if (profile.activityType == ActivityType.allowIncline) {
-      if (profile.preferenceType == PreferenceType.fast) {
-        return RoutingProfile.bikeFastest;
-      } else {
-        return RoutingProfile.bikeDefault;
-      }
-    }
-
-    if (profile.preferenceType == PreferenceType.fast) {
-      return RoutingProfile.bike2Fastest;
-    } else {
-      return RoutingProfile.bike2Default;
-    }
-  }
-
   /// Load a GraphHopper response.
   Future<GHRouteResponse?> loadGHRouteResponse(List<Waypoint> waypoints) async {
     try {
+      final bikeType = getIt<Profile>().bikeType;
       final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       final servicePath = settings.routingEndpoint.servicePath;
@@ -331,7 +222,7 @@ class Routing with ChangeNotifier {
       ghUrl += "&locale=de";
       ghUrl += "&elevation=true";
       ghUrl += "&points_encoded=false";
-      ghUrl += "&profile=${selectedProfile?.ghConfigName ?? RoutingProfile.bike2Default.ghConfigName}";
+      ghUrl += "&profile=${bikeType.ghConfigName}";
       // Add the supported details. This must be specified in the GraphHopper config.
       ghUrl += "&details=surface";
       ghUrl += "&details=max_speed";
@@ -379,8 +270,10 @@ class Routing with ChangeNotifier {
   Future<List<r.Route>?> loadRoutes() async {
     if (isFetchingRoute) return null;
 
+    final bikeType = getIt<Profile>().bikeType;
+
     // Do nothing if the waypoints were already fetched (or both are null).
-    if (fetchedWaypoints == selectedWaypoints) return null;
+    if (fetchedWaypoints == selectedWaypoints && fetchedBikeType == bikeType) return null;
     if (selectedWaypoints == null || selectedWaypoints!.isEmpty) {
       hadErrorDuringFetch = false;
       notifyListeners();
@@ -420,9 +313,6 @@ class Routing with ChangeNotifier {
       notifyListeners();
       return null;
     }
-
-    // Select the correct profile.
-    selectedProfile = await selectProfile();
 
     // Load the GraphHopper response.
     final ghResponse = await loadGHRouteResponse(selectedWaypoints!);
@@ -513,6 +403,7 @@ class Routing with ChangeNotifier {
     selectedRoute = routes.first;
     allRoutes = routes;
     fetchedWaypoints = selectedWaypoints!;
+    fetchedBikeType = bikeType;
     isFetchingRoute = false;
 
     final discomforts = getIt<Discomforts>();
@@ -555,9 +446,6 @@ class Routing with ChangeNotifier {
       notifyListeners();
       return null;
     }
-
-    // Select the correct profile.
-    selectedProfile = await selectProfile();
 
     // Load the GraphHopper response.
     final ghResponse = await loadGHRouteResponse(shortcutRoute.waypoints);

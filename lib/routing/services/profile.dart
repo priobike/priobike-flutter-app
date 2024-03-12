@@ -13,12 +13,6 @@ class Profile with ChangeNotifier {
   /// The selected type of bike. Default is [BikeType.citybike].
   BikeType bikeType = BikeType.citybike;
 
-  /// The selected route preference. Default is [PreferenceType.balanced].
-  PreferenceType preferenceType = PreferenceType.balanced;
-
-  /// The type of activity. Default is [ActivityType.avoidIncline].
-  ActivityType activityType = ActivityType.avoidIncline;
-
   /// Load the stored profile.
   Future<void> loadProfile() async {
     if (hasLoaded) return;
@@ -33,24 +27,6 @@ class Profile with ChangeNotifier {
       }
     }
 
-    final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
-    if (preferenceTypeStr != null) {
-      try {
-        preferenceType = PreferenceType.values.byName(preferenceTypeStr);
-      } catch (e) {
-        log.e("Failed to load preference type: $e");
-      }
-    }
-
-    final activityTypeStr = storage.getString("priobike.home.profile.activity");
-    if (activityTypeStr != null) {
-      try {
-        activityType = ActivityType.values.byName(activityTypeStr);
-      } catch (e) {
-        log.e("Failed to load activity type: $e");
-      }
-    }
-
     hasLoaded = true;
     notifyListeners();
   }
@@ -60,8 +36,6 @@ class Profile with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     await storage.setString("priobike.home.profile.bike", bikeType.name);
-    await storage.setString("priobike.home.profile.preferences", preferenceType.name);
-    await storage.setString("priobike.home.profile.activity", activityType.name);
 
     notifyListeners();
   }
