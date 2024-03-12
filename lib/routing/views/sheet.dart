@@ -184,10 +184,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
 
-    var text = "Zum Ziel";
-    if (routing.selectedProfile?.explanation != null) {
-      text = routing.selectedProfile!.explanation;
-    }
     final int okTrafficLights = status.ok;
     final int allTrafficLights = status.ok + status.bad + status.offline;
 
@@ -197,7 +193,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Column(children: [
-          Small(text: text, context: context),
           const SizedBox(height: 2),
           BoldSmall(
               text:

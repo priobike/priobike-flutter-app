@@ -12,12 +12,11 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/load.dart';
-import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/load_status.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/poi/your_bike.dart';
-import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/restart_route_dialog.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
@@ -387,14 +386,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: Duration(milliseconds: 750),
                       child: YourBikeView(),
                     ),
-                    const SmallVSpace(),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 24, right: 24, bottom: 16),
-                      child: BlendIn(
-                        delay: Duration(milliseconds: 750),
-                        child: ProfileView(),
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                     ),
+                    const SmallVSpace(),
                     const TrackHistoryView(),
                     Container(
                       alignment: Alignment.topLeft,

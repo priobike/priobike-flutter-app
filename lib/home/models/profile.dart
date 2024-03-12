@@ -7,6 +7,21 @@ enum BikeType {
   cargobike,
 }
 
+extension BikeTypeRoutingProfile on BikeType {
+  String get ghConfigName {
+    switch (this) {
+      case BikeType.citybike:
+        return "bike2_default";
+      case BikeType.mountainbike:
+        return "mtb_default"; // FIXME: Change to mtb2_default when supported
+      case BikeType.racingbike:
+        return "racingbike_default"; // FIXME: Change to mtb2_default when supported
+      case BikeType.cargobike:
+        return "racingbike_default"; // FIXME: Change to mtb2_default when supported
+    }
+  }
+}
+
 extension BikeTypeDescription on BikeType {
   String description() {
     switch (this) {
@@ -15,9 +30,22 @@ extension BikeTypeDescription on BikeType {
       case BikeType.racingbike:
         return "Rennrad";
       case BikeType.mountainbike:
-        return "MTB";
+        return "Mountainbike";
       case BikeType.cargobike:
         return "Lastenrad";
+    }
+  }
+
+  String get explanation {
+    switch (this) {
+      case BikeType.citybike:
+        return "Das beste Routing für normale Fahrräder.";
+      case BikeType.mountainbike:
+        return "Mit diesem Routing werden auch unbefestigte Wege berücksichtigt.";
+      case BikeType.racingbike:
+        return "Das Rennradrouting vermeidet unbefestigte Wege und Kopfsteinpflaster.";
+      case BikeType.cargobike:
+        return "Unbefestigte Abschnitte und Kopfsteinpflaster werden vermieden.";
     }
   }
 }
@@ -38,7 +66,7 @@ extension BikeTypeIcon on BikeType {
 }
 
 extension BikeTypeIconAsSting on BikeType {
-  String? iconAsString() {
+  String iconAsString() {
     switch (this) {
       case BikeType.citybike:
         return "assets/icons/fahrrad.png";
@@ -48,60 +76,6 @@ extension BikeTypeIconAsSting on BikeType {
         return "assets/icons/mtb.png";
       case BikeType.cargobike:
         return "assets/icons/lastenrad.png";
-    }
-  }
-}
-
-enum PreferenceType {
-  balanced,
-  fast,
-}
-
-extension PreferenceTypeDescription on PreferenceType {
-  String description() {
-    switch (this) {
-      case PreferenceType.balanced:
-        return "Ausgeglichen";
-      case PreferenceType.fast:
-        return "Zeit";
-    }
-  }
-}
-
-extension PreferenceTypeIcon on PreferenceType {
-  IconData icon() {
-    switch (this) {
-      case PreferenceType.balanced:
-        return Icons.balance_rounded;
-      case PreferenceType.fast:
-        return Icons.access_time_outlined;
-    }
-  }
-}
-
-enum ActivityType {
-  avoidIncline,
-  allowIncline,
-}
-
-extension ActivityTypeIcon on ActivityType {
-  IconData icon() {
-    switch (this) {
-      case ActivityType.avoidIncline:
-        return Icons.trending_flat_outlined;
-      case ActivityType.allowIncline:
-        return Icons.trending_up_outlined;
-    }
-  }
-}
-
-extension ActivityTypeDescription on ActivityType {
-  String description() {
-    switch (this) {
-      case ActivityType.avoidIncline:
-        return "Anstieg vermeiden";
-      case ActivityType.allowIncline:
-        return "Anstieg erlauben";
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/main.dart';
 
 /// The icon that is shown during loading of the route.
@@ -28,7 +28,7 @@ class LoadingIconState extends State<LoadingIcon> {
         return Opacity(
           opacity: value,
           child: Image.asset(
-            getIt<Profile>().bikeType.iconAsString()!,
+            getIt<Profile>().bikeType.iconAsString(),
             color: Theme.of(context).colorScheme.onSurfaceVariant,
             height: 54,
           ),

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';

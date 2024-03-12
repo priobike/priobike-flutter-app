@@ -7,7 +7,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -218,8 +218,6 @@ class Tracking with ChangeNotifier {
         predictorPredictions: [],
         selectedWaypoints: routing.selectedWaypoints!,
         bikeType: profile.bikeType,
-        preferenceType: profile.preferenceType,
-        activityType: profile.activityType,
         routes: {startTime: routing.selectedRoute!},
         subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
       );
