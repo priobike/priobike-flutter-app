@@ -370,8 +370,8 @@ class DiscomfortsLayer {
       if (e.value.coordinates.isEmpty) continue;
       // A section of the route.
       final geometry = {
-        "type": "LineString",
-        "coordinates": e.value.coordinates.map((e) => [e.longitude, e.latitude]).toList(),
+        "type": "Point",
+        "coordinates": [e.value.coordinates[0].longitude, e.value.coordinates[0].latitude],
       };
 
       features.add(
@@ -380,6 +380,8 @@ class DiscomfortsLayer {
           "properties": {
             "description": e.value.description,
             "color": "#003064",
+            "textColor": isDark ? "#FFFFFF" : "#003064",
+            "textHaloColor": isDark ? "#003064" : "#FFFFFF",
           },
           "geometry": geometry,
         },
@@ -413,6 +415,7 @@ class DiscomfortsLayer {
             iconImage: "dangerspot",
             iconSize: iconSize,
             iconAllowOverlap: true,
+            iconIgnorePlacement: true,
             iconOpacity: 1,
             textHaloColor: isDark ? const Color(0xFF003064).value : const Color(0xFFFFFFFF).value,
             textColor: isDark ? const Color(0xFFFFFFFF).value : const Color(0xFF003064).value,
@@ -421,6 +424,7 @@ class DiscomfortsLayer {
             textSize: 12,
             textAnchor: mapbox.TextAnchor.CENTER,
             textAllowOverlap: true,
+            textIgnorePlacement: true,
             textOpacity: 1,
           ),
           mapbox.LayerPosition(at: at),
@@ -440,7 +444,19 @@ class DiscomfortsLayer {
             layerIdMarker,
             'text-opacity',
             json.encode(
-              showAfter(zoom: 11),
+              showAfter(zoom: 13),
+            ));
+        await mapController.style.setStyleLayerProperty(
+            layerIdMarker,
+            'text-color',
+            json.encode(
+              ["get", "textColor"],
+            ));
+        await mapController.style.setStyleLayerProperty(
+            layerIdMarker,
+            'text-halo-color',
+            json.encode(
+              ["get", "textHaloColor"],
             ));
         await mapController.style.setStyleLayerProperty(
             layerIdMarker,

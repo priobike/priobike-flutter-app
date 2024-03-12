@@ -437,6 +437,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ? mapDesigns.mapDesign.lightStyle
           : mapDesigns.mapDesign.darkStyle,
     );
+    if (!mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
   }
 
   /// Load the map layers.
@@ -544,7 +547,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     if (!mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    await DiscomfortsLayer(isDark).update(mapController!);
+    await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
   }
 
   /// Update selected route layer.
@@ -604,7 +607,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     index = await getIndex(DiscomfortsLayer.layerIdMarker);
     if (!mounted) return;
-    await DiscomfortsLayer(isDark).install(
+    await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').install(
       mapController!,
       iconSize: 0.2,
       at: index,
