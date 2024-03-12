@@ -595,17 +595,5 @@ class Routing with ChangeNotifier {
     if (mostSignificantAttribute == "shortest") return "Kürzeste Distanz.";
     if (mostSignificantAttribute == "leastAscend") return "Geringster Anstieg.";
     return null;
-
-    // Anzahl Ampeln, Qualität der Ampeln auf Route
-
-    // TL
-
-    // Distance
-
-    // Way type
-
-    // Height
-
-    // OSM discomforts?
   }
 }
