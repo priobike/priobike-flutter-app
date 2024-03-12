@@ -370,7 +370,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       left: 64,
       // (BottomSheet + bottom padding)
       bottom: (146 + frame.padding.bottom),
-      right: 0,
+      // Width of legend
+      right: 64,
     );
 
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
