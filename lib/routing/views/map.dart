@@ -437,8 +437,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ? mapDesigns.mapDesign.lightStyle
           : mapDesigns.mapDesign.darkStyle,
     );
-    // When using the satellite map, we need to use white text.
-    await DiscomfortsLayer(mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
+    if (!mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
   }
 
   /// Load the map layers.
