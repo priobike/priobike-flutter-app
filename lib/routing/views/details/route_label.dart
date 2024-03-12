@@ -9,7 +9,7 @@ import 'package:priobike/routing/services/routing.dart';
 
 class RouteLabel extends StatefulWidget {
   /// The id of the route.
-  final int routId;
+  final int routeId;
 
   /// The alignment of the route label.
   final RouteLabelAlignment alignment;
@@ -19,7 +19,7 @@ class RouteLabel extends StatefulWidget {
 
   const RouteLabel({
     super.key,
-    required this.routId,
+    required this.routeId,
     required this.alignment,
     required this.isMapMoving,
   });
@@ -62,9 +62,9 @@ class RouteLabelState extends State<RouteLabel> {
 
     final routing = getIt<Routing>();
 
-    if (routing.selectedRoute != null) selected = routing.selectedRoute!.id == widget.routId;
-    if (routing.allRoutes != null && routing.allRoutes!.length > widget.routId) {
-      final route = routing.allRoutes![widget.routId];
+    if (routing.selectedRoute != null) selected = routing.selectedRoute!.id == widget.routeId;
+    if (routing.allRoutes != null && routing.allRoutes!.length > widget.routeId) {
+      final route = routing.allRoutes![widget.routeId];
       timeText = route.timeText;
       secondaryText = route.mostUniqueAttribute;
     }
