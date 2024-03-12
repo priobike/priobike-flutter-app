@@ -6,6 +6,7 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -332,7 +333,7 @@ class SelectedRouteLayer {
           mapbox.LineLayer(
             sourceId: sourceId,
             id: layerIdBackground,
-            lineColor: const Color(0xFFC6C6C6).value,
+            lineColor: CI.routeBackground.value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: bgLineWidth,

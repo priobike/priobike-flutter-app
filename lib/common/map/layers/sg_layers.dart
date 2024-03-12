@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
@@ -507,21 +506,6 @@ class RouteCrossingsCircleLayer {
         final crossing = route.crossings[i];
         if (crossing.connected) continue;
 
-        Color color = const Color(0xFFD9D9D9);
-        Color strokeColor = const Color(0xFF989898);
-
-        HSLColor colorHSL = HSLColor.fromColor(color);
-        color = colorHSL.withSaturation(colorHSL.saturation * 0.33).withLightness(colorHSL.lightness * 0.75).toColor();
-
-        HSLColor strokeColorHSL = HSLColor.fromColor(strokeColor);
-        strokeColor = strokeColorHSL
-            .withSaturation(strokeColorHSL.saturation * 0.33)
-            .withLightness(strokeColorHSL.lightness * 0.75)
-            .toColor();
-
-        String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
-        String strokeColorString = "rgb(${strokeColor.red}, ${strokeColor.green}, ${strokeColor.blue})";
-
         features.add(
           {
             "type": "Feature",
@@ -530,8 +514,8 @@ class RouteCrossingsCircleLayer {
               "coordinates": [crossing.position.lon, crossing.position.lat],
             },
             "properties": {
-              "circle-color": colorString,
-              "circle-stroke-color": strokeColorString,
+              "circle-color": "#D9D9D9",
+              "circle-stroke-color": "#989898",
             },
           },
         );
@@ -543,21 +527,6 @@ class RouteCrossingsCircleLayer {
         final sg = route.signalGroups[i];
         final sgStatus = status.cache[sg.id];
 
-        Color color =
-            sgStatus?.predictionState == SGPredictionState.ok ? const Color(0xFF00FF6A) : const Color(0xFF0073FF);
-        Color strokeColor =
-            sgStatus?.predictionState == SGPredictionState.ok ? const Color(0xFF00B34A) : const Color(0xFF004596);
-
-        // Reduce saturation if not selected route.
-        final colorHSL = HSLColor.fromColor(color);
-        color = colorHSL.withSaturation(colorHSL.saturation * 0.33).toColor();
-
-        final strokeColorHSL = HSLColor.fromColor(color);
-        strokeColor = strokeColorHSL.withSaturation(strokeColorHSL.saturation * 0.33).toColor();
-
-        String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
-        String strokeColorString = "rgb(${strokeColor.red}, ${strokeColor.green}, ${strokeColor.blue})";
-
         features.add(
           {
             "type": "Feature",
@@ -566,8 +535,8 @@ class RouteCrossingsCircleLayer {
               "coordinates": [sg.position.lon, sg.position.lat],
             },
             "properties": {
-              "circle-color": colorString,
-              "circle-stroke-color": strokeColorString,
+              "circle-color": sgStatus?.predictionState == SGPredictionState.ok ? "#00FF6A" : "#0073FF",
+              "circle-stroke-color": sgStatus?.predictionState == SGPredictionState.ok ? "#00B34A" : "#004596",
             },
           },
         );
