@@ -184,10 +184,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
 
-    var text = "Zum Ziel";
-    if (routing.selectedProfile?.explanation != null) {
-      text = routing.selectedProfile!.explanation;
-    }
     final int okTrafficLights = status.ok;
     final int allTrafficLights = status.ok + status.bad + status.offline;
 
@@ -197,13 +193,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Column(children: [
-          Small(text: text, context: context),
           const SizedBox(height: 2),
           BoldSmall(
               text:
                   "${routing.selectedRoute!.timeText} - ${routing.selectedRoute!.arrivalTimeText}, ${routing.selectedRoute!.lengthText}",
               context: context),
-          const SizedBox(height: 2),
+          const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
             Container(
               constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
@@ -211,21 +206,24 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   ? Text.rich(
                       textAlign: TextAlign.center,
                       TextSpan(
-                          style: const TextStyle(
-                            height: 1.1,
-                            fontFamily: 'HamburgSans',
-                            fontSize: 13,
+                        style: const TextStyle(
+                          height: 1.1,
+                          fontFamily: 'HamburgSans',
+                          fontSize: 13,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: okTrafficLights.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: okTrafficLights > 0 ? CI.radkulturGreen : null,
+                            ),
                           ),
-                          children: [
-                            TextSpan(
-                              text: okTrafficLights.toString(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: CI.radkulturGreen),
-                            ),
-                            TextSpan(
-                              text:
-                                  " Ampel${allTrafficLights == 1 ? "" : "n"} ${okTrafficLights == 1 ? "hat" : "haben"} Geschwindigkeitsempfehlungen",
-                            ),
-                          ]),
+                          TextSpan(
+                            text: " Ampel${allTrafficLights == 1 ? "" : "n"} mit Prognose",
+                          ),
+                        ],
+                      ),
                     )
                   : Small(
                       text: "Es befinden sich keine Ampeln auf der Route",
@@ -260,7 +258,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               ),
             ),
           ]),
-          const SmallVSpace(),
         ]),
       ]),
     );
@@ -269,7 +266,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    initialChildSize = 140 / frame.size.height + (frame.padding.bottom / frame.size.height);
+    initialChildSize = 118 / frame.size.height + (frame.padding.bottom / frame.size.height);
 
     // The bottom sheet is ready when the route is not being fetched or if free routing was selected (no waypoints selected yet).
     final bottomSheetIsReady = (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) ||
@@ -309,7 +306,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                           ? Column(
                               children: [
                                 renderTopInfoSection(context),
-                                const SmallVSpace(),
                                 renderBottomSheetWaypoints(context),
                                 if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
                                   const TutorialView(
