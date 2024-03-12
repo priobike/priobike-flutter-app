@@ -36,6 +36,9 @@ class Route {
   /// The most unique attribute of the route within a set of routes.
   String? mostUniqueAttribute;
 
+  /// The number of signal groups on the route that have a ok status.
+  int? ok;
+
   Route({
     required this.id,
     required this.path,
@@ -44,7 +47,6 @@ class Route {
     required this.signalGroupsDistancesOnRoute,
     required this.crossings,
     required this.crossingsDistancesOnRoute,
-    mostUniqueAttribute,
   });
 
   Map<String, dynamic> toJson() => {
@@ -55,7 +57,6 @@ class Route {
         'signalGroupsDistancesOnRoute': signalGroupsDistancesOnRoute,
         'crossings': crossings.map((e) => e.toJson()).toList(),
         'crossingsDistancesOnRoute': crossingsDistancesOnRoute,
-        'mostUniqueAttribute': mostUniqueAttribute ?? "",
       };
 
   factory Route.fromJson(dynamic json) => Route(
@@ -66,7 +67,6 @@ class Route {
         signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
         crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
-        mostUniqueAttribute: json['mostUniqueAttribute'],
       );
 
   /// The route, connected to the start and end point.

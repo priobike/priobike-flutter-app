@@ -115,6 +115,7 @@ class PredictionSGStatus with ChangeNotifier {
     }
 
     disconnected = route.crossings.where((c) => !c.connected).length;
+    route.ok = ok;
 
     log.i("Fetched sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
     notifyListeners();

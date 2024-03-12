@@ -22,7 +22,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 
 /// A typed tuple for a crossing and its distance.
@@ -414,13 +413,14 @@ class Routing with ChangeNotifier {
     for (r.Route route in routes) {
       await status.fetch(route);
     }
-    status.updateStatus(routes.first);
-
     // status needs to be updated first before we can calculate the most unique attribute
     for (r.Route route in routes) {
+      status.updateStatus(route);
       route.mostUniqueAttribute = findMostUniqueAttributeForRoute(route.id);
     }
     // TODO: refactore after saving number of ok sgs in route
+
+    status.updateStatus(routes.first);
 
     notifyListeners();
     return routes;
@@ -527,98 +527,74 @@ class Routing with ChangeNotifier {
     if (allRoutes == null && allRoutes!.length <= id) return null;
     if (allRoutes!.length <= 1) return null; // nothing to compare route with
 
-    final status = getIt<PredictionSGStatus>();
-
     final r.Route route = allRoutes![id];
-    final double arrivalTime = route.path.time.toDouble();
+    final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
     final double ascend = route.path.ascend;
+    final int numOkSGs = route.ok ?? 0;
 
     final Map<String, bool> hasBestAttribute = {
       "earliestArrival": true,
       "shortest": true,
       "leastAscend": true,
-      "bestPredictionQuality": true,
+      "numOkSGs": true,
     };
 
-    final Map<String, r.Route?> secondBestRoute = {
+    final Map<String, r.Route?> secondBest = {
       "earliestArrival": null,
       "shortest": null,
       "leastAscend": null,
-      "bestPredictionQuality": null,
+      "numOkSGs": null,
     };
 
     final Map<String, double> percentDifference = {
       "earliestArrival": double.negativeInfinity,
       "shortest": double.negativeInfinity,
       "leastAscend": double.negativeInfinity,
-      "bestPredictionQuality": double.negativeInfinity,
+      "numOkSGs": double.negativeInfinity,
     };
-
-    final Map<r.Route, double> averagePredictionQualityPerRoute = {};
-    for (final r.Route route in allRoutes!) {
-      final double averagePredictionQuality;
-      if (route.signalGroups.isEmpty) {
-        averagePredictionQuality = 0.0;
-      } else {
-        double predictionQuality = 0.0;
-        for (final sg in route.signalGroups) {
-          if (status.cache[sg.id] == null) continue;
-          predictionQuality += status.cache[sg.id]!.predictionQuality ?? 0.0;
-        }
-        averagePredictionQuality = predictionQuality / route.signalGroups.length;
-      }
-      averagePredictionQualityPerRoute[route] = averagePredictionQuality;
-    }
-    final double averagePredictionQuality = averagePredictionQualityPerRoute[route]!;
 
     // Find if route has a unique attribute and find the second best route for each attribute
     for (final r.Route otherRoute in allRoutes!) {
       if (otherRoute.id == id) continue;
 
       if (otherRoute.path.time < arrivalTime) hasBestAttribute["earliestArrival"] = false;
-      if (secondBestRoute["earliestArrival"] == null ||
-          otherRoute.path.time < secondBestRoute["earliestArrival"]!.path.time) {
-        secondBestRoute["earliestArrival"] = otherRoute;
+      if (secondBest["earliestArrival"] == null || otherRoute.path.time < secondBest["earliestArrival"]!.path.time) {
+        secondBest["earliestArrival"] = otherRoute;
       }
 
       if (otherRoute.path.distance < distance) hasBestAttribute["shortest"] = false;
-      if (secondBestRoute["shortest"] == null ||
-          otherRoute.path.distance < secondBestRoute["shortest"]!.path.distance) {
-        secondBestRoute["shortest"] = otherRoute;
+      if (secondBest["shortest"] == null || otherRoute.path.distance < secondBest["shortest"]!.path.distance) {
+        secondBest["shortest"] = otherRoute;
       }
 
       if (otherRoute.path.ascend < ascend) hasBestAttribute["leastAscend"] = false;
-      if (secondBestRoute["leastAscend"] == null ||
-          otherRoute.path.ascend < secondBestRoute["leastAscend"]!.path.ascend) {
-        secondBestRoute["leastAscend"] = otherRoute;
+      if (secondBest["leastAscend"] == null || otherRoute.path.ascend < secondBest["leastAscend"]!.path.ascend) {
+        secondBest["leastAscend"] = otherRoute;
       }
 
-      if (averagePredictionQualityPerRoute[otherRoute]! > averagePredictionQuality) {
-        hasBestAttribute["bestPredictionQuality"] = false;
-      }
-      if (secondBestRoute["bestPredictionQuality"] == null ||
-          averagePredictionQualityPerRoute[otherRoute]! >
-              averagePredictionQualityPerRoute[secondBestRoute["bestPredictionQuality"]!]!) {
-        secondBestRoute["bestPredictionQuality"] = otherRoute;
+      if (otherRoute.ok != null) {
+        if (otherRoute.ok! > numOkSGs) {
+          hasBestAttribute["numOkSGs"] = false;
+        }
+        if (secondBest["numOkSGs"] == null || otherRoute.ok! > secondBest["numOkSGs"]!.ok!) {
+          secondBest["numOkSGs"] = otherRoute;
+        }
       }
 
       // Calculate the percent difference for each attribute
-      if (hasBestAttribute["earliestArrival"]! && secondBestRoute["earliestArrival"] != null) {
+      if (hasBestAttribute["earliestArrival"]! && secondBest["earliestArrival"] != null) {
         percentDifference["earliestArrival"] =
-            (secondBestRoute["earliestArrival"]!.path.time - arrivalTime) / arrivalTime * 100;
+            (secondBest["earliestArrival"]!.path.time - arrivalTime) / arrivalTime * 100;
       }
-      if (hasBestAttribute["shortest"]! && secondBestRoute["shortest"] != null) {
-        percentDifference["shortest"] = (secondBestRoute["shortest"]!.path.distance - distance) / distance * 100;
+      if (hasBestAttribute["shortest"]! && secondBest["shortest"] != null) {
+        percentDifference["shortest"] = (secondBest["shortest"]!.path.distance - distance) / distance * 100;
       }
-      if (hasBestAttribute["leastAscend"]! && secondBestRoute["leastAscend"] != null) {
-        percentDifference["leastAscend"] = (secondBestRoute["leastAscend"]!.path.ascend - ascend) / ascend * 100;
+      if (hasBestAttribute["leastAscend"]! && secondBest["leastAscend"] != null) {
+        percentDifference["leastAscend"] = (secondBest["leastAscend"]!.path.ascend - ascend) / ascend * 100;
       }
-      if (hasBestAttribute["bestPredictionQuality"]! && secondBestRoute["bestPredictionQuality"] != null) {
-        percentDifference["bestPredictionQuality"] =
-            (averagePredictionQualityPerRoute[secondBestRoute["bestPredictionQuality"]!]! - averagePredictionQuality) /
-                averagePredictionQuality *
-                100;
+      if (hasBestAttribute["numOkSGs"]! && secondBest["numOkSGs"] != null) {
+        percentDifference["numOkSGs"] = (secondBest["numOkSGs"]!.ok! - numOkSGs) / numOkSGs * 100;
       }
     }
 
@@ -644,7 +620,7 @@ class Routing with ChangeNotifier {
     if (mostSignificantAttribute == "earliestArrival") return "Schnellste Ankunftszeit";
     if (mostSignificantAttribute == "shortest") return "Kürzeste Distanz";
     if (mostSignificantAttribute == "leastAscend") return "Geringster Anstieg";
-    if (mostSignificantAttribute == "bestPredictionQuality") return "Beste Ampel-Qualität";
+    if (mostSignificantAttribute == "numOkSGs") return "Beste Ampel-Qualität";
     return null;
   }
 }
