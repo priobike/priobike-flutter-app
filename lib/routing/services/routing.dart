@@ -413,8 +413,6 @@ class Routing with ChangeNotifier {
     for (r.Route route in routes) {
       await status.fetch(route);
       status.updateStatus(route);
-      if (route.id == 0) route.ok = 3;
-      if (route.id == 1) route.ok = 10;
       route.mostUniqueAttribute = findMostUniqueAttributeForRoute(route.id);
     }
     // TODO: refactore after saving number of ok sgs in route
@@ -531,7 +529,6 @@ class Routing with ChangeNotifier {
     final double distance = route.path.distance;
     final double ascend = route.path.ascend;
     final int numOkSGs = route.ok ?? 0;
-    print("Charly $arrivalTime $distance $ascend $numOkSGs");
 
     final Map<String, bool> hasBestAttribute = {
       "earliestArrival": true,
@@ -595,12 +592,7 @@ class Routing with ChangeNotifier {
       percentDifference["leastAscend"] = (secondBest["leastAscend"]!.path.ascend - ascend) / ascend * 100;
     }
     if (hasBestAttribute["numOkSGs"]! && secondBest["numOkSGs"] != null) {
-      percentDifference["numOkSGs"] = (secondBest["numOkSGs"]!.ok! - numOkSGs) / numOkSGs * 100;
-    }
-
-    // print everything
-    for (final entry in hasBestAttribute.entries) {
-      print("Charly ${entry.key} ${entry.value}");
+      percentDifference["numOkSGs"] = (numOkSGs - secondBest["numOkSGs"]!.ok!) / numOkSGs * 100;
     }
 
     // Check which attribute is the most unique i.e. has the highest difference to the second best route
@@ -615,12 +607,10 @@ class Routing with ChangeNotifier {
 
     if (mostSignificantAttribute == null || mostSignificantDifference == null) return null;
 
-    print("Charly $mostSignificantAttribute $mostSignificantDifference");
-
     if (mostSignificantAttribute == "earliestArrival") return "Schnellste Ankunftszeit";
     if (mostSignificantAttribute == "shortest") return "Kürzeste Distanz";
     if (mostSignificantAttribute == "leastAscend") return "Geringster Anstieg";
-    if (mostSignificantAttribute == "numOkSGs") return "Beste Ampel-Qualität";
+    if (mostSignificantAttribute == "numOkSGs") return "Mehr verbundene Ampeln";
     return null;
   }
 }
