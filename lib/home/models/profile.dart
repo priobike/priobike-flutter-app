@@ -13,11 +13,11 @@ extension BikeTypeRoutingProfile on BikeType {
       case BikeType.citybike:
         return "bike2_default";
       case BikeType.mountainbike:
-        return "mtb_default"; // FIXME: Change to mtb2_default when supported
+        return "mtb2_default";
       case BikeType.racingbike:
-        return "racingbike_default"; // FIXME: Change to mtb2_default when supported
+        return "racingbike2_default";
       case BikeType.cargobike:
-        return "racingbike_default"; // FIXME: Change to mtb2_default when supported
+        return "racingbike2_default";
     }
   }
 }
