@@ -33,7 +33,10 @@ class Route {
   /// A list of crossing distances on the route, in the order of `crossings`.
   final List<double> crossingsDistancesOnRoute;
 
-  const Route({
+  /// The most unique attribute of the route within a set of routes.
+  String? mostUniqueAttribute;
+
+  Route({
     required this.id,
     required this.path,
     required this.route,

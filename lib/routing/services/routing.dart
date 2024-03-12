@@ -412,6 +412,7 @@ class Routing with ChangeNotifier {
     final status = getIt<PredictionSGStatus>();
     for (r.Route route in routes) {
       await status.fetch(route);
+      route.mostUniqueAttribute = findMostUniqueAttributeForRoute(route.id);
     }
     status.updateStatus(routes.first);
 
@@ -515,9 +516,93 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns a string with the most unique attribute for the given route.
+  /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
   String? findMostUniqueAttributeForRoute(int id) {
     if (allRoutes == null && allRoutes!.length <= id) return null;
+    if (allRoutes!.length <= 1) return null; // nothing to compare route with
+
+    final r.Route route = allRoutes![id];
+    final double arrivalTime = route.path.time.toDouble();
+    final double distance = route.path.distance;
+    final double ascend = route.path.ascend;
+    print("Charly =====================================");
+    print("Charly arrivalTime: $arrivalTime with id $id");
+    print("Charly distance: $distance with id $id");
+    print("Charly ascend: $ascend with id $id");
+
+    bool hasEarliestArrivalTime = true;
+    r.Route? secondEarliestRoute;
+
+    bool hasShortestDistance = true;
+    r.Route? secondShortestRoute;
+
+    bool hasLeastAscend = true;
+    r.Route? secondLeastAscendRoute;
+
+    //TODO: Umschreiben, indem man Attribute in einer Map speichert
+
+    // Find if route has a unique attribute and find the second best route for each attribute
+    for (final r.Route otherRoute in allRoutes!) {
+      if (otherRoute.id == id) continue;
+
+      if (otherRoute.path.time < arrivalTime) {
+        hasEarliestArrivalTime = false;
+      }
+      if (secondEarliestRoute == null || otherRoute.path.time < secondEarliestRoute.path.time) {
+        secondEarliestRoute = otherRoute;
+      }
+
+      if (otherRoute.path.distance < distance) {
+        hasShortestDistance = false;
+      }
+      if (secondShortestRoute == null || otherRoute.path.distance < secondShortestRoute.path.distance) {
+        secondShortestRoute = otherRoute;
+      }
+
+      if (otherRoute.path.ascend < ascend) {
+        hasLeastAscend = false;
+      }
+      if (secondLeastAscendRoute == null || otherRoute.path.ascend < secondLeastAscendRoute.path.ascend) {
+        secondLeastAscendRoute = otherRoute;
+      }
+    }
+
+    print("Charly hasEarliestArrivalTime: $hasEarliestArrivalTime with id $id");
+    print("Charly hasShortestDistance: $hasShortestDistance with id $id");
+    print("Charly hasLeastAscend: $hasLeastAscend with id $id");
+
+    double percentEarlier = double.negativeInfinity;
+    double percentShorter = double.negativeInfinity;
+    double percentLessAscend = double.negativeInfinity;
+
+    if (hasEarliestArrivalTime && secondEarliestRoute != null) {
+      percentEarlier = (secondEarliestRoute.path.time - arrivalTime) / arrivalTime * 100;
+      print("Charly: percentEarlier: $percentEarlier with id $id");
+    }
+
+    if (hasShortestDistance && secondShortestRoute != null) {
+      percentShorter = (secondShortestRoute.path.distance - distance) / distance * 100;
+      print("Charly: percentShorter: $percentShorter with id $id");
+    }
+
+    if (hasLeastAscend && secondLeastAscendRoute != null) {
+      percentLessAscend = (secondLeastAscendRoute.path.ascend - ascend) / ascend * 100;
+      print("Charly: percentLessAscend: $percentLessAscend with id $id");
+    }
+
+    // Checks which attribute is the most unique i.e. has the highest difference to the second best route
+    if (percentEarlier >= percentShorter && percentEarlier >= percentLessAscend) {
+      return "Schnellste Ankunftszeit.";
+    }
+    if (percentShorter >= percentEarlier && percentShorter >= percentLessAscend) {
+      return "Kürzeste Distanz.";
+    }
+    if (percentLessAscend >= percentEarlier && percentLessAscend >= percentShorter) {
+      return "Geringster Anstieg.";
+    }
+    return null;
+
+    // Anzahl Ampeln, Qualität der Ampeln auf Route
 
     // TL
 
@@ -528,7 +613,5 @@ class Routing with ChangeNotifier {
     // Height
 
     // OSM discomforts?
-
-    return null;
   }
 }

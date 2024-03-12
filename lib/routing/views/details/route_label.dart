@@ -66,6 +66,7 @@ class RouteLabelState extends State<RouteLabel> {
     if (routing.allRoutes != null && routing.allRoutes!.length > widget.routId) {
       final route = routing.allRoutes![widget.routId];
       timeText = route.timeText;
+      secondaryText = route.mostUniqueAttribute;
     }
   }
 
