@@ -580,18 +580,20 @@ class Routing with ChangeNotifier {
     }
 
     // Checks which attribute is the most unique i.e. has the highest difference to the second best route
-    if (percentDifference["earliestArrival"]! >= percentDifference["shortest"]! &&
-        percentDifference["earliestArrival"]! >= percentDifference["leastAscend"]!) {
-      return "Schnellste Ankunftszeit.";
+    String? mostSignificantAttribute;
+    double? mostSignificantDifference;
+    for (final entry in percentDifference.entries) {
+      if (mostSignificantDifference == null || entry.value > mostSignificantDifference) {
+        mostSignificantAttribute = entry.key;
+        mostSignificantDifference = entry.value;
+      }
     }
-    if (percentDifference["shortest"]! >= percentDifference["earliestArrival"]! &&
-        percentDifference["shortest"]! >= percentDifference["leastAscend"]!) {
-      return "Kürzeste Distanz.";
-    }
-    if (percentDifference["leastAscend"]! >= percentDifference["earliestArrival"]! &&
-        percentDifference["leastAscend"]! >= percentDifference["shortest"]!) {
-      return "Geringster Anstieg.";
-    }
+
+    if (mostSignificantAttribute == null || mostSignificantDifference == null) return null;
+
+    if (mostSignificantAttribute == "earliestArrival") return "Schnellste Ankunftszeit.";
+    if (mostSignificantAttribute == "shortest") return "Kürzeste Distanz.";
+    if (mostSignificantAttribute == "leastAscend") return "Geringster Anstieg.";
     return null;
 
     // Anzahl Ampeln, Qualität der Ampeln auf Route
