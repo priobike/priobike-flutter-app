@@ -177,9 +177,35 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       var location = (puckLayer as mapbox.LocationIndicatorLayer).location;
       if (location == null) return;
       if (location.isEmpty) return;
-      currentLat = location[0] ?? currentLat;
-      currentLon = location[1] ?? currentLon;
-      currentBearing = puckLayer.bearing ?? currentBearing;
+      final newLat = location[0] ?? currentLat;
+      final newLon = location[1] ?? currentLon;
+
+      // Use the GPS bearing if the magnetometer is >15° or <-15° off.
+      // This may happen if the magnetometer is decalibrated.
+      final gpsBearing = vincenty.bearing(LatLng(currentLat, currentLon), LatLng(newLat, newLon));
+      final magnetometerBearing = puckLayer.bearing ?? gpsBearing; // Use GPS bearing as a fallback.
+      double bearing;
+      // Calculate signed diff between both bearings.
+      double bDiff = magnetometerBearing - gpsBearing;
+      if (bDiff > 180) {
+        bDiff -= 360;
+      } else if (bDiff < -180) {
+        bDiff += 360;
+      }
+      // If the diff is >15° or <-15°, use the GPS bearing.
+      if (bDiff.abs() > 15) {
+        bearing = gpsBearing;
+      } else {
+        bearing = magnetometerBearing;
+      }
+      // If the positions are too near to each other, use the magnetometer.
+      if (vincenty.distance(LatLng(currentLat, currentLon), LatLng(newLat, newLon)) < 1) {
+        bearing = magnetometerBearing;
+      }
+
+      currentLat = newLat;
+      currentLon = newLon;
+      currentBearing = bearing;
       mapController!.flyTo(
         mapbox.CameraOptions(
           center: mapbox.Point(coordinates: mapbox.Position(currentLon, currentLat)).toJson(),
