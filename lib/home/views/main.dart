@@ -295,7 +295,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                 child: Column(
                   children: [
                     const LoadStatusView(),
-                    if (settings.useCounter >= 3 && !settings.dismissedSurvey) const VSpace(),
+                    if (settings.useCounter >= 3 && !settings.dismissedSurvey) const SmallVSpace(),
                     if (settings.useCounter >= 3 && !settings.dismissedSurvey)
                       BlendIn(
                         child: Container(
@@ -305,7 +305,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           ),
                         ),
                       ),
-                    const VSpace(),
+                    const SmallVSpace(),
                     if (showStatusView)
                       const BlendIn(
                         child: Row(

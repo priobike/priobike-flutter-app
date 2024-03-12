@@ -58,13 +58,10 @@ class SurveyViewState extends State<SurveyView> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  BoldContent(
-                      text: "Vielen Dank für’s Ausprobieren der PrioBike-App. Klappt alles?",
-                      context: context,
-                      textAlign: TextAlign.left),
+                  BoldContent(text: "Hast Du kurz Zeit?", context: context, textAlign: TextAlign.left),
+                  const SmallVSpace(),
                   Small(
-                    text:
-                        "Wenn nicht — umso besser. Wir sind auf Dein Feedback gespannt. Bitte nimm Dir etwa 10 Minuten Zeit für unsere Umfrage.",
+                    text: "Wir würden uns freuen, wenn Du an unserer Umfrage teilnimmst.",
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
                     context: context,
                   ),
