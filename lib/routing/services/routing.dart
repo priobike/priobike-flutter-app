@@ -412,10 +412,9 @@ class Routing with ChangeNotifier {
     final status = getIt<PredictionSGStatus>();
     for (r.Route route in routes) {
       await status.fetch(route);
-    }
-    // status needs to be updated first before we can calculate the most unique attribute
-    for (r.Route route in routes) {
       status.updateStatus(route);
+      if (route.id == 0) route.ok = 3;
+      if (route.id == 1) route.ok = 10;
       route.mostUniqueAttribute = findMostUniqueAttributeForRoute(route.id);
     }
     // TODO: refactore after saving number of ok sgs in route
@@ -532,6 +531,7 @@ class Routing with ChangeNotifier {
     final double distance = route.path.distance;
     final double ascend = route.path.ascend;
     final int numOkSGs = route.ok ?? 0;
+    print("Charly $arrivalTime $distance $ascend $numOkSGs");
 
     final Map<String, bool> hasBestAttribute = {
       "earliestArrival": true,
@@ -581,21 +581,21 @@ class Routing with ChangeNotifier {
           secondBest["numOkSGs"] = otherRoute;
         }
       }
+    }
 
-      // Calculate the percent difference for each attribute
-      if (hasBestAttribute["earliestArrival"]! && secondBest["earliestArrival"] != null) {
-        percentDifference["earliestArrival"] =
-            (secondBest["earliestArrival"]!.path.time - arrivalTime) / arrivalTime * 100;
-      }
-      if (hasBestAttribute["shortest"]! && secondBest["shortest"] != null) {
-        percentDifference["shortest"] = (secondBest["shortest"]!.path.distance - distance) / distance * 100;
-      }
-      if (hasBestAttribute["leastAscend"]! && secondBest["leastAscend"] != null) {
-        percentDifference["leastAscend"] = (secondBest["leastAscend"]!.path.ascend - ascend) / ascend * 100;
-      }
-      if (hasBestAttribute["numOkSGs"]! && secondBest["numOkSGs"] != null) {
-        percentDifference["numOkSGs"] = (secondBest["numOkSGs"]!.ok! - numOkSGs) / numOkSGs * 100;
-      }
+    // Calculate the percent difference for each attribute to the second best route
+    if (hasBestAttribute["earliestArrival"]! && secondBest["earliestArrival"] != null) {
+      percentDifference["earliestArrival"] =
+          (secondBest["earliestArrival"]!.path.time - arrivalTime) / arrivalTime * 100;
+    }
+    if (hasBestAttribute["shortest"]! && secondBest["shortest"] != null) {
+      percentDifference["shortest"] = (secondBest["shortest"]!.path.distance - distance) / distance * 100;
+    }
+    if (hasBestAttribute["leastAscend"]! && secondBest["leastAscend"] != null) {
+      percentDifference["leastAscend"] = (secondBest["leastAscend"]!.path.ascend - ascend) / ascend * 100;
+    }
+    if (hasBestAttribute["numOkSGs"]! && secondBest["numOkSGs"] != null) {
+      percentDifference["numOkSGs"] = (secondBest["numOkSGs"]!.ok! - numOkSGs) / numOkSGs * 100;
     }
 
     // print everything
@@ -603,7 +603,7 @@ class Routing with ChangeNotifier {
       print("Charly ${entry.key} ${entry.value}");
     }
 
-    // Checks which attribute is the most unique i.e. has the highest difference to the second best route
+    // Check which attribute is the most unique i.e. has the highest difference to the second best route
     String? mostSignificantAttribute;
     double? mostSignificantDifference;
     for (final entry in percentDifference.entries) {
