@@ -643,7 +643,7 @@ class Routing with ChangeNotifier {
 
     if (hasBestAttribute["numPushBike"]!) {
       final difference = secondBest["numPushBike"]!.$2 - numPushBike; // absolute difference
-      if (difference > thresholdPushBikeAbsolute) return "Weniger Schiebestrecke";
+      if (difference > thresholdPushBikeAbsolute) return "Weniger Absteigen";
     }
 
     if (hasBestAttribute["earliestArrival"]!) {
