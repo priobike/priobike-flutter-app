@@ -42,6 +42,11 @@ class Discomforts with ChangeNotifier {
   }
 
   Future<void> findDiscomforts(Route route) async {
+    foundDiscomforts = await getDiscomfortsForRoute(route);
+    notifyListeners();
+  }
+
+  Future<List<DiscomfortSegment>> getDiscomfortsForRoute(Route route) async {
     final path = route.path;
 
     final profile = getIt<Profile>();
@@ -249,8 +254,8 @@ class Discomforts with ChangeNotifier {
       }
     }
 
-    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
-    foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
-    notifyListeners();
+    final List<DiscomfortSegment> detectedDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
+    detectedDiscomforts.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
+    return detectedDiscomforts;
   }
 }

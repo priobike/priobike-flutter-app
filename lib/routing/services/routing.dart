@@ -530,12 +530,12 @@ class Routing with ChangeNotifier {
     const int thresholdPushBikeAbsolute = 1;
     const int thresholdTimeInPtc = 20;
 
+    final discomforts = getIt<Discomforts>();
+
     final r.Route route = allRoutes![id];
     final int numOkSGs = route.ok ?? 0;
     final int numCrossings = route.crossings.length;
-    final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(route);
-    final int numDiscomforts = discomforts.foundDiscomforts?.length ?? 0;
+    final int numDiscomforts = (await discomforts.getDiscomfortsForRoute(route)).length;
     final int numPushBike = route.path.details.getOffBike.length;
     final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
@@ -594,8 +594,7 @@ class Routing with ChangeNotifier {
       }
 
       // Number Discomforts => less is better
-      await discomforts.findDiscomforts(otherRoute);
-      final otherRouteDiscomforts = discomforts.foundDiscomforts?.length ?? 0;
+      final otherRouteDiscomforts = (await discomforts.getDiscomfortsForRoute(route)).length;
       if (otherRouteDiscomforts <= numDiscomforts) hasBestAttribute["numDiscomforts"] = false;
       if (secondBest["numDiscomforts"] == null ||
           secondBest["numDiscomforts"]!.$1 == null ||
