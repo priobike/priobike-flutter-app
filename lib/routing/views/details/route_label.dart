@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/route_labels.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/models/route.dart' as r;
 
 class RouteLabel extends StatefulWidget {
   /// The id of the route.
