@@ -533,11 +533,12 @@ class Routing with ChangeNotifier {
     final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
 
-    const int thresholdNumOkSGsInPtc = 50;
-    const int thresholdCrossingsInPtc = 50;
-    const int thresholdDiscomfortsInPtc = 50;
+    const int thresholdNumOkSGsInPtc = 20;
+    const int thresholdCrossingsInPtc = 20;
+    const int thresholdDiscomfortsInPtc = 20;
     const int thresholdPushBikeAbsolute = 1;
     const int thresholdTimeInPtc = 20;
+    const int thresholdDistanceInPtc = 15;
 
     // print everything
     print("Charly ====================================");
@@ -627,32 +628,34 @@ class Routing with ChangeNotifier {
     }
 
     if (hasBestAttribute["numOkSGs"]!) {
-      final difference = (numOkSGs - secondBest["numOkSGs"]!.$2) / numOkSGs * 100;
-      if (difference > thresholdNumOkSGsInPtc) return "Mehr verbundene Ampeln";
+      final difference = numOkSGs / secondBest["numOkSGs"]!.$2 * 100;
+      if (difference > thresholdNumOkSGsInPtc) return "Mehr verbundene\nAmpeln";
     }
 
     if (hasBestAttribute["numCrossings"]!) {
-      final difference = (secondBest["numCrossings"]!.$2 - numCrossings) / secondBest["numCrossings"]!.$2 * 100;
-      if (difference > thresholdCrossingsInPtc) return "Weniger Kreuzungen";
+      final difference = secondBest["numCrossings"]!.$2 / numCrossings * 100;
+      if (difference > thresholdCrossingsInPtc) return "Weniger\nKreuzungen";
     }
 
     if (hasBestAttribute["numDiscomforts"]!) {
-      final difference = (secondBest["numDiscomforts"]!.$2 - numDiscomforts) / secondBest["numDiscomforts"]!.$2 * 100;
-      if (difference > thresholdDiscomfortsInPtc) return "Angenehmere Strecke";
+      final difference = secondBest["numDiscomforts"]!.$2 / numDiscomforts * 100;
+      if (difference > thresholdDiscomfortsInPtc) return "Angenehmere\nStrecke";
     }
 
     if (hasBestAttribute["numPushBike"]!) {
       final difference = secondBest["numPushBike"]!.$2 - numPushBike; // absolute difference
-      if (difference > thresholdPushBikeAbsolute) return "Weniger Absteigen";
+      if (difference > thresholdPushBikeAbsolute) return "Weniger\nAbsteigen";
     }
 
     if (hasBestAttribute["earliestArrival"]!) {
-      final difference = (secondBest["earliestArrival"]!.$2 - arrivalTime) / secondBest["earliestArrival"]!.$2 * 100;
-      if (difference > thresholdTimeInPtc) return "Schnellere Ankunftszeit";
+      final difference = secondBest["earliestArrival"]!.$2 / arrivalTime * 100;
+      if (difference > thresholdTimeInPtc) return "Schnellere\nAnkunftszeit";
     }
 
-    // Route length is fallback and therefore has no threshold
-    if (hasBestAttribute["shortest"]!) return "Kürzere Strecke";
+    if (hasBestAttribute["shortest"]!) {
+      final difference = secondBest["shortest"]!.$2 / distance * 100;
+      if (difference > thresholdDistanceInPtc) return "Kürzere\nStrecke";
+    }
 
     // Route is in every aspect worse than all other routes
     return null;
