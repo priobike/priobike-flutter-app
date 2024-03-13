@@ -12,7 +12,6 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/load.dart';
-import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/load_status.dart';
 import 'package:priobike/home/views/nav.dart';
@@ -28,6 +27,7 @@ import 'package:priobike/news/views/main.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -304,6 +304,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           ),
                         ),
                       ),
+                    const VSpace(),
                     const SmallVSpace(),
                     if (showStatusView)
                       const BlendIn(
@@ -386,32 +387,38 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: Duration(milliseconds: 750),
                       child: YourBikeView(),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
+                    BlendIn(
+                      delay: const Duration(milliseconds: 1000),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
+                      ),
                     ),
                     const SmallVSpace(),
                     const TrackHistoryView(),
-                    Container(
-                      alignment: Alignment.topLeft,
-                      padding: const EdgeInsets.only(left: 40, right: 40),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          BoldSubHeader(
-                            text: "Wie funktioniert PrioBike?",
-                            context: context,
-                            textAlign: TextAlign.center,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(height: 4),
-                          Content(
-                            text: "Erfahre mehr über die App.",
-                            context: context,
-                            textAlign: TextAlign.center,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ],
+                    BlendIn(
+                      delay: const Duration(milliseconds: 1000),
+                      child: Container(
+                        alignment: Alignment.topLeft,
+                        padding: const EdgeInsets.only(left: 40, right: 40),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoldSubHeader(
+                              text: "Wie funktioniert PrioBike?",
+                              context: context,
+                              textAlign: TextAlign.center,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(height: 4),
+                            Content(
+                              text: "Erfahre mehr über die App.",
+                              context: context,
+                              textAlign: TextAlign.center,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const VSpace(),
@@ -420,10 +427,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       child: WikiView(),
                     ),
                     const VSpace(),
-                    BoldSmall(
-                      text: "#radkultur hamburg",
-                      context: context,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    BlendIn(
+                      delay: const Duration(milliseconds: 1500),
+                      child: BoldSmall(
+                        text: "#radkultur hamburg",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const VSpace(),
                     const SizedBox(height: 32),
