@@ -406,16 +406,16 @@ class Routing with ChangeNotifier {
     fetchedBikeType = bikeType;
     isFetchingRoute = false;
 
-    final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(routes.first);
-
     final status = getIt<PredictionSGStatus>();
     for (r.Route route in routes) {
       await status.fetch(route);
       status.updateStatus(route);
-      route.mostUniqueAttribute = findMostUniqueAttributeForRoute(route.id);
+      route.mostUniqueAttribute = await findMostUniqueAttributeForRoute(route.id);
     }
     // TODO: refactore after saving number of ok sgs in route
+
+    final discomforts = getIt<Discomforts>();
+    await discomforts.findDiscomforts(routes.first);
 
     status.updateStatus(routes.first);
 
@@ -520,113 +520,143 @@ class Routing with ChangeNotifier {
   }
 
   /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
-  String? findMostUniqueAttributeForRoute(int id) {
+  Future<String?> findMostUniqueAttributeForRoute(int id) async {
     if (allRoutes == null && allRoutes!.length <= id) return null;
     if (allRoutes!.length <= 1) return null; // nothing to compare route with
 
-    const double treshholdArrival = 1000 * 60 * 5;
-    const double treshholdDistance = 500.0;
-    const double treshholdAscend = 5.0;
-    const int treshholdNumOkSGs = 0; // no treshhold for number of ok-sgs until data is more reliable
+    const int thresholdNumOkSGsInPtc = 50;
+    const int thresholdCrossingsInPtc = 50;
+    const int thresholdDiscomfortsInPtc = 50;
+    const int thresholdPushBikeAbsolute = 1;
+    const int thresholdTimeInPtc = 20;
 
     final r.Route route = allRoutes![id];
+    final int numOkSGs = route.ok ?? 0;
+    final int numCrossings = route.crossings.length;
+    final discomforts = getIt<Discomforts>();
+    await discomforts.findDiscomforts(route);
+    final int numDiscomforts = discomforts.foundDiscomforts?.length ?? 0;
+    final int numPushBike = route.path.details.getOffBike.length;
     final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
-    final double ascend = route.path.ascend;
-    final int numOkSGs = route.ok ?? 0;
+
+    // print everything
+    print("Charly ====================================");
+    print("Charly id: $id");
+    print("Charly numOkSGs: $numOkSGs");
+    print("Charly numCrossings: $numCrossings");
+    print("Charly numDiscomforts: $numDiscomforts");
+    print("Charly numPushBike: $numPushBike");
+    print("Charly arrivalTime: $arrivalTime");
+    print("Charly distance: $distance");
 
     final Map<String, bool> hasBestAttribute = {
+      "numOkSGs": numOkSGs > 0,
+      "numCrossings": true,
+      "numDiscomforts": true,
+      "numPushBike": true,
       "earliestArrival": true,
       "shortest": true,
-      "leastAscend": true,
-      "numOkSGs": true,
     };
 
-    final Map<String, r.Route?> secondBest = {
-      "earliestArrival": null,
-      "shortest": null,
-      "leastAscend": null,
-      "numOkSGs": null,
-    };
-
-    final Map<String, double> percentDifference = {
-      "earliestArrival": double.negativeInfinity,
-      "shortest": double.negativeInfinity,
-      "leastAscend": double.negativeInfinity,
-      "numOkSGs": double.negativeInfinity,
+    final Map<String, (r.Route?, double)> secondBest = {
+      // Assigne negative or positive infinity as initial value depending on if higher or lower values are worse
+      "numOkSGs": (null, double.negativeInfinity),
+      "numCrossings": (null, double.infinity),
+      "numDiscomforts": (null, double.infinity),
+      "numPushBike": (null, double.infinity),
+      "earliestArrival": (null, double.infinity),
+      "shortest": (null, double.infinity),
     };
 
     // Find if route has a unique attribute and find the second best route for each attribute
     for (final r.Route otherRoute in allRoutes!) {
       if (otherRoute.id == id) continue;
 
-      if (otherRoute.path.time < arrivalTime) hasBestAttribute["earliestArrival"] = false;
-      if (secondBest["earliestArrival"] == null || otherRoute.path.time < secondBest["earliestArrival"]!.path.time) {
-        secondBest["earliestArrival"] = otherRoute;
-      }
-
-      if (otherRoute.path.distance < distance) hasBestAttribute["shortest"] = false;
-      if (secondBest["shortest"] == null || otherRoute.path.distance < secondBest["shortest"]!.path.distance) {
-        secondBest["shortest"] = otherRoute;
-      }
-
-      if (otherRoute.path.ascend < ascend) hasBestAttribute["leastAscend"] = false;
-      if (secondBest["leastAscend"] == null || otherRoute.path.ascend < secondBest["leastAscend"]!.path.ascend) {
-        secondBest["leastAscend"] = otherRoute;
-      }
-
+      // Number Ok-SGs => more is better
       if (otherRoute.ok != null) {
-        if (otherRoute.ok! > numOkSGs) {
+        if (otherRoute.ok! >= numOkSGs) {
           hasBestAttribute["numOkSGs"] = false;
         }
-        if (secondBest["numOkSGs"] == null || otherRoute.ok! > secondBest["numOkSGs"]!.ok!) {
-          secondBest["numOkSGs"] = otherRoute;
+        if (secondBest["numOkSGs"] == null ||
+            secondBest["numOkSGs"]!.$1 == null ||
+            otherRoute.ok! > secondBest["numOkSGs"]!.$2) {
+          secondBest["numOkSGs"] = (otherRoute, otherRoute.ok!.toDouble());
         }
       }
+
+      // Number Crossings => less is better
+      if (otherRoute.crossings.length <= numCrossings) hasBestAttribute["numCrossings"] = false;
+      if (secondBest["numCrossings"] == null ||
+          secondBest["numCrossings"]!.$1 == null ||
+          otherRoute.crossings.length < secondBest["numCrossings"]!.$2) {
+        secondBest["numCrossings"] = (otherRoute, otherRoute.crossings.length.toDouble());
+      }
+
+      // Number Discomforts => less is better
+      await discomforts.findDiscomforts(otherRoute);
+      final otherRouteDiscomforts = discomforts.foundDiscomforts?.length ?? 0;
+      if (otherRouteDiscomforts <= numDiscomforts) hasBestAttribute["numDiscomforts"] = false;
+      if (secondBest["numDiscomforts"] == null ||
+          secondBest["numDiscomforts"]!.$1 == null ||
+          otherRouteDiscomforts < secondBest["numDiscomforts"]!.$2) {
+        secondBest["numDiscomforts"] = (otherRoute, otherRouteDiscomforts.toDouble());
+      }
+
+      // Number PushBike => less is better
+      if (otherRoute.path.details.getOffBike.length <= numPushBike) hasBestAttribute["numPushBike"] = false;
+      if (secondBest["numPushBike"] == null ||
+          secondBest["numPushBike"]!.$1 == null ||
+          otherRoute.path.details.getOffBike.length < secondBest["numPushBike"]!.$2) {
+        secondBest["numPushBike"] = (otherRoute, otherRoute.path.details.getOffBike.length.toDouble());
+      }
+
+      // Earliest Arrival => less is better
+      if (otherRoute.path.time <= arrivalTime) hasBestAttribute["earliestArrival"] = false;
+      if (secondBest["earliestArrival"] == null ||
+          secondBest["earliestArrival"]!.$1 == null ||
+          otherRoute.path.time < secondBest["earliestArrival"]!.$2) {
+        secondBest["earliestArrival"] = (otherRoute, otherRoute.path.time.toDouble());
+      }
+
+      // Route length => less is better
+      if (otherRoute.path.distance <= distance) hasBestAttribute["shortest"] = false;
+      if (secondBest["shortest"] == null ||
+          secondBest["shortest"]!.$1 == null ||
+          otherRoute.path.distance < secondBest["shortest"]!.$2) {
+        secondBest["shortest"] = (otherRoute, otherRoute.path.distance);
+      }
     }
 
-    // Calculate the percent difference for each best attribute to the second best route
-    if (hasBestAttribute["earliestArrival"]! && secondBest["earliestArrival"] != null) {
-      final difference = secondBest["earliestArrival"]!.path.time - arrivalTime;
-      if (difference > treshholdArrival) {
-        percentDifference["earliestArrival"] = (difference) / arrivalTime * 100;
-      }
-    }
-    if (hasBestAttribute["shortest"]! && secondBest["shortest"] != null) {
-      final difference = secondBest["shortest"]!.path.distance - distance;
-      if (difference > treshholdDistance) {
-        percentDifference["shortest"] = (difference) / distance * 100;
-      }
-    }
-    if (hasBestAttribute["leastAscend"]! && secondBest["leastAscend"] != null) {
-      final difference = secondBest["leastAscend"]!.path.ascend - ascend;
-      if (difference > treshholdAscend) {
-        percentDifference["leastAscend"] = (difference) / ascend * 100;
-      }
-    }
-    if (hasBestAttribute["numOkSGs"]! && secondBest["numOkSGs"] != null) {
-      final difference = numOkSGs - secondBest["numOkSGs"]!.ok!;
-      if (difference > treshholdNumOkSGs) {
-        percentDifference["numOkSGs"] = (difference) / numOkSGs * 100;
-      }
+    if (hasBestAttribute["numOkSGs"]!) {
+      final difference = (numOkSGs - secondBest["numOkSGs"]!.$2) / numOkSGs * 100;
+      if (difference > thresholdNumOkSGsInPtc) return "Mehr verbundene Ampeln";
     }
 
-    // Check which attribute is the most unique i.e. has the highest difference to the second best route
-    String? mostSignificantAttribute;
-    double? mostSignificantDifference;
-    for (final entry in percentDifference.entries) {
-      if (mostSignificantDifference == null || entry.value > mostSignificantDifference) {
-        mostSignificantAttribute = entry.key;
-        mostSignificantDifference = entry.value;
-      }
+    if (hasBestAttribute["numCrossings"]!) {
+      final difference = (secondBest["numCrossings"]!.$2 - numCrossings) / secondBest["numCrossings"]!.$2 * 100;
+      if (difference > thresholdCrossingsInPtc) return "Weniger Kreuzungen";
     }
 
-    if (mostSignificantAttribute == null || mostSignificantDifference == null) return null;
+    if (hasBestAttribute["numDiscomforts"]!) {
+      final difference = (secondBest["numDiscomforts"]!.$2 - numDiscomforts) / secondBest["numDiscomforts"]!.$2 * 100;
+      if (difference > thresholdDiscomfortsInPtc) return "Angenehmere Strecke";
+    }
 
-    if (mostSignificantAttribute == "earliestArrival") return "Schnellste Ankunftszeit";
-    if (mostSignificantAttribute == "shortest") return "Kürzeste Distanz";
-    if (mostSignificantAttribute == "leastAscend") return "Geringster Anstieg";
-    if (mostSignificantAttribute == "numOkSGs") return "Mehr verbundene Ampeln";
+    if (hasBestAttribute["numPushBike"]!) {
+      final difference = secondBest["numPushBike"]!.$2 - numPushBike; // absolute difference
+      if (difference > thresholdPushBikeAbsolute) return "Weniger Schiebestrecke";
+    }
+
+    if (hasBestAttribute["earliestArrival"]!) {
+      final difference = (secondBest["earliestArrival"]!.$2 - arrivalTime) / secondBest["earliestArrival"]!.$2 * 100;
+      if (difference > thresholdTimeInPtc) return "Schnellere Ankunftszeit";
+    }
+
+    // Route length is fallback and therefore has no threshold
+    if (hasBestAttribute["shortest"]!) return "Kürzere Strecke";
+
+    // Route is in every aspect worse than all other routes
     return null;
   }
 }
