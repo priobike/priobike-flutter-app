@@ -390,7 +390,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// Process the route data and create the LineElements for the chart.
   /// Care about max number of line elements to not decrease performance on scroll.
   Future<void> processRouteData() async {
-    if (routing.allRoutes == null || routing.allRoutes!.isEmpty) return;
+    if (routing.allRoutes == null || routing.allRoutes!.isEmpty) {
+      setState(() {});
+      return;
+    }
+    ;
     final List<LineElement> newlineElements = List.empty(growable: true);
     for (var route in routing.allRoutes!) {
       List<GHCoordinate> latlngCoords = route.path.points.coordinates;
@@ -539,7 +543,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         children: [
           const SmallVSpace(),
           Content(
-            text: "Höhenprofil dieser Route",
+            text: "Höhenprofil",
             context: context,
           ),
           Row(

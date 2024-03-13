@@ -29,7 +29,14 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// A callback that is executed when a shortcut should be saved.
   final void Function() onSelectSaveButton;
 
-  const RouteDetailsBottomSheet({required this.onSelectStartButton, required this.onSelectSaveButton, super.key});
+  /// Whether the parent view has everything initially loaded.
+  final bool hasInitiallyLoaded;
+
+  const RouteDetailsBottomSheet(
+      {required this.onSelectStartButton,
+      required this.onSelectSaveButton,
+      super.key,
+      required this.hasInitiallyLoaded});
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
@@ -269,8 +276,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Helper function to determine if the bottom sheet is ready to be displayed.
   bool _checkIfBottomSheetIsReady() {
+    if (!widget.hasInitiallyLoaded) return false;
+
     // After loading Route
-    if (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) return true;
+    if (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) {
+      return true;
+    }
 
     // Free Routing or Shortcut Location
     if (routing.selectedWaypoints == null) return true;

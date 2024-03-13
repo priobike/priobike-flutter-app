@@ -71,6 +71,9 @@ class RoutingViewState extends State<RoutingView> {
   /// may be caused by energy saving options or disallowed precise geolocation.
   final int locationAccuracyThreshold = 100;
 
+  /// If everything has loaded.
+  bool hasInitiallyLoaded = false;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -110,6 +113,11 @@ class RoutingViewState extends State<RoutingView> {
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
           showAlertGPSQualityDialog();
         }
+
+        if (!mounted) return;
+        setState(() {
+          hasInitiallyLoaded = true;
+        });
       },
     );
 
@@ -417,6 +425,7 @@ class RoutingViewState extends State<RoutingView> {
             RouteDetailsBottomSheet(
               onSelectStartButton: onStartRide,
               onSelectSaveButton: () => showSaveShortcutSheet(context),
+              hasInitiallyLoaded: hasInitiallyLoaded,
             ),
           ],
         ),
