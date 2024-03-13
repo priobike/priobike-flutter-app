@@ -524,12 +524,6 @@ class Routing with ChangeNotifier {
     if (allRoutes == null && allRoutes!.length <= id) return null;
     if (allRoutes!.length <= 1) return null; // nothing to compare route with
 
-    const int thresholdNumOkSGsInPtc = 50;
-    const int thresholdCrossingsInPtc = 50;
-    const int thresholdDiscomfortsInPtc = 50;
-    const int thresholdPushBikeAbsolute = 1;
-    const int thresholdTimeInPtc = 20;
-
     final discomforts = getIt<Discomforts>();
 
     final r.Route route = allRoutes![id];
@@ -539,6 +533,12 @@ class Routing with ChangeNotifier {
     final int numPushBike = route.path.details.getOffBike.length;
     final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
+
+    const int thresholdNumOkSGsInPtc = 50;
+    const int thresholdCrossingsInPtc = 50;
+    const int thresholdDiscomfortsInPtc = 50;
+    const int thresholdPushBikeAbsolute = 1;
+    const int thresholdTimeInPtc = 20;
 
     // print everything
     print("Charly ====================================");
@@ -560,7 +560,7 @@ class Routing with ChangeNotifier {
     };
 
     final Map<String, (r.Route?, double)> secondBest = {
-      // Assigne negative or positive infinity as initial value depending on if higher or lower values are worse
+      // Initialize with negative or positive infinity depending on if higher or lower values are worse
       "numOkSGs": (null, double.negativeInfinity),
       "numCrossings": (null, double.infinity),
       "numDiscomforts": (null, double.infinity),

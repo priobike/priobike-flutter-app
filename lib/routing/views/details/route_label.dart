@@ -33,7 +33,7 @@ class RouteLabelState extends State<RouteLabel> {
   bool selected = false;
 
   /// The time text of the route label.
-  String timeText = "";
+  String mainText = "";
 
   /// The secondary text of the route label.
   String? secondaryText;
@@ -57,7 +57,7 @@ class RouteLabelState extends State<RouteLabel> {
   Timer? opacityTimer;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
 
     final routing = getIt<Routing>();
@@ -65,8 +65,8 @@ class RouteLabelState extends State<RouteLabel> {
     if (routing.selectedRoute != null) selected = routing.selectedRoute!.id == widget.routeId;
     if (routing.allRoutes != null && routing.allRoutes!.length > widget.routeId) {
       final route = routing.allRoutes![widget.routeId];
-      timeText = route.timeText;
-      secondaryText = route.mostUniqueAttribute;
+      route.mostUniqueAttribute ??= await getIt<Routing>().findMostUniqueAttributeForRoute(route.id);
+      mainText = route.mostUniqueAttribute ?? "";
     }
   }
 
@@ -87,6 +87,7 @@ class RouteLabelState extends State<RouteLabel> {
 
   @override
   Widget build(BuildContext context) {
+    if (mainText.isEmpty) return const SizedBox();
     late Alignment pointerAlignment;
     bool flipX = false;
     bool flipY = false;
@@ -160,7 +161,7 @@ class RouteLabelState extends State<RouteLabel> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 BoldSmall(
-                  text: timeText,
+                  text: mainText,
                   context: context,
                   textAlign: TextAlign.center,
                   color: selected ? Colors.white : Colors.black,
