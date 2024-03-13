@@ -394,7 +394,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       setState(() {});
       return;
     }
-    ;
+
     final List<LineElement> newlineElements = List.empty(growable: true);
     for (var route in routing.allRoutes!) {
       List<GHCoordinate> latlngCoords = route.path.points.coordinates;
