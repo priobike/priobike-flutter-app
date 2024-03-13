@@ -103,7 +103,7 @@ class PredictionSGStatus with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Recalculate the status for the given route.
+  /// Calculate the status for the given route.
   Map<String, int> calculateStatus(Route route) {
     Map<String, int> statusOverview = {
       "ok": 0,
