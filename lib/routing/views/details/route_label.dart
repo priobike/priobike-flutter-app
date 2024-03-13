@@ -66,18 +66,8 @@ class RouteLabelState extends State<RouteLabel> {
     if (routing.selectedRoute != null) selected = routing.selectedRoute!.id == widget.routeId;
     if (routing.allRoutes != null && routing.allRoutes!.length > widget.routeId) {
       final route = routing.allRoutes![widget.routeId];
-      _loadRouteLabel(route);
+      mainText = route.mostUniqueAttribute ?? "";
     }
-  }
-
-  /// Load the route label.
-  Future<void> _loadRouteLabel(r.Route route) async {
-    route.mostUniqueAttribute ??= await getIt<Routing>().findMostUniqueAttributeForRoute(route.id);
-    setState(
-      () {
-        mainText = route.mostUniqueAttribute ?? "";
-      },
-    );
   }
 
   Future<void> animateOpacity() async {
