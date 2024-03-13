@@ -409,10 +409,9 @@ class Routing with ChangeNotifier {
     final status = getIt<PredictionSGStatus>();
     for (r.Route route in routes) {
       await status.fetch(route);
-      status.updateStatus(route);
+      route.ok = status.calculateStatus(route)["ok"]!;
       route.mostUniqueAttribute = await findMostUniqueAttributeForRoute(route.id);
     }
-    // TODO: refactore after saving number of ok sgs in route
 
     final discomforts = getIt<Discomforts>();
     await discomforts.findDiscomforts(routes.first);
