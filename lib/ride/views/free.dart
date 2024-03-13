@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
+import 'package:priobike/home/views/main.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -110,6 +114,46 @@ class FreeRideViewState extends State<FreeRideView> {
                               ),
                             ),
                           ),
+                        Positioned(
+                          top: 48, // Below the MapBox attribution.
+                          // Button is on the right in portrait mode and on the left in landscape mode.
+                          right: 0,
+                          child: SafeArea(
+                            child: Tile(
+                              onPressed: () async {
+                                await freeRide.reset();
+                                if (!mounted) return;
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
+                                  (route) => false,
+                                );
+                              },
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                bottomLeft: Radius.circular(24),
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              fill: Colors.black.withOpacity(0.4),
+                              content: Padding(
+                                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+                                child: Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.flag_rounded,
+                                      color: Colors.white,
+                                    ),
+                                    const SmallHSpace(),
+                                    BoldSmall(
+                                      text: "Ende",
+                                      context: context,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     )
                   : const Center(

@@ -11,6 +11,7 @@ import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/free_ride.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -31,6 +32,9 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
   /// The associated free ride service, which is injected by the provider.
   late FreeRide freeRide;
+
+  /// If the SG filter is active.
+  late bool sgFilterActive;
 
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
@@ -78,6 +82,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     freeRide = getIt<FreeRide>();
     freeRide.addListener(onFreeRideUpdate);
     settings = getIt<Settings>();
+    sgFilterActive = settings.isFreeRideFilterEnabled;
   }
 
   void onFreeRideUpdate() {
@@ -87,6 +92,8 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   @override
   void dispose() {
     freeRide.removeListener(onFreeRideUpdate);
+    positionUpdateTimer?.cancel();
+    positionUpdateTimer = null;
     updateVisibleSgsTimer?.cancel();
     updateVisibleSgsTimer = null;
     updateSgPredictionsTimer?.cancel();
@@ -137,6 +144,35 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
+  }
+
+  /// Determine for the given prediction if it is currently green and the seconds until the next phase change.
+  Future<(bool?, int?)> getGreenNowAndSecondsToPhaseChange(PredictionServicePrediction prediction) async {
+    if (prediction.greentimeThreshold == -1) return (null, null);
+    if (prediction.predictionQuality == -1) return (null, null);
+    if (prediction.value.isEmpty) return (null, null);
+
+    // Calculate the seconds since the start of the prediction.
+    final now = DateTime.now();
+    final secondsSinceStart = max(0, now.difference(prediction.startTime).inSeconds);
+    // Chop off the seconds that are not in the prediction vector.
+    final secondsInVector = prediction.value.length;
+    if (secondsSinceStart >= secondsInVector) return (null, null);
+    // Calculate the current vector.
+    final currentVector = prediction.value.sublist(secondsSinceStart);
+    if (currentVector.isEmpty) return (null, null);
+    // Calculate the seconds to the next phase change.
+    int secondsToPhaseChange = 0;
+    // Check if the phase changes within the current vector.
+    bool greenNow = currentVector[0] >= prediction.greentimeThreshold;
+    for (int i = 1; i < currentVector.length; i++) {
+      final greenThen = currentVector[i] >= prediction.greentimeThreshold;
+      if ((greenNow && !greenThen) || (!greenNow && greenThen)) {
+        break;
+      }
+      secondsToPhaseChange++;
+    }
+    return (greenNow, secondsToPhaseChange);
   }
 
   /// A callback which is executed when the map style was loaded.
@@ -234,10 +270,26 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       final Map<String, dynamic> propertiesBySgId = {};
 
       for (final entry in freeRide.receivedPredictions.entries) {
+        // Check if we have all necessary information.
+        if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty) continue;
+
+        bool? greenNow;
+        int? secondsToPhaseChange;
+        (greenNow, secondsToPhaseChange) = await getGreenNowAndSecondsToPhaseChange(entry.value);
+
+        if (!sgFilterActive) {
+          propertiesBySgId[entry.key] = {
+            "greenNow": greenNow,
+            "opacity": 1,
+            "countdown": secondsToPhaseChange?.toInt(),
+            "lineWidth": 5,
+          };
+          continue;
+        }
+
         // Bool that holds the state if a sg is most likely relevant for the user or not.
         bool isRelevant = false;
 
-        if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty) continue;
         final sgGeometry = freeRide.sgGeometries![entry.key];
         double sgBearing = freeRide.sgBearings![entry.key]!;
 
@@ -304,45 +356,13 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
           }
         }
 
-        // Init with null to make sure bearing calculation and style adjustments will be made.
-        propertiesBySgId[entry.key] = {
-          "greenNow": null,
-          "opacity": isRelevant ? 1 : 0.33,
-        };
-        // Check if we have all necessary information.
-        if (entry.value.greentimeThreshold == -1) continue;
-        if (entry.value.predictionQuality == -1) continue;
-        if (entry.value.value.isEmpty) continue;
-        // Calculate the seconds since the start of the prediction.
-        final now = DateTime.now();
-        final secondsSinceStart = max(0, now.difference(entry.value.startTime).inSeconds);
-        // Chop off the seconds that are not in the prediction vector.
-        final secondsInVector = entry.value.value.length;
-        if (secondsSinceStart >= secondsInVector) continue;
-        // Calculate the current vector.
-        final currentVector = entry.value.value.sublist(secondsSinceStart);
-        if (currentVector.isEmpty) continue;
-        // Calculate the seconds to the next phase change.
-        int secondsToPhaseChange = 0;
-        // Check if the phase changes within the current vector.
-        bool greenNow = currentVector[0] >= entry.value.greentimeThreshold;
-        for (int i = 1; i < currentVector.length; i++) {
-          final greenThen = currentVector[i] >= entry.value.greentimeThreshold;
-          if ((greenNow && !greenThen) || (!greenNow && greenThen)) {
-            break;
-          }
-          secondsToPhaseChange++;
-        }
-
         propertiesBySgId[entry.key] = {
           "greenNow": greenNow,
-          "countdown": secondsToPhaseChange.toInt(),
+          "countdown": secondsToPhaseChange?.toInt(),
           "opacity": isRelevant ? 1 : 0.25,
           "lineWidth": isRelevant ? 5 : 1,
         };
       }
-      // Update the layer.
-
       AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: currentBearing)
           .update(mapController!);
       AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: currentBearing)
@@ -375,6 +395,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       attributionButtonMargins: Point(10, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
       saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
+      useMapboxPositioning: true,
     );
   }
 }
