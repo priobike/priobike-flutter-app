@@ -86,7 +86,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           stops: [0, minBorder, min, max, maxBorder, 1],
           transform: const GradientRotation(startAngle),
         ).createShader(rect)
-        ..strokeWidth = 60
+        ..strokeWidth = 55
         ..style = PaintingStyle.stroke;
       canvas.drawArc(rect, startAngle, endAngle - startAngle, false, paint);
     }();
