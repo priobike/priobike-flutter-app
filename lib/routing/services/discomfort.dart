@@ -41,11 +41,13 @@ class Discomforts with ChangeNotifier {
     return coordinates;
   }
 
+  /// Find discomforts for the given route.
   Future<void> findDiscomforts(Route route) async {
     foundDiscomforts = await getDiscomfortsForRoute(route);
     notifyListeners();
   }
 
+  /// Get discomforts for the given route.
   Future<List<DiscomfortSegment>> getDiscomfortsForRoute(Route route) async {
     final path = route.path;
 
