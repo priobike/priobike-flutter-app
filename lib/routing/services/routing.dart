@@ -633,63 +633,51 @@ class Routing with ChangeNotifier {
     }
 
     if (hasBestAttribute["numOkSGs"]!) {
-      final double difference;
-      if (secondBest["numOkSGs"]!.$2 == null || secondBest["numOkSGs"]!.$2 == 0) {
-        difference = thresholdNumOkSGsInPtc + 1;
-      } else {
-        difference = (numOkSGs / secondBest["numOkSGs"]!.$2! - 1) * 100;
-      }
-      if (difference > thresholdNumOkSGsInPtc) return "Mehr verbundene\nAmpeln";
+      const attribute = "Mehr verbundene\nAmpeln";
+      if (secondBest["numOkSGs"]!.$2 == null || secondBest["numOkSGs"]!.$2 == 0) return attribute;
+
+      final difference = (numOkSGs / secondBest["numOkSGs"]!.$2! - 1) * 100;
+      if (difference > thresholdNumOkSGsInPtc) return attribute;
     }
 
     if (hasBestAttribute["numCrossings"]!) {
-      final double difference;
-      if (secondBest["numCrossings"]!.$2 == null || secondBest["numCrossings"]!.$2 == 0) {
-        difference = thresholdCrossingsInPtc + 1;
-      } else {
-        difference = (secondBest["numCrossings"]!.$2! / numCrossings - 1) * 100;
-      }
-      if (difference > thresholdCrossingsInPtc) return "Weniger\nKreuzungen";
+      const attribute = "Weniger\nKreuzungen";
+      if (secondBest["numCrossings"]!.$2 == null || secondBest["numCrossings"]!.$2 == 0) return attribute;
+
+      final difference = (secondBest["numCrossings"]!.$2! / numCrossings - 1) * 100;
+      if (difference > thresholdCrossingsInPtc) return attribute;
     }
 
     if (hasBestAttribute["numDiscomforts"]!) {
-      final double difference;
-      if (secondBest["numDiscomforts"]!.$2 == null || secondBest["numDiscomforts"]!.$2 == 0) {
-        difference = thresholdDiscomfortsInPtc + 1;
-      } else {
-        difference = (secondBest["numDiscomforts"]!.$2! / numDiscomforts - 1) * 100;
-      }
-      if (difference > thresholdDiscomfortsInPtc) return "Angenehmere\nStrecke";
+      const attribute = "Angenehmere\nStrecke";
+      if (secondBest["numDiscomforts"]!.$2 == null || secondBest["numDiscomforts"]!.$2 == 0) return attribute;
+
+      final difference = (secondBest["numDiscomforts"]!.$2! / numDiscomforts - 1) * 100;
+      if (difference > thresholdDiscomfortsInPtc) return attribute;
     }
 
     if (hasBestAttribute["numPushBike"]!) {
-      final double difference;
-      if (secondBest["numPushBike"]!.$2 == null || secondBest["numPushBike"]!.$2 == 0) {
-        difference = thresholdPushBikeAbsolute + 1;
-      } else {
-        difference = secondBest["numPushBike"]!.$2! - numPushBike; // absolute difference
-      }
-      if (difference > thresholdPushBikeAbsolute) return "Weniger\nAbsteigen";
+      const attribute = "Weniger\nAbsteigen";
+      if (secondBest["numPushBike"]!.$2 == null || secondBest["numPushBike"]!.$2 == 0) return attribute;
+
+      final difference = secondBest["numPushBike"]!.$2! - numPushBike; // absolute difference
+      if (difference > thresholdPushBikeAbsolute) return attribute;
     }
 
     if (hasBestAttribute["earliestArrival"]!) {
-      final double difference;
-      if (secondBest["earliestArrival"]!.$2 == null || secondBest["earliestArrival"]!.$2 == 0) {
-        difference = thresholdTimeInPtc + 1;
-      } else {
-        difference = (secondBest["earliestArrival"]!.$2! / arrivalTime - 1) * 100;
-      }
-      if (difference > thresholdTimeInPtc) return "Schnellere\nAnkunftszeit";
+      const attribute = "Schnellere\nAnkunftszeit";
+      if (secondBest["earliestArrival"]!.$2 == null || secondBest["earliestArrival"]!.$2 == 0) return attribute;
+
+      final difference = (secondBest["earliestArrival"]!.$2! / arrivalTime - 1) * 100;
+      if (difference > thresholdTimeInPtc) return attribute;
     }
 
     if (hasBestAttribute["shortest"]!) {
-      final double difference;
-      if (secondBest["shortest"]!.$2 == null || secondBest["shortest"]!.$2 == 0) {
-        difference = thresholdDistanceInPtc + 1;
-      } else {
-        difference = (secondBest["shortest"]!.$2! / distance - 1) * 100;
-      }
-      if (difference > thresholdDistanceInPtc) return "Kürzere\nStrecke";
+      const attribute = "Kürzere\nStrecke";
+      if (secondBest["shortest"]!.$2 == null || secondBest["shortest"]!.$2 == 0) return attribute;
+
+      final difference = (secondBest["shortest"]!.$2! / distance - 1) * 100;
+      if (difference > thresholdDistanceInPtc) return attribute;
     }
 
     // Route is in every aspect worse than all other routes
