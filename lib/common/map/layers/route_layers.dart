@@ -444,7 +444,7 @@ class DiscomfortsLayer {
             layerIdMarker,
             'text-opacity',
             json.encode(
-              showAfter(zoom: 13),
+              showAfter(zoom: 16),
             ));
         await mapController.style.setStyleLayerProperty(
             layerIdMarker,
