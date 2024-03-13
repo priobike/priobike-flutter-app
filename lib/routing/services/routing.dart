@@ -533,12 +533,12 @@ class Routing with ChangeNotifier {
     final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
 
-    const int thresholdNumOkSGsInPtc = 20;
-    const int thresholdCrossingsInPtc = 20;
-    const int thresholdDiscomfortsInPtc = 20;
-    const int thresholdPushBikeAbsolute = 1;
-    const int thresholdTimeInPtc = 20;
-    const int thresholdDistanceInPtc = 15;
+    const double thresholdNumOkSGsInPtc = 20;
+    const double thresholdCrossingsInPtc = 20;
+    const double thresholdDiscomfortsInPtc = 20;
+    const double thresholdPushBikeAbsolute = 1;
+    const double thresholdTimeInPtc = 20;
+    const double thresholdDistanceInPtc = 15;
 
     // print everything
     print("Charly ====================================");
@@ -559,14 +559,13 @@ class Routing with ChangeNotifier {
       "shortest": true,
     };
 
-    final Map<String, (r.Route?, double)> secondBest = {
-      // Initialize with negative or positive infinity depending on if higher or lower values are worse
-      "numOkSGs": (null, double.negativeInfinity),
-      "numCrossings": (null, double.infinity),
-      "numDiscomforts": (null, double.infinity),
-      "numPushBike": (null, double.infinity),
-      "earliestArrival": (null, double.infinity),
-      "shortest": (null, double.infinity),
+    final Map<String, (r.Route?, double?)> secondBest = {
+      "numOkSGs": (null, null),
+      "numCrossings": (null, null),
+      "numDiscomforts": (null, null),
+      "numPushBike": (null, null),
+      "earliestArrival": (null, null),
+      "shortest": (null, null),
     };
 
     // Find if route has a unique attribute and find the second best route for each attribute
@@ -580,7 +579,8 @@ class Routing with ChangeNotifier {
         }
         if (secondBest["numOkSGs"] == null ||
             secondBest["numOkSGs"]!.$1 == null ||
-            otherRoute.ok! > secondBest["numOkSGs"]!.$2) {
+            secondBest["numOkSGs"]!.$2 == null ||
+            otherRoute.ok! > secondBest["numOkSGs"]!.$2!) {
           secondBest["numOkSGs"] = (otherRoute, otherRoute.ok!.toDouble());
         }
       }
@@ -589,7 +589,8 @@ class Routing with ChangeNotifier {
       if (otherRoute.crossings.length <= numCrossings) hasBestAttribute["numCrossings"] = false;
       if (secondBest["numCrossings"] == null ||
           secondBest["numCrossings"]!.$1 == null ||
-          otherRoute.crossings.length < secondBest["numCrossings"]!.$2) {
+          secondBest["numCrossings"]!.$2 == null ||
+          otherRoute.crossings.length < secondBest["numCrossings"]!.$2!) {
         secondBest["numCrossings"] = (otherRoute, otherRoute.crossings.length.toDouble());
       }
 
@@ -598,7 +599,8 @@ class Routing with ChangeNotifier {
       if (otherRouteDiscomforts <= numDiscomforts) hasBestAttribute["numDiscomforts"] = false;
       if (secondBest["numDiscomforts"] == null ||
           secondBest["numDiscomforts"]!.$1 == null ||
-          otherRouteDiscomforts < secondBest["numDiscomforts"]!.$2) {
+          secondBest["numDiscomforts"]!.$2 == null ||
+          otherRouteDiscomforts < secondBest["numDiscomforts"]!.$2!) {
         secondBest["numDiscomforts"] = (otherRoute, otherRouteDiscomforts.toDouble());
       }
 
@@ -606,7 +608,8 @@ class Routing with ChangeNotifier {
       if (otherRoute.path.details.getOffBike.length <= numPushBike) hasBestAttribute["numPushBike"] = false;
       if (secondBest["numPushBike"] == null ||
           secondBest["numPushBike"]!.$1 == null ||
-          otherRoute.path.details.getOffBike.length < secondBest["numPushBike"]!.$2) {
+          secondBest["numPushBike"]!.$2 == null ||
+          otherRoute.path.details.getOffBike.length < secondBest["numPushBike"]!.$2!) {
         secondBest["numPushBike"] = (otherRoute, otherRoute.path.details.getOffBike.length.toDouble());
       }
 
@@ -614,7 +617,8 @@ class Routing with ChangeNotifier {
       if (otherRoute.path.time <= arrivalTime) hasBestAttribute["earliestArrival"] = false;
       if (secondBest["earliestArrival"] == null ||
           secondBest["earliestArrival"]!.$1 == null ||
-          otherRoute.path.time < secondBest["earliestArrival"]!.$2) {
+          secondBest["earliestArrival"]!.$2 == null ||
+          otherRoute.path.time < secondBest["earliestArrival"]!.$2!) {
         secondBest["earliestArrival"] = (otherRoute, otherRoute.path.time.toDouble());
       }
 
@@ -622,38 +626,69 @@ class Routing with ChangeNotifier {
       if (otherRoute.path.distance <= distance) hasBestAttribute["shortest"] = false;
       if (secondBest["shortest"] == null ||
           secondBest["shortest"]!.$1 == null ||
-          otherRoute.path.distance < secondBest["shortest"]!.$2) {
+          secondBest["shortest"]!.$2 == null ||
+          otherRoute.path.distance < secondBest["shortest"]!.$2!) {
         secondBest["shortest"] = (otherRoute, otherRoute.path.distance);
       }
     }
 
     if (hasBestAttribute["numOkSGs"]!) {
-      final difference = (numOkSGs / secondBest["numOkSGs"]!.$2 - 1) * 100;
+      final double difference;
+      if (secondBest["numOkSGs"]!.$2 == null || secondBest["numOkSGs"]!.$2 == 0) {
+        difference = thresholdNumOkSGsInPtc + 1;
+      } else {
+        difference = (numOkSGs / secondBest["numOkSGs"]!.$2! - 1) * 100;
+      }
       if (difference > thresholdNumOkSGsInPtc) return "Mehr verbundene\nAmpeln";
     }
 
     if (hasBestAttribute["numCrossings"]!) {
-      final difference = (secondBest["numCrossings"]!.$2 / numCrossings - 1) * 100;
+      final double difference;
+      if (secondBest["numCrossings"]!.$2 == null || secondBest["numCrossings"]!.$2 == 0) {
+        difference = thresholdCrossingsInPtc + 1;
+      } else {
+        difference = (secondBest["numCrossings"]!.$2! / numCrossings - 1) * 100;
+      }
       if (difference > thresholdCrossingsInPtc) return "Weniger\nKreuzungen";
     }
 
     if (hasBestAttribute["numDiscomforts"]!) {
-      final difference = (secondBest["numDiscomforts"]!.$2 / numDiscomforts - 1) * 100;
+      final double difference;
+      if (secondBest["numDiscomforts"]!.$2 == null || secondBest["numDiscomforts"]!.$2 == 0) {
+        difference = thresholdDiscomfortsInPtc + 1;
+      } else {
+        difference = (secondBest["numDiscomforts"]!.$2! / numDiscomforts - 1) * 100;
+      }
       if (difference > thresholdDiscomfortsInPtc) return "Angenehmere\nStrecke";
     }
 
     if (hasBestAttribute["numPushBike"]!) {
-      final difference = secondBest["numPushBike"]!.$2 - numPushBike; // absolute difference
+      final double difference;
+      if (secondBest["numPushBike"]!.$2 == null || secondBest["numPushBike"]!.$2 == 0) {
+        difference = thresholdPushBikeAbsolute + 1;
+      } else {
+        difference = secondBest["numPushBike"]!.$2! - numPushBike; // absolute difference
+      }
       if (difference > thresholdPushBikeAbsolute) return "Weniger\nAbsteigen";
     }
 
     if (hasBestAttribute["earliestArrival"]!) {
-      final difference = (secondBest["earliestArrival"]!.$2 / arrivalTime - 1) * 100;
+      final double difference;
+      if (secondBest["earliestArrival"]!.$2 == null || secondBest["earliestArrival"]!.$2 == 0) {
+        difference = thresholdTimeInPtc + 1;
+      } else {
+        difference = (secondBest["earliestArrival"]!.$2! / arrivalTime - 1) * 100;
+      }
       if (difference > thresholdTimeInPtc) return "Schnellere\nAnkunftszeit";
     }
 
     if (hasBestAttribute["shortest"]!) {
-      final difference = (secondBest["shortest"]!.$2 / distance - 1) * 100;
+      final double difference;
+      if (secondBest["shortest"]!.$2 == null || secondBest["shortest"]!.$2 == 0) {
+        difference = thresholdDistanceInPtc + 1;
+      } else {
+        difference = (secondBest["shortest"]!.$2! / distance - 1) * 100;
+      }
       if (difference > thresholdDistanceInPtc) return "Kürzere\nStrecke";
     }
 
