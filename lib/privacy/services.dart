@@ -18,7 +18,7 @@ class PrivacyPolicy with ChangeNotifier {
   bool? hasChanged;
 
   /// Load the privacy policy.
-  Future<void> loadPolicy(String assetText) async {
+  Future<void> loadPolicy(String? assetText) async {
     if (hasLoaded) return;
 
     final storage = await SharedPreferences.getInstance();

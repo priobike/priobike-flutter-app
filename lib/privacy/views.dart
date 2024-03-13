@@ -1,3 +1,4 @@
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -7,6 +8,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
+import 'dart:convert' show utf8;
+
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
@@ -23,6 +28,12 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
   late PrivacyPolicy privacyService;
 
+  /// The associated privacy service, which is injected by the provider.
+  late Settings settings;
+
+  /// The displayed privacy policy text.
+  String? privacyPolicy;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     loadPolicy();
@@ -32,12 +43,47 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// Load the privacy policy.
   void loadPolicy() {
     // Load once the window was built.
+
+    settings = getIt<Settings>();
+
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
-        final assetText = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
-        await privacyService.loadPolicy(assetText);
+        String? privacyText;
+
+        final response = await http.get(Uri.parse("https://${settings.backend.path}/privacy-policy"));
+
+        if (response.statusCode == 200) {
+          privacyText = _getPrivacyTextFromResponse(utf8.decode(response.bodyBytes));
+        }
+
+        await privacyService.loadPolicy(privacyText);
+        setState(() {
+          privacyPolicy = privacyText;
+        });
       },
     );
+  }
+
+  /// Returns the privacy text from the html response string.
+  String _getPrivacyTextFromResponse(String response) {
+    // Use everything behind opening body tag.
+    response = response.split("<body>")[1];
+    // Use everything before closing body tag.
+    response = response.split("</body>")[0];
+
+    // Replace closing p tags with newline.
+    response = response.replaceAll("<p>", '\n');
+    response = response.replaceAll("</ul>\n", '');
+    // Replace opening h tags with newline.
+    response = response.replaceAll(RegExp(r'\<h[0-9]\>'), '\n');
+    // Remove br tags.
+    response = response.replaceAll("<br />", '');
+
+    // Remove all other html tags.
+    response = response.replaceAll(RegExp(r'\<[a-zA-Z0-9]*\>'), '');
+    response = response.replaceAll(RegExp(r'\<\/[a-zA-Z0-9]*\>'), '');
+
+    return response;
   }
 
   @override
@@ -58,8 +104,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    final confirmedPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
-    await privacyService.confirm(confirmedPolicy);
+    if (privacyPolicy == null) return;
+    await privacyService.confirm(privacyPolicy!);
   }
 
   @override
