@@ -94,6 +94,9 @@ class Settings with ChangeNotifier {
   /// Enable simulator mode for app.
   bool enableSimulatorMode;
 
+  /// If the filter for the free ride view is enabled.
+  bool isFreeRideFilterEnabled;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -445,6 +448,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const isFreeRideFilterEnabledKey = "priobike.settings.isFreeRideFilterEnabled";
+  static const defaultIsFreeRideFilterEnabled = false;
+
+  Future<bool> setFreeRideFilterEnabled(bool isFreeRideFilterEnabled, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.isFreeRideFilterEnabled;
+    this.isFreeRideFilterEnabled = isFreeRideFilterEnabled;
+    final bool success = await storage.setBool(isFreeRideFilterEnabledKey, isFreeRideFilterEnabled);
+    if (!success) {
+      log.e("Failed to set isFreeRideFilterEnabled to $isFreeRideFilterEnabled");
+      this.isFreeRideFilterEnabled = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings(
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -466,6 +486,7 @@ class Settings with ChangeNotifier {
     this.didViewUserTransfer = defaultDidViewUserTransfer,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
+    this.isFreeRideFilterEnabled = defaultIsFreeRideFilterEnabled,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -508,8 +529,16 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
-
-    enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
+    try {
+      isFreeRideFilterEnabled = storage.getBool(isFreeRideFilterEnabledKey) ?? defaultIsFreeRideFilterEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the stored settings.

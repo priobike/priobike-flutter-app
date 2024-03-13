@@ -59,6 +59,11 @@ class SymbolLoader {
     await add("accidentlight", "assets/images/accident-light.png", 200, 200);
     await add("greenwavedark", "assets/images/green-wave-dark.png", 200, 200);
     await add("greenwavelight", "assets/images/green-wave-light.png", 200, 200);
+
+    await add("free-ride-green", "assets/images/trafficlights/free-ride-green.png", 200, 200);
+    await add("free-ride-red", "assets/images/trafficlights/free-ride-red.png", 200, 200);
+    await add("free-ride-none-light", "assets/images/trafficlights/free-ride-none-light.png", 200, 200);
+    await add("free-ride-none-dark", "assets/images/trafficlights/free-ride-none-dark.png", 200, 200);
   }
 
   /// Adds an asset image to the currently displayed style
