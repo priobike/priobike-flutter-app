@@ -524,6 +524,11 @@ class Routing with ChangeNotifier {
     if (allRoutes == null && allRoutes!.length <= id) return null;
     if (allRoutes!.length <= 1) return null; // nothing to compare route with
 
+    const double treshholdArrival = 1000 * 60 * 5;
+    const double treshholdDistance = 500.0;
+    const double treshholdAscend = 5.0;
+    const int treshholdNumOkSGs = 0; // no treshhold for number of ok-sgs until data is more reliable
+
     final r.Route route = allRoutes![id];
     final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
@@ -580,19 +585,30 @@ class Routing with ChangeNotifier {
       }
     }
 
-    // Calculate the percent difference for each attribute to the second best route
+    // Calculate the percent difference for each best attribute to the second best route
     if (hasBestAttribute["earliestArrival"]! && secondBest["earliestArrival"] != null) {
-      percentDifference["earliestArrival"] =
-          (secondBest["earliestArrival"]!.path.time - arrivalTime) / arrivalTime * 100;
+      final difference = secondBest["earliestArrival"]!.path.time - arrivalTime;
+      if (difference > treshholdArrival) {
+        percentDifference["earliestArrival"] = (difference) / arrivalTime * 100;
+      }
     }
     if (hasBestAttribute["shortest"]! && secondBest["shortest"] != null) {
-      percentDifference["shortest"] = (secondBest["shortest"]!.path.distance - distance) / distance * 100;
+      final difference = secondBest["shortest"]!.path.distance - distance;
+      if (difference > treshholdDistance) {
+        percentDifference["shortest"] = (difference) / distance * 100;
+      }
     }
     if (hasBestAttribute["leastAscend"]! && secondBest["leastAscend"] != null) {
-      percentDifference["leastAscend"] = (secondBest["leastAscend"]!.path.ascend - ascend) / ascend * 100;
+      final difference = secondBest["leastAscend"]!.path.ascend - ascend;
+      if (difference > treshholdAscend) {
+        percentDifference["leastAscend"] = (difference) / ascend * 100;
+      }
     }
     if (hasBestAttribute["numOkSGs"]! && secondBest["numOkSGs"] != null) {
-      percentDifference["numOkSGs"] = (numOkSGs - secondBest["numOkSGs"]!.ok!) / numOkSGs * 100;
+      final difference = numOkSGs - secondBest["numOkSGs"]!.ok!;
+      if (difference > treshholdNumOkSGs) {
+        percentDifference["numOkSGs"] = (difference) / numOkSGs * 100;
+      }
     }
 
     // Check which attribute is the most unique i.e. has the highest difference to the second best route
