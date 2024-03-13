@@ -83,17 +83,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     final newSpeedAnimationPct = (kmh - minSpeed) / (maxSpeed - minSpeed);
 
     // Only update on changes.
-    if (lastSpeedAnimationPct != newSpeedAnimationPct) {
-      // Use animation if not in save battery mode.
-      if (!settings.saveBatteryModeEnabled) {
-        speedAnimationController.animateTo(newSpeedAnimationPct,
-            duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
-      }
-      setState(() {
-        lastSpeedAnimationPct = speedAnimationPct;
-        speedAnimationPct = newSpeedAnimationPct;
-      });
+    // Use animation if not in save battery mode.
+    if (lastSpeedAnimationPct != newSpeedAnimationPct && !settings.saveBatteryModeEnabled) {
+      speedAnimationController.animateTo(newSpeedAnimationPct,
+          duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
     }
+
+    setState(() {
+      lastSpeedAnimationPct = speedAnimationPct;
+      speedAnimationPct = newSpeedAnimationPct;
+    });
 
     // Load the gauge colors and steps, from the predictor.
     if (!routing.hadErrorDuringFetch) {

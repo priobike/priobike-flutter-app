@@ -13,10 +13,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     required this.lastPct,
     required this.isDark,
     required this.batterySaveMode,
-  }) : pct = pct.clamp(
-          pct + 0.01, // Always show a little bit of the arc.
-          1,
-        );
+  }) : pct = pct == 0 ? 0.001 : pct;
 
   /// Paints the tail of the pointer
   void paintSpeedArcTail(Canvas canvas, Size size) {
@@ -51,6 +48,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
   }
 
   void paintSpeedArcTailBatterySave(Canvas canvas, Size size) {
+    if (pct == lastPct) return;
     // Scale the opacity of the glow based on the speed.
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 32;
