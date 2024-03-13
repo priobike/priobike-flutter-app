@@ -628,17 +628,17 @@ class Routing with ChangeNotifier {
     }
 
     if (hasBestAttribute["numOkSGs"]!) {
-      final difference = numOkSGs / secondBest["numOkSGs"]!.$2 * 100;
+      final difference = (numOkSGs / secondBest["numOkSGs"]!.$2 - 1) * 100;
       if (difference > thresholdNumOkSGsInPtc) return "Mehr verbundene\nAmpeln";
     }
 
     if (hasBestAttribute["numCrossings"]!) {
-      final difference = secondBest["numCrossings"]!.$2 / numCrossings * 100;
+      final difference = (secondBest["numCrossings"]!.$2 / numCrossings - 1) * 100;
       if (difference > thresholdCrossingsInPtc) return "Weniger\nKreuzungen";
     }
 
     if (hasBestAttribute["numDiscomforts"]!) {
-      final difference = secondBest["numDiscomforts"]!.$2 / numDiscomforts * 100;
+      final difference = (secondBest["numDiscomforts"]!.$2 / numDiscomforts - 1) * 100;
       if (difference > thresholdDiscomfortsInPtc) return "Angenehmere\nStrecke";
     }
 
@@ -648,12 +648,12 @@ class Routing with ChangeNotifier {
     }
 
     if (hasBestAttribute["earliestArrival"]!) {
-      final difference = secondBest["earliestArrival"]!.$2 / arrivalTime * 100;
+      final difference = (secondBest["earliestArrival"]!.$2 / arrivalTime - 1) * 100;
       if (difference > thresholdTimeInPtc) return "Schnellere\nAnkunftszeit";
     }
 
     if (hasBestAttribute["shortest"]!) {
-      final difference = secondBest["shortest"]!.$2 / distance * 100;
+      final difference = (secondBest["shortest"]!.$2 / distance - 1) * 100;
       if (difference > thresholdDistanceInPtc) return "Kürzere\nStrecke";
     }
 
