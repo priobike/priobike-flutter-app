@@ -538,17 +538,7 @@ class Routing with ChangeNotifier {
     const double thresholdDiscomfortsInPtc = 20;
     const double thresholdPushBikeAbsolute = 1;
     const double thresholdTimeInPtc = 20;
-    const double thresholdDistanceInPtc = 15;
-
-    // print everything
-    print("Charly ====================================");
-    print("Charly id: $id");
-    print("Charly numOkSGs: $numOkSGs");
-    print("Charly numCrossings: $numCrossings");
-    print("Charly numDiscomforts: $numDiscomforts");
-    print("Charly numPushBike: $numPushBike");
-    print("Charly arrivalTime: $arrivalTime");
-    print("Charly distance: $distance");
+    const double thresholdDistanceInPtc = 10;
 
     final Map<String, bool> hasBestAttribute = {
       "numOkSGs": numOkSGs > 0,
@@ -572,7 +562,6 @@ class Routing with ChangeNotifier {
     for (final r.Route otherRoute in allRoutes!) {
       if (otherRoute.id == id) continue;
 
-      // Number Ok-SGs => more is better
       if (otherRoute.ok != null) {
         if (otherRoute.ok! >= numOkSGs) {
           hasBestAttribute["numOkSGs"] = false;
@@ -585,7 +574,6 @@ class Routing with ChangeNotifier {
         }
       }
 
-      // Number Crossings => less is better
       if (otherRoute.crossings.length <= numCrossings) hasBestAttribute["numCrossings"] = false;
       if (secondBest["numCrossings"] == null ||
           secondBest["numCrossings"]!.$1 == null ||
@@ -594,7 +582,6 @@ class Routing with ChangeNotifier {
         secondBest["numCrossings"] = (otherRoute, otherRoute.crossings.length.toDouble());
       }
 
-      // Number Discomforts => less is better
       final otherRouteDiscomforts = (await discomforts.getDiscomfortsForRoute(route)).length;
       if (otherRouteDiscomforts <= numDiscomforts) hasBestAttribute["numDiscomforts"] = false;
       if (secondBest["numDiscomforts"] == null ||
@@ -604,7 +591,6 @@ class Routing with ChangeNotifier {
         secondBest["numDiscomforts"] = (otherRoute, otherRouteDiscomforts.toDouble());
       }
 
-      // Number PushBike => less is better
       if (otherRoute.path.details.getOffBike.length <= numPushBike) hasBestAttribute["numPushBike"] = false;
       if (secondBest["numPushBike"] == null ||
           secondBest["numPushBike"]!.$1 == null ||
@@ -613,7 +599,6 @@ class Routing with ChangeNotifier {
         secondBest["numPushBike"] = (otherRoute, otherRoute.path.details.getOffBike.length.toDouble());
       }
 
-      // Earliest Arrival => less is better
       if (otherRoute.path.time <= arrivalTime) hasBestAttribute["earliestArrival"] = false;
       if (secondBest["earliestArrival"] == null ||
           secondBest["earliestArrival"]!.$1 == null ||
@@ -622,7 +607,6 @@ class Routing with ChangeNotifier {
         secondBest["earliestArrival"] = (otherRoute, otherRoute.path.time.toDouble());
       }
 
-      // Route length => less is better
       if (otherRoute.path.distance <= distance) hasBestAttribute["shortest"] = false;
       if (secondBest["shortest"] == null ||
           secondBest["shortest"]!.$1 == null ||
