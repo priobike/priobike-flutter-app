@@ -52,6 +52,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// The default gauge color for the speedometer.
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
@@ -67,27 +70,35 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// The speed animation.
   late Animation<double> speedAnimation;
 
-  /// The value of the speed animation.
-  double speedAnimationPct = 0;
+  /// The current percentage of the speed in the speedometer.
+  double speedAnimationPct = 0.0;
+
+  /// The last percentage of the speed in the speedometer.
+  double lastSpeedAnimationPct = 0.0;
 
   /// Update the speedometer.
   void updateSpeedometer() {
-    // Fetch the maximum speed from the settings service.
-    maxSpeed = getIt<Settings>().speedMode.maxSpeed;
-
     // Animate the speed to the new value.
     final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
+    final newSpeedAnimationPct = (kmh - minSpeed) / (maxSpeed - minSpeed);
 
-    // Scale between minSpeed and maxSpeed.
-    final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
-    // Animate to the new value.
-    speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    // Only update on changes.
+    if (lastSpeedAnimationPct != newSpeedAnimationPct) {
+      // Use animation if not in save battery mode.
+      if (!settings.saveBatteryModeEnabled) {
+        speedAnimationController.animateTo(newSpeedAnimationPct,
+            duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+      }
+      setState(() {
+        lastSpeedAnimationPct = speedAnimationPct;
+        speedAnimationPct = newSpeedAnimationPct;
+      });
+    }
+
     // Load the gauge colors and steps, from the predictor.
     if (!routing.hadErrorDuringFetch) {
       loadGauge(ride);
     }
-
-    setState(() {});
   }
 
   /// Update the layout of the speedometer.
@@ -112,6 +123,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       });
     });
 
+    settings = getIt<Settings>();
     positioning = getIt<Positioning>();
     positioning.addListener(updateSpeedometer);
     routing = getIt<Routing>();
@@ -119,7 +131,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
 
-    updateSpeedometer();
+    // Fetch the maximum speed from the settings service.
+    maxSpeed = settings.speedMode.maxSpeed;
 
     WidgetsBinding.instance.addObserver(this);
   }
@@ -233,8 +246,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
     // The resulting stops and colors will be from high speed -> low speed
     // Thus, we reverse both colors and stops to get the correct order
-    gaugeColors = hardEdgeColors.reversed.toList();
-    gaugeStops = hardEdgeStops.reversed.toList();
+    setState(() {
+      gaugeColors = hardEdgeColors.reversed.toList();
+      gaugeStops = hardEdgeStops.reversed.toList();
+    });
   }
 
   /// A callback that is executed when the user taps on the speedometer.
@@ -389,11 +404,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                         child: CustomPaint(
                           size: size,
                           painter: SpeedometerSpeedArcPainter(
-                            minSpeed: minSpeed,
-                            maxSpeed: maxSpeed,
                             isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                            // Scale the animation pct between minSpeed and maxSpeed
-                            speed: speedkmh,
+                            pct: speedAnimationPct,
+                            lastPct: lastSpeedAnimationPct,
+                            batterySaveMode: settings.saveBatteryModeEnabled,
                           ),
                         ),
                       ),
