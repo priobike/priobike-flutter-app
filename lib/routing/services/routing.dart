@@ -566,8 +566,7 @@ class Routing with ChangeNotifier {
         if (otherRoute.ok! >= numOkSGs) {
           hasBestAttribute["numOkSGs"] = false;
         }
-        if (secondBest["numOkSGs"] == null ||
-            secondBest["numOkSGs"]!.$1 == null ||
+        if (secondBest["numOkSGs"]!.$1 == null ||
             secondBest["numOkSGs"]!.$2 == null ||
             otherRoute.ok! > secondBest["numOkSGs"]!.$2!) {
           secondBest["numOkSGs"] = (otherRoute, otherRoute.ok!.toDouble());
@@ -575,8 +574,7 @@ class Routing with ChangeNotifier {
       }
 
       if (otherRoute.crossings.length <= numCrossings) hasBestAttribute["numCrossings"] = false;
-      if (secondBest["numCrossings"] == null ||
-          secondBest["numCrossings"]!.$1 == null ||
+      if (secondBest["numCrossings"]!.$1 == null ||
           secondBest["numCrossings"]!.$2 == null ||
           otherRoute.crossings.length < secondBest["numCrossings"]!.$2!) {
         secondBest["numCrossings"] = (otherRoute, otherRoute.crossings.length.toDouble());
@@ -584,32 +582,28 @@ class Routing with ChangeNotifier {
 
       final otherRouteDiscomforts = (await discomforts.getDiscomfortsForRoute(route)).length;
       if (otherRouteDiscomforts <= numDiscomforts) hasBestAttribute["numDiscomforts"] = false;
-      if (secondBest["numDiscomforts"] == null ||
-          secondBest["numDiscomforts"]!.$1 == null ||
+      if (secondBest["numDiscomforts"]!.$1 == null ||
           secondBest["numDiscomforts"]!.$2 == null ||
           otherRouteDiscomforts < secondBest["numDiscomforts"]!.$2!) {
         secondBest["numDiscomforts"] = (otherRoute, otherRouteDiscomforts.toDouble());
       }
 
       if (otherRoute.path.details.getOffBike.length <= numPushBike) hasBestAttribute["numPushBike"] = false;
-      if (secondBest["numPushBike"] == null ||
-          secondBest["numPushBike"]!.$1 == null ||
+      if (secondBest["numPushBike"]!.$1 == null ||
           secondBest["numPushBike"]!.$2 == null ||
           otherRoute.path.details.getOffBike.length < secondBest["numPushBike"]!.$2!) {
         secondBest["numPushBike"] = (otherRoute, otherRoute.path.details.getOffBike.length.toDouble());
       }
 
       if (otherRoute.path.time <= arrivalTime) hasBestAttribute["earliestArrival"] = false;
-      if (secondBest["earliestArrival"] == null ||
-          secondBest["earliestArrival"]!.$1 == null ||
+      if (secondBest["earliestArrival"]!.$1 == null ||
           secondBest["earliestArrival"]!.$2 == null ||
           otherRoute.path.time < secondBest["earliestArrival"]!.$2!) {
         secondBest["earliestArrival"] = (otherRoute, otherRoute.path.time.toDouble());
       }
 
       if (otherRoute.path.distance <= distance) hasBestAttribute["shortest"] = false;
-      if (secondBest["shortest"] == null ||
-          secondBest["shortest"]!.$1 == null ||
+      if (secondBest["shortest"]!.$1 == null ||
           secondBest["shortest"]!.$2 == null ||
           otherRoute.path.distance < secondBest["shortest"]!.$2!) {
         secondBest["shortest"] = (otherRoute, otherRoute.path.distance);
