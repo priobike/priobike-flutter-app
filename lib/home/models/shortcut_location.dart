@@ -18,12 +18,12 @@ class ShortcutLocation implements Shortcut {
 
   /// The name of the shortcut.
   @override
-  String name;
+  String? name;
 
   /// The waypoint of the shortcut location.
   final Waypoint waypoint;
 
-  ShortcutLocation({required this.name, required this.waypoint, required this.id});
+  ShortcutLocation({required this.waypoint, required this.id, this.name});
 
   factory ShortcutLocation.fromJson(Map<String, dynamic> json) {
     return ShortcutLocation(
@@ -44,9 +44,10 @@ class ShortcutLocation implements Shortcut {
   /// Get the linebreaked name of the shortcut location. The name is split into at most 2 lines, by a limit of 15 characters.
   @override
   String get linebreakedName {
-    var result = name;
-    var insertedLinebreaks = 0;
-    for (var i = 0; i < name.length; i++) {
+    String result = name ?? "";
+    int insertedLinebreaks = 0;
+    final nameLength = name?.length ?? 0;
+    for (var i = 0; i < nameLength; i++) {
       if (i % 15 == 0 && i != 0) {
         if (insertedLinebreaks == 1) {
           // Truncate the name if it is too long
