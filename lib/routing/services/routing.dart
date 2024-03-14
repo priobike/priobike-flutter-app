@@ -410,7 +410,7 @@ class Routing with ChangeNotifier {
       await status.fetch(route);
       status.updateStatus(route);
       discomforts.findDiscomforts(route);
-      route.mostUniqueAttribute = await findMostUniqueAttributeForRoute(route.id);
+      findMostUniqueAttributeForRoute(route.id);
     }
     notifyListeners();
     return routes;
@@ -513,7 +513,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
-  Future<String?> findMostUniqueAttributeForRoute(int id) async {
+  void findMostUniqueAttributeForRoute(int id) async {
     if (allRoutes == null && allRoutes!.length <= id) return null;
     if (allRoutes!.length <= 1) return null; // nothing to compare route with
 
@@ -600,53 +600,89 @@ class Routing with ChangeNotifier {
 
     if (hasBestAttribute["numOkSGs"]!) {
       const attribute = "Mehr verbundene\nAmpeln";
-      if (secondBest["numOkSGs"]!.$2 == null || secondBest["numOkSGs"]!.$2 == 0) return attribute;
+      if (secondBest["numOkSGs"]!.$2 == null || secondBest["numOkSGs"]!.$2 == 0) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
 
       final difference = (numOkSGs / secondBest["numOkSGs"]!.$2! - 1) * 100;
-      if (difference > thresholdNumOkSGsInPtc) return attribute;
+      if (difference > thresholdNumOkSGsInPtc) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
     }
 
     if (hasBestAttribute["numCrossings"]!) {
       const attribute = "Weniger\nKreuzungen";
-      if (secondBest["numCrossings"]!.$2 == null || secondBest["numCrossings"]!.$2 == 0) return attribute;
+      if (secondBest["numCrossings"]!.$2 == null || secondBest["numCrossings"]!.$2 == 0) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
 
       final difference = (secondBest["numCrossings"]!.$2! / numCrossings - 1) * 100;
-      if (difference > thresholdCrossingsInPtc) return attribute;
+      if (difference > thresholdCrossingsInPtc) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
     }
 
     if (hasBestAttribute["numDiscomforts"]!) {
       const attribute = "Angenehmere\nStrecke";
-      if (secondBest["numDiscomforts"]!.$2 == null || secondBest["numDiscomforts"]!.$2 == 0) return attribute;
+      if (secondBest["numDiscomforts"]!.$2 == null || secondBest["numDiscomforts"]!.$2 == 0) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
 
       final difference = (secondBest["numDiscomforts"]!.$2! / numDiscomforts - 1) * 100;
-      if (difference > thresholdDiscomfortsInPtc) return attribute;
+      if (difference > thresholdDiscomfortsInPtc) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
     }
 
     if (hasBestAttribute["numPushBike"]!) {
       const attribute = "Weniger\nAbsteigen";
-      if (secondBest["numPushBike"]!.$2 == null || secondBest["numPushBike"]!.$2 == 0) return attribute;
+      if (secondBest["numPushBike"]!.$2 == null || secondBest["numPushBike"]!.$2 == 0) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
 
       final difference = secondBest["numPushBike"]!.$2! - numPushBike; // absolute difference
-      if (difference > thresholdPushBikeAbsolute) return attribute;
+      if (difference > thresholdPushBikeAbsolute) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
     }
 
     if (hasBestAttribute["earliestArrival"]!) {
       const attribute = "Schnellere\nAnkunftszeit";
-      if (secondBest["earliestArrival"]!.$2 == null || secondBest["earliestArrival"]!.$2 == 0) return attribute;
+      if (secondBest["earliestArrival"]!.$2 == null || secondBest["earliestArrival"]!.$2 == 0) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
 
       final difference = (secondBest["earliestArrival"]!.$2! / arrivalTime - 1) * 100;
-      if (difference > thresholdTimeInPtc) return attribute;
+      if (difference > thresholdTimeInPtc) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
     }
 
     if (hasBestAttribute["shortest"]!) {
       const attribute = "Kürzere\nStrecke";
-      if (secondBest["shortest"]!.$2 == null || secondBest["shortest"]!.$2 == 0) return attribute;
+      if (secondBest["shortest"]!.$2 == null || secondBest["shortest"]!.$2 == 0) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
 
       final difference = (secondBest["shortest"]!.$2! / distance - 1) * 100;
-      if (difference > thresholdDistanceInPtc) return attribute;
+      if (difference > thresholdDistanceInPtc) {
+        route.mostUniqueAttribute = attribute;
+        return;
+      }
     }
 
     // Route is in every aspect worse than all other routes
-    return null;
+    route.mostUniqueAttribute = null;
   }
 }
