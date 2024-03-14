@@ -33,7 +33,7 @@ class LinkShortener {
     }
   }
 
-  /// Resolve short link.
+  /// Resolve short link and return long link, if possible.
   static Future<String?> resolveShortLink(String shortLink) async {
     // Shortcuts from production and release should be working with each others backend.
     // Therefore, try fetch from the current backend and (if failed) from the other backend.
