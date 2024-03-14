@@ -35,9 +35,23 @@ class LinkShortener {
 
   /// Resolve short link.
   static Future<String?> resolveShortLink(String shortLink) async {
+    // Shortcuts from production and release should be working with each others backend.
+    // Therefore, try fetch from the current backend and (if failed) from the other backend.
+    // Only staging is not compatible with the other backends.
+    final backend = getIt<Settings>().backend;
+    final String? result = await _fetch(backend, shortLink);
+    if (result != null) return result;
+    if (backend == Backend.staging) return null;
+
+    // Try to fetch from the other backend.
+    final otherBackend = backend == Backend.production ? Backend.release : Backend.production;
+    return await _fetch(otherBackend, shortLink);
+  }
+
+  /// Fetch long link from backend.
+  static Future<String?> _fetch(Backend backend, String shortLink) async {
     try {
       List<String> subUrls = shortLink.split('/');
-      final backend = getIt<Settings>().backend;
       String backendPath = backend.path;
       final parseShortLinkEndpoint = Uri.parse('https://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
       final apiKey = backend.linkShortenerApiKey;
