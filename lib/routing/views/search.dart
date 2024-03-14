@@ -11,6 +11,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
@@ -20,7 +21,8 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 
 /// Shows a dialog for saving a shortcut location.
-void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
+Shortcut? showSaveShortcutLocationSheet(context, Waypoint waypoint) {
+  Shortcut? newShortcut;
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -69,7 +71,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await getIt<Shortcuts>().saveNewShortcutLocation(name, waypoint);
+              newShortcut = await getIt<Shortcuts>().saveNewShortcutLocation(name, waypoint);
               await getIt<Geosearch>().addToSearchHistory(waypoint);
               ToastMessage.showSuccess("Ort gespeichert!");
               Navigator.pop(context);
@@ -80,6 +82,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
       );
     },
   );
+  return newShortcut;
 }
 
 /// Result of a address search query.

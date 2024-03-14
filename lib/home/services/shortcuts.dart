@@ -25,9 +25,9 @@ class Shortcuts with ChangeNotifier {
   }
 
   /// Save a new route shortcut.
-  Future<void> saveNewShortcutRoute(String name) async {
+  Future<ShortcutRoute?> saveNewShortcutRoute(String name) async {
     final routing = getIt<Routing>();
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return null;
 
     // Check if waypoint contains "Standort" as address and change it to geolocation.
     for (Waypoint waypoint in routing.selectedWaypoints!) {
@@ -50,22 +50,23 @@ class Shortcuts with ChangeNotifier {
       routeLengthText: routing.selectedRoute?.lengthText,
     );
     if (shortcuts == null) await loadShortcuts();
-    if (shortcuts == null) return;
+    if (shortcuts == null) return null;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
     await storeShortcuts();
 
     notifyListeners();
+    return newShortcut;
   }
 
   /// Save a new location shortcut.
-  Future<void> saveNewShortcutLocation(String name, Waypoint waypoint) async {
+  Future<ShortcutLocation?> saveNewShortcutLocation(String name, Waypoint waypoint) async {
     final newShortcut = ShortcutLocation(id: UniqueKey().toString(), name: name, waypoint: waypoint);
     if (shortcuts == null) await loadShortcuts();
-    if (shortcuts == null) return;
+    if (shortcuts == null) return null;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
     await storeShortcuts();
-
     notifyListeners();
+    return newShortcut;
   }
 
   /// Update a shortcuts name.
