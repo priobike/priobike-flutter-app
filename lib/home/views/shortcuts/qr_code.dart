@@ -91,7 +91,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           child: SubHeader(
                             text: state == QRCodeViewMode.scanning
                                 ? "Strecke von einem anderem Gerät importieren"
-                                : shortcut!.name,
+                                : shortcut!.name ?? "",
                             context: context,
                             textAlign: TextAlign.center,
                           ),

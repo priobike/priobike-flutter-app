@@ -140,7 +140,7 @@ class EditOptionsView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SmallVSpace(),
-              BoldSubHeader(text: shortcut.name, context: context),
+              BoldSubHeader(text: shortcut.name ?? "", context: context),
               const VSpace(),
               BigButtonPrimary(
                 label: "Teilen",
@@ -394,7 +394,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             // Padding to align with location icon.
                             padding: const EdgeInsets.only(left: 4),
                             child: BoldContent(
-                              text: shortcut.name,
+                              text: shortcut.name ?? "",
                               context: context,
                             ),
                           ),
