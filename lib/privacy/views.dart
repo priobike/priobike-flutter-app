@@ -31,9 +31,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
   late Settings settings;
 
-  /// The displayed privacy policy text.
-  String? privacyPolicy;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     loadPolicy();
@@ -43,8 +40,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// Load the privacy policy.
   void loadPolicy() {
     // Load once the window was built.
-
-    settings = getIt<Settings>();
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
@@ -57,9 +52,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
         }
 
         await privacyService.loadPolicy(privacyText);
-        setState(() {
-          privacyPolicy = privacyText;
-        });
       },
     );
   }
@@ -92,6 +84,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     privacyService = getIt<PrivacyPolicy>();
     privacyService.addListener(update);
+    settings = getIt<Settings>();
 
     loadPolicy();
   }
@@ -104,8 +97,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    if (privacyPolicy == null) return;
-    await privacyService.confirm(privacyPolicy!);
+    if (privacyService.assetText == null) return;
+    await privacyService.confirm(privacyService.assetText!);
   }
 
   @override
