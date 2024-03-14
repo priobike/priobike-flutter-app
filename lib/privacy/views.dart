@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -6,6 +5,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'dart:convert' show utf8;
@@ -33,7 +33,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    loadPolicy();
     setState(() {});
   }
 
@@ -44,11 +43,17 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         String? privacyText;
+        privacyService.resetLoading();
 
-        final response = await http.get(Uri.parse("https://${settings.backend.path}/privacy-policy"));
-
-        if (response.statusCode == 200) {
-          privacyText = _getPrivacyTextFromResponse(utf8.decode(response.bodyBytes));
+        try {
+          final response = await Http.get(Uri.parse("https://${settings.backend.path}/privacy-policy"))
+              .timeout(const Duration(seconds: 4));
+          if (response.statusCode == 200) {
+            privacyText = _getPrivacyTextFromResponse(utf8.decode(response.bodyBytes));
+          }
+        } catch (e, stacktrace) {
+          final hint = "Failed to fetch privacy policy: $e $stacktrace";
+          log.e(hint);
         }
 
         await privacyService.loadPolicy(privacyText);
@@ -57,7 +62,9 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   }
 
   /// Returns the privacy text from the html response string.
-  String _getPrivacyTextFromResponse(String response) {
+  String? _getPrivacyTextFromResponse(String response) {
+    if (!response.contains("<body>") && !response.contains("</body>")) return null;
+
     // Use everything behind opening body tag.
     response = response.split("<body>")[1];
     // Use everything before closing body tag.
@@ -103,86 +110,127 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!privacyService.hasLoaded) return Container();
+    if (!privacyService.hasLoaded) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: const Center(
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
+    if (privacyService.hasError) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: SafeArea(
+          child: Pad(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                BoldSubHeader(
+                  context: context,
+                  text: "Achtung",
+                ),
+                const SmallVSpace(),
+                Content(
+                  context: context,
+                  textAlign: TextAlign.center,
+                  text:
+                      "Die PrioBike-Services sind zur Zeit nicht erreichbar. Vergewissere Dich, dass eine Verbindung zum Internet besteht und versuche es erneut.",
+                ),
+                const VSpace(),
+                BigButtonPrimary(
+                  label: "Erneut versuchen",
+                  onPressed: () => loadPolicy,
+                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     if ((privacyService.isConfirmed == true) && (widget.child != null)) return widget.child!;
 
     return Scaffold(
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            HPad(
-              child: Fade(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 164),
-                      if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!privacyService.hasChanged!)
-                        Header(text: "Deinen Daten.", color: CI.radkulturRed, context: context),
-                      if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
-                      if (privacyService.hasChanged!)
-                        Header(text: "Datenschutz aktualisiert.", color: CI.radkulturRed, context: context),
-                      const SmallVSpace(),
-                      if (!privacyService.hasChanged!)
-                        SubHeader(
-                            text:
-                                "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen. Das Wichtigste zuerst:",
-                            context: context),
-                      if (privacyService.hasChanged!)
-                        SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
-                      const VSpace(),
-                      IconItem(
-                          icon: Icons.route,
-                          text:
-                              "Wir speichern Deine Positionsdaten, aber nur anonymisiert und ohne Deinen Start- und Zielort.",
-                          context: context),
-                      const SmallVSpace(),
-                      IconItem(
-                          icon: Icons.lock,
-                          text:
-                              "Wenn Du die App personalisierst, indem Du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
-                          context: context),
-                      const SmallVSpace(),
-                      IconItem(
-                          icon: Icons.lightbulb,
-                          text:
-                              "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
-                          context: context),
-                      const VSpace(),
-                      Content(text: privacyService.assetText!, context: context),
-                      const SizedBox(height: 256),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            if (widget.child == null)
-              SafeArea(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          HPad(
+            child: Fade(
+              child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        AppBackButton(onPressed: () => Navigator.pop(context)),
-                      ],
-                    ),
+                    const SizedBox(height: 164),
+                    if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
+                    if (!privacyService.hasChanged!)
+                      Header(text: "Deinen Daten.", color: CI.radkulturRed, context: context),
+                    if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
+                    if (privacyService.hasChanged!)
+                      Header(text: "Datenschutz aktualisiert.", color: CI.radkulturRed, context: context),
+                    const SmallVSpace(),
+                    if (!privacyService.hasChanged!)
+                      SubHeader(
+                          text:
+                              "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen. Das Wichtigste zuerst:",
+                          context: context),
+                    if (privacyService.hasChanged!)
+                      SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
+                    const VSpace(),
+                    IconItem(
+                        icon: Icons.route,
+                        text:
+                            "Wir speichern Deine Positionsdaten, aber nur anonymisiert und ohne Deinen Start- und Zielort.",
+                        context: context),
+                    const SmallVSpace(),
+                    IconItem(
+                        icon: Icons.lock,
+                        text:
+                            "Wenn Du die App personalisierst, indem Du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
+                        context: context),
+                    const SmallVSpace(),
+                    IconItem(
+                        icon: Icons.lightbulb,
+                        text:
+                            "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
+                        context: context),
+                    const VSpace(),
+                    Content(text: privacyService.assetText!, context: context),
+                    const SizedBox(height: 256),
                   ],
                 ),
               ),
-            if (widget.child != null)
-              Pad(
-                child: BigButtonPrimary(
-                  label: "Akzeptieren",
-                  onPressed: onAcceptButtonPressed,
-                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
-                ),
+            ),
+          ),
+          if (widget.child == null)
+            SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      AppBackButton(onPressed: () => Navigator.pop(context)),
+                    ],
+                  ),
+                ],
               ),
-          ],
-        ),
+            ),
+          if (widget.child != null)
+            Pad(
+              child: BigButtonPrimary(
+                label: "Akzeptieren",
+                onPressed: onAcceptButtonPressed,
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 36),
+              ),
+            ),
+        ],
       ),
     );
   }

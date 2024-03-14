@@ -8,6 +8,8 @@ class PrivacyPolicy with ChangeNotifier {
 
   bool hasLoaded = false;
 
+  bool hasError = false;
+
   /// The text of the privacy policy.
   String? assetText;
 
@@ -20,6 +22,13 @@ class PrivacyPolicy with ChangeNotifier {
   /// Load the privacy policy.
   Future<void> loadPolicy(String? assetText) async {
     if (hasLoaded) return;
+
+    if (assetText == null) {
+      hasLoaded = true;
+      hasError = true;
+      notifyListeners();
+      return;
+    }
 
     final storage = await SharedPreferences.getInstance();
     this.assetText = assetText;
@@ -52,6 +61,13 @@ class PrivacyPolicy with ChangeNotifier {
 
     isConfirmed = await storage.setString(key, confirmedPolicy);
     hasChanged = false;
+    notifyListeners();
+  }
+
+  /// Resets the loading attributes.
+  void resetLoading() {
+    hasLoaded = false;
+    hasError = false;
     notifyListeners();
   }
 }

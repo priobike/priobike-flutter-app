@@ -10,6 +10,7 @@ import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/poi.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
@@ -71,6 +72,9 @@ Future<void> main() async {
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
   await FCM.load(settings.backend);
+
+  // Init the HTTP client for all services.
+  Http.initClient();
 
   // Register the services.
   getIt.registerSingleton<Weather>(Weather());

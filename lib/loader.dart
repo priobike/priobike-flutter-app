@@ -64,9 +64,6 @@ class LoaderState extends State<Loader> {
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
-    // Init the HTTP client for all services.
-    Http.initClient();
-
     // We have 2 types of services:
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
     // 2. Services that are not critically needed.
