@@ -239,6 +239,7 @@ class Discomforts with ChangeNotifier {
       }
     }
 
+    route.foundDiscomforts = List.empty(growable: true);
     route.foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
     route.foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
     notifyListeners();
