@@ -20,18 +20,6 @@ class PredictionSGStatus with ChangeNotifier {
   /// The cached sg status, by the sg name.
   Map<String, SGStatusData> cache = {};
 
-  /// The number of sgs that are ok.
-  int ok = 0;
-
-  /// The number of sgs that are offline.
-  int offline = 0;
-
-  /// The number of sgs that have a bad quality.
-  int bad = 0;
-
-  /// The number of disconnected sgs.
-  int disconnected = 0;
-
   PredictionSGStatus();
 
   /// Populate the sg status cache for all SGs of the given route.
@@ -90,48 +78,34 @@ class PredictionSGStatus with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update the status for the given route.
-  void updateStatus(Route route) {
-    final Map<String, int> statusOverview = calculateStatus(route);
-
-    ok = statusOverview["ok"]!;
-    offline = statusOverview["offline"]!;
-    bad = statusOverview["bad"]!;
-    disconnected = statusOverview["disconnected"]!;
-
-    log.i("Fetched sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
-    notifyListeners();
-  }
-
   /// Calculate the status for the given route.
-  Map<String, int> calculateStatus(Route route) {
-    Map<String, int> statusOverview = {
-      "ok": 0,
-      "offline": 0,
-      "bad": 0,
-      "disconnected": 0,
-    };
+  void updateStatus(Route route) {
+    route.ok = 0;
+    route.offline = 0;
+    route.bad = 0;
+    route.disconnected = 0;
+
     for (final sg in route.signalGroups) {
       if (!cache.containsKey(sg.id)) {
-        statusOverview["offline"] = statusOverview["offline"]! + 1;
+        route.offline++;
         continue;
       }
       final status = cache[sg.id]!;
       switch (status.predictionState) {
         case SGPredictionState.ok:
-          statusOverview["ok"] = statusOverview["ok"]! + 1;
+          route.ok++;
           break;
         case SGPredictionState.offline:
-          statusOverview["offline"] = statusOverview["offline"]! + 1;
+          route.offline++;
           break;
         case SGPredictionState.bad:
-          statusOverview["bad"] = statusOverview["bad"]! + 1;
+          route.bad++;
           break;
       }
     }
-
-    statusOverview["disconnected"] = route.crossings.where((c) => !c.connected).length;
-    return statusOverview;
+    route.disconnected = route.crossings.where((c) => !c.connected).length;
+    log.i("Fetched sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
+    notifyListeners();
   }
 
   /// During the ride we receive predictions from a MQTT service.
@@ -148,10 +122,6 @@ class PredictionSGStatus with ChangeNotifier {
   /// Reset the status.
   Future<void> reset() async {
     cache = {};
-    offline = 0;
-    bad = 0;
-    disconnected = 0;
-    ok = 0;
     isLoading = false;
     notifyListeners();
   }

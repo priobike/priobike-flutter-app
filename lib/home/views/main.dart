@@ -239,7 +239,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           routing.reset();
-          discomforts.reset();
           predictionSGStatus.reset();
         }
       },

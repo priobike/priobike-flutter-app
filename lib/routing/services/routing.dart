@@ -125,9 +125,6 @@ class Routing with ChangeNotifier {
       allRoutes = null;
       fetchedWaypoints = null;
       fetchedBikeType = null;
-
-      final discomforts = getIt<Discomforts>();
-      await discomforts.reset();
     }
 
     notifyListeners();
@@ -407,17 +404,14 @@ class Routing with ChangeNotifier {
     isFetchingRoute = false;
 
     final status = getIt<PredictionSGStatus>();
+    final discomforts = getIt<Discomforts>();
+
     for (r.Route route in routes) {
       await status.fetch(route);
-      route.ok = status.calculateStatus(route)["ok"]!;
+      status.updateStatus(route);
+      discomforts.findDiscomforts(route);
       route.mostUniqueAttribute = await findMostUniqueAttributeForRoute(route.id);
     }
-
-    final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(routes.first);
-
-    status.updateStatus(routes.first);
-
     notifyListeners();
     return routes;
   }
@@ -507,7 +501,7 @@ class Routing with ChangeNotifier {
     selectedRoute = allRoutes![idx];
 
     final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(selectedRoute!);
+    discomforts.findDiscomforts(selectedRoute!);
 
     final status = getIt<PredictionSGStatus>();
     for (r.Route route in allRoutes!) {
@@ -523,12 +517,10 @@ class Routing with ChangeNotifier {
     if (allRoutes == null && allRoutes!.length <= id) return null;
     if (allRoutes!.length <= 1) return null; // nothing to compare route with
 
-    final discomforts = getIt<Discomforts>();
-
     final r.Route route = allRoutes![id];
-    final int numOkSGs = route.ok ?? 0;
+    final int numOkSGs = route.ok;
     final int numCrossings = route.crossings.length;
-    final int numDiscomforts = (await discomforts.getDiscomfortsForRoute(route)).length;
+    final int numDiscomforts = route.foundDiscomforts?.length ?? 0;
     final int numPushBike = route.path.details.getOffBike.length;
     final int arrivalTime = route.path.time;
     final double distance = route.path.distance;
@@ -562,15 +554,11 @@ class Routing with ChangeNotifier {
     for (final r.Route otherRoute in allRoutes!) {
       if (otherRoute.id == id) continue;
 
-      if (otherRoute.ok != null) {
-        if (otherRoute.ok! >= numOkSGs) {
-          hasBestAttribute["numOkSGs"] = false;
-        }
-        if (secondBest["numOkSGs"]!.$1 == null ||
-            secondBest["numOkSGs"]!.$2 == null ||
-            otherRoute.ok! > secondBest["numOkSGs"]!.$2!) {
-          secondBest["numOkSGs"] = (otherRoute, otherRoute.ok!.toDouble());
-        }
+      if (otherRoute.ok >= numOkSGs) hasBestAttribute["numOkSGs"] = false;
+      if (secondBest["numOkSGs"]!.$1 == null ||
+          secondBest["numOkSGs"]!.$2 == null ||
+          otherRoute.ok > secondBest["numOkSGs"]!.$2!) {
+        secondBest["numOkSGs"] = (otherRoute, otherRoute.ok.toDouble());
       }
 
       if (otherRoute.crossings.length <= numCrossings) hasBestAttribute["numCrossings"] = false;
@@ -580,7 +568,7 @@ class Routing with ChangeNotifier {
         secondBest["numCrossings"] = (otherRoute, otherRoute.crossings.length.toDouble());
       }
 
-      final otherRouteDiscomforts = (await discomforts.getDiscomfortsForRoute(route)).length;
+      final otherRouteDiscomforts = otherRoute.foundDiscomforts?.length ?? 0;
       if (otherRouteDiscomforts <= numDiscomforts) hasBestAttribute["numDiscomforts"] = false;
       if (secondBest["numDiscomforts"]!.$1 == null ||
           secondBest["numDiscomforts"]!.$2 == null ||

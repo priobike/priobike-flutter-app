@@ -64,6 +64,8 @@ class CrossingInfoState extends State<CrossingInfo> {
 
   @override
   Widget build(BuildContext context) {
+    if (routing.selectedRoute == null) return Container();
+
     return Stack(
       children: [
         GestureDetector(
@@ -107,7 +109,9 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
+                            text: routing.isFetchingRoute
+                                ? "-"
+                                : (routing.selectedRoute!.bad + routing.selectedRoute!.offline).toString(),
                             color: Colors.white,
                           ),
                         ),
@@ -127,7 +131,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : status.ok.toString(),
+                            text: routing.isFetchingRoute ? "-" : routing.selectedRoute!.ok.toString(),
                             color: Colors.black,
                           ),
                         ),
@@ -147,7 +151,7 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
+                            text: routing.isFetchingRoute ? "-" : routing.selectedRoute!.disconnected.toString(),
                             color: Colors.black,
                           ),
                         ),

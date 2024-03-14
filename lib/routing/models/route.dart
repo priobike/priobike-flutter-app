@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
+import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -36,8 +37,20 @@ class Route {
   /// The most unique attribute of the route within a set of routes.
   String? mostUniqueAttribute;
 
-  /// The number of signal groups on the route that have a ok status.
-  int? ok;
+  /// The number of sgs that are ok.
+  int ok = 0;
+
+  /// The number of sgs that are offline.
+  int offline = 0;
+
+  /// The number of sgs that have a bad quality.
+  int bad = 0;
+
+  /// The number of disconnected sgs.
+  int disconnected = 0;
+
+  /// The found discomforts.
+  List<DiscomfortSegment>? foundDiscomforts;
 
   Route({
     required this.id,

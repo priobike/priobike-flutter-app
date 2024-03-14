@@ -18,18 +18,7 @@ enum WarnType {
 }
 
 class Discomforts with ChangeNotifier {
-  /// The found discomforts.
-  List<DiscomfortSegment>? foundDiscomforts;
-
-  Discomforts({
-    this.foundDiscomforts,
-  });
-
-  // Reset the discomfort service.
-  Future<void> reset() async {
-    foundDiscomforts = null;
-    notifyListeners();
-  }
+  Discomforts();
 
   /// Get the coordinates for a given segment.
   List<LatLng> getCoordinates(GHSegment segment, GHRouteResponsePath path) {
@@ -42,13 +31,7 @@ class Discomforts with ChangeNotifier {
   }
 
   /// Find discomforts for the given route.
-  Future<void> findDiscomforts(Route route) async {
-    foundDiscomforts = await getDiscomfortsForRoute(route);
-    notifyListeners();
-  }
-
-  /// Get discomforts for the given route.
-  Future<List<DiscomfortSegment>> getDiscomfortsForRoute(Route route) async {
+  void findDiscomforts(Route route) {
     final path = route.path;
 
     final profile = getIt<Profile>();
@@ -256,8 +239,8 @@ class Discomforts with ChangeNotifier {
       }
     }
 
-    final List<DiscomfortSegment> detectedDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
-    detectedDiscomforts.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
-    return detectedDiscomforts;
+    route.foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
+    route.foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
+    notifyListeners();
   }
 }
