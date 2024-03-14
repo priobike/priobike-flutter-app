@@ -267,7 +267,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     String longLink = shortcut.getLongLink();
     String? shortLink = await LinkShortener.createShortLink(longLink);
     if (shortLink == null) return;
-    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie dir hier holen:';
+    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie Dir hier holen:';
     const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
     const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
     String subject = '';
