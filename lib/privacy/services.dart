@@ -6,8 +6,10 @@ class PrivacyPolicy with ChangeNotifier {
   /// The key under which the accepted privacy policy is stored in the user defaults / shared preferences.
   static const key = "priobike.privacy.accepted-policy";
 
+  /// The bool that holds the state if the privacy policy has loaded.
   bool hasLoaded = false;
 
+  /// The bool that holds the state if there was an error during fetch.
   bool hasError = false;
 
   /// The text of the privacy policy.
@@ -23,6 +25,7 @@ class PrivacyPolicy with ChangeNotifier {
   Future<void> loadPolicy(String? assetText) async {
     if (hasLoaded) return;
 
+    // Return has error if assetText is null.
     if (assetText == null) {
       hasLoaded = true;
       hasError = true;
