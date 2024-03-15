@@ -9,6 +9,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'dart:convert' show utf8;
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -37,6 +38,25 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   void update() {
     setState(() {});
   }
+
+  final test = """
+ # Minimal Markdown Test
+ ---
+ This is a simple Markdown test. Provide a text string with Markdown tags
+ to the Markdown widget and it will display the formatted output in a
+ scrollable widget.
+
+ ## Section 1
+ Maecenas eget **arcu egestas**, mollis ex vitae, posuere magna. Nunc eget
+ aliquam tortor. Vestibulum porta sodales efficitur. Mauris interdum turpis
+ eget est condimentum, vitae porttitor diam ornare.
+
+ ### Subsection A
+ Sed et massa finibus, blandit massa vel, vulputate velit. Vestibulum vitae
+ venenatis libero. **__Curabitur sem lectus, feugiat eu justo in, eleifend
+ accumsan ante.__** Sed a fermentum elit. Curabitur sodales metus id mi
+ ornare, in ullamcorper magna congue.
+ """;
 
   /// Load the privacy policy.
   Future<void> loadPolicy() async {
@@ -213,6 +233,12 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                               "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
                           context: context),
                       const VSpace(),
+                      Markdown(
+                        data: test,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                      ),
                       Content(text: privacyService.assetText!, context: context),
                       const SizedBox(height: 256),
                     ],
