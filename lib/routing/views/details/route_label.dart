@@ -45,7 +45,7 @@ class RouteLabelState extends State<RouteLabel> {
   static const double cornerIconSize = 20;
 
   /// The max width used for calculations.
-  static const double maxWidth = 160;
+  static const double maxWidth = 100;
 
   /// The max height used for calculations.
   static const double maxHeight = 60;

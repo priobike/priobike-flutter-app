@@ -1,4 +1,4 @@
-import 'dart:collection';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart' hide Route;
@@ -223,12 +223,22 @@ class RouteLabelManager extends ChangeNotifier {
         filteredCandidates.addAll(possibleCandidates);
       }
 
-      // Sort the filtered candidates so that the middlemost are the first ones to check compatibility.
-      filteredCandidates.sort((a, b) =>
-          ((a.screenCoordinate.x - widthMid).abs() + (a.screenCoordinate.y - heightMid).abs()) >
-                  ((b.screenCoordinate.x - widthMid).abs() + (b.screenCoordinate.y - heightMid).abs())
-              ? 1
-              : 0);
+      // Order the candidates of each route label, that the middlemost in relation to the route is checked first.
+      ScreenCoordinate first = visibleScreenCoordinates[i].first;
+      ScreenCoordinate last = visibleScreenCoordinates[i].last;
+
+      filteredCandidates.sort((a, b) {
+        final aDistToFirst = sqrt(pow(a.screenCoordinate.x - first.x, 2) + pow(a.screenCoordinate.y - first.y, 2));
+        final aDistToLast = sqrt(pow(a.screenCoordinate.x - last.x, 2) + pow(a.screenCoordinate.y - last.y, 2));
+        final bDistToFirst = sqrt(pow(b.screenCoordinate.x - first.x, 2) + pow(b.screenCoordinate.y - first.y, 2));
+        final bDistToLast = sqrt(pow(b.screenCoordinate.x - last.x, 2) + pow(b.screenCoordinate.y - last.y, 2));
+
+        if (max(aDistToFirst, aDistToLast) > max(bDistToFirst, bDistToLast)) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
 
       managedRouteLabels[i].availableRouteLabelCandidates = filteredCandidates;
     }
@@ -264,10 +274,10 @@ class RouteLabelManager extends ChangeNotifier {
 
   /// Returns a List of lists of unique coordinates for every route.
   List<List<GHCoordinate>> getUniqueCoordinatesPerRoute(List<Route> routes) {
-    List<HashSet<GHCoordinate>> coordinatesPerRoute = [];
+    List<List<GHCoordinate>> coordinatesPerRoute = [];
 
     for (final route in routes) {
-      HashSet<GHCoordinate> coordinates = HashSet();
+      List<GHCoordinate> coordinates = [];
       for (GHCoordinate coordinate in route.path.points.coordinates) {
         coordinates.add(coordinate);
       }
