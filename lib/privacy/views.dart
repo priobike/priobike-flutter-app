@@ -5,14 +5,9 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
-import 'dart:convert' show utf8;
 import 'package:flutter_markdown/flutter_markdown.dart';
-
-import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/services/settings.dart';
 
 import '../common/layout/annotated_region.dart';
 
@@ -31,76 +26,9 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
   late PrivacyPolicy privacyService;
 
-  /// The associated privacy service, which is injected by the provider.
-  late Settings settings;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     setState(() {});
-  }
-
-  final test = """
- # Minimal Markdown Test
- ---
- This is a simple Markdown test. Provide a text string with Markdown tags
- to the Markdown widget and it will display the formatted output in a
- scrollable widget.
-
- ## Section 1
- Maecenas eget **arcu egestas**, mollis ex vitae, posuere magna. Nunc eget
- aliquam tortor. Vestibulum porta sodales efficitur. Mauris interdum turpis
- eget est condimentum, vitae porttitor diam ornare.
-
- ### Subsection A
- Sed et massa finibus, blandit massa vel, vulputate velit. Vestibulum vitae
- venenatis libero. **__Curabitur sem lectus, feugiat eu justo in, eleifend
- accumsan ante.__** Sed a fermentum elit. Curabitur sodales metus id mi
- ornare, in ullamcorper magna congue.
- """;
-
-  /// Load the privacy policy.
-  Future<void> loadPolicy() async {
-    // Load once the window was built.
-    String? privacyText;
-    // Reset loading
-    privacyService.resetLoading();
-
-    try {
-      final response = await Http.get(Uri.parse("https://${settings.backend.path}/privacy-policy"))
-          .timeout(const Duration(seconds: 4));
-      if (response.statusCode == 200) {
-        privacyText = _getPrivacyTextFromHTTPResponse(utf8.decode(response.bodyBytes));
-      }
-    } catch (e, stacktrace) {
-      final hint = "Failed to fetch privacy policy: $e $stacktrace";
-      log.e(hint);
-    }
-
-    await privacyService.loadPolicy(privacyText);
-  }
-
-  /// Returns the privacy text from the html response string.
-  String? _getPrivacyTextFromHTTPResponse(String response) {
-    if (!response.contains("<body>") && !response.contains("</body>")) return null;
-
-    // Use everything behind opening body tag.
-    response = response.split("<body>")[1];
-    // Use everything before closing body tag.
-    response = response.split("</body>")[0];
-
-    // Replace closing p tags with newline.
-    response = response.replaceAll("<p>", '\n');
-    response = response.replaceAll("</ul>\n", '');
-    // Replace opening h tags with newline.
-    response = response.replaceAll(RegExp(r'\<h[0-9]\>'), '\n');
-    // Remove br tags.
-    response = response.replaceAll("<br />", '');
-
-    // Remove all other html tags.
-    response = response.replaceAll(RegExp(r'\<[a-zA-Z0-9]*\>'), '');
-    response = response.replaceAll(RegExp(r'\<\/[a-zA-Z0-9]*\>'), '');
-
-    return response;
   }
 
   @override
@@ -109,9 +37,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     privacyService = getIt<PrivacyPolicy>();
     privacyService.addListener(update);
-    settings = getIt<Settings>();
 
-    loadPolicy();
+    privacyService.loadPolicy();
   }
 
   @override
@@ -172,7 +99,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                   const VSpace(),
                   BigButtonPrimary(
                     label: "Erneut versuchen",
-                    onPressed: () => loadPolicy(),
+                    onPressed: () => privacyService.loadPolicy(),
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                   ),
                 ],
@@ -234,12 +161,11 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                           context: context),
                       const VSpace(),
                       Markdown(
-                        data: test,
+                        data: privacyService.assetText!,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.zero,
                       ),
-                      Content(text: privacyService.assetText!, context: context),
                       const SizedBox(height: 256),
                     ],
                   ),

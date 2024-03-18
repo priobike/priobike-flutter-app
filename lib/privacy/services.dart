@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrivacyPolicy with ChangeNotifier {
@@ -22,11 +28,28 @@ class PrivacyPolicy with ChangeNotifier {
   bool? hasChanged;
 
   /// Load the privacy policy.
-  Future<void> loadPolicy(String? assetText) async {
-    if (hasLoaded) return;
+  Future<void> loadPolicy() async {
+    // Reset loading attributes.
+    resetLoading();
+
+    // The privacy text from the privacy service.
+    String? privacyText;
+
+    try {
+      final response =
+          await Http.get(Uri.parse("https://${getIt<Settings>().backend.path}/privacy-policy/privacy-policy.md"))
+              .timeout(const Duration(seconds: 4));
+
+      if (response.statusCode == 200) {
+        privacyText = utf8.decode(response.bodyBytes);
+      }
+    } catch (e, stacktrace) {
+      final hint = "Failed to fetch privacy policy: $e $stacktrace";
+      log.e(hint);
+    }
 
     // Return has error if assetText is null.
-    if (assetText == null) {
+    if (privacyText == null) {
       hasLoaded = true;
       hasError = true;
       notifyListeners();
@@ -34,12 +57,12 @@ class PrivacyPolicy with ChangeNotifier {
     }
 
     final storage = await SharedPreferences.getInstance();
-    this.assetText = assetText;
+    assetText = privacyText;
     final storedPrivacyPolicy = storage.getString(key);
 
     // Strings must be have their leading and tailing whitespaces trimmed
     // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
-    isConfirmed = storedPrivacyPolicy?.trim() == this.assetText?.trim();
+    isConfirmed = storedPrivacyPolicy?.trim() == assetText?.trim();
     hasChanged = !isConfirmed!;
     hasLoaded = true;
     notifyListeners();
