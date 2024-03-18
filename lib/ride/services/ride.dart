@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
@@ -21,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../positioning/models/snap.dart';
 import '../../routing/messages/graphhopper.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:geolocator/geolocator.dart' as geo;
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -78,8 +80,6 @@ class Ride with ChangeNotifier {
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
-
-  int currentInstruction = 0;
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -232,16 +232,6 @@ class Ride with ChangeNotifier {
     this.onNewPredictionStatusDuringRide = onNewPredictionStatusDuringRide;
   }
 
-  bool isPointInCurrentSergment(Snap snap) {
-    var segmentStartPoint = route!.path.instructions[currentInstruction].interval.first;
-    var segmentEndPoint = route!.path.instructions[currentInstruction].interval.last;
-    var segmentStartCoordinates = route!.path.points.coordinates[segmentStartPoint];
-    var segmentEndCoordinates = route!.path.points.coordinates[segmentEndPoint];
-    double crossproduct = (segmentStartCoordinates.lon - snap.position.longitude) * (segmentEndCoordinates.lat - snap.position.latitude)
-        - (segmentEndCoordinates.lon - snap.position.longitude) * (segmentStartCoordinates.lat - snap.position.latitude);
-    return crossproduct.abs() < 0.0000001;
-  }
-
   /// Update the position.
   Future<void> updatePosition() async {
     // TODO: check where this should optimally be created
@@ -268,19 +258,17 @@ class Ride with ChangeNotifier {
     }
     this.calcDistanceToNextTurn = calcDistanceToNextTurn;
 
-    // var instructionList = route!.path.instructions;
-    // var currentInstruction = instructionList.firstWhere((element) => element.interval.first. == snap.)
+    // check if there is an route.instruction with localisation of snap in distance of less than 10m
+    // TODO: check necessary distance (maybe should be less?)
+    var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed && geo.Geolocator.distanceBetween(element.lat, element.lon,
+        snap.position.latitude, snap.position.longitude) < 10);
 
-    if (currentInstruction < route!.path.instructions.length && isPointInCurrentSergment(snap)) {
-      var instruction = route!.path.instructions[currentInstruction];
+    if (currentInstruction != null){
       //play text to speech
-      await ftts.speak(instruction.text!);
-      currentInstruction++;
+      await ftts.speak(currentInstruction.text!);
+      currentInstruction.executed = true;
     }
-    if (currentInstruction == route!.path.instructions.length) {
-      currentInstruction = 0;
-      // TODO: need to reset currentSegment after ending of ride (better than here)
-    }
+    // TODO: after finish all executed instructions should meybe be reset to false?
 
     // if (this.calcDistanceToNextTurn! < 100) {
     //   var instructions = route!.path.instructions;
