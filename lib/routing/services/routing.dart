@@ -410,6 +410,10 @@ class Routing with ChangeNotifier {
       await status.fetch(route);
       status.updateStatus(route);
       discomforts.findDiscomforts(route);
+    }
+    // The Status and Discomforts must be first fetched for every route
+    // before we can compare all routes with every other route to find the most unique attribute.
+    for (r.Route route in routes) {
       findMostUniqueAttributeForRoute(route.id);
     }
     notifyListeners();
@@ -513,7 +517,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
-  Future<void> findMostUniqueAttributeForRoute(int id) async {
+  findMostUniqueAttributeForRoute(int id) {
     if (allRoutes == null || allRoutes!.length <= id) return;
     if (allRoutes!.length <= 1) return; // nothing to compare route with
 
@@ -528,10 +532,10 @@ class Routing with ChangeNotifier {
 
     // We compare the route with the best attribute to the second best route
     // The threshold determines if the difference is significant
-    const thresholdNumOkSGsInPtc = 20;
+    const thresholdOkSGsInPtc = 20;
     const thresholdCrossingsInPtc = 20;
     const thresholdDiscomfortsInPtc = 20;
-    const thresholdPushBikeAbsolute = 1;
+    const thresholdPushBikeAbsolute = 1; // absolute threshold
     const thresholdTimeInPtc = 20;
     const thresholdDistanceInPtc = 10;
 
@@ -590,9 +594,8 @@ class Routing with ChangeNotifier {
     if (thisRouteHasMostOkSGs) {
       if (secondBestOkSGs == null ||
           secondBestOkSGs == 0 ||
-          (thisRouteOkSGs / secondBestOkSGs - 1) * 100 > thresholdNumOkSGsInPtc) {
+          (thisRouteOkSGs / secondBestOkSGs - 1) * 100 > thresholdOkSGsInPtc) {
         route.mostUniqueAttribute = "Mehr verbundene\nAmpeln";
-        log.i("Unique Attribute: Route $id has the most ok signal groups: $thisRouteOkSGs");
         return;
       }
     }
@@ -601,7 +604,6 @@ class Routing with ChangeNotifier {
           thisRouteCrossings == 0 ||
           (secondBestCrossings / thisRouteCrossings - 1) * 100 > thresholdCrossingsInPtc) {
         route.mostUniqueAttribute = "Weniger\nKreuzungen";
-        log.i("Unique Attribute: Route $id has the least crossings: $thisRouteCrossings");
         return;
       }
     }
@@ -610,14 +612,12 @@ class Routing with ChangeNotifier {
           thisRouteDiscomforts == 0 ||
           (secondBestDiscomforts / thisRouteDiscomforts - 1) * 100 > thresholdDiscomfortsInPtc) {
         route.mostUniqueAttribute = "Angenehmere\nStrecke";
-        log.i("Unique Attribute: Route $id has the least discomforts: $thisRouteDiscomforts");
         return;
       }
     }
     if (thisRouteHasLeastPushBike) {
       if (secondBestPushBike == null || (secondBestPushBike - thisRoutePushBike) > thresholdPushBikeAbsolute) {
         route.mostUniqueAttribute = "Weniger\nAbsteigen";
-        log.i("Unique Attribute: Route $id has the least push bike: $thisRoutePushBike");
         return;
       }
     }
@@ -625,7 +625,6 @@ class Routing with ChangeNotifier {
       if (secondBestEarliestArrival == null ||
           (secondBestEarliestArrival / thisRouteArrivalTime - 1) * 100 > thresholdTimeInPtc) {
         route.mostUniqueAttribute = "Schnellere\nAnkunftszeit";
-        log.i("Unique Attribute: Route $id has the earliest arrival: $thisRouteArrivalTime");
         return;
       }
     }
@@ -634,12 +633,11 @@ class Routing with ChangeNotifier {
           thisRouteDistance == 0 ||
           (secondBestShortest / thisRouteDistance - 1) * 100 > thresholdDistanceInPtc) {
         route.mostUniqueAttribute = "Kürzere\nStrecke";
-        log.i("Unique Attribute: Route $id is the shortest: $thisRouteDistance");
         return;
       }
     }
 
-    // Route is not the best in any attribute
+    log.i("Unique Attribute: Route $id has no unique attribute");
     route.mostUniqueAttribute = null;
   }
 }
