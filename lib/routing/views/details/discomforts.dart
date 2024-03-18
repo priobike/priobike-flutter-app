@@ -17,6 +17,9 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
   /// The associated discomforts service, which is injected by the provider.
   late Discomforts discomforts;
 
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
   /// The details state of discomforts.
   bool showDiscomfortDetails = true;
 
@@ -41,6 +44,8 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
     discomforts = getIt<Discomforts>();
     discomforts.addListener(update);
+    routing = getIt<Routing>();
+    discomforts.addListener(update);
 
     processDiscomfortData();
   }
@@ -48,12 +53,12 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
   @override
   void dispose() {
     discomforts.removeListener(update);
+    routing.removeListener(update);
     super.dispose();
   }
 
   /// Process the route data and create the chart series.
   Future<void> processDiscomfortData() async {
-    final routing = getIt<Routing>();
     if (routing.selectedRoute == null) return setState(() => discomfortDistances = {});
     final foundDiscomforts = routing.selectedRoute?.foundDiscomforts;
     if (foundDiscomforts == null) return setState(() => discomfortDistances = {});
@@ -88,9 +93,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   /// Render the bar chart.
   Widget renderBar() {
-    if (discomfortDistances.isEmpty) return Container();
-    final routing = getIt<Routing>();
-    if (routing.selectedRoute == null) return Container();
+    if (discomfortDistances.isEmpty || routing.selectedRoute == null) return Container();
     final foundDiscomforts = routing.selectedRoute!.foundDiscomforts;
     if (foundDiscomforts == null) return Container();
 
@@ -120,9 +123,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   /// Render the details below the bar chart.
   Widget renderDetails() {
-    if (discomfortDistances.isEmpty) return Container();
-    final routing = getIt<Routing>();
-    if (routing.selectedRoute == null) return Container();
+    if (discomfortDistances.isEmpty || routing.selectedRoute == null) return Container();
     var elements = <Widget>[];
     for (int i = 0; i < discomfortDistances.length; i++) {
       final e = discomfortDistances.entries.elementAt(i);
@@ -170,9 +171,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (discomfortDistances.isEmpty) return Container();
-    final routing = getIt<Routing>();
-    if (routing.selectedRoute == null) return Container();
+    if (discomfortDistances.isEmpty || routing.selectedRoute == null) return Container();
     final foundDiscomforts = routing.selectedRoute!.foundDiscomforts;
     if (foundDiscomforts == null) return Container();
 
