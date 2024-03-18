@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -159,7 +160,7 @@ class AppMapState extends State<AppMap> {
 
     // Render map with 2.5x size if battery saving mode is enabled.
     // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
-    return widget.saveBatteryModeEnabled
+    return widget.saveBatteryModeEnabled && Platform.isAndroid
         ? Transform.scale(
             scale: Settings.scalingFactor,
             child: map,
