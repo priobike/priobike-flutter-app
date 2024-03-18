@@ -38,6 +38,12 @@
         android:name="android.hardware.camera.autofocus"
         android:required="false"/>
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:name="${applicationName}"
         android:label="priobike"

@@ -20,6 +20,7 @@ import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../positioning/models/snap.dart';
 import '../../routing/messages/graphhopper.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -243,6 +244,12 @@ class Ride with ChangeNotifier {
 
   /// Update the position.
   Future<void> updatePosition() async {
+    // TODO: check where this should optimally be created
+    FlutterTts ftts = FlutterTts();
+    await ftts.setSpeechRate(0.8); //speed of speech
+    await ftts.setVolume(10.0); //volume of speech
+    await ftts.setPitch(1); //pitc of sound
+
     if (!navigationIsActive) return;
 
     final snap = getIt<Positioning>().snap;
@@ -266,6 +273,8 @@ class Ride with ChangeNotifier {
 
     if (currentInstruction < route!.path.instructions.length && isPointInCurrentSergment(snap)) {
       var instruction = route!.path.instructions[currentInstruction];
+      //play text to speech
+      await ftts.speak(instruction.text!);
       currentInstruction++;
     }
     if (currentInstruction == route!.path.instructions.length) {

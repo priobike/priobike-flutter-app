@@ -25,6 +25,7 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:geolocator/geolocator.dart' as geo;
 
 import '../models/instruction.dart';
 
@@ -558,6 +559,25 @@ class Routing with ChangeNotifier {
           if (waypoint.distanceToNextSignal != null &&
               waypoint.distanceToNextSignal! <= 50.0 &&
               waypoint.signalGroupId != null) {
+            // calculate waypopint 500m before waypoint.lat and waypoint.lon on route
+            double totalDistance = 0;
+            for (var j = i; j >= 0; j--) {
+              final wp = sgSelectorResponse.route[j];
+              // TODO: async machen wenn ausgelagert
+              var distance = geo.Geolocator.distanceBetween(waypoint.lat, waypoint.lon,
+                  wp.lat, wp.lon);
+              totalDistance += distance;
+
+              // TODO: schauen welcher beider Punkt näher an den 500m dran ist
+              if (totalDistance >= 500) {
+                customInstruction = Instruction(
+                    lat: wp.lat,
+                    lon: wp.lon,
+                    text: "Ampel in ${totalDistance}m");
+                break;
+              }
+            }
+
             // case 1: create custom instruction as combination of GraphHopper instruction and sg information
             customInstruction = Instruction(
                 lat: waypoint.lat,
