@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -205,7 +207,7 @@ class RideViewState extends State<RideView> {
                 onMapMoved: onMapMoved,
                 cameraFollowUserLocation: cameraFollowsUserLocation,
               ),
-              if (settings.saveBatteryModeEnabled)
+              if (settings.saveBatteryModeEnabled && Platform.isAndroid)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 15,
                   left: 10,
@@ -214,7 +216,7 @@ class RideViewState extends State<RideView> {
                     image: AssetImage('assets/images/mapbox-logo-transparent.png'),
                   ),
                 ),
-              if (settings.saveBatteryModeEnabled)
+              if (settings.saveBatteryModeEnabled && Platform.isAndroid)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 5,
                   right: 10,

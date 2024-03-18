@@ -54,7 +54,7 @@ dependencies:
   confetti: ^0.7.0
   collection: ^1.16.0 # Used for example for the function DeepCollectionEquality()
   intl: ^0.18.1 # Used for date formats
-  mapbox_maps_flutter: ^0.5.0
+  mapbox_maps_flutter: ^1.0.0
   path_provider: ^2.1.1 # To get the path to the app directory and store files
   connectivity_plus: ^5.0.2 # To check if the user is connected to Wifi or mobile data
   get_it: ^7.6.4 # Used for dependency injection

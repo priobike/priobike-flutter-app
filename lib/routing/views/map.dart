@@ -368,17 +368,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       top: (80 + frame.padding.top),
       // AppBackButton width
       left: 64,
-      // (BottomSheet + bottom padding)
-      bottom: (146 + frame.padding.bottom),
+      // BottomSheet (122) + shortcuts (54) + attribution (16) + bottom padding
+      bottom: (194 + frame.padding.bottom),
       // Width of legend
       right: 64,
     );
 
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
-      routing.selectedRoute!.paddedBounds,
+      routing.selectedRoute!.bounds,
       padding,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
+      null,
+      null,
     );
     if (cameraOptionsForBounds == null) return;
     await mapController?.flyTo(
@@ -646,9 +648,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is called when the user taps a feature.
-  onFeatureTapped(QueriedFeature queriedFeature) async {
+  onFeatureTapped(QueriedRenderedFeature queriedRenderedFeature) async {
     // Map the id of the layer to the corresponding feature.
-    final id = queriedFeature.feature['id'];
+    final id = queriedRenderedFeature.queriedFeature.feature['id'];
 
     if (id != null) {
       // Case Route or Route label.
@@ -660,7 +662,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
-    Map? properties = queriedFeature.feature["properties"] as Map?;
+    Map? properties = queriedRenderedFeature.queriedFeature.feature["properties"] as Map?;
     if (properties != null) {
       if (properties.containsKey("id")) {
         final propertiesId = properties["id"];
@@ -670,7 +672,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             propertiesId.contains("bicycle_rental") ||
             propertiesId.contains("bicycle_parking")) {
           if (mapController == null) return;
-          Map? geometry = queriedFeature.feature["geometry"] as Map?;
+          Map? geometry = queriedRenderedFeature.queriedFeature.feature["geometry"] as Map?;
           if (geometry == null) return;
           double lon = geometry["coordinates"][0];
           double lat = geometry["coordinates"][1];
@@ -730,24 +732,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the attribution position to the position of the bottom sheet.
   fitAttributionPosition({double? sheetHeightRelative}) {
     if (mapController == null) return;
-    final frame = MediaQuery.of(context);
-    final sheetHeightAbs = sheetHeightRelative == null
-        // Bottom padding + sheet init size + padding + shortcut height + padding.
-        ? 122.0 + 8 + 40 + 8 // Default value.
-        // Bottom padding + sheet relative size + padding + shortcut height + padding.
-        : sheetHeightRelative * frame.size.height + 40 + 8;
-    final maxBottomInset = frame.size.height - frame.padding.top - 100;
-    double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
-    mapController!.setCamera(
-      CameraOptions(
-        padding: MbxEdgeInsets(
-            bottom: newBottomInset,
-            // Needs to be set since this offset is set in fitCameraToRouteBounds().
-            left: 64,
-            top: defaultMapInsets.top,
-            right: defaultMapInsets.left),
-      ),
-    );
+
     // Bottom padding + sheet init size + padding + shortcut height + padding.
     const attributionMargins = math.Point(10, 122 + 8 + 40 + 8);
     mapController!.attribution.updateSettings(AttributionSettings(
@@ -883,7 +868,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ).toJson(),
     );
 
-    final List<QueriedFeature?> features = await mapController!.queryRenderedFeatures(
+    final List<QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
       RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
         type: Type.SCREEN_COORDINATE,
