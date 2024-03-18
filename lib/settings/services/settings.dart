@@ -18,7 +18,6 @@ import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/simulator/services/simulator.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -607,7 +606,6 @@ class Settings with ChangeNotifier {
 
     PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
     LoadStatus loadStatus = getIt<LoadStatus>();
-    StatusHistory statusHistory = getIt<StatusHistory>();
     Shortcuts shortcuts = getIt<Shortcuts>();
     Routing routing = getIt<Routing>();
     News news = getIt<News>();
@@ -616,7 +614,6 @@ class Settings with ChangeNotifier {
 
     // Reset the associated services.
     await predictionStatusSummary.reset();
-    await statusHistory.reset();
     await shortcuts.reset();
     await routing.reset();
     await news.reset();
@@ -627,7 +624,6 @@ class Settings with ChangeNotifier {
     await predictionStatusSummary.fetch();
     await loadStatus.fetch();
     loadStatus.sendAppStartNotification();
-    await statusHistory.fetch();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 

@@ -33,7 +33,6 @@ import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tracking/views/track_history.dart';
@@ -77,9 +76,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
-  /// The associated status history service, which is injected by the provider.
-  late StatusHistory statusHistory;
-
   /// The load status service, which is injected by the provider.
   late LoadStatus loadStatus;
 
@@ -102,7 +98,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     shortcuts.addListener(update);
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     loadStatus = getIt<LoadStatus>();
-    statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
     ride = getIt<Ride>();
     discomforts = getIt<Discomforts>();
@@ -151,7 +146,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     if (state == AppLifecycleState.resumed) {
       predictionStatusSummary.fetch();
       loadStatus.fetch();
-      statusHistory.fetch();
       news.getArticles();
     }
   }
@@ -160,7 +154,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   void didPopNext() {
     predictionStatusSummary.fetch();
     loadStatus.fetch();
-    statusHistory.fetch();
     news.getArticles();
   }
 
@@ -272,7 +265,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
           await predictionStatusSummary.fetch();
           await loadStatus.fetch();
-          await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
