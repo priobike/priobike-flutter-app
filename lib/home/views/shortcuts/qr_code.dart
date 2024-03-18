@@ -2,14 +2,18 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart' as shortcuts_service;
 import 'package:priobike/home/views/shortcuts/qr_code_scan.dart';
 import 'package:priobike/home/views/shortcuts/qr_code_show.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/views/search.dart';
 
 class QRCodeView extends StatefulWidget {
   /// The shortcut for which a QR code should be shown.
@@ -137,6 +141,17 @@ class QRCodeViewState extends State<QRCodeView> {
                             child: state == QRCodeViewMode.scanning
                                 ? ScanQRCodeView(
                                     onScan: (shortcut) {
+                                      if (shortcut.runtimeType == ShortcutRoute) {
+                                        if (mounted) {
+                                          showSaveShortcutSheet(context, shortcut: shortcut);
+                                        }
+                                      } else if (shortcut.runtimeType == ShortcutLocation) {
+                                        if (mounted) {
+                                          showSaveShortcutLocationSheet(context, shortcut.getWaypoints().first);
+                                        }
+                                      } else {
+                                        log.e("Error unknown type ${shortcut.type} in onQRViewCreated.");
+                                      }
                                       setState(
                                         () {
                                           this.shortcut = shortcut;

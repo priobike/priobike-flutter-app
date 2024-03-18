@@ -2,15 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/shimmer.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/routing/views/search.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQRCodeView extends StatefulWidget {
@@ -72,20 +68,8 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
       if (shortcut != null) return;
       if (scanData.code == null) return;
       if (!scanData.code!.contains("https://") && !scanData.code!.contains("/link/")) return;
-      Shortcut? scannedShortcut = await Shortcut.fromLink(scanData.code!);
+      final scannedShortcut = await Shortcut.fromLink(scanData.code!);
       if (scannedShortcut != null) {
-        if (scannedShortcut.runtimeType == ShortcutRoute) {
-          if (mounted) {
-            scannedShortcut = showSaveShortcutSheet(context, shortcut: scannedShortcut);
-          }
-        } else if (scannedShortcut.runtimeType == ShortcutLocation) {
-          if (mounted) {
-            scannedShortcut = showSaveShortcutLocationSheet(context, scannedShortcut.getWaypoints().first);
-          }
-        } else {
-          log.e("Error unknown type ${scannedShortcut.type} in onQRViewCreated.");
-        }
-        if (scannedShortcut == null) return;
         shortcut = scannedShortcut;
         widget.onScan(scannedShortcut);
       }
