@@ -64,8 +64,6 @@ class CrossingInfoState extends State<CrossingInfo> {
 
   @override
   Widget build(BuildContext context) {
-    if (routing.selectedRoute == null) return Container();
-
     return Stack(
       children: [
         GestureDetector(
