@@ -10,7 +10,6 @@ import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/poi.dart';
-import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
@@ -28,6 +27,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -128,7 +128,8 @@ class App extends StatelessWidget {
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
           onGenerateRoute: (routeSettings) {
-            String url = routeSettings.name!;
+            String? url = routeSettings.name!;
+            if (!url.contains("/link/")) url = null;
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(
