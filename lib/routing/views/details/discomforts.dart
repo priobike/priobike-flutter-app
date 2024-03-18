@@ -58,7 +58,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
   }
 
   /// Process the route data and create the chart series.
-  Future<void> processDiscomfortData() async {
+  void processDiscomfortData() {
     if (routing.selectedRoute == null || routing.selectedRoute!.foundDiscomforts == null) {
       return setState(() => discomfortDistances = {});
     }
