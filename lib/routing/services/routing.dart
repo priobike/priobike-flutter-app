@@ -551,7 +551,7 @@ class Routing with ChangeNotifier {
     double? secondBestEarliestArrival;
     double? secondBestShortest;
 
-    // Find all attributes where the current route is the best and detemine the second best value for comparison
+    // Find all attributes where the current route is the best and determine the second best value for comparison
     for (final r.Route otherRoute in allRoutes!) {
       if (otherRoute.id == id) continue;
 
@@ -595,7 +595,6 @@ class Routing with ChangeNotifier {
         return;
       }
     }
-
     if (thisRouteHasLeastCrossings) {
       if (secondBestCrossings == null ||
           numCrossings == 0 ||
@@ -604,7 +603,6 @@ class Routing with ChangeNotifier {
         return;
       }
     }
-
     if (thisRouteHasLeastDiscomforts) {
       if (secondBestDiscomforts == null ||
           numDiscomforts == 0 ||
@@ -613,14 +611,12 @@ class Routing with ChangeNotifier {
         return;
       }
     }
-
     if (thisRouteHasLeastPushBike) {
       if (secondBestPushBike == null || (secondBestPushBike - numPushBike) > thresholdPushBikeAbsolute) {
         route.mostUniqueAttribute = "Weniger\nAbsteigen";
         return;
       }
     }
-
     if (thisRouteHasEarliestArrival) {
       if (secondBestEarliestArrival == null ||
           (secondBestEarliestArrival / arrivalTime - 1) * 100 > thresholdTimeInPtc) {
@@ -628,7 +624,6 @@ class Routing with ChangeNotifier {
         return;
       }
     }
-
     if (thisRouteIsShortest) {
       if (secondBestShortest == null ||
           distance == 0 ||
