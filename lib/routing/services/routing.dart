@@ -514,29 +514,29 @@ class Routing with ChangeNotifier {
 
   /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
   Future<void> findMostUniqueAttributeForRoute(int id) async {
-    if (allRoutes == null && allRoutes!.length <= id) return;
+    if (allRoutes == null || allRoutes!.length <= id) return;
     if (allRoutes!.length <= 1) return; // nothing to compare route with
 
     // The attributes of the current route
     final r.Route route = allRoutes![id];
-    final int numOkSGs = route.ok;
-    final int numCrossings = route.crossings.length;
-    final int numDiscomforts = route.foundDiscomforts?.length ?? 0;
-    final int numPushBike = route.path.details.getOffBike.length;
-    final int arrivalTime = route.path.time;
-    final double distance = route.path.distance;
+    final thisRouteOkSGs = route.ok;
+    final thisRouteCrossings = route.crossings.length;
+    final thisRouteDiscomforts = route.foundDiscomforts?.length ?? 0;
+    final thisRoutePushBike = route.path.details.getOffBike.length;
+    final thisRouteArrivalTime = route.path.time;
+    final thisRouteDistance = route.path.distance;
 
     // We compare the route with the best attribute to the second best route
     // The threshold determines if the difference is significant
-    const double thresholdNumOkSGsInPtc = 20;
-    const double thresholdCrossingsInPtc = 20;
-    const double thresholdDiscomfortsInPtc = 20;
-    const double thresholdPushBikeAbsolute = 1;
-    const double thresholdTimeInPtc = 20;
-    const double thresholdDistanceInPtc = 10;
+    const thresholdNumOkSGsInPtc = 20;
+    const thresholdCrossingsInPtc = 20;
+    const thresholdDiscomfortsInPtc = 20;
+    const thresholdPushBikeAbsolute = 1;
+    const thresholdTimeInPtc = 20;
+    const thresholdDistanceInPtc = 10;
 
     // If the current route has the best attribute compared to all other routes
-    bool thisRouteHasMostOkSGs = numOkSGs > 0;
+    bool thisRouteHasMostOkSGs = thisRouteOkSGs > 0;
     bool thisRouteHasLeastCrossings = true;
     bool thisRouteHasLeastDiscomforts = true;
     bool thisRouteHasLeastPushBike = true;
@@ -555,33 +555,33 @@ class Routing with ChangeNotifier {
     for (final r.Route otherRoute in allRoutes!) {
       if (otherRoute.id == id) continue;
 
-      if (otherRoute.ok >= numOkSGs) thisRouteHasMostOkSGs = false;
+      if (otherRoute.ok >= thisRouteOkSGs) thisRouteHasMostOkSGs = false;
       if (secondBestOkSGs == null || otherRoute.ok > secondBestOkSGs) {
         secondBestOkSGs = otherRoute.ok.toDouble();
       }
 
-      if (otherRoute.crossings.length <= numCrossings) thisRouteHasLeastCrossings = false;
+      if (otherRoute.crossings.length <= thisRouteCrossings) thisRouteHasLeastCrossings = false;
       if (secondBestCrossings == null || otherRoute.crossings.length < secondBestCrossings) {
         secondBestCrossings = otherRoute.crossings.length.toDouble();
       }
 
       final otherRouteDiscomforts = otherRoute.foundDiscomforts?.length ?? 0;
-      if (otherRouteDiscomforts <= numDiscomforts) thisRouteHasLeastDiscomforts = false;
+      if (otherRouteDiscomforts <= thisRouteDiscomforts) thisRouteHasLeastDiscomforts = false;
       if (secondBestDiscomforts == null || otherRouteDiscomforts < secondBestDiscomforts) {
         secondBestDiscomforts = otherRouteDiscomforts.toDouble();
       }
 
-      if (otherRoute.path.details.getOffBike.length <= numPushBike) thisRouteHasLeastPushBike = false;
+      if (otherRoute.path.details.getOffBike.length <= thisRoutePushBike) thisRouteHasLeastPushBike = false;
       if (secondBestPushBike == null || otherRoute.path.details.getOffBike.length < secondBestPushBike) {
         secondBestPushBike = otherRoute.path.details.getOffBike.length.toDouble();
       }
 
-      if (otherRoute.path.time <= arrivalTime) thisRouteHasEarliestArrival = false;
+      if (otherRoute.path.time <= thisRouteArrivalTime) thisRouteHasEarliestArrival = false;
       if (secondBestEarliestArrival == null || otherRoute.path.time < secondBestEarliestArrival) {
         secondBestEarliestArrival = otherRoute.path.time.toDouble();
       }
 
-      if (otherRoute.path.distance <= distance) thisRouteIsShortest = false;
+      if (otherRoute.path.distance <= thisRouteDistance) thisRouteIsShortest = false;
       if (secondBestShortest == null || otherRoute.path.distance < secondBestShortest) {
         secondBestShortest = otherRoute.path.distance.toDouble();
       }
@@ -590,45 +590,51 @@ class Routing with ChangeNotifier {
     if (thisRouteHasMostOkSGs) {
       if (secondBestOkSGs == null ||
           secondBestOkSGs == 0 ||
-          (numOkSGs / secondBestOkSGs - 1) * 100 > thresholdNumOkSGsInPtc) {
+          (thisRouteOkSGs / secondBestOkSGs - 1) * 100 > thresholdNumOkSGsInPtc) {
         route.mostUniqueAttribute = "Mehr verbundene\nAmpeln";
+        log.i("Unique Attribute: Route $id has the most ok signal groups: $thisRouteOkSGs");
         return;
       }
     }
     if (thisRouteHasLeastCrossings) {
       if (secondBestCrossings == null ||
-          numCrossings == 0 ||
-          (secondBestCrossings / numCrossings - 1) * 100 > thresholdCrossingsInPtc) {
+          thisRouteCrossings == 0 ||
+          (secondBestCrossings / thisRouteCrossings - 1) * 100 > thresholdCrossingsInPtc) {
         route.mostUniqueAttribute = "Weniger\nKreuzungen";
+        log.i("Unique Attribute: Route $id has the least crossings: $thisRouteCrossings");
         return;
       }
     }
     if (thisRouteHasLeastDiscomforts) {
       if (secondBestDiscomforts == null ||
-          numDiscomforts == 0 ||
-          (secondBestDiscomforts / numDiscomforts - 1) * 100 > thresholdDiscomfortsInPtc) {
+          thisRouteDiscomforts == 0 ||
+          (secondBestDiscomforts / thisRouteDiscomforts - 1) * 100 > thresholdDiscomfortsInPtc) {
         route.mostUniqueAttribute = "Angenehmere\nStrecke";
+        log.i("Unique Attribute: Route $id has the least discomforts: $thisRouteDiscomforts");
         return;
       }
     }
     if (thisRouteHasLeastPushBike) {
-      if (secondBestPushBike == null || (secondBestPushBike - numPushBike) > thresholdPushBikeAbsolute) {
+      if (secondBestPushBike == null || (secondBestPushBike - thisRoutePushBike) > thresholdPushBikeAbsolute) {
         route.mostUniqueAttribute = "Weniger\nAbsteigen";
+        log.i("Unique Attribute: Route $id has the least push bike: $thisRoutePushBike");
         return;
       }
     }
     if (thisRouteHasEarliestArrival) {
       if (secondBestEarliestArrival == null ||
-          (secondBestEarliestArrival / arrivalTime - 1) * 100 > thresholdTimeInPtc) {
+          (secondBestEarliestArrival / thisRouteArrivalTime - 1) * 100 > thresholdTimeInPtc) {
         route.mostUniqueAttribute = "Schnellere\nAnkunftszeit";
+        log.i("Unique Attribute: Route $id has the earliest arrival: $thisRouteArrivalTime");
         return;
       }
     }
     if (thisRouteIsShortest) {
       if (secondBestShortest == null ||
-          distance == 0 ||
-          (secondBestShortest / distance - 1) * 100 > thresholdDistanceInPtc) {
+          thisRouteDistance == 0 ||
+          (secondBestShortest / thisRouteDistance - 1) * 100 > thresholdDistanceInPtc) {
         route.mostUniqueAttribute = "Kürzere\nStrecke";
+        log.i("Unique Attribute: Route $id is the shortest: $thisRouteDistance");
         return;
       }
     }
