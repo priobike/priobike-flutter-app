@@ -637,7 +637,6 @@ class Routing with ChangeNotifier {
       }
     }
 
-    log.i("Unique Attribute: Route $id has no unique attribute");
     route.mostUniqueAttribute = null;
   }
 }
