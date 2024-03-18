@@ -75,18 +75,16 @@ PODS:
     - GoogleUtilities/Logger
   - in_app_review (0.2.0):
     - Flutter
-  - mapbox_maps_flutter (0.5.0):
+  - mapbox_maps_flutter (1.0.0):
     - Flutter
-    - MapboxMaps (~> 10.13.1)
-  - MapboxCommon (23.5.0)
-  - MapboxCoreMaps (10.13.1):
-    - MapboxCommon (~> 23.5)
-  - MapboxMaps (10.13.1):
-    - MapboxCommon (= 23.5.0)
-    - MapboxCoreMaps (= 10.13.1)
-    - MapboxMobileEvents (= 1.0.10)
-    - Turf (~> 2.0)
-  - MapboxMobileEvents (1.0.10)
+    - MapboxMaps (~> 11.2.0)
+  - MapboxCommon (24.2.0)
+  - MapboxCoreMaps (11.2.0):
+    - MapboxCommon (~> 24.2)
+  - MapboxMaps (11.2.0):
+    - MapboxCommon (= 24.2.0)
+    - MapboxCoreMaps (= 11.2.0)
+    - Turf (= 2.8.0)
   - MTBBarcodeScanner (5.0.11)
   - nanopb (2.30909.1):
     - nanopb/decode (= 2.30909.1)
@@ -113,7 +111,7 @@ PODS:
   - system_info_plus (0.0.1):
     - Flutter
   - Toast (4.0.0)
-  - Turf (2.7.0)
+  - Turf (2.8.0)
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock_plus (0.0.1):
@@ -156,7 +154,6 @@ SPEC REPOS:
     - MapboxCommon
     - MapboxCoreMaps
     - MapboxMaps
-    - MapboxMobileEvents
     - MTBBarcodeScanner
     - nanopb
     - PromisesObjC
@@ -233,11 +230,10 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
-  mapbox_maps_flutter: bad1576756da36dce455f94bd8a9a3e2afd0ff76
-  MapboxCommon: fdf7fd31c90b7b607cd9c63e37797f023c01d860
-  MapboxCoreMaps: 24270c7c6b8cb71819fc2f3c549db9620ee4d019
-  MapboxMaps: cb76511b98d3b95c74b0771ed105bc69f30ace6b
-  MapboxMobileEvents: de50b3a4de180dd129c326e09cd12c8adaaa46d6
+  mapbox_maps_flutter: 7954cf84b3973ec17d49b483f31baad6abde6c48
+  MapboxCommon: f40f1e8c8f3ee8e2bee3b15437812ab114722420
+  MapboxCoreMaps: 4294d3178201702a95f2ae316bc4ad419f5fa16a
+  MapboxMaps: 413cb886e75b6703c0a3084ce84c29cd681d916f
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
   package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
@@ -250,7 +246,7 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   system_info_plus: 5393c8da281d899950d751713575fbf91c7709aa
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  Turf: 13d1a92d969ca0311bbc26e8356cca178ce95da2
+  Turf: aa2ede4298009639d10db36aba1a7ebaad072a5e
   url_launcher_ios: bf5ce03e0e2088bad9cc378ea97fa0ed5b49673b
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
 

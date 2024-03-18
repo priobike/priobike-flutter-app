@@ -379,6 +379,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       padding,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
+      null,
+      null,
     );
     if (cameraOptionsForBounds == null) return;
     await mapController?.flyTo(
@@ -646,9 +648,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is called when the user taps a feature.
-  onFeatureTapped(QueriedFeature queriedFeature) async {
+  onFeatureTapped(QueriedRenderedFeature queriedRenderedFeature) async {
     // Map the id of the layer to the corresponding feature.
-    final id = queriedFeature.feature['id'];
+    final id = queriedRenderedFeature.queriedFeature.feature['id'];
 
     if (id != null) {
       // Case Route or Route label.
@@ -660,7 +662,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
-    Map? properties = queriedFeature.feature["properties"] as Map?;
+    Map? properties = queriedRenderedFeature.queriedFeature.feature["properties"] as Map?;
     if (properties != null) {
       if (properties.containsKey("id")) {
         final propertiesId = properties["id"];
@@ -670,7 +672,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             propertiesId.contains("bicycle_rental") ||
             propertiesId.contains("bicycle_parking")) {
           if (mapController == null) return;
-          Map? geometry = queriedFeature.feature["geometry"] as Map?;
+          Map? geometry = queriedRenderedFeature.queriedFeature.feature["geometry"] as Map?;
           if (geometry == null) return;
           double lon = geometry["coordinates"][0];
           double lat = geometry["coordinates"][1];
@@ -883,7 +885,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ).toJson(),
     );
 
-    final List<QueriedFeature?> features = await mapController!.queryRenderedFeatures(
+    final List<QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
       RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
         type: Type.SCREEN_COORDINATE,
