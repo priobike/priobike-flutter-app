@@ -15,6 +15,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/crossing.dart';
+import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -25,7 +26,7 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:geolocator/geolocator.dart' as geo;
+import 'package:flutter_map_math/flutter_geo_math.dart';
 
 import '../models/instruction.dart';
 
@@ -139,6 +140,9 @@ class Routing with ChangeNotifier {
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
+
+  /// An instance for map calculations.
+  FlutterMapMath mapMath = FlutterMapMath();
 
   Routing({
     this.fetchedWaypoints,
@@ -537,11 +541,12 @@ class Routing with ChangeNotifier {
     return routes;
   }
 
-  List<Instruction> createInstructions(
-      SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
+  List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
     final instructions = List<Instruction>.empty(growable: true);
+
     for (var i = 0; i < sgSelectorResponse.route.length; i++) {
       final waypoint = sgSelectorResponse.route[i];
+      Instruction firstInstructionCall;
       Instruction customInstruction;
 
       // get the GraphHopper coordinates that matches lat and long of current SGSelectorResponse waypoint
@@ -559,35 +564,29 @@ class Routing with ChangeNotifier {
           if (waypoint.distanceToNextSignal != null &&
               waypoint.distanceToNextSignal! <= 50.0 &&
               waypoint.signalGroupId != null) {
-            // calculate waypopint 500m before waypoint.lat and waypoint.lon on route
-            double totalDistance = 0;
-            for (var j = i; j >= 0; j--) {
-              final wp = sgSelectorResponse.route[j];
-              // TODO: async machen wenn ausgelagert
-              var distance = geo.Geolocator.distanceBetween(waypoint.lat, waypoint.lon,
-                  wp.lat, wp.lon);
-              totalDistance += distance;
-
-              // TODO: schauen welcher beider Punkt näher an den 500m dran ist
-              if (totalDistance >= 500) {
-                customInstruction = Instruction(
-                    lat: wp.lat,
-                    lon: wp.lon,
-                    text: "Ampel in ${totalDistance}m");
-                break;
-              }
-            }
-
             // case 1: create custom instruction as combination of GraphHopper instruction and sg information
+            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i);
+            firstInstructionCall = Instruction(
+                lat: waypointFirstInstructionCall.lat,
+                lon: waypointFirstInstructionCall.lon,
+                text: "${ghInstruction.text} + Ampel in ${waypointFirstInstructionCall.distanceToNextSignal!}m"
+            );
             customInstruction = Instruction(
                 lat: waypoint.lat,
                 lon: waypoint.lon,
                 text: "${ghInstruction.text} + Ampel in ${waypoint.distanceToNextSignal!}m");
           } else {
             // case 2: create custom instruction based on GraphHopper instruction
+            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i);
+            firstInstructionCall = Instruction(
+                lat: waypointFirstInstructionCall.lat,
+                lon: waypointFirstInstructionCall.lon,
+                text: "In 300m ${ghInstruction.text}"
+            );
             customInstruction = Instruction(
                 lat: waypoint.lat, lon: waypoint.lon, text: ghInstruction.text);
           }
+          instructions.add(firstInstructionCall);
           instructions.add(customInstruction);
           continue;
         }
@@ -598,14 +597,40 @@ class Routing with ChangeNotifier {
           waypoint.signalGroupId != null) {
         // case 3: create customInstruction based on geometry information of sg
         // TODO extract and use geometry information
+        var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i);
+        firstInstructionCall = Instruction(
+            lat: waypointFirstInstructionCall.lat,
+            lon: waypointFirstInstructionCall.lon,
+            text: "In 300m Ampel ${waypoint.signalGroupId}"
+        );
         customInstruction = Instruction(
             lat: waypoint.lat,
             lon: waypoint.lon,
             text: "Ampel ${waypoint.signalGroupId}");
+        instructions.add(firstInstructionCall);
         instructions.add(customInstruction);
       }
     }
     return instructions;
+  }
+
+  NavigationNode findWaypoint300mBeforeInstruction(SGSelectorResponse sgSelectorResponse, int i) {
+    double totalDistance = 0;
+    NavigationNode b = sgSelectorResponse.route[i];
+    NavigationNode a;
+    for (var j = i-1; j >= 0; j--) {
+      a = sgSelectorResponse.route[j];
+      var distance = mapMath.distanceBetween(a.lat, a.lon, b.lat, b.lon, "meters");
+      totalDistance += distance;
+
+      // TODO: schauen welcher beider Punkt näher an den 300m dran ist
+      if (totalDistance >= 300) {
+        return a;
+      }
+    }
+    // TODO: check what happens if there is no point 300m before
+    // TODO: nur adden wenn dieser Punkt nicht vor der vorhergehenden Instruction liegt
+    return sgSelectorResponse.route[0];
   }
 
   /// Load the routes from a route shortcut from the server (lightweight).

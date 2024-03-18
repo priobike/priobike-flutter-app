@@ -494,6 +494,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0+1"
+  flutter_map_math:
+    dependency: "direct main"
+    description:
+      name: flutter_map_math
+      sha256: "4ac7e68a0862cb22a49484e5ae5c8ed01794fd3d58e85362cf3c3cf2c1b8cf2e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.7"
   flutter_native_splash:
     dependency: "direct main"
     description:

@@ -22,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../positioning/models/snap.dart';
 import '../../routing/messages/graphhopper.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:geolocator/geolocator.dart' as geo;
+import 'package:flutter_map_math/flutter_geo_math.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -80,6 +80,9 @@ class Ride with ChangeNotifier {
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
+
+  /// An instance for map calculations.
+  FlutterMapMath mapMath = FlutterMapMath();
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -260,25 +263,16 @@ class Ride with ChangeNotifier {
 
     // check if there is an route.instruction with localisation of snap in distance of less than 10m
     // TODO: check necessary distance (maybe should be less?)
-    var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed && geo.Geolocator.distanceBetween(element.lat, element.lon,
-        snap.position.latitude, snap.position.longitude) < 10);
+    // TODO: need async here?
+    var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed && mapMath.distanceBetween(element.lat, element.lon,
+        snap.position.latitude, snap.position.longitude, "meters") < 10);
 
     if (currentInstruction != null){
       //play text to speech
       await ftts.speak(currentInstruction.text!);
       currentInstruction.executed = true;
     }
-    // TODO: after finish all executed instructions should meybe be reset to false?
-
-    // if (this.calcDistanceToNextTurn! < 100) {
-    //   var instructions = route!.path.instructions;
-    //
-    //   List<String> points = [];
-    //   for (GHInstruction i in instructions) {
-    //     points.add("${i.interval.first} + ${i.interval.last}");
-    //   }
-    //   String huhu = "huhu";
-    // }
+    // TODO: after finish all executed instructions should maybe be reset to false?
 
     // Find the next signal group.
     Sg? nextSg;
