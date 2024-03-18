@@ -368,14 +368,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       top: (80 + frame.padding.top),
       // AppBackButton width
       left: 64,
-      // (BottomSheet + bottom padding)
-      bottom: (146 + frame.padding.bottom),
+      // BottomSheet (122) + shortcuts (54) + attribution (16) + bottom padding
+      bottom: (194 + frame.padding.bottom),
       // Width of legend
       right: 64,
     );
 
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
-      routing.selectedRoute!.paddedBounds,
+      routing.selectedRoute!.bounds,
       padding,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
@@ -732,24 +732,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the attribution position to the position of the bottom sheet.
   fitAttributionPosition({double? sheetHeightRelative}) {
     if (mapController == null) return;
-    final frame = MediaQuery.of(context);
-    final sheetHeightAbs = sheetHeightRelative == null
-        // Bottom padding + sheet init size + padding + shortcut height + padding.
-        ? 122.0 + 8 + 40 + 8 // Default value.
-        // Bottom padding + sheet relative size + padding + shortcut height + padding.
-        : sheetHeightRelative * frame.size.height + 40 + 8;
-    final maxBottomInset = frame.size.height - frame.padding.top - 100;
-    double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
-    mapController!.setCamera(
-      CameraOptions(
-        padding: MbxEdgeInsets(
-            bottom: newBottomInset,
-            // Needs to be set since this offset is set in fitCameraToRouteBounds().
-            left: 64,
-            top: defaultMapInsets.top,
-            right: defaultMapInsets.left),
-      ),
-    );
+
     // Bottom padding + sheet init size + padding + shortcut height + padding.
     const attributionMargins = math.Point(10, 122 + 8 + 40 + 8);
     mapController!.attribution.updateSettings(AttributionSettings(

@@ -115,13 +115,13 @@ class Route {
     return CoordinateBounds(
         southwest: Point(
             coordinates: Position(
-          s,
           w,
+          s,
         )).toJson(),
         northeast: Point(
             coordinates: Position(
-          n,
           e,
+          n,
         )).toJson(),
         infiniteBounds: false);
   }
@@ -131,11 +131,11 @@ class Route {
     final bounds = this.bounds;
     const pad = 0.003;
     final coordinatesSouthwest = bounds.southwest["coordinates"] as List;
-    final s = coordinatesSouthwest[1] as double;
-    final w = coordinatesSouthwest[0] as double;
+    final s = coordinatesSouthwest[0] as double;
+    final w = coordinatesSouthwest[1] as double;
     final coordinatesNortheast = bounds.northeast["coordinates"] as List;
-    final n = coordinatesNortheast[1] as double;
-    final e = coordinatesNortheast[0] as double;
+    final n = coordinatesNortheast[0] as double;
+    final e = coordinatesNortheast[1] as double;
     return CoordinateBounds(
         southwest: Point(
             coordinates: Position(
