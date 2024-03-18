@@ -212,7 +212,15 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   ],
                 ),
                 const VSpace(),
-                const StatusView(showPercentage: true),
+                const Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: StatusView(showPercentage: true),
+                    ),
+                    SizedBox(width: 10),
+                  ],
+                ),
                 const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
