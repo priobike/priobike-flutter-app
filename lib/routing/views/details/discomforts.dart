@@ -59,14 +59,14 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   /// Process the route data and create the chart series.
   Future<void> processDiscomfortData() async {
-    if (routing.selectedRoute == null) return setState(() => discomfortDistances = {});
-    final foundDiscomforts = routing.selectedRoute?.foundDiscomforts;
-    if (foundDiscomforts == null) return setState(() => discomfortDistances = {});
+    if (routing.selectedRoute == null || routing.selectedRoute?.foundDiscomforts == null) {
+      return setState(() => discomfortDistances = {});
+    }
 
     const vincenty = Distance(roundResult: false);
     discomfortDistances = {};
     discomfortColors = {};
-    for (final discomfort in foundDiscomforts) {
+    for (final discomfort in routing.selectedRoute!.foundDiscomforts!) {
       for (var idx = 0; idx < discomfort.coordinates.length - 1; idx++) {
         final distance = vincenty.distance(
             LatLng(discomfort.coordinates[idx].latitude, discomfort.coordinates[idx].longitude),
@@ -93,9 +93,11 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   /// Render the bar chart.
   Widget renderBar() {
-    if (discomfortDistances.isEmpty || routing.selectedRoute == null) return Container();
-    final foundDiscomforts = routing.selectedRoute!.foundDiscomforts;
-    if (foundDiscomforts == null) return Container();
+    if (discomfortDistances.isEmpty ||
+        routing.selectedRoute == null ||
+        routing.selectedRoute!.foundDiscomforts == null) {
+      return Container();
+    }
 
     final availableWidth = (MediaQuery.of(context).size.width - 62);
     var elements = <Widget>[];
@@ -171,9 +173,11 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (discomfortDistances.isEmpty || routing.selectedRoute == null) return Container();
-    final foundDiscomforts = routing.selectedRoute!.foundDiscomforts;
-    if (foundDiscomforts == null) return Container();
+    if (discomfortDistances.isEmpty ||
+        routing.selectedRoute == null ||
+        routing.selectedRoute!.foundDiscomforts == null) {
+      return Container();
+    }
 
     return Container(
       decoration: BoxDecoration(
