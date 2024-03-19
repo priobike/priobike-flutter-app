@@ -201,7 +201,10 @@ class RouteLabelManager extends ChangeNotifier {
 
     // Check zoom level and return if to small.
     final camera = await mapController.getCameraState();
-    if (camera.zoom < 9) return;
+    if (camera.zoom < 9) {
+      notifyListeners();
+      return;
+    }
 
     // Visible screen coordinates per route.
     List<List<ScreenCoordinate>> visibleScreenCoordinates = [];
