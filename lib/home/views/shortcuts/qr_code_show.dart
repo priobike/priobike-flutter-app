@@ -28,7 +28,7 @@ class ShowQRCodeViewState extends State<ShowQRCodeView> {
   void initState() {
     super.initState();
     _removeNameFromShortcut();
-    getBase64();
+    _encodeShortcut();
   }
 
   /// Remove the name from the shortcut for privacy reasons.
@@ -36,19 +36,20 @@ class ShowQRCodeViewState extends State<ShowQRCodeView> {
     if (widget.shortcut is ShortcutLocation) {
       shortcutWithoutName = ShortcutLocation(
         waypoint: (widget.shortcut as ShortcutLocation).waypoint,
-        id: widget.shortcut.id,
+        id: UniqueKey().toString(),
       );
     } else if (widget.shortcut is ShortcutRoute) {
       shortcutWithoutName = ShortcutRoute(
         waypoints: (widget.shortcut as ShortcutRoute).waypoints,
-        id: widget.shortcut.id,
+        id: UniqueKey().toString(),
       );
     } else {
       throw Exception("Unknown shortcut type");
     }
   }
 
-  Future<void> getBase64() async {
+  /// Encode the shortcut for the QR code.
+  Future<void> _encodeShortcut() async {
     final longLink = shortcutWithoutName.getLongLink();
     final newShortLink = await LinkShortener.createShortLink(longLink);
     if (newShortLink == null) {

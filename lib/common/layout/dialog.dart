@@ -77,7 +77,7 @@ Future<Shortcut?> showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
-        title: shortcutType == "Route" ? 'Route speichern' : 'Ort speichern',
+        title: shortcutType == "Route" ? "Route speichern" : "Ort speichern",
         text: shortcutType == "Route"
             ? "Bitte gib einen Namen für die Route ein."
             : "Bitte gib einen Namen für den Ort ein.",
