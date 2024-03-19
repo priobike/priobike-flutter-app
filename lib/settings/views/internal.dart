@@ -26,6 +26,7 @@ import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/simulator/services/simulator.dart';
+import 'package:priobike/smartglasses/SmartglassService.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status_tabs.dart';
@@ -74,6 +75,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The simulator service, which is injected by the provider.
   late Simulator simulator;
 
+  late SmartglassService smartglasses;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -102,6 +105,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     simulator = getIt<Simulator>();
     simulator.addListener(update);
     boundary = getIt<Boundary>();
+    smartglasses = getIt<SmartglassService>();
   }
 
   @override
@@ -367,6 +371,40 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     context: context,
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    // Todo: this only works if the widget is rebuild.
+                    title: smartglasses.is_registered ? "Tooz ist verbunden": "Tooz verbinden",
+                    icon: Icons.smart_screen,
+                    callback: () => smartglasses.register(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                    "Verbinde deine Tooz-Datenbrille mit der App.",
+                    context: context,
+                  ),
+                ),
+                if(smartglasses.is_registered)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SettingsElement(
+                      title: "Raster zeichnen",
+                      icon: Icons.smart_screen,
+                      callback: () => smartglasses.drawRaster(),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SettingsElement(
+                      title: "Map zeichnen",
+                      icon: Icons.smart_screen,
+                      callback: () => smartglasses.drawMap(),
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(

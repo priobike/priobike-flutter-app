@@ -55,7 +55,7 @@ android {
 
     defaultConfig {
         applicationId "de.tudresden.priobike"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

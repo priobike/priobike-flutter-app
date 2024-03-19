@@ -37,6 +37,9 @@
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false"/>
+    <queries>
+        <package android:name="com.tooztech.bto.toozos" />
+    </queries>
 
     <application
         android:name="${applicationName}"

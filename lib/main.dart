@@ -32,6 +32,7 @@ import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/services/simulator.dart';
+import 'package:priobike/smartglasses/SmartglassService.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
@@ -99,6 +100,7 @@ Future<void> main() async {
   getIt.registerSingleton<Simulator>(Simulator());
   getIt.registerSingleton<SpeedSensor>(SpeedSensor());
   getIt.registerSingleton<LoadStatus>(LoadStatus());
+  getIt.registerSingleton<SmartglassService>(SmartglassService().init());
   try {
     runApp(const App());
   } on Error catch (error, stack) {

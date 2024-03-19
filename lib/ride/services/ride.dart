@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Route, Shortcuts;
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -10,11 +11,13 @@ import 'package:priobike/ride/interfaces/prediction_component.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
 import 'package:priobike/ride/services/prediction_service.dart';
 import 'package:priobike/ride/services/predictor.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/smartglasses/SmartglassService.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -315,8 +318,34 @@ class Ride with ChangeNotifier {
     } else {
       calcDistanceToNextSG = null;
     }
+    final smartglasses = getIt<SmartglassService>();
+    final currentInstruction = getCurrentInstruction(route!.path, getIt<Positioning>().lastPosition!);
+    smartglasses.show(currentInstruction!.text, currentInstruction.sign);
 
     notifyListeners();
+  }
+
+  GHInstruction? getCurrentInstruction(GHRouteResponsePath path, Position currentLocation) {
+    var minDist = 10000.0;
+    var currentIndex = 0;
+    for(int i = 0; i < path.points.coordinates.length; i++) {
+      final n1 = path.points.coordinates[i];
+      final p1 = LatLng(n1.lat, n1.lon);
+      final p2 = LatLng(currentLocation.latitude, currentLocation.longitude);
+      final b = vincenty.bearing(p1, p2); // [-180°, 180°]
+      final dist = vincenty.distance(p1, p2);
+      if (dist < minDist) {
+        minDist = dist;
+        currentIndex = i;
+      }
+    }
+    var currentPoint = path.points.coordinates[currentIndex];
+    for(int i = 0; i < path.instructions.length; i++) {
+      if(path.instructions[i].interval[0] <= currentIndex && path.instructions[i].interval[1] > currentIndex && path.instructions[i].interval[0] != path.instructions[i].interval[1]) {
+        return path.instructions[i];
+      }
+    }
+    return path.instructions.last;
   }
 
   /// Stop the navigation.
