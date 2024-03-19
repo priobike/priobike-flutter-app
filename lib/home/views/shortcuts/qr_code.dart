@@ -92,7 +92,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           child: SubHeader(
                             text: state == QRCodeViewMode.scanning
                                 ? "Strecke von einem anderem Gerät importieren"
-                                : shortcut!.name ?? "",
+                                : shortcut!.name ?? "Shortcut",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
@@ -185,20 +185,20 @@ class QRCodeViewState extends State<QRCodeView> {
                                 ),
                               ],
                             ),
-                          if (state == QRCodeViewMode.scanned)
-                            Column(
-                              children: [
-                                Content(text: shortcut!.getShortInfo(), context: context),
-                                const VSpace(),
-                                BigButtonPrimary(
-                                  iconColor: Colors.white,
-                                  label: "Speichern!",
-                                  onPressed: () => saveShortCut(),
-                                  boxConstraints:
-                                      BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                                ),
-                              ],
-                            ),
+                          // if (state == QRCodeViewMode.scanned)
+                          //   Column(
+                          //     children: [
+                          //       Content(text: shortcut!.getShortInfo(), context: context),
+                          //       const VSpace(),
+                          //       BigButtonPrimary(
+                          //         iconColor: Colors.white,
+                          //         label: "Speichern!",
+                          //         onPressed: () => saveShortCut(),
+                          //         boxConstraints:
+                          //             BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                          //       ),
+                          //     ],
+                          //   ),
                         ],
                       ),
                     ),
