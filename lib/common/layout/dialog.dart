@@ -7,9 +7,12 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/geosearch.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -45,8 +48,18 @@ void showInvalidShortcutSheet(context) {
   );
 }
 
-/// Show a sheet to save a shortcut. If the shortcut is null the current route (at the routing service will be saved).
+/// Show a sheet to save a shortcut. If the shortcut is null then a shortcut based on the current data in the routing service will be created.
 Shortcut? showSaveShortcutSheet(context, {Shortcut? shortcut}) {
+  final routing = getIt<Routing>();
+  if ((routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) && shortcut == null) {
+    return null;
+  }
+  final String shortcutType;
+  if (shortcut != null) {
+    shortcutType = shortcut is ShortcutRoute ? "Route" : "Location";
+  } else {
+    shortcutType = routing.selectedWaypoints!.length == 1 ? "Location" : "Route";
+  }
   Shortcut? newShortcut;
   showGeneralDialog(
     context: context,
@@ -64,15 +77,17 @@ Shortcut? showSaveShortcutSheet(context, {Shortcut? shortcut}) {
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
-        title: 'Route speichern',
-        text: "Bitte gib einen Namen für die Route ein.",
+        title: shortcutType == "Route" ? 'Route speichern' : 'Ort speichern',
+        text: shortcutType == "Route"
+            ? "Bitte gib einen Namen für die Route ein."
+            : "Bitte gib einen Namen für den Ort ein.",
         actions: [
           TextField(
             autofocus: false,
             controller: nameController,
             maxLength: 20,
             decoration: InputDecoration(
-              hintText: "Heimweg, Zur Arbeit, ...",
+              hintText: shortcutType == "Route" ? "Heimweg, Zur Arbeit, ..." : "Zuhause, Arbeit, ...",
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
@@ -103,14 +118,21 @@ Shortcut? showSaveShortcutSheet(context, {Shortcut? shortcut}) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-
+              final shortcuts = getIt<Shortcuts>();
               if (shortcut == null) {
-                newShortcut = await getIt<Shortcuts>().saveNewShortcutRoute(name);
-                ToastMessage.showSuccess("Route gespeichert!");
+                if (shortcutType == "Route") {
+                  newShortcut = await shortcuts.saveNewShortcutRoute(name);
+                  ToastMessage.showSuccess("Route gespeichert!");
+                } else {
+                  final waypoint = routing.selectedWaypoints!.first;
+                  newShortcut = await shortcuts.saveNewShortcutLocation(name, waypoint);
+                  await getIt<Geosearch>().addToSearchHistory(waypoint);
+                  ToastMessage.showSuccess("Ort gespeichert!");
+                }
               } else {
                 final oldShortcut = shortcut;
                 oldShortcut.name = name;
-                await getIt<Shortcuts>().saveNewShortcutObject(oldShortcut);
+                await shortcuts.saveNewShortcutObject(oldShortcut);
                 newShortcut = oldShortcut;
               }
               if (!context.mounted) return;
@@ -121,7 +143,7 @@ Shortcut? showSaveShortcutSheet(context, {Shortcut? shortcut}) {
           BigButtonTertiary(
             label: "Abbrechen",
             addPadding: false,
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(context);
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

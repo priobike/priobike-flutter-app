@@ -83,7 +83,7 @@ class Shortcuts with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Save a new shortcut (Shortcut object given).
+  /// Save a new shortcut.
   Future<void> saveNewShortcutObject(Shortcut shortcut) async {
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
