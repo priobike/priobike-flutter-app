@@ -132,6 +132,11 @@ class App extends StatelessWidget {
           onGenerateRoute: (routeSettings) {
             String? url = routeSettings.name!;
             if (!url.contains("/link/")) url = null;
+
+            // Required to make sure that home view doesn't get opened twice if the user clicks on an
+            // import link while the app is already open in the background.
+            navigatorKey.currentState?.popUntil((route) => false);
+
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(
