@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/icon_item.dart';
@@ -8,8 +9,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-
-import '../common/layout/annotated_region.dart';
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
