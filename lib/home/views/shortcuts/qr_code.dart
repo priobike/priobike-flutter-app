@@ -65,6 +65,8 @@ class QRCodeViewState extends State<QRCodeView> {
       backgroundColor: Theme.of(context).colorScheme.background,
       brightness: Theme.of(context).brightness,
       child: Scaffold(
+        // Prevent the keyboard from pushing the view up
+        resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
           child: Column(
@@ -147,6 +149,7 @@ class QRCodeViewState extends State<QRCodeView> {
                                       );
                                       await showSaveShortcutSheet(context, shortcut: shortcut);
                                       if (!mounted) return;
+                                      // Go back to HomeView
                                       Navigator.popUntil(context, (route) => route.isFirst);
                                     },
                                   )
