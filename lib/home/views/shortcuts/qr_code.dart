@@ -187,20 +187,6 @@ class QRCodeViewState extends State<QRCodeView> {
                                 ),
                               ],
                             ),
-                          // if (state == QRCodeViewMode.scanned)
-                          //   Column(
-                          //     children: [
-                          //       Content(text: shortcut!.getShortInfo(), context: context),
-                          //       const VSpace(),
-                          //       BigButtonPrimary(
-                          //         iconColor: Colors.white,
-                          //         label: "Speichern!",
-                          //         onPressed: () => saveShortCut(),
-                          //         boxConstraints:
-                          //             BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                          //       ),
-                          //     ],
-                          //   ),
                         ],
                       ),
                     ),
