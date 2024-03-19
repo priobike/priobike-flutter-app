@@ -4,7 +4,9 @@ import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
 import 'package:priobike/common/fcm.dart';
+import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -29,6 +31,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -36,7 +39,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
@@ -76,6 +78,8 @@ Future<void> main() async {
   // Init the HTTP client for all services.
   Http.initClient();
 
+  MapboxOptions.setAccessToken(Keys.mapboxAccessToken);
+
   // Register the services.
   getIt.registerSingleton<Weather>(Weather());
   getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
@@ -100,7 +104,6 @@ Future<void> main() async {
   getIt.registerSingleton<FreeRide>(FreeRide());
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
-  getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<Simulator>(Simulator());
   getIt.registerSingleton<SpeedSensor>(SpeedSensor());
@@ -132,7 +135,8 @@ class App extends StatelessWidget {
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
           onGenerateRoute: (routeSettings) {
-            String url = routeSettings.name!;
+            String? url = routeSettings.name!;
+            if (!url.contains("/link/")) url = null;
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(

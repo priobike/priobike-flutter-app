@@ -27,9 +27,8 @@ import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/simulator/services/simulator.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/status/views/status_tabs.dart';
+import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -53,9 +52,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
   /// The associated load status service, which is injected by the provider.
   late LoadStatus loadStatus;
-
-  /// The associated status history service, which is injected by the provider.
-  late StatusHistory statusHistory;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
@@ -89,9 +85,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);
     loadStatus = getIt<LoadStatus>();
-    statusHistory = getIt<StatusHistory>();
-    statusHistory.fetch();
-    statusHistory.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     routing = getIt<Routing>();
@@ -110,7 +103,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     settings.removeListener(update);
     position.removeListener(update);
     predictionStatusSummary.removeListener(update);
-    statusHistory.removeListener(update);
     shortcuts.removeListener(update);
     routing.removeListener(update);
     news.removeListener(update);
@@ -163,7 +155,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
     // Reset the associated services.
     await predictionStatusSummary.reset();
-    await statusHistory.reset();
     await shortcuts.reset();
     await routing.reset();
     await news.reset();
@@ -174,7 +165,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await predictionStatusSummary.fetch();
     await loadStatus.fetch();
     loadStatus.sendAppStartNotification();
-    await statusHistory.fetch();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 
@@ -222,7 +212,15 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   ],
                 ),
                 const VSpace(),
-                const StatusTabsView(),
+                const Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: StatusView(showPercentage: true),
+                    ),
+                    SizedBox(width: 10),
+                  ],
+                ),
                 const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),

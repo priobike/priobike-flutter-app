@@ -459,7 +459,7 @@ class RideMapViewState extends State<RideMapView> {
 
     // Returns the Features for a given screen coordinate.
     // Note: Android seems to consider the scale factor.
-    final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
+    final List<mapbox.QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
       mapbox.RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
         type: mapbox.Type.SCREEN_COORDINATE,
@@ -475,9 +475,9 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// A callback that is called when the user taps a feature.
-  onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
+  onFeatureTapped(mapbox.QueriedRenderedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
-    final id = queriedFeature.feature['id'];
+    final id = queriedFeature.queriedFeature.feature['id'];
     if ((id as String).startsWith("traffic-light-clickable")) {
       final sgIdx = int.tryParse(id.split("-")[3]);
       if (sgIdx == null) return;

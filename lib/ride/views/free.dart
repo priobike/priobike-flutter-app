@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -92,7 +94,7 @@ class FreeRideViewState extends State<FreeRideView> {
                       clipBehavior: Clip.none,
                       children: [
                         const FreeRideMapView(),
-                        if (settings.saveBatteryModeEnabled)
+                        if (settings.saveBatteryModeEnabled && Platform.isAndroid)
                           Positioned(
                             top: MediaQuery.of(context).padding.top + 15,
                             left: 10,
@@ -101,7 +103,7 @@ class FreeRideViewState extends State<FreeRideView> {
                               image: AssetImage('assets/images/mapbox-logo-transparent.png'),
                             ),
                           ),
-                        if (settings.saveBatteryModeEnabled)
+                        if (settings.saveBatteryModeEnabled && Platform.isAndroid)
                           Positioned(
                             top: MediaQuery.of(context).padding.top + 5,
                             right: 10,

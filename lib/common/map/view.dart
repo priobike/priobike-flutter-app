@@ -1,9 +1,9 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
-import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -122,7 +122,6 @@ class AppMapState extends State<AppMap> {
     }
 
     final Widget map = mapbox.MapWidget(
-      resourceOptions: mapbox.ResourceOptions(accessToken: Keys.mapboxAccessToken),
       key: const ValueKey("mapbox-map"),
       styleUri: Theme.of(context).colorScheme.brightness == Brightness.light
           ? mapDesigns.mapDesign.lightStyle
@@ -147,7 +146,6 @@ class AppMapState extends State<AppMap> {
         // shared (not used by other frameworks/code except Mapbox))
         contextMode: mapbox.ContextMode.UNIQUE,
         crossSourceCollisions: false,
-        optimizeForTerrain: false,
         pixelRatio: devicePixelRatio,
       ),
       cameraOptions: mapbox.CameraOptions(
@@ -162,7 +160,7 @@ class AppMapState extends State<AppMap> {
 
     // Render map with 2.5x size if battery saving mode is enabled.
     // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
-    return widget.saveBatteryModeEnabled
+    return widget.saveBatteryModeEnabled && Platform.isAndroid
         ? Transform.scale(
             scale: Settings.scalingFactor,
             child: map,
@@ -177,7 +175,7 @@ class AppMapState extends State<AppMap> {
       controller.location.updateSettings(mapbox.LocationComponentSettings(
         enabled: true,
         puckBearingEnabled: true,
-        puckBearingSource: mapbox.PuckBearingSource.HEADING,
+        puckBearing: mapbox.PuckBearing.HEADING,
       ));
     }
     controller.compass.updateSettings(mapbox.CompassSettings(enabled: false));

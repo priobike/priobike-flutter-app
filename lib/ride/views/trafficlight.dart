@@ -101,18 +101,33 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       child: Stack(
         children: [
           Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    countdownLabel,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  countdownLabel,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 86,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 32,
+                        offset: Offset(0, 0),
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    ],
+                    fontWeight: FontWeight.w500,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                  ),
+                ),
+                if (countdownLabel.isNotEmpty)
+                  const Text(
+                    "s",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 86,
+                    style: TextStyle(
+                      fontSize: 32,
                       shadows: [
                         Shadow(
                           blurRadius: 32,
@@ -124,25 +139,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
                       color: Color.fromARGB(255, 255, 255, 255),
                     ),
                   ),
-                  if (countdownLabel.isNotEmpty)
-                    const Text(
-                      "s",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 32,
-                            offset: Offset(0, 0),
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                        ],
-                        fontWeight: FontWeight.w500,
-                        color: Color.fromARGB(255, 255, 255, 255),
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
         ],
