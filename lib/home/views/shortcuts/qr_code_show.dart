@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/link_shortener.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -17,17 +19,37 @@ class ShowQRCodeView extends StatefulWidget {
 class ShowQRCodeViewState extends State<ShowQRCodeView> {
   String? shortLink;
 
+  /// The shortcut without it's name.
+  late Shortcut shortcutWithoutName;
+
   ShowQRCodeViewState();
 
   @override
   void initState() {
     super.initState();
-
+    removeNameFromShortcut();
     getBase64();
   }
 
+  /// Remove the name from the shortcut for privacy reasons.
+  void removeNameFromShortcut() {
+    if (widget.shortcut.runtimeType == ShortcutLocation) {
+      shortcutWithoutName = ShortcutLocation(
+        waypoint: (widget.shortcut as ShortcutLocation).waypoint,
+        id: widget.shortcut.id,
+      );
+    } else if (widget.shortcut.runtimeType == ShortcutRoute) {
+      shortcutWithoutName = ShortcutRoute(
+        waypoints: (widget.shortcut as ShortcutRoute).waypoints,
+        id: widget.shortcut.id,
+      );
+    } else {
+      throw Exception("Unknown shortcut type");
+    }
+  }
+
   Future<void> getBase64() async {
-    final longLink = widget.shortcut.getLongLink();
+    final longLink = shortcutWithoutName.getLongLink();
     final newShortLink = await LinkShortener.createShortLink(longLink);
     if (newShortLink == null) {
       ToastMessage.showError("Fehler beim Erstellen des QR Codes");
