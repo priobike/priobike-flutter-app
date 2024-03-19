@@ -37,7 +37,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
@@ -100,7 +99,6 @@ Future<void> main() async {
   getIt.registerSingleton<FreeRide>(FreeRide());
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
-  getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<Simulator>(Simulator());
   getIt.registerSingleton<SpeedSensor>(SpeedSensor());
