@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -278,20 +279,22 @@ class RouteLabelManager extends ChangeNotifier {
 
   /// Returns a List of lists of unique coordinates for every route.
   List<List<GHCoordinate>> getUniqueCoordinatesPerRoute(List<Route> routes) {
-    List<List<GHCoordinate>> coordinatesPerRoute = [];
+    List<HashSet<GHCoordinate>> coordinatesPerRoute = [];
 
+    // Use hashsets to reduce the complexity for the contains function in the next part.
     for (final route in routes) {
-      List<GHCoordinate> coordinates = [];
+      HashSet<GHCoordinate> coordinates = HashSet();
+
       for (GHCoordinate coordinate in route.path.points.coordinates) {
         coordinates.add(coordinate);
       }
       coordinatesPerRoute.add(coordinates);
     }
 
-    List<List<GHCoordinate>> uniqueCoordinatesPerRoute = [];
+    List<HashSet<GHCoordinate>> uniqueCoordinatesPerRoute = [];
 
     for (final coordinates in coordinatesPerRoute) {
-      List<GHCoordinate> uniqueCoordinates = [];
+      HashSet<GHCoordinate> uniqueCoordinates = HashSet();
       for (final coordinate in coordinates) {
         bool unique = true;
         for (final coordinatesToBeChecked in coordinatesPerRoute) {
@@ -309,7 +312,19 @@ class RouteLabelManager extends ChangeNotifier {
       uniqueCoordinatesPerRoute.add(uniqueCoordinates);
     }
 
-    return uniqueCoordinatesPerRoute;
+    List<List<GHCoordinate>> uniqueCoordinatesPerRouteList = [];
+    // Map the unique coordinates to the original order of the route due to the hashset use.
+    for (int i = 0; i < routes.length; i++) {
+      List<GHCoordinate> uniqueCoordinatesList = [];
+      for (GHCoordinate coordinate in routes[i].path.points.coordinates) {
+        if (uniqueCoordinatesPerRoute[i].contains(coordinate)) {
+          uniqueCoordinatesList.add(coordinate);
+        }
+      }
+      uniqueCoordinatesPerRouteList.add(uniqueCoordinatesList);
+    }
+
+    return uniqueCoordinatesPerRouteList;
   }
 
   /// Returns a bool whether the given screen coordinate fits for the route label margins.
