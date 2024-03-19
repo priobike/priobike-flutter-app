@@ -62,9 +62,13 @@ class SearchItem extends StatelessWidget {
                 icon: const Icon(Icons.save),
                 color: Theme.of(context).colorScheme.tertiary,
                 onPressed: () {
-                  final ShortcutLocation waypointShortcut =
-                      ShortcutLocation(waypoint: waypoint, id: UniqueKey().toString());
-                  showSaveShortcutSheet(context, shortcut: waypointShortcut);
+                  showSaveShortcutSheet(
+                    context,
+                    shortcut: ShortcutLocation(
+                      waypoint: waypoint,
+                      id: UniqueKey().toString(),
+                    ),
+                  );
                 },
               ),
             ),
@@ -158,9 +162,13 @@ class HistoryItemState extends State<HistoryItem> {
                       icon: const Icon(Icons.save),
                       color: Theme.of(context).colorScheme.tertiary,
                       onPressed: () {
-                        final ShortcutLocation waypointShortcut =
-                            ShortcutLocation(waypoint: widget.waypoint, id: UniqueKey().toString());
-                        showSaveShortcutSheet(context, shortcut: waypointShortcut);
+                        showSaveShortcutSheet(
+                          context,
+                          shortcut: ShortcutLocation(
+                            waypoint: widget.waypoint,
+                            id: UniqueKey().toString(),
+                          ),
+                        );
                       },
                     ),
                   ),

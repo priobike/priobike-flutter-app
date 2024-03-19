@@ -33,12 +33,12 @@ class ShowQRCodeViewState extends State<ShowQRCodeView> {
 
   /// Remove the name from the shortcut for privacy reasons.
   void removeNameFromShortcut() {
-    if (widget.shortcut.runtimeType == ShortcutLocation) {
+    if (widget.shortcut is ShortcutLocation) {
       shortcutWithoutName = ShortcutLocation(
         waypoint: (widget.shortcut as ShortcutLocation).waypoint,
         id: widget.shortcut.id,
       );
-    } else if (widget.shortcut.runtimeType == ShortcutRoute) {
+    } else if (widget.shortcut is ShortcutRoute) {
       shortcutWithoutName = ShortcutRoute(
         waypoints: (widget.shortcut as ShortcutRoute).waypoints,
         id: widget.shortcut.id,

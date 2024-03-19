@@ -70,7 +70,7 @@ class ShortcutsState extends State<ShortcutsRow> {
               padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
               child: Content(
                 context: context,
-                text: shortcut.name ?? "",
+                text: shortcut.name ?? "Shortcut",
               ),
             ),
           ],
