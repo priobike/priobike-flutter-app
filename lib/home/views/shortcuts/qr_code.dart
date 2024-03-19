@@ -92,7 +92,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           child: SubHeader(
                             text: state == QRCodeViewMode.scanning
                                 ? "Strecke von einem anderem Gerät importieren"
-                                : shortcut!.name ?? "Shortcut",
+                                : shortcut!.name ?? "",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
@@ -137,15 +137,17 @@ class QRCodeViewState extends State<QRCodeView> {
                             height: MediaQuery.of(context).size.width * 0.8,
                             child: state == QRCodeViewMode.scanning
                                 ? ScanQRCodeView(
-                                    onScan: (shortcut) {
+                                    onScan: (shortcut) async {
                                       if (!mounted) return;
-                                      showSaveShortcutSheet(context, shortcut: shortcut);
                                       setState(
                                         () {
                                           this.shortcut = shortcut;
                                           state = QRCodeViewMode.scanned;
                                         },
                                       );
+                                      await showSaveShortcutSheet(context, shortcut: shortcut);
+                                      if (!mounted) return;
+                                      Navigator.popUntil(context, (route) => route.isFirst);
                                     },
                                   )
                                 : Padding(

@@ -49,7 +49,7 @@ void showInvalidShortcutSheet(context) {
 }
 
 /// Show a sheet to save a shortcut. If the shortcut is null then a shortcut based on the current data in the routing service will be created.
-Shortcut? showSaveShortcutSheet(context, {Shortcut? shortcut}) {
+Future<Shortcut?> showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
   final routing = getIt<Routing>();
   if ((routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) && shortcut == null) {
     return null;
@@ -61,7 +61,7 @@ Shortcut? showSaveShortcutSheet(context, {Shortcut? shortcut}) {
     shortcutType = routing.selectedWaypoints!.length == 1 ? "Location" : "Route";
   }
   Shortcut? newShortcut;
-  showGeneralDialog(
+  await showGeneralDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
