@@ -136,10 +136,10 @@ class QRCodeViewState extends State<QRCodeView> {
                           padding: const EdgeInsets.all(0),
                           content: SizedBox(
                             // On very small screens the QR code must be even smaller.
-                            width: MediaQuery.of(context).size.width < 400
+                            width: MediaQuery.of(context).size.width < 380
                                 ? MediaQuery.of(context).size.width * 0.6
                                 : MediaQuery.of(context).size.width * 0.8,
-                            height: MediaQuery.of(context).size.width < 400
+                            height: MediaQuery.of(context).size.width < 380
                                 ? MediaQuery.of(context).size.width * 0.6
                                 : MediaQuery.of(context).size.width * 0.8,
                             child: state == QRCodeViewMode.scanning
