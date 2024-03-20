@@ -337,6 +337,7 @@ class Ride with ChangeNotifier {
     await ftts.setSpeechRate(0.8); //speed of speech
     await ftts.setVolume(10.0); //volume of speech
     await ftts.setPitch(1); //pitch of sound
+    await ftts.awaitSpeakCompletion(true);
 
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
