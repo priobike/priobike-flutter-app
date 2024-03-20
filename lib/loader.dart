@@ -17,7 +17,6 @@ import 'package:priobike/home/services/load.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
-import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
@@ -64,9 +63,6 @@ class LoaderState extends State<Loader> {
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
-    // Init the HTTP client for all services.
-    Http.initClient();
-
     // We have 2 types of services:
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
     // 2. Services that are not critically needed.
