@@ -11,7 +11,6 @@ import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
@@ -39,9 +38,6 @@ class Settings with ChangeNotifier {
 
   /// The selected backend.
   Backend backend;
-
-  /// The selected prediction mode.
-  PredictionMode predictionMode;
 
   /// The selected positioning mode.
   PositioningMode positioningMode;
@@ -141,23 +137,6 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set backend to $backend");
       this.backend = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
-  static const predictionModeKey = "priobike.settings.predictionMode";
-  static const defaultPredictionMode = PredictionMode.hybrid;
-
-  Future<bool> setPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.predictionMode;
-    this.predictionMode = predictionMode;
-    final bool success = await storage.setString(predictionModeKey, predictionMode.name);
-    if (!success) {
-      log.e("Failed to set predictionMode to $predictionMode");
-      this.predictionMode = prev;
     } else {
       notifyListeners();
     }
@@ -469,7 +448,6 @@ class Settings with ChangeNotifier {
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
-    this.predictionMode = defaultPredictionMode,
     this.positioningMode = defaultPositioningMode,
     this.routingEndpoint = defaultRoutingEndpoint,
     this.sgLabelsMode = defaultSGLabelsMode,
@@ -496,11 +474,6 @@ class Settings with ChangeNotifier {
 
     try {
       backend = Backend.values.byName(storage.getString(backendKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      predictionMode = PredictionMode.values.byName(storage.getString(predictionModeKey)!);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
@@ -642,7 +615,6 @@ class Settings with ChangeNotifier {
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "didViewWarning": didViewWarning,
         "backend": backend.name,
-        "predictionMode": predictionMode.name,
         "positioningMode": positioningMode.name,
         "routingEndpoint": routingEndpoint.name,
         "sgLabelsMode": sgLabelsMode.name,

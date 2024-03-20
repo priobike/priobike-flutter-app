@@ -19,7 +19,6 @@ import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -166,7 +165,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   /// Load the gauge colors and steps, from the predictor.
   void loadGauge(Ride ride) {
-    if (ride.predictionComponent?.recommendation == null || ride.calcDistanceToNextSG == null) {
+    if (ride.predictionProvider?.recommendation == null || ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
       return;
@@ -182,8 +181,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       return;
     }
 
-    final phases = ride.predictionComponent!.recommendation!.calcPhasesFromNow;
-    final qualities = ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
+    final phases = ride.predictionProvider!.recommendation!.calcPhasesFromNow;
+    final qualities = ride.predictionProvider!.recommendation!.calcQualitiesFromNow;
 
     var colors = <Color>[];
     for (var i = 0; i < phases.length; i++) {
@@ -449,7 +448,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       padding: const EdgeInsets.only(bottom: 10),
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
-                        child: ride.predictionComponent?.currentMode == PredictionMode.usePredictor
+                        child: ride.predictionProvider?.usesPredictorFailover == true
                             // Display a small dot to indicate that the fallback is active.
                             ? Container(
                                 decoration: BoxDecoration(

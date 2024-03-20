@@ -116,24 +116,6 @@ class Track {
     return File('${dir.path}/tracks/$sessionId/gps.csv');
   }
 
-  /// Get the csv file that stores the accelerometer data.
-  Future<File> get accelerometerCSVFile async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/tracks/$sessionId/accelerometer.csv');
-  }
-
-  /// Get the csv file that stores the gyroscope data.
-  Future<File> get gyroscopeCSVFile async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/tracks/$sessionId/gyroscope.csv');
-  }
-
-  /// Get the csv file that stores the magnetometer data.
-  Future<File> get magnetometerCSVFile async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/tracks/$sessionId/magnetometer.csv');
-  }
-
   Track({
     required this.uploaded,
     required this.hasFileData,
