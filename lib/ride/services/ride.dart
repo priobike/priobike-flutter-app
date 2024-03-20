@@ -84,6 +84,9 @@ class Ride with ChangeNotifier {
   /// An instance for map calculations.
   FlutterMapMath mapMath = FlutterMapMath();
 
+  /// An instance for text-to-speach.
+  FlutterTts ftts = FlutterTts();
+
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
 
@@ -237,12 +240,6 @@ class Ride with ChangeNotifier {
 
   /// Update the position.
   Future<void> updatePosition() async {
-    // TODO: check where this should optimally be created
-    FlutterTts ftts = FlutterTts();
-    await ftts.setSpeechRate(0.8); //speed of speech
-    await ftts.setVolume(10.0); //volume of speech
-    await ftts.setPitch(1); //pitc of sound
-
     if (!navigationIsActive) return;
 
     final snap = getIt<Positioning>().snap;
@@ -260,19 +257,6 @@ class Ride with ChangeNotifier {
       if ((b - snap.bearing).abs() > bearingThreshold) break;
     }
     this.calcDistanceToNextTurn = calcDistanceToNextTurn;
-
-    // check if there is an route.instruction with localisation of snap in distance of less than 10m
-    // TODO: check necessary distance (maybe should be less?)
-    // TODO: need async here?
-    var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed && mapMath.distanceBetween(element.lat, element.lon,
-        snap.position.latitude, snap.position.longitude, "meters") < 10);
-
-    if (currentInstruction != null){
-      //play text to speech
-      await ftts.speak(currentInstruction.text!);
-      currentInstruction.executed = true;
-    }
-    // TODO: after finish all executed instructions should maybe be reset to false?
 
     // Find the next signal group.
     Sg? nextSg;
@@ -345,6 +329,26 @@ class Ride with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// Play audio instruction
+  Future<void> playAudioInstruction() async {
+    // TODO: check where this should optimally be created
+    await ftts.setSpeechRate(0.8); //speed of speech
+    await ftts.setVolume(10.0); //volume of speech
+    await ftts.setPitch(1); //pitch of sound
+
+    final snap = getIt<Positioning>().snap;
+    if (snap == null || route == null) return;
+
+    var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
+        mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") < 10);
+
+    if (currentInstruction != null){
+      //play text to speech
+      await ftts.speak(currentInstruction.text!);
+      currentInstruction.executed = true;
+    }
   }
 
   /// Stop the navigation.
