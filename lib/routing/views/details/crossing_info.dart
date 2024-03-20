@@ -107,10 +107,9 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute
+                            text: routing.isFetchingRoute || routing.selectedRoute == null
                                 ? "-"
-                                : ((routing.selectedRoute?.bad ?? 0) + (routing.selectedRoute?.offline ?? 0))
-                                    .toString(),
+                                : ((routing.selectedRoute!.bad) + (routing.selectedRoute!.offline)).toString(),
                             color: Colors.white,
                           ),
                         ),
@@ -130,7 +129,9 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : (routing.selectedRoute?.ok ?? 0).toString(),
+                            text: routing.isFetchingRoute || routing.selectedRoute == null
+                                ? "-"
+                                : (routing.selectedRoute!.ok).toString(),
                             color: Colors.black,
                           ),
                         ),
@@ -150,7 +151,9 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : (routing.selectedRoute?.disconnected ?? 0).toString(),
+                            text: routing.isFetchingRoute || routing.selectedRoute == null
+                                ? "-"
+                                : (routing.selectedRoute!.disconnected).toString(),
                             color: Colors.black,
                           ),
                         ),
