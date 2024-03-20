@@ -192,8 +192,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
 
-    final int okTrafficLights = status.ok;
-    final int allTrafficLights = status.ok + status.bad + status.offline;
+    final int okTrafficLights = routing.selectedRoute!.ok;
+    final int allTrafficLights =
+        routing.selectedRoute!.ok + routing.selectedRoute!.bad + routing.selectedRoute!.offline;
 
     double percentageTrafficLights = allTrafficLights > 0 ? okTrafficLights / allTrafficLights : 0;
 

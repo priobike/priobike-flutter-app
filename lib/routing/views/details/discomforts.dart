@@ -3,7 +3,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class DiscomfortsChart extends StatefulWidget {
@@ -14,8 +13,8 @@ class DiscomfortsChart extends StatefulWidget {
 }
 
 class DiscomfortsChartState extends State<DiscomfortsChart> {
-  /// The associated discomforts service, which is injected by the provider.
-  late Discomforts discomforts;
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
 
   /// The details state of discomforts.
   bool showDiscomfortDetails = true;
@@ -39,28 +38,28 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
   void initState() {
     super.initState();
 
-    discomforts = getIt<Discomforts>();
-    discomforts.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
 
     processDiscomfortData();
   }
 
   @override
   void dispose() {
-    discomforts.removeListener(update);
+    routing.removeListener(update);
     super.dispose();
   }
 
   /// Process the route data and create the chart series.
-  Future<void> processDiscomfortData() async {
-    if (discomforts.foundDiscomforts == null) return setState(() => discomfortDistances = {});
-    final routing = getIt<Routing>();
-    if (routing.selectedRoute == null) return setState(() => discomfortDistances = {});
+  void processDiscomfortData() {
+    if (routing.selectedRoute == null || routing.selectedRoute!.foundDiscomforts == null) {
+      return setState(() => discomfortDistances = {});
+    }
 
     const vincenty = Distance(roundResult: false);
     discomfortDistances = {};
     discomfortColors = {};
-    for (final discomfort in discomforts.foundDiscomforts!) {
+    for (final discomfort in routing.selectedRoute!.foundDiscomforts!) {
       for (var idx = 0; idx < discomfort.coordinates.length - 1; idx++) {
         final distance = vincenty.distance(
             LatLng(discomfort.coordinates[idx].latitude, discomfort.coordinates[idx].longitude),
@@ -87,10 +86,12 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   /// Render the bar chart.
   Widget renderBar() {
-    if (discomfortDistances.isEmpty) return Container();
-    if (discomforts.foundDiscomforts == null) return Container();
-    final routing = getIt<Routing>();
-    if (routing.selectedRoute == null) return Container();
+    if (discomfortDistances.isEmpty ||
+        routing.selectedRoute == null ||
+        routing.selectedRoute!.foundDiscomforts == null) {
+      return Container();
+    }
+
     final availableWidth = (MediaQuery.of(context).size.width - 62);
     var elements = <Widget>[];
     for (int i = 0; i < discomfortDistances.length; i++) {
@@ -117,9 +118,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   /// Render the details below the bar chart.
   Widget renderDetails() {
-    if (discomfortDistances.isEmpty) return Container();
-    final routing = getIt<Routing>();
-    if (routing.selectedRoute == null) return Container();
+    if (discomfortDistances.isEmpty || routing.selectedRoute == null) return Container();
     var elements = <Widget>[];
     for (int i = 0; i < discomfortDistances.length; i++) {
       final e = discomfortDistances.entries.elementAt(i);
@@ -167,9 +166,11 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (discomfortDistances.isEmpty) return Container();
-    if (discomforts.foundDiscomforts == null) return Container();
-    if (getIt<Routing>().selectedRoute == null) return Container();
+    if (discomfortDistances.isEmpty ||
+        routing.selectedRoute == null ||
+        routing.selectedRoute!.foundDiscomforts == null) {
+      return Container();
+    }
 
     return Container(
       decoration: BoxDecoration(

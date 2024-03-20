@@ -367,7 +367,15 @@ class DiscomfortsLayer {
   final bool isDark;
 
   DiscomfortsLayer(this.isDark) {
-    final discomforts = getIt<Discomforts>().foundDiscomforts;
+    final routing = getIt<Routing>();
+    List<DiscomfortSegment>? discomforts;
+    if (routing.selectedRoute != null) {
+      if (routing.selectedRoute!.foundDiscomforts == null) {
+        getIt<Discomforts>().findDiscomforts(routing.selectedRoute!);
+      }
+      discomforts = routing.selectedRoute!.foundDiscomforts;
+    }
+
     for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       // A section of the route.

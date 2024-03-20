@@ -553,7 +553,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   (comingNotFromRoutingView) {
                     if (comingNotFromRoutingView == null) {
                       routing.reset();
-                      discomforts.reset();
                       predictionSGStatus.reset();
                     }
                   },

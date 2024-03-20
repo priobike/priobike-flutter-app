@@ -1573,7 +1573,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                       onPressedRouteLabel(managedRouteLabel.routeId);
                     },
                     child: RouteLabel(
-                      routId: managedRouteLabel.routeId,
+                      routeId: managedRouteLabel.routeId,
                       alignment: managedRouteLabel.alignment!,
                       isMapMoving: isMapMoving,
                     ),
