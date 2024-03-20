@@ -595,7 +595,7 @@ class Routing with ChangeNotifier {
       if (secondBestOkSGs == null ||
           secondBestOkSGs == 0 ||
           (thisRouteOkSGs / secondBestOkSGs - 1) * 100 > thresholdOkSGsInPtc) {
-        route.mostUniqueAttribute = "Mehr verbundene\nAmpeln";
+        route.mostUniqueAttribute = "Mehr Ampeln\nverbunden";
         return;
       }
     }
@@ -611,7 +611,7 @@ class Routing with ChangeNotifier {
       if (secondBestDiscomforts == null ||
           thisRouteDiscomforts == 0 ||
           (secondBestDiscomforts / thisRouteDiscomforts - 1) * 100 > thresholdDiscomfortsInPtc) {
-        route.mostUniqueAttribute = "Angenehmere\nStrecke";
+        route.mostUniqueAttribute = "Angenehmer";
         return;
       }
     }
@@ -624,7 +624,7 @@ class Routing with ChangeNotifier {
     if (thisRouteHasEarliestArrival) {
       if (secondBestEarliestArrival == null ||
           (secondBestEarliestArrival / thisRouteArrivalTime - 1) * 100 > thresholdTimeInPtc) {
-        route.mostUniqueAttribute = "Schnellere\nAnkunftszeit";
+        route.mostUniqueAttribute = "Schneller";
         return;
       }
     }
@@ -632,7 +632,7 @@ class Routing with ChangeNotifier {
       if (secondBestShortest == null ||
           thisRouteDistance == 0 ||
           (secondBestShortest / thisRouteDistance - 1) * 100 > thresholdDistanceInPtc) {
-        route.mostUniqueAttribute = "Kürzere\nStrecke";
+        route.mostUniqueAttribute = "Kürzer";
         return;
       }
     }
