@@ -3,7 +3,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class DiscomfortsChart extends StatefulWidget {
@@ -14,9 +13,6 @@ class DiscomfortsChart extends StatefulWidget {
 }
 
 class DiscomfortsChartState extends State<DiscomfortsChart> {
-  /// The associated discomforts service, which is injected by the provider.
-  late Discomforts discomforts;
-
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
@@ -42,17 +38,14 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
   void initState() {
     super.initState();
 
-    discomforts = getIt<Discomforts>();
-    discomforts.addListener(update);
     routing = getIt<Routing>();
-    discomforts.addListener(update);
+    routing.addListener(update);
 
     processDiscomfortData();
   }
 
   @override
   void dispose() {
-    discomforts.removeListener(update);
     routing.removeListener(update);
     super.dispose();
   }
