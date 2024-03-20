@@ -611,7 +611,7 @@ class Routing with ChangeNotifier {
       if (secondBestDiscomforts == null ||
           thisRouteDiscomforts == 0 ||
           (secondBestDiscomforts / thisRouteDiscomforts - 1) * 100 > thresholdDiscomfortsInPtc) {
-        route.mostUniqueAttribute = "Angenehmer";
+        route.mostUniqueAttribute = "Komfortabler";
         return;
       }
     }
