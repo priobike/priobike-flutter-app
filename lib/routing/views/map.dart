@@ -5,10 +5,11 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox hide Settings;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -93,7 +94,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   RouteLabelManager? routeLabelManager;
 
   /// A map controller for the map.
-  MapboxMap? mapController;
+  mapbox.MapboxMap? mapController;
 
   /// Where the user is currently tapping.
   Offset? tapPosition;
@@ -147,7 +148,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   bool highlightCancelButton = false;
 
   /// The waypoint pixel coordinates
-  Map<Waypoint, ScreenCoordinate> waypointPixelCoordinates = {};
+  Map<Waypoint, mapbox.ScreenCoordinate> waypointPixelCoordinates = {};
 
   /// The state of the POI popup.
   POIPopup? poiPopup;
@@ -295,7 +296,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Animation duration.
     const duration = 1000;
     final frame = MediaQuery.of(context);
-    MbxEdgeInsets padding = MbxEdgeInsets(
+    mapbox.MbxEdgeInsets padding = mapbox.MbxEdgeInsets(
       // (AppBackButton height + top padding)
       top: (80 + frame.padding.top),
       // AppBackButton width
@@ -306,15 +307,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     await mapController?.flyTo(
-      CameraOptions(
-          center: Point(
-            coordinates: Position(
+      mapbox.CameraOptions(
+          center: mapbox.Point(
+            coordinates: mapbox.Position(
               positioning.lastPosition!.longitude,
               positioning.lastPosition!.latitude,
             ),
           ).toJson(),
           padding: padding),
-      MapAnimationOptions(duration: duration),
+      mapbox.MapAnimationOptions(duration: duration),
     );
   }
 
@@ -324,7 +325,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Animation duration.
     const duration = 1000;
     final frame = MediaQuery.of(context);
-    MbxEdgeInsets padding = MbxEdgeInsets(
+    mapbox.MbxEdgeInsets padding = mapbox.MbxEdgeInsets(
       // (AppBackButton height + top padding)
       top: (80 + frame.padding.top),
       // AppBackButton width
@@ -335,22 +336,22 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     await mapController?.flyTo(
-      CameraOptions(
-          center: Point(
-            coordinates: Position(
+      mapbox.CameraOptions(
+          center: mapbox.Point(
+            coordinates: mapbox.Position(
               lon,
               lat,
             ),
           ).toJson(),
           padding: padding),
-      MapAnimationOptions(duration: duration),
+      mapbox.MapAnimationOptions(duration: duration),
     );
   }
 
   /// Center the camera to north.
   centerCameraToNorth() async {
     if (mapController == null || !mounted) return;
-    mapController?.flyTo(CameraOptions(bearing: 0), MapAnimationOptions(duration: 1000));
+    mapController?.flyTo(mapbox.CameraOptions(bearing: 0), mapbox.MapAnimationOptions(duration: 1000));
   }
 
   /// Fit the camera to the current route.
@@ -363,7 +364,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final currentCameraOptions = await mapController?.getCameraState();
     if (currentCameraOptions == null) return;
 
-    MbxEdgeInsets padding = MbxEdgeInsets(
+    mapbox.MbxEdgeInsets padding = mapbox.MbxEdgeInsets(
       // (AppBackButton height + top padding)
       top: (80 + frame.padding.top),
       // AppBackButton width
@@ -385,7 +386,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (cameraOptionsForBounds == null) return;
     await mapController?.flyTo(
       cameraOptionsForBounds,
-      MapAnimationOptions(duration: 1000),
+      mapbox.MapAnimationOptions(duration: 1000),
     );
   }
 
@@ -399,7 +400,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         final index = await getIndex(userLocationLayerId);
         if (!mounted) return;
         await mapController!.style.addLayerAt(
-            LocationIndicatorLayer(
+            mapbox.LocationIndicatorLayer(
               id: userLocationLayerId,
               bearingImage:
                   Theme.of(context).brightness == Brightness.dark ? "positionstaticdark" : "positionstaticlight",
@@ -414,10 +415,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               ],
               accuracyRadius: positioning.lastPosition!.accuracy,
             ),
-            LayerPosition(at: index));
+            mapbox.LayerPosition(at: index));
       } else {
         await mapController!.style.updateLayer(
-          LocationIndicatorLayer(
+          mapbox.LocationIndicatorLayer(
             id: userLocationLayerId,
             bearing: positioning.lastPosition!.heading,
             location: [
@@ -537,10 +538,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (Platform.isAndroid) {
       final cameraState = await mapController!.getCameraState();
       mapController!.flyTo(
-        CameraOptions(
+        mapbox.CameraOptions(
           zoom: cameraState.zoom + 0.001,
         ),
-        MapAnimationOptions(duration: 100),
+        mapbox.MapAnimationOptions(duration: 100),
       );
     }
   }
@@ -648,7 +649,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is called when the user taps a feature.
-  onFeatureTapped(QueriedRenderedFeature queriedRenderedFeature) async {
+  onFeatureTapped(mapbox.QueriedRenderedFeature queriedRenderedFeature) async {
     // Map the id of the layer to the corresponding feature.
     final id = queriedRenderedFeature.queriedFeature.feature['id'];
 
@@ -704,8 +705,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           fitCameraToCoordinate(lat, lon);
 
           final position = await mapController!.pixelForCoordinate(
-            Point(
-              coordinates: Position(
+            mapbox.Point(
+              coordinates: mapbox.Position(
                 lon,
                 lat,
               ),
@@ -735,14 +736,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Bottom padding + sheet init size + padding + shortcut height + padding.
     const attributionMargins = math.Point(10, 122 + 8 + 40 + 8);
-    mapController!.attribution.updateSettings(AttributionSettings(
+    mapController!.attribution.updateSettings(mapbox.AttributionSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginRight: attributionMargins.x.toDouble(),
-        position: OrnamentPosition.BOTTOM_RIGHT));
-    mapController!.logo.updateSettings(LogoSettings(
+        position: mapbox.OrnamentPosition.BOTTOM_RIGHT));
+    mapController!.logo.updateSettings(mapbox.LogoSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginLeft: attributionMargins.x.toDouble(),
-        position: OrnamentPosition.BOTTOM_LEFT));
+        position: mapbox.OrnamentPosition.BOTTOM_LEFT));
   }
 
   /// Used to get the index of the first label layer in the layer stack. This is used to place our layers below the
@@ -771,7 +772,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback which is executed when the map was created.
-  onMapCreated(MapboxMap controller) async {
+  onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
 
     final frame = MediaQuery.of(context);
@@ -796,7 +797,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback which is executed when the map style was (re-)loaded.
-  onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
+  onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
 
     setState(() {
@@ -849,7 +850,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// This also resolves if a certain feature is being tapped on. This function
   /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
   /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
-  Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
+  Future<void> onMapTap(mapbox.ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
 
     if (poiPopup != null) {
@@ -859,21 +860,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
     // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
     // fixed in an upcoming version we need to remove this conversion.
-    final ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
-      Point(
-        coordinates: Position(
+    final mapbox.ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
+      mapbox.Point(
+        coordinates: mapbox.Position(
           screenCoordinate.y,
           screenCoordinate.x,
         ),
       ).toJson(),
     );
 
-    final List<QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
-      RenderedQueryGeometry(
+    final List<mapbox.QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
+      mapbox.RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
-        type: Type.SCREEN_COORDINATE,
+        type: mapbox.Type.SCREEN_COORDINATE,
       ),
-      RenderedQueryOptions(
+      mapbox.RenderedQueryOptions(
         layerIds: [
           AllRoutesLayer.layerIdClick,
           BikeShopLayer.clickLayerId,
@@ -923,7 +924,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onMapLongClick(BuildContext context, double x, double y) async {
     if (mapController == null) return;
     // Convert x and y into a lat/lon.
-    final point = ScreenCoordinate(x: x, y: y);
+    final point = mapbox.ScreenCoordinate(x: x, y: y);
     await addWaypoint(point);
   }
 
@@ -932,7 +933,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return null;
     if (routing.selectedWaypoints == null) return null;
 
-    final tapPosition = ScreenCoordinate(x: x, y: y);
+    final tapPosition = mapbox.ScreenCoordinate(x: x, y: y);
 
     Waypoint? foundWaypoint;
     double? foundWaypointDistance;
@@ -953,11 +954,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Add a waypoint at the tapped position.
-  Future<void> addWaypoint(ScreenCoordinate point) async {
+  Future<void> addWaypoint(mapbox.ScreenCoordinate point) async {
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
     final fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
-    final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
+    final pointCoord = mapbox.Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
@@ -1029,7 +1030,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> updateBearingAndCenteringButtons() async {
     if (mapController == null) return;
 
-    final CameraState camera = await mapController!.getCameraState();
+    final mapbox.CameraState camera = await mapController!.getCameraState();
 
     // Set bearing in mapFunctions.
     mapValues.setCameraBearing(camera.bearing);
@@ -1058,10 +1059,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     if (routing.selectedWaypoints == null) return;
 
-    Map<Waypoint, ScreenCoordinate> newWaypointPixelCoordinates = {};
+    Map<Waypoint, mapbox.ScreenCoordinate> newWaypointPixelCoordinates = {};
 
     for (Waypoint waypoint in routing.selectedWaypoints!) {
-      final ScreenCoordinate coordsOnScreenWaypoint = await mapController!.pixelForCoordinate({
+      final mapbox.ScreenCoordinate coordsOnScreenWaypoint = await mapController!.pixelForCoordinate({
         "coordinates": [waypoint.lon, waypoint.lat]
       });
       newWaypointPixelCoordinates[waypoint] = coordsOnScreenWaypoint;
@@ -1081,8 +1082,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (poiPopup == null) return;
 
     final position = await mapController!.pixelForCoordinate(
-      Point(
-        coordinates: Position(
+      mapbox.Point(
+        coordinates: mapbox.Position(
           poiPopup!.poiElement.lon,
           poiPopup!.poiElement.lat,
         ),
@@ -1113,7 +1114,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is executed when the camera movement changes.
-  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+  Future<void> onCameraChanged(mapbox.CameraChangedEventData cameraChangedEventData) async {
     // Set map moving.
     if (!isMapMoving) {
       setState(() {
@@ -1131,7 +1132,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is executed when the camera movement changes.
-  Future<void> onMapIdle(MapIdleEventData mapIdleEventData) async {
+  Future<void> onMapIdle(mapbox.MapIdleEventData mapIdleEventData) async {
     setState(() {
       isMapMoving = false;
     });
@@ -1169,7 +1170,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final cameraMovement = moveCameraWhenDraggingToScreenEdge(screenEdge: screenEdge);
 
     // get the current coordinates of the center of the map
-    final CameraState cameraState = await mapController!.getCameraState();
+    final mapbox.CameraState cameraState = await mapController!.getCameraState();
     final coords = cameraState.center["coordinates"]! as List;
     final double x = coords[0];
     final double y = coords[1];
@@ -1185,15 +1186,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Note: in the current version ease to is broken on ios devices.
     await mapController?.flyTo(
-      CameraOptions(
-        center: Point(
-          coordinates: Position(
+      mapbox.CameraOptions(
+        center: mapbox.Point(
+          coordinates: mapbox.Position(
             x + (cameraMovement['x'] ?? 0) * zoomSpeedup,
             y + (cameraMovement['y'] ?? 0) * zoomSpeedup,
           ),
         ).toJson(),
       ),
-      MapAnimationOptions(duration: 0),
+      mapbox.MapAnimationOptions(duration: 0),
     );
 
     // Add a small delay to throttle the camera movement.
@@ -1218,7 +1219,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing.selectedWaypoints!.remove(draggedWaypoint!);
     getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
 
-    final point = ScreenCoordinate(x: dx, y: dy);
+    final point = mapbox.ScreenCoordinate(x: dx, y: dy);
 
     // hide the dragged waypoint icon while loading when adding the new waypoint
     hideDragWaypoint = true;
@@ -1299,77 +1300,96 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return Stack(
       children: [
         // Show the map.
-        GestureDetector(
-          onLongPressDown: (details) async {
-            // check if user long pressed on map or waypoint
-            // if on map, create new waypoint
-            // if on waypoint, start dragging waypoint
-            draggedWaypoint =
-                _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
 
-            if (draggedWaypoint == null) {
-              _resetDragging();
-              tapPosition = details.localPosition;
-              animationController.forward();
-            } else {
-              if (routing.selectedWaypoints == null || !routing.selectedWaypoints!.contains(draggedWaypoint)) return;
-              dragPosition = details.localPosition;
-              draggedWaypointType = getWaypointType(routing.selectedWaypoints!, draggedWaypoint!);
-              showAuxiliaryMarking = true;
-            }
-          },
-          onLongPressCancel: () {
-            animationController.reverse();
-            _resetDragging();
-          },
-          onLongPressMoveUpdate: (details) async {
-            // if user pressed on map, reverse pin animation
-            // if user pressed on waypoint, drag waypoint
-            if (draggedWaypoint == null) {
-              animationController.reverse();
-              return;
-            }
+        RawGestureDetector(
+          gestures: <Type, GestureRecognizerFactory>{
+            LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+              () => LongPressGestureRecognizer(),
+              (LongPressGestureRecognizer instance) {
+                // Set<PointerDeviceKind> set = Set();
+                // set.add(PointerDeviceKind.mouse);
+                // instance.supportedDevices = set;
+                // instance.supportedDevices = {PointerDeviceKind.touch};
 
-            // set new icon position under the finger while dragging
-            setState(() {
-              dragPosition = details.localPosition;
-            });
+                instance
+                  ..onLongPressDown = (LongPressDownDetails details) async {
+                    // check if user long pressed on map or waypoint
+                    // if on map, create new waypoint
+                    // if on waypoint, start dragging waypoint
+                    draggedWaypoint =
+                        _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
 
-            highlightCancelButton = _hitCancelButton();
+                    if (draggedWaypoint == null) {
+                      _resetDragging();
+                      tapPosition = details.localPosition;
+                      animationController.forward();
+                    } else {
+                      if (routing.selectedWaypoints == null || !routing.selectedWaypoints!.contains(draggedWaypoint)) {
+                        return;
+                      }
+                      dragPosition = details.localPosition;
+                      draggedWaypointType = getWaypointType(routing.selectedWaypoints!, draggedWaypoint!);
+                      showAuxiliaryMarking = true;
+                    }
+                  }
+                  ..onLongPressCancel = () {
+                    animationController.reverse();
+                    _resetDragging();
+                  }
+                  ..onLongPressMoveUpdate = (details) async {
+                    // if user pressed on map, reverse pin animation
+                    // if user pressed on waypoint, drag waypoint
+                    if (draggedWaypoint == null) {
+                      animationController.reverse();
+                      return;
+                    }
 
-            _dragWaypoint();
-          },
-          onLongPressEnd: (details) async {
-            if (draggedWaypoint != null) {
-              showAuxiliaryMarking = false;
-              currentScreenEdge = ScreenEdge.none;
+                    // set new icon position under the finger while dragging
+                    setState(() {
+                      dragPosition = details.localPosition;
+                    });
 
-              // Check if the user released the waypoint over the cancel button
-              // if so just refresh to remove the cancel button
-              // otherwise move the dragged waypoint to the new position
-              final hitCancelButton = _hitCancelButton();
-              if (hitCancelButton) {
-                setState(() {});
-              } else {
-                await _moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
-              }
-            } else {
-              animationController.reverse();
+                    highlightCancelButton = _hitCancelButton();
 
-              // if the user pressed on the map, add a waypoint
-              await onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
-            }
-            _resetDragging();
+                    _dragWaypoint();
+                  }
+                  ..onLongPressEnd = (details) async {
+                    if (draggedWaypoint != null) {
+                      showAuxiliaryMarking = false;
+                      currentScreenEdge = ScreenEdge.none;
+
+                      // Check if the user released the waypoint over the cancel button
+                      // if so just refresh to remove the cancel button
+                      // otherwise move the dragged waypoint to the new position
+                      final hitCancelButton = _hitCancelButton();
+                      if (hitCancelButton) {
+                        setState(() {});
+                      } else {
+                        await _moveDraggedWaypoint(context, details.localPosition.dx, details.localPosition.dy);
+                      }
+                    } else {
+                      animationController.reverse();
+
+                      // if the user pressed on the map, add a waypoint
+                      await onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+                    }
+                    _resetDragging();
+                  };
+              },
+            ),
+            // ScaleGestureRecognizer: GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+            //     () => ScaleGestureRecognizer(), (ScaleGestureRecognizer instance) {}),
           },
           behavior: HitTestBehavior.translucent,
+          excludeFromSemantics: true,
           child: AppMap(
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
             onMapIdle: onMapIdle,
             onMapTap: onMapTap,
-            logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
-            attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
+            logoViewOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_LEFT,
+            attributionButtonOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_RIGHT,
           ),
         ),
 
