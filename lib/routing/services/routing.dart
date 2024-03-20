@@ -543,6 +543,7 @@ class Routing with ChangeNotifier {
 
   List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
     final instructions = List<Instruction>.empty(growable: true);
+    LatLng? lastInstructionPoint;
 
     for (var i = 0; i < sgSelectorResponse.route.length; i++) {
       final waypoint = sgSelectorResponse.route[i];
@@ -565,29 +566,37 @@ class Routing with ChangeNotifier {
               waypoint.distanceToNextSignal! <= 50.0 &&
               waypoint.signalGroupId != null) {
             // case 1: create custom instruction as combination of GraphHopper instruction and sg information
-            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i);
-            firstInstructionCall = Instruction(
-                lat: waypointFirstInstructionCall.lat,
-                lon: waypointFirstInstructionCall.lon,
-                text: "${ghInstruction.text} + Ampel in ${waypointFirstInstructionCall.distanceToNextSignal!}m"
-            );
+            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+            if (waypointFirstInstructionCall != null) {
+              firstInstructionCall = Instruction(
+                  lat: waypointFirstInstructionCall.lat,
+                  lon: waypointFirstInstructionCall.lon,
+                  text: "${ghInstruction.text} + Ampel in ${waypointFirstInstructionCall.distanceToNextSignal!}m"
+              );
+              instructions.add(firstInstructionCall);
+            }
             customInstruction = Instruction(
                 lat: waypoint.lat,
                 lon: waypoint.lon,
                 text: "${ghInstruction.text} + Ampel in ${waypoint.distanceToNextSignal!}m");
+            instructions.add(customInstruction);
+            lastInstructionPoint = LatLng(waypoint.lat, waypoint.lon);
           } else {
             // case 2: create custom instruction based on GraphHopper instruction
-            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i);
-            firstInstructionCall = Instruction(
-                lat: waypointFirstInstructionCall.lat,
-                lon: waypointFirstInstructionCall.lon,
-                text: "In 300m ${ghInstruction.text}"
-            );
+            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+            if (waypointFirstInstructionCall != null) {
+              firstInstructionCall = Instruction(
+                  lat: waypointFirstInstructionCall.lat,
+                  lon: waypointFirstInstructionCall.lon,
+                  text: "In 300m ${ghInstruction.text}"
+              );
+              instructions.add(firstInstructionCall);
+            }
             customInstruction = Instruction(
                 lat: waypoint.lat, lon: waypoint.lon, text: ghInstruction.text);
+            instructions.add(customInstruction);
+            lastInstructionPoint = LatLng(waypoint.lat, waypoint.lon);
           }
-          instructions.add(firstInstructionCall);
-          instructions.add(customInstruction);
           continue;
         }
       }
@@ -597,24 +606,28 @@ class Routing with ChangeNotifier {
           waypoint.signalGroupId != null) {
         // case 3: create customInstruction based on geometry information of sg
         // TODO extract and use geometry information
-        var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i);
-        firstInstructionCall = Instruction(
-            lat: waypointFirstInstructionCall.lat,
-            lon: waypointFirstInstructionCall.lon,
-            text: "In 300m Ampel ${waypoint.signalGroupId}"
-        );
+        var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+        if (waypointFirstInstructionCall != null) {
+          firstInstructionCall = Instruction(
+              lat: waypointFirstInstructionCall.lat,
+              lon: waypointFirstInstructionCall.lon,
+              text: "In 300m Ampel ${waypoint.signalGroupId}"
+          );
+          instructions.add(firstInstructionCall);
+        }
         customInstruction = Instruction(
             lat: waypoint.lat,
             lon: waypoint.lon,
             text: "Ampel ${waypoint.signalGroupId}");
-        instructions.add(firstInstructionCall);
+        lastInstructionPoint = LatLng(waypoint.lat, waypoint.lon);
         instructions.add(customInstruction);
       }
     }
     return instructions;
   }
 
-  NavigationNode findWaypoint300mBeforeInstruction(SGSelectorResponse sgSelectorResponse, int i) {
+  /// Find the waypoint 300m before the current instruction.
+  NavigationNode? findWaypoint300mBeforeInstruction(SGSelectorResponse sgSelectorResponse, int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
     double totalDistance = 0;
     NavigationNode b = sgSelectorResponse.route[i];
     NavigationNode a;
@@ -623,14 +636,24 @@ class Routing with ChangeNotifier {
       var distance = mapMath.distanceBetween(a.lat, a.lon, b.lat, b.lon, "meters");
       totalDistance += distance;
 
+      if (j == 0 && isFirstInstruction == true) {
+        // Very first instruction is played even if distance is smaller than 300m
+        // TODO: adapt instruction text
+        return a;
+      }
+
+      // TODO: maybe not equal point but close to point (10m or so?)
+      if (lastInstructionPoint?.latitude == a.lat && lastInstructionPoint?.longitude == a.lon) {
+        // there is already an instruction at this instruction point
+        return null;
+      }
+
       // TODO: schauen welcher beider Punkt näher an den 300m dran ist
       if (totalDistance >= 300) {
         return a;
       }
     }
-    // TODO: check what happens if there is no point 300m before
-    // TODO: nur adden wenn dieser Punkt nicht vor der vorhergehenden Instruction liegt
-    return sgSelectorResponse.route[0];
+    return null;
   }
 
   /// Load the routes from a route shortcut from the server (lightweight).
