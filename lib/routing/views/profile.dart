@@ -9,11 +9,7 @@ import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ProfileSelectionSheet extends StatefulWidget {
-  final Color onPrimary;
-
-  final Color onBackground;
-
-  const ProfileSelectionSheet({super.key, required this.onPrimary, required this.onBackground});
+  const ProfileSelectionSheet({super.key});
 
   @override
   ProfileSelectionSheetState createState() => ProfileSelectionSheetState();
@@ -26,15 +22,6 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
-  /// The loading state of the images.
-  final List<bool> imageLoadingState = List.empty(growable: true);
-
-  /// The images of the bike types.
-  final List<Image> bikeTypeImages = List.empty(growable: true);
-
-  /// The future of the image precaching.
-  List<Future<void>> imagePrecaching = List.empty(growable: true);
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -44,36 +31,11 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
     profileService = getIt<Profile>();
     profileService.addListener(update);
     routingService = getIt<Routing>();
-
-    for (var index = 0; index < BikeType.values.length; index++) {
-      bikeTypeImages.add(Image.asset(
-        BikeType.values[index].iconAsString(),
-        color: BikeType.values[index] == profileService.bikeType ? widget.onPrimary : widget.onBackground,
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.center,
-      ));
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    for (var index = 0; index < bikeTypeImages.length; index++) {
-      imageLoadingState.add(false);
-      precacheImage(bikeTypeImages[index].image, context).then((_) {
-        imageLoadingState[index] = true;
-        setState(() {});
-      });
-    }
   }
 
   @override
   void dispose() {
     profileService.removeListener(update);
-    for (final future in imagePrecaching) {
-      future.ignore();
-    }
     super.dispose();
   }
 
@@ -142,7 +104,15 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
                       SizedBox(
                         width: 32,
                         height: 32,
-                        child: bikeTypeImages[index],
+                        child: FadeInImage(
+                          image: AssetImage(BikeType.values[index].iconAsString()),
+                          placeholder: const AssetImage(BikeType.values[index].iconAsString()),
+                          color: BikeType.values[index] == profileService.bikeType
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : Theme.of(context).colorScheme.onBackground,
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                        ),
                       ),
                     ],
                   ),
@@ -188,10 +158,7 @@ class ProfileButtonState extends State<ProfileButton> {
       showDragHandle: true,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return ProfileSelectionSheet(
-          onPrimary: Theme.of(context).colorScheme.onPrimary,
-          onBackground: Theme.of(context).colorScheme.onBackground,
-        );
+        return const ProfileSelectionSheet();
       },
     );
   }
