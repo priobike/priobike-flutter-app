@@ -61,18 +61,22 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     if (ride.calcCurrentSG == null) return alternativeView("Nicht\nunterstütze\nKreuzung");
 
     // Check if we have all auxiliary data that the app calculated.
-    if (ride.predictionComponent?.recommendation == null) {
+    if (ride.predictionProvider?.recommendation == null) {
       return alternativeView("Keine\nAmpeldaten\nvorhanden");
     }
 
     // Prediction quality check.
-    if ((ride.predictionComponent?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+    if ((ride.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
       return alternativeView("Prognose\nzu schlecht");
     }
 
-    final recommendation = ride.predictionComponent!.recommendation!;
+    final recommendation = ride.predictionProvider!.recommendation!;
     // If the phase change time is null, we hide the countdown.
-    if (recommendation.calcCurrentPhaseChangeTime == null) return alternativeView("Prognose\nzu alt");
+    if (recommendation.calcCurrentPhaseChangeTime == null) {
+      final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
+      if (uniqueColors.length == 1) return alternativeView("Kein\nFarbwechsel");
+      return alternativeView("Prognose\nzu alt");
+    }
     // Calculate the countdown.
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     // If the countdown is 0 (or negative), we hide the countdown. In this way the user
@@ -148,7 +152,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
 
     var showCountdown = (ride.calcDistanceToNextSG ?? double.infinity) < 500;
     showCountdown =
-        showCountdown && (ride.predictionComponent?.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
+        showCountdown && (ride.predictionProvider?.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
 
     return AnimatedCrossFade(
       firstCurve: Curves.easeInOutCubic,

@@ -47,7 +47,6 @@ dependencies:
   share_plus: ^7.2.1 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^2.23.0 # Used to initialize the connection to Firebase
   firebase_messaging: ^14.7.5 # Used to receive push notifications of news service
-  sensors_plus: ^4.0.2 # Used to get the IMU data
   flutter_local_notifications: ^16.1.0 # Used to show the push notifications
   mqtt_client: ^10.0.0
   system_info_plus: ^0.0.5 # Used to check the RAM of user device

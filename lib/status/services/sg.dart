@@ -6,7 +6,6 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 
@@ -30,7 +29,6 @@ class PredictionSGStatus with ChangeNotifier {
 
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
-    final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
     isLoading = true;
     notifyListeners();
@@ -44,7 +42,8 @@ class PredictionSGStatus with ChangeNotifier {
       }
 
       try {
-        var url = "https://$baseUrl/$statusProviderSubPath/${sg.id}/status.json";
+        // Primarily use the status of the prediction service.
+        var url = "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
