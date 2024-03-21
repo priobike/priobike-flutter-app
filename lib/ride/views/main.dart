@@ -132,8 +132,14 @@ class RideViewState extends State<RideView> {
           },
         );
 
+        // Set isDark to false to make sure tracking always starts.
+        bool isDark = false;
+        if (mounted) {
+          isDark = Theme.of(context).brightness == Brightness.dark;
+        }
+
         // Start tracking once the `sessionId` is set and the positioning stream is available.
-        await tracking.start(deviceWidth, deviceHeight);
+        await tracking.start(deviceWidth, deviceHeight, settings.saveBatteryModeEnabled, isDark);
 
         // Allow user to rotate the screen in ride view.
         // Landscape-Mode will be removed in FinishRideButton.

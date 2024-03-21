@@ -134,7 +134,7 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start a new track.
-  Future<void> start(double deviceWidth, double deviceHeight) async {
+  Future<void> start(double deviceWidth, double deviceHeight, bool saveBatteryModeEnabled, bool isDarkMode) async {
     log.i("Starting a new track.");
 
     // Get some session- and device-specific data.
@@ -185,6 +185,8 @@ class Tracking with ChangeNotifier {
         routes: {startTime: routing.selectedRoute!},
         subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
         batteryStates: [],
+        saveBatteryModeEnabled: saveBatteryModeEnabled,
+        isDarkMode: isDarkMode,
       );
       // Add the track to the list of previous tracks and save it.
       previousTracks!.add(track!);
