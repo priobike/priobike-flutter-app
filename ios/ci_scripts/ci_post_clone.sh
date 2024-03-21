@@ -16,7 +16,7 @@ cp .netrc $HOME/.netrc
 chmod 600 $HOME/.netrc
 
 # Install Flutter using git.
-git clone https://github.com/flutter/flutter.git --depth 1 -b 3.16.4 $HOME/flutter
+git clone https://github.com/flutter/flutter.git --depth 1 -b 3.16.9 $HOME/flutter
 export PATH="$PATH:$HOME/flutter/bin"
 
 # Install Flutter artifacts for iOS (--ios), or macOS (--macos) platforms.
