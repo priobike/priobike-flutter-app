@@ -1,5 +1,12 @@
 import 'package:latlong2/latlong.dart';
 
+/// An enum for the type of the custom instruction.
+enum InstructionType {
+  directionOnly,
+  signalGroupOnly,
+  directionAndSignalGroup,
+}
+
 class Instruction {
   /// The instruction latitude.
   final double lat;
@@ -13,5 +20,8 @@ class Instruction {
   /// If the instruction has already been executed.
   bool executed = false;
 
-  Instruction({required this.lat, required this.lon, required this.text});
+  /// The instruction type.
+  final InstructionType instructionType;
+
+  Instruction({required this.lat, required this.lon, required this.text, required this.instructionType});
 }

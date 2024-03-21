@@ -113,13 +113,6 @@ class TupleCrossingsDistances {
   TupleCrossingsDistances(this.crossing, this.distance);
 }
 
-/// An enum for the type of the custom instruction.
-enum InstructionType {
-  directionOnly,
-  signalGroupOnly,
-  directionAndSignalGroup,
-}
-
 class Routing with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Routing");
@@ -621,25 +614,29 @@ class Routing with ChangeNotifier {
         return Instruction(
             lat: waypoint.latitude,
             lon: waypoint.longitude,
-            text: prefix + ghInstruction!.text
+            text: prefix + ghInstruction!.text,
+            instructionType: InstructionType.directionOnly
         );
       case InstructionType.signalGroupOnly:
         return Instruction(
             lat: waypoint.latitude,
             lon: waypoint.longitude,
-            text: "$prefix Ampel ${signalGroupId!}"
+            text: "$prefix Ampel ${signalGroupId!}",
+            instructionType: InstructionType.signalGroupOnly
         );
       case InstructionType.directionAndSignalGroup:
         return Instruction(
             lat: waypoint.latitude,
             lon: waypoint.longitude,
-            text: "${prefix + ghInstruction!.text} + Ampel"
+            text: "${prefix + ghInstruction!.text} + Ampel",
+            instructionType: InstructionType.directionAndSignalGroup
         );
       default:
         return Instruction(
             lat: waypoint.latitude,
             lon: waypoint.longitude,
-            text: ""
+            text: "",
+            instructionType: InstructionType.directionOnly
         );
     }
   }
