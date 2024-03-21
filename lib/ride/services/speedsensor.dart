@@ -115,7 +115,7 @@ class SpeedSensor with ChangeNotifier {
       // Search speed sensor in list of all currently found devices.
       ScanResult? sensorFound;
       for (ScanResult scanResult in results) {
-        if (scanResult.advertisementData.localName == _speedSensorName) sensorFound = scanResult;
+        if (scanResult.advertisementData.advName == _speedSensorName) sensorFound = scanResult;
       }
       // No sensor found yet.
       if (sensorFound == null) return;
