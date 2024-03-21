@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
@@ -49,19 +50,27 @@ void showInvalidShortcutSheet(context) {
 }
 
 /// Show a sheet to save a shortcut. If the shortcut is null then a shortcut based on the current data in the routing service will be created.
-Future<Shortcut?> showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
+void showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
   final routing = getIt<Routing>();
   if ((routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) && shortcut == null) {
     return null;
   }
-  final String shortcutType;
-  if (shortcut != null) {
-    shortcutType = shortcut is ShortcutRoute ? "Route" : "Location";
-  } else {
-    shortcutType = routing.selectedWaypoints!.length == 1 ? "Location" : "Route";
+
+  if (shortcut == null) {
+    if (routing.selectedWaypoints!.length == 1) {
+      shortcut = ShortcutLocation(
+        waypoint: routing.selectedWaypoints!.first,
+        id: UniqueKey().toString(),
+      );
+    } else {
+      shortcut = ShortcutRoute(
+        waypoints: routing.selectedWaypoints!,
+        id: UniqueKey().toString(),
+      );
+    }
   }
-  Shortcut? newShortcut;
-  await showGeneralDialog(
+
+  showGeneralDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -77,8 +86,8 @@ Future<Shortcut?> showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
       final nameController = TextEditingController();
       return DialogLayout(
-        title: shortcutType == "Route" ? "Route speichern" : "Ort speichern",
-        text: shortcutType == "Route"
+        title: shortcut is ShortcutRoute ? "Route speichern" : "Ort speichern",
+        text: shortcut is ShortcutRoute
             ? "Bitte gib einen Namen für die Route ein."
             : "Bitte gib einen Namen für den Ort ein.",
         actions: [
@@ -87,7 +96,7 @@ Future<Shortcut?> showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
             controller: nameController,
             maxLength: 20,
             decoration: InputDecoration(
-              hintText: shortcutType == "Route" ? "Heimweg, Zur Arbeit, ..." : "Zuhause, Arbeit, ...",
+              hintText: shortcut is ShortcutRoute ? "Heimweg, Zur Arbeit, ..." : "Zuhause, Arbeit, ...",
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
@@ -152,7 +161,6 @@ Future<Shortcut?> showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
       );
     },
   );
-  return newShortcut;
 }
 
 /// Show a sheet to save a shortcut. If the shortcut is null the current route (at the routing service will be saved).
