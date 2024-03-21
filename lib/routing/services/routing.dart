@@ -555,13 +555,14 @@ class Routing with ChangeNotifier {
     NavigationNode a;
     for (var j = i-1; j >= 0; j--) {
       a = sgSelectorResponse.route[j];
-      var distance = mapMath.distanceBetween(a.lat, a.lon, b.lat, b.lon, "meters");
-      totalDistance += distance;
 
       if (j == 0 && isFirstInstruction == true) {
         // Very first instruction is played even if distance is smaller than 300m
         return LatLng(a.lat, a.lon);
       }
+
+      var distance = mapMath.distanceBetween(a.lat, a.lon, b.lat, b.lon, "meters");
+      totalDistance += distance;
 
       // TODO: maybe not equal point but close to point (10m or so?)
       if (lastInstructionPoint?.latitude == a.lat && lastInstructionPoint?.longitude == a.lon) {
@@ -576,9 +577,10 @@ class Routing with ChangeNotifier {
         var remainingDistance = 300 - distanceBefore;
         // calculate point c between a and b such that distance between b and c is remainingDistance
         double bearing = mapMath.bearingBetween(b.lat, b.lon, a.lat, a.lon);
-        LatLng c = mapMath.destinationPoint(b.lat, b.lon, bearing, remainingDistance);
+        LatLng c = mapMath.destinationPoint(b.lat, b.lon, remainingDistance, bearing);
         return c;
       }
+      b = a;
     }
     return null;
   }
@@ -681,6 +683,7 @@ class Routing with ChangeNotifier {
       secondInstructionCall = createSpecificInstruction(
           false, LatLng(currentWaypoint.lat, currentWaypoint.lon), instructionType, ghInstruction, signalGroupId);
       instructions.add(secondInstructionCall);
+      lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
     }
     return instructions;
   }
