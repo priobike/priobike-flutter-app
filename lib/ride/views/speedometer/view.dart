@@ -244,10 +244,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
     // The resulting stops and colors will be from high speed -> low speed
     // Thus, we reverse both colors and stops to get the correct order
-    setState(() {
-      gaugeColors = hardEdgeColors.reversed.toList();
-      gaugeStops = hardEdgeStops.reversed.toList();
-    });
+    if (gaugeColors.length == gaugeStops.length) {
+      setState(() {
+        gaugeColors = hardEdgeColors.reversed.toList();
+        gaugeStops = hardEdgeStops.reversed.toList();
+      });
+    }
   }
 
   /// A callback that is executed when the user taps on the speedometer.
