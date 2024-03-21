@@ -20,7 +20,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
@@ -109,14 +108,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     weather.removeListener(update);
     simulator.removeListener(update);
     super.dispose();
-  }
-
-  /// A callback that is executed when a predictor mode is selected.
-  Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
-    // Tell the settings service that we selected the new predictor mode.
-    await settings.setPredictionMode(predictionMode);
-
-    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a sg labels mode is selected.
@@ -250,24 +241,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Performance-Overlay",
                     icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Prognosealgorithmus",
-                    subtitle: settings.predictionMode.description,
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                            elements: PredictionMode.values,
-                            selected: settings.predictionMode,
-                            title: (PredictionMode e) => e.description,
-                            callback: onSelectPredictionMode);
-                      },
-                    ),
                   ),
                 ),
                 Padding(

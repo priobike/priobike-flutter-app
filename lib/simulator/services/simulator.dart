@@ -464,13 +464,13 @@ class Simulator with ChangeNotifier {
     final ride = getIt<Ride>();
 
     if (ride.calcCurrentSG == null ||
-        ride.predictionComponent == null ||
-        ride.predictionComponent!.recommendation == null) return;
+        ride.predictionProvider == null ||
+        ride.predictionProvider!.recommendation == null) return;
 
     final currentSg = ride.calcCurrentSG!;
 
     // Only send update if same traffic light has different state
-    final state = ride.predictionComponent!.recommendation!.calcCurrentSignalPhase.toString().split(".")[1];
+    final state = ride.predictionProvider!.recommendation!.calcCurrentSignalPhase.toString().split(".")[1];
     final tlID = currentSg.id;
     if (currentSGState != null && currentSGId != null && currentSGState == state && currentSGId == tlID) return;
     currentSGState = state;
