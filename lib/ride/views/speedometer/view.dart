@@ -58,10 +58,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
   /// The current gauge colors, if we have the necessary data.
-  List<Color> gaugeColors = [defaultGaugeColor];
+  List<Color> gaugeColors = [defaultGaugeColor, defaultGaugeColor];
 
   /// The current gauge stops, if we have the necessary data.
-  List<double> gaugeStops = [];
+  List<double> gaugeStops = [0.0, 1.0];
 
   /// The animation controller for the speed animation.
   late AnimationController speedAnimationController;
