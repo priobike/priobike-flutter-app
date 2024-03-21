@@ -113,6 +113,13 @@ class TupleCrossingsDistances {
   TupleCrossingsDistances(this.crossing, this.distance);
 }
 
+/// An enum for the type of the custom instruction.
+enum InstructionType {
+  directionOnly,
+  signalGroupOnly,
+  directionAndSignalGroup,
+}
+
 class Routing with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Routing");
@@ -541,91 +548,6 @@ class Routing with ChangeNotifier {
     return routes;
   }
 
-  List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
-    final instructions = List<Instruction>.empty(growable: true);
-    LatLng? lastInstructionPoint;
-
-    for (var i = 0; i < sgSelectorResponse.route.length; i++) {
-      final waypoint = sgSelectorResponse.route[i];
-      Instruction firstInstructionCall;
-      Instruction customInstruction;
-
-      // get the GraphHopper coordinates that matches lat and long of current SGSelectorResponse waypoint
-      final ghCoordinate = path.points.coordinates.firstWhereOrNull((element) =>
-          element.lat == waypoint.lat && element.lon == waypoint.lon);
-
-      if (ghCoordinate != null) {
-        // get GraphHopper instruction that matches the index of the coordinate
-        final index = path.points.coordinates.indexOf(ghCoordinate);
-        final ghInstruction = path.instructions
-            .firstWhereOrNull((element) => element.interval.first == index);
-
-        if (ghInstruction != null) {
-          //check if there is also a signal group (sg) near the instruction point
-          if (waypoint.distanceToNextSignal != null &&
-              waypoint.distanceToNextSignal! <= 50.0 &&
-              waypoint.signalGroupId != null) {
-            // case 1: create custom instruction as combination of GraphHopper instruction and sg information
-            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
-            if (waypointFirstInstructionCall != null) {
-              firstInstructionCall = Instruction(
-                  lat: waypointFirstInstructionCall.lat,
-                  lon: waypointFirstInstructionCall.lon,
-                  text: "${ghInstruction.text} + Ampel in ${waypointFirstInstructionCall.distanceToNextSignal!}m"
-              );
-              instructions.add(firstInstructionCall);
-            }
-            customInstruction = Instruction(
-                lat: waypoint.lat,
-                lon: waypoint.lon,
-                text: "${ghInstruction.text} + Ampel in ${waypoint.distanceToNextSignal!}m");
-            instructions.add(customInstruction);
-            lastInstructionPoint = LatLng(waypoint.lat, waypoint.lon);
-          } else {
-            // case 2: create custom instruction based on GraphHopper instruction
-            var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
-            if (waypointFirstInstructionCall != null) {
-              firstInstructionCall = Instruction(
-                  lat: waypointFirstInstructionCall.lat,
-                  lon: waypointFirstInstructionCall.lon,
-                  text: "In 300m ${ghInstruction.text}"
-              );
-              instructions.add(firstInstructionCall);
-            }
-            customInstruction = Instruction(
-                lat: waypoint.lat, lon: waypoint.lon, text: ghInstruction.text);
-            instructions.add(customInstruction);
-            lastInstructionPoint = LatLng(waypoint.lat, waypoint.lon);
-          }
-          continue;
-        }
-      }
-      // no GraphHopper instruction belongs to the current waypoint
-      // check if sg belongs to current waypoint
-      if (waypoint.distanceToNextSignal == 0.0 &&
-          waypoint.signalGroupId != null) {
-        // case 3: create customInstruction based on geometry information of sg
-        // TODO extract and use geometry information
-        var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
-        if (waypointFirstInstructionCall != null) {
-          firstInstructionCall = Instruction(
-              lat: waypointFirstInstructionCall.lat,
-              lon: waypointFirstInstructionCall.lon,
-              text: "In 300m Ampel ${waypoint.signalGroupId}"
-          );
-          instructions.add(firstInstructionCall);
-        }
-        customInstruction = Instruction(
-            lat: waypoint.lat,
-            lon: waypoint.lon,
-            text: "Ampel ${waypoint.signalGroupId}");
-        lastInstructionPoint = LatLng(waypoint.lat, waypoint.lon);
-        instructions.add(customInstruction);
-      }
-    }
-    return instructions;
-  }
-
   /// Find the waypoint 300m before the current instruction.
   NavigationNode? findWaypoint300mBeforeInstruction(SGSelectorResponse sgSelectorResponse, int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
     double totalDistance = 0;
@@ -654,6 +576,108 @@ class Routing with ChangeNotifier {
       }
     }
     return null;
+  }
+
+  /// Get the GraphHopper instruction that belongs to a specific waypoint.
+  GHInstruction? getGHInstructionForWaypoint(GHRouteResponsePath path, NavigationNode waypoint) {
+    // get the GraphHopper coordinates that matches lat and long of current waypoint
+    final ghCoordinate = path.points.coordinates.firstWhereOrNull((element) =>
+    element.lat == waypoint.lat && element.lon == waypoint.lon);
+
+    if (ghCoordinate != null) {
+      // get GraphHopper instruction that matches the index of the coordinate
+      final index = path.points.coordinates.indexOf(ghCoordinate);
+      final ghInstruction = path.instructions
+          .firstWhereOrNull((element) => element.interval.first == index);
+      return ghInstruction;
+    }
+    return null;
+  }
+
+  /// Get the signal group id that belongs to a specific waypoint.
+  String? getSignalGroupIdForWaypoint(NavigationNode waypoint, bool hasGHInstruction, double? distance) {
+    if (!hasGHInstruction && waypoint.distanceToNextSignal == 0.0 && waypoint.signalGroupId != null) {
+      // if waypoint does not belong to a GHInstruction check if there is a sg at the exact point
+      return waypoint.signalGroupId;
+    } else if (hasGHInstruction && waypoint.distanceToNextSignal != null && waypoint.distanceToNextSignal! <= distance!) {
+      // if waypoint belongs to a GHInstruction check if there is a sg near the point
+      return waypoint.signalGroupId;
+    }
+    return null;
+  }
+
+  /// Create a specific instruction instance based on the type of instruction.
+  Instruction createSpecificInstruction(NavigationNode waypoint, InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId) {
+    // TODO: do difference between first and second instruction call
+    switch (instructionType) {
+      case InstructionType.directionOnly:
+        return Instruction(
+            lat: waypoint.lat,
+            lon: waypoint.lon,
+            text: ghInstruction!.text
+        );
+      case InstructionType.signalGroupOnly:
+        return Instruction(
+            lat: waypoint.lat,
+            lon: waypoint.lon,
+            text: "Ampel ${waypoint.signalGroupId}"
+        );
+      case InstructionType.directionAndSignalGroup:
+        return Instruction(
+            lat: waypoint.lat,
+            lon: waypoint.lon,
+            text: "${ghInstruction!.text} + Ampel in ${waypoint.distanceToNextSignal!}m"
+        );
+      default:
+        return Instruction(
+            lat: waypoint.lat,
+            lon: waypoint.lon,
+            text: ""
+        );
+    }
+  }
+
+  List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
+    final instructions = List<Instruction>.empty(growable: true);
+    LatLng? lastInstructionPoint;
+
+    // check for all points in the route if there should be an instruction created
+    for (var i = 0; i < sgSelectorResponse.route.length; i++) {
+      final currentWaypoint = sgSelectorResponse.route[i];
+      Instruction firstInstructionCall;
+      Instruction secondInstructionCall;
+
+      GHInstruction? ghInstruction = getGHInstructionForWaypoint(
+          path, currentWaypoint);
+      // TODO: check distance between sg and instruction
+      String? signalGroupId = getSignalGroupIdForWaypoint(
+          currentWaypoint, ghInstruction != null, 10);
+      InstructionType instructionType;
+
+      // set type of instruction to be created
+      if (ghInstruction != null && signalGroupId != null) {
+        instructionType = InstructionType.directionAndSignalGroup;
+      } else if (ghInstruction != null) {
+        instructionType = InstructionType.directionOnly;
+      } else if (signalGroupId != null) {
+        instructionType = InstructionType.signalGroupOnly;
+      } else {
+        continue; // no instruction to be created
+      }
+
+      var waypointFirstInstructionCall = findWaypoint300mBeforeInstruction(
+          sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+      if (waypointFirstInstructionCall != null) {
+        firstInstructionCall = createSpecificInstruction(
+            waypointFirstInstructionCall, instructionType, ghInstruction,
+            signalGroupId);
+        instructions.add(firstInstructionCall);
+      }
+      secondInstructionCall = createSpecificInstruction(
+          currentWaypoint, instructionType, ghInstruction, signalGroupId);
+      instructions.add(secondInstructionCall);
+    }
+    return instructions;
   }
 
   /// Load the routes from a route shortcut from the server (lightweight).
