@@ -104,9 +104,12 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
                       SizedBox(
                         width: 32,
                         height: 32,
-                        child: FadeInImage(
+                        // FIXME: As of Flutter 3.19.x we should use FadeInImage here. On slower devices the image is not instantly visible while
+                        // opening the bottom sheet. This results in a popping-up of the images after a short delay. Using FadeInImage, this
+                        // should look much smoother. However, prior to Flutter 3.19.x, FadeInImage does not support the color property, which
+                        // is required here.
+                        child: Image(
                           image: AssetImage(BikeType.values[index].iconAsString()),
-                          placeholder: const AssetImage(BikeType.values[index].iconAsString()),
                           color: BikeType.values[index] == profileService.bikeType
                               ? Theme.of(context).colorScheme.onPrimary
                               : Theme.of(context).colorScheme.onBackground,
