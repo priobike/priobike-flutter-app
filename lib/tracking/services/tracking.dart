@@ -266,7 +266,7 @@ class Tracking with ChangeNotifier {
     // Check if the user only wants to send data when connected to WiFi.
     if (submissionPolicy == TrackingSubmissionPolicy.onlyOnWifi) {
       final connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult != ConnectivityResult.wifi) {
+      if (!connectivityResult.contains(ConnectivityResult.wifi)) {
         log.i("Not sending track ${track.sessionId} (no connection to WiFi).");
         return false;
       }

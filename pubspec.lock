@@ -69,18 +69,18 @@ packages:
     dependency: "direct main"
     description:
       name: battery_plus
-      sha256: "80c40c9f5763c797f6802797983392e9560eff749a199baeba1229e5aba77ef5"
+      sha256: ba605aeafd6609cb5f8020c609a51941803a5fb2b6a7576f7c7eeeb52d29e750
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "5.0.3"
   battery_plus_platform_interface:
     dependency: transitive
     description:
       name: battery_plus_platform_interface
-      sha256: "19fd8418a81aeb2dea8fb7026b1fdf56b6c6d319baf8d703fa0d13c1d5c7ba2f"
+      sha256: "942707f90e2f7481dcb178df02e22a9c6971b3562b848d6a1b8c7cff9f1a1fec"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.2"
+    version: "2.0.0"
   benchmark:
     dependency: transitive
     description:
@@ -229,18 +229,18 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
+      sha256: e9feae83b1849f61bad9f6f33ee00646e3410d54ce0821e02f262f9901dad3c9
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.1"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
       name: connectivity_plus_platform_interface
-      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
+      sha256: b6a56efe1e6675be240de39107281d4034b64ac23438026355b4234042a35adb
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.4"
+    version: "2.0.0"
   convert:
     dependency: transitive
     description:
@@ -381,10 +381,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: caa6bc229eab3e32eb2f37b53a5f9d22a6981474afd210c512a7546c1e1a04f6
+      sha256: d1d0ac3966b36dc3e66eeefb40280c17feb87fa2099c6e22e6a1fc959327bd03
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.0"
+    version: "8.0.0+1"
   firebase_core:
     dependency: "direct main"
     description:
@@ -474,10 +474,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: "55b9b229307a10974b26296ff29f2e132256ba4bd74266939118eaefa941cb00"
+      sha256: f9a05409385b77b06c18f200a41c7c2711ebf7415669350bb0f8474c07bd40d1
       url: "https://pub.dev"
     source: hosted
-    version: "16.3.3"
+    version: "17.0.0"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -548,18 +548,18 @@ packages:
     dependency: "direct main"
     description:
       name: geolocator
-      sha256: f4efb8d3c4cdcad2e226af9661eb1a0dd38c71a9494b22526f9da80ab79520e5
+      sha256: "694ec58afe97787b5b72b8a0ab78c1a9244811c3c10e72c4362ef3c0ceb005cd"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.1"
+    version: "11.0.0"
   geolocator_android:
     dependency: transitive
     description:
       name: geolocator_android
-      sha256: "62f2dd49497b70480eba408a43a01bc7054fef3a8904f5bf9dc58c43febb563b"
+      sha256: f15d1536cd01b1399578f1da1eb5d566e7a718db6a3648f2c24d2e2f859f0692
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.3+1"
+    version: "4.5.4"
   geolocator_apple:
     dependency: transitive
     description:
@@ -580,10 +580,10 @@ packages:
     dependency: transitive
     description:
       name: geolocator_web
-      sha256: "102e7da05b48ca6bf0a5bda0010f886b171d1a08059f01bfe02addd0175ebece"
+      sha256: "49d8f846ebeb5e2b6641fe477a7e97e5dd73f03cbfef3fd5c42177b7300fb0ed"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "3.0.0"
   geolocator_windows:
     dependency: transitive
     description:
@@ -684,10 +684,10 @@ packages:
     dependency: "direct main"
     description:
       name: intl
-      sha256: "3bc132a9dbce73a7e4a21a17d06e1878839ffbf975568bc875c60537824b0c4d"
+      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
       url: "https://pub.dev"
     source: hosted
-    version: "0.18.1"
+    version: "0.19.0"
   io:
     dependency: transitive
     description:
@@ -828,10 +828,10 @@ packages:
     dependency: "direct main"
     description:
       name: package_info_plus
-      sha256: "7e76fad405b3e4016cd39d08f455a4eb5199723cf594cd1b8916d47140d93017"
+      sha256: "88bc797f44a94814f2213db1c9bd5badebafdfb8290ca9f78d4b9ee2a3db4d79"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "5.0.1"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -1008,6 +1008,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
+  sensors_plus:
+    dependency: "direct main"
+    description:
+      name: sensors_plus
+      sha256: "8e7fa79b4940442bb595bfc0ee9da4af5a22a0fe6ebacc74998245ee9496a82d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.2"
+  sensors_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: sensors_plus_platform_interface
+      sha256: bc472d6cfd622acb4f020e726433ee31788b038056691ba433fec80e448a094f
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -1020,10 +1036,10 @@ packages:
     dependency: transitive
     description:
       name: share_plus_platform_interface
-      sha256: df08bc3a07d01f5ea47b45d03ffcba1fa9cd5370fb44b3f38c70e42cced0f956
+      sha256: "251eb156a8b5fa9ce033747d73535bf53911071f8d3b6f4f0b578505ce0d4496"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.1"
+    version: "3.4.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1305,10 +1321,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: "75bb6fe3f60070407704282a2d295630cab232991eb52542b18347a8a941df03"
+      sha256: "9149d493b075ed740901f3ee844a38a00b33116c7c5c10d7fb27df8987fb51d5"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.4"
+    version: "6.2.5"
   url_launcher_linux:
     dependency: transitive
     description:
@@ -1454,5 +1470,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.2.0 <4.0.0"
-  flutter: ">=3.16.0"
+  dart: ">=3.2.3 <4.0.0"
+  flutter: ">=3.16.6"
