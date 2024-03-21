@@ -651,7 +651,7 @@ class Routing with ChangeNotifier {
           path, currentWaypoint);
       // TODO: check distance between sg and instruction
       String? signalGroupId = getSignalGroupIdForWaypoint(
-          currentWaypoint, ghInstruction != null, 10);
+          currentWaypoint, ghInstruction != null, 50);
       InstructionType instructionType;
 
       // set type of instruction to be created
