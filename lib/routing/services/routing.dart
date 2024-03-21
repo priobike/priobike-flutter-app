@@ -549,7 +549,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Find the waypoint 300m before the current instruction.
-  NavigationNode? findWaypoint300mBeforeInstruction(SGSelectorResponse sgSelectorResponse, int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
+  LatLng? findWaypoint300mBeforeInstruction(SGSelectorResponse sgSelectorResponse, int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
     double totalDistance = 0;
     NavigationNode b = sgSelectorResponse.route[i];
     NavigationNode a;
@@ -560,8 +560,7 @@ class Routing with ChangeNotifier {
 
       if (j == 0 && isFirstInstruction == true) {
         // Very first instruction is played even if distance is smaller than 300m
-        // TODO: adapt instruction text
-        return a;
+        return LatLng(a.lat, a.lon);
       }
 
       // TODO: maybe not equal point but close to point (10m or so?)
@@ -570,9 +569,15 @@ class Routing with ChangeNotifier {
         return null;
       }
 
-      // TODO: schauen welcher beider Punkt näher an den 300m dran ist
-      if (totalDistance >= 300) {
-        return a;
+      if (totalDistance == 300) {
+        return LatLng(a.lat, a.lon);
+      } else if (totalDistance > 300) {
+        var distanceBefore = totalDistance - distance;
+        var remainingDistance = 300 - distanceBefore;
+        // calculate point c between a and b such that distance between b and c is remainingDistance
+        double bearing = mapMath.bearingBetween(b.lat, b.lon, a.lat, a.lon);
+        LatLng c = mapMath.destinationPoint(b.lat, b.lon, bearing, remainingDistance);
+        return c;
       }
     }
     return null;
@@ -607,31 +612,31 @@ class Routing with ChangeNotifier {
   }
 
   /// Create a specific instruction instance based on the type of instruction.
-  Instruction createSpecificInstruction(NavigationNode waypoint, InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId) {
-    // TODO: do difference between first and second instruction call
+  Instruction createSpecificInstruction(bool isFirstCall, LatLng waypoint, InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId) {
+    String prefix = isFirstCall ? "In 300 Metern " : "";
     switch (instructionType) {
       case InstructionType.directionOnly:
         return Instruction(
-            lat: waypoint.lat,
-            lon: waypoint.lon,
-            text: ghInstruction!.text
+            lat: waypoint.latitude,
+            lon: waypoint.longitude,
+            text: prefix + ghInstruction!.text
         );
       case InstructionType.signalGroupOnly:
         return Instruction(
-            lat: waypoint.lat,
-            lon: waypoint.lon,
-            text: "Ampel ${waypoint.signalGroupId}"
+            lat: waypoint.latitude,
+            lon: waypoint.longitude,
+            text: "$prefix Ampel ${signalGroupId!}"
         );
       case InstructionType.directionAndSignalGroup:
         return Instruction(
-            lat: waypoint.lat,
-            lon: waypoint.lon,
-            text: "${ghInstruction!.text} + Ampel in ${waypoint.distanceToNextSignal!}m"
+            lat: waypoint.latitude,
+            lon: waypoint.longitude,
+            text: "${prefix + ghInstruction!.text} + Ampel"
         );
       default:
         return Instruction(
-            lat: waypoint.lat,
-            lon: waypoint.lon,
+            lat: waypoint.latitude,
+            lon: waypoint.longitude,
             text: ""
         );
     }
@@ -669,12 +674,12 @@ class Routing with ChangeNotifier {
           sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
       if (waypointFirstInstructionCall != null) {
         firstInstructionCall = createSpecificInstruction(
-            waypointFirstInstructionCall, instructionType, ghInstruction,
+            true, waypointFirstInstructionCall, instructionType, ghInstruction,
             signalGroupId);
         instructions.add(firstInstructionCall);
       }
       secondInstructionCall = createSpecificInstruction(
-          currentWaypoint, instructionType, ghInstruction, signalGroupId);
+          false, LatLng(currentWaypoint.lat, currentWaypoint.lon), instructionType, ghInstruction, signalGroupId);
       instructions.add(secondInstructionCall);
     }
     return instructions;
