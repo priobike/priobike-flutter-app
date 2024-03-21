@@ -434,31 +434,7 @@ class RideMapViewState extends State<RideMapView> {
       ).toJson(),
     );
 
-    // Calculate the correct screen coordinates since the map got scaled.
-    // Note: only necessary for IOS. Potential point of failure in future.
-    if (settings.saveBatteryModeEnabled && Platform.isIOS) {
-      if (!mounted) return;
-      final frame = MediaQuery.of(context);
-
-      // Get the scaled width and height.
-      double scaleWidth = frame.size.width / Settings.scalingFactor;
-      double scaleHeight = frame.size.height / Settings.scalingFactor;
-
-      // Normalize the screen coordinate to the scaled area.
-      double normalizedX = actualScreenCoordinate.x - (frame.size.width - scaleWidth) / 2;
-      double normalizedY = actualScreenCoordinate.y - (frame.size.height - scaleHeight) / 2;
-
-      // Get the width and height ratio factor in relation to the scaled screen size.
-      double ratioX = normalizedX / scaleWidth;
-      double ratioY = normalizedY / scaleHeight;
-
-      // Calculate the screen coordinates with the ratio in relation to the actual screen.
-      actualScreenCoordinate.x = frame.size.width * ratioX;
-      actualScreenCoordinate.y = frame.size.height * ratioY;
-    }
-
     // Returns the Features for a given screen coordinate.
-    // Note: Android seems to consider the scale factor.
     final List<mapbox.QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
       mapbox.RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
