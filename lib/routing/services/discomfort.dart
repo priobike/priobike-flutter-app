@@ -15,21 +15,93 @@ enum WarnType {
   warnRegularBikes,
   warnRobustBikes,
   warnNone,
+  warnAll,
 }
 
+// Use the surface values to determine unsmooth sections.
+// See: https://wiki.openstreetmap.org/wiki/Key:surface
+const warnTypeMap = {
+  "paved": WarnType.warnNone,
+  "asphalt": WarnType.warnNone,
+  "chipseal": WarnType.warnNone,
+  "concrete": WarnType.warnNone,
+  "concrete:plates": WarnType.warnRegularBikes,
+  "concrete:lanes": WarnType.warnRegularBikes,
+  "paving_stones": WarnType.warnNone,
+  "sett": WarnType.warnRegularBikes,
+  "unhewn_cobblestone": WarnType.warnAll,
+  "cobblestone": WarnType.warnAll,
+  "metal": WarnType.warnRegularBikes,
+  "wood": WarnType.warnRegularBikes,
+  "stepping_stones": WarnType.warnAll,
+  "unpaved": WarnType.warnRegularBikes,
+  "compacted": WarnType.warnSensitiveBikes,
+  "fine_gravel": WarnType.warnRegularBikes,
+  "gravel": WarnType.warnAll,
+  "rock": WarnType.warnAll,
+  "pebblestone": WarnType.warnAll,
+  "ground": WarnType.warnRegularBikes,
+  "dirt": WarnType.warnRegularBikes,
+  "earth": WarnType.warnRegularBikes,
+  "soil": WarnType.warnRegularBikes,
+  "grass": WarnType.warnAll,
+  "grass_paver": WarnType.warnRegularBikes,
+  "mud": WarnType.warnAll,
+  "sand": WarnType.warnAll,
+  "woodchips": WarnType.warnAll,
+  "snow": WarnType.warnAll,
+  "ice": WarnType.warnAll,
+  "salt": WarnType.warnAll,
+  "clay": WarnType.warnRegularBikes,
+  "tartan": WarnType.warnNone,
+  "artificial_turf": WarnType.warnAll,
+  "acrylic": WarnType.warnSensitiveBikes,
+  "metal_grid": WarnType.warnAll,
+  "carpet": WarnType.warnRegularBikes,
+};
+
+const translationsMap = {
+  "paved": "Asphaltierter Wegabschnitt",
+  "asphalt": "Asphaltierter Wegabschnitt",
+  "chipseal": "Versiegelte Schotterstraße",
+  "concrete": "Wegabschnitt mit Beton",
+  "concrete:plates": "Wegabschnitt mit Betonplatten",
+  "concrete:lanes": "Wegabschnitt Betonplatten",
+  "paving_stones": "Gepflasterter Wegabschnitt",
+  "sett": "Gepflasterter Wegabschnitt",
+  "unhewn_cobblestone": "Kopfsteinpflaster",
+  "cobblestone": "Kopfsteinpflaster",
+  "metal": "Wegabschnitt auf Metall",
+  "wood": "Wegabschnitt auf Holz",
+  "stepping_stones": "Wegabschnitt mit Steinplatten",
+  "unpaved": "Unbefestigte Straße",
+  "compacted": "Unbefestigte Straße",
+  "fine_gravel": "Wegabschnitt auf Feinkies",
+  "gravel": "Wegabschnitt auf Kies",
+  "rock": "Wegabschnitt über Felsen",
+  "pebblestone": "Wegabschnitt auf Kies",
+  "ground": "Unbefestigter Wegabschnitt",
+  "dirt": "Unbefestigter Wegabschnitt",
+  "earth": "Unbefestigter Wegabschnitt",
+  "soil": "Unbefestigter Wegabschnitt",
+  "grass": "Wegabschnitt über Gras",
+  "grass_paver": "Wegabschnitt über Gras mit Pflastersteinen",
+  "mud": "Wegabschnitt durch Matsch",
+  "sand": "Wegabschnitt über Sand",
+  "woodchips": "Wegabschnitt über Holzspäne",
+  "snow": "Wegabschnitt über Schnee",
+  "ice": "Wegabschnitt über Eis",
+  "salt": "Wegabschnitt über Salz",
+  "clay": "Wegabschnitt über Lehm",
+  "tartan": "Wegabschnitt über Tartan",
+  "artificial_turf": "Wegabschnitt über Kunstrasen",
+  "acrylic": "Wegabschnitt über Acryl",
+  "metal_grid": "Wegabschnitt über Metallgitter",
+  "carpet": "Wegabschnitt über Teppich",
+};
+
 class Discomforts with ChangeNotifier {
-  /// The found discomforts.
-  List<DiscomfortSegment>? foundDiscomforts;
-
-  Discomforts({
-    this.foundDiscomforts,
-  });
-
-  // Reset the discomfort service.
-  Future<void> reset() async {
-    foundDiscomforts = null;
-    notifyListeners();
-  }
+  Discomforts();
 
   /// Get the coordinates for a given segment.
   List<LatLng> getCoordinates(GHSegment segment, GHRouteResponsePath path) {
@@ -41,97 +113,17 @@ class Discomforts with ChangeNotifier {
     return coordinates;
   }
 
-  Future<void> findDiscomforts(Route route) async {
+  /// Find discomforts for the given route.
+  void findDiscomforts(Route route) {
     final path = route.path;
 
     final profile = getIt<Profile>();
-
-    // Use the surface values to determine unsmooth sections.
-    // See: https://wiki.openstreetmap.org/wiki/Key:surface
-    final warnTypeMap = {
-      "paved": WarnType.warnNone,
-      "asphalt": WarnType.warnNone,
-      "chipseal": WarnType.warnNone,
-      "concrete": WarnType.warnNone,
-      "concrete:plates": WarnType.warnRegularBikes,
-      "concrete:lanes": WarnType.warnRegularBikes,
-      "paving_stones": WarnType.warnNone,
-      "sett": WarnType.warnRegularBikes,
-      "unhewn_cobblestone": WarnType.warnRobustBikes,
-      "cobblestone": WarnType.warnRobustBikes,
-      "metal": WarnType.warnRegularBikes,
-      "wood": WarnType.warnRegularBikes,
-      "stepping_stones": WarnType.warnRobustBikes,
-      "unpaved": WarnType.warnRegularBikes,
-      "compacted": WarnType.warnSensitiveBikes,
-      "fine_gravel": WarnType.warnRegularBikes,
-      "gravel": WarnType.warnRobustBikes,
-      "rock": WarnType.warnRobustBikes,
-      "pebblestone": WarnType.warnRobustBikes,
-      "ground": WarnType.warnRegularBikes,
-      "dirt": WarnType.warnRegularBikes,
-      "earth": WarnType.warnRegularBikes,
-      "soil": WarnType.warnRegularBikes,
-      "grass": WarnType.warnRobustBikes,
-      "grass_paver": WarnType.warnRegularBikes,
-      "mud": WarnType.warnRobustBikes,
-      "sand": WarnType.warnRobustBikes,
-      "woodchips": WarnType.warnRobustBikes,
-      "snow": WarnType.warnRobustBikes,
-      "ice": WarnType.warnRobustBikes,
-      "salt": WarnType.warnRobustBikes,
-      "clay": WarnType.warnRegularBikes,
-      "tartan": WarnType.warnNone,
-      "artificial_turf": WarnType.warnRobustBikes,
-      "acrylic": WarnType.warnSensitiveBikes,
-      "metal_grid": WarnType.warnRobustBikes,
-      "carpet": WarnType.warnRegularBikes,
-    };
-
-    final translationsMap = {
-      "paved": "Asphaltierter Wegabschnitt",
-      "asphalt": "Asphaltierter Wegabschnitt",
-      "chipseal": "Versiegelte Schotterstraße",
-      "concrete": "Wegabschnitt mit Beton",
-      "concrete:plates": "Wegabschnitt mit Betonplatten",
-      "concrete:lanes": "Wegabschnitt Betonplatten",
-      "paving_stones": "Gepflasterter Wegabschnitt",
-      "sett": "Gepflasterter Wegabschnitt",
-      "unhewn_cobblestone": "Kopfsteinpflaster",
-      "cobblestone": "Kopfsteinpflaster",
-      "metal": "Wegabschnitt auf Metall",
-      "wood": "Wegabschnitt auf Holz",
-      "stepping_stones": "Wegabschnitt mit Steinplatten",
-      "unpaved": "Unbefestigte Straße",
-      "compacted": "Unbefestigte Straße",
-      "fine_gravel": "Wegabschnitt auf Feinkies",
-      "gravel": "Wegabschnitt auf Kies",
-      "rock": "Wegabschnitt über Felsen",
-      "pebblestone": "Wegabschnitt auf Kies",
-      "ground": "Unbefestigter Wegabschnitt",
-      "dirt": "Unbefestigter Wegabschnitt",
-      "earth": "Unbefestigter Wegabschnitt",
-      "soil": "Unbefestigter Wegabschnitt",
-      "grass": "Wegabschnitt über Gras",
-      "grass_paver": "Wegabschnitt über Gras mit Pflastersteinen",
-      "mud": "Wegabschnitt durch Matsch",
-      "sand": "Wegabschnitt über Sand",
-      "woodchips": "Wegabschnitt über Holzspäne",
-      "snow": "Wegabschnitt über Schnee",
-      "ice": "Wegabschnitt über Eis",
-      "salt": "Wegabschnitt über Salz",
-      "clay": "Wegabschnitt über Lehm",
-      "tartan": "Wegabschnitt über Tartan",
-      "artificial_turf": "Wegabschnitt über Kunstrasen",
-      "acrylic": "Wegabschnitt über Acryl",
-      "metal_grid": "Wegabschnitt über Metallgitter",
-      "carpet": "Wegabschnitt über Teppich",
-    };
 
     final shouldWarnMap = {
       WarnType.warnSensitiveBikes: profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike,
       WarnType.warnRegularBikes: profile.bikeType != BikeType.mountainbike,
       WarnType.warnRobustBikes: profile.bikeType == BikeType.mountainbike,
+      WarnType.warnAll: true,
     };
 
     final unsmooth = List.empty(growable: true);
@@ -249,8 +241,9 @@ class Discomforts with ChangeNotifier {
       }
     }
 
-    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
-    foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
+    route.foundDiscomforts = List.empty(growable: true);
+    route.foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
+    route.foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
     notifyListeners();
   }
 }

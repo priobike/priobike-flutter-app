@@ -15,7 +15,7 @@ abstract class Shortcut {
   final String type;
 
   /// The name of the shortcut.
-  String? name;
+  String name;
 
   /// Get the linebreaked name of the shortcut.
   String get linebreakedName;

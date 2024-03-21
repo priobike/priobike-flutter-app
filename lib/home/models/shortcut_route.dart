@@ -18,7 +18,7 @@ class ShortcutRoute implements Shortcut {
 
   /// The name of the shortcut.
   @override
-  String? name;
+  String name;
 
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
@@ -34,7 +34,7 @@ class ShortcutRoute implements Shortcut {
     required this.id,
     this.routeLengthText,
     this.routeTimeText,
-    this.name,
+    required this.name,
   });
 
   factory ShortcutRoute.fromJson(Map<String, dynamic> json) {
@@ -60,9 +60,9 @@ class ShortcutRoute implements Shortcut {
   /// Get the linebreaked name of the shortcut route. The name is split into at most 2 lines, by a limit of 15 characters.
   @override
   String get linebreakedName {
-    String result = name ?? "";
+    String result = name;
     int insertedLinebreaks = 0;
-    final nameLength = name?.length ?? 0;
+    final nameLength = name.length ?? 0;
     for (var i = 0; i < nameLength; i++) {
       if (i % 15 == 0 && i != 0) {
         if (insertedLinebreaks == 1) {

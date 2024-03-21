@@ -61,11 +61,13 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
       shortcut = ShortcutLocation(
         waypoint: routing.selectedWaypoints!.first,
         id: UniqueKey().toString(),
+        name: "",
       );
     } else {
       shortcut = ShortcutRoute(
         waypoints: routing.selectedWaypoints!,
         id: UniqueKey().toString(),
+        name: "",
       );
     }
   }

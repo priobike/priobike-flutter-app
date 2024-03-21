@@ -5,7 +5,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/poi.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -38,7 +37,6 @@ class NearbyResultsList extends StatelessWidget {
             (comingNotFromRoutingView) {
               if (comingNotFromRoutingView == null) {
                 getIt<Routing>().reset();
-                getIt<Discomforts>().reset();
                 getIt<PredictionSGStatus>().reset();
               }
             },

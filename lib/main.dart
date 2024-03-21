@@ -12,6 +12,8 @@ import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/poi.dart';
+import 'package:priobike/http.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
@@ -29,7 +31,6 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -72,6 +73,9 @@ Future<void> main() async {
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
   await FCM.load(settings.backend);
+
+  // Init the HTTP client for all services.
+  Http.initClient();
 
   MapboxOptions.setAccessToken(Keys.mapboxAccessToken);
 
@@ -132,6 +136,11 @@ class App extends StatelessWidget {
           onGenerateRoute: (routeSettings) {
             String? url = routeSettings.name!;
             if (!url.contains("/link/")) url = null;
+
+            // Required to make sure that home view doesn't get opened twice if the user clicks on an
+            // import link while the app is already open in the background.
+            navigatorKey.currentState?.popUntil((route) => false);
+
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(

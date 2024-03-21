@@ -210,7 +210,9 @@ class RoutePushBikeLayer {
             }
           }
 
-          features.add(feature);
+          // If the current segment is already included in another feature, there are zero coordinates in the feature.
+          // Thus, we don't add it to the features list.
+          if (feature["geometry"]["coordinates"].length >= 2) features.add(feature);
         }
       }
     }
@@ -365,7 +367,15 @@ class DiscomfortsLayer {
   final bool isDark;
 
   DiscomfortsLayer(this.isDark) {
-    final discomforts = getIt<Discomforts>().foundDiscomforts;
+    final routing = getIt<Routing>();
+    List<DiscomfortSegment>? discomforts;
+    if (routing.selectedRoute != null) {
+      if (routing.selectedRoute!.foundDiscomforts == null) {
+        getIt<Discomforts>().findDiscomforts(routing.selectedRoute!);
+      }
+      discomforts = routing.selectedRoute!.foundDiscomforts;
+    }
+
     for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       // A section of the route.

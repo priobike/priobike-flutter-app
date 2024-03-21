@@ -35,38 +35,39 @@ dependencies:
 
   fluttertoast: ^8.2.4 # Minimalistic popup callable from everywhere
   cupertino_icons: ^1.0.6 # Icons package
-  geolocator: ^10.1.0 # GPS tracking
+  geolocator: ^11.0.0 # GPS tracking
   shared_preferences: ^2.2.2 # Access to shared preferences or user defaults (iOS)
   latlong2: ^0.9.0 # Distance calculations and more
   flutter_native_splash: ^2.3.6 # Generated splash screen, see below
   wakelock_plus: ^1.1.3 # Keep display active in certain conditions
   http: ^1.1.0 # HTTP client framework
   device_info_plus: ^9.1.1 # Fetch info about the device
-  package_info_plus: ^4.2.0 # Fetch info about the package
-  battery_plus: ^4.1.0 # Fetch info about the battery state
+  package_info_plus: ^5.0.1 # Fetch info about the package
+  battery_plus: ^5.0.3 # Fetch info about the battery state
   share_plus: ^7.2.1 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^2.23.0 # Used to initialize the connection to Firebase
   firebase_messaging: ^14.7.5 # Used to receive push notifications of news service
   sensors_plus: ^4.0.2 # Used to get the IMU data
-  flutter_local_notifications: ^16.1.0 # Used to show the push notifications
+  flutter_local_notifications: ^17.0.0 # Used to show the push notifications
   mqtt_client: ^10.0.0
   system_info_plus: ^0.0.5 # Used to check the RAM of user device
   confetti: ^0.7.0
   collection: ^1.16.0 # Used for example for the function DeepCollectionEquality()
-  intl: ^0.18.1 # Used for date formats
+  intl: ^0.19.0 # Used for date formats
   mapbox_maps_flutter: ^1.0.0
   path_provider: ^2.1.1 # To get the path to the app directory and store files
-  connectivity_plus: ^5.0.2 # To check if the user is connected to Wifi or mobile data
+  connectivity_plus: ^6.0.1 # To check if the user is connected to Wifi or mobile data
   get_it: ^7.6.4 # Used for dependency injection
   qr_flutter: ^4.1.0 # Used to display QR codes
   qr_code_scanner: ^1.0.1 # Used to scan QR codes
   url_launcher: ^6.2.1 # Used to open URLs
   in_app_review: ^2.0.8 # Used to rate the app
   proj4dart: ^2.1.0 # Used to convert coordinates from WGS84 to Mercator and back
-  file_picker: ^6.1.1 # Used to open GPX files
+  file_picker: ^8.0.0+1 # Used to open GPX files
   gpx: ^2.2.1
   typed_data: ^1.3.2 # Used for encoding messages to send via MQTT for simulator
-  flutter_blue_plus: 1.20.8 # Used for connecting to BLE devices
+  flutter_blue_plus: 1.20.8 # Used for connecting to BLE devices. Note: keep this Version due to problems with newer versions.
+  flutter_markdown: ^0.6.20 # Used to display the privacy policy
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Generate app icons

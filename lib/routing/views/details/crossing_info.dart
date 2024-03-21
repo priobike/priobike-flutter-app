@@ -107,7 +107,9 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : (status.bad + status.offline).toString(),
+                            text: routing.isFetchingRoute || routing.selectedRoute == null
+                                ? "-"
+                                : ((routing.selectedRoute!.bad) + (routing.selectedRoute!.offline)).toString(),
                             color: Colors.white,
                           ),
                         ),
@@ -127,7 +129,9 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : status.ok.toString(),
+                            text: routing.isFetchingRoute || routing.selectedRoute == null
+                                ? "-"
+                                : (routing.selectedRoute!.ok).toString(),
                             color: Colors.black,
                           ),
                         ),
@@ -147,7 +151,9 @@ class CrossingInfoState extends State<CrossingInfo> {
                         child: Center(
                           child: BoldSmall(
                             context: context,
-                            text: routing.isFetchingRoute ? "-" : status.disconnected.toString(),
+                            text: routing.isFetchingRoute || routing.selectedRoute == null
+                                ? "-"
+                                : (routing.selectedRoute!.disconnected).toString(),
                             color: Colors.black,
                           ),
                         ),

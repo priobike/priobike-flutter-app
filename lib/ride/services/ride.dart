@@ -6,15 +6,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/interfaces/prediction_component.dart';
-import 'package:priobike/ride/services/hybrid_predictor.dart';
-import 'package:priobike/ride/services/prediction_service.dart';
-import 'package:priobike/ride/services/predictor.dart';
+import 'package:priobike/ride/services/prediction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,8 +61,8 @@ class Ride with ChangeNotifier {
   /// status update was calculated based on the prediction.
   void Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
-  /// The wrapper-service for the used prediction mode.
-  PredictionComponent? predictionComponent;
+  /// The prediction provider.
+  PredictionProvider? predictionProvider;
 
   /// List of Waypoints if the last ride got killed by the os.
   List<Waypoint>? lastRoute;
@@ -129,9 +124,9 @@ class Ride with ChangeNotifier {
   }
 
   /// Subscribe to the signal group.
-  void selectSG(Sg? sg) {
+  Future<void> selectSG(Sg? sg) async {
     if (!navigationIsActive) return;
-    bool? unsubscribed = predictionComponent?.selectSG(sg);
+    bool? unsubscribed = await predictionProvider?.selectSG(sg);
 
     if (unsubscribed ?? false) calcDistanceToNextSG = null;
 
@@ -139,8 +134,8 @@ class Ride with ChangeNotifier {
   }
 
   /// Callback that gets called when the prediction component client established a connection.
-  void onPredictionComponentClientConnected() {
-    predictionComponent!.selectSG(userSelectedSG ?? calcCurrentSG);
+  Future<void> onPredictionComponentClientConnected() async {
+    await predictionProvider!.selectSG(userSelectedSG ?? calcCurrentSG);
   }
 
   /// Select the next signal group.
@@ -196,28 +191,12 @@ class Ride with ChangeNotifier {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
-    final settings = getIt<Settings>();
-    final predictionMode = settings.predictionMode;
-    if (predictionMode == PredictionMode.usePredictionService) {
-      // Connect the prediction service MQTT client.
-      predictionComponent = PredictionService(
-          onConnected: onPredictionComponentClientConnected,
-          notifyListeners: notifyListeners,
-          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient();
-    } else if (predictionMode == PredictionMode.usePredictor) {
-      // Connect the predictor MQTT client.
-      predictionComponent = Predictor(
-          onConnected: onPredictionComponentClientConnected,
-          notifyListeners: notifyListeners,
-          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient();
-    } else {
-      // Hybrid mode -> connect both clients.
-      predictionComponent = HybridPredictor(
-          notifyListeners: notifyListeners, onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient();
-    }
+    // Connect the prediction service MQTT client.
+    predictionProvider = PredictionProvider(
+        onConnected: onPredictionComponentClientConnected,
+        notifyListeners: notifyListeners,
+        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
+    predictionProvider!.connectMQTTClient();
 
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
@@ -316,12 +295,15 @@ class Ride with ChangeNotifier {
       calcDistanceToNextSG = null;
     }
 
+    // Also update the recommendation
+    predictionProvider?.recalculateRecommendation();
+
     notifyListeners();
   }
 
   /// Stop the navigation.
   Future<void> stopNavigation() async {
-    if (predictionComponent != null) predictionComponent!.stopNavigation();
+    if (predictionProvider != null) predictionProvider!.stopNavigation();
     navigationIsActive = false;
     onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
     notifyListeners();
@@ -331,8 +313,8 @@ class Ride with ChangeNotifier {
   Future<void> reset() async {
     route = null;
     navigationIsActive = false;
-    await predictionComponent?.reset();
-    predictionComponent = null;
+    await predictionProvider?.reset();
+    predictionProvider = null;
     userSelectedSG = null;
     userSelectedSGIndex = null;
     calcCurrentSG = null;

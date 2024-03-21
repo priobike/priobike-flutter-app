@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart' hide Route;
@@ -198,6 +199,13 @@ class RouteLabelManager extends ChangeNotifier {
       _resetOutdatedRouteLabels();
     }
 
+    // Check zoom level and return if to small.
+    final camera = await mapController.getCameraState();
+    if (camera.zoom < 9) {
+      notifyListeners();
+      return;
+    }
+
     // Visible screen coordinates per route.
     List<List<ScreenCoordinate>> visibleScreenCoordinates = [];
 
@@ -223,12 +231,22 @@ class RouteLabelManager extends ChangeNotifier {
         filteredCandidates.addAll(possibleCandidates);
       }
 
-      // Sort the filtered candidates so that the middlemost are the first ones to check compatibility.
-      filteredCandidates.sort((a, b) =>
-          ((a.screenCoordinate.x - widthMid).abs() + (a.screenCoordinate.y - heightMid).abs()) >
-                  ((b.screenCoordinate.x - widthMid).abs() + (b.screenCoordinate.y - heightMid).abs())
-              ? 1
-              : 0);
+      // Order the candidates of each route label, that the middlemost in relation to the route is checked first.
+      ScreenCoordinate first = visibleScreenCoordinates[i].first;
+      ScreenCoordinate last = visibleScreenCoordinates[i].last;
+
+      filteredCandidates.sort((a, b) {
+        final aDistToFirst = sqrt(pow(a.screenCoordinate.x - first.x, 2) + pow(a.screenCoordinate.y - first.y, 2));
+        final aDistToLast = sqrt(pow(a.screenCoordinate.x - last.x, 2) + pow(a.screenCoordinate.y - last.y, 2));
+        final bDistToFirst = sqrt(pow(b.screenCoordinate.x - first.x, 2) + pow(b.screenCoordinate.y - first.y, 2));
+        final bDistToLast = sqrt(pow(b.screenCoordinate.x - last.x, 2) + pow(b.screenCoordinate.y - last.y, 2));
+
+        if (max(aDistToFirst, aDistToLast) > max(bDistToFirst, bDistToLast)) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
 
       managedRouteLabels[i].availableRouteLabelCandidates = filteredCandidates;
     }
@@ -266,18 +284,20 @@ class RouteLabelManager extends ChangeNotifier {
   List<List<GHCoordinate>> getUniqueCoordinatesPerRoute(List<Route> routes) {
     List<HashSet<GHCoordinate>> coordinatesPerRoute = [];
 
+    // Use hashsets to reduce the complexity for the contains function in the next part.
     for (final route in routes) {
       HashSet<GHCoordinate> coordinates = HashSet();
+
       for (GHCoordinate coordinate in route.path.points.coordinates) {
         coordinates.add(coordinate);
       }
       coordinatesPerRoute.add(coordinates);
     }
 
-    List<List<GHCoordinate>> uniqueCoordinatesPerRoute = [];
+    List<HashSet<GHCoordinate>> uniqueCoordinatesPerRoute = [];
 
     for (final coordinates in coordinatesPerRoute) {
-      List<GHCoordinate> uniqueCoordinates = [];
+      HashSet<GHCoordinate> uniqueCoordinates = HashSet();
       for (final coordinate in coordinates) {
         bool unique = true;
         for (final coordinatesToBeChecked in coordinatesPerRoute) {
@@ -295,7 +315,19 @@ class RouteLabelManager extends ChangeNotifier {
       uniqueCoordinatesPerRoute.add(uniqueCoordinates);
     }
 
-    return uniqueCoordinatesPerRoute;
+    List<List<GHCoordinate>> uniqueCoordinatesPerRouteList = [];
+    // Map the unique coordinates to the original order of the route due to the hashset use.
+    for (int i = 0; i < routes.length; i++) {
+      List<GHCoordinate> uniqueCoordinatesList = [];
+      for (GHCoordinate coordinate in routes[i].path.points.coordinates) {
+        if (uniqueCoordinatesPerRoute[i].contains(coordinate)) {
+          uniqueCoordinatesList.add(coordinate);
+        }
+      }
+      uniqueCoordinatesPerRouteList.add(uniqueCoordinatesList);
+    }
+
+    return uniqueCoordinatesPerRouteList;
   }
 
   /// Returns a bool whether the given screen coordinate fits for the route label margins.
