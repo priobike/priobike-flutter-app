@@ -265,6 +265,17 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Erhöhte Genauigkeit der Geschwindigkeit im Tacho",
+                    icon: settings.isIncreasedSpeedPrecisionInSpeedometerEnabled
+                        ? Icons.check_box
+                        : Icons.check_box_outline_blank,
+                    callback: () => settings.setIncreasedSpeedPrecisionInSpeedometerEnabled(
+                        !settings.isIncreasedSpeedPrecisionInSpeedometerEnabled),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "Ort",
                     subtitle: settings.backend.region,
                     icon: Icons.expand_more,

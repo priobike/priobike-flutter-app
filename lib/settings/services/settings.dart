@@ -92,6 +92,9 @@ class Settings with ChangeNotifier {
   /// If the filter for the free ride view is enabled.
   bool isFreeRideFilterEnabled;
 
+  /// If we want to show the speed with increased precision in the speedometer.
+  bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -443,6 +446,27 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const isIncreasedSpeedPrecisionInSpeedometerEnabledKey =
+      "priobike.settings.isIncreasedSpeedPrecisionInSpeedometerEnabled";
+  static const defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled = false;
+
+  Future<bool> setIncreasedSpeedPrecisionInSpeedometerEnabled(bool isIncreasedSpeedPrecisionInSpeedometerEnabled,
+      [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.isIncreasedSpeedPrecisionInSpeedometerEnabled;
+    this.isIncreasedSpeedPrecisionInSpeedometerEnabled = isIncreasedSpeedPrecisionInSpeedometerEnabled;
+    final bool success = await storage.setBool(
+        isIncreasedSpeedPrecisionInSpeedometerEnabledKey, isIncreasedSpeedPrecisionInSpeedometerEnabled);
+    if (!success) {
+      log.e(
+          "Failed to set isIncreasedSpeedPrecisionInSpeedometerEnabled to $isIncreasedSpeedPrecisionInSpeedometerEnabled");
+      this.isIncreasedSpeedPrecisionInSpeedometerEnabled = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings(
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -464,6 +488,7 @@ class Settings with ChangeNotifier {
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
     this.isFreeRideFilterEnabled = defaultIsFreeRideFilterEnabled,
+    this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -503,6 +528,13 @@ class Settings with ChangeNotifier {
     }
     try {
       isFreeRideFilterEnabled = storage.getBool(isFreeRideFilterEnabledKey) ?? defaultIsFreeRideFilterEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      isIncreasedSpeedPrecisionInSpeedometerEnabled =
+          storage.getBool(isIncreasedSpeedPrecisionInSpeedometerEnabledKey) ??
+              defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
