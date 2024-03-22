@@ -6,7 +6,6 @@ import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
@@ -135,10 +134,10 @@ class Track {
   List<BatteryState> batteryStates = [];
 
   /// The lightning mode.
-  bool isDarkMode;
+  bool? isDarkMode;
 
   /// The battery save mode.
-  bool saveBatteryModeEnabled;
+  bool? saveBatteryModeEnabled;
 
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
@@ -257,8 +256,8 @@ class Track {
       subVersion: json['subVersion'],
       canUseGamification: json['canUseGamification'],
       batteryStates: batteryStates,
-      isDarkMode: json.containsKey("isDarkMode") ? json["isDarkMode"] : false,
-      saveBatteryModeEnabled: json.containsKey("saveBatteryModeEnabled") ? json["saveBatteryModeEnabled"] : false,
+      isDarkMode: json.containsKey("isDarkMode") ? json["isDarkMode"] : null,
+      saveBatteryModeEnabled: json.containsKey("saveBatteryModeEnabled") ? json["saveBatteryModeEnabled"] : null,
     );
   }
 }
