@@ -256,7 +256,7 @@ SPEC CHECKSUMS:
   system_info_plus: 5393c8da281d899950d751713575fbf91c7709aa
   Toast: ec33c32b8688982cecc6348adeae667c1b9938da
   Turf: aa2ede4298009639d10db36aba1a7ebaad072a5e
-  url_launcher_ios: 6116280ddcfe98ab8820085d8d76ae7449447586
+  url_launcher_ios: bbd758c6e7f9fd7b5b1d4cde34d2b95fcce5e812
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
 
 PODFILE CHECKSUM: 9bb5dca45983eeb29550480f66eeed61af009708
