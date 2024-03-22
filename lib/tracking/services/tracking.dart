@@ -134,7 +134,7 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start a new track.
-  Future<void> start(double deviceWidth, double deviceHeight, bool saveBatteryModeEnabled, bool isDarkMode) async {
+  Future<void> start(double deviceWidth, double deviceHeight, bool saveBatteryModeEnabled, bool? isDarkMode) async {
     log.i("Starting a new track.");
 
     // Get some session- and device-specific data.

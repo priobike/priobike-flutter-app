@@ -133,7 +133,7 @@ class RideViewState extends State<RideView> {
         );
 
         // Set isDark to false to make sure tracking always starts.
-        bool isDark = false;
+        bool? isDark;
         if (mounted) {
           isDark = Theme.of(context).brightness == Brightness.dark;
         }
