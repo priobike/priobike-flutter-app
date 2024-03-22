@@ -426,7 +426,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
-                          '${speedkmh.toStringAsFixed(0)} km/h',
+                          '${speedkmh.toStringAsFixed(3)} km/h',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 28,

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -325,9 +324,8 @@ class PathMockPositionSource extends PositionSource {
         return;
       }
 
-      final random = Random(); // Simulate GPS inaccuracy.
-      final bearing = vincenty.bearing(from, to) - 2.5 + 5 * random.nextDouble(); // [-180°, 180°]
-      final currentLocation = vincenty.offset(from, distanceOnSegment - 1 + 2 * random.nextDouble(), bearing);
+      final bearing = vincenty.bearing(from, to); // [-180°, 180°]
+      final currentLocation = vincenty.offset(from, distanceOnSegment, bearing);
       final heading = bearing > 0 ? bearing : 360 + bearing;
 
       lastPosition = Position(
