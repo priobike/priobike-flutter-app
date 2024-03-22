@@ -133,6 +133,12 @@ class Track {
   /// The battery states sampled during the ride.
   List<BatteryState> batteryStates = [];
 
+  /// The lightning mode.
+  bool? isDarkMode;
+
+  /// The battery save mode.
+  bool? saveBatteryModeEnabled;
+
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
     final dir = await getApplicationDocumentsDirectory();
@@ -170,6 +176,8 @@ class Track {
     required this.subVersion,
     required this.batteryStates,
     this.canUseGamification = false,
+    required this.isDarkMode,
+    required this.saveBatteryModeEnabled,
   });
 
   /// Convert the track to a json object.
@@ -204,6 +212,8 @@ class Track {
               })
           .toList(),
       'batteryStates': batteryStates.map((e) => e.toJson()).toList(),
+      'isDarkMode': isDarkMode,
+      'saveBatteryModeEnabled': saveBatteryModeEnabled,
     };
   }
 
@@ -246,6 +256,8 @@ class Track {
       subVersion: json['subVersion'],
       canUseGamification: json['canUseGamification'],
       batteryStates: batteryStates,
+      isDarkMode: json.containsKey("isDarkMode") ? json["isDarkMode"] : null,
+      saveBatteryModeEnabled: json.containsKey("saveBatteryModeEnabled") ? json["saveBatteryModeEnabled"] : null,
     );
   }
 }
