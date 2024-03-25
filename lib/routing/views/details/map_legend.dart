@@ -11,14 +11,14 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 
-class CrossingInfo extends StatefulWidget {
-  const CrossingInfo({super.key});
+class MapLegend extends StatefulWidget {
+  const MapLegend({super.key});
 
   @override
-  CrossingInfoState createState() => CrossingInfoState();
+  MapLegendState createState() => MapLegendState();
 }
 
-class CrossingInfoState extends State<CrossingInfo> {
+class MapLegendState extends State<MapLegend> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
@@ -59,7 +59,7 @@ class CrossingInfoState extends State<CrossingInfo> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => _CrossingExplanationView(),
+      builder: (_) => _MapLegendView(),
     );
   }
 
@@ -184,7 +184,7 @@ class CrossingInfoState extends State<CrossingInfo> {
   }
 }
 
-class _CrossingExplanationView extends StatelessWidget {
+class _MapLegendView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
