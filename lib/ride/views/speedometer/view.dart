@@ -32,8 +32,7 @@ class RideSpeedometerView extends StatefulWidget {
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
 }
 
-class RideSpeedometerViewState extends State<RideSpeedometerView>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTickerProviderStateMixin {
   static const viewId = "ride.views.speedometer";
 
   /// The minimum speed in km/h.
@@ -122,8 +121,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   @override
   void initState() {
-    hideNavigationBarAndroid();
     super.initState();
+    hideNavigationBarAndroid();
     settings = getIt<Settings>();
     positioning = getIt<Positioning>();
     positioning.addListener(updateSpeedometer);
@@ -149,16 +148,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
     // Fetch the maximum speed from the settings service.
     maxSpeed = settings.speedMode.maxSpeed;
-
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  Future<void> didChangeMetrics() async {
-    if (Platform.isAndroid) {
-      await Future.delayed(const Duration(milliseconds: 10));
-      SystemChrome.restoreSystemUIOverlays();
-    }
   }
 
   @override
@@ -167,7 +156,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     positioning.removeListener(updateSpeedometer);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
