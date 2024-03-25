@@ -24,9 +24,9 @@ class ShortcutLocation implements Shortcut {
   final Waypoint waypoint;
 
   ShortcutLocation({
+    required this.name,
     required this.waypoint,
     required this.id,
-    required this.name,
   });
 
   factory ShortcutLocation.fromJson(Map<String, dynamic> json) {
@@ -49,7 +49,7 @@ class ShortcutLocation implements Shortcut {
   @override
   String get linebreakedName {
     var result = name;
-    int insertedLinebreaks = 0;
+    var insertedLinebreaks = 0;
     for (var i = 0; i < name.length; i++) {
       if (i % 15 == 0 && i != 0) {
         if (insertedLinebreaks == 1) {

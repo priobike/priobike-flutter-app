@@ -11,7 +11,6 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -62,14 +61,7 @@ class SearchItem extends StatelessWidget {
                 icon: const Icon(Icons.save),
                 color: Theme.of(context).colorScheme.tertiary,
                 onPressed: () {
-                  showSaveShortcutSheet(
-                    context,
-                    shortcut: ShortcutLocation(
-                      waypoint: waypoint,
-                      id: UniqueKey().toString(),
-                      name: "",
-                    ),
-                  );
+                  showSaveShortcutLocationSheet(context, waypoint);
                 },
               ),
             ),
@@ -163,14 +155,7 @@ class HistoryItemState extends State<HistoryItem> {
                       icon: const Icon(Icons.save),
                       color: Theme.of(context).colorScheme.tertiary,
                       onPressed: () {
-                        showSaveShortcutSheet(
-                          context,
-                          shortcut: ShortcutLocation(
-                            waypoint: widget.waypoint,
-                            id: UniqueKey().toString(),
-                            name: "",
-                          ),
-                        );
+                        showSaveShortcutLocationSheet(context, widget.waypoint);
                       },
                     ),
                   ),

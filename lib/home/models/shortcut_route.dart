@@ -30,11 +30,11 @@ class ShortcutRoute implements Shortcut {
   String? routeTimeText;
 
   ShortcutRoute({
+    required this.name,
     required this.waypoints,
     required this.id,
     this.routeLengthText,
     this.routeTimeText,
-    required this.name,
   });
 
   factory ShortcutRoute.fromJson(Map<String, dynamic> json) {
@@ -61,7 +61,7 @@ class ShortcutRoute implements Shortcut {
   @override
   String get linebreakedName {
     var result = name;
-    int insertedLinebreaks = 0;
+    var insertedLinebreaks = 0;
     for (var i = 0; i < name.length; i++) {
       if (i % 15 == 0 && i != 0) {
         if (insertedLinebreaks == 1) {
