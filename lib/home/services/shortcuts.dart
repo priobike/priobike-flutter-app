@@ -64,6 +64,7 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
     await storeShortcuts();
+
     notifyListeners();
   }
 
