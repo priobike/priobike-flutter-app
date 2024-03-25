@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -144,21 +143,7 @@ class QRCodeViewState extends State<QRCodeView> {
                                 : MediaQuery.of(context).size.width * 0.8,
                             child: state == QRCodeViewMode.scanning
                                 ? ScanQRCodeView(
-                                    onScan: (shortcut) async {
-                                      if (!mounted) return;
-                                      setState(
-                                        () {
-                                          this.shortcut = shortcut;
-                                          state = QRCodeViewMode.scanned;
-                                        },
-                                      );
-
-                                      showSaveShortcutFromImportSheet(context, shortcut: shortcut);
-
-                                      if (!mounted) return;
-                                      // Go back to HomeView
-                                      Navigator.popUntil(context, (route) => route.isFirst);
-                                    },
+                                    onScan: (shortcut) => Navigator.of(context).pop(shortcut),
                                   )
                                 : Padding(
                                     padding: const EdgeInsets.all(8),
