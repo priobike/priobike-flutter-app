@@ -622,14 +622,16 @@ class Routing with ChangeNotifier {
             lat: waypoint.latitude,
             lon: waypoint.longitude,
             text: "$prefix Ampel ${signalGroupId!}",
-            instructionType: InstructionType.signalGroupOnly
+            instructionType: InstructionType.signalGroupOnly,
+            signalGroupId: signalGroupId
         );
       case InstructionType.directionAndSignalGroup:
         return Instruction(
             lat: waypoint.latitude,
             lon: waypoint.longitude,
             text: "${prefix + ghInstruction!.text} + Ampel",
-            instructionType: InstructionType.directionAndSignalGroup
+            instructionType: InstructionType.directionAndSignalGroup,
+            signalGroupId: signalGroupId
         );
       default:
         return Instruction(

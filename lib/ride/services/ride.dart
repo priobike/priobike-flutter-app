@@ -24,6 +24,8 @@ import '../../routing/messages/graphhopper.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_map_math/flutter_geo_math.dart';
 
+import '../../routing/models/instruction.dart';
+
 /// The distance model.
 const vincenty = Distance(roundResult: false);
 
@@ -331,6 +333,15 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Check if instruction contains sg information and if so add countdown
+  String generateTextToPlay(Instruction currentInstruction) {
+    if (currentInstruction.instructionType == InstructionType.directionOnly) {
+      return currentInstruction.text!;
+    }
+    String signalGroupId = currentInstruction.signalGroupId!;
+    return signalGroupId;
+  }
+
   /// Play audio instruction
   Future<void> playAudioInstruction() async {
     // TODO: check where this should optimally be created
@@ -346,8 +357,8 @@ class Ride with ChangeNotifier {
         mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") < 10);
 
     if (currentInstruction != null){
-      //play text to speech
-      await ftts.speak(currentInstruction.text!);
+      String textToPlay = generateTextToPlay(currentInstruction);
+      await ftts.speak(textToPlay);
       currentInstruction.executed = true;
     }
   }

@@ -23,5 +23,8 @@ class Instruction {
   /// The instruction type.
   final InstructionType instructionType;
 
-  Instruction({required this.lat, required this.lon, required this.text, required this.instructionType});
+  /// The ID of the corresponding signal group.
+  final String? signalGroupId;
+
+  Instruction({required this.lat, required this.lon, required this.text, required this.instructionType, this.signalGroupId});
 }
