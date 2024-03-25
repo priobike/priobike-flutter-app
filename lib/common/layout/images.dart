@@ -67,3 +67,16 @@ class CompassIcon extends Image {
           alignment: Alignment.center,
         );
 }
+
+/// A current position icon.
+class CurrentPosition extends Image {
+  CurrentPosition({double super.width = 24, double super.height = 24, required BuildContext context, super.key})
+      : super(
+          image: Theme.of(context).brightness == Brightness.dark
+              ? const AssetImage("assets/images/position-static-dark.png")
+              : const AssetImage("assets/images/position-static-light.png"),
+          color: null,
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+        );
+}
