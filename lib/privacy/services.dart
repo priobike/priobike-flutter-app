@@ -29,9 +29,6 @@ class PrivacyPolicy with ChangeNotifier {
 
   /// Load the privacy policy.
   Future<void> loadPolicy() async {
-    // Reset loading attributes.
-    resetLoading();
-
     // The privacy text from the privacy service.
     String? privacyText;
 

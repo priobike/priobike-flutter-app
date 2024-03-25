@@ -98,7 +98,10 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                   const VSpace(),
                   BigButtonPrimary(
                     label: "Erneut versuchen",
-                    onPressed: () => privacyService.loadPolicy(),
+                    onPressed: () {
+                      privacyService.resetLoading();
+                      privacyService.loadPolicy();
+                    },
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                   ),
                 ],
