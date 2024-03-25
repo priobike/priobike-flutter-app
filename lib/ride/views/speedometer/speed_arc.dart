@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 
 class SpeedometerSpeedArcPainter extends CustomPainter {
   final double pct;
-  final double lastPct;
   final bool isDark;
   final bool batterySaveMode;
 
+  /// The last percentage value of the speedometer arc. Only made for battery save mode.
+  final double? lastPct;
+
   SpeedometerSpeedArcPainter({
     required pct,
-    required this.lastPct,
     required this.isDark,
     required this.batterySaveMode,
+    this.lastPct,
   }) : pct = pct == 0 ? 0.001 : pct;
 
   /// Paints the tail of the pointer
@@ -48,6 +50,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
   }
 
   void paintSpeedArcTailBatterySave(Canvas canvas, Size size) {
+    if (lastPct == null) return;
     if (pct == lastPct) return;
     // Scale the opacity of the glow based on the speed.
     final center = Offset(size.width / 2, size.height / 2);
@@ -56,7 +59,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     const endAngle = pi / 4;
 
     final angle = startAngle + pct * (endAngle - startAngle);
-    final lastAngle = startAngle + lastPct * (endAngle - startAngle);
+    final lastAngle = startAngle + lastPct! * (endAngle - startAngle);
 
     final colors = [
       Colors.white.withOpacity(0.0),
@@ -72,10 +75,10 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     const diff = 0.75;
 
     // Calculate borders for the sweep gradient.
-    final minBorder = pct < lastPct ? (pct - 0.001) * diff : (lastPct - 0.001) * diff;
-    final min = pct < lastPct ? (pct) * diff : (lastPct) * diff;
-    final max = pct > lastPct ? (pct) * diff : (lastPct) * diff;
-    final maxBorder = pct > lastPct ? (pct + 0.001) * diff : (lastPct + 0.001) * diff;
+    final minBorder = pct < lastPct! ? (pct - 0.001) * diff : (lastPct! - 0.001) * diff;
+    final min = pct < lastPct! ? pct * diff : lastPct! * diff;
+    final max = pct > lastPct! ? pct * diff : lastPct! * diff;
+    final maxBorder = pct > lastPct! ? (pct + 0.001) * diff : (lastPct! + 0.001) * diff;
 
     () {
       final rect = Rect.fromCircle(center: center, radius: radius);

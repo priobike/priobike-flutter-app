@@ -295,6 +295,8 @@ class Migration {
           // Only add if route was found.
           checkedShortcutsList.add(shortcut.id);
         }
+      } else {
+        checkedShortcutsList.add(shortcut.id);
       }
     }
     // Save the migrated shortcuts.

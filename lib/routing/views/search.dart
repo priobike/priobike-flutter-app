@@ -306,8 +306,6 @@ class RouteSearchState extends State<RouteSearch> {
 
   /// A callback that is fired when a waypoint is tapped.
   Future<void> tappedWaypoint({required Waypoint waypoint, required bool addToHistory}) async {
-    /// The current position is not saved in the search history.
-    geosearch.clearGeosearch();
     // FIXME we should pay attention to release notes if this Flutter bug might be fixed in the future.
     // Note: still not fixed with flutter 3.16.0.
     // Prevents the keyboard to be focused on pop screen. This can cause ugly map effects on Android.

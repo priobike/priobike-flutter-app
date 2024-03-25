@@ -2,18 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:battery_plus/battery_plus.dart' hide BatteryState;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/tracking.dart';
@@ -86,6 +87,12 @@ class Tracking with ChangeNotifier {
   /// A timer that checks if tracks need to be uploaded.
   Timer? uploadTimer;
 
+  /// The timer used to sample the battery state.
+  Timer? batterySamplingTimer;
+
+  /// The class used to get the battery state.
+  Battery? battery;
+
   /// The key for the tracks in the shared preferences.
   static const tracksKey = "priobike.tracking.tracks";
 
@@ -127,7 +134,7 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start a new track.
-  Future<void> start(double deviceWidth, double deviceHeight) async {
+  Future<void> start(double deviceWidth, double deviceHeight, bool saveBatteryModeEnabled, bool? isDarkMode) async {
     log.i("Starting a new track.");
 
     // Get some session- and device-specific data.
@@ -177,12 +184,19 @@ class Tracking with ChangeNotifier {
         bikeType: profile.bikeType,
         routes: {startTime: routing.selectedRoute!},
         subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+        batteryStates: [],
+        saveBatteryModeEnabled: saveBatteryModeEnabled,
+        isDarkMode: isDarkMode,
       );
       // Add the track to the list of previous tracks and save it.
       previousTracks!.add(track!);
       await savePreviousTracks();
       // Start collecting data to the files of the track.
       await startCollectingGPSData();
+      await sampleBatteryState();
+      if (batterySamplingTimer == null || !batterySamplingTimer!.isActive) {
+        batterySamplingTimer = Timer.periodic(const Duration(seconds: 60), (timer) async => await sampleBatteryState());
+      }
     } catch (e, stacktrace) {
       final hint = "Could not start a new track: $e $stacktrace";
       log.e(hint);
@@ -190,6 +204,14 @@ class Tracking with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<void> sampleBatteryState() async {
+    if (track == null) return;
+    battery ??= Battery();
+    final level = await battery!.batteryLevel;
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    track!.batteryStates.add(BatteryState(level: level, timestamp: timestamp));
   }
 
   /// Start collecting GPS data.
@@ -235,6 +257,12 @@ class Tracking with ChangeNotifier {
     final ride = getIt<Ride>();
     track?.predictionServicePredictions = ride.predictionProvider?.predictionServicePredictions ?? [];
     track?.predictorPredictions = ride.predictionProvider?.predictorPredictions ?? [];
+
+    batterySamplingTimer?.cancel();
+    batterySamplingTimer = null;
+    // Add the last battery state.
+    await sampleBatteryState();
+    battery = null;
 
     // Stop collecting data.
     await stopCollectingGpsData();

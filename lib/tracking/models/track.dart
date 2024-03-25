@@ -10,6 +10,32 @@ import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
 
+class BatteryState {
+  /// The battery level, in percent.
+  int level;
+
+  /// The timestamp of the battery state.
+  int timestamp;
+
+  BatteryState({required this.level, required this.timestamp});
+
+  /// Convert the battery state to a json object.
+  Map<String, dynamic> toJson() {
+    return {
+      'level': level,
+      'timestamp': timestamp,
+    };
+  }
+
+  /// Create a battery state from a json object.
+  factory BatteryState.fromJson(Map<String, dynamic> json) {
+    return BatteryState(
+      level: json['level'],
+      timestamp: json['timestamp'],
+    );
+  }
+}
+
 class Track {
   /// The start time of this track, in milliseconds since the epoch.
   int startTime;
@@ -104,6 +130,15 @@ class Track {
   /// After the gamification concept is implemented the flag has to be set to true.
   bool canUseGamification;
 
+  /// The battery states sampled during the ride.
+  List<BatteryState> batteryStates = [];
+
+  /// The lightning mode.
+  bool? isDarkMode;
+
+  /// The battery save mode.
+  bool? saveBatteryModeEnabled;
+
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
     final dir = await getApplicationDocumentsDirectory();
@@ -139,7 +174,10 @@ class Track {
     required this.bikeType,
     required this.routes,
     required this.subVersion,
+    required this.batteryStates,
     this.canUseGamification = false,
+    required this.isDarkMode,
+    required this.saveBatteryModeEnabled,
   });
 
   /// Convert the track to a json object.
@@ -173,11 +211,20 @@ class Track {
                 'route': e.value.toJson(),
               })
           .toList(),
+      'batteryStates': batteryStates.map((e) => e.toJson()).toList(),
+      'isDarkMode': isDarkMode,
+      'saveBatteryModeEnabled': saveBatteryModeEnabled,
     };
   }
 
   /// Create a track from a json object.
   factory Track.fromJson(Map<String, dynamic> json) {
+    // Assuring backwards compatibility.
+    // Battery states were added later, so we need to check if they exist.
+    List<BatteryState> batteryStates = [];
+    if (json.containsKey("batteryStates")) {
+      batteryStates = (json['batteryStates'] as List<dynamic>).map((e) => BatteryState.fromJson(e)).toList();
+    }
     return Track(
       uploaded: json['uploaded'],
       // If the track was stored before we added the hasFileData field,
@@ -208,6 +255,9 @@ class Track {
           (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
       subVersion: json['subVersion'],
       canUseGamification: json['canUseGamification'],
+      batteryStates: batteryStates,
+      isDarkMode: json.containsKey("isDarkMode") ? json["isDarkMode"] : null,
+      saveBatteryModeEnabled: json.containsKey("saveBatteryModeEnabled") ? json["saveBatteryModeEnabled"] : null,
     );
   }
 }

@@ -58,45 +58,46 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
   /// The current gauge colors, if we have the necessary data.
-  List<Color> gaugeColors = [defaultGaugeColor];
+  List<Color> gaugeColors = [defaultGaugeColor, defaultGaugeColor];
 
   /// The current gauge stops, if we have the necessary data.
-  List<double> gaugeStops = [];
+  List<double> gaugeStops = [0.0, 1.0];
 
-  /// The animation controller for the speed animation.
-  late AnimationController speedAnimationController;
+  /// The animation controller for the speed animation. Only used if battery save mode is disabled.
+  AnimationController? speedAnimationController;
 
-  /// The speed animation.
-  late Animation<double> speedAnimation;
+  /// The speed animation. Only used if battery save mode is disabled.
+  Animation<double>? speedAnimation;
 
   /// The current percentage of the speed in the speedometer.
   double speedAnimationPct = 0.0;
 
-  /// The last percentage of the speed in the speedometer.
-  double lastSpeedAnimationPct = 0.0;
+  /// The current speed.
+  double speed = 0.0;
+
+  /// The last percentage of the speed in the speedometer. Only used in battery save mode.
+  double? lastSpeedAnimationPct;
 
   /// Update the speedometer.
-  void updateSpeedometer() {
-    // Animate the speed to the new value.
-    final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
-    final newSpeedAnimationPct = (kmh - minSpeed) / (maxSpeed - minSpeed);
-
-    // Only update on changes.
-    // Use animation if not in save battery mode.
-    if (lastSpeedAnimationPct != newSpeedAnimationPct && !settings.saveBatteryModeEnabled) {
-      speedAnimationController.animateTo(newSpeedAnimationPct,
-          duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+  void updateSpeedometerWithAnimation(double kmh) {
+    // Don't animate the speed if it is the same.
+    if (kmh == speed) {
+      return;
     }
+    speed = kmh;
+    final newSpeedAnimationPct = (kmh - minSpeed) / (maxSpeed - minSpeed);
+    speedAnimationController?.animateTo(newSpeedAnimationPct,
+        duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+  }
 
+  /// Update the speedometer.
+  void updateSpeedometerWithoutAnimation(double kmh) {
+    final newSpeedAnimationPct = (kmh - minSpeed) / (maxSpeed - minSpeed);
+    // Update always required to update the tail accordingly.
     setState(() {
       lastSpeedAnimationPct = speedAnimationPct;
       speedAnimationPct = newSpeedAnimationPct;
     });
-
-    // Load the gauge colors and steps, from the predictor.
-    if (!routing.hadErrorDuringFetch) {
-      loadGauge(ride);
-    }
   }
 
   /// Update the layout of the speedometer.
@@ -104,23 +105,25 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     setState(() {});
   }
 
+  void updateSpeedometer() {
+    // Load the gauge colors and steps.
+    if (!routing.hadErrorDuringFetch) {
+      loadGauge();
+    }
+
+    final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
+
+    if (settings.saveBatteryModeEnabled) {
+      updateSpeedometerWithoutAnimation(kmh);
+    } else {
+      updateSpeedometerWithAnimation(kmh);
+    }
+  }
+
   @override
   void initState() {
     hideNavigationBarAndroid();
     super.initState();
-    // Initialize the speed animation.
-    speedAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-      animationBehavior: AnimationBehavior.preserve,
-    );
-    speedAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(speedAnimationController);
-    speedAnimation.addListener(() {
-      setState(() {
-        speedAnimationPct = speedAnimation.value;
-      });
-    });
-
     settings = getIt<Settings>();
     positioning = getIt<Positioning>();
     positioning.addListener(updateSpeedometer);
@@ -128,6 +131,21 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     routing.addListener(updateLayout);
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
+
+    if (!settings.saveBatteryModeEnabled) {
+      // Initialize the speed animation.
+      speedAnimationController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1000),
+        animationBehavior: AnimationBehavior.preserve,
+      );
+      speedAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(speedAnimationController!);
+      speedAnimation!.addListener(() {
+        setState(() {
+          speedAnimationPct = speedAnimation!.value;
+        });
+      });
+    }
 
     // Fetch the maximum speed from the settings service.
     maxSpeed = settings.speedMode.maxSpeed;
@@ -145,7 +163,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   @override
   void dispose() {
-    speedAnimationController.dispose();
+    speedAnimationController?.dispose();
     positioning.removeListener(updateSpeedometer);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
@@ -164,7 +182,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   }
 
   /// Load the gauge colors and steps, from the predictor.
-  void loadGauge(Ride ride) {
+  void loadGauge() {
     if (ride.predictionProvider?.recommendation == null || ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
@@ -426,7 +444,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
-                          '${speedkmh.toStringAsFixed(0)} km/h',
+                          '${speedkmh.toStringAsFixed(settings.isIncreasedSpeedPrecisionInSpeedometerEnabled ? 3 : 0)} km/h',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 28,

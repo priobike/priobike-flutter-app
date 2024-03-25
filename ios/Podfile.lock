@@ -110,8 +110,6 @@ PODS:
     - Flutter
     - MTBBarcodeScanner
   - ReachabilitySwift (5.2.1)
-  - sensors_plus (0.0.1):
-    - Flutter
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -144,7 +142,6 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
-  - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - system_info_plus (from `.symlinks/plugins/system_info_plus/ios`)
@@ -205,8 +202,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   qr_code_scanner:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
-  sensors_plus:
-    :path: ".symlinks/plugins/sensors_plus/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
@@ -250,7 +245,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   ReachabilitySwift: 5ae15e16814b5f9ef568963fb2c87aeb49158c66
-  sensors_plus: 42b9de1b8237675fa8d8121e4bb93be0f79fa61d
   share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
   shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
   system_info_plus: 5393c8da281d899950d751713575fbf91c7709aa
@@ -261,4 +255,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 9bb5dca45983eeb29550480f66eeed61af009708
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
