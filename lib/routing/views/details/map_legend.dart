@@ -54,7 +54,7 @@ class MapLegendState extends State<MapLegend> {
   }
 
   /// A callback that is fired when the user wants to select the displayed layers.
-  void showCrossingInfoSheet() {
+  void showMapLegendSheet() {
     showAppSheet(
       context: context,
       isScrollControlled: true,
@@ -68,7 +68,7 @@ class MapLegendState extends State<MapLegend> {
     return Stack(
       children: [
         GestureDetector(
-          onTap: showCrossingInfoSheet,
+          onTap: showMapLegendSheet,
           child: Container(
             width: 58,
             constraints: const BoxConstraints(minHeight: 58),
@@ -172,7 +172,7 @@ class MapLegendState extends State<MapLegend> {
           height: 58,
           child: Tile(
             fill: Theme.of(context).colorScheme.surfaceVariant,
-            onPressed: showCrossingInfoSheet,
+            onPressed: showMapLegendSheet,
             content: Icon(
               Icons.info_outline,
               color: Theme.of(context).colorScheme.onBackground,
