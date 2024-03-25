@@ -204,6 +204,62 @@ class _MapLegendView extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CurrentPositionWithoutShadow(context: context),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Aktuelle Position", context: context),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: StartIcon(),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Startpunkt", context: context),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: WaypointIcon(),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Wegpunkt", context: context),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: DestinationIcon(),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Ziel", context: context),
+                    ),
+                  ],
+                ),
+                Row(
                   children: [
                     Container(
                       width: 32,
@@ -366,66 +422,6 @@ class _MapLegendView extends StatelessWidget {
                 const HSpace(),
                 Flexible(
                   child: Content(text: "Alle Kreuzungen, welche im System angebunden sind.", context: context),
-                ),
-              ],
-            ),
-            const VSpace(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CurrentPositionWithoutShadow(context: context),
-                ),
-                const HSpace(),
-                Flexible(
-                  child: Content(text: "Deine aktuelle Position.", context: context),
-                ),
-              ],
-            ),
-            const VSpace(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: StartIcon(),
-                ),
-                const HSpace(),
-                Flexible(
-                  child: Content(text: "Der Startpunkt Deiner Route.", context: context),
-                ),
-              ],
-            ),
-            const VSpace(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: WaypointIcon(),
-                ),
-                const HSpace(),
-                Flexible(
-                  child: Content(text: "Ein Wegpunkt auf Deiner Route.", context: context),
-                ),
-              ],
-            ),
-            const VSpace(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: DestinationIcon(),
-                ),
-                const HSpace(),
-                Flexible(
-                  child: Content(text: "Das Ziel Deiner Route.", context: context),
                 ),
               ],
             ),
