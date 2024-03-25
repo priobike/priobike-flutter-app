@@ -94,7 +94,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           child: SubHeader(
                             text: state == QRCodeViewMode.scanning
                                 ? "Strecke von einem anderem Gerät importieren"
-                                : shortcut!.name ?? "",
+                                : shortcut!.name,
                             context: context,
                             textAlign: TextAlign.center,
                           ),
@@ -152,7 +152,9 @@ class QRCodeViewState extends State<QRCodeView> {
                                           state = QRCodeViewMode.scanned;
                                         },
                                       );
-                                      await showSaveShortcutSheet(context, shortcut: shortcut);
+
+                                      showSaveShortcutFromImportSheet(context, shortcut: shortcut);
+
                                       if (!mounted) return;
                                       // Go back to HomeView
                                       Navigator.popUntil(context, (route) => route.isFirst);

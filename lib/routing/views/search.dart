@@ -67,6 +67,7 @@ class SearchItem extends StatelessWidget {
                     shortcut: ShortcutLocation(
                       waypoint: waypoint,
                       id: UniqueKey().toString(),
+                      name: "",
                     ),
                   );
                 },
@@ -167,6 +168,7 @@ class HistoryItemState extends State<HistoryItem> {
                           shortcut: ShortcutLocation(
                             waypoint: widget.waypoint,
                             id: UniqueKey().toString(),
+                            name: "",
                           ),
                         );
                       },

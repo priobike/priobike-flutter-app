@@ -37,11 +37,15 @@ class ShowQRCodeViewState extends State<ShowQRCodeView> {
       shortcutWithoutName = ShortcutLocation(
         waypoint: (widget.shortcut as ShortcutLocation).waypoint,
         id: UniqueKey().toString(),
+        // Fill with empty name.
+        name: "",
       );
     } else if (widget.shortcut is ShortcutRoute) {
       shortcutWithoutName = ShortcutRoute(
         waypoints: (widget.shortcut as ShortcutRoute).waypoints,
         id: UniqueKey().toString(),
+        // Fill with empty name.
+        name: "",
       );
     } else {
       throw Exception("Unknown shortcut type");

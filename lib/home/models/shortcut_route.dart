@@ -60,10 +60,9 @@ class ShortcutRoute implements Shortcut {
   /// Get the linebreaked name of the shortcut route. The name is split into at most 2 lines, by a limit of 15 characters.
   @override
   String get linebreakedName {
-    String result = name;
+    var result = name;
     int insertedLinebreaks = 0;
-    final nameLength = name.length ?? 0;
-    for (var i = 0; i < nameLength; i++) {
+    for (var i = 0; i < name.length; i++) {
       if (i % 15 == 0 && i != 0) {
         if (insertedLinebreaks == 1) {
           // Truncate the name if it is too long

@@ -7,13 +7,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -49,29 +46,93 @@ void showInvalidShortcutSheet(context) {
   );
 }
 
-/// Show a sheet to save a shortcut. If the shortcut is null then a shortcut based on the current data in the routing service will be created.
-void showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
-  final routing = getIt<Routing>();
-  if ((routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) && shortcut == null) {
-    return null;
-  }
+/// Show a sheet to save a shortcut. If the shortcut is null the current route (at the routing service will be saved).
+void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor:
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    ),
+    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+      final nameController = TextEditingController();
+      return DialogLayout(
+        title: 'Route speichern',
+        text: "Bitte gib einen Namen für die Route ein.",
+        actions: [
+          TextField(
+            autofocus: false,
+            controller: nameController,
+            maxLength: 20,
+            decoration: InputDecoration(
+              hintText: "Heimweg, Zur Arbeit, ...",
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              filled: true,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: SmallIconButtonTertiary(
+                icon: Icons.close,
+                onPressed: () {
+                  nameController.text = "";
+                },
+                color: Theme.of(context).colorScheme.onBackground,
+                fill: Colors.transparent,
+                // splash: Colors.transparent,
+                withBorder: false,
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              counterStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+              ),
+            ),
+          ),
+          BigButtonPrimary(
+            label: "Speichern",
+            onPressed: () async {
+              final name = nameController.text;
+              if (name.trim().isEmpty) {
+                ToastMessage.showError("Name darf nicht leer sein.");
+                return;
+              }
 
-  if (shortcut == null) {
-    if (routing.selectedWaypoints!.length == 1) {
-      shortcut = ShortcutLocation(
-        waypoint: routing.selectedWaypoints!.first,
-        id: UniqueKey().toString(),
-        name: "",
+              if (shortcut == null) {
+                await getIt<Shortcuts>().saveNewShortcutRoute(name);
+                ToastMessage.showSuccess("Route gespeichert!");
+              } else {
+                var oldShortcut = shortcut;
+                oldShortcut.name = name;
+                await getIt<Shortcuts>().saveNewShortcutObject(oldShortcut);
+              }
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          ),
+          BigButtonTertiary(
+            label: "Abbrechen",
+            addPadding: false,
+            onPressed: () async {
+              Navigator.pop(context);
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          ),
+        ],
       );
-    } else {
-      shortcut = ShortcutRoute(
-        waypoints: routing.selectedWaypoints!,
-        id: UniqueKey().toString(),
-        name: "",
-      );
-    }
-  }
+    },
+  );
+}
 
+/// Show a sheet to save a shortcut from an import.
+void showSaveShortcutFromImportSheet(context, {required Shortcut shortcut}) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -90,15 +151,15 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
       return DialogLayout(
         title: shortcut is ShortcutRoute ? "Route speichern" : "Ort speichern",
         text: shortcut is ShortcutRoute
-            ? "Bitte gib einen Namen für die Route ein."
-            : "Bitte gib einen Namen für den Ort ein.",
+            ? "Bitte gib einen neuen Namen für die Route ein."
+            : "Bitte gib einen neuen Namen für den Ort ein.",
         actions: [
           TextField(
             autofocus: false,
             controller: nameController,
             maxLength: 20,
             decoration: InputDecoration(
-              hintText: shortcut is ShortcutRoute ? "Heimweg, Zur Arbeit, ..." : "Zuhause, Arbeit, ...",
+              hintText: shortcut is ShortcutRoute ? "Importierte Route" : "Importierter Ort",
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
@@ -130,22 +191,10 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) async {
                 return;
               }
               final shortcuts = getIt<Shortcuts>();
-              if (shortcut == null) {
-                if (shortcutType == "Route") {
-                  newShortcut = await shortcuts.saveNewShortcutRoute(name);
-                  ToastMessage.showSuccess("Route gespeichert!");
-                } else {
-                  final waypoint = routing.selectedWaypoints!.first;
-                  newShortcut = await shortcuts.saveNewShortcutLocation(name, waypoint);
-                  await getIt<Geosearch>().addToSearchHistory(waypoint);
-                  ToastMessage.showSuccess("Ort gespeichert!");
-                }
-              } else {
-                final oldShortcut = shortcut;
-                oldShortcut.name = name;
-                await shortcuts.saveNewShortcutObject(oldShortcut);
-                newShortcut = oldShortcut;
-              }
+              shortcut.name = name;
+
+              await shortcuts.saveNewShortcutObject(shortcut);
+
               if (!context.mounted) return;
               Navigator.pop(context);
             },

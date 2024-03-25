@@ -106,7 +106,7 @@ class ShortcutView extends StatelessWidget {
                           : Padding(
                               padding: const EdgeInsets.only(top: 6, left: 8, right: 8),
                               child: Text(
-                                shortcut!.name ?? "Shortcut",
+                                shortcut!.name,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
