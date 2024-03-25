@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -365,6 +366,66 @@ class _CrossingExplanationView extends StatelessWidget {
                 const HSpace(),
                 Flexible(
                   child: Content(text: "Alle Kreuzungen, welche im System angebunden sind.", context: context),
+                ),
+              ],
+            ),
+            const VSpace(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CurrentPosition(context: context),
+                ),
+                const HSpace(),
+                Flexible(
+                  child: Content(text: "Deine aktuelle Position.", context: context),
+                ),
+              ],
+            ),
+            const VSpace(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: StartIcon(),
+                ),
+                const HSpace(),
+                Flexible(
+                  child: Content(text: "Der Startpunkt Deiner Route.", context: context),
+                ),
+              ],
+            ),
+            const VSpace(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: WaypointIcon(),
+                ),
+                const HSpace(),
+                Flexible(
+                  child: Content(text: "Ein Wegpunkt auf Deiner Route.", context: context),
+                ),
+              ],
+            ),
+            const VSpace(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: DestinationIcon(),
+                ),
+                const HSpace(),
+                Flexible(
+                  child: Content(text: "Das Ziel Deiner Route.", context: context),
                 ),
               ],
             ),
