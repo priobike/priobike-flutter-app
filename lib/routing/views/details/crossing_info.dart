@@ -376,7 +376,7 @@ class _CrossingExplanationView extends StatelessWidget {
                 SizedBox(
                   width: 14,
                   height: 14,
-                  child: CurrentPosition(context: context),
+                  child: CurrentPositionWithoutShadow(context: context),
                 ),
                 const HSpace(),
                 Flexible(
