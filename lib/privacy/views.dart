@@ -59,8 +59,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: AnnotatedRegionWrapper(
-          backgroundColor: Theme.of(context).colorScheme.background,
-          brightness: Theme.of(context).brightness,
+          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          colorMode: Theme.of(context).brightness,
           child: const Center(
             child: SizedBox(
               width: 40,
@@ -77,8 +77,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: AnnotatedRegionWrapper(
-          backgroundColor: Theme.of(context).colorScheme.background,
-          brightness: Theme.of(context).brightness,
+          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          colorMode: Theme.of(context).brightness,
           child: SafeArea(
             child: Pad(
               child: Column(
@@ -114,8 +114,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: AnnotatedRegionWrapper(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        brightness: Theme.of(context).brightness,
+        bottomBackgroundColor: Theme.of(context).colorScheme.background,
+        colorMode: Theme.of(context).brightness,
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [

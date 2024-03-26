@@ -185,8 +185,8 @@ class FeedbackViewState extends State<FeedbackView> {
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return Container();
 
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         // To avoid recalculating the map and its painting when the keyboard appears.
         resizeToAvoidBottomInset: false,
