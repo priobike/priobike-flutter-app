@@ -273,8 +273,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
         },
         child: AnnotatedRegionWrapper(
-          backgroundColor: Theme.of(context).colorScheme.background,
-          brightness: Theme.of(context).brightness,
+          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          colorMode: Theme.of(context).brightness,
           child: CustomScrollView(
             slivers: <Widget>[
               NavBarView(

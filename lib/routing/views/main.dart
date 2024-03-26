@@ -330,8 +330,8 @@ class RoutingViewState extends State<RoutingView> {
     final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
 
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Stack(

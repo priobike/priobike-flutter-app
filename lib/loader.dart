@@ -202,9 +202,9 @@ class LoaderState extends State<Loader> {
     final frame = MediaQuery.of(context);
     return AnnotatedRegionWrapper(
       // Set to light to make sure the system bar is displayed in white on the red background of the loader.
-      statusBarIconBrightness: Brightness.light,
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Brightness.dark,
+      topTextBrightness: Brightness.light,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Brightness.dark,
       child: Stack(
         children: [
           Container(

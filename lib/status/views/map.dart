@@ -282,8 +282,8 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.radkulturGreen),
     ];
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: Stack(
           children: [

@@ -569,8 +569,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(
           child: SafeArea(
