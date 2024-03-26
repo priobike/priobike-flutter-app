@@ -67,3 +67,17 @@ class CompassIcon extends Image {
           alignment: Alignment.center,
         );
 }
+
+/// A current position icon withouth shadow.
+class CurrentPositionWithoutShadow extends Image {
+  CurrentPositionWithoutShadow(
+      {double super.width = 24, double super.height = 24, required BuildContext context, super.key})
+      : super(
+          image: Theme.of(context).brightness == Brightness.dark
+              ? const AssetImage("assets/images/marker-wiki-dark.png")
+              : const AssetImage("assets/images/marker-wiki-light.png"),
+          color: null,
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+        );
+}

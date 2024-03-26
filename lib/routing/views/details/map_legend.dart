@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -10,14 +11,14 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 
-class CrossingInfo extends StatefulWidget {
-  const CrossingInfo({super.key});
+class MapLegend extends StatefulWidget {
+  const MapLegend({super.key});
 
   @override
-  CrossingInfoState createState() => CrossingInfoState();
+  MapLegendState createState() => MapLegendState();
 }
 
-class CrossingInfoState extends State<CrossingInfo> {
+class MapLegendState extends State<MapLegend> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
@@ -53,12 +54,12 @@ class CrossingInfoState extends State<CrossingInfo> {
   }
 
   /// A callback that is fired when the user wants to select the displayed layers.
-  void showCrossingInfoSheet() {
+  void showMapLegendSheet() {
     showAppSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => _CrossingExplanationView(),
+      builder: (_) => _MapLegendView(),
     );
   }
 
@@ -67,7 +68,7 @@ class CrossingInfoState extends State<CrossingInfo> {
     return Stack(
       children: [
         GestureDetector(
-          onTap: showCrossingInfoSheet,
+          onTap: showMapLegendSheet,
           child: Container(
             width: 58,
             constraints: const BoxConstraints(minHeight: 58),
@@ -171,7 +172,7 @@ class CrossingInfoState extends State<CrossingInfo> {
           height: 58,
           child: Tile(
             fill: Theme.of(context).colorScheme.surfaceVariant,
-            onPressed: showCrossingInfoSheet,
+            onPressed: showMapLegendSheet,
             content: Icon(
               Icons.info_outline,
               color: Theme.of(context).colorScheme.onBackground,
@@ -183,7 +184,7 @@ class CrossingInfoState extends State<CrossingInfo> {
   }
 }
 
-class _CrossingExplanationView extends StatelessWidget {
+class _MapLegendView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -202,6 +203,62 @@ class _CrossingExplanationView extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.zero,
               children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CurrentPositionWithoutShadow(context: context),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Aktuelle Position", context: context),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: StartIcon(),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Startpunkt", context: context),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: WaypointIcon(),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Wegpunkt", context: context),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: DestinationIcon(),
+                    ),
+                    const HSpace(),
+                    Flexible(
+                      child: Content(text: "Ziel", context: context),
+                    ),
+                  ],
+                ),
                 Row(
                   children: [
                     Container(
