@@ -216,8 +216,8 @@ void showSaveShortcutFromImportSheet(context, {required Shortcut shortcut}) {
       return DialogLayout(
         title: shortcut is ShortcutRoute ? "Route speichern" : "Ort speichern",
         text: shortcut is ShortcutRoute
-            ? "Bitte gib einen neuen Namen für die Route ein."
-            : "Bitte gib einen neuen Namen für den Ort ein.",
+            ? "Bitte gib einen Namen für die neue Route ein."
+            : "Bitte gib einen Namen für den neuen Ort ein.",
         actions: [
           TextField(
             autofocus: false,
