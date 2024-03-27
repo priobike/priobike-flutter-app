@@ -365,9 +365,8 @@ class Ride with ChangeNotifier {
     final currentPhase = recommendation.calcCurrentSignalPhase;
     // TODO: implement countdown concept
 
-    // TODO: tbr
-    String signalGroupId = currentInstruction.signalGroupId!;
-    return signalGroupId;
+    // TODO: set correct return value
+    return currentInstruction.text!;
   }
 
   /// Configure the TTS.

@@ -26,5 +26,8 @@ class Instruction {
   /// The ID of the corresponding signal group.
   final String? signalGroupId;
 
+  /// If the instruction has already been concatenated.
+  bool alreadyConcatenated = false;
+
   Instruction({required this.lat, required this.lon, required this.text, required this.instructionType, this.signalGroupId});
 }
