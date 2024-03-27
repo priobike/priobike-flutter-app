@@ -370,14 +370,16 @@ class Ride with ChangeNotifier {
     return signalGroupId;
   }
 
-  /// Play audio instruction
-  Future<void> playAudioInstruction() async {
-    // TODO: check where this should optimally be created
+  /// Configure the TTS.
+  Future<void> initializeTTS() async {
     await ftts.setSpeechRate(0.8); //speed of speech
     await ftts.setVolume(10.0); //volume of speech
     await ftts.setPitch(1); //pitch of sound
     await ftts.awaitSpeakCompletion(true);
+  }
 
+  /// Play audio instruction.
+  Future<void> playAudioInstruction() async {
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
