@@ -28,7 +28,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:flutter_map_math/flutter_geo_math.dart';
 
-import '../models/instruction.dart';
+import 'package:priobike/routing/models/instruction.dart';
 
 enum RoutingProfile {
   bikeDefault, // Bike doesn't consider elevation data.

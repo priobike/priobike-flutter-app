@@ -24,8 +24,8 @@ import '../../routing/messages/graphhopper.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_map_math/flutter_geo_math.dart';
 
-import '../../routing/models/instruction.dart';
-import '../messages/prediction.dart';
+import 'package:priobike/routing/models/instruction.dart';
+import 'package:priobike/ride/messages/prediction.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
