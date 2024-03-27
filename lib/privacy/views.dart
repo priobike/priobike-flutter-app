@@ -37,7 +37,9 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     privacyService = getIt<PrivacyPolicy>();
     privacyService.addListener(update);
 
-    privacyService.loadPolicy();
+    if (!privacyService.hasLoaded) {
+      privacyService.loadPolicy();
+    }
   }
 
   @override
@@ -99,7 +101,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                   BigButtonPrimary(
                     label: "Erneut versuchen",
                     onPressed: () {
-                      privacyService.resetLoading();
                       privacyService.loadPolicy();
                     },
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

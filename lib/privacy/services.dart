@@ -32,6 +32,8 @@ class PrivacyPolicy with ChangeNotifier {
     // The privacy text from the privacy service.
     String? privacyText;
 
+    resetLoading();
+
     try {
       final response =
           await Http.get(Uri.parse("https://${getIt<Settings>().backend.path}/privacy-policy/privacy-policy.md"))
