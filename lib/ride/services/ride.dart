@@ -380,6 +380,8 @@ class Ride with ChangeNotifier {
 
   /// Play audio instruction.
   Future<void> playAudioInstruction() async {
+    await ftts.awaitSpeakCompletion(true);
+
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
@@ -388,9 +390,9 @@ class Ride with ChangeNotifier {
         mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") < 20);
 
     if (currentInstruction != null){
+      currentInstruction.executed = true;
       String textToPlay = generateTextToPlay(currentInstruction);
       await ftts.speak(textToPlay);
-      currentInstruction.executed = true;
     }
   }
 
