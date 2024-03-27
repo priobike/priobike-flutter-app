@@ -25,6 +25,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_map_math/flutter_geo_math.dart';
 
 import '../../routing/models/instruction.dart';
+import '../messages/prediction.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -336,8 +337,35 @@ class Ride with ChangeNotifier {
   /// Check if instruction contains sg information and if so add countdown
   String generateTextToPlay(Instruction currentInstruction) {
     if (currentInstruction.instructionType == InstructionType.directionOnly) {
+      // No sg countdown information needs to be added.
       return currentInstruction.text!;
     }
+
+    // Check if Not supported crossing
+    // or we do not have all auxiliary data that the app calculated
+    // or prediction quality is not good enough.
+    if (calcCurrentSG == null ||
+        predictionComponent?.recommendation == null ||
+        (predictionComponent?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+      // No sg countdown information can be added.
+      return currentInstruction.text!;
+    }
+
+    final recommendation = predictionComponent!.recommendation!;
+    // If the phase change time is null, we hide the countdown.
+    if (recommendation.calcCurrentPhaseChangeTime == null) return currentInstruction.text!;
+    // Calculate the countdown.
+    final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    // If the countdown is 0 (or negative), we hide the countdown.
+    var countdownLabel = countdown > 5 ? "$countdown" : "";
+    // Show no countdown label for amber and redamber.
+    if (recommendation.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
+    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
+
+    final currentPhase = recommendation.calcCurrentSignalPhase;
+    // TODO: implement countdown concept
+
+    // TODO: tbr
     String signalGroupId = currentInstruction.signalGroupId!;
     return signalGroupId;
   }

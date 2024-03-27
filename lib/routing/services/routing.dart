@@ -656,6 +656,7 @@ class Routing with ChangeNotifier {
       GHInstruction? ghInstruction = getGHInstructionForWaypoint(
           path, currentWaypoint);
       // TODO: check distance between sg and instruction
+      // TODO: needs to be handled different because there could be an sg next to the route
       String? signalGroupId = getSignalGroupIdForWaypoint(
           currentWaypoint, ghInstruction != null, 50);
       InstructionType instructionType;
