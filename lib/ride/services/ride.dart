@@ -383,8 +383,9 @@ class Ride with ChangeNotifier {
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
+    // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
     var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
-        mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") < 10);
+        mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") < 20);
 
     if (currentInstruction != null){
       String textToPlay = generateTextToPlay(currentInstruction);
