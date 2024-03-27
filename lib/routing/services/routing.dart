@@ -625,18 +625,19 @@ class Routing with ChangeNotifier {
     }
   }
 
+  /// Create the instructions for each route.
   List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
     final instructions = List<Instruction>.empty(growable: true);
     LatLng? lastInstructionPoint;
 
-    // check for all points in the route if there should be an instruction created
+    // Check for all points in the route if there should be an instruction created.
     for (var i = 0; i < sgSelectorResponse.route.length; i++) {
       final currentWaypoint = sgSelectorResponse.route[i];
       GHInstruction? ghInstruction = getGHInstructionForWaypoint(path, currentWaypoint);
       String? signalGroupId = getSignalGroupIdForWaypoint(currentWaypoint, ghInstruction != null, 50); // TODO: check distance between sg and instruction
       InstructionType? instructionType = getInstructionType(ghInstruction, signalGroupId);
       if (instructionType == null) {
-        continue; // no instruction to be created
+        continue; // no instruction to be created.
       }
 
       // Try to create first instruction call 300m before the point the instruction is referring to
@@ -654,8 +655,12 @@ class Routing with ChangeNotifier {
         instructions.add(firstInstructionCall);
         lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
       } else if (lastInstructionPoint != null && !instructions.last.alreadyConcatenated) {
-        // TODO: maybe check if distance is less than 100m because then we might not concatenate
-        concatenateInstructions(instructionType, ghInstruction, signalGroupId, instructions);
+        var distanceToActualInstructionPoint = mapMath.distanceBetween(lastInstructionPoint.latitude, lastInstructionPoint.longitude, currentWaypoint.lat, currentWaypoint.lon, "meters");
+        var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
+        // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
+        if (distanceToActualInstructionPoint > threshold) {
+          concatenateInstructions(instructionType, ghInstruction, signalGroupId, instructions);
+        }
       }
 
       // Create second instruction call at the point the instruction is referring to.
