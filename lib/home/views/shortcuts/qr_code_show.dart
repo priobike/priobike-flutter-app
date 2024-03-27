@@ -46,6 +46,8 @@ class ShowQRCodeViewState extends State<ShowQRCodeView> {
         id: UniqueKey().toString(),
         // Fill with empty name.
         name: "",
+        routeTimeText: (widget.shortcut as ShortcutRoute).routeTimeText,
+        routeLengthText: (widget.shortcut as ShortcutRoute).routeLengthText,
       );
     } else {
       throw Exception("Unknown shortcut type");
