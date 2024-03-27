@@ -557,7 +557,7 @@ class Routing with ChangeNotifier {
       var distance = mapMath.distanceBetween(a.lat, a.lon, b.lat, b.lon, "meters");
       totalDistance += distance;
 
-      // TODO: maybe not equal point but close to point (10m or so?)
+      // TODO: if distance less than 300m then concatenate instructions
       if (lastInstructionPoint?.latitude == a.lat && lastInstructionPoint?.longitude == a.lon) {
         // there is already an instruction at this instruction point
         return null;
@@ -680,6 +680,7 @@ class Routing with ChangeNotifier {
             signalGroupId);
         instructions.add(firstInstructionCall);
       }
+      // TODO: if InstructionType.signalGroupOnly put instruction point 100m before sg
       secondInstructionCall = createSpecificInstruction(
           false, LatLng(currentWaypoint.lat, currentWaypoint.lon), instructionType, ghInstruction, signalGroupId);
       instructions.add(secondInstructionCall);
