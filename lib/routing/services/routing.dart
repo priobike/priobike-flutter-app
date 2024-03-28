@@ -480,6 +480,17 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Fetch the construction sites for the selected route.
+  Future<void> fetchConstructionSitesForRoute() async {
+    if (selectedRoute == null) return;
+    final route = selectedRoute!;
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+    final url = "https://$baseUrl/poi-service/construction/match";
+
+    //FIXME: Finish me
+  }
+
   /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
   findMostUniqueAttributeForRoute(int id) {
     if (allRoutes == null || allRoutes!.length <= id) return;
