@@ -133,7 +133,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
         (_) {
           // Execute callback if page is mounted
           if (mounted) {
-            showSaveShortcutFromImportSheet(context, shortcut: widget.shortcut!);
+            showSaveShortcutFromShortcutSheet(context, shortcut: widget.shortcut!);
           }
         },
       );

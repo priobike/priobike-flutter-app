@@ -68,7 +68,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
     if (result == null) return;
 
     if (!mounted) return;
-    showSaveShortcutFromImportSheet(context, shortcut: result);
+    showSaveShortcutFromShortcutSheet(context, shortcut: result);
   }
 
   void openImportGpxView() async {

@@ -48,8 +48,8 @@ void showInvalidShortcutSheet(context) {
   );
 }
 
-/// Show a sheet to save a shortcut. If the shortcut is null the current route (at the routing service will be saved).
-void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
+/// Show a sheet to save a shortcut.
+void showSaveShortcutSheet(context) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -105,15 +105,9 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
+              await getIt<Shortcuts>().saveNewShortcutRoute(name);
+              ToastMessage.showSuccess("Route gespeichert!");
 
-              if (shortcut == null) {
-                await getIt<Shortcuts>().saveNewShortcutRoute(name);
-                ToastMessage.showSuccess("Route gespeichert!");
-              } else {
-                var oldShortcut = shortcut;
-                oldShortcut.name = name;
-                await getIt<Shortcuts>().saveNewShortcutObject(oldShortcut);
-              }
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -196,8 +190,8 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
   );
 }
 
-/// Show a sheet to save a shortcut from an import.
-void showSaveShortcutFromImportSheet(context, {required Shortcut shortcut}) {
+/// Show a sheet to save a shortcut from another shortcut.
+void showSaveShortcutFromShortcutSheet(context, {required Shortcut shortcut}) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
