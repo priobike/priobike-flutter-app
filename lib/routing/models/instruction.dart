@@ -21,7 +21,7 @@ class Instruction {
   bool executed = false;
 
   /// The instruction type.
-  final InstructionType instructionType;
+  InstructionType instructionType;
 
   /// The ID of the corresponding signal group.
   final String? signalGroupId;

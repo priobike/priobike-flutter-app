@@ -363,10 +363,10 @@ class Ride with ChangeNotifier {
     if (recommendation.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
 
     final currentPhase = recommendation.calcCurrentSignalPhase;
-    // TODO: implement countdown concept
+    // TODO: implement countdown concept (coundown + cloor switch + sg type)
 
     // TODO: set correct return value
-    return currentInstruction.text!;
+    return "${currentInstruction.text} schaltet in $countdown";
   }
 
   /// Configure the TTS.

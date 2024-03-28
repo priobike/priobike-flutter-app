@@ -653,7 +653,6 @@ class Routing with ChangeNotifier {
             signalGroupId: signalGroupId
         );
         instructions.add(firstInstructionCall);
-        lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
       } else if (lastInstructionPoint != null && !instructions.last.alreadyConcatenated) {
         var distanceToActualInstructionPoint = mapMath.distanceBetween(lastInstructionPoint.latitude, lastInstructionPoint.longitude, currentWaypoint.lat, currentWaypoint.lon, "meters");
         var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
@@ -671,6 +670,18 @@ class Routing with ChangeNotifier {
           Instruction secondInstructionCall = Instruction(
               lat: waypointSecondInstructionCall.latitude,
               lon: waypointSecondInstructionCall.longitude,
+              text: createInstructionText(false, instructionType, ghInstruction, signalGroupId),
+              instructionType: instructionType,
+              signalGroupId: signalGroupId
+          );
+          instructions.add(secondInstructionCall);
+          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
+        } else if (instructions.last.instructionType == InstructionType.signalGroupOnly) {
+          // Put the instruction call at the point where the previous sg actually stands
+          var sgId = instructions.last.signalGroupId;
+          Instruction secondInstructionCall = Instruction(
+              lat: sgSelectorResponse.signalGroups[sgId]!.position.lat,
+              lon: sgSelectorResponse.signalGroups[sgId]!.position.lon,
               text: createInstructionText(false, instructionType, ghInstruction, signalGroupId),
               instructionType: instructionType,
               signalGroupId: signalGroupId
@@ -696,11 +707,30 @@ class Routing with ChangeNotifier {
     return instructions;
   }
 
+  /// Determine the instruction type after concatenation.
+  InstructionType getInstructionTypAfterConcatenation(InstructionType originalInstructionType, InstructionType addedInstructionType) {
+    switch (originalInstructionType) {
+      case InstructionType.signalGroupOnly:
+        if (addedInstructionType == InstructionType.directionOnly || addedInstructionType == InstructionType.directionAndSignalGroup) {
+          return InstructionType.directionAndSignalGroup;
+        }
+        return InstructionType.signalGroupOnly;
+      case InstructionType.directionOnly:
+        if (addedInstructionType == InstructionType.signalGroupOnly || addedInstructionType == InstructionType.directionAndSignalGroup) {
+          return InstructionType.directionAndSignalGroup;
+        }
+        return InstructionType.directionOnly;
+      case InstructionType.directionAndSignalGroup:
+        return InstructionType.directionAndSignalGroup;
+    }
+  }
+
   /// Concatenate the current instruction with the previous one.
   void concatenateInstructions(InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId, List<Instruction> instructions) {
     var textToConcatenate = createInstructionText(false, instructionType, ghInstruction, signalGroupId);
     instructions.last.text += " und dann $textToConcatenate";
     instructions.last.alreadyConcatenated = true;
+    instructions.last.instructionType = getInstructionTypAfterConcatenation(instructions.last.instructionType, instructionType);
   }
 
   /// Determine the type of instruction to be created.
