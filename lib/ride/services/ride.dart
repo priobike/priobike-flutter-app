@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
@@ -371,10 +372,26 @@ class Ride with ChangeNotifier {
 
   /// Configure the TTS.
   Future<void> initializeTTS() async {
-    await ftts.setSpeechRate(0.8); //speed of speech
-    await ftts.setVolume(10.0); //volume of speech
-    await ftts.setPitch(1); //pitch of sound
-    await ftts.awaitSpeakCompletion(true);
+    if (Platform.isIOS) {
+      await ftts.setSpeechRate(0.55); //speed of speech
+      await ftts.setVolume(10.0); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+      await ftts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.playback,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+            IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
+          ],
+          IosTextToSpeechAudioMode.spokenAudio);
+    } else {
+      await ftts.setSpeechRate(0.8); //speed of speech
+      await ftts.setVolume(10.0); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+    }
   }
 
   /// Play audio instruction.
@@ -385,10 +402,12 @@ class Ride with ChangeNotifier {
     if (snap == null || route == null) return;
 
     // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
-    var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
-        mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") < 20);
+    var currentInstruction = route!.instructions.firstWhereOrNull((element) =>
+        !element.executed &&
+        mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") <
+            20);
 
-    if (currentInstruction != null){
+    if (currentInstruction != null) {
       currentInstruction.executed = true;
       String textToPlay = generateTextToPlay(currentInstruction);
       await ftts.speak(textToPlay);

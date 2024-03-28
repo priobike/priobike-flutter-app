@@ -506,8 +506,7 @@ class Routing with ChangeNotifier {
           }
 
           // Add an instruction for each relevant waypoint
-          List<Instruction> instructions =
-              createInstructions(sgSelectorResponse, path);
+          List<Instruction> instructions = createInstructions(sgSelectorResponse, path);
 
           var route = r.Route(
             id: i,
@@ -543,11 +542,12 @@ class Routing with ChangeNotifier {
 
   /// Find the waypoint x meters before the current instruction
   /// DistanceToInstructionPoint x must be given as an argument.
-  LatLng? findWaypointMetersBeforeInstruction(int distanceToInstructionPoint, SGSelectorResponse sgSelectorResponse, int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
+  LatLng? findWaypointMetersBeforeInstruction(int distanceToInstructionPoint, SGSelectorResponse sgSelectorResponse,
+      int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
     double totalDistance = 0;
     NavigationNode b = sgSelectorResponse.route[i];
     NavigationNode a;
-    for (var j = i-1; j >= 0; j--) {
+    for (var j = i - 1; j >= 0; j--) {
       a = sgSelectorResponse.route[j];
 
       // TODO: Do I need this? The first instruction is usually something like follow the road ...
@@ -584,14 +584,13 @@ class Routing with ChangeNotifier {
   /// Get the GraphHopper instruction that belongs to a specific waypoint.
   GHInstruction? getGHInstructionForWaypoint(GHRouteResponsePath path, NavigationNode waypoint) {
     // get the GraphHopper coordinates that matches lat and long of current waypoint
-    final ghCoordinate = path.points.coordinates.firstWhereOrNull((element) =>
-    element.lat == waypoint.lat && element.lon == waypoint.lon);
+    final ghCoordinate = path.points.coordinates
+        .firstWhereOrNull((element) => element.lat == waypoint.lat && element.lon == waypoint.lon);
 
     if (ghCoordinate != null) {
       // get GraphHopper instruction that matches the index of the coordinate
       final index = path.points.coordinates.indexOf(ghCoordinate);
-      final ghInstruction = path.instructions
-          .firstWhereOrNull((element) => element.interval.first == index);
+      final ghInstruction = path.instructions.firstWhereOrNull((element) => element.interval.first == index);
       return ghInstruction;
     }
     return null;
@@ -602,7 +601,9 @@ class Routing with ChangeNotifier {
     if (!hasGHInstruction && waypoint.distanceToNextSignal == 0.0 && waypoint.signalGroupId != null) {
       // if waypoint does not belong to a GHInstruction check if there is a sg at the exact point
       return waypoint.signalGroupId;
-    } else if (hasGHInstruction && waypoint.distanceToNextSignal != null && waypoint.distanceToNextSignal! <= distance!) {
+    } else if (hasGHInstruction &&
+        waypoint.distanceToNextSignal != null &&
+        waypoint.distanceToNextSignal! <= distance!) {
       // if waypoint belongs to a GHInstruction check if there is a sg near the point
       return waypoint.signalGroupId;
     }
@@ -610,7 +611,8 @@ class Routing with ChangeNotifier {
   }
 
   /// Create the instruction text based on the type of instruction.
-  String createInstructionText(bool isFirstCall, InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId) {
+  String createInstructionText(
+      bool isFirstCall, InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId) {
     String prefix = isFirstCall ? "In 300 Metern" : "";
 
     switch (instructionType) {
@@ -634,7 +636,8 @@ class Routing with ChangeNotifier {
     for (var i = 0; i < sgSelectorResponse.route.length; i++) {
       final currentWaypoint = sgSelectorResponse.route[i];
       GHInstruction? ghInstruction = getGHInstructionForWaypoint(path, currentWaypoint);
-      String? signalGroupId = getSignalGroupIdForWaypoint(currentWaypoint, ghInstruction != null, 50); // TODO: check distance between sg and instruction
+      String? signalGroupId = getSignalGroupIdForWaypoint(
+          currentWaypoint, ghInstruction != null, 50); // TODO: check distance between sg and instruction
       InstructionType? instructionType = getInstructionType(ghInstruction, signalGroupId);
       if (instructionType == null) {
         continue; // no instruction to be created.
@@ -643,19 +646,20 @@ class Routing with ChangeNotifier {
       // Try to create first instruction call 300m before the point the instruction is referring to
       // Or to concatenate with the previous instruction if the distance is less than 300m
       // If concatenation is not possible no firstInstructionCall will be added to the route.
-      var waypointFirstInstructionCall = findWaypointMetersBeforeInstruction(300, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+      var waypointFirstInstructionCall =
+          findWaypointMetersBeforeInstruction(300, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
       if (waypointFirstInstructionCall != null) {
         Instruction firstInstructionCall = Instruction(
             lat: waypointFirstInstructionCall.latitude,
             lon: waypointFirstInstructionCall.longitude,
             text: createInstructionText(true, instructionType, ghInstruction, signalGroupId),
             instructionType: instructionType,
-            signalGroupId: signalGroupId
-        );
+            signalGroupId: signalGroupId);
         instructions.add(firstInstructionCall);
         lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
       } else if (lastInstructionPoint != null && !instructions.last.alreadyConcatenated) {
-        var distanceToActualInstructionPoint = mapMath.distanceBetween(lastInstructionPoint.latitude, lastInstructionPoint.longitude, currentWaypoint.lat, currentWaypoint.lon, "meters");
+        var distanceToActualInstructionPoint = mapMath.distanceBetween(lastInstructionPoint.latitude,
+            lastInstructionPoint.longitude, currentWaypoint.lat, currentWaypoint.lon, "meters");
         var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
         // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
         if (distanceToActualInstructionPoint > threshold) {
@@ -666,15 +670,15 @@ class Routing with ChangeNotifier {
       // Create second instruction call at the point the instruction is referring to.
       if (instructionType == InstructionType.signalGroupOnly) {
         // Put instruction point 100m before sg.
-        var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(100, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+        var waypointSecondInstructionCall =
+            findWaypointMetersBeforeInstruction(100, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           Instruction secondInstructionCall = Instruction(
               lat: waypointSecondInstructionCall.latitude,
               lon: waypointSecondInstructionCall.longitude,
               text: createInstructionText(false, instructionType, ghInstruction, signalGroupId),
               instructionType: instructionType,
-              signalGroupId: signalGroupId
-          );
+              signalGroupId: signalGroupId);
           instructions.add(secondInstructionCall);
           lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
         } else {
@@ -687,8 +691,7 @@ class Routing with ChangeNotifier {
             lon: currentWaypoint.lon,
             text: createInstructionText(false, instructionType, ghInstruction, signalGroupId),
             instructionType: instructionType,
-            signalGroupId: signalGroupId
-        );
+            signalGroupId: signalGroupId);
         instructions.add(secondInstructionCall);
         lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
       }
@@ -697,7 +700,8 @@ class Routing with ChangeNotifier {
   }
 
   /// Concatenate the current instruction with the previous one.
-  void concatenateInstructions(InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId, List<Instruction> instructions) {
+  void concatenateInstructions(InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId,
+      List<Instruction> instructions) {
     var textToConcatenate = createInstructionText(false, instructionType, ghInstruction, signalGroupId);
     instructions.last.text += " und dann $textToConcatenate";
     instructions.last.alreadyConcatenated = true;

@@ -29,5 +29,6 @@ class Instruction {
   /// If the instruction has already been concatenated.
   bool alreadyConcatenated = false;
 
-  Instruction({required this.lat, required this.lon, required this.text, required this.instructionType, this.signalGroupId});
+  Instruction(
+      {required this.lat, required this.lon, required this.text, required this.instructionType, this.signalGroupId});
 }
