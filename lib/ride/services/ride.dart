@@ -336,6 +336,10 @@ class Ride with ChangeNotifier {
 
   /// Check if instruction contains sg information and if so add countdown
   String generateTextToPlay(Instruction currentInstruction) {
+    // TODO: check if instruction is sgOnly
+    // TODO: if sgOnly do not play instruction if no data
+    // TODO: if sgAndDirection cut into pieces and play sgPart only if data is available
+    // TODO: create extra TTS part just for countdown number, otherwise it will be outdated.
     if (currentInstruction.instructionType == InstructionType.directionOnly) {
       // No sg countdown information needs to be added.
       return currentInstruction.text!;
@@ -363,10 +367,17 @@ class Ride with ChangeNotifier {
     if (recommendation.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
 
     final currentPhase = recommendation.calcCurrentSignalPhase;
-    // TODO: implement countdown concept (coundown + cloor switch + sg type)
+    String nextColor = "";
+    if (currentPhase == Phase.red) {
+      nextColor = "grün";
+    } else if (currentPhase == Phase.green) {
+      nextColor = "rot";
+    }
 
-    // TODO: set correct return value
-    return "${currentInstruction.text} schaltet in $countdown";
+    if (nextColor.isNotEmpty) {
+      return "${currentInstruction.text} $nextColor in $countdown";
+    }
+    return currentInstruction.text;
   }
 
   /// Configure the TTS.
