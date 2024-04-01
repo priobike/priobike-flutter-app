@@ -22,7 +22,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../positioning/models/snap.dart';
 import '../../routing/messages/graphhopper.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_map_math/flutter_geo_math.dart';
 
 import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/ride/messages/prediction.dart';
@@ -83,9 +82,6 @@ class Ride with ChangeNotifier {
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
-
-  /// An instance for map calculations.
-  FlutterMapMath mapMath = FlutterMapMath();
 
   /// An instance for text-to-speach.
   FlutterTts ftts = FlutterTts();
@@ -397,7 +393,7 @@ class Ride with ChangeNotifier {
 
     // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
     var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
-        mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") < 20);
+        vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
 
     if (currentInstruction != null){
       currentInstruction.executed = true;

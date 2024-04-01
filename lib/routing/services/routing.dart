@@ -26,7 +26,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:flutter_map_math/flutter_geo_math.dart';
 
 import 'package:priobike/routing/models/instruction.dart';
 
@@ -140,9 +139,6 @@ class Routing with ChangeNotifier {
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
-
-  /// An instance for map calculations.
-  FlutterMapMath mapMath = FlutterMapMath();
 
   Routing({
     this.fetchedWaypoints,
@@ -544,39 +540,38 @@ class Routing with ChangeNotifier {
   /// Find the waypoint x meters before the current instruction
   /// DistanceToInstructionPoint x must be given as an argument.
   LatLng? findWaypointMetersBeforeInstruction(int distanceToInstructionPoint, SGSelectorResponse sgSelectorResponse, int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
-    double totalDistance = 0;
-    NavigationNode b = sgSelectorResponse.route[i];
-    NavigationNode a;
+    double totalDistanceToInstructionPoint = 0;
+    LatLng p2 = LatLng(sgSelectorResponse.route[i].lat, sgSelectorResponse.route[i].lon);
+    LatLng p1;
     for (var j = i-1; j >= 0; j--) {
-      a = sgSelectorResponse.route[j];
+      p1 = LatLng(sgSelectorResponse.route[j].lat, sgSelectorResponse.route[j].lon);
 
       // TODO: Do I need this? The first instruction is usually something like follow the road ...
       // TODO: So probably won't need this in combination with concatenation.
-      if (j == 0 && isFirstInstruction == true) {
-        // Very first instruction is played even if distance is smaller than distanceToInstructionPoint
-        return LatLng(a.lat, a.lon);
-      }
+      // if (j == 0 && isFirstInstruction == true) {
+      //   // Very first instruction is played even if distance is smaller than distanceToInstructionPoint
+      //   return LatLng(a.lat, a.lon);
+      // }
 
-      var distance = mapMath.distanceBetween(a.lat, a.lon, b.lat, b.lon, "meters");
-      totalDistance += distance;
+      var distanceToPreviousNavigationNode = Snapper.vincenty.distance(p1, p2);
+      totalDistanceToInstructionPoint += distanceToPreviousNavigationNode;
 
-      // TODO: if distance less than distanceToInstructionPoint then concatenate instructions
-      if (lastInstructionPoint?.latitude == a.lat && lastInstructionPoint?.longitude == a.lon) {
+      if (lastInstructionPoint?.latitude == p1.latitude && lastInstructionPoint?.longitude == p1.longitude) {
         // there is already an instruction at this instruction point
         return null;
       }
 
-      if (totalDistance == distanceToInstructionPoint) {
-        return LatLng(a.lat, a.lon);
-      } else if (totalDistance > distanceToInstructionPoint) {
-        var distanceBefore = totalDistance - distance;
+      if (totalDistanceToInstructionPoint == distanceToInstructionPoint) {
+        return p1;
+      } else if (totalDistanceToInstructionPoint > distanceToInstructionPoint) {
+        var distanceBefore = totalDistanceToInstructionPoint - distanceToPreviousNavigationNode;
         var remainingDistance = distanceToInstructionPoint - distanceBefore;
         // calculate point c between a and b such that distance between b and c is remainingDistance
-        double bearing = mapMath.bearingBetween(b.lat, b.lon, a.lat, a.lon);
-        LatLng c = mapMath.destinationPoint(b.lat, b.lon, remainingDistance, bearing);
+        double bearing = Snapper.vincenty.bearing(p1, p2);
+        LatLng c = Snapper.vincenty.offset(p2, remainingDistance, bearing);
         return c;
       }
-      b = a;
+      p2 = p1;
     }
     return null;
   }
@@ -625,6 +620,12 @@ class Routing with ChangeNotifier {
     }
   }
 
+  /// Get sgType for a specific signal group id.
+  String getSGTypeForSignalGroupId(String signalGroupId, SGSelectorResponse sgSelectorResponse) {
+    final signalGroup = sgSelectorResponse.signalGroups[signalGroupId];
+    return signalGroup!.id;
+  }
+
   /// Create the instructions for each route.
   List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
     final instructions = List<Instruction>.empty(growable: true);
@@ -654,7 +655,7 @@ class Routing with ChangeNotifier {
         );
         instructions.add(firstInstructionCall);
       } else if (lastInstructionPoint != null && !instructions.last.alreadyConcatenated) {
-        var distanceToActualInstructionPoint = mapMath.distanceBetween(lastInstructionPoint.latitude, lastInstructionPoint.longitude, currentWaypoint.lat, currentWaypoint.lon, "meters");
+        var distanceToActualInstructionPoint = Snapper.vincenty.distance(lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
         var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
         // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
         if (distanceToActualInstructionPoint > threshold) {
