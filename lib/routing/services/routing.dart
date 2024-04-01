@@ -613,19 +613,22 @@ class Routing with ChangeNotifier {
   }
 
   /// Create the instruction text based on the type of instruction.
-  String createInstructionText(bool isFirstCall, InstructionType instructionType, String ghInstructionText, String? signalGroupId, String laneType) {
+  List<InstructionText> createInstructionText(bool isFirstCall, InstructionType instructionType, String ghInstructionText, String? signalGroupId, String laneType) {
     String prefix = isFirstCall ? "In 300 Metern" : "";
     String sgType = laneType.toLowerCase().contains("rad") ? "Radampel" : "Ampel";
 
     switch (instructionType) {
       case InstructionType.directionOnly:
-        return "$prefix $ghInstructionText";
+        return [InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction)];
       case InstructionType.signalGroupOnly:
-        return "$prefix $sgType ${signalGroupId!}"; // TODO: delete signalGroupId when testing finished
+        return [InstructionText(text: "$prefix $sgType ${signalGroupId!}", type: InstructionTextType.signalGroup)]; // TODO: delete signalGroupId when testing finished
       case InstructionType.directionAndSignalGroup:
-        return "$prefix $ghInstructionText $sgType"; // TODO: delete signalGroupId when testing finished
+        return [
+          InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction),
+          InstructionText(text: sgType, type: InstructionTextType.signalGroup) // TODO: delete signalGroupId when testing finished
+        ];
       default:
-        return "";
+        return [];
     }
   }
 
@@ -741,7 +744,10 @@ class Routing with ChangeNotifier {
   /// Concatenate the current instruction with the previous one.
   void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId, List<Instruction> instructions, String laneType) {
     var textToConcatenate = createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType);
-    instructions.last.text += " und dann $textToConcatenate";
+    for (int i = 0; i < textToConcatenate.length; i++) {
+      textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}}";
+      instructions.last.text.add(textToConcatenate[i]);
+    }
     instructions.last.alreadyConcatenated = true;
     instructions.last.instructionType = getInstructionTypAfterConcatenation(instructions.last.instructionType, instructionType);
   }

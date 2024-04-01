@@ -331,37 +331,34 @@ class Ride with ChangeNotifier {
   }
 
   /// Check if instruction contains sg information and if so add countdown
-  String generateTextToPlay(Instruction currentInstruction) {
-    // TODO: check if instruction is sgOnly
-    // TODO: if sgOnly do not play instruction if no data
-    // TODO: if sgAndDirection cut into pieces and play sgPart only if data is available
-    // TODO: create extra TTS part just for countdown number, otherwise it will be outdated.
-    if (currentInstruction.instructionType == InstructionType.directionOnly) {
-      // No sg countdown information needs to be added.
-      return currentInstruction.text!;
-    }
-
+  InstructionText? generateTextToPlay(InstructionText instructionText) {
     // Check if Not supported crossing
     // or we do not have all auxiliary data that the app calculated
     // or prediction quality is not good enough.
     if (calcCurrentSG == null ||
         predictionComponent?.recommendation == null ||
         (predictionComponent?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
-      // No sg countdown information can be added.
-      return currentInstruction.text!;
+      // No sg countdown information can be added and thus instruction part must not be played.
+      return null;
     }
 
     final recommendation = predictionComponent!.recommendation!;
-    // If the phase change time is null, we hide the countdown.
-    if (recommendation.calcCurrentPhaseChangeTime == null) return currentInstruction.text!;
+
+    if (recommendation.calcCurrentPhaseChangeTime == null) {
+      // If the phase change time is null, instruction part must not be played.
+      return null;
+    }
+
     // Calculate the countdown.
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
-    // If the countdown is 0 (or negative), we hide the countdown.
-    var countdownLabel = countdown > 5 ? "$countdown" : "";
-    // Show no countdown label for amber and redamber.
-    if (recommendation.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
-    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
 
+    // TODO: check this (should wait for next cycle?)
+    // If the countdown is less or equal to 5, instruction part must not be played.
+    if (countdown <= 5) {
+      return null;
+    }
+
+    // TODO: check this
     final currentPhase = recommendation.calcCurrentSignalPhase;
     String nextColor = "";
     if (currentPhase == Phase.red) {
@@ -370,10 +367,15 @@ class Ride with ChangeNotifier {
       nextColor = "rot";
     }
 
+    // Add countdown information and timestamp.
+    instructionText.addCountdown(countdown);
+    // Add information about nextColor of the sg;
+    instructionText.text = "${instructionText.text} $nextColor in";
     if (nextColor.isNotEmpty) {
-      return "${currentInstruction.text} $nextColor in $countdown";
+      return instructionText;
     }
-    return currentInstruction.text;
+    // If information about nextColor is not available, instruction part must not be played.
+    return null;
   }
 
   /// Configure the TTS.
@@ -386,19 +388,38 @@ class Ride with ChangeNotifier {
 
   /// Play audio instruction.
   Future<void> playAudioInstruction() async {
-    await ftts.awaitSpeakCompletion(true);
+    // await ftts.awaitSpeakCompletion(true);
 
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
     // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
-    var currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
+    Instruction? currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
         vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
 
     if (currentInstruction != null){
       currentInstruction.executed = true;
-      String textToPlay = generateTextToPlay(currentInstruction);
-      await ftts.speak(textToPlay);
+
+      Iterator it = currentInstruction.text.iterator;
+      while(it.moveNext()) {
+        if (it.current.type == InstructionTextType.direction) {
+          // No countdown information needs to be added.
+          await ftts.speak(it.current.text);
+        } else {
+          // Check for countdown information.
+          var instructionTextToPlay = generateTextToPlay(it.current);
+          if (instructionTextToPlay == null) {
+            continue;
+          }
+          await ftts.speak(instructionTextToPlay!.text);
+          // Calc updatedCountdown since initial creation and time that has passed while speaking
+          // (to avoid countdown inaccuracy)
+          // Also take into account 1s delay for actually speaking the countdown.
+          int updatedCountdown = instructionTextToPlay.countdown! - (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) - 1;
+          await ftts.speak(updatedCountdown.toString());
+        }
+
+      }
     }
   }
 
