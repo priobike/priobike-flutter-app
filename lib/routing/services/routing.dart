@@ -687,11 +687,13 @@ class Routing with ChangeNotifier {
           instructions.add(secondInstructionCall);
           lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
         } else if (instructions.last.instructionType == InstructionType.signalGroupOnly) {
-          // Put the instruction call at the point where the previous sg actually stands
+          // Put the instruction call at the point when crossing the previous sg is finished
+          // This point is equal to the last point in the signal crossing geometry attribute.
           var sgId = instructions.last.signalGroupId;
+          var previousSgLaneEnd = sgSelectorResponse.signalGroups[sgId]!.geometry!.last;
           Instruction secondInstructionCall = Instruction(
-              lat: sgSelectorResponse.signalGroups[sgId]!.position.lat,
-              lon: sgSelectorResponse.signalGroups[sgId]!.position.lon,
+              lat: previousSgLaneEnd[1],
+              lon: previousSgLaneEnd[0],
               text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId),
               instructionType: instructionType,
               signalGroupId: signalGroupId
