@@ -630,11 +630,11 @@ class Routing with ChangeNotifier {
       case InstructionType.directionOnly:
         return [InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction)];
       case InstructionType.signalGroupOnly:
-        return [InstructionText(text: "$prefix $sgType ${signalGroupId!}", type: InstructionTextType.signalGroup)]; // TODO: delete signalGroupId when testing finished
+        return [InstructionText(text: "$prefix $sgType", type: InstructionTextType.signalGroup)];
       case InstructionType.directionAndSignalGroup:
         return [
           InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction),
-          InstructionText(text: sgType, type: InstructionTextType.signalGroup) // TODO: delete signalGroupId when testing finished
+          InstructionText(text: sgType, type: InstructionTextType.signalGroup)
         ];
       default:
         return [];
