@@ -22,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../positioning/models/snap.dart';
 import '../../routing/messages/graphhopper.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:audio_session/audio_session.dart';
 
 import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/ride/messages/prediction.dart';
@@ -391,6 +392,21 @@ class Ride with ChangeNotifier {
 
   /// Play audio instruction.
   Future<void> playAudioInstruction() async {
+    final session = await AudioSession.instance;
+    await session.configure(
+      const AudioSessionConfiguration(
+        avAudioSessionCategory: AVAudioSessionCategory.playback,
+        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
+        androidAudioAttributes: AndroidAudioAttributes(
+          contentType: AndroidAudioContentType.speech,
+          flags: AndroidAudioFlags.none,
+          usage: AndroidAudioUsage.assistanceNavigationGuidance,
+        ),
+        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
+        androidWillPauseWhenDucked: false, // Verhindert, dass Spotify automatisch pausiert
+      ),
+    );
+
     // await ftts.awaitSpeakCompletion(true);
 
     final snap = getIt<Positioning>().snap;
@@ -405,6 +421,8 @@ class Ride with ChangeNotifier {
 
       Iterator it = currentInstruction.text.iterator;
       while(it.moveNext()) {
+        // Put this here to avoid music interruption in case that there is no instruction to play.
+        await session.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
           // No countdown information needs to be added.
           await ftts.speak(it.current.text);
@@ -422,6 +440,7 @@ class Ride with ChangeNotifier {
           await ftts.speak(updatedCountdown.toString());
         }
       }
+      await session.setActive(false);
     }
   }
 
