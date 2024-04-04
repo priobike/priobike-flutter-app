@@ -583,7 +583,16 @@ class Routing with ChangeNotifier {
       // Get all GraphHopper instructions that match the index of the coordinate.
       for (final instruction in path.instructions) {
         if (instruction.interval.first == index) {
-          instructionList.add(instruction);
+          // Skip waypoint instructions and "Dem Straßenverlauf folgen" instruction after a waypoint.
+          final isWaypoint = instruction.text.startsWith("Wegpunkt");
+
+          int instructionIndex = path.instructions.indexOf(instruction);
+          final previousInstruction = instructionIndex > 0 ? path.instructions[instructionIndex - 1] : null;
+          final isFollowTheRouteInstructionAfterWaypoint = instruction.text == "Dem Straßenverlauf folgen" && previousInstruction != null && previousInstruction.text.startsWith("Wegpunkt");
+
+          if (!isWaypoint && !isFollowTheRouteInstructionAfterWaypoint) {
+            instructionList.add(instruction);
+          }
         }
       }
     }
