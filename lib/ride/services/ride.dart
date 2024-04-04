@@ -392,10 +392,7 @@ class Ride with ChangeNotifier {
 
   /// Play audio instruction.
   Future<void> playAudioInstruction() async {
-<<<<<<< Updated upstream
-=======
     // Register the audio session.
->>>>>>> Stashed changes
     final session = await AudioSession.instance;
     await session.configure(
       const AudioSessionConfiguration(
@@ -410,11 +407,7 @@ class Ride with ChangeNotifier {
         androidWillPauseWhenDucked: false, // Verhindert, dass Spotify automatisch pausiert
       ),
     );
-<<<<<<< Updated upstream
-
     // await ftts.awaitSpeakCompletion(true);
-=======
->>>>>>> Stashed changes
 
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
@@ -428,11 +421,7 @@ class Ride with ChangeNotifier {
 
       Iterator it = currentInstruction.text.iterator;
       while(it.moveNext()) {
-<<<<<<< Updated upstream
         // Put this here to avoid music interruption in case that there is no instruction to play.
-=======
-        // Interrupt background music while playing the instructions.
->>>>>>> Stashed changes
         await session.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
           // No countdown information needs to be added.
