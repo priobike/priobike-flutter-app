@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_smartglasses_tooz/flutter_smartglasses_tooz.dart';
 
@@ -29,9 +31,9 @@ class SmartglassService {
     await _flutterSmartglassesToozPlugin.updateCard();
   }
 
-  void show(String text, int sign) async {
+  void show(String text, int sign, List<HashMap<String, dynamic>> tachoItems) async {
     log.w("Update smartglass view with text: $text, $sign");
-    await _flutterSmartglassesToozPlugin.drawTacho(text, sign);
+    await _flutterSmartglassesToozPlugin.drawTacho(text, sign, tachoItems);
   }
 
   void drawRaster() async {

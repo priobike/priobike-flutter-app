@@ -319,33 +319,34 @@ class Ride with ChangeNotifier {
       calcDistanceToNextSG = null;
     }
     final smartglasses = getIt<SmartglassService>();
-    final currentInstruction = getCurrentInstruction(route!.path, getIt<Positioning>().lastPosition!);
-    smartglasses.show(currentInstruction!.text, currentInstruction.sign);
+    final currentInstruction = getCurrentInstruction(route!.path, getIt<Positioning>().snap!.position);
+    smartglasses.show(currentInstruction!.text, currentInstruction.sign, List.empty());
 
     notifyListeners();
   }
 
-  GHInstruction? getCurrentInstruction(GHRouteResponsePath path, Position currentLocation) {
+  GHInstruction? getCurrentInstruction(GHRouteResponsePath path, LatLng currentLocation) {
     var minDist = 10000.0;
     var currentIndex = 0;
     for(int i = 0; i < path.points.coordinates.length; i++) {
       final n1 = path.points.coordinates[i];
       final p1 = LatLng(n1.lat, n1.lon);
-      final p2 = LatLng(currentLocation.latitude, currentLocation.longitude);
-      final b = vincenty.bearing(p1, p2); // [-180°, 180°]
-      final dist = vincenty.distance(p1, p2);
+      // final p2 = LatLng(currentLocation.latitude, currentLocation.longitude);
+      final b = vincenty.bearing(p1, currentLocation); // [-180°, 180°]
+      final dist = vincenty.distance(p1, currentLocation);
       if (dist < minDist) {
         minDist = dist;
         currentIndex = i;
       }
     }
     var currentPoint = path.points.coordinates[currentIndex];
-    for(int i = 0; i < path.instructions.length; i++) {
-      if(path.instructions[i].interval[0] <= currentIndex && path.instructions[i].interval[1] > currentIndex && path.instructions[i].interval[0] != path.instructions[i].interval[1]) {
-        return path.instructions[i];
+    var instructionsWithoutWaypoints = path.instructions.where((element) => !element.text.contains("Wegpunkt")).toList();
+    for(int i = 0; i < instructionsWithoutWaypoints.length; i++) {
+      if(instructionsWithoutWaypoints[i].interval[0] <= currentIndex && instructionsWithoutWaypoints[i].interval[1] > currentIndex) {
+        return instructionsWithoutWaypoints[i + 1];
       }
     }
-    return path.instructions.last;
+    return instructionsWithoutWaypoints.last;
   }
 
   /// Stop the navigation.

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
@@ -405,6 +407,23 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                       callback: () => smartglasses.drawMap(),
                     ),
                   ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Tacho zeichnen",
+                    icon: Icons.smart_screen,
+                    callback: () {
+                      var map = HashMap<String, dynamic>();
+                      var list = List.generate(3, (index) {
+                        map['isRed'] = index % 2;
+                        map['start'] = index * 100;
+                        map['end'] = index * 100 + 100;
+                        return map;
+                      });
+                      smartglasses.show("Sample text", 0, list);
+                    },
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
