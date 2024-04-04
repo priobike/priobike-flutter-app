@@ -615,7 +615,7 @@ class Routing with ChangeNotifier {
   /// Create the instruction text based on the type of instruction.
   List<InstructionText> createInstructionText(bool isFirstCall, InstructionType instructionType, String ghInstructionText, String? signalGroupId, String laneType) {
     String prefix = isFirstCall ? "In 300 Metern" : "";
-    String sgType = laneType.toLowerCase().contains("rad") ? "Radampel" : "Ampel";
+    String sgType = (laneType == "Radfahrer") ? "Radampel" : "Ampel";
 
     switch (instructionType) {
       case InstructionType.directionOnly:
