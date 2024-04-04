@@ -365,6 +365,9 @@ class Ride with ChangeNotifier {
       nextColor = "grün";
     } else if (currentPhase == Phase.green) {
       nextColor = "rot";
+    } else {
+      // If the next color cannot be determined, instruction part must not be played.
+      return null;
     }
 
     // Add countdown information and timestamp.
@@ -418,7 +421,6 @@ class Ride with ChangeNotifier {
           int updatedCountdown = instructionTextToPlay.countdown! - (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) - 1;
           await ftts.speak(updatedCountdown.toString());
         }
-
       }
     }
   }
