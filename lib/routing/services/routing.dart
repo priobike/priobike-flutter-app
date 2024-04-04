@@ -26,7 +26,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-
 import 'package:priobike/routing/models/instruction.dart';
 
 enum RoutingProfile {

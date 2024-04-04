@@ -1,5 +1,3 @@
-import 'package:latlong2/latlong.dart';
-
 /// An enum for the type of the custom instruction
 /// This type is derived from the InstructionTextType.
 enum InstructionType {
