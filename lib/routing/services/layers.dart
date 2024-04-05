@@ -109,7 +109,7 @@ class Layers with ChangeNotifier {
 
       showRentalStations = storage.getBool("priobike.layers.showRentalStations") ?? false;
       showParkingStations = storage.getBool("priobike.layers.showParkingStations") ?? false;
-      showConstructionSites = storage.getBool("priobike.layers.showConstructionSites") ?? true;
+      showConstructionSites = storage.getBool("priobike.layers.showConstructionSites") ?? false;
       showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
       showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
       showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
