@@ -221,14 +221,6 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
                 LayerSelectionItem(
                   icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                      ? Image.asset("assets/images/construction-light.png")
-                      : Image.asset("assets/images/construction-dark.png"),
-                  title: 'Baustellen',
-                  selected: layers.showConstructionSites,
-                  onTap: () => layers.setShowConstructionSites(!layers.showConstructionSites),
-                ),
-                LayerSelectionItem(
-                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Image.asset("assets/images/air-light.png")
                       : Image.asset("assets/images/air-dark.png"),
                   title: 'Aufpumpen',

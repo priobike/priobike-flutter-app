@@ -186,7 +186,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
     AccidentHotspotsLayer.layerId,
-    ConstructionSitesLayer.layerId,
     GreenWaveLayer.layerId,
     BikeShopLayer.layerId,
     BikeShopLayer.textLayerId,
@@ -459,14 +458,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else {
       if (!mounted) return;
       await BikeAirStationLayer.remove(mapController!);
-    }
-    if (layers.showConstructionSites) {
-      final index = await getIndex(ConstructionSitesLayer.layerId);
-      if (!mounted) return;
-      await ConstructionSitesLayer(isDark).install(mapController!, at: index);
-    } else {
-      if (!mounted) return;
-      await ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
       final index = await getIndex(ParkingStationsLayer.layerId);
