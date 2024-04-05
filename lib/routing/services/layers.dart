@@ -11,6 +11,9 @@ class Layers with ChangeNotifier {
   /// If parking stations are currently visible.
   bool showParkingStations;
 
+  /// If construction sites are currently visible.
+  bool showConstructionSites;
+
   /// If air stations are currently visible.
   bool showAirStations;
 
@@ -43,6 +46,11 @@ class Layers with ChangeNotifier {
 
   Future<void> setShowParkingStations(bool showParkingStations) async {
     this.showParkingStations = showParkingStations;
+    await storePreferences();
+  }
+
+  Future<void> setShowConstructionSites(bool showConstructionSites) async {
+    this.showConstructionSites = showConstructionSites;
     await storePreferences();
   }
 
@@ -79,6 +87,7 @@ class Layers with ChangeNotifier {
   Layers({
     this.showRentalStations = false,
     this.showParkingStations = false,
+    this.showConstructionSites = false,
     this.showAirStations = false,
     this.showRepairStations = false,
     this.showAccidentHotspots = true,
@@ -100,6 +109,7 @@ class Layers with ChangeNotifier {
 
       showRentalStations = storage.getBool("priobike.layers.showRentalStations") ?? false;
       showParkingStations = storage.getBool("priobike.layers.showParkingStations") ?? false;
+      showConstructionSites = storage.getBool("priobike.layers.showConstructionSites") ?? true;
       showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
       showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
       showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
@@ -116,6 +126,7 @@ class Layers with ChangeNotifier {
 
     await storage.setBool("priobike.layers.showRentalStations", showRentalStations);
     await storage.setBool("priobike.layers.showParkingStations", showParkingStations);
+    await storage.setBool("priobike.layers.showConstructionSites", showConstructionSites);
     await storage.setBool("priobike.layers.showAirStations", showAirStations);
     await storage.setBool("priobike.layers.showRepairStations", showRepairStations);
     await storage.setBool("priobike.layers.showAccidentHotspots", showAccidentHotspots);
