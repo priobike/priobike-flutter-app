@@ -10,6 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/messages/poi.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
@@ -164,6 +165,37 @@ class Routing with ChangeNotifier {
     selectedRoute = null;
     allRoutes = null;
     notifyListeners();
+  }
+
+  /// Load a construction sites response.
+  Future<ConstructionSitesResponse?> loadConstructionSitesResponse(GHRouteResponsePath path) async {
+    try {
+      final settings = getIt<Settings>();
+
+      final baseUrl = settings.backend.path;
+      final constructionSitesUrl = "http://$baseUrl/poi-service-backend/construction/match";
+      final constructionSitesEndpoint = Uri.parse(constructionSitesUrl);
+      log.i("Loading construction sites response from $constructionSitesUrl");
+
+      final req = ConstructionSitesRequest(
+        route: path.points.coordinates.map((e) => ConstructionSiteRoutePoint(lat: e.lat, lon: e.lon)).toList(),
+        elongation: 50, // How long the construction sites should be extended for visibility
+        threshold: 10, // Meters around the route
+      );
+      final response = await Http.post(constructionSitesEndpoint, body: json.encode(req.toJson()));
+
+      if (response.statusCode == 200) {
+        log.i("Loaded construction sites response from $constructionSitesUrl");
+        return ConstructionSitesResponse.fromJson(json.decode(response.body));
+      } else {
+        log.e("Failed to load construction sites response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      final hint = "Failed to load construction sites response: $e";
+      log.e(hint);
+      return null;
+    }
   }
 
   /// Load a SG-Selector response.
@@ -329,6 +361,14 @@ class Routing with ChangeNotifier {
       return null;
     }
 
+    // Load the construction sites along each path.
+    final constructionSitesResponses =
+        await Future.wait(ghResponse.paths.map((path) => loadConstructionSitesResponse(path)));
+    if (constructionSitesResponses.contains(null)) {
+      // An error here is not that tragical. We can continue without construction sites.
+      log.w("Failed to load construction sites for some paths.");
+    }
+
     if (ghResponse.paths.length != sgSelectorResponses.length) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -381,6 +421,9 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
+          // Extract the constructions along the route.
+          final constructionsOnRoute = constructionSitesResponses[i]?.constructions;
+
           var route = r.Route(
             id: i,
             path: path,
@@ -389,6 +432,7 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
             crossings: orderedCrossings,
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
+            constructionsOnRoute: constructionsOnRoute,
           );
           // Connect the route to the start and end points.
           route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
