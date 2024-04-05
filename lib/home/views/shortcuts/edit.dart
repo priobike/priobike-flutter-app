@@ -589,8 +589,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         builder: (context) => const ImportShortcutDialog(),
                       ),
                       icon: Icons.add_rounded,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fill: Theme.of(context).colorScheme.surface,
                       splash: Theme.of(context).colorScheme.surfaceTint,
                     ),
                     const SmallHSpace(),

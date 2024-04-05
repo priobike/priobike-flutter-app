@@ -166,7 +166,7 @@ class App extends StatelessWidget {
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
-              onSurface: Color(0xFFFFFFFF),
+              onSurface: Color(0xFF000000),
               // Neutral alternative for surface.
               surfaceVariant: Color(0xFFFFFFFF),
               // For content on the alternative surface (color with high contrast).
