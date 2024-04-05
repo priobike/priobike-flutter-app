@@ -176,6 +176,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     AllRoutesLayer.layerIdClick,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
+    RouteConstructionsLayer.layerIdBackground,
+    RouteConstructionsLayer.layerId,
+    RouteConstructionsLayer.layerIdSymbol,
     RouteCrossingsCircleLayer.layerId,
     SelectedRouteCrossingsCircleLayer.layerId,
     DiscomfortsLayer.layerIdMarker,
@@ -196,9 +199,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     RentalStationsLayer.layerId,
     RentalStationsLayer.textLayerId,
     RentalStationsLayer.clickLayerId,
-    RouteConstructionsLayer.layerIdBackground,
-    RouteConstructionsLayer.layerId,
-    RouteConstructionsLayer.layerIdSymbol,
     userLocationLayerId,
   ];
 
