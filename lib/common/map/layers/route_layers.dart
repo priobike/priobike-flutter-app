@@ -264,10 +264,16 @@ class RouteConstructionsLayer {
   /// The ID of the background Mapbox layer.
   static const layerIdBackground = "route-constructions-background-layer";
 
+  /// The ID of the symbol/text layer.
+  static const layerIdSymbol = "route-constructions-symbol-layer";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  RouteConstructionsLayer() {
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
+  RouteConstructionsLayer(this.isDark) {
     final routing = getIt<Routing>();
 
     // Alternative routes
@@ -287,6 +293,7 @@ class RouteConstructionsLayer {
             "properties": {
               "color": "#d9c89e",
               "bgcolor": "#d1b873",
+              "symbolopacity": 0,
             },
             "geometry": geometry,
           },
@@ -309,6 +316,7 @@ class RouteConstructionsLayer {
           "properties": {
             "color": "#FF9900",
             "bgcolor": "#924F00",
+            "symbolopacity": 1,
           },
           "geometry": geometry,
         },
@@ -325,6 +333,22 @@ class RouteConstructionsLayer {
       );
     } else {
       await update(mapController);
+    }
+    final routeConstructionsSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
+    if (!routeConstructionsSymbolLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: sourceId,
+            id: layerIdSymbol,
+            iconImage: isDark ? "constructiondark" : "constructionlight",
+            iconSize: 0.3,
+            iconAllowOverlap: true,
+            iconOpacity: 1,
+            minZoom: 9.0,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style
+          .setStyleLayerProperty(layerIdSymbol, 'icon-opacity', json.encode(["get", "symbolopacity"]));
     }
     final routeConstructionsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!routeConstructionsLayerExists) {
