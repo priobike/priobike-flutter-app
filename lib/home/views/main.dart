@@ -42,7 +42,10 @@ import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+  /// The shortcut loaded by a share link.
+  final Shortcut? shortcut;
+
+  const HomeView({super.key, this.shortcut});
 
   @override
   HomeViewState createState() => HomeViewState();
@@ -119,6 +122,18 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           // Execute callback if page is mounted
           if (mounted) {
             showRestartRouteDialog(context, ride.lastRouteID, lastRoute);
+          }
+        },
+      );
+    }
+
+    // Check if a shortcut from a share link should be imported.
+    if (widget.shortcut != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          // Execute callback if page is mounted
+          if (mounted) {
+            showSaveShortcutFromShortcutSheet(context, shortcut: widget.shortcut!);
           }
         },
       );

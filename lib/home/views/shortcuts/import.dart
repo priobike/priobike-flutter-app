@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:gpx/gpx.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/views/shortcuts/import_gpx.dart';
@@ -57,10 +58,17 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
     return [];
   }
 
-  void openQRScanner() {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (BuildContext context) => const QRCodeView(),
-    ));
+  Future<void> openQRScanner() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const QRCodeView(),
+      ),
+    );
+
+    if (result == null) return;
+
+    if (!mounted) return;
+    showSaveShortcutFromShortcutSheet(context, shortcut: result);
   }
 
   void openImportGpxView() async {

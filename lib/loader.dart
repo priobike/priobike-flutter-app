@@ -61,6 +61,9 @@ class LoaderState extends State<Loader> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  /// The shortcut loaded by a share link.
+  Shortcut? shortcut;
+
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
     // We have 2 types of services:
@@ -95,7 +98,7 @@ class LoaderState extends State<Loader> {
       if (widget.shareUrl != null) {
         String url = widget.shareUrl!;
         final shortcut = await Shortcut.fromLink(url);
-        if (shortcut != null) getIt<Shortcuts>().saveNewShortcutObject(shortcut);
+        this.shortcut = shortcut;
       }
 
       settings.incrementUseCounter();
@@ -287,7 +290,11 @@ class LoaderState extends State<Loader> {
               duration: const Duration(milliseconds: 500),
               switchInCurve: Curves.easeInOutCubic,
               switchOutCurve: Curves.easeInOutCubic,
-              child: shouldBlendIn ? const HomeView() : Container(),
+              child: shouldBlendIn
+                  ? HomeView(
+                      shortcut: shortcut,
+                    )
+                  : Container(),
             )
         ],
       ),

@@ -29,8 +29,13 @@ class ShortcutRoute implements Shortcut {
   /// The time text of the route.
   String? routeTimeText;
 
-  ShortcutRoute(
-      {required this.name, required this.waypoints, required this.id, this.routeLengthText, this.routeTimeText});
+  ShortcutRoute({
+    required this.name,
+    required this.waypoints,
+    required this.id,
+    this.routeLengthText,
+    this.routeTimeText,
+  });
 
   factory ShortcutRoute.fromJson(Map<String, dynamic> json) {
     return ShortcutRoute(

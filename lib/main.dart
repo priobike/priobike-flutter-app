@@ -135,7 +135,9 @@ class App extends StatelessWidget {
           showPerformanceOverlay: settings.enablePerformanceOverlay,
           onGenerateRoute: (routeSettings) {
             String? url = routeSettings.name!;
-            if (!url.contains("/link/")) url = null;
+
+            // Check if url is a short or long link.
+            if (!url.contains("/link/") && !url.contains("/import/")) url = null;
 
             // Required to make sure that home view doesn't get opened twice if the user clicks on an
             // import link while the app is already open in the background.
