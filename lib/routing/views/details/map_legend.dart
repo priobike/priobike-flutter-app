@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -44,6 +45,13 @@ class MapLegendState extends State<MapLegend> {
 
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+
+    // To ensure animating for routing tutorial view.
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        showInfo = !routing.isFetchingRoute && routing.selectedRoute != null;
+      });
+    });
   }
 
   @override
@@ -76,6 +84,12 @@ class MapLegendState extends State<MapLegend> {
               color: Theme.of(context).colorScheme.surfaceVariant,
               borderRadius: const BorderRadius.all(
                 Radius.circular(24),
+              ),
+              border: Border.all(
+                width: 1,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withOpacity(0.07)
+                    : Colors.black.withOpacity(0.07),
               ),
             ),
             child: AnimatedCrossFade(
