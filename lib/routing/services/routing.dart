@@ -167,32 +167,32 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load a construction sites response.
-  Future<ConstructionSitesResponse?> loadConstructionSitesResponse(GHRouteResponsePath path) async {
+  /// Load a poi sites response.
+  Future<PoisResponse?> loadPoisResponse(GHRouteResponsePath path) async {
     try {
       final settings = getIt<Settings>();
 
       final baseUrl = settings.backend.path;
-      final constructionSitesUrl = "http://$baseUrl/poi-service-backend/construction/match";
-      final constructionSitesEndpoint = Uri.parse(constructionSitesUrl);
-      log.i("Loading construction sites response from $constructionSitesUrl");
+      final poisUrl = "http://$baseUrl/poi-service-backend/pois/match";
+      final poisEndpoint = Uri.parse(poisUrl);
+      log.i("Loading pois response from $poisUrl");
 
-      final req = ConstructionSitesRequest(
-        route: path.points.coordinates.map((e) => ConstructionSiteRoutePoint(lat: e.lat, lon: e.lon)).toList(),
-        elongation: 50, // How long the construction sites should be extended for visibility
+      final req = PoisRequest(
+        route: path.points.coordinates.map((e) => PoiRoutePoint(lat: e.lat, lon: e.lon)).toList(),
+        elongation: 50, // How long the pois should be extended for visibility
         threshold: 10, // Meters around the route
       );
-      final response = await Http.post(constructionSitesEndpoint, body: json.encode(req.toJson()));
+      final response = await Http.post(poisEndpoint, body: json.encode(req.toJson()));
 
       if (response.statusCode == 200) {
-        log.i("Loaded construction sites response from $constructionSitesUrl");
-        return ConstructionSitesResponse.fromJson(json.decode(response.body));
+        log.i("Loaded pois response from $poisUrl");
+        return PoisResponse.fromJson(json.decode(response.body));
       } else {
-        log.e("Failed to load construction sites response: ${response.statusCode} ${response.body}");
+        log.e("Failed to load pois response: ${response.statusCode} ${response.body}");
         return null;
       }
     } catch (e) {
-      final hint = "Failed to load construction sites response: $e";
+      final hint = "Failed to load pois response: $e";
       log.e(hint);
       return null;
     }
@@ -361,12 +361,11 @@ class Routing with ChangeNotifier {
       return null;
     }
 
-    // Load the construction sites along each path.
-    final constructionSitesResponses =
-        await Future.wait(ghResponse.paths.map((path) => loadConstructionSitesResponse(path)));
-    if (constructionSitesResponses.contains(null)) {
-      // An error here is not that tragical. We can continue without construction sites.
-      log.w("Failed to load construction sites for some paths.");
+    // Load the pois along each path.
+    final poisResponses = await Future.wait(ghResponse.paths.map((path) => loadPoisResponse(path)));
+    if (poisResponses.contains(null)) {
+      // An error here is not that tragical. We can continue without pois.
+      log.w("Failed to load pois for some paths.");
     }
 
     if (ghResponse.paths.length != sgSelectorResponses.length) {
@@ -421,9 +420,6 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
-          // Extract the constructions along the route.
-          final constructionsOnRoute = constructionSitesResponses[i]?.constructions;
-
           var route = r.Route(
             id: i,
             path: path,
@@ -432,7 +428,8 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
             crossings: orderedCrossings,
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
-            constructionsOnRoute: constructionsOnRoute,
+            constructionsOnRoute: poisResponses[i]?.constructions,
+            accidentHotspotsOnRoute: poisResponses[i]?.accidenthotspots,
           );
           // Connect the route to the start and end points.
           route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
