@@ -1,6 +1,6 @@
-class ConstructionSitesRequest {
+class PoisRequest {
   /// The computed route, containing coordinates.
-  final List<ConstructionSiteRoutePoint> route;
+  final List<PoiRoutePoint> route;
 
   /// The elongation that is applied to the construction sites, in meters.
   final int elongation;
@@ -8,7 +8,7 @@ class ConstructionSitesRequest {
   /// The search radius threshold applied to find construction sites, in meters.
   final int threshold;
 
-  const ConstructionSitesRequest({
+  const PoisRequest({
     required this.route,
     this.elongation = 50,
     this.threshold = 10,
@@ -20,66 +20,71 @@ class ConstructionSitesRequest {
         'threshold': threshold,
       };
 
-  factory ConstructionSitesRequest.fromJson(Map<String, dynamic> json) {
-    return ConstructionSitesRequest(
-      route: (json['route'] as List).map((e) => ConstructionSiteRoutePoint.fromJson(e)).toList(),
+  factory PoisRequest.fromJson(Map<String, dynamic> json) {
+    return PoisRequest(
+      route: (json['route'] as List).map((e) => PoiRoutePoint.fromJson(e)).toList(),
       elongation: json['elongation'],
       threshold: json['threshold'],
     );
   }
 }
 
-class ConstructionSiteRoutePoint {
+class PoiRoutePoint {
   /// The latitude of the route point.
   final double lat;
 
   /// The longitude of the route point.
   final double lon;
 
-  const ConstructionSiteRoutePoint({required this.lat, required this.lon});
+  const PoiRoutePoint({required this.lat, required this.lon});
 
   Map<String, dynamic> toJson() => {
         'lat': lat,
         'lon': lon,
       };
 
-  factory ConstructionSiteRoutePoint.fromJson(Map<String, dynamic> json) {
-    return ConstructionSiteRoutePoint(
+  factory PoiRoutePoint.fromJson(Map<String, dynamic> json) {
+    return PoiRoutePoint(
       lat: json['lat'],
       lon: json['lon'],
     );
   }
 }
 
-class ConstructionSitesResponse {
+class PoisResponse {
   /// List of construction sites (segments along the route).
-  final List<ConstructionSegment> constructions;
+  final List<PoiSegment> constructions;
 
-  const ConstructionSitesResponse({required this.constructions});
+  /// List of accident hotspots (segments along the route).
+  final List<PoiSegment> accidenthotspots;
 
-  factory ConstructionSitesResponse.fromJson(Map<String, dynamic> json) {
-    return ConstructionSitesResponse(
-      constructions:
-          (json['constructions'] as List).map((construction) => ConstructionSegment.fromJson(construction)).toList(),
+  const PoisResponse({required this.constructions, required this.accidenthotspots});
+
+  factory PoisResponse.fromJson(Map<String, dynamic> json) {
+    return PoisResponse(
+      constructions: (json['constructions'] as List).map((construction) => PoiSegment.fromJson(construction)).toList(),
+      accidenthotspots:
+          (json['accidenthotspots'] as List).map((accidenthotspot) => PoiSegment.fromJson(accidenthotspot)).toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'constructions': constructions,
+      'accidenthotspots': accidenthotspots,
     };
   }
 }
 
-class ConstructionSegment {
-  /// List of points that define the construction site.
-  final List<ConstructionCoordinate> points;
+class PoiSegment {
+  /// List of points that define the poi.
+  final List<PoiCoordinate> points;
 
-  const ConstructionSegment({required this.points});
+  const PoiSegment({required this.points});
 
-  factory ConstructionSegment.fromJson(List<dynamic> json) {
-    return ConstructionSegment(
-      points: json.map((point) => ConstructionCoordinate.fromJson(point)).toList(),
+  factory PoiSegment.fromJson(List<dynamic> json) {
+    return PoiSegment(
+      points: json.map((point) => PoiCoordinate.fromJson(point)).toList(),
     );
   }
 
@@ -88,17 +93,17 @@ class ConstructionSegment {
   }
 }
 
-class ConstructionCoordinate {
-  /// Longitude of the construction site point.
+class PoiCoordinate {
+  /// Longitude of the poi.
   final double lng;
 
-  /// Latitude of the construction site point.
+  /// Latitude of the poi.
   final double lat;
 
-  const ConstructionCoordinate({required this.lng, required this.lat});
+  const PoiCoordinate({required this.lng, required this.lat});
 
-  factory ConstructionCoordinate.fromJson(List<dynamic> json) {
-    return ConstructionCoordinate(
+  factory PoiCoordinate.fromJson(List<dynamic> json) {
+    return PoiCoordinate(
       lng: json[0],
       lat: json[1],
     );

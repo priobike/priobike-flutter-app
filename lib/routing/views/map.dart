@@ -176,9 +176,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     AllRoutesLayer.layerIdClick,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
-    RouteConstructionsLayer.layerIdBackground,
-    RouteConstructionsLayer.layerId,
-    RouteConstructionsLayer.layerIdSymbol,
+    RoutePoisLayer.layerIdBackground,
+    RoutePoisLayer.layerId,
+    RoutePoisLayer.layerIdSymbol,
     RouteCrossingsCircleLayer.layerId,
     SelectedRouteCrossingsCircleLayer.layerId,
     DiscomfortsLayer.layerIdMarker,
@@ -186,7 +186,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
-    AccidentHotspotsLayer.layerId,
     GreenWaveLayer.layerId,
     BikeShopLayer.layerId,
     BikeShopLayer.textLayerId,
@@ -484,14 +483,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await BikeShopLayer.remove(mapController!);
     }
-    if (layers.showAccidentHotspots) {
-      final index = await getIndex(AccidentHotspotsLayer.layerId);
-      if (!mounted) return;
-      await AccidentHotspotsLayer(isDark).install(mapController!, at: index);
-    } else {
-      if (!mounted) return;
-      await AccidentHotspotsLayer.remove(mapController!);
-    }
     if (layers.showGreenWaveLayer) {
       final index = await getIndex(GreenWaveLayer.layerId);
       if (!mounted) return;
@@ -555,7 +546,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
     if (!mounted) return;
-    await RouteConstructionsLayer(isDark).update(mapController!);
+    await RoutePoisLayer(isDark).update(mapController!);
     if (!mounted) return;
     await RouteCrossingsCircleLayer().update(mapController!);
     if (!mounted) return;
@@ -619,9 +610,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       mapController!,
       at: index,
     );
-    index = await getIndex(RouteConstructionsLayer.layerId);
+    index = await getIndex(RoutePoisLayer.layerId);
     if (!mounted) return;
-    await RouteConstructionsLayer(isDark).install(
+    await RoutePoisLayer(isDark).install(
       mapController!,
       at: index,
     );

@@ -119,33 +119,6 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
             SizedBox(
               width: MediaQuery.of(context).size.width - 48,
               child: Small(
-                text: "Orte, an denen vermehrt Unfälle mit Radfahrenden-Beteiligung passiert sind.",
-                context: context,
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-              ),
-            ),
-          ],
-        ),
-        const SmallVSpace(),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 8,
-              child: Column(
-                children: [
-                  Small(
-                    text: "²",
-                    context: context,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-                  ),
-                ],
-              ),
-            ),
-            const SmallHSpace(),
-            SizedBox(
-              width: MediaQuery.of(context).size.width - 48,
-              child: Small(
                 text: "Statische Grüne Wellen. Passierbar bei einer Geschwindigkeit von 18 km/h.",
                 context: context,
                 color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
@@ -162,7 +135,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
               child: Column(
                 children: [
                   Small(
-                    text: "³",
+                    text: "²",
                     context: context,
                     color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
                   ),
@@ -237,17 +210,9 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
                 LayerSelectionItem(
                   icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                      ? Image.asset("assets/images/accident-light.png")
-                      : Image.asset("assets/images/accident-dark.png"),
-                  title: 'Unfallstellen¹',
-                  selected: layers.showAccidentHotspots,
-                  onTap: () => layers.setShowAccidentHotspots(!layers.showAccidentHotspots),
-                ),
-                LayerSelectionItem(
-                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Image.asset("assets/images/green-wave-light.png")
                       : Image.asset("assets/images/green-wave-dark.png"),
-                  title: 'Grüne Wellen²',
+                  title: 'Grüne Wellen¹',
                   selected: layers.showGreenWaveLayer,
                   onTap: () => layers.setShowGreenWaveLayer(!layers.showGreenWaveLayer),
                 ),
@@ -255,7 +220,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   icon: Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Image.asset("assets/images/velo-routes-light.png")
                       : Image.asset("assets/images/velo-routes-dark.png"),
-                  title: 'Velorouten³',
+                  title: 'Velorouten²',
                   selected: layers.showVeloRoutesLayer,
                   onTap: () => layers.setShowVeloRoutesLayer(!layers.showVeloRoutesLayer),
                 ),
