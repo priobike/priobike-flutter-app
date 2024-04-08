@@ -254,6 +254,141 @@ class RoutePushBikeLayer {
   }
 }
 
+class RouteConstructionsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "route-constructions";
+
+  /// The ID of the main Mapbox layer.
+  static const layerId = "route-constructions-layer";
+
+  /// The ID of the background Mapbox layer.
+  static const layerIdBackground = "route-constructions-background-layer";
+
+  /// The ID of the symbol/text layer.
+  static const layerIdSymbol = "route-constructions-symbol-layer";
+
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
+  RouteConstructionsLayer(this.isDark) {
+    final routing = getIt<Routing>();
+
+    // Alternative routes
+    for (final route in routing.allRoutes ?? []) {
+      if (route.id == routing.selectedRoute?.id) continue;
+      for (final construction in route.constructionsOnRoute ?? []) {
+        if (construction.points.isEmpty) continue;
+        // A section of the route.
+        final geometry = {
+          "type": "LineString",
+          "coordinates": construction.points.map((point) => [point.lng, point.lat]).toList(),
+        };
+
+        features.add(
+          {
+            "type": "Feature",
+            "properties": {
+              "color": "#d9c89e",
+              "bgcolor": "#d1b873",
+              "symbolopacity": 0,
+            },
+            "geometry": geometry,
+          },
+        );
+      }
+    }
+
+    // Selected route
+    for (final construction in routing.selectedRoute?.constructionsOnRoute ?? []) {
+      if (construction.points.isEmpty) continue;
+      // A section of the route.
+      final geometry = {
+        "type": "LineString",
+        "coordinates": construction.points.map((point) => [point.lng, point.lat]).toList(),
+      };
+
+      features.add(
+        {
+          "type": "Feature",
+          "properties": {
+            "color": "#FF9900",
+            "bgcolor": "#924F00",
+            "symbolopacity": 1,
+          },
+          "geometry": geometry,
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+    final routeConstructionsSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
+    if (!routeConstructionsSymbolLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: sourceId,
+            id: layerIdSymbol,
+            iconImage: isDark ? "constructiondark" : "constructionlight",
+            iconSize: 0.3,
+            iconAllowOverlap: true,
+            iconOpacity: 1,
+            minZoom: 9.0,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style
+          .setStyleLayerProperty(layerIdSymbol, 'icon-opacity', json.encode(["get", "symbolopacity"]));
+    }
+    final routeConstructionsLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!routeConstructionsLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerId,
+            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: fgLineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
+    }
+    final routeConstructionsBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
+    if (!routeConstructionsBackgroundLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerIdBackground,
+            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: bgLineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerIdBackground, 'line-color', json.encode(["get", "bgcolor"]));
+    }
+  }
+
+  update(mapbox.MapboxMap mapController, {String? below}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (sourceExists) {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
 class SelectedRouteLayer {
   /// The ID of the Mapbox source.
   static const sourceId = "route";
