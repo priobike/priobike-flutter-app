@@ -29,6 +29,7 @@ import 'package:priobike/routing/views/profile.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
+import 'package:priobike/routing/views/widgets/routing_tutorial.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/views/simulator_state.dart';
@@ -434,6 +435,9 @@ class RoutingViewState extends State<RoutingView> {
               onSelectSaveButton: () => showSaveShortcutSheet(context),
               hasInitiallyLoaded: hasInitiallyLoaded,
             ),
+
+            // Display the tutorial for the routing info when the first route got created to inform the user about the traffic lights.
+            const RoutingTutorialView(),
           ],
         ),
       ),
