@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/feedback/views/audio.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -12,6 +13,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 /// Shows a dialog that hints that route/shortcut is invalid.
 void showInvalidShortcutSheet(context) {
@@ -124,6 +126,46 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
+        ],
+      );
+    },
+  );
+}
+
+/// Shows a dialog to rate the audio functionality.
+void showAudioEvaluationDialog(context, Function submit) {
+  showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor:
+      Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        // TODO: make it smaller (not total screen height)
+        return DialogLayout(
+        title: 'Dein Feedback zur Sprachausgabe',
+        // TODO: set correct text here
+        text: "Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt hilft mir, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
+        actions: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: AudioRatingView(),
+          ),
+          BigButtonPrimary(
+            label: "Danke!",
+            onPressed: () {
+              Navigator.pop(context);
+              showFinishDriveDialog(context, submit);
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          )
         ],
       );
     },

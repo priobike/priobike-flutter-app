@@ -49,6 +49,10 @@ class FeedbackViewState extends State<FeedbackView> {
 
   Widget? trackHistory;
 
+  // TODO: Put this at the right place.
+  /// Whether the audio feedback has been used.
+  bool hasUsedAudio = true;
+
   /// Submit feedback.
   Future<void> submit() async {
     // Send the feedback and reset the feedback service.
@@ -178,7 +182,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     const SmallVSpace(),
                     BigButtonPrimary(
                       label: "Fertig",
-                      onPressed: () => showFinishDriveDialog(context, submit),
+                      onPressed: () => hasUsedAudio ? showAudioEvaluationDialog(context, submit) : showFinishDriveDialog(context, submit),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                   ],
