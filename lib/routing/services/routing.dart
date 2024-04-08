@@ -26,8 +26,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:flutter_map_math/flutter_geo_math.dart';
-
 import 'package:priobike/routing/models/instruction.dart';
 
 enum RoutingProfile {
@@ -141,9 +139,6 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  /// An instance for map calculations.
-  FlutterMapMath mapMath = FlutterMapMath();
-
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -224,8 +219,10 @@ class Routing with ChangeNotifier {
     var shortestWaypointDistance = double.infinity;
     var shortestWaypointToIdx = 0;
     for (int i = 0; i < (selectedWaypoints!.length - 1); i++) {
-      final w1 = selectedWaypoints![i], w2 = selectedWaypoints![i + 1];
-      final p1 = LatLngAlt(w1.lat, w1.lon, 0), p2 = LatLngAlt(w2.lat, w2.lon, 0);
+      final w1 = selectedWaypoints![i],
+          w2 = selectedWaypoints![i + 1];
+      final p1 = LatLngAlt(w1.lat, w1.lon, 0),
+          p2 = LatLngAlt(w2.lat, w2.lon, 0);
       final n = Snapper.calcNearestPoint(userPosLatLng, p1, p2);
       final d = Snapper.vincenty.distance(userPosLatLng, n.latLng);
       if (d < shortestWaypointDistance) {
@@ -267,17 +264,19 @@ class Routing with ChangeNotifier {
         usedRoutingParameter = "osm";
       }
       final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/select?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
+          "https://$baseUrl/sg-selector-backend/routing/select?matcher=${settings.sgSelector
+          .servicePathParameter}&routing=$usedRoutingParameter";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
       final req = SGSelectorRequest(
           route: path.points.coordinates
-              .map((e) => SGSelectorPosition(
-                    lat: e.lat,
-                    lon: e.lon,
-                    alt: e.elevation ?? 0.0,
-                  ))
+              .map((e) =>
+              SGSelectorPosition(
+                lat: e.lat,
+                lon: e.lon,
+                alt: e.elevation ?? 0.0,
+              ))
               .toList());
       final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
 
@@ -464,64 +463,64 @@ class Routing with ChangeNotifier {
     final routes = ghResponse.paths
         .asMap()
         .map((i, path) {
-          final sgSelectorResponse = sgSelectorResponses[i]!;
-          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-          for (final waypoint in sgSelectorResponse.route) {
-            if (waypoint.signalGroupId == null) continue;
-            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-            if (sg == null) continue;
-            if (sgsInOrderOfRoute.contains(sg)) continue;
-            sgsInOrderOfRoute.add(sg);
-          }
-          // Snap each signal group to the route and calculate the distance.
-          final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final sg in sgsInOrderOfRoute) {
-            final snappedSgPos = Snapper(
-              position: LatLng(sg.position.lat, sg.position.lon),
-              nodes: sgSelectorResponse.route,
-            ).snap();
-            signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
-          }
-          // Snap each crossing to the route and calculate the distance.
-          final crossingsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final crossing in sgSelectorResponse.crossings) {
-            final snappedCrossingPos = Snapper(
-              position: LatLng(crossing.position.lat, crossing.position.lon),
-              nodes: sgSelectorResponse.route,
-            ).snap();
-            crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
-          }
+      final sgSelectorResponse = sgSelectorResponses[i]!;
+      final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+      for (final waypoint in sgSelectorResponse.route) {
+        if (waypoint.signalGroupId == null) continue;
+        final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+        if (sg == null) continue;
+        if (sgsInOrderOfRoute.contains(sg)) continue;
+        sgsInOrderOfRoute.add(sg);
+      }
+      // Snap each signal group to the route and calculate the distance.
+      final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
+      for (final sg in sgsInOrderOfRoute) {
+        final snappedSgPos = Snapper(
+          position: LatLng(sg.position.lat, sg.position.lon),
+          nodes: sgSelectorResponse.route,
+        ).snap();
+        signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
+      }
+      // Snap each crossing to the route and calculate the distance.
+      final crossingsDistancesOnRoute = List<double>.empty(growable: true);
+      for (final crossing in sgSelectorResponse.crossings) {
+        final snappedCrossingPos = Snapper(
+          position: LatLng(crossing.position.lat, crossing.position.lon),
+          nodes: sgSelectorResponse.route,
+        ).snap();
+        crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
+      }
 
-          // Order the crossings by distance.
-          final tuples = List<TupleCrossingsDistances>.empty(growable: true);
-          for (var i = 0; i < crossingsDistancesOnRoute.length; i++) {
-            tuples.add(TupleCrossingsDistances(sgSelectorResponse.crossings[i], crossingsDistancesOnRoute[i]));
-          }
-          tuples.sort((a, b) => a.distance.compareTo(b.distance));
-          final orderedCrossings = List<Crossing>.empty(growable: true);
-          final orderedCrossingsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final tuple in tuples) {
-            orderedCrossings.add(tuple.crossing);
-            orderedCrossingsDistancesOnRoute.add(tuple.distance);
-          }
+      // Order the crossings by distance.
+      final tuples = List<TupleCrossingsDistances>.empty(growable: true);
+      for (var i = 0; i < crossingsDistancesOnRoute.length; i++) {
+        tuples.add(TupleCrossingsDistances(sgSelectorResponse.crossings[i], crossingsDistancesOnRoute[i]));
+      }
+      tuples.sort((a, b) => a.distance.compareTo(b.distance));
+      final orderedCrossings = List<Crossing>.empty(growable: true);
+      final orderedCrossingsDistancesOnRoute = List<double>.empty(growable: true);
+      for (final tuple in tuples) {
+        orderedCrossings.add(tuple.crossing);
+        orderedCrossingsDistancesOnRoute.add(tuple.distance);
+      }
 
-          // Add an instruction for each relevant waypoint
-          List<Instruction> instructions = createInstructions(sgSelectorResponse, path);
+      // Add an instruction for each relevant waypoint
+      List<Instruction> instructions = createInstructions(sgSelectorResponse, path);
 
-          var route = r.Route(
-            id: i,
-            path: path,
-            route: sgSelectorResponse.route,
-            signalGroups: sgsInOrderOfRoute,
-            signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
-            crossings: orderedCrossings,
-            crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
-            instructions: instructions,
-          );
-          // Connect the route to the start and end points.
-          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
-          return MapEntry(i, route);
-        })
+      var route = r.Route(
+        id: i,
+        path: path,
+        route: sgSelectorResponse.route,
+        signalGroups: sgsInOrderOfRoute,
+        signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+        crossings: orderedCrossings,
+        crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
+        instructions: instructions,
+      );
+      // Connect the route to the start and end points.
+      route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+      return MapEntry(i, route);
+    })
         .values
         .toList();
 
@@ -544,56 +543,74 @@ class Routing with ChangeNotifier {
   /// DistanceToInstructionPoint x must be given as an argument.
   LatLng? findWaypointMetersBeforeInstruction(int distanceToInstructionPoint, SGSelectorResponse sgSelectorResponse,
       int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
-    double totalDistance = 0;
-    NavigationNode b = sgSelectorResponse.route[i];
-    NavigationNode a;
+    double totalDistanceToInstructionPoint = 0;
+    LatLng p2 = LatLng(sgSelectorResponse.route[i].lat, sgSelectorResponse.route[i].lon);
+    LatLng p1;
     for (var j = i - 1; j >= 0; j--) {
-      a = sgSelectorResponse.route[j];
+      p1 = LatLng(sgSelectorResponse.route[j].lat, sgSelectorResponse.route[j].lon);
 
-      // TODO: Do I need this? The first instruction is usually something like follow the road ...
-      // TODO: So probably won't need this in combination with concatenation.
-      if (j == 0 && isFirstInstruction == true) {
-        // Very first instruction is played even if distance is smaller than distanceToInstructionPoint
-        return LatLng(a.lat, a.lon);
-      }
+      var distanceToPreviousNavigationNode = Snapper.vincenty.distance(p1, p2);
+      totalDistanceToInstructionPoint += distanceToPreviousNavigationNode;
 
-      var distance = mapMath.distanceBetween(a.lat, a.lon, b.lat, b.lon, "meters");
-      totalDistance += distance;
-
-      // TODO: if distance less than distanceToInstructionPoint then concatenate instructions
-      if (lastInstructionPoint?.latitude == a.lat && lastInstructionPoint?.longitude == a.lon) {
+      if (lastInstructionPoint?.latitude == p1.latitude && lastInstructionPoint?.longitude == p1.longitude) {
         // there is already an instruction at this instruction point
         return null;
       }
 
-      if (totalDistance == distanceToInstructionPoint) {
-        return LatLng(a.lat, a.lon);
-      } else if (totalDistance > distanceToInstructionPoint) {
-        var distanceBefore = totalDistance - distance;
+      if (totalDistanceToInstructionPoint == distanceToInstructionPoint) {
+        return p1;
+      } else if (totalDistanceToInstructionPoint > distanceToInstructionPoint) {
+        var distanceBefore = totalDistanceToInstructionPoint - distanceToPreviousNavigationNode;
         var remainingDistance = distanceToInstructionPoint - distanceBefore;
         // calculate point c between a and b such that distance between b and c is remainingDistance
-        double bearing = mapMath.bearingBetween(b.lat, b.lon, a.lat, a.lon);
-        LatLng c = mapMath.destinationPoint(b.lat, b.lon, remainingDistance, bearing);
+        double bearing = Snapper.vincenty.bearing(p1, p2);
+        LatLng c = Snapper.vincenty.offset(p2, remainingDistance, bearing);
         return c;
       }
-      b = a;
+      p2 = p1;
     }
     return null;
   }
 
-  /// Get the GraphHopper instruction that belongs to a specific waypoint.
-  GHInstruction? getGHInstructionForWaypoint(GHRouteResponsePath path, NavigationNode waypoint) {
-    // get the GraphHopper coordinates that matches lat and long of current waypoint
-    final ghCoordinate = path.points.coordinates
-        .firstWhereOrNull((element) => element.lat == waypoint.lat && element.lon == waypoint.lon);
+  /// Get the text of all GraphHopper instructions that belong to a specific waypoint.
+  String getGHInstructionTextForWaypoint(GHRouteResponsePath path, NavigationNode waypoint) {
+    List<GHInstruction> instructionList = [];
+
+    // Get the GraphHopper coordinates that matches lat and long of current waypoint.
+    final ghCoordinate = path.points.coordinates.firstWhereOrNull((element) =>
+    element.lat == waypoint.lat && element.lon == waypoint.lon);
 
     if (ghCoordinate != null) {
-      // get GraphHopper instruction that matches the index of the coordinate
       final index = path.points.coordinates.indexOf(ghCoordinate);
-      final ghInstruction = path.instructions.firstWhereOrNull((element) => element.interval.first == index);
-      return ghInstruction;
+
+      // Get all GraphHopper instructions that match the index of the coordinate.
+      for (final instruction in path.instructions) {
+        if (instruction.interval.first == index) {
+          // Skip waypoint instructions and "Dem Straßenverlauf folgen" instruction after a waypoint.
+          final isWaypoint = instruction.text.startsWith("Wegpunkt");
+
+          int instructionIndex = path.instructions.indexOf(instruction);
+          final previousInstruction = instructionIndex > 0 ? path.instructions[instructionIndex - 1] : null;
+          final isFollowTheRouteInstructionAfterWaypoint = instruction.text == "Dem Straßenverlauf folgen" &&
+              previousInstruction != null && previousInstruction.text.startsWith("Wegpunkt");
+
+          if (!isWaypoint && !isFollowTheRouteInstructionAfterWaypoint) {
+            instructionList.add(instruction);
+          }
+        }
+      }
     }
-    return null;
+
+    // Compose all ghInstructions for waypoint to a single instruction text.
+    String completeInstructionText = "";
+    for (int i = 0; i < instructionList.length; i++) {
+      completeInstructionText += instructionList[i].text;
+      if (i < instructionList.length - 1) {
+        completeInstructionText += " und ";
+      }
+    }
+
+    return completeInstructionText;
   }
 
   /// Get the signal group id that belongs to a specific waypoint.
@@ -611,20 +628,30 @@ class Routing with ChangeNotifier {
   }
 
   /// Create the instruction text based on the type of instruction.
-  String createInstructionText(
-      bool isFirstCall, InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId) {
+  List<InstructionText> createInstructionText(bool isFirstCall, InstructionType instructionType,
+      String ghInstructionText, String? signalGroupId, String laneType) {
     String prefix = isFirstCall ? "In 300 Metern" : "";
+    String sgType = (laneType == "Radfahrer") ? "Radampel" : "Ampel";
 
     switch (instructionType) {
       case InstructionType.directionOnly:
-        return "$prefix ${ghInstruction!.text}";
+        return [InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction)];
       case InstructionType.signalGroupOnly:
-        return "$prefix Ampel ${signalGroupId!}";
+        return [InstructionText(text: "$prefix $sgType", type: InstructionTextType.signalGroup)];
       case InstructionType.directionAndSignalGroup:
-        return "$prefix ${ghInstruction!.text} + Ampel";
+        return [
+          InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction),
+          InstructionText(text: sgType, type: InstructionTextType.signalGroup)
+        ];
       default:
-        return "";
+        return [];
     }
+  }
+
+  /// Get sgType for a specific signal group id.
+  String getSGTypeForSignalGroupId(String signalGroupId, SGSelectorResponse sgSelectorResponse) {
+    final signalGroup = sgSelectorResponse.signalGroups[signalGroupId];
+    return signalGroup!.id;
   }
 
   /// Create the instructions for each route.
@@ -635,10 +662,11 @@ class Routing with ChangeNotifier {
     // Check for all points in the route if there should be an instruction created.
     for (var i = 0; i < sgSelectorResponse.route.length; i++) {
       final currentWaypoint = sgSelectorResponse.route[i];
-      GHInstruction? ghInstruction = getGHInstructionForWaypoint(path, currentWaypoint);
+      String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint);
       String? signalGroupId = getSignalGroupIdForWaypoint(
-          currentWaypoint, ghInstruction != null, 50); // TODO: check distance between sg and instruction
-      InstructionType? instructionType = getInstructionType(ghInstruction, signalGroupId);
+          currentWaypoint, ghInstructionText.isNotEmpty, 50); // TODO: check distance between sg and instruction
+      String laneType = sgSelectorResponse.signalGroups[signalGroupId]?.laneType ?? "";
+      InstructionType? instructionType = getInstructionType(ghInstructionText, signalGroupId);
       if (instructionType == null) {
         continue; // no instruction to be created.
       }
@@ -647,23 +675,22 @@ class Routing with ChangeNotifier {
       // Or to concatenate with the previous instruction if the distance is less than 300m
       // If concatenation is not possible no firstInstructionCall will be added to the route.
       var waypointFirstInstructionCall =
-          findWaypointMetersBeforeInstruction(300, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+      findWaypointMetersBeforeInstruction(300, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
       if (waypointFirstInstructionCall != null) {
         Instruction firstInstructionCall = Instruction(
             lat: waypointFirstInstructionCall.latitude,
             lon: waypointFirstInstructionCall.longitude,
-            text: createInstructionText(true, instructionType, ghInstruction, signalGroupId),
+            text: createInstructionText(true, instructionType, ghInstructionText, signalGroupId, laneType),
             instructionType: instructionType,
             signalGroupId: signalGroupId);
         instructions.add(firstInstructionCall);
-        lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
       } else if (lastInstructionPoint != null && !instructions.last.alreadyConcatenated) {
-        var distanceToActualInstructionPoint = mapMath.distanceBetween(lastInstructionPoint.latitude,
-            lastInstructionPoint.longitude, currentWaypoint.lat, currentWaypoint.lon, "meters");
+        var distanceToActualInstructionPoint = Snapper.vincenty.distance(
+            lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
         var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
         // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
         if (distanceToActualInstructionPoint > threshold) {
-          concatenateInstructions(instructionType, ghInstruction, signalGroupId, instructions);
+          concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
         }
       }
 
@@ -671,25 +698,39 @@ class Routing with ChangeNotifier {
       if (instructionType == InstructionType.signalGroupOnly) {
         // Put instruction point 100m before sg.
         var waypointSecondInstructionCall =
-            findWaypointMetersBeforeInstruction(100, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+        findWaypointMetersBeforeInstruction(100, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           Instruction secondInstructionCall = Instruction(
               lat: waypointSecondInstructionCall.latitude,
               lon: waypointSecondInstructionCall.longitude,
-              text: createInstructionText(false, instructionType, ghInstruction, signalGroupId),
+              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType),
+              instructionType: instructionType,
+              signalGroupId: signalGroupId
+          );
+          instructions.add(secondInstructionCall);
+          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
+        } else if (instructions.last.instructionType == InstructionType.signalGroupOnly) {
+          // Put the instruction call at the point when crossing the previous sg is finished
+          // This point is equal to the last point in the signal crossing geometry attribute.
+          var sgId = instructions.last.signalGroupId;
+          var previousSgLaneEnd = sgSelectorResponse.signalGroups[sgId]!.geometry!.last;
+          Instruction secondInstructionCall = Instruction(
+              lat: previousSgLaneEnd[1],
+              lon: previousSgLaneEnd[0],
+              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType),
               instructionType: instructionType,
               signalGroupId: signalGroupId);
           instructions.add(secondInstructionCall);
           lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
         } else {
-          concatenateInstructions(instructionType, ghInstruction, signalGroupId, instructions);
+          concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
         }
       } else {
         // Put the instruction at the point provided by GraphHopper.
         Instruction secondInstructionCall = Instruction(
             lat: currentWaypoint.lat,
             lon: currentWaypoint.lon,
-            text: createInstructionText(false, instructionType, ghInstruction, signalGroupId),
+            text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType),
             instructionType: instructionType,
             signalGroupId: signalGroupId);
         instructions.add(secondInstructionCall);
@@ -699,19 +740,45 @@ class Routing with ChangeNotifier {
     return instructions;
   }
 
+  /// Determine the instruction type after concatenation.
+  InstructionType getInstructionTypAfterConcatenation(InstructionType originalInstructionType,
+      InstructionType addedInstructionType) {
+    switch (originalInstructionType) {
+      case InstructionType.signalGroupOnly:
+        if (addedInstructionType == InstructionType.directionOnly ||
+            addedInstructionType == InstructionType.directionAndSignalGroup) {
+          return InstructionType.directionAndSignalGroup;
+        }
+        return InstructionType.signalGroupOnly;
+      case InstructionType.directionOnly:
+        if (addedInstructionType == InstructionType.signalGroupOnly ||
+            addedInstructionType == InstructionType.directionAndSignalGroup) {
+          return InstructionType.directionAndSignalGroup;
+        }
+        return InstructionType.directionOnly;
+      case InstructionType.directionAndSignalGroup:
+        return InstructionType.directionAndSignalGroup;
+    }
+  }
+
   /// Concatenate the current instruction with the previous one.
-  void concatenateInstructions(InstructionType instructionType, GHInstruction? ghInstruction, String? signalGroupId,
-      List<Instruction> instructions) {
-    var textToConcatenate = createInstructionText(false, instructionType, ghInstruction, signalGroupId);
-    instructions.last.text += " und dann $textToConcatenate";
+  void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId,
+      List<Instruction> instructions, String laneType) {
+    var textToConcatenate = createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType);
+    for (int i = 0; i < textToConcatenate.length; i++) {
+      textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}}";
+      instructions.last.text.add(textToConcatenate[i]);
+    }
     instructions.last.alreadyConcatenated = true;
+    instructions.last.instructionType =
+        getInstructionTypAfterConcatenation(instructions.last.instructionType, instructionType);
   }
 
   /// Determine the type of instruction to be created.
-  InstructionType? getInstructionType(GHInstruction? ghInstruction, String? signalGroupId) {
-    if (ghInstruction != null && signalGroupId != null) {
+  InstructionType? getInstructionType(String ghInstructionText, String? signalGroupId) {
+    if (ghInstructionText.isNotEmpty && signalGroupId != null) {
       return InstructionType.directionAndSignalGroup;
-    } else if (ghInstruction != null) {
+    } else if (ghInstructionText.isNotEmpty) {
       return InstructionType.directionOnly;
     } else if (signalGroupId != null) {
       return InstructionType.signalGroupOnly;
@@ -764,36 +831,36 @@ class Routing with ChangeNotifier {
     final routes = ghResponse.paths
         .asMap()
         .map((i, path) {
-          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-          // Snap each signal group to the route and calculate the distance.
-          final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
+      final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+      // Snap each signal group to the route and calculate the distance.
+      final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
 
-          // Order the crossings by distance.
-          final tuples = List<TupleCrossingsDistances>.empty(growable: true);
+      // Order the crossings by distance.
+      final tuples = List<TupleCrossingsDistances>.empty(growable: true);
 
-          tuples.sort((a, b) => a.distance.compareTo(b.distance));
-          final orderedCrossings = List<Crossing>.empty(growable: true);
-          final orderedCrossingsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final tuple in tuples) {
-            orderedCrossings.add(tuple.crossing);
-            orderedCrossingsDistancesOnRoute.add(tuple.distance);
-          }
+      tuples.sort((a, b) => a.distance.compareTo(b.distance));
+      final orderedCrossings = List<Crossing>.empty(growable: true);
+      final orderedCrossingsDistancesOnRoute = List<double>.empty(growable: true);
+      for (final tuple in tuples) {
+        orderedCrossings.add(tuple.crossing);
+        orderedCrossingsDistancesOnRoute.add(tuple.distance);
+      }
 
-          // TODO: add method for calculating instructions
-          var route = r.Route(
-            id: i,
-            path: path,
-            route: [],
-            signalGroups: sgsInOrderOfRoute,
-            signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
-            crossings: orderedCrossings,
-            crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
-            instructions: [],
-          );
-          // Connect the route to the start and end points.
-          route = route.connected(shortcutRoute.waypoints.first, shortcutRoute.waypoints.last);
-          return MapEntry(i, route);
-        })
+      // TODO: add method for calculating instructions
+      var route = r.Route(
+        id: i,
+        path: path,
+        route: [],
+        signalGroups: sgsInOrderOfRoute,
+        signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+        crossings: orderedCrossings,
+        crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
+        instructions: [],
+      );
+      // Connect the route to the start and end points.
+      route = route.connected(shortcutRoute.waypoints.first, shortcutRoute.waypoints.last);
+      return MapEntry(i, route);
+    })
         .values
         .toList();
 

@@ -7,8 +7,7 @@ import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-
-import 'instruction.dart';
+import 'package:priobike/routing/models/instruction.dart';
 
 class Route {
   /// The route id.

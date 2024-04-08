@@ -2,31 +2,27 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/interfaces/prediction_component.dart';
+import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
 import 'package:priobike/ride/services/prediction_service.dart';
 import 'package:priobike/ride/services/predictor.dart';
+import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../positioning/models/snap.dart';
-import '../../routing/messages/graphhopper.dart';
-import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_map_math/flutter_geo_math.dart';
-
-import 'package:priobike/routing/models/instruction.dart';
-import 'package:priobike/ride/messages/prediction.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -84,9 +80,6 @@ class Ride with ChangeNotifier {
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
-
-  /// An instance for map calculations.
-  FlutterMapMath mapMath = FlutterMapMath();
 
   /// An instance for text-to-speach.
   FlutterTts ftts = FlutterTts();
@@ -336,38 +329,54 @@ class Ride with ChangeNotifier {
   }
 
   /// Check if instruction contains sg information and if so add countdown
-  String generateTextToPlay(Instruction currentInstruction) {
-    if (currentInstruction.instructionType == InstructionType.directionOnly) {
-      // No sg countdown information needs to be added.
-      return currentInstruction.text!;
-    }
-
+  InstructionText? generateTextToPlay(InstructionText instructionText) {
     // Check if Not supported crossing
     // or we do not have all auxiliary data that the app calculated
     // or prediction quality is not good enough.
     if (calcCurrentSG == null ||
         predictionComponent?.recommendation == null ||
         (predictionComponent?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
-      // No sg countdown information can be added.
-      return currentInstruction.text!;
+      // No sg countdown information can be added and thus instruction part must not be played.
+      return null;
     }
 
     final recommendation = predictionComponent!.recommendation!;
-    // If the phase change time is null, we hide the countdown.
-    if (recommendation.calcCurrentPhaseChangeTime == null) return currentInstruction.text!;
+
+    if (recommendation.calcCurrentPhaseChangeTime == null) {
+      // If the phase change time is null, instruction part must not be played.
+      return null;
+    }
+
     // Calculate the countdown.
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
-    // If the countdown is 0 (or negative), we hide the countdown.
-    var countdownLabel = countdown > 5 ? "$countdown" : "";
-    // Show no countdown label for amber and redamber.
-    if (recommendation.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
-    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
 
+    // TODO: check this (should wait for next cycle?)
+    // If the countdown is less or equal to 5, instruction part must not be played.
+    if (countdown <= 5) {
+      return null;
+    }
+
+    // TODO: check this
     final currentPhase = recommendation.calcCurrentSignalPhase;
-    // TODO: implement countdown concept
+    String nextColor = "";
+    if (currentPhase == Phase.red) {
+      nextColor = "grün";
+    } else if (currentPhase == Phase.green) {
+      nextColor = "rot";
+    } else {
+      // If the next color cannot be determined, instruction part must not be played.
+      return null;
+    }
 
-    // TODO: set correct return value
-    return currentInstruction.text!;
+    // Add countdown information and timestamp.
+    instructionText.addCountdown(countdown);
+    // Add information about nextColor of the sg;
+    instructionText.text = "${instructionText.text} $nextColor in";
+    if (nextColor.isNotEmpty) {
+      return instructionText;
+    }
+    // If information about nextColor is not available, instruction part must not be played.
+    return null;
   }
 
   /// Configure the TTS.
@@ -388,7 +397,7 @@ class Ride with ChangeNotifier {
           IosTextToSpeechAudioMode.spokenAudio);
     } else {
       await ftts.setSpeechRate(0.8); //speed of speech
-      await ftts.setVolume(10.0); //volume of speech
+      await ftts.setVolume(1); //volume of speech
       await ftts.setPitch(1); //pitch of sound
       await ftts.awaitSpeakCompletion(true);
     }
@@ -396,21 +405,57 @@ class Ride with ChangeNotifier {
 
   /// Play audio instruction.
   Future<void> playAudioInstruction() async {
-    await ftts.awaitSpeakCompletion(true);
+    // Register the audio session.
+    final session = await AudioSession.instance;
+    await session.configure(
+      const AudioSessionConfiguration(
+        avAudioSessionCategory: AVAudioSessionCategory.playback,
+        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
+        androidAudioAttributes: AndroidAudioAttributes(
+          contentType: AndroidAudioContentType.speech,
+          flags: AndroidAudioFlags.none,
+          usage: AndroidAudioUsage.assistanceNavigationGuidance,
+        ),
+        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
+        androidWillPauseWhenDucked: false, // Verhindert, dass Spotify automatisch pausiert
+      ),
+    );
+    // await ftts.awaitSpeakCompletion(true);
 
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
     // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
-    var currentInstruction = route!.instructions.firstWhereOrNull((element) =>
-        !element.executed &&
-        mapMath.distanceBetween(element.lat, element.lon, snap.position.latitude, snap.position.longitude, "meters") <
-            20);
+    Instruction? currentInstruction = route!.instructions.firstWhereOrNull(
+        (element) => !element.executed && vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
 
     if (currentInstruction != null) {
       currentInstruction.executed = true;
-      String textToPlay = generateTextToPlay(currentInstruction);
-      await ftts.speak(textToPlay);
+
+      Iterator it = currentInstruction.text.iterator;
+      while (it.moveNext()) {
+        // Put this here to avoid music interruption in case that there is no instruction to play.
+        await session.setActive(true);
+        if (it.current.type == InstructionTextType.direction) {
+          // No countdown information needs to be added.
+          await ftts.speak(it.current.text);
+        } else {
+          // Check for countdown information.
+          var instructionTextToPlay = generateTextToPlay(it.current);
+          if (instructionTextToPlay == null) {
+            continue;
+          }
+          await ftts.speak(instructionTextToPlay!.text);
+          // Calc updatedCountdown since initial creation and time that has passed while speaking
+          // (to avoid countdown inaccuracy)
+          // Also take into account 1s delay for actually speaking the countdown.
+          int updatedCountdown = instructionTextToPlay.countdown! -
+              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
+              1;
+          await ftts.speak(updatedCountdown.toString());
+        }
+      }
+      await session.setActive(false);
     }
   }
 
