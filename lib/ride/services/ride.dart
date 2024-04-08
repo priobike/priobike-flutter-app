@@ -348,36 +348,99 @@ class Ride with ChangeNotifier {
 
     // Calculate the countdown.
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    int durationNextPhase = -1;
+    int durationSecondNextPhase = -1;
 
-    // TODO: check this (should wait for next cycle?)
-    // If the countdown is less or equal to 5, instruction part must not be played.
-    if (countdown <= 5) {
+    // The current phase ends at index countdown + 2.
+    if (recommendation.calcPhasesFromNow.length > countdown + 2) {
+      // Calculate the time of the next phase after the current phase.
+      durationNextPhase = calcTimeToNextPhaseAfterIndex(countdown + 2) ?? -1;
+
+      // Calculate the time of the second next phase after the current phase.
+      durationSecondNextPhase = calcTimeToNextPhaseAfterIndex(countdown + durationNextPhase + 2) ?? -1;
+    }
+
+    // If the countdown is higher than the time needed to arrive at the traffic light with 25 km/h it will be announced.
+    if (countdown >= instructionText.distanceToNextSg * 3.6 / 23) {
+      final currentPhase = recommendation.calcCurrentSignalPhase;
+      String nextColor = "";
+      if (currentPhase == Phase.red) {
+        nextColor = "grün";
+      } else if (currentPhase == Phase.green) {
+        nextColor = "rot";
+      } else {
+        // If the next color cannot be determined, instruction part must not be played.
+        return null;
+      }
+
+      // Add countdown information and timestamp.
+      instructionText.addCountdown(countdown);
+      // Add information about nextColor of the sg;
+      instructionText.text = "${instructionText.text} $nextColor in";
+      if (nextColor.isNotEmpty) {
+        return instructionText;
+      }
+      // If information about nextColor is not available, instruction part must not be played.
       return null;
     }
-
-    // TODO: check this
-    final currentPhase = recommendation.calcCurrentSignalPhase;
-    String nextColor = "";
-    if (currentPhase == Phase.red) {
-      nextColor = "grün";
-    } else if (currentPhase == Phase.green) {
-      nextColor = "rot";
-    } else {
-      // If the next color cannot be determined, instruction part must not be played.
-      return null;
+    // Otherwise check if the second cycle can be reached.
+    else if (countdown + durationNextPhase >= instructionText.distanceToNextSg * 3.6 / 25) {
+      // TODO: set correct color
+      String color = "";
+      if (recommendation.calcCurrentSignalPhase == Phase.red) {
+        color = "rot";
+      } else if (recommendation.calcCurrentSignalPhase == Phase.green) {
+        color = "grün";
+      } else {
+        // If the next color cannot be determined, instruction part must not be played.
+        return null;
+      }
+      instructionText.addCountdown(countdown + durationNextPhase);
+      instructionText.text = "${instructionText.text} $color in";
+      if (color.isNotEmpty) {
+        return instructionText;
+      }
+    }
+    // Otherwise check if the third cycle can be reached.
+    // TODO: What max speed?
+    else if (countdown + durationNextPhase + durationSecondNextPhase >= instructionText.distanceToNextSg * 3.6 / 25) {
+      // TODO: set correct color
+      final currentPhase = recommendation.calcCurrentSignalPhase;
+      String color = "";
+      if (currentPhase == Phase.red) {
+        color = "grün";
+      } else if (currentPhase == Phase.green) {
+        color = "rot";
+      } else {
+        // If the next color cannot be determined, instruction part must not be played.
+        return null;
+      }
+      instructionText.addCountdown(countdown + durationNextPhase);
+      instructionText.text = "${instructionText.text} $color in";
+      if (color.isNotEmpty) {
+        return instructionText;
+      }
     }
 
-    // Add countdown information and timestamp.
-    instructionText.addCountdown(countdown);
-    // Add information about nextColor of the sg;
-    instructionText.text = "${instructionText.text} $nextColor in";
-    if (nextColor.isNotEmpty) {
-      return instructionText;
-    }
-    // If information about nextColor is not available, instruction part must not be played.
+    // No recommendation can be made, instruction part must not be played.
     return null;
   }
 
+  /// Calculates the time to the next phase after the given index.
+  int? calcTimeToNextPhaseAfterIndex(int index) {
+    final recommendation = predictionComponent!.recommendation!;
+    
+    final phases = recommendation.calcPhasesFromNow.sublist(index, recommendation.calcPhasesFromNow.length - 1);
+    final currentPhaseColor = recommendation.calcCurrentSignalPhase;
+    final nextPhaseColor = phases.firstWhereOrNull((element) => element != currentPhaseColor);
+    if (nextPhaseColor == null) {
+      return null;
+    }
+    final indexNextPhaseEnd = phases.indexWhere((element) => element != nextPhaseColor);
+
+    return indexNextPhaseEnd;
+  }
+  
   /// Configure the TTS.
   Future<void> initializeTTS() async {
     await ftts.setSpeechRate(0.8); //speed of speech

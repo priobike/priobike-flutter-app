@@ -26,7 +26,10 @@ class InstructionText {
   /// The timestamp when the countdown was started.
   DateTime? countdownTimeStamp;
 
-  InstructionText({required this.text, required this.type, this.countdown, this.countdownTimeStamp});
+  /// The distance to the next signal group.
+  double distanceToNextSg = 0;
+
+  InstructionText({required this.text, required this.type, this.countdown, this.countdownTimeStamp, required this.distanceToNextSg});
 
   /// Adds a countdown to the instructionText as well as the current timestamp.
   void addCountdown(int countdown) {

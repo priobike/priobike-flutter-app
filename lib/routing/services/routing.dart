@@ -621,19 +621,19 @@ class Routing with ChangeNotifier {
   }
 
   /// Create the instruction text based on the type of instruction.
-  List<InstructionText> createInstructionText(bool isFirstCall, InstructionType instructionType, String ghInstructionText, String? signalGroupId, String laneType) {
+  List<InstructionText> createInstructionText(bool isFirstCall, InstructionType instructionType, String ghInstructionText, String? signalGroupId, String laneType, double distanceToNextSg) {
     String prefix = isFirstCall ? "In 300 Metern" : "";
     String sgType = (laneType == "Radfahrer") ? "Radampel" : "Ampel";
 
     switch (instructionType) {
       case InstructionType.directionOnly:
-        return [InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction)];
+        return [InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction, distanceToNextSg: distanceToNextSg)];
       case InstructionType.signalGroupOnly:
-        return [InstructionText(text: "$prefix $sgType", type: InstructionTextType.signalGroup)];
+        return [InstructionText(text: "$prefix $sgType", type: InstructionTextType.signalGroup, distanceToNextSg: distanceToNextSg)];
       case InstructionType.directionAndSignalGroup:
         return [
-          InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction),
-          InstructionText(text: sgType, type: InstructionTextType.signalGroup)
+          InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction, distanceToNextSg: distanceToNextSg),
+          InstructionText(text: sgType, type: InstructionTextType.signalGroup, distanceToNextSg: distanceToNextSg)
         ];
       default:
         return [];
@@ -670,7 +670,7 @@ class Routing with ChangeNotifier {
         Instruction firstInstructionCall = Instruction(
             lat: waypointFirstInstructionCall.latitude,
             lon: waypointFirstInstructionCall.longitude,
-            text: createInstructionText(true, instructionType, ghInstructionText, signalGroupId, laneType),
+            text: createInstructionText(true, instructionType, ghInstructionText, signalGroupId, laneType, 300),
             instructionType: instructionType,
             signalGroupId: signalGroupId
         );
@@ -692,7 +692,7 @@ class Routing with ChangeNotifier {
           Instruction secondInstructionCall = Instruction(
               lat: waypointSecondInstructionCall.latitude,
               lon: waypointSecondInstructionCall.longitude,
-              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType),
+              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, 100),
               instructionType: instructionType,
               signalGroupId: signalGroupId
           );
@@ -703,10 +703,11 @@ class Routing with ChangeNotifier {
           // This point is equal to the last point in the signal crossing geometry attribute.
           var sgId = instructions.last.signalGroupId;
           var previousSgLaneEnd = sgSelectorResponse.signalGroups[sgId]!.geometry!.last;
+          var prevoiusDistToSg = instructions.last.text.last.distanceToNextSg;
           Instruction secondInstructionCall = Instruction(
               lat: previousSgLaneEnd[1],
               lon: previousSgLaneEnd[0],
-              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType),
+              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg),
               instructionType: instructionType,
               signalGroupId: signalGroupId
           );
@@ -720,7 +721,7 @@ class Routing with ChangeNotifier {
         Instruction secondInstructionCall = Instruction(
             lat: currentWaypoint.lat,
             lon: currentWaypoint.lon,
-            text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType),
+            text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, currentWaypoint.distanceToNextSignal ?? 0),
             instructionType: instructionType,
             signalGroupId: signalGroupId
         );
@@ -751,7 +752,8 @@ class Routing with ChangeNotifier {
 
   /// Concatenate the current instruction with the previous one.
   void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId, List<Instruction> instructions, String laneType) {
-    var textToConcatenate = createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType);
+    var prevoiusDistToSg = instructions.last.text.last.distanceToNextSg;
+    var textToConcatenate = createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg);
     for (int i = 0; i < textToConcatenate.length; i++) {
       textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}}";
       instructions.last.text.add(textToConcatenate[i]);
