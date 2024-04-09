@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
-
 import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
@@ -349,7 +349,7 @@ class Ride with ChangeNotifier {
     Phase? currentColor = recommendation.calcCurrentSignalPhase;
     // Calculate the countdown.
     int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
-    if(countdown < 0) {
+    if (countdown < 0) {
       countdown = 0; // Must not be negative for later calculations.
     }
     Phase? nextColor;
@@ -371,7 +371,8 @@ class Ride with ChangeNotifier {
 
         if (recommendation.calcPhasesFromNow.length > countdown + durationNextPhase + durationSecondNextPhase + 2) {
           // Calculate the color of the third next phase after the current phase.
-          thirdNextColor = recommendation.calcPhasesFromNow[countdown + durationNextPhase + durationSecondNextPhase + 2];
+          thirdNextColor =
+              recommendation.calcPhasesFromNow[countdown + durationNextPhase + durationSecondNextPhase + 2];
         }
       }
     }
@@ -379,9 +380,9 @@ class Ride with ChangeNotifier {
     // If the traffic light will turn to green
     // and can be arrived with current speed
     // the countdown will be announced.
-    if (nextColor == Phase.green
-        && countdown + durationNextPhase >= instructionText.distanceToNextSg / speed
-        && countdown > 3) {
+    if (nextColor == Phase.green &&
+        countdown + durationNextPhase >= instructionText.distanceToNextSg / speed &&
+        countdown > 3) {
       // Add countdown information and timestamp.
       instructionText.addCountdown(countdown);
       instructionText.text = "${instructionText.text} grün in";
@@ -390,9 +391,9 @@ class Ride with ChangeNotifier {
     // If the traffic light will turn to green
     // and can be arrived with max speed of 25 km/h or current speed (if higher)
     // the countdown for turning red will be announced.
-    else if (nextColor == Phase.green
-        && countdown + durationNextPhase >= instructionText.distanceToNextSg * 3.6 / max(25, speed)
-        && countdown > 3) {
+    else if (nextColor == Phase.green &&
+        countdown + durationNextPhase >= instructionText.distanceToNextSg * 3.6 / max(25, speed) &&
+        countdown > 3) {
       // Add countdown information and timestamp.
       instructionText.addCountdown(countdown + durationNextPhase);
       instructionText.text = "${instructionText.text} rot in";
@@ -401,10 +402,10 @@ class Ride with ChangeNotifier {
     // If the traffic light is green
     // and the countdown is higher than the time needed to arrive at the traffic light with 25 km/h or current speed (if higher)
     // it will be announced.
-    else if (currentColor == Phase.green
-        && nextColor == Phase.red
-        && countdown >= instructionText.distanceToNextSg * 3.6 / max(25, speed)
-        && countdown > 3) {
+    else if (currentColor == Phase.green &&
+        nextColor == Phase.red &&
+        countdown >= instructionText.distanceToNextSg * 3.6 / max(25, speed) &&
+        countdown > 3) {
       // Add countdown information and timestamp.
       instructionText.addCountdown(countdown);
       instructionText.text = "${instructionText.text} rot in";
@@ -425,18 +426,19 @@ class Ride with ChangeNotifier {
       }
     }
     // Otherwise check if the third cycle can be reached.
-    else if (countdown + durationNextPhase + durationSecondNextPhase >= instructionText.distanceToNextSg * 3.6 / max(25, speed)) {
-        instructionText.addCountdown(countdown + durationNextPhase + durationSecondNextPhase);
-        switch (thirdNextColor) {
-          case Phase.red:
-            instructionText.text = "${instructionText.text} rot in";
-            return instructionText;
-          case Phase.green:
-            instructionText.text = "${instructionText.text} grün in";
-            return instructionText;
-          default:
-            return null;
-        }
+    else if (countdown + durationNextPhase + durationSecondNextPhase >=
+        instructionText.distanceToNextSg * 3.6 / max(25, speed)) {
+      instructionText.addCountdown(countdown + durationNextPhase + durationSecondNextPhase);
+      switch (thirdNextColor) {
+        case Phase.red:
+          instructionText.text = "${instructionText.text} rot in";
+          return instructionText;
+        case Phase.green:
+          instructionText.text = "${instructionText.text} grün in";
+          return instructionText;
+        default:
+          return null;
+      }
     }
 
     // No recommendation can be made, instruction part must not be played.
@@ -446,20 +448,35 @@ class Ride with ChangeNotifier {
   /// Calculates the time to the next phase after the given index.
   int? calcTimeToNextPhaseAfterIndex(int index) {
     final recommendation = predictionComponent!.recommendation!;
-    
+
     final phases = recommendation.calcPhasesFromNow.sublist(index, recommendation.calcPhasesFromNow.length - 1);
     final nextPhaseColor = phases.first;
     final indexNextPhaseEnd = phases.indexWhere((element) => element != nextPhaseColor);
 
     return indexNextPhaseEnd;
   }
-  
+
   /// Configure the TTS.
   Future<void> initializeTTS() async {
-    await ftts.setSpeechRate(0.7); //speed of speech
-    await ftts.setVolume(1); //volume of speech
-    await ftts.setPitch(1); //pitch of sound
-    await ftts.awaitSpeakCompletion(true);
+    if (Platform.isIOS) {
+      await ftts.setSpeechRate(0.55); //speed of speech
+      await ftts.setVolume(1); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+      await ftts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.ambient,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers
+          ],
+          IosTextToSpeechAudioMode.voicePrompt);
+    } else {
+      await ftts.setSpeechRate(0.7); //speed of speech
+      await ftts.setVolume(1); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+    }
   }
 
   /// Play audio instruction.
@@ -480,18 +497,20 @@ class Ride with ChangeNotifier {
       ),
     );
 
+    await ftts.speak("neue position");
+
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
     // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
-    Instruction? currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
-        vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
+    Instruction? currentInstruction = route!.instructions.firstWhereOrNull(
+        (element) => !element.executed && vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
 
-    if (currentInstruction != null){
+    if (currentInstruction != null) {
       currentInstruction.executed = true;
 
       Iterator it = currentInstruction.text.iterator;
-      while(it.moveNext()) {
+      while (it.moveNext()) {
         // Put this here to avoid music interruption in case that there is no instruction to play.
         await session.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
@@ -508,7 +527,9 @@ class Ride with ChangeNotifier {
           // Calc updatedCountdown since initial creation and time that has passed while speaking
           // (to avoid countdown inaccuracy)
           // Also take into account 1s delay for actually speaking the countdown.
-          int updatedCountdown = instructionTextToPlay.countdown! - (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) - 1;
+          int updatedCountdown = instructionTextToPlay.countdown! -
+              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
+              1;
           await ftts.speak(updatedCountdown.toString());
         }
       }
