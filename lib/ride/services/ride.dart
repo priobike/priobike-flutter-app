@@ -320,7 +320,7 @@ class Ride with ChangeNotifier {
     }
     final smartglasses = getIt<SmartglassService>();
     final currentInstruction = getCurrentInstruction(route!.path, getIt<Positioning>().snap!.position);
-    smartglasses.show(currentInstruction!.text, currentInstruction.sign, List.empty());
+    // smartglasses.show(currentInstruction!.text, currentInstruction.sign, List.empty());
 
     notifyListeners();
   }

@@ -24,6 +24,8 @@ import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
+import '../../../smartglasses/SmartglassService.dart';
+
 class RideSpeedometerView extends StatefulWidget {
   /// Height to puck bounding box.
   final double puckHeight;
@@ -223,6 +225,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     // Thus, we reverse both colors and stops to get the correct order
     gaugeColors = hardEdgeColors.reversed.toList();
     gaugeStops = hardEdgeStops.reversed.toList();
+    final smartglasses = getIt<SmartglassService>();
+    // final currentInstruction = ride.getCurrentInstruction(route!.path, getIt<Positioning>().snap!.position);
+    var tachoItems = smartglasses.createTachoForGlasses(phases);
+    log.w(tachoItems);
+    smartglasses.show("Blabla", 0, tachoItems);
+
   }
 
   /// A callback that is executed when the user taps on the speedometer.

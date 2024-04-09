@@ -24,6 +24,11 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../common/layout/spacing.dart';
+import '../../common/layout/text.dart';
+import '../../common/layout/tiles.dart';
+import '../../smartglasses/SmartglassService.dart';
+
 class RideView extends StatefulWidget {
   const RideView({super.key});
 
@@ -192,6 +197,8 @@ class RideViewState extends State<RideView> {
     }
 
     final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
+    final isLandscapeMode = orientation == Orientation.landscape;
+    final smartglasses = getIt<SmartglassService>();
 
     return PopScope(
       onPopInvoked: (type) async => false,
@@ -233,6 +240,50 @@ class RideViewState extends State<RideView> {
               ),
               if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
               FinishRideButton(),
+              Positioned(
+                top: 208,
+                // Below the MapBox attribution.
+                // Button is on the right in portrait mode and on the left in landscape mode.
+                right: isLandscapeMode ? null : 0,
+                left: isLandscapeMode ? 0 : null,
+                child: SafeArea(
+                  child: Tile(
+                    onPressed: () {
+                      smartglasses.register();
+                    },
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(24),
+                      bottomLeft: const Radius.circular(24),
+                      topRight: isLandscapeMode
+                          ? const Radius.circular(24)
+                          : const Radius.circular(0),
+                      bottomRight: isLandscapeMode
+                          ? const Radius.circular(24)
+                          : const Radius.circular(0),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    fill: Colors.black.withOpacity(0.4),
+                    content: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, top: 16, bottom: 16),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.smart_screen,
+                            color: Colors.white,
+                          ),
+                          const SmallHSpace(),
+                          BoldSmall(
+                            text: "Tooz",
+                            context: context,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               if (!cameraFollowsUserLocation)
                 SafeArea(
                   bottom: true,
