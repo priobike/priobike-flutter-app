@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
@@ -429,7 +430,7 @@ class Ride with ChangeNotifier {
   /// Calculates the time to the next phase after the given index.
   int? calcTimeToNextPhaseAfterIndex(int index) {
     final recommendation = predictionComponent!.recommendation!;
-    
+
     final phases = recommendation.calcPhasesFromNow.sublist(index, recommendation.calcPhasesFromNow.length - 1);
     final currentPhaseColor = recommendation.calcCurrentSignalPhase;
     final nextPhaseColor = phases.firstWhereOrNull((element) => element != currentPhaseColor);
@@ -440,13 +441,28 @@ class Ride with ChangeNotifier {
 
     return indexNextPhaseEnd;
   }
-  
+
   /// Configure the TTS.
   Future<void> initializeTTS() async {
-    await ftts.setSpeechRate(0.7); //speed of speech
-    await ftts.setVolume(1); //volume of speech
-    await ftts.setPitch(1); //pitch of sound
-    await ftts.awaitSpeakCompletion(true);
+    if (Platform.isIOS) {
+      await ftts.setSpeechRate(0.55); //speed of speech
+      await ftts.setVolume(1); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+      await ftts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.ambient,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers
+          ],
+          IosTextToSpeechAudioMode.voicePrompt);
+    } else {
+      await ftts.setSpeechRate(0.7); //speed of speech
+      await ftts.setVolume(1); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+    }
   }
 
   /// Play audio instruction.
@@ -468,18 +484,20 @@ class Ride with ChangeNotifier {
     );
     // await ftts.awaitSpeakCompletion(true);
 
+    await ftts.speak("neue position");
+
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
     // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
-    Instruction? currentInstruction = route!.instructions.firstWhereOrNull((element) => !element.executed &&
-        vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
+    Instruction? currentInstruction = route!.instructions.firstWhereOrNull(
+        (element) => !element.executed && vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
 
-    if (currentInstruction != null){
+    if (currentInstruction != null) {
       currentInstruction.executed = true;
 
       Iterator it = currentInstruction.text.iterator;
-      while(it.moveNext()) {
+      while (it.moveNext()) {
         // Put this here to avoid music interruption in case that there is no instruction to play.
         await session.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
@@ -495,7 +513,9 @@ class Ride with ChangeNotifier {
           // Calc updatedCountdown since initial creation and time that has passed while speaking
           // (to avoid countdown inaccuracy)
           // Also take into account 1s delay for actually speaking the countdown.
-          int updatedCountdown = instructionTextToPlay.countdown! - (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) - 1;
+          int updatedCountdown = instructionTextToPlay.countdown! -
+              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
+              1;
           await ftts.speak(updatedCountdown.toString());
         }
       }
