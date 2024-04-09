@@ -441,12 +441,17 @@ class Ride with ChangeNotifier {
   /// Configure the TTS.
   Future<void> initializeTTS() async {
     await ftts.setLanguage("de-DE");
-    await ftts.setVoice({
-      "name": "Helena",
-      "locale": "de-DE",
-    });
 
     if (Platform.isIOS) {
+      // Use siri voice if available.
+      List<dynamic> voices = await ftts.getVoices;
+      if (voices.any((element) => element["name"] == "Helena" && element["locale"] == "de-DE")) {
+        await ftts.setVoice({
+          "name": "Helena",
+          "locale": "de-DE",
+        });
+      }
+
       await ftts.setSpeechRate(0.55); //speed of speech
       await ftts.setVolume(1); //volume of speech
       await ftts.setPitch(1); //pitch of sound
