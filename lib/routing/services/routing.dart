@@ -382,7 +382,7 @@ class Routing with ChangeNotifier {
           }
 
           var route = r.Route(
-            id: i,
+            idx: i,
             path: path,
             route: sgSelectorResponse.route,
             signalGroups: sgsInOrderOfRoute,
@@ -414,7 +414,7 @@ class Routing with ChangeNotifier {
     // The Status and Discomforts must be first fetched for every route
     // before we can compare all routes with every other route to find the most unique attribute.
     for (r.Route route in routes) {
-      findMostUniqueAttributeForRoute(route.id);
+      findMostUniqueAttributeForRoute(route.idx);
     }
     notifyListeners();
     return routes;
@@ -444,7 +444,7 @@ class Routing with ChangeNotifier {
         .asMap()
         .map((i, path) {
           var route = r.Route(
-            id: i,
+            idx: i,
             path: path,
             route: [],
             signalGroups: [],
@@ -479,122 +479,122 @@ class Routing with ChangeNotifier {
   }
 
   /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
-  findMostUniqueAttributeForRoute(int id) {
-    if (allRoutes == null || allRoutes!.length <= id) return;
+  findMostUniqueAttributeForRoute(int idx) {
+    if (allRoutes == null || allRoutes!.length <= idx) return;
     if (allRoutes!.length <= 1) return; // nothing to compare route with
 
-    // The attributes of the current route
-    final r.Route route = allRoutes![id];
-    final thisRouteOkSGs = route.ok;
-    final thisRouteCrossings = route.crossings.length;
-    final thisRouteDiscomforts = route.foundDiscomforts?.length ?? 0;
-    final thisRoutePushBike = route.path.details.getOffBike.length;
-    final thisRouteArrivalTime = route.path.time;
-    final thisRouteDistance = route.path.distance;
+    // The order of comparators defines their importance (first - most important feature)
+    final comparators = [
+      // Statistics related to speed advisory
+      (
+        "Mehr Ampeln\nverbunden",
+        (r.Route r, r.Route o) {
+          if (o.ok == 0) return r.ok > 0;
+          return (r.ok / o.ok - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nKreuzungen",
+        (r.Route r, r.Route o) {
+          if (o.crossings.isEmpty) return r.crossings.isEmpty;
+          return (o.crossings.length / r.crossings.length - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nGefahrenstellen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "accidenthotspot").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "accidenthotspot").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Besserer\nBodenbelag",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "surface").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "surface").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nBaustellen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "construction").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "construction").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Seltener\nAbsteigen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "dismount").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "dismount").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nFußgängerzonen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "pedestrians").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "pedestrians").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\n100 km/h\nStraßen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "carspeed").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "carspeed").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nSteile Anstiege",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "incline").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "incline").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Schneller",
+        (r.Route r, r.Route o) {
+          if (o.path.time == 0) return r.path.time > 0;
+          return (o.path.time / r.path.time - 1) > 0.2;
+        }
+      ),
+      (
+        "Kürzer",
+        (r.Route r, r.Route o) {
+          if (o.path.distance == 0) return r.path.distance > 0;
+          return (o.path.distance / r.path.distance - 1) > 0.05;
+        }
+      ),
+      (
+        "Weniger\nSteile Abfahrten",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "decline").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "decline").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.4;
+        }
+      ),
+    ];
 
-    // We compare the route with the best attribute to the second best route
-    // The threshold determines if the difference is significant
-    const thresholdOkSGsInPtc = 20;
-    const thresholdCrossingsInPtc = 20;
-    const thresholdDiscomfortsInPtc = 20;
-    const thresholdPushBikeAbsolute = 1; // absolute threshold
-    const thresholdTimeInPtc = 20;
-    const thresholdDistanceInPtc = 10;
-
-    // If the current route has the best attribute compared to all other routes
-    bool thisRouteHasMostOkSGs = thisRouteOkSGs > 0;
-    bool thisRouteHasLeastCrossings = true;
-    bool thisRouteHasLeastDiscomforts = true;
-    bool thisRouteHasLeastPushBike = true;
-    bool thisRouteHasEarliestArrival = true;
-    bool thisRouteIsShortest = true;
-
-    // Keeps track of the second best value for each attribute to determine significance
-    double? secondBestOkSGs;
-    double? secondBestCrossings;
-    double? secondBestDiscomforts;
-    double? secondBestPushBike;
-    double? secondBestEarliestArrival;
-    double? secondBestShortest;
-
-    // Find all attributes where the current route is the best and determine the second best value for comparison
-    for (final r.Route otherRoute in allRoutes!) {
-      if (otherRoute.id == id) continue;
-
-      if (otherRoute.ok >= thisRouteOkSGs) thisRouteHasMostOkSGs = false;
-      if (secondBestOkSGs == null || otherRoute.ok > secondBestOkSGs) {
-        secondBestOkSGs = otherRoute.ok.toDouble();
-      }
-
-      if (otherRoute.crossings.length <= thisRouteCrossings) thisRouteHasLeastCrossings = false;
-      if (secondBestCrossings == null || otherRoute.crossings.length < secondBestCrossings) {
-        secondBestCrossings = otherRoute.crossings.length.toDouble();
-      }
-
-      final otherRouteDiscomforts = otherRoute.foundDiscomforts?.length ?? 0;
-      if (otherRouteDiscomforts <= thisRouteDiscomforts) thisRouteHasLeastDiscomforts = false;
-      if (secondBestDiscomforts == null || otherRouteDiscomforts < secondBestDiscomforts) {
-        secondBestDiscomforts = otherRouteDiscomforts.toDouble();
-      }
-
-      if (otherRoute.path.details.getOffBike.length <= thisRoutePushBike) thisRouteHasLeastPushBike = false;
-      if (secondBestPushBike == null || otherRoute.path.details.getOffBike.length < secondBestPushBike) {
-        secondBestPushBike = otherRoute.path.details.getOffBike.length.toDouble();
-      }
-
-      if (otherRoute.path.time <= thisRouteArrivalTime) thisRouteHasEarliestArrival = false;
-      if (secondBestEarliestArrival == null || otherRoute.path.time < secondBestEarliestArrival) {
-        secondBestEarliestArrival = otherRoute.path.time.toDouble();
-      }
-
-      if (otherRoute.path.distance <= thisRouteDistance) thisRouteIsShortest = false;
-      if (secondBestShortest == null || otherRoute.path.distance < secondBestShortest) {
-        secondBestShortest = otherRoute.path.distance.toDouble();
-      }
-    }
-
-    if (thisRouteHasMostOkSGs) {
-      if (secondBestOkSGs == null ||
-          secondBestOkSGs == 0 ||
-          (thisRouteOkSGs / secondBestOkSGs - 1) * 100 > thresholdOkSGsInPtc) {
-        route.mostUniqueAttribute = "Mehr Ampeln\nverbunden";
-        return;
-      }
-    }
-    if (thisRouteHasLeastCrossings) {
-      if (secondBestCrossings == null ||
-          thisRouteCrossings == 0 ||
-          (secondBestCrossings / thisRouteCrossings - 1) * 100 > thresholdCrossingsInPtc) {
-        route.mostUniqueAttribute = "Weniger\nKreuzungen";
-        return;
-      }
-    }
-    if (thisRouteHasLeastDiscomforts) {
-      if (secondBestDiscomforts == null ||
-          thisRouteDiscomforts == 0 ||
-          (secondBestDiscomforts / thisRouteDiscomforts - 1) * 100 > thresholdDiscomfortsInPtc) {
-        route.mostUniqueAttribute = "Komfortabler";
-        return;
-      }
-    }
-    if (thisRouteHasLeastPushBike) {
-      if (secondBestPushBike == null || (secondBestPushBike - thisRoutePushBike) > thresholdPushBikeAbsolute) {
-        route.mostUniqueAttribute = "Weniger\nAbsteigen";
-        return;
-      }
-    }
-    if (thisRouteHasEarliestArrival) {
-      if (secondBestEarliestArrival == null ||
-          (secondBestEarliestArrival / thisRouteArrivalTime - 1) * 100 > thresholdTimeInPtc) {
-        route.mostUniqueAttribute = "Schneller";
-        return;
-      }
-    }
-    if (thisRouteIsShortest) {
-      if (secondBestShortest == null ||
-          thisRouteDistance == 0 ||
-          (secondBestShortest / thisRouteDistance - 1) * 100 > thresholdDistanceInPtc) {
-        route.mostUniqueAttribute = "Kürzer";
+    final route = allRoutes![idx];
+    for (int i = 0; i < comparators.length; i++) {
+      final (name, comparator) = comparators[i];
+      final otherRoutes = allRoutes!.where((o) => o.idx != route.idx);
+      final isMostUnique = otherRoutes.every((o) => comparator(route, o));
+      if (isMostUnique) {
+        route.mostUniqueAttribute = name;
         return;
       }
     }

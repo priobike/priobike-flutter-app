@@ -84,7 +84,7 @@ class RideViewState extends State<RideView> {
         ride = getIt<Ride>();
 
         // Save current route if the app crashes or the user unintentionally closes it.
-        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
+        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
@@ -122,7 +122,7 @@ class RideViewState extends State<RideView> {
                 }
 
                 // Save current route if the app crashes or the user unintentionally closes it.
-                ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
+                ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
                 needsReroute = false;
                 await ride.selectRoute(routes.first);

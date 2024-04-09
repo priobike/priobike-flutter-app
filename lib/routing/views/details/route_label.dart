@@ -8,8 +8,8 @@ import 'package:priobike/routing/services/route_labels.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class RouteLabel extends StatefulWidget {
-  /// The id of the route.
-  final int routeId;
+  /// The idx of the route.
+  final int routeIdx;
 
   /// The alignment of the route label.
   final RouteLabelAlignment alignment;
@@ -19,7 +19,7 @@ class RouteLabel extends StatefulWidget {
 
   const RouteLabel({
     super.key,
-    required this.routeId,
+    required this.routeIdx,
     required this.alignment,
     required this.isMapMoving,
   });
@@ -62,9 +62,9 @@ class RouteLabelState extends State<RouteLabel> {
 
     final routing = getIt<Routing>();
 
-    if (routing.selectedRoute != null) selected = routing.selectedRoute!.id == widget.routeId;
-    if (routing.allRoutes != null && routing.allRoutes!.length > widget.routeId) {
-      final route = routing.allRoutes![widget.routeId];
+    if (routing.selectedRoute != null) selected = routing.selectedRoute!.idx == widget.routeIdx;
+    if (routing.allRoutes != null && routing.allRoutes!.length > widget.routeIdx) {
+      final route = routing.allRoutes![widget.routeIdx];
       mainText = route.mostUniqueAttribute ?? "";
     }
   }
