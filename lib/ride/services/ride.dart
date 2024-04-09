@@ -443,7 +443,7 @@ class Ride with ChangeNotifier {
   
   /// Configure the TTS.
   Future<void> initializeTTS() async {
-    await ftts.setSpeechRate(0.8); //speed of speech
+    await ftts.setSpeechRate(0.7); //speed of speech
     await ftts.setVolume(1); //volume of speech
     await ftts.setPitch(1); //pitch of sound
     await ftts.awaitSpeakCompletion(true);
