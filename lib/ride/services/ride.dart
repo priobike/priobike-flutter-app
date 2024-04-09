@@ -515,7 +515,6 @@ class Ride with ChangeNotifier {
         await session.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
           // No countdown information needs to be added.
-          print(it.current.text);
           await ftts.speak(it.current.text);
         } else {
           final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
@@ -524,7 +523,6 @@ class Ride with ChangeNotifier {
           if (instructionTextToPlay == null) {
             continue;
           }
-          print(instructionTextToPlay.text);
           await ftts.speak(instructionTextToPlay.text);
           // Calc updatedCountdown since initial creation and time that has passed while speaking
           // (to avoid countdown inaccuracy)
@@ -532,7 +530,6 @@ class Ride with ChangeNotifier {
           int updatedCountdown = instructionTextToPlay.countdown! -
               (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
               1;
-          print(updatedCountdown.toString());
           await ftts.speak(updatedCountdown.toString());
         }
       }
