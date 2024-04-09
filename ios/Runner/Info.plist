@@ -88,6 +88,6 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSLocationAlwaysUsageDescription</key>
-    <string>To enable navigation while screen is locked.</string>
+    <string>Die App benötigt den Standort zur Navigation im Hintergrund.</string>
 </dict>
 </plist>
