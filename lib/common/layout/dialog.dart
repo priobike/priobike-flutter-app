@@ -148,25 +148,39 @@ void showAudioEvaluationDialog(context, Function submit) {
         ),
       ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        // TODO: make it smaller (not total screen height)
-        return DialogLayout(
-        title: 'Dein Feedback zur Sprachausgabe',
-        // TODO: set correct text here
-        text: "Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt hilft mir, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
-        actions: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: AudioRatingView(),
+        return Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                physics: const RangeMaintainingScrollPhysics(),
+                child: Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                  Text('Dein Feedback zur Sprachausgabe',
+                    style: Theme.of(context).textTheme.titleSmall,
+                    textAlign: TextAlign.center,),
+                  const SizedBox(height: 15),
+                  Text("Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt und hilft dabei, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    textAlign: TextAlign.center,),
+                  const SizedBox(height: 15),
+                  const AudioRatingView(),
+                  BigButtonPrimary(
+                    label: "Danke!",
+                    onPressed: () {
+                      Navigator.pop(context);
+                      showFinishDriveDialog(context, submit);
+                    },
+                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                  )
+                ],
+                ),
+              ),
+            ],
           ),
-          BigButtonPrimary(
-            label: "Danke!",
-            onPressed: () {
-              Navigator.pop(context);
-              showFinishDriveDialog(context, submit);
-            },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-          )
-        ],
+        ) ,
       );
     },
   );

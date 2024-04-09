@@ -108,13 +108,15 @@ class AudioRatingViewState extends State<AudioRatingView> {
         const SizedBox(height: 5),
         LayoutBuilder(
           builder: (context, constraints) {
-            final size = (constraints.maxWidth / 5) - 8;
             return Column(
               children: [
-                Content(text: "Frage 1", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ1, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 1", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ1, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -129,11 +131,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 2", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ2, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 2", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ2, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -148,11 +153,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 3", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ3, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 3", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ3, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -167,11 +175,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 4", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ4, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 4", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ4, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -186,11 +197,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 5", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ5, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 5", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ5, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -205,11 +219,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 6", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ6, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 6", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ6, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -224,11 +241,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 7", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ7, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 7", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ7, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -243,11 +263,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 8", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ8, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 8", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ8, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -262,11 +285,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 9", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ9, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 9", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ9, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -281,11 +307,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
-                Content(text: "Frage 10", context: context, color: Theme.of(context).colorScheme.tertiary),
-                Text(textQ10, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
+                Text("Frage 10", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: 5),
+                Content(text: textQ10, context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.center),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     for (var i = 1; i <= 5; i++)
                       Radio(
@@ -300,15 +329,17 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   ],
                 ),
                 getLabels(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 15),
+                const Divider(),
+                const SizedBox(height: 15),
                 Content(text: "Anmerkungen:", context: context, color: Theme.of(context).colorScheme.tertiary),
-                const SizedBox(height: 2),
+                const SizedBox(height: 5),
                 TextField(
                   controller: _textController,
                   maxLines: 5,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20),),),
-                    hintText: "Hier können Sie Anmerkungen eintragen",
+                    hintText: "Hier ist Platz für Anmerkungen und Kommentare",
                     hintStyle: TextStyle(fontSize: 15)
                   ),
                 ),
