@@ -393,7 +393,7 @@ class Ride with ChangeNotifier {
     // the countdown for turning red will be announced.
     else if (nextColor == Phase.green &&
         countdown + durationNextPhase >= instructionText.distanceToNextSg * 3.6 / max(25, speed) &&
-        countdown > 3) {
+        countdown + durationNextPhase > 3) {
       // Add countdown information and timestamp.
       instructionText.addCountdown(countdown + durationNextPhase);
       instructionText.text = "${instructionText.text} rot in";

@@ -144,6 +144,7 @@ class FinishRideButton extends StatelessWidget {
     final isLandscapeMode = orientation == Orientation.landscape;
 
     return Positioned(
+      width: isLandscapeMode ? 105 : 90,
       top: 48, // Below the MapBox attribution.
       // Button is on the right in portrait mode and on the left in landscape mode.
       right: isLandscapeMode ? null : 0,
@@ -160,7 +161,9 @@ class FinishRideButton extends StatelessWidget {
           padding: const EdgeInsets.all(4),
           fill: Colors.black.withOpacity(0.4),
           content: Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+            padding: isLandscapeMode ?
+                  const EdgeInsets.only(left: 6, right: 6, top: 16, bottom: 16)
+                : const EdgeInsets.only(left: 16, right: 6, top: 16, bottom: 16),
             child: Column(
               children: [
                 const Icon(
