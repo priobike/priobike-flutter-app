@@ -36,6 +36,8 @@ class AudioRatingViewState extends State<AudioRatingView> {
   String textQ9 = "Ich habe mich bei der Nutzung der Sprachausgabe sehr sicher gefühlt.";
   String textQ10 = "Ich musste eine Menge Dinge lernen, bevor ich mit der Sprachausgabe arbeiten konnte";
 
+  final TextEditingController _textController = TextEditingController();
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -92,9 +94,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
   Widget getLabels() {
     return Row(
       children: [
-        Small(text: "Gar nicht \n zutreffend", context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.left),
+        Small(text: "Gar nicht \nzutreffend", context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.left),
         const Spacer(),
-        Small(text: "Völlig \n zutreffend", context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.right),
+        Small(text: "Völlig \nzutreffend", context: context, color: Theme.of(context).colorScheme.tertiary, textAlign: TextAlign.right),
       ],
     );
   }
@@ -297,6 +299,20 @@ class AudioRatingViewState extends State<AudioRatingView> {
                       ),
                   ],
                 ),
+                getLabels(),
+                const SizedBox(height: 30),
+                Content(text: "Anmerkungen:", context: context, color: Theme.of(context).colorScheme.tertiary),
+                const SizedBox(height: 2),
+                TextField(
+                  controller: _textController,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20),),),
+                    hintText: "Hier können Sie Anmerkungen eintragen",
+                    hintStyle: TextStyle(fontSize: 15)
+                  ),
+                ),
+                const SizedBox(height: 30),
               ],
             );
           },
