@@ -497,8 +497,6 @@ class Ride with ChangeNotifier {
       ),
     );
 
-    await ftts.speak("neue position");
-
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 

@@ -79,6 +79,9 @@ class Settings with ChangeNotifier {
   /// If the save battery mode is enabled.
   bool dismissedSurvey;
 
+  /// If the audio instructions are enabled.
+  bool saveAudioInstructionsEnabled;
+
   /// Enable "old" gamification for app
   bool enableGamification;
 
@@ -382,6 +385,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const saveAudioInstructionsEnabledKey = "priobike.settings.audioInstructionsEnabled";
+  static const defaultSaveAudioInstructionsEnabled = false;
+
+  Future<bool> setSaveAudioInstructionsEnabled(bool saveAudioInstructionsEnabled, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.saveAudioInstructionsEnabled;
+    this.saveAudioInstructionsEnabled = saveAudioInstructionsEnabled;
+    final bool success = await storage.setBool(saveAudioInstructionsEnabledKey, saveAudioInstructionsEnabled);
+    if (!success) {
+      log.e("Failed to set saveAudioInstructionsEnabled to $saveAudioInstructionsEnabled");
+      this.saveAudioInstructionsEnabled = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const enableGamificationKey = "priobike.settings.enableGamification";
   static const defaultEnableGamification = false;
 
@@ -460,6 +480,7 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+    this.saveAudioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
@@ -542,6 +563,11 @@ class Settings with ChangeNotifier {
     }
     try {
       saveBatteryModeEnabled = storage.getBool(saveBatteryModeEnabledKey) ?? defaultSaveBatteryModeEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      saveAudioInstructionsEnabled = storage.getBool(saveAudioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

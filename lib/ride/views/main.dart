@@ -106,8 +106,11 @@ class RideViewState extends State<RideView> {
           onNewPosition: () async {
             await ride.updatePosition();
             await tracking.updatePosition();
-            // TODO: check if audio guidance is required
-            await ride.playAudioInstruction();
+
+            // Play audio instructions if enabled.
+            if (settings.saveAudioInstructionsEnabled) {
+              await ride.playAudioInstruction();
+            }
 
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance || needsReroute) {

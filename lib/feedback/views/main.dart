@@ -14,6 +14,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -38,6 +39,9 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -48,10 +52,6 @@ class FeedbackViewState extends State<FeedbackView> {
   ui.Image? destinationImage;
 
   Widget? trackHistory;
-
-  // TODO: Put this at the right place.
-  /// Whether the audio feedback has been used.
-  bool hasUsedAudio = true;
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -84,6 +84,8 @@ class FeedbackViewState extends State<FeedbackView> {
     feedback.addListener(update);
     statistics = getIt<Statistics>();
     statistics.addListener(update);
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -117,6 +119,7 @@ class FeedbackViewState extends State<FeedbackView> {
     tracking.removeListener(update);
     feedback.removeListener(update);
     statistics.removeListener(update);
+    settings.removeListener(update);
     super.dispose();
   }
 
@@ -182,7 +185,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     const SmallVSpace(),
                     BigButtonPrimary(
                       label: "Fertig",
-                      onPressed: () => hasUsedAudio ? showAudioEvaluationDialog(context, submit) : showFinishDriveDialog(context, submit),
+                      onPressed: () => settings.saveAudioInstructionsEnabled ? showAudioEvaluationDialog(context, submit) : showFinishDriveDialog(context, submit),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                   ],

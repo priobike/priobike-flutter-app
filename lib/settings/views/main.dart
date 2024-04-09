@@ -365,6 +365,11 @@ class SettingsViewState extends State<SettingsView> {
                         child: Content(text: "Nutzbarkeit", context: context),
                       ),
                       const SmallVSpace(),
+                      SettingsElement(
+                        title: "Sprachausgabe aktivieren",
+                        icon: settings.saveAudioInstructionsEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                        callback: () => settings.setSaveAudioInstructionsEnabled(!settings.saveAudioInstructionsEnabled),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
