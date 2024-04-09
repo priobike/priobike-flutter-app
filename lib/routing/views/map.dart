@@ -635,7 +635,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // Case Route or Route label.
       if ((id as String).startsWith("route-")) {
         final routeIdx = int.tryParse(id.split("-")[1]);
-        if (routeIdx == null || (routing.selectedRoute != null && routeIdx == routing.selectedRoute!.id)) return;
+        if (routeIdx == null || (routing.selectedRoute != null && routeIdx == routing.selectedRoute!.idx)) return;
         routing.switchToRoute(routeIdx);
         return;
       }
@@ -1549,10 +1549,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   ),
                   child: GestureDetector(
                     onTap: () {
-                      onPressedRouteLabel(managedRouteLabel.routeId);
+                      onPressedRouteLabel(managedRouteLabel.routeIdx);
                     },
                     child: RouteLabel(
-                      routeId: managedRouteLabel.routeId,
+                      routeIdx: managedRouteLabel.routeIdx,
                       alignment: managedRouteLabel.alignment!,
                       isMapMoving: isMapMoving,
                     ),

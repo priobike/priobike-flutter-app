@@ -499,7 +499,7 @@ class RouteCrossingsCircleLayer {
     if (routing.allRoutes == null) return;
 
     for (Route route in routing.allRoutes!) {
-      if (route.id == routing.selectedRoute!.id) continue;
+      if (route.idx == routing.selectedRoute!.idx) continue;
 
       // Add all crossings that are not connected. (grey circles)
       for (int i = 0; i < route.crossings.length; i++) {

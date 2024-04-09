@@ -10,8 +10,8 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 class Route {
-  /// The route id.
-  final int id;
+  /// The route idx.
+  final int idx;
 
   /// The GraphHopper route response path.
   final GHRouteResponsePath path;
@@ -53,7 +53,7 @@ class Route {
   List<DiscomfortSegment>? foundDiscomforts;
 
   Route({
-    required this.id,
+    required this.idx,
     required this.path,
     required this.route,
     required this.signalGroups,
@@ -63,7 +63,7 @@ class Route {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
+        'idx': idx,
         'path': path.toJson(),
         'route': route.map((e) => e.toJson()).toList(),
         'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
@@ -73,7 +73,7 @@ class Route {
       };
 
   factory Route.fromJson(dynamic json) => Route(
-        id: json["id"],
+        idx: json["idx"],
         path: GHRouteResponsePath.fromJson(json['path']),
         route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
         signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
@@ -92,7 +92,7 @@ class Route {
     final distToLast =
         last == null ? null : vincenty.distance(LatLng(last.lat, last.lon), LatLng(endpoint.lat, endpoint.lon));
     return Route(
-      id: id,
+      idx: idx,
       path: path,
       signalGroups: signalGroups,
       signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,

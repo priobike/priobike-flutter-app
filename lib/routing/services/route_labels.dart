@@ -13,8 +13,8 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/route_label.dart';
 
 class ManagedRouteLabel {
-  /// The route id.
-  final int routeId;
+  /// The route idx.
+  final int routeIdx;
 
   /// The screen coordinate X of the label.
   double? screenCoordinateX;
@@ -35,7 +35,7 @@ class ManagedRouteLabel {
   List<ManagedRouteLabelCandidate>? availableRouteLabelCandidates;
 
   ManagedRouteLabel({
-    required this.routeId,
+    required this.routeIdx,
     required this.uniqueRouteCoordinates,
   });
 }
@@ -191,8 +191,8 @@ class RouteLabelManager extends ChangeNotifier {
 
       for (final route in routing.allRoutes!) {
         managedRouteLabels.add(ManagedRouteLabel(
-          routeId: route.id,
-          uniqueRouteCoordinates: uniqueCoordinatesPerRoute[route.id].toList(),
+          routeIdx: route.idx,
+          uniqueRouteCoordinates: uniqueCoordinatesPerRoute[route.idx].toList(),
         ));
       }
     } else {

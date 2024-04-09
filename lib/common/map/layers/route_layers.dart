@@ -59,7 +59,7 @@ class AllRoutesLayer {
             features.add(currentFeature);
           }
           currentFeature = {
-            "id": "route-${route.id}", // Required for click listener.
+            "id": "route-${route.idx}", // Required for click listener.
             "type": "Feature",
             "properties": {
               "color": colorString,
@@ -276,7 +276,7 @@ class DiscomfortsLayer {
 
     // Alternative routes
     for (final route in routing.allRoutes ?? []) {
-      if (route.id == routing.selectedRoute?.id) continue;
+      if (route.idx == routing.selectedRoute?.idx) continue;
       for (final discomfort in route.foundDiscomforts ?? []) {
         if (discomfort.coordinates.isEmpty) continue;
         // A section of the route.
@@ -346,7 +346,7 @@ class DiscomfortsLayer {
             sourceId: sourceId,
             id: layerIdSymbol,
             iconSize: 0.15,
-            iconAllowOverlap: false,
+            iconAllowOverlap: true,
             iconOpacity: 1,
             textHaloColor: isDark ? const Color(0xFF003064).value : const Color(0xFFFFFFFF).value,
             textColor: isDark ? const Color(0xFFFFFFFF).value : const Color(0xFF003064).value,
@@ -354,7 +354,7 @@ class DiscomfortsLayer {
             textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
             textSize: 12,
             textAnchor: mapbox.TextAnchor.CENTER,
-            textAllowOverlap: false,
+            textAllowOverlap: true,
             textIgnorePlacement: true,
             textOpacity: 1,
             minZoom: 9.0,
