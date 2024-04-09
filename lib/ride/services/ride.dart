@@ -465,6 +465,15 @@ class Ride with ChangeNotifier {
           ],
           IosTextToSpeechAudioMode.voicePrompt);
     } else {
+      // Use siri voice if available.
+      List<dynamic> voices = await ftts.getVoices;
+      if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
+        await ftts.setVoice({
+          "name": "de-DE-language",
+          "locale": "de-DE",
+        });
+      }
+
       await ftts.setSpeechRate(0.7); //speed of speech
       await ftts.setVolume(1); //volume of speech
       await ftts.setPitch(1); //pitch of sound
