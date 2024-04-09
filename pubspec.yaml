@@ -149,6 +149,9 @@ flutter:
     # Screenshots
     - assets/images/screenshots/
 
+    # Discomforts
+    - assets/images/discomforts/
+
     # wiki images
     - assets/images/wiki/
 

@@ -176,13 +176,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     AllRoutesLayer.layerIdClick,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
-    RoutePoisLayer.layerIdBackground,
-    RoutePoisLayer.layerId,
-    RoutePoisLayer.layerIdSymbol,
     RouteCrossingsCircleLayer.layerId,
     SelectedRouteCrossingsCircleLayer.layerId,
-    DiscomfortsLayer.layerIdMarker,
-    RoutePushBikeLayer.layerId,
+    DiscomfortsLayer.layerIdBackground,
+    DiscomfortsLayer.layerId,
+    DiscomfortsLayer.layerIdSymbol,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
@@ -546,7 +544,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
     if (!mounted) return;
-    await RoutePoisLayer(isDark).update(mapController!);
+    // Discomforts on selected route are highlighted.
+    await DiscomfortsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await RouteCrossingsCircleLayer().update(mapController!);
     if (!mounted) return;
@@ -568,8 +567,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await updateSelectedRouteLayer();
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
-    if (!mounted) return;
-    await RoutePushBikeLayer().update(mapController!);
   }
 
   /// Load all route map layers.
@@ -597,22 +594,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       iconSize: 0.2,
       at: index,
     );
-    index = await getIndex(DiscomfortsLayer.layerIdMarker);
+    index = await getIndex(DiscomfortsLayer.layerId);
     if (!mounted) return;
     await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').install(
       mapController!,
-      iconSize: 0.2,
       at: index,
     );
     index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     await SelectedRouteLayer().install(
-      mapController!,
-      at: index,
-    );
-    index = await getIndex(RoutePoisLayer.layerId);
-    if (!mounted) return;
-    await RoutePoisLayer(isDark).install(
       mapController!,
       at: index,
     );
@@ -631,12 +621,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(SelectedRouteCrossingsCircleLayer.layerId);
     if (!mounted) return;
     await SelectedRouteCrossingsCircleLayer().install(
-      mapController!,
-      at: index,
-    );
-    index = await getIndex(RoutePushBikeLayer.layerId);
-    if (!mounted) return;
-    await RoutePushBikeLayer().install(
       mapController!,
       at: index,
     );

@@ -10,7 +10,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/messages/poi.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
@@ -165,37 +164,6 @@ class Routing with ChangeNotifier {
     selectedRoute = null;
     allRoutes = null;
     notifyListeners();
-  }
-
-  /// Load a poi sites response.
-  Future<PoisResponse?> loadPoisResponse(GHRouteResponsePath path) async {
-    try {
-      final settings = getIt<Settings>();
-
-      final baseUrl = settings.backend.path;
-      final poisUrl = "http://$baseUrl/poi-service-backend/pois/match";
-      final poisEndpoint = Uri.parse(poisUrl);
-      log.i("Loading pois response from $poisUrl");
-
-      final req = PoisRequest(
-        route: path.points.coordinates.map((e) => PoiRoutePoint(lat: e.lat, lon: e.lon)).toList(),
-        elongation: 50, // How long the pois should be extended for visibility
-        threshold: 10, // Meters around the route
-      );
-      final response = await Http.post(poisEndpoint, body: json.encode(req.toJson()));
-
-      if (response.statusCode == 200) {
-        log.i("Loaded pois response from $poisUrl");
-        return PoisResponse.fromJson(json.decode(response.body));
-      } else {
-        log.e("Failed to load pois response: ${response.statusCode} ${response.body}");
-        return null;
-      }
-    } catch (e) {
-      final hint = "Failed to load pois response: $e";
-      log.e(hint);
-      return null;
-    }
   }
 
   /// Load a SG-Selector response.
@@ -361,13 +329,6 @@ class Routing with ChangeNotifier {
       return null;
     }
 
-    // Load the pois along each path.
-    final poisResponses = await Future.wait(ghResponse.paths.map((path) => loadPoisResponse(path)));
-    if (poisResponses.contains(null)) {
-      // An error here is not that tragical. We can continue without pois.
-      log.w("Failed to load pois for some paths.");
-    }
-
     if (ghResponse.paths.length != sgSelectorResponses.length) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -428,8 +389,6 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
             crossings: orderedCrossings,
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
-            constructionsOnRoute: poisResponses[i]?.constructions,
-            accidentHotspotsOnRoute: poisResponses[i]?.accidenthotspots,
           );
           // Connect the route to the start and end points.
           route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
@@ -450,7 +409,7 @@ class Routing with ChangeNotifier {
     for (r.Route route in routes) {
       await status.fetch(route);
       status.updateStatus(route);
-      discomforts.findDiscomforts(route);
+      await discomforts.findDiscomforts(route);
     }
     // The Status and Discomforts must be first fetched for every route
     // before we can compare all routes with every other route to find the most unique attribute.
@@ -509,9 +468,7 @@ class Routing with ChangeNotifier {
 
     selectedRoute = allRoutes![idx];
 
-    final discomforts = getIt<Discomforts>();
-    discomforts.findDiscomforts(selectedRoute!);
-
+    // FIXME: The following code should maybe be removed.
     final status = getIt<PredictionSGStatus>();
     for (r.Route route in allRoutes!) {
       await status.fetch(route);
