@@ -31,7 +31,15 @@ class SymbolLoader {
     await add("trafficlighttouchindicatordark", "assets/images/trafficlights/touch-indicator-dark.png", 400, 400);
     await add("trafficlighttouchindicatorlight", "assets/images/trafficlights/touch-indicator-light.png", 400, 400);
 
-    await add("dangerspot", "assets/images/dangerspot.png", 400, 400);
+    await add("accidenthotspot", "assets/images/discomforts/accidenthotspot.png", 200, 183);
+    await add("carspeed", "assets/images/discomforts/carspeed.png", 200, 183);
+    await add("construction", "assets/images/discomforts/construction.png", 200, 183);
+    await add("decline", "assets/images/discomforts/decline.png", 200, 183);
+    await add("incline", "assets/images/discomforts/incline.png", 200, 183);
+    await add("pedestrians", "assets/images/discomforts/pedestrians.png", 200, 183);
+    await add("surface", "assets/images/discomforts/surface.png", 200, 183);
+    await add("dismount", "assets/images/discomforts/dismount.png", 200, 183);
+
     await add("start", "assets/images/start.drawio.png", 83, 83);
     await add("destination", "assets/images/destination.drawio.png", 84, 84);
     await add("waypoint", "assets/images/waypoint.drawio.png", 84, 84);
@@ -40,8 +48,6 @@ class SymbolLoader {
     await add("airdark", "assets/images/air-dark.png", 200, 200);
     await add("airlight", "assets/images/air-light.png", 200, 200);
     await add("airselected", "assets/images/air-selected.png", 200, 200);
-    await add("constructiondark", "assets/images/construction-dark.png", 200, 200);
-    await add("constructionlight", "assets/images/construction-light.png", 200, 200);
     await add("parkdark", "assets/images/park-dark.png", 200, 200);
     await add("parklight", "assets/images/park-light.png", 200, 200);
     await add("parkselected", "assets/images/park-selected.png", 200, 200);
@@ -55,8 +61,6 @@ class SymbolLoader {
     await add("repairdark", "assets/images/repair-dark.png", 200, 200);
     await add("repairlight", "assets/images/repair-light.png", 200, 200);
     await add("repairselected", "assets/images/repair-selected.png", 200, 200);
-    await add("accidentdark", "assets/images/accident-dark.png", 200, 200);
-    await add("accidentlight", "assets/images/accident-light.png", 200, 200);
     await add("greenwavedark", "assets/images/green-wave-dark.png", 200, 200);
     await add("greenwavelight", "assets/images/green-wave-light.png", 200, 200);
 

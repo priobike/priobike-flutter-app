@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/messages/poi.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/navigation.dart';
@@ -35,12 +34,6 @@ class Route {
   /// A list of crossing distances on the route, in the order of `crossings`.
   final List<double> crossingsDistancesOnRoute;
 
-  /// A list of constructions on the route.
-  final List<PoiSegment>? constructionsOnRoute;
-
-  /// A list of accident hotspots on the route.
-  final List<PoiSegment>? accidentHotspotsOnRoute;
-
   /// The most unique attribute of the route within a set of routes.
   String? mostUniqueAttribute;
 
@@ -67,8 +60,6 @@ class Route {
     required this.signalGroupsDistancesOnRoute,
     required this.crossings,
     required this.crossingsDistancesOnRoute,
-    this.constructionsOnRoute,
-    this.accidentHotspotsOnRoute,
   });
 
   Map<String, dynamic> toJson() => {
@@ -79,8 +70,6 @@ class Route {
         'signalGroupsDistancesOnRoute': signalGroupsDistancesOnRoute,
         'crossings': crossings.map((e) => e.toJson()).toList(),
         'crossingsDistancesOnRoute': crossingsDistancesOnRoute,
-        'constructionsOnRoute': constructionsOnRoute?.map((e) => e.toJson()).toList(),
-        'accidentHotspotsOnRoute': accidentHotspotsOnRoute?.map((e) => e.toJson()).toList(),
       };
 
   factory Route.fromJson(dynamic json) => Route(
@@ -91,9 +80,6 @@ class Route {
         signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
         crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
-        constructionsOnRoute: (json['constructionsOnRoute'] as List?)?.map((e) => PoiSegment.fromJson(e)).toList(),
-        accidentHotspotsOnRoute:
-            (json['accidentHotspotsOnRoute'] as List?)?.map((e) => PoiSegment.fromJson(e)).toList(),
       );
 
   /// The route, connected to the start and end point.
@@ -130,8 +116,6 @@ class Route {
       ],
       crossings: crossings,
       crossingsDistancesOnRoute: crossingsDistancesOnRoute,
-      constructionsOnRoute: constructionsOnRoute,
-      accidentHotspotsOnRoute: accidentHotspotsOnRoute,
     );
   }
 

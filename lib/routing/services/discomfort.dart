@@ -1,14 +1,19 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
+import 'package:priobike/http.dart';
+import 'package:priobike/routing/messages/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 enum WarnType {
   warnSensitiveBikes,
@@ -113,8 +118,39 @@ class Discomforts with ChangeNotifier {
     return coordinates;
   }
 
+  /// Load a pois response.
+  Future<PoisResponse?> loadPoisResponse(GHRouteResponsePath path) async {
+    try {
+      final settings = getIt<Settings>();
+
+      final baseUrl = settings.backend.path;
+      final poisUrl = "http://$baseUrl/poi-service-backend/pois/match";
+      final poisEndpoint = Uri.parse(poisUrl);
+      log.i("Loading pois response from $poisUrl");
+
+      final req = PoisRequest(
+        route: path.points.coordinates.map((e) => PoiRoutePoint(lat: e.lat, lon: e.lon)).toList(),
+        elongation: 50, // How long the pois should be extended for visibility
+        threshold: 10, // Meters around the route
+      );
+      final response = await Http.post(poisEndpoint, body: json.encode(req.toJson()));
+
+      if (response.statusCode == 200) {
+        log.i("Loaded pois response from $poisUrl");
+        return PoisResponse.fromJson(json.decode(response.body));
+      } else {
+        log.e("Failed to load pois response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      final hint = "Failed to load pois response: $e";
+      log.e(hint);
+      return null;
+    }
+  }
+
   /// Find discomforts for the given route.
-  void findDiscomforts(Route route) {
+  Future<void> findDiscomforts(Route route) async {
     final path = route.path;
 
     final profile = getIt<Profile>();
@@ -145,6 +181,7 @@ class Discomforts with ChangeNotifier {
       unsmooth.add(DiscomfortSegment(
         coordinates: cs,
         description: translation,
+        type: "surface",
         distanceOnRoute: snapper.snap().distanceOnRoute,
         color: const Color(0xffd7191c),
       ));
@@ -197,7 +234,8 @@ class Discomforts with ChangeNotifier {
         criticalElevation.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
+              description: "${segment.value!.round()}% Steigung.",
+              type: "incline",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFFfdae61)),
         );
@@ -206,7 +244,8 @@ class Discomforts with ChangeNotifier {
         criticalElevation.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
+              description: "${segment.value!.round()}% Gefälle bergab.",
+              type: "decline",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFFffffbf)),
         );
@@ -225,7 +264,8 @@ class Discomforts with ChangeNotifier {
         unwantedSpeed.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
+              description: "${segment.value!.toInt()} km/h Tempolimit",
+              type: "carspeed",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFF543005)),
         );
@@ -234,16 +274,80 @@ class Discomforts with ChangeNotifier {
         unwantedSpeed.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
+              description: "Fußgängerzone",
+              type: "pedestrians",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFFa6d96a)),
         );
       }
     }
 
+    // Mark segments where users need to dismount the bike.
+    final dismount = List.empty(growable: true);
+    for (final segment in path.details.getOffBike) {
+      if (segment.value == false) continue;
+      final cs = getCoordinates(segment, path);
+      final snapper = Snapper(nodes: route.route, position: cs[0]);
+      dismount.add(
+        DiscomfortSegment(
+            coordinates: cs,
+            description: "Absteigen",
+            type: "dismount",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color(0xFFf46d43)),
+      );
+    }
+
+    PoisResponse? poisResponse;
+    try {
+      // Load the pois along each path.
+      poisResponse = await loadPoisResponse(route.path);
+    } catch (e) {
+      // An error here is not that tragical. We can continue without pois.
+      log.w("Failed to load pois for some paths.");
+    }
+    final constructions = List.empty(growable: true);
+    if (poisResponse != null) {
+      for (final segment in poisResponse.constructions) {
+        final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
+        constructions.add(
+          DiscomfortSegment(
+              coordinates: cs,
+              description: "Baustelle",
+              type: "construction",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFd73027)),
+        );
+      }
+    }
+    final accidentHotspots = List.empty(growable: true);
+    if (poisResponse != null) {
+      for (final segment in poisResponse.accidenthotspots) {
+        final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
+        accidentHotspots.add(
+          DiscomfortSegment(
+              coordinates: cs,
+              description: "Unfallschwerpunkt",
+              type: "accidenthotspot",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFF4575b4)),
+        );
+      }
+    }
+
     route.foundDiscomforts = List.empty(growable: true);
-    route.foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
+    route.foundDiscomforts = [
+      ...dismount,
+      ...accidentHotspots,
+      ...constructions,
+      ...unsmooth,
+      ...criticalElevation,
+      ...unwantedSpeed,
+    ];
     route.foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
+
     notifyListeners();
   }
 }

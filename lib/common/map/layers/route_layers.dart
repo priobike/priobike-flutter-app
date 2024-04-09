@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -9,11 +8,8 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -157,283 +153,6 @@ class HashableLatLng {
   int get hashCode => Object.hash(coord.longitude, coord.latitude);
 }
 
-class RoutePushBikeLayer {
-  /// The ID of the Mapbox source.
-  static const sourceId = "pushbike";
-
-  /// The ID of the main Mapbox layer.
-  static const layerId = "pushbike-layer";
-
-  /// The features to display.
-  final List<dynamic> features = List.empty(growable: true);
-
-  RoutePushBikeLayer() {
-    final routing = getIt<Routing>();
-    HashSet<HashableLatLng> uniqueCoords = HashSet<HashableLatLng>();
-
-    for (Route route in routing.allRoutes ?? []) {
-      for (GHSegment segment in route.path.details.getOffBike) {
-        if (segment.value) {
-          Map<String, dynamic> feature = {
-            "type": "Feature",
-            "geometry": {
-              "type": "LineString",
-              "coordinates": [],
-            },
-          };
-
-          int? lastAddedOriginalCoordIdx;
-          for (var coordIdx = segment.from; coordIdx <= segment.to; coordIdx++) {
-            final coord = route.path.points.coordinates[coordIdx];
-            final hashableCoord = HashableLatLng(LatLng(coord.lat, coord.lon));
-            // Since we add push-bike-segments for all routes, it can be that there are redundant segments for overlapping parts of the routes.
-            // We don't want to add them multiple times.
-            // We only add them, if the successor or predecessor is unique (can happen at parts where multiple routes are merging or splitting), to avoid gaps.
-            if (!uniqueCoords.contains(hashableCoord)) {
-              uniqueCoords.add(hashableCoord);
-              // Successor gap closing (previous coord was not unique, but the current is unique, so we close the gap to the previous coord)
-              if (feature["geometry"]!["coordinates"].isEmpty) {
-                if (coordIdx - 1 >= segment.from) {
-                  feature["geometry"]!["coordinates"].add([
-                    route.path.points.coordinates[coordIdx - 1].lon,
-                    route.path.points.coordinates[coordIdx - 1].lat
-                  ]);
-                }
-              }
-              feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
-              lastAddedOriginalCoordIdx = coordIdx;
-            } else {
-              // Predecessor gap closing (previous coord was unique, but the current is not unique, so we close the gap to the current coord)
-              if (lastAddedOriginalCoordIdx == coordIdx - 1 && feature["geometry"]!["coordinates"].isNotEmpty) {
-                feature["geometry"]!["coordinates"].add([coord.lon, coord.lat]);
-              }
-            }
-          }
-
-          // If the current segment is already included in another feature, there are zero coordinates in the feature.
-          // Thus, we don't add it to the features list.
-          if (feature["geometry"]["coordinates"].length >= 2) features.add(feature);
-        }
-      }
-    }
-  }
-
-  /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {lineWidth = 5.0, at = 0}) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (!sourceExists) {
-      await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
-      );
-    } else {
-      await update(mapController);
-    }
-    final pushBikeLayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!pushBikeLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerId,
-            lineColor: const Color(0xFF313131).value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineCap: mapbox.LineCap.ROUND,
-            lineWidth: lineWidth,
-            lineDasharray: [1, 2],
-          ),
-          mapbox.LayerPosition(at: at));
-    }
-  }
-
-  /// Update the overlay on the map controller (without updating the layers).
-  update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (sourceExists) {
-      final source = await mapController.style.getSource(sourceId);
-      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
-    }
-  }
-}
-
-class RoutePoisLayer {
-  /// The ID of the Mapbox source.
-  static const sourceId = "route-pois";
-
-  /// The ID of the main Mapbox layer.
-  static const layerId = "route-pois-layer";
-
-  /// The ID of the background Mapbox layer.
-  static const layerIdBackground = "route-pois-background-layer";
-
-  /// The ID of the symbol/text layer.
-  static const layerIdSymbol = "route-pois-symbol-layer";
-
-  /// The features to display.
-  final List<dynamic> features = List.empty(growable: true);
-
-  /// If the layer should display a dark version of the icons.
-  final bool isDark;
-
-  RoutePoisLayer(this.isDark) {
-    final routing = getIt<Routing>();
-
-    // Alternative routes
-    for (final route in routing.allRoutes ?? []) {
-      if (route.id == routing.selectedRoute?.id) continue;
-      for (final construction in route.constructionsOnRoute ?? []) {
-        if (construction.points.isEmpty) continue;
-        // A section of the route.
-        final geometry = {
-          "type": "LineString",
-          "coordinates": construction.points.map((point) => [point.lng, point.lat]).toList(),
-        };
-
-        features.add(
-          {
-            "type": "Feature",
-            "properties": {
-              "color": "#d9c89e",
-              "bgcolor": "#d1b873",
-              "symbol": isDark ? "constructiondark" : "constructionlight",
-              "symbolopacity": 0,
-            },
-            "geometry": geometry,
-          },
-        );
-      }
-
-      for (final accidentHotspot in route.accidentHotspotsOnRoute ?? []) {
-        if (accidentHotspot.points.isEmpty) continue;
-        // A section of the route.
-        final geometry = {
-          "type": "LineString",
-          "coordinates": accidentHotspot.points.map((point) => [point.lng, point.lat]).toList(),
-        };
-
-        features.add(
-          {
-            "type": "Feature",
-            "properties": {
-              "color": "#d9c89e",
-              "bgcolor": "#d1b873",
-              "symbol": isDark ? "accidentdark" : "accidentlight",
-              "symbolopacity": 0,
-            },
-            "geometry": geometry,
-          },
-        );
-      }
-    }
-
-    // Selected route
-    for (final construction in routing.selectedRoute?.constructionsOnRoute ?? []) {
-      if (construction.points.isEmpty) continue;
-      // A section of the route.
-      final geometry = {
-        "type": "LineString",
-        "coordinates": construction.points.map((point) => [point.lng, point.lat]).toList(),
-      };
-
-      features.add(
-        {
-          "type": "Feature",
-          "properties": {
-            "color": "#FF9900",
-            "bgcolor": "#924F00",
-            "symbol": isDark ? "constructiondark" : "constructionlight",
-            "symbolopacity": 1,
-          },
-          "geometry": geometry,
-        },
-      );
-    }
-    for (final accidentHotspot in routing.selectedRoute?.accidentHotspotsOnRoute ?? []) {
-      if (accidentHotspot.points.isEmpty) continue;
-      // A section of the route.
-      final geometry = {
-        "type": "LineString",
-        "coordinates": accidentHotspot.points.map((point) => [point.lng, point.lat]).toList(),
-      };
-
-      features.add(
-        {
-          "type": "Feature",
-          "properties": {
-            "color": "#FF9900",
-            "bgcolor": "#924F00",
-            "symbol": isDark ? "accidentdark" : "accidentlight",
-            "symbolopacity": 1,
-          },
-          "geometry": geometry,
-        },
-      );
-    }
-  }
-
-  /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (!sourceExists) {
-      await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
-      );
-    } else {
-      await update(mapController);
-    }
-    final routePoisSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
-    if (!routePoisSymbolLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.SymbolLayer(
-            sourceId: sourceId,
-            id: layerIdSymbol,
-            iconSize: 0.3,
-            iconAllowOverlap: true,
-            iconOpacity: 1,
-            minZoom: 9.0,
-          ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerIdSymbol, 'icon-image', json.encode(["get", "symbol"]));
-      await mapController.style
-          .setStyleLayerProperty(layerIdSymbol, 'icon-opacity', json.encode(["get", "symbolopacity"]));
-    }
-    final routePoisLayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!routePoisLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerId,
-            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineCap: mapbox.LineCap.ROUND,
-            lineWidth: fgLineWidth,
-          ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
-    }
-    final routePoisBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
-    if (!routePoisBackgroundLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerIdBackground,
-            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineCap: mapbox.LineCap.ROUND,
-            lineWidth: bgLineWidth,
-          ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerIdBackground, 'line-color', json.encode(["get", "bgcolor"]));
-    }
-  }
-
-  update(mapbox.MapboxMap mapController, {String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (sourceExists) {
-      final source = await mapController.style.getSource(sourceId);
-      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
-    }
-  }
-}
-
 class SelectedRouteLayer {
   /// The ID of the Mapbox source.
   static const sourceId = "route";
@@ -535,10 +254,16 @@ class SelectedRouteLayer {
 
 class DiscomfortsLayer {
   /// The ID of the Mapbox source.
-  static const sourceId = "discomforts";
+  static const sourceId = "route-discomforts";
 
-  /// The ID of the marker Mapbox layer.
-  static const layerIdMarker = "discomforts-markers";
+  /// The ID of the main Mapbox layer.
+  static const layerId = "route-discomforts-layer";
+
+  /// The ID of the background Mapbox layer.
+  static const layerIdBackground = "route-discomforts-background-layer";
+
+  /// The ID of the symbol/text layer.
+  static const layerIdSymbol = "route-discomforts-symbol-layer";
 
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
@@ -548,30 +273,55 @@ class DiscomfortsLayer {
 
   DiscomfortsLayer(this.isDark) {
     final routing = getIt<Routing>();
-    List<DiscomfortSegment>? discomforts;
-    if (routing.selectedRoute != null) {
-      if (routing.selectedRoute!.foundDiscomforts == null) {
-        getIt<Discomforts>().findDiscomforts(routing.selectedRoute!);
+
+    // Alternative routes
+    for (final route in routing.allRoutes ?? []) {
+      if (route.id == routing.selectedRoute?.id) continue;
+      for (final discomfort in route.foundDiscomforts ?? []) {
+        if (discomfort.coordinates.isEmpty) continue;
+        // A section of the route.
+        final geometry = {
+          "type": "LineString",
+          "coordinates": discomfort.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
+        };
+
+        features.add(
+          {
+            "type": "Feature",
+            "properties": {
+              "textColor": isDark ? "#FFFFFF" : "#003064",
+              "textHaloColor": isDark ? "#003064" : "#FFFFFF",
+              "color": "#d9c89e",
+              "bgcolor": "#d1b873",
+              "symbol": discomfort.type,
+              "symbolopacity": 0,
+            },
+            "geometry": geometry,
+          },
+        );
       }
-      discomforts = routing.selectedRoute!.foundDiscomforts;
     }
 
-    for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
-      if (e.value.coordinates.isEmpty) continue;
+    // Selected route
+    for (final discomfort in routing.selectedRoute?.foundDiscomforts ?? []) {
+      if (discomfort.coordinates.isEmpty) continue;
       // A section of the route.
       final geometry = {
-        "type": "Point",
-        "coordinates": [e.value.coordinates[0].longitude, e.value.coordinates[0].latitude],
+        "type": "LineString",
+        "coordinates": discomfort.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
       };
 
       features.add(
         {
           "type": "Feature",
           "properties": {
-            "description": e.value.description,
-            "color": "#003064",
+            "description": discomfort.description,
             "textColor": isDark ? "#FFFFFF" : "#003064",
             "textHaloColor": isDark ? "#003064" : "#FFFFFF",
+            "color": "#ffdc00",
+            "bgcolor": "#ad9600",
+            "symbol": discomfort.type,
+            "symbolopacity": 1,
           },
           "geometry": geometry,
         },
@@ -580,13 +330,7 @@ class DiscomfortsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(
-    mapbox.MapboxMap mapController, {
-    showLabels = true,
-    iconSize = 0.25,
-    lineWidth = 5.0,
-    at = 0,
-  }) async {
+  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -595,17 +339,14 @@ class DiscomfortsLayer {
     } else {
       await update(mapController);
     }
-    if (showLabels) {
-      final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
-      if (!discomfortsMarkersExist) {
-        await mapController.style.addLayerAt(
+    final routeDiscomfortsSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
+    if (!routeDiscomfortsSymbolLayerExists) {
+      await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
             sourceId: sourceId,
-            id: layerIdMarker,
-            iconImage: "dangerspot",
-            iconSize: iconSize,
-            iconAllowOverlap: true,
-            iconIgnorePlacement: true,
+            id: layerIdSymbol,
+            iconSize: 0.15,
+            iconAllowOverlap: false,
             iconOpacity: 1,
             textHaloColor: isDark ? const Color(0xFF003064).value : const Color(0xFFFFFFFF).value,
             textColor: isDark ? const Color(0xFFFFFFFF).value : const Color(0xFF003064).value,
@@ -613,53 +354,75 @@ class DiscomfortsLayer {
             textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
             textSize: 12,
             textAnchor: mapbox.TextAnchor.CENTER,
-            textAllowOverlap: true,
+            textAllowOverlap: false,
             textIgnorePlacement: true,
             textOpacity: 1,
+            minZoom: 9.0,
           ),
-          mapbox.LayerPosition(at: at),
-        );
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'text-offset',
-            json.encode(
-              [
-                "literal",
-                [0, 1]
-              ],
-            ));
-        await mapController.style
-            .setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "description"]));
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'text-opacity',
-            json.encode(
-              showAfter(zoom: 16),
-            ));
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'text-color',
-            json.encode(
-              ["get", "textColor"],
-            ));
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'text-halo-color',
-            json.encode(
-              ["get", "textHaloColor"],
-            ));
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'icon-opacity',
-            json.encode(
-              showAfter(zoom: 11),
-            ));
-      }
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerIdSymbol, 'icon-image', json.encode(["get", "symbol"]));
+      await mapController.style
+          .setStyleLayerProperty(layerIdSymbol, 'icon-opacity', json.encode(["get", "symbolopacity"]));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-offset',
+          json.encode(
+            [
+              "literal",
+              [0, 2]
+            ],
+          ));
+      await mapController.style.setStyleLayerProperty(layerIdSymbol, 'text-field', json.encode(["get", "description"]));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-opacity',
+          json.encode(
+            showAfter(zoom: 16),
+          ));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-color',
+          json.encode(
+            ["get", "textColor"],
+          ));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-halo-color',
+          json.encode(
+            ["get", "textHaloColor"],
+          ));
+    }
+    final routeDiscomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!routeDiscomfortsLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerId,
+            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: fgLineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
+    }
+    final routeDiscomfortsBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
+    if (!routeDiscomfortsBackgroundLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerIdBackground,
+            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: bgLineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerIdBackground, 'line-color', json.encode(["get", "bgcolor"]));
     }
   }
 
-  /// Update the overlay on the map controller (without updating the layers).
-  update(mapbox.MapboxMap mapController) async {
+  update(mapbox.MapboxMap mapController, {String? below}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
       final source = await mapController.style.getSource(sourceId);
