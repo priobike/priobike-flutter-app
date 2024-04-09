@@ -29,7 +29,12 @@ class InstructionText {
   /// The distance to the next signal group.
   double distanceToNextSg = 0;
 
-  InstructionText({required this.text, required this.type, this.countdown, this.countdownTimeStamp, required this.distanceToNextSg});
+  InstructionText(
+      {required this.text,
+      required this.type,
+      this.countdown,
+      this.countdownTimeStamp,
+      required this.distanceToNextSg});
 
   /// Adds a countdown to the instructionText as well as the current timestamp.
   void addCountdown(int countdown) {
@@ -60,5 +65,6 @@ class Instruction {
   /// If the instruction has already been concatenated.
   bool alreadyConcatenated = false;
 
-  Instruction({required this.lat, required this.lon, required this.text, required this.instructionType, this.signalGroupId});
+  Instruction(
+      {required this.lat, required this.lon, required this.text, required this.instructionType, this.signalGroupId});
 }

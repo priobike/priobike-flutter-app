@@ -4,11 +4,11 @@ import 'dart:math';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
+import 'package:priobike/routing/messages/poi.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
-import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
@@ -20,67 +20,93 @@ enum WarnType {
   warnRegularBikes,
   warnRobustBikes,
   warnNone,
+  warnAll,
 }
 
+// Use the surface values to determine unsmooth sections.
+// See: https://wiki.openstreetmap.org/wiki/Key:surface
+const warnTypeMap = {
+  "paved": WarnType.warnNone,
+  "asphalt": WarnType.warnNone,
+  "chipseal": WarnType.warnNone,
+  "concrete": WarnType.warnNone,
+  "concrete:plates": WarnType.warnRegularBikes,
+  "concrete:lanes": WarnType.warnRegularBikes,
+  "paving_stones": WarnType.warnNone,
+  "sett": WarnType.warnRegularBikes,
+  "unhewn_cobblestone": WarnType.warnAll,
+  "cobblestone": WarnType.warnAll,
+  "metal": WarnType.warnRegularBikes,
+  "wood": WarnType.warnRegularBikes,
+  "stepping_stones": WarnType.warnAll,
+  "unpaved": WarnType.warnRegularBikes,
+  "compacted": WarnType.warnSensitiveBikes,
+  "fine_gravel": WarnType.warnRegularBikes,
+  "gravel": WarnType.warnAll,
+  "rock": WarnType.warnAll,
+  "pebblestone": WarnType.warnAll,
+  "ground": WarnType.warnRegularBikes,
+  "dirt": WarnType.warnRegularBikes,
+  "earth": WarnType.warnRegularBikes,
+  "soil": WarnType.warnRegularBikes,
+  "grass": WarnType.warnAll,
+  "grass_paver": WarnType.warnRegularBikes,
+  "mud": WarnType.warnAll,
+  "sand": WarnType.warnAll,
+  "woodchips": WarnType.warnAll,
+  "snow": WarnType.warnAll,
+  "ice": WarnType.warnAll,
+  "salt": WarnType.warnAll,
+  "clay": WarnType.warnRegularBikes,
+  "tartan": WarnType.warnNone,
+  "artificial_turf": WarnType.warnAll,
+  "acrylic": WarnType.warnSensitiveBikes,
+  "metal_grid": WarnType.warnAll,
+  "carpet": WarnType.warnRegularBikes,
+};
+
+const translationsMap = {
+  "paved": "Asphaltierter Wegabschnitt",
+  "asphalt": "Asphaltierter Wegabschnitt",
+  "chipseal": "Versiegelte Schotterstraße",
+  "concrete": "Wegabschnitt mit Beton",
+  "concrete:plates": "Wegabschnitt mit Betonplatten",
+  "concrete:lanes": "Wegabschnitt Betonplatten",
+  "paving_stones": "Gepflasterter Wegabschnitt",
+  "sett": "Gepflasterter Wegabschnitt",
+  "unhewn_cobblestone": "Kopfsteinpflaster",
+  "cobblestone": "Kopfsteinpflaster",
+  "metal": "Wegabschnitt auf Metall",
+  "wood": "Wegabschnitt auf Holz",
+  "stepping_stones": "Wegabschnitt mit Steinplatten",
+  "unpaved": "Unbefestigte Straße",
+  "compacted": "Unbefestigte Straße",
+  "fine_gravel": "Wegabschnitt auf Feinkies",
+  "gravel": "Wegabschnitt auf Kies",
+  "rock": "Wegabschnitt über Felsen",
+  "pebblestone": "Wegabschnitt auf Kies",
+  "ground": "Unbefestigter Wegabschnitt",
+  "dirt": "Unbefestigter Wegabschnitt",
+  "earth": "Unbefestigter Wegabschnitt",
+  "soil": "Unbefestigter Wegabschnitt",
+  "grass": "Wegabschnitt über Gras",
+  "grass_paver": "Wegabschnitt über Gras mit Pflastersteinen",
+  "mud": "Wegabschnitt durch Matsch",
+  "sand": "Wegabschnitt über Sand",
+  "woodchips": "Wegabschnitt über Holzspäne",
+  "snow": "Wegabschnitt über Schnee",
+  "ice": "Wegabschnitt über Eis",
+  "salt": "Wegabschnitt über Salz",
+  "clay": "Wegabschnitt über Lehm",
+  "tartan": "Wegabschnitt über Tartan",
+  "artificial_turf": "Wegabschnitt über Kunstrasen",
+  "acrylic": "Wegabschnitt über Acryl",
+  "metal_grid": "Wegabschnitt über Metallgitter",
+  "carpet": "Wegabschnitt über Teppich",
+};
+
 class Discomforts with ChangeNotifier {
-  /// The found discomforts.
-  List<DiscomfortSegment>? foundDiscomforts;
-
-  /// The description for user reported dangers.
-  static const userReportedDangerDescription = "Unkomfortabler Abschnitt";
-
-  /// The lower threshold for the weight of user reported discomforts under which they are not shown.
-  static const userReportedDiscomfortWeightThreshold = 5;
-
-  Discomforts({
-    this.foundDiscomforts,
-  });
-
-  // Reset the discomfort service.
-  Future<void> reset() async {
-    foundDiscomforts = null;
-    notifyListeners();
-  }
-
-  /// Load dangers along a route.
-  Future<List<DiscomfortSegment>> fetchUserReportedDangerSpots(Route route) async {
-    final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
-    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
-    final request = {
-      "route": route.path.points.coordinates.map((e) => {"lat": e.lat, "lon": e.lon}).toList(),
-    };
-    try {
-      final response = await Http.post(endpoint, body: json.encode(request)).timeout(const Duration(seconds: 4));
-      if (response.statusCode != 200) {
-        log.e("Error fetching dangers from $endpoint: ${response.body}");
-      } else {
-        log.i("Fetched dangers from $endpoint");
-        final decoded = json.decode(response.body);
-        final List<DiscomfortSegment> userReportedDangerSpots = List.empty(growable: true);
-        for (final danger in decoded["dangers"]) {
-          final weight = danger["weight"] ?? 0;
-          final List<LatLng> coordinates = List.empty(growable: true);
-          for (final point in danger["coordinates"]) {
-            coordinates.add(LatLng(point[1], point[0]));
-          }
-          final snapper = Snapper(nodes: route.route, position: coordinates[0]);
-          userReportedDangerSpots.add(DiscomfortSegment(
-            description: userReportedDangerDescription,
-            coordinates: coordinates,
-            weight: weight,
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color(0xFF9F2B68),
-          ));
-        }
-        return userReportedDangerSpots;
-      }
-    } catch (error) {
-      final hint = "Error fetching danger spots from $endpoint: $error";
-      log.e(hint);
-    }
-    return [];
-  }
+  Discomforts();
 
   /// Get the coordinates for a given segment.
   List<LatLng> getCoordinates(GHSegment segment, GHRouteResponsePath path) {
@@ -92,98 +118,48 @@ class Discomforts with ChangeNotifier {
     return coordinates;
   }
 
+  /// Load a pois response.
+  Future<PoisResponse?> loadPoisResponse(GHRouteResponsePath path) async {
+    try {
+      final settings = getIt<Settings>();
+
+      final baseUrl = settings.backend.path;
+      final poisUrl = "http://$baseUrl/poi-service-backend/pois/match";
+      final poisEndpoint = Uri.parse(poisUrl);
+      log.i("Loading pois response from $poisUrl");
+
+      final req = PoisRequest(
+        route: path.points.coordinates.map((e) => PoiRoutePoint(lat: e.lat, lon: e.lon)).toList(),
+        elongation: 50, // How long the pois should be extended for visibility
+        threshold: 10, // Meters around the route
+      );
+      final response = await Http.post(poisEndpoint, body: json.encode(req.toJson()));
+
+      if (response.statusCode == 200) {
+        log.i("Loaded pois response from $poisUrl");
+        return PoisResponse.fromJson(json.decode(response.body));
+      } else {
+        log.e("Failed to load pois response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      final hint = "Failed to load pois response: $e";
+      log.e(hint);
+      return null;
+    }
+  }
+
+  /// Find discomforts for the given route.
   Future<void> findDiscomforts(Route route) async {
-    final List<DiscomfortSegment> userReportedDangerSpots = await fetchUserReportedDangerSpots(route);
     final path = route.path;
 
     final profile = getIt<Profile>();
-
-    // Use the surface values to determine unsmooth sections.
-    // See: https://wiki.openstreetmap.org/wiki/Key:surface
-    final warnTypeMap = {
-      "paved": WarnType.warnNone,
-      "asphalt": WarnType.warnNone,
-      "chipseal": WarnType.warnNone,
-      "concrete": WarnType.warnNone,
-      "concrete:plates": WarnType.warnRegularBikes,
-      "concrete:lanes": WarnType.warnRegularBikes,
-      "paving_stones": WarnType.warnNone,
-      "sett": WarnType.warnRegularBikes,
-      "unhewn_cobblestone": WarnType.warnRobustBikes,
-      "cobblestone": WarnType.warnRobustBikes,
-      "metal": WarnType.warnRegularBikes,
-      "wood": WarnType.warnRegularBikes,
-      "stepping_stones": WarnType.warnRobustBikes,
-      "unpaved": WarnType.warnRegularBikes,
-      "compacted": WarnType.warnSensitiveBikes,
-      "fine_gravel": WarnType.warnRegularBikes,
-      "gravel": WarnType.warnRobustBikes,
-      "rock": WarnType.warnRobustBikes,
-      "pebblestone": WarnType.warnRobustBikes,
-      "ground": WarnType.warnRegularBikes,
-      "dirt": WarnType.warnRegularBikes,
-      "earth": WarnType.warnRegularBikes,
-      "soil": WarnType.warnRegularBikes,
-      "grass": WarnType.warnRobustBikes,
-      "grass_paver": WarnType.warnRegularBikes,
-      "mud": WarnType.warnRobustBikes,
-      "sand": WarnType.warnRobustBikes,
-      "woodchips": WarnType.warnRobustBikes,
-      "snow": WarnType.warnRobustBikes,
-      "ice": WarnType.warnRobustBikes,
-      "salt": WarnType.warnRobustBikes,
-      "clay": WarnType.warnRegularBikes,
-      "tartan": WarnType.warnNone,
-      "artificial_turf": WarnType.warnRobustBikes,
-      "acrylic": WarnType.warnSensitiveBikes,
-      "metal_grid": WarnType.warnRobustBikes,
-      "carpet": WarnType.warnRegularBikes,
-    };
-
-    final translationsMap = {
-      "paved": "Asphaltierter Wegabschnitt",
-      "asphalt": "Asphaltierter Wegabschnitt",
-      "chipseal": "Versiegelte Schotterstraße",
-      "concrete": "Wegabschnitt mit Beton",
-      "concrete:plates": "Wegabschnitt mit Betonplatten",
-      "concrete:lanes": "Wegabschnitt Betonplatten",
-      "paving_stones": "Gepflasterter Wegabschnitt",
-      "sett": "Gepflasterter Wegabschnitt",
-      "unhewn_cobblestone": "Kopfsteinpflaster",
-      "cobblestone": "Kopfsteinpflaster",
-      "metal": "Wegabschnitt auf Metall",
-      "wood": "Wegabschnitt auf Holz",
-      "stepping_stones": "Wegabschnitt mit Steinplatten",
-      "unpaved": "Unbefestigte Straße",
-      "compacted": "Unbefestigte Straße",
-      "fine_gravel": "Wegabschnitt auf Feinkies",
-      "gravel": "Wegabschnitt auf Kies",
-      "rock": "Wegabschnitt über Felsen",
-      "pebblestone": "Wegabschnitt auf Kies",
-      "ground": "Unbefestigter Wegabschnitt",
-      "dirt": "Unbefestigter Wegabschnitt",
-      "earth": "Unbefestigter Wegabschnitt",
-      "soil": "Unbefestigter Wegabschnitt",
-      "grass": "Wegabschnitt über Gras",
-      "grass_paver": "Wegabschnitt über Gras mit Pflastersteinen",
-      "mud": "Wegabschnitt durch Matsch",
-      "sand": "Wegabschnitt über Sand",
-      "woodchips": "Wegabschnitt über Holzspäne",
-      "snow": "Wegabschnitt über Schnee",
-      "ice": "Wegabschnitt über Eis",
-      "salt": "Wegabschnitt über Salz",
-      "clay": "Wegabschnitt über Lehm",
-      "tartan": "Wegabschnitt über Tartan",
-      "artificial_turf": "Wegabschnitt über Kunstrasen",
-      "acrylic": "Wegabschnitt über Acryl",
-      "metal_grid": "Wegabschnitt über Metallgitter",
-      "carpet": "Wegabschnitt über Teppich",
-    };
 
     final shouldWarnMap = {
       WarnType.warnSensitiveBikes: profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike,
       WarnType.warnRegularBikes: profile.bikeType != BikeType.mountainbike,
       WarnType.warnRobustBikes: profile.bikeType == BikeType.mountainbike,
+      WarnType.warnAll: true,
     };
 
     final unsmooth = List.empty(growable: true);
@@ -205,6 +181,7 @@ class Discomforts with ChangeNotifier {
       unsmooth.add(DiscomfortSegment(
         coordinates: cs,
         description: translation,
+        type: "surface",
         distanceOnRoute: snapper.snap().distanceOnRoute,
         color: const Color(0xffd7191c),
       ));
@@ -257,7 +234,8 @@ class Discomforts with ChangeNotifier {
         criticalElevation.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
+              description: "${segment.value!.round()}% Steigung.",
+              type: "incline",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFFfdae61)),
         );
@@ -266,7 +244,8 @@ class Discomforts with ChangeNotifier {
         criticalElevation.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
+              description: "${segment.value!.round()}% Gefälle bergab.",
+              type: "decline",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFFffffbf)),
         );
@@ -285,7 +264,8 @@ class Discomforts with ChangeNotifier {
         unwantedSpeed.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
+              description: "${segment.value!.toInt()} km/h Tempolimit",
+              type: "carspeed",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFF543005)),
         );
@@ -294,47 +274,80 @@ class Discomforts with ChangeNotifier {
         unwantedSpeed.add(
           DiscomfortSegment(
               coordinates: cs,
-              description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
+              description: "Fußgängerzone",
+              type: "pedestrians",
               distanceOnRoute: snapper.snap().distanceOnRoute,
               color: const Color(0xFFa6d96a)),
         );
       }
     }
 
-    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed, ...userReportedDangerSpots];
-    foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
-    notifyListeners();
-  }
+    // Mark segments where users need to dismount the bike.
+    final dismount = List.empty(growable: true);
+    for (final segment in path.details.getOffBike) {
+      if (segment.value == false) continue;
+      final cs = getCoordinates(segment, path);
+      final snapper = Snapper(nodes: route.route, position: cs[0]);
+      dismount.add(
+        DiscomfortSegment(
+            coordinates: cs,
+            description: "Absteigen",
+            type: "dismount",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color(0xFFf46d43)),
+      );
+    }
 
-  /// Report a new discomfort.
-  Future<void> submitNew(Snap? snap, String type) async {
-    if (snap == null) {
-      log.w("Cannot report a $type without a position.");
-      return;
-    }
-    log.i("Reporting a new $type.");
-    var category = "PrioBike_uncomfortable_segment";
-    if (type == "recommendation") {
-      category = "PrioBike_comfortable_segment";
-    }
-    final discomfort = {
-      "lat": snap.position.latitude,
-      "lon": snap.position.longitude,
-      "category": category,
-    };
-    final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
-    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/post/?type=$type');
+    PoisResponse? poisResponse;
     try {
-      final response = await Http.post(endpoint, body: json.encode(discomfort)).timeout(const Duration(seconds: 4));
-      if (response.statusCode != 200) {
-        log.e("Error sending $type to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
-      } else {
-        log.i("Sent $type to $endpoint");
-      }
-    } catch (error) {
-      final hint = "Error sending $type to $endpoint: $error";
-      log.e(hint);
+      // Load the pois along each path.
+      poisResponse = await loadPoisResponse(route.path);
+    } catch (e) {
+      // An error here is not that tragical. We can continue without pois.
+      log.w("Failed to load pois for some paths.");
     }
+    final constructions = List.empty(growable: true);
+    if (poisResponse != null) {
+      for (final segment in poisResponse.constructions) {
+        final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
+        constructions.add(
+          DiscomfortSegment(
+              coordinates: cs,
+              description: "Baustelle",
+              type: "construction",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFd73027)),
+        );
+      }
+    }
+    final accidentHotspots = List.empty(growable: true);
+    if (poisResponse != null) {
+      for (final segment in poisResponse.accidenthotspots) {
+        final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
+        accidentHotspots.add(
+          DiscomfortSegment(
+              coordinates: cs,
+              description: "Unfallschwerpunkt",
+              type: "accidenthotspot",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFF4575b4)),
+        );
+      }
+    }
+
+    route.foundDiscomforts = List.empty(growable: true);
+    route.foundDiscomforts = [
+      ...dismount,
+      ...accidentHotspots,
+      ...constructions,
+      ...unsmooth,
+      ...criticalElevation,
+      ...unwantedSpeed,
+    ];
+    route.foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
+
+    notifyListeners();
   }
 }

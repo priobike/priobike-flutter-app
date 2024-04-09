@@ -109,6 +109,9 @@ class FeedbackViewState extends State<FeedbackView> {
         }
 
         setState(() {});
+
+        if (!mounted) return;
+        if (tracking.previousTracks!.last.routes.length > 4) _showReroutingWarning(context);
       },
     );
   }
@@ -151,15 +154,46 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
+  Future<void> _showReroutingWarning(context) async {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Hinweis',
+          text: "Du bist während der Fahrt häufig von der ursprünglich geplanten Route abgewichen. \n\n"
+              "Die Geschwindigkeitsempfehlungen werden dadurch potentiell beeinträchtigt, da diese nur entlang der Route funktionieren. \n\n"
+              "Trotz der automatischen Neu-Berechnung der Route während der Fahrt empfehlen wir daher eine möglichst genaue Erstellung der Route vor Fahrtantritt. "
+              "Nutze dafür Funktionen wie das Setzen von Zwischenzielen oder das Verschieben von Wegpunkten. ",
+          actions: [
+            BigButtonPrimary(
+              label: "Schließen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (feedback.isSendingFeedback) return renderLoadingIndicator();
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return Container();
 
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      brightness: Theme.of(context).brightness,
-      systemNavigationBarIconBrightness: Brightness.light,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         // To avoid recalculating the map and its painting when the keyboard appears.
         resizeToAvoidBottomInset: false,
@@ -185,7 +219,9 @@ class FeedbackViewState extends State<FeedbackView> {
                     const SmallVSpace(),
                     BigButtonPrimary(
                       label: "Fertig",
-                      onPressed: () => settings.saveAudioInstructionsEnabled ? showAudioEvaluationDialog(context, submit) : showFinishDriveDialog(context, submit),
+                      onPressed: () => settings.saveAudioInstructionsEnabled
+                          ? showAudioEvaluationDialog(context, submit)
+                          : showFinishDriveDialog(context, submit),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                   ],

@@ -267,7 +267,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     String longLink = shortcut.getLongLink();
     String? shortLink = await LinkShortener.createShortLink(longLink);
     if (shortLink == null) return;
-    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie dir hier holen:';
+    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie Dir hier holen:';
     const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
     const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
     String subject = '';
@@ -543,7 +543,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 return;
               }
 
-              routing.selectShortcut(shortcut);
+              routing.selectWaypoints(shortcut.getWaypoints());
 
               // Pushes the routing view.
               // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
@@ -553,7 +553,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   (comingNotFromRoutingView) {
                     if (comingNotFromRoutingView == null) {
                       routing.reset();
-                      discomforts.reset();
                       predictionSGStatus.reset();
                     }
                   },
@@ -570,8 +569,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(
           child: SafeArea(
@@ -590,8 +589,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         builder: (context) => const ImportShortcutDialog(),
                       ),
                       icon: Icons.add_rounded,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fill: Theme.of(context).colorScheme.surface,
                       splash: Theme.of(context).colorScheme.surfaceTint,
                     ),
                     const SmallHSpace(),

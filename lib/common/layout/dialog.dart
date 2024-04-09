@@ -8,12 +8,14 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/audio.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 /// Shows a dialog that hints that route/shortcut is invalid.
 void showInvalidShortcutSheet(context) {
@@ -47,8 +49,8 @@ void showInvalidShortcutSheet(context) {
   );
 }
 
-/// Show a sheet to save a shortcut. If the shortcut is null the current route (at the routing service will be saved).
-void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
+/// Show a sheet to save a shortcut.
+void showSaveShortcutSheet(context) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -104,15 +106,9 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
+              await getIt<Shortcuts>().saveNewShortcutRoute(name);
+              ToastMessage.showSuccess("Route gespeichert!");
 
-              if (shortcut == null) {
-                await getIt<Shortcuts>().saveNewShortcutRoute(name);
-                ToastMessage.showSuccess("Route gespeichert!");
-              } else {
-                var oldShortcut = shortcut;
-                oldShortcut.name = name;
-                await getIt<Shortcuts>().saveNewShortcutObject(oldShortcut);
-              }
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -135,20 +131,20 @@ void showSaveShortcutSheet(context, {Shortcut? shortcut}) {
 /// Shows a dialog to rate the audio functionality.
 void showAudioEvaluationDialog(context, Function submit) {
   showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor:
-      Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
-      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
-        child: FadeTransition(
-          opacity: animation,
-          child: child,
-        ),
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor:
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
       ),
+    ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        return Scaffold(
+      return Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Stack(
@@ -156,31 +152,181 @@ void showAudioEvaluationDialog(context, Function submit) {
               SingleChildScrollView(
                 physics: const RangeMaintainingScrollPhysics(),
                 child: Column(
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                  Text('Dein Feedback zur Sprachausgabe',
-                    style: Theme.of(context).textTheme.titleSmall,
-                    textAlign: TextAlign.center,),
-                  const SizedBox(height: 15),
-                  Text("Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt und hilft dabei, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.center,),
-                  const SizedBox(height: 15),
-                  const AudioRatingView(),
-                  BigButtonPrimary(
-                    label: "Danke!",
-                    onPressed: () {
-                      Navigator.pop(context);
-                      showFinishDriveDialog(context, submit);
-                    },
-                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                  )
-                ],
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                    Text(
+                      'Dein Feedback zur Sprachausgabe',
+                      style: Theme.of(context).textTheme.titleSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt und hilft dabei, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 15),
+                    const AudioRatingView(),
+                    BigButtonPrimary(
+                      label: "Danke!",
+                      onPressed: () {
+                        Navigator.pop(context);
+                        showFinishDriveDialog(context, submit);
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                    )
+                  ],
                 ),
               ),
             ],
           ),
-        ) ,
+        ),
+      );
+    },
+  );
+}
+
+/// Shows a dialog for saving a shortcut location.
+void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    ),
+    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+      final nameController = TextEditingController();
+      return DialogLayout(
+        title: 'Ort speichern',
+        text: "Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.",
+        actions: [
+          TextField(
+            autofocus: MediaQuery.of(dialogContext).viewInsets.bottom > 0,
+            controller: nameController,
+            maxLength: 20,
+            decoration: InputDecoration(
+              hintText: "Zuhause, Arbeit, ...",
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              filled: true,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: Icon(
+                Icons.bookmark,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              counterStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+              ),
+            ),
+          ),
+          BigButtonPrimary(
+            label: "Speichern",
+            onPressed: () async {
+              final name = nameController.text;
+              if (name.trim().isEmpty) {
+                ToastMessage.showError("Name darf nicht leer sein.");
+                return;
+              }
+              await getIt<Shortcuts>().saveNewShortcutLocation(name, waypoint);
+              await getIt<Geosearch>().addToSearchHistory(waypoint);
+              ToastMessage.showSuccess("Ort gespeichert!");
+              Navigator.pop(context);
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          )
+        ],
+      );
+    },
+  );
+}
+
+/// Show a sheet to save a shortcut from another shortcut.
+void showSaveShortcutFromShortcutSheet(context, {required Shortcut shortcut}) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor:
+        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    ),
+    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+      final nameController = TextEditingController();
+      return DialogLayout(
+        title: shortcut is ShortcutRoute ? "Route speichern" : "Ort speichern",
+        text: shortcut is ShortcutRoute
+            ? "Bitte gib einen Namen für die neue Route ein."
+            : "Bitte gib einen Namen für den neuen Ort ein.",
+        actions: [
+          TextField(
+            autofocus: false,
+            controller: nameController,
+            maxLength: 20,
+            decoration: InputDecoration(
+              hintText: shortcut is ShortcutRoute ? "Importierte Route" : "Importierter Ort",
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              filled: true,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: SmallIconButtonTertiary(
+                icon: Icons.close,
+                onPressed: () {
+                  nameController.text = "";
+                },
+                color: Theme.of(context).colorScheme.onBackground,
+                fill: Colors.transparent,
+                // splash: Colors.transparent,
+                withBorder: false,
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              counterStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+              ),
+            ),
+          ),
+          BigButtonPrimary(
+            label: "Speichern",
+            onPressed: () async {
+              final name = nameController.text;
+              if (name.trim().isEmpty) {
+                ToastMessage.showError("Name darf nicht leer sein.");
+                return;
+              }
+              final shortcuts = getIt<Shortcuts>();
+              shortcut.name = name;
+
+              await shortcuts.saveNewShortcutObject(shortcut);
+
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          ),
+          BigButtonTertiary(
+            label: "Abbrechen",
+            addPadding: false,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+          ),
+        ],
       );
     },
   );

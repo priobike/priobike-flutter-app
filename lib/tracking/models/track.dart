@@ -10,6 +10,32 @@ import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
 
+class BatteryState {
+  /// The battery level, in percent.
+  int level;
+
+  /// The timestamp of the battery state.
+  int timestamp;
+
+  BatteryState({required this.level, required this.timestamp});
+
+  /// Convert the battery state to a json object.
+  Map<String, dynamic> toJson() {
+    return {
+      'level': level,
+      'timestamp': timestamp,
+    };
+  }
+
+  /// Create a battery state from a json object.
+  factory BatteryState.fromJson(Map<String, dynamic> json) {
+    return BatteryState(
+      level: json['level'],
+      timestamp: json['timestamp'],
+    );
+  }
+}
+
 class Track {
   /// The start time of this track, in milliseconds since the epoch.
   int startTime;
@@ -93,12 +119,6 @@ class Track {
   /// The bike type used to calculate the route.
   BikeType? bikeType;
 
-  /// The preference type used to calculate the route.
-  PreferenceType? preferenceType;
-
-  /// The activity type used to calculate the route.
-  ActivityType? activityType;
-
   /// The routes of this track by their generation time: (time, route).
   /// This may only contain one route, if the user did not deviate from the route.
   /// Otherwise we can identify the time when the route was recalculated.
@@ -110,6 +130,15 @@ class Track {
   /// After the gamification concept is implemented the flag has to be set to true.
   bool canUseGamification;
 
+  /// The battery states sampled during the ride.
+  List<BatteryState> batteryStates = [];
+
+  /// The lightning mode.
+  bool? isDarkMode;
+
+  /// The battery save mode.
+  bool? saveBatteryModeEnabled;
+
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
     final dir = await getApplicationDocumentsDirectory();
@@ -120,24 +149,6 @@ class Track {
   Future<File> get gpsCSVFile async {
     final dir = await getApplicationDocumentsDirectory();
     return File('${dir.path}/tracks/$sessionId/gps.csv');
-  }
-
-  /// Get the csv file that stores the accelerometer data.
-  Future<File> get accelerometerCSVFile async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/tracks/$sessionId/accelerometer.csv');
-  }
-
-  /// Get the csv file that stores the gyroscope data.
-  Future<File> get gyroscopeCSVFile async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/tracks/$sessionId/gyroscope.csv');
-  }
-
-  /// Get the csv file that stores the magnetometer data.
-  Future<File> get magnetometerCSVFile async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/tracks/$sessionId/magnetometer.csv');
   }
 
   Track({
@@ -161,11 +172,12 @@ class Track {
     required this.predictorPredictions,
     required this.selectedWaypoints,
     required this.bikeType,
-    required this.preferenceType,
-    required this.activityType,
     required this.routes,
     required this.subVersion,
+    required this.batteryStates,
     this.canUseGamification = false,
+    required this.isDarkMode,
+    required this.saveBatteryModeEnabled,
   });
 
   /// Convert the track to a json object.
@@ -193,19 +205,26 @@ class Track {
       'predictorPredictions': predictorPredictions.map((e) => e.toJson()).toList(),
       'selectedWaypoints': selectedWaypoints.map((e) => e!.toJSON()).toList(),
       'bikeType': bikeType?.name,
-      'preferenceType': preferenceType?.name,
-      'activityType': activityType?.name,
       'routes': routes.entries
           .map((e) => {
                 'time': e.key,
                 'route': e.value.toJson(),
               })
           .toList(),
+      'batteryStates': batteryStates.map((e) => e.toJson()).toList(),
+      'isDarkMode': isDarkMode,
+      'saveBatteryModeEnabled': saveBatteryModeEnabled,
     };
   }
 
   /// Create a track from a json object.
   factory Track.fromJson(Map<String, dynamic> json) {
+    // Assuring backwards compatibility.
+    // Battery states were added later, so we need to check if they exist.
+    List<BatteryState> batteryStates = [];
+    if (json.containsKey("batteryStates")) {
+      batteryStates = (json['batteryStates'] as List<dynamic>).map((e) => BatteryState.fromJson(e)).toList();
+    }
     return Track(
       uploaded: json['uploaded'],
       // If the track was stored before we added the hasFileData field,
@@ -232,12 +251,13 @@ class Track {
           (json['predictorPredictions'] as List<dynamic>).map((e) => PredictorPrediction.fromJson(e)).toList(),
       selectedWaypoints: (json['selectedWaypoints'] as List<dynamic>).map((e) => Waypoint.fromJson(e)).toList(),
       bikeType: json['bikeType'] == null ? null : BikeType.values.byName(json['bikeType']),
-      preferenceType: json['preferenceType'] == null ? null : PreferenceType.values.byName(json['preferenceType']),
-      activityType: json['activityType'] == null ? null : ActivityType.values.byName(json['activityType']),
       routes: Map.fromEntries(
           (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
       subVersion: json['subVersion'],
       canUseGamification: json['canUseGamification'],
+      batteryStates: batteryStates,
+      isDarkMode: json.containsKey("isDarkMode") ? json["isDarkMode"] : null,
+      saveBatteryModeEnabled: json.containsKey("saveBatteryModeEnabled") ? json["saveBatteryModeEnabled"] : null,
     );
   }
 }

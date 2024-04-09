@@ -2,21 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:battery_plus/battery_plus.dart' hide BatteryState;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/hybrid_predictor.dart';
-import 'package:priobike/ride/services/prediction_service.dart';
-import 'package:priobike/ride/services/predictor.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/tracking.dart';
@@ -25,7 +23,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/user.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CSVCache {
@@ -84,50 +81,17 @@ class Tracking with ChangeNotifier {
   /// The csv writer for the gps data.
   CSVCache? gpsCache;
 
-  /// The csv writer for the accelerometer data.
-  CSVCache? accCache;
-
-  /// The current accelerometer stream subscription.
-  StreamSubscription? accSub;
-
-  /// The csv writer for the magnetometer data.
-  CSVCache? magCache;
-
-  /// The current magnetometer stream subscription.
-  StreamSubscription? magSub;
-
-  /// The csv writer for the gyroscope data.
-  CSVCache? gyrCache;
-
-  /// The current gyroscope stream subscription.
-  StreamSubscription? gyrSub;
-
   /// If a track by the session id is currently being uploaded.
   Map<String, bool> uploadingTracks = {};
 
   /// A timer that checks if tracks need to be uploaded.
   Timer? uploadTimer;
 
-  /// Latest accelerometer data.
-  AccelerometerEvent? latestAccEvent;
+  /// The timer used to sample the battery state.
+  Timer? batterySamplingTimer;
 
-  /// The timestamp of the last accelerometer event.
-  int? latestAccEventTimestamp;
-
-  /// Latest magnetometer data.
-  MagnetometerEvent? latestMagEvent;
-
-  /// The timestamp of the last magnetometer event.
-  int? latestMagEventTimestamp;
-
-  /// Latest gyroscope data.
-  GyroscopeEvent? latestGyroEvent;
-
-  /// The timestamp of the last gyroscope event.
-  int? latestGyroEventTimestamp;
-
-  /// The timer used to sample the sensor data.
-  Timer? sensorSamplingTimer;
+  /// The class used to get the battery state.
+  Battery? battery;
 
   /// The key for the tracks in the shared preferences.
   static const tracksKey = "priobike.tracking.tracks";
@@ -170,7 +134,7 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start a new track.
-  Future<void> start(double deviceWidth, double deviceHeight) async {
+  Future<void> start(double deviceWidth, double deviceHeight, bool saveBatteryModeEnabled, bool? isDarkMode) async {
     log.i("Starting a new track.");
 
     // Get some session- and device-specific data.
@@ -218,21 +182,20 @@ class Tracking with ChangeNotifier {
         predictorPredictions: [],
         selectedWaypoints: routing.selectedWaypoints!,
         bikeType: profile.bikeType,
-        preferenceType: profile.preferenceType,
-        activityType: profile.activityType,
         routes: {startTime: routing.selectedRoute!},
         subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+        batteryStates: [],
+        saveBatteryModeEnabled: saveBatteryModeEnabled,
+        isDarkMode: isDarkMode,
       );
       // Add the track to the list of previous tracks and save it.
       previousTracks!.add(track!);
       await savePreviousTracks();
       // Start collecting data to the files of the track.
       await startCollectingGPSData();
-      await startCollectingAccData();
-      await startCollectingGyrData();
-      await startCollectingMagData();
-      if (sensorSamplingTimer == null || !sensorSamplingTimer!.isActive) {
-        sensorSamplingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async => await sampleSensorData());
+      await sampleBatteryState();
+      if (batterySamplingTimer == null || !batterySamplingTimer!.isActive) {
+        batterySamplingTimer = Timer.periodic(const Duration(seconds: 60), (timer) async => await sampleBatteryState());
       }
     } catch (e, stacktrace) {
       final hint = "Could not start a new track: $e $stacktrace";
@@ -243,18 +206,12 @@ class Tracking with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Start sampling the sensor data.
-  Future<void> sampleSensorData() async {
-    if (latestAccEvent != null && latestAccEventTimestamp != null) {
-      await accCache?.add("$latestAccEventTimestamp,${latestAccEvent?.x},${latestAccEvent?.y},${latestAccEvent?.z}");
-    }
-    if (latestGyroEvent != null && latestGyroEventTimestamp != null) {
-      await gyrCache
-          ?.add("$latestGyroEventTimestamp,${latestGyroEvent?.x},${latestGyroEvent?.y},${latestGyroEvent?.z}");
-    }
-    if (latestMagEvent != null && latestMagEventTimestamp != null) {
-      await magCache?.add("$latestMagEventTimestamp,${latestMagEvent?.x},${latestMagEvent?.y},${latestMagEvent?.z}");
-    }
+  Future<void> sampleBatteryState() async {
+    if (track == null) return;
+    battery ??= Battery();
+    final level = await battery!.batteryLevel;
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    track!.batteryStates.add(BatteryState(level: level, timestamp: timestamp));
   }
 
   /// Start collecting GPS data.
@@ -281,81 +238,6 @@ class Tracking with ChangeNotifier {
     log.i("Stopped collecting gps data.");
   }
 
-  /// Start collecting accelerometer data.
-  Future<void> startCollectingAccData() async {
-    // Note: The sampling period is a recommendation and can diverge from the actual period.
-    const samplingPeriod = Duration(milliseconds: 1000);
-    final stream = accelerometerEventStream(samplingPeriod: samplingPeriod);
-    accCache = CSVCache(
-      header: "timestamp,x,y,z",
-      file: await track!.accelerometerCSVFile,
-      maxLines: 5, // Flush after 5 lines of data (~5s).
-    );
-    accSub = stream.listen((event) {
-      latestAccEventTimestamp = DateTime.now().millisecondsSinceEpoch;
-      latestAccEvent = event;
-    });
-    log.i("Started collecting accelerometer data.");
-  }
-
-  /// Stop collecting accelerometer data.
-  Future<void> stopCollectingAccData() async {
-    await accSub?.cancel();
-    accSub = null;
-    await accCache?.flush();
-    log.i("Stopped collecting accelerometer data.");
-  }
-
-  /// Start collecting gyroscope data.
-  Future<void> startCollectingGyrData() async {
-    // Note: The sampling period is a recommendation and can diverge from the actual period.
-    const samplingPeriod = Duration(milliseconds: 1000);
-    final stream = gyroscopeEventStream(samplingPeriod: samplingPeriod);
-    gyrCache = CSVCache(
-      header: "timestamp,x,y,z",
-      file: await track!.gyroscopeCSVFile,
-      maxLines: 5, // Flush after 5 lines of data (~5s).
-    );
-    gyrSub = stream.listen((event) {
-      latestGyroEventTimestamp = DateTime.now().millisecondsSinceEpoch;
-      latestGyroEvent = event;
-    });
-    log.i("Started collecting gyroscope data.");
-  }
-
-  /// Stop collecting gyroscope data.
-  Future<void> stopCollectingGyrData() async {
-    await gyrSub?.cancel();
-    gyrSub = null;
-    await gyrCache?.flush();
-    log.i("Stopped collecting gyroscope data.");
-  }
-
-  /// Start collecting magnetometer data.
-  Future<void> startCollectingMagData() async {
-    // Note: The sampling period is a recommendation and can diverge from the actual period.
-    const samplingPeriod = Duration(milliseconds: 1000);
-    final stream = magnetometerEventStream(samplingPeriod: samplingPeriod);
-    magCache = CSVCache(
-      header: "timestamp,x,y,z",
-      file: await track!.magnetometerCSVFile,
-      maxLines: 5, // Flush after 5 lines of data (~5s).
-    );
-    magSub = stream.listen((event) {
-      latestMagEventTimestamp = DateTime.now().millisecondsSinceEpoch;
-      latestMagEvent = event;
-    });
-    log.i("Started collecting magnetometer data.");
-  }
-
-  /// Stop collecting magnetometer data.
-  Future<void> stopCollectingMagData() async {
-    await magSub?.cancel();
-    magSub = null;
-    await magCache?.flush();
-    log.i("Stopped collecting magnetometer data.");
-  }
-
   /// Notify the tracking service that a rerouting has happened.
   Future<void> selectRoute(Route newRoute) async {
     log.i("New route selected.");
@@ -373,25 +255,16 @@ class Tracking with ChangeNotifier {
     track?.endTime = DateTime.now().millisecondsSinceEpoch;
 
     final ride = getIt<Ride>();
-    if (ride.predictionComponent is PredictionService) {
-      track?.predictionServicePredictions =
-          (ride.predictionComponent! as PredictionService).predictionServicePredictions;
-      track?.predictorPredictions = [];
-    } else if (ride.predictionComponent is Predictor) {
-      track?.predictorPredictions = (ride.predictionComponent! as Predictor).predictorPredictions;
-      track?.predictionServicePredictions = [];
-    } else if (ride.predictionComponent is HybridPredictor) {
-      track?.predictorPredictions = (ride.predictionComponent! as HybridPredictor).predictorPredictions;
-      track?.predictionServicePredictions = (ride.predictionComponent! as HybridPredictor).predictionServicePredictions;
-    }
+    track?.predictionServicePredictions = ride.predictionProvider?.predictionServicePredictions ?? [];
+    track?.predictorPredictions = ride.predictionProvider?.predictorPredictions ?? [];
 
-    sensorSamplingTimer?.cancel();
-    sensorSamplingTimer = null;
+    batterySamplingTimer?.cancel();
+    batterySamplingTimer = null;
+    // Add the last battery state.
+    await sampleBatteryState();
+    battery = null;
 
     // Stop collecting data.
-    await stopCollectingMagData();
-    await stopCollectingGyrData();
-    await stopCollectingAccData();
     await stopCollectingGpsData();
 
     // Update the track in the list of previous tracks and save it.
@@ -421,7 +294,7 @@ class Tracking with ChangeNotifier {
     // Check if the user only wants to send data when connected to WiFi.
     if (submissionPolicy == TrackingSubmissionPolicy.onlyOnWifi) {
       final connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult != ConnectivityResult.wifi) {
+      if (!connectivityResult.contains(ConnectivityResult.wifi)) {
         log.i("Not sending track ${track.sessionId} (no connection to WiFi).");
         return false;
       }
@@ -444,18 +317,6 @@ class Tracking with ChangeNotifier {
       final gpsBytes = gzip.encode(await (await track.gpsCSVFile).readAsBytes());
       final gpsMF = MultipartFile.fromBytes('gps.csv.gz', gpsBytes, filename: 'gps.csv.gz');
 
-      // Data statistics: 10 minutes ~ 500-1000 KB (gzipped), 5 MB (uncompressed).
-      final accBytes = gzip.encode(await (await track.accelerometerCSVFile).readAsBytes());
-      final accMF = MultipartFile.fromBytes('accelerometer.csv.gz', accBytes, filename: 'accelerometer.csv.gz');
-
-      // Data statistics: 10 minutes ~ 1000-2000 KB (gzipped), 5 MB (uncompressed).
-      final gyrBytes = gzip.encode(await (await track.gyroscopeCSVFile).readAsBytes());
-      final gyrMF = MultipartFile.fromBytes('gyroscope.csv.gz', gyrBytes, filename: 'gyroscope.csv.gz');
-
-      // Data statistics: 10 minutes ~ 1000-2000 KB (gzipped), 5 MB (uncompressed).
-      final magBytes = gzip.encode(await (await track.magnetometerCSVFile).readAsBytes());
-      final magMF = MultipartFile.fromBytes('magnetometer.csv.gz', magBytes, filename: 'magnetometer.csv.gz');
-
       if (track.endTime != null) {
         final trackDurationMinutes = (track.endTime! - track.startTime) / 1000 / 60;
         log.i("Track duration: ${trackDurationMinutes.round()} minutes.");
@@ -464,17 +325,14 @@ class Tracking with ChangeNotifier {
       }
       log.i("Sending ${(metadataBytes.length / 1000).round()} KB of gzipped track metadata.");
       log.i("Sending ${(gpsBytes.length / 1000).round()} KB of compressed GPS data.");
-      log.i("Sending ${(accBytes.length / 1000).round()} KB of compressed accelerometer data.");
-      log.i("Sending ${(gyrBytes.length / 1000).round()} KB of compressed gyroscope data.");
-      log.i("Sending ${(magBytes.length / 1000).round()} KB of compressed magnetometer data.");
 
       // Skip tracks that are >50 MB, but mark them as sent so that they are not sent again.
-      final totalSize = metadataBytes.length + gpsBytes.length + accBytes.length + gyrBytes.length + magBytes.length;
+      final totalSize = metadataBytes.length + gpsBytes.length;
       if (totalSize < 50 * 1000 * 1000) {
         final response = await Http.multipartPost(
           endpoint,
           fields: {},
-          files: [metadataMF, gpsMF, accMF, gyrMF, magMF],
+          files: [metadataMF, gpsMF],
         );
         if (response.statusCode != 200) {
           throw Exception("Tracking service responded with ${response.statusCode}: ${response.body}.");

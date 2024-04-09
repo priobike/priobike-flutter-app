@@ -23,7 +23,11 @@ class ShortcutLocation implements Shortcut {
   /// The waypoint of the shortcut location.
   final Waypoint waypoint;
 
-  ShortcutLocation({required this.name, required this.waypoint, required this.id});
+  ShortcutLocation({
+    required this.name,
+    required this.waypoint,
+    required this.id,
+  });
 
   factory ShortcutLocation.fromJson(Map<String, dynamic> json) {
     return ShortcutLocation(

@@ -166,7 +166,7 @@ class PredictorPrediction implements Prediction {
       calcQualitiesFromNow = calcQualitiesFromNow + thenQuality.sublist((index - now.length) % then.length);
     }
     // Fill the phases with "then" (the average behavior) until we have enough values.
-    while (calcPhasesFromNow.length < refTimeIdx + 300) {
+    while (calcPhasesFromNow.length < refTimeIdx + 180) {
       calcPhasesFromNow = calcPhasesFromNow + then;
       calcQualitiesFromNow = calcQualitiesFromNow + thenQuality;
     }

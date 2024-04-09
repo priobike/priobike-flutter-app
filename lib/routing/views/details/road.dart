@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -69,6 +71,7 @@ final roadClassColor = {
   "Spielstraße": const Color(0xFF405645),
   "Fußweg": const Color(0xFFD8CD88),
   "Fußgängerzone": const Color(0xFFEB9034),
+  "Absteigen": const Color(0xFFFFD600),
   "Bahnsteig": const Color(0xFFDC576C),
   "Korridor": const Color(0xFFFF4260),
   "Sonstiges": const Color(0xFF676767)
@@ -117,6 +120,16 @@ class RoadClassChartState extends State<RoadClassChart> {
   Future<void> processRouteData() async {
     if (routing.selectedRoute == null) return setState(() => roadClassDistances = {});
 
+    // Check if we need to get off the bike at certain parts of the route.
+    final getOffBikeIndices = HashSet<int>();
+    for (GHSegment segment in routing.selectedRoute!.path.details.getOffBike) {
+      if (segment.value) {
+        for (var coordIdx = segment.from; coordIdx < segment.to; coordIdx++) {
+          getOffBikeIndices.add(coordIdx);
+        }
+      }
+    }
+
     const vincenty = Distance(roundResult: false);
     roadClassDistances = {};
     for (GHSegment segment in routing.selectedRoute!.path.details.roadClass) {
@@ -125,7 +138,10 @@ class RoadClassChartState extends State<RoadClassChart> {
         final coordTo = routing.selectedRoute!.path.points.coordinates[coordIdx + 1];
         final distance = vincenty.distance(LatLng(coordFrom.lat, coordFrom.lon), LatLng(coordTo.lat, coordTo.lon));
         // Use translation as key to summarize same translation keys. Use "Unbekannt" as standard value.
-        final key = roadClassTranslation[segment.value] ?? "Unbekannt";
+        String key = roadClassTranslation[segment.value] ?? "Unbekannt";
+        if (getOffBikeIndices.contains(coordIdx)) {
+          key = "$key (Absteigen)";
+        }
         if (roadClassDistances.containsKey(key)) {
           roadClassDistances[key] = roadClassDistances[key]! + distance;
         } else {
@@ -151,7 +167,7 @@ class RoadClassChartState extends State<RoadClassChart> {
           width: (availableWidth * pct).floorToDouble(),
           height: 32,
           decoration: BoxDecoration(
-            color: roadClassColor[e.key],
+            color: roadClassColor[e.key.contains("Absteigen") ? "Absteigen" : e.key],
             border: Border.all(
               color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.white.withOpacity(0.07)
@@ -188,7 +204,7 @@ class RoadClassChartState extends State<RoadClassChart> {
                 height: 14,
                 width: 14,
                 decoration: BoxDecoration(
-                  color: roadClassColor[e.key],
+                  color: roadClassColor[e.key.contains("Absteigen") ? "Absteigen" : e.key],
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: Theme.of(context).brightness == Brightness.dark

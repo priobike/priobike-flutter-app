@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/link_shortener.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -17,17 +19,44 @@ class ShowQRCodeView extends StatefulWidget {
 class ShowQRCodeViewState extends State<ShowQRCodeView> {
   String? shortLink;
 
+  /// The shortcut without it's name.
+  late Shortcut shortcutWithoutName;
+
   ShowQRCodeViewState();
 
   @override
   void initState() {
     super.initState();
-
-    getBase64();
+    _removeNameFromShortcut();
+    _encodeShortcut();
   }
 
-  Future<void> getBase64() async {
-    final longLink = widget.shortcut.getLongLink();
+  /// Remove the name from the shortcut for privacy reasons.
+  void _removeNameFromShortcut() {
+    if (widget.shortcut is ShortcutLocation) {
+      shortcutWithoutName = ShortcutLocation(
+        waypoint: (widget.shortcut as ShortcutLocation).waypoint,
+        id: UniqueKey().toString(),
+        // Fill with empty name.
+        name: "",
+      );
+    } else if (widget.shortcut is ShortcutRoute) {
+      shortcutWithoutName = ShortcutRoute(
+        waypoints: (widget.shortcut as ShortcutRoute).waypoints,
+        id: UniqueKey().toString(),
+        // Fill with empty name.
+        name: "",
+        routeTimeText: (widget.shortcut as ShortcutRoute).routeTimeText,
+        routeLengthText: (widget.shortcut as ShortcutRoute).routeLengthText,
+      );
+    } else {
+      throw Exception("Unknown shortcut type");
+    }
+  }
+
+  /// Encode the shortcut for the QR code.
+  Future<void> _encodeShortcut() async {
+    final longLink = shortcutWithoutName.getLongLink();
     final newShortLink = await LinkShortener.createShortLink(longLink);
     if (newShortLink == null) {
       ToastMessage.showError("Fehler beim Erstellen des QR Codes");

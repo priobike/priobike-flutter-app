@@ -21,6 +21,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/settings/views/text.dart';
+import 'package:priobike/status/views/map.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
 import 'package:share_plus/share_plus.dart';
@@ -248,8 +249,8 @@ class SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: Stack(children: [
           SingleChildScrollView(
@@ -368,7 +369,8 @@ class SettingsViewState extends State<SettingsView> {
                       SettingsElement(
                         title: "Sprachausgabe aktivieren",
                         icon: settings.saveAudioInstructionsEnabled ? Icons.check_box : Icons.check_box_outline_blank,
-                        callback: () => settings.setSaveAudioInstructionsEnabled(!settings.saveAudioInstructionsEnabled),
+                        callback: () =>
+                            settings.setSaveAudioInstructionsEnabled(!settings.saveAudioInstructionsEnabled),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -487,6 +489,14 @@ class SettingsViewState extends State<SettingsView> {
                         child: Content(text: "Weitere Informationen", context: context),
                       ),
                       const VSpace(),
+                      SettingsElement(
+                        title: "Status-Karte",
+                        icon: Icons.info_outline_rounded,
+                        callback: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SGStatusMapView()));
+                        },
+                      ),
+                      const SmallVSpace(),
                       SettingsElement(
                         title: "Datenschutz",
                         icon: Icons.info_outline_rounded,

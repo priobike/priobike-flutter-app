@@ -31,7 +31,15 @@ class SymbolLoader {
     await add("trafficlighttouchindicatordark", "assets/images/trafficlights/touch-indicator-dark.png", 400, 400);
     await add("trafficlighttouchindicatorlight", "assets/images/trafficlights/touch-indicator-light.png", 400, 400);
 
-    await add("dangerspot", "assets/images/dangerspot.png", 400, 400);
+    await add("accidenthotspot", "assets/images/discomforts/accidenthotspot.png", 200, 183);
+    await add("carspeed", "assets/images/discomforts/carspeed.png", 200, 183);
+    await add("construction", "assets/images/discomforts/construction.png", 200, 183);
+    await add("decline", "assets/images/discomforts/decline.png", 200, 183);
+    await add("incline", "assets/images/discomforts/incline.png", 200, 183);
+    await add("pedestrians", "assets/images/discomforts/pedestrians.png", 200, 183);
+    await add("surface", "assets/images/discomforts/surface.png", 200, 183);
+    await add("dismount", "assets/images/discomforts/dismount.png", 200, 183);
+
     await add("start", "assets/images/start.drawio.png", 83, 83);
     await add("destination", "assets/images/destination.drawio.png", 84, 84);
     await add("waypoint", "assets/images/waypoint.drawio.png", 84, 84);
@@ -40,8 +48,6 @@ class SymbolLoader {
     await add("airdark", "assets/images/air-dark.png", 200, 200);
     await add("airlight", "assets/images/air-light.png", 200, 200);
     await add("airselected", "assets/images/air-selected.png", 200, 200);
-    await add("constructiondark", "assets/images/construction-dark.png", 200, 200);
-    await add("constructionlight", "assets/images/construction-light.png", 200, 200);
     await add("parkdark", "assets/images/park-dark.png", 200, 200);
     await add("parklight", "assets/images/park-light.png", 200, 200);
     await add("parkselected", "assets/images/park-selected.png", 200, 200);
@@ -55,24 +61,20 @@ class SymbolLoader {
     await add("repairdark", "assets/images/repair-dark.png", 200, 200);
     await add("repairlight", "assets/images/repair-light.png", 200, 200);
     await add("repairselected", "assets/images/repair-selected.png", 200, 200);
-    await add("accidentdark", "assets/images/accident-dark.png", 200, 200);
-    await add("accidentlight", "assets/images/accident-light.png", 200, 200);
     await add("greenwavedark", "assets/images/green-wave-dark.png", 200, 200);
     await add("greenwavelight", "assets/images/green-wave-light.png", 200, 200);
 
-    await add("route-label-primary-left", "assets/images/route-label-primary-left.png", 201, 63);
-    await add("route-label-primary-right", "assets/images/route-label-primary-right.png", 201, 63);
-    await add("route-label-primary-top", "assets/images/route-label-primary-top.png", 151, 113);
-    await add("route-label-primary-bottom", "assets/images/route-label-primary-bottom.png", 151, 113);
-    await add("route-label-secondary-left", "assets/images/route-label-secondary-left.png", 200, 63);
-    await add("route-label-secondary-right", "assets/images/route-label-secondary-right.png", 200, 63);
-    await add("route-label-secondary-top", "assets/images/route-label-secondary-top.png", 150, 113);
-    await add("route-label-secondary-bottom", "assets/images/route-label-secondary-bottom.png", 150, 113);
+    await add("free-ride-green", "assets/images/trafficlights/free-ride-green.png", 200, 200);
+    await add("free-ride-red", "assets/images/trafficlights/free-ride-red.png", 200, 200);
+    await add("free-ride-none-light", "assets/images/trafficlights/free-ride-none-light.png", 200, 200);
+    await add("free-ride-none-dark", "assets/images/trafficlights/free-ride-none-dark.png", 200, 200);
   }
 
   /// Adds an asset image to the currently displayed style
   Future<void> add(String name, String assetName, int width, int height) async {
-    if (await mapController.style.hasStyleImage(name)) return;
+    // This can't be used right now. See: https://github.com/mapbox/mapbox-maps-flutter/issues/411
+    // if (await mapController.style.hasStyleImage(name)) return;
+
     final bytes = await rootBundle.load(assetName);
     final bytesArr = bytes.buffer.asUint8List();
     return mapController.style

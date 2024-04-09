@@ -40,7 +40,7 @@ class ImportGpxViewState extends State<ImportGpxView> {
     List<Waypoint> waypoints = await gpxConversionNotifier.reduceWpts(points, routing);
     ToastMessage.showSuccess("Die GPX Strecke wurde erfolgreich konvertiert.");
     if (mounted) {
-      showSaveShortcutSheet(
+      showSaveShortcutFromShortcutSheet(
         context,
         shortcut: ShortcutRoute(
           id: UniqueKey().toString(),
@@ -55,8 +55,8 @@ class ImportGpxViewState extends State<ImportGpxView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(

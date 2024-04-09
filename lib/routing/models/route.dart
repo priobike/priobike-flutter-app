@@ -4,14 +4,15 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
+import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/models/instruction.dart';
 
 class Route {
-  /// The route id.
-  final int id;
+  /// The route idx.
+  final int idx;
 
   /// The GraphHopper route response path.
   final GHRouteResponsePath path;
@@ -37,8 +38,26 @@ class Route {
   /// A list of instructions.
   final List<Instruction> instructions;
 
-  const Route({
-    required this.id,
+  /// The most unique attribute of the route within a set of routes.
+  String? mostUniqueAttribute;
+
+  /// The number of sgs that are ok.
+  int ok = 0;
+
+  /// The number of sgs that are offline.
+  int offline = 0;
+
+  /// The number of sgs that have a bad quality.
+  int bad = 0;
+
+  /// The number of disconnected sgs.
+  int disconnected = 0;
+
+  /// The found discomforts.
+  List<DiscomfortSegment>? foundDiscomforts;
+
+  Route({
+    required this.idx,
     required this.path,
     required this.route,
     required this.signalGroups,
@@ -49,7 +68,7 @@ class Route {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
+        'idx': idx,
         'path': path.toJson(),
         'route': route.map((e) => e.toJson()).toList(),
         'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
@@ -59,7 +78,7 @@ class Route {
       };
 
   factory Route.fromJson(dynamic json) => Route(
-        id: json["id"],
+        idx: json["idx"],
         path: GHRouteResponsePath.fromJson(json['path']),
         route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
         signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
@@ -79,7 +98,7 @@ class Route {
     final distToLast =
         last == null ? null : vincenty.distance(LatLng(last.lat, last.lon), LatLng(endpoint.lat, endpoint.lon));
     return Route(
-      id: id,
+      idx: idx,
       path: path,
       signalGroups: signalGroups,
       signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
@@ -122,13 +141,13 @@ class Route {
     return CoordinateBounds(
         southwest: Point(
             coordinates: Position(
-          s,
           w,
+          s,
         )).toJson(),
         northeast: Point(
             coordinates: Position(
-          n,
           e,
+          n,
         )).toJson(),
         infiniteBounds: false);
   }
@@ -138,11 +157,11 @@ class Route {
     final bounds = this.bounds;
     const pad = 0.003;
     final coordinatesSouthwest = bounds.southwest["coordinates"] as List;
-    final s = coordinatesSouthwest[1] as double;
-    final w = coordinatesSouthwest[0] as double;
+    final s = coordinatesSouthwest[0] as double;
+    final w = coordinatesSouthwest[1] as double;
     final coordinatesNortheast = bounds.northeast["coordinates"] as List;
-    final n = coordinatesNortheast[1] as double;
-    final e = coordinatesNortheast[0] as double;
+    final n = coordinatesNortheast[0] as double;
+    final e = coordinatesNortheast[1] as double;
     return CoordinateBounds(
         southwest: Point(
             coordinates: Position(

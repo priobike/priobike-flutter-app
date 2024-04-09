@@ -4,9 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -21,87 +19,13 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/routing/models/instruction.dart';
-
-enum RoutingProfile {
-  bikeDefault, // Bike doesn't consider elevation data.
-  bikeShortest,
-  bikeFastest,
-  bike2Default, // Bike2 considers elevation data (avoid uphills).
-  bike2Shortest,
-  bike2Fastest,
-  racingbikeDefault,
-  racingbikeShortest,
-  racingbikeFastest,
-  mtbDefault,
-  mtbShortest,
-  mtbFastest,
-}
-
-extension RoutingProfileExtension on RoutingProfile {
-  String get ghConfigName {
-    switch (this) {
-      case RoutingProfile.bikeDefault:
-        return "bike_default";
-      case RoutingProfile.bikeShortest:
-        return "bike_shortest";
-      case RoutingProfile.bikeFastest:
-        return "bike_fastest";
-      case RoutingProfile.bike2Default:
-        return "bike2_default";
-      case RoutingProfile.bike2Shortest:
-        return "bike2_shortest";
-      case RoutingProfile.bike2Fastest:
-        return "bike2_fastest";
-      case RoutingProfile.racingbikeDefault:
-        return "racingbike_default";
-      case RoutingProfile.racingbikeShortest:
-        return "racingbike_shortest";
-      case RoutingProfile.racingbikeFastest:
-        return "racingbike_fastest";
-      case RoutingProfile.mtbDefault:
-        return "mtb_default";
-      case RoutingProfile.mtbShortest:
-        return "mtb_shortest";
-      case RoutingProfile.mtbFastest:
-        return "mtb_fastest";
-    }
-  }
-
-  String get explanation {
-    switch (this) {
-      case RoutingProfile.bikeDefault:
-        return "Standard";
-      case RoutingProfile.bikeShortest:
-        return "Kürzeste Strecke";
-      case RoutingProfile.bikeFastest:
-        return "Schnellste Strecke";
-      case RoutingProfile.bike2Default:
-        return "Anstiege vermeiden";
-      case RoutingProfile.bike2Shortest:
-        return "Anstiege vermeiden - Kürzeste Strecke";
-      case RoutingProfile.bike2Fastest:
-        return "Anstiege vermeiden - Schnellste Strecke";
-      case RoutingProfile.racingbikeDefault:
-        return "Rennrad";
-      case RoutingProfile.racingbikeShortest:
-        return "Rennrad - Kürzeste Strecke";
-      case RoutingProfile.racingbikeFastest:
-        return "Rennrad - Schnellste Strecke";
-      case RoutingProfile.mtbDefault:
-        return "Mountainbike";
-      case RoutingProfile.mtbShortest:
-        return "Mountainbike - Kürzeste Strecke";
-      case RoutingProfile.mtbFastest:
-        return "Mountainbike - Schnellste Strecke";
-    }
-  }
-}
 
 /// A typed tuple for a crossing and its distance.
 class TupleCrossingsDistances {
@@ -127,8 +51,8 @@ class Routing with ChangeNotifier {
   /// The waypoints of the loaded route, if provided.
   List<Waypoint>? fetchedWaypoints;
 
-  /// The selected graphhopper routing profile.
-  RoutingProfile? selectedProfile;
+  /// The bike type of the loaded route, if provided.
+  BikeType? fetchedBikeType;
 
   /// The waypoints of the selected route, if provided.
   List<Waypoint>? selectedWaypoints;
@@ -158,6 +82,7 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+      fetchedBikeType = null;
     }
     notifyListeners();
   }
@@ -180,6 +105,7 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+      fetchedBikeType = null;
 
       if (!inCityBoundary(selectedWaypoints!)) {
         hadErrorDuringFetch = true;
@@ -201,9 +127,7 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
-
-      final discomforts = getIt<Discomforts>();
-      await discomforts.reset();
+      fetchedBikeType = null;
     }
 
     notifyListeners();
@@ -233,16 +157,12 @@ class Routing with ChangeNotifier {
     return await selectWaypoints(remaining);
   }
 
-  // Select waypoints from shortcut and save shortcut.
-  Future<void> selectShortcut(Shortcut shortcut) async {
-    selectWaypoints(shortcut.getWaypoints());
-  }
-
   // Reset the routing service.
   Future<void> reset() async {
     hadErrorDuringFetch = false;
     isFetchingRoute = false;
     fetchedWaypoints = null;
+    fetchedBikeType = null;
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
@@ -290,45 +210,10 @@ class Routing with ChangeNotifier {
     }
   }
 
-  /// Select the correct profile.
-  Future<RoutingProfile> selectProfile() async {
-    final profile = getIt<Profile>();
-
-    // Look for specific bike types first.
-    if (profile.bikeType == BikeType.mountainbike) {
-      if (profile.preferenceType == PreferenceType.fast) {
-        return RoutingProfile.mtbFastest;
-      } else {
-        return RoutingProfile.mtbDefault;
-      }
-    }
-    if (profile.bikeType == BikeType.racingbike) {
-      if (profile.preferenceType == PreferenceType.fast) {
-        return RoutingProfile.racingbikeFastest;
-      } else {
-        return RoutingProfile.racingbikeDefault;
-      }
-    }
-
-    // Check if the user wants to do sport - if so, ignore elevation.
-    if (profile.activityType == ActivityType.allowIncline) {
-      if (profile.preferenceType == PreferenceType.fast) {
-        return RoutingProfile.bikeFastest;
-      } else {
-        return RoutingProfile.bikeDefault;
-      }
-    }
-
-    if (profile.preferenceType == PreferenceType.fast) {
-      return RoutingProfile.bike2Fastest;
-    } else {
-      return RoutingProfile.bike2Default;
-    }
-  }
-
   /// Load a GraphHopper response.
   Future<GHRouteResponse?> loadGHRouteResponse(List<Waypoint> waypoints) async {
     try {
+      final bikeType = getIt<Profile>().bikeType;
       final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       final servicePath = settings.routingEndpoint.servicePath;
@@ -337,12 +222,12 @@ class Routing with ChangeNotifier {
       ghUrl += "&locale=de";
       ghUrl += "&elevation=true";
       ghUrl += "&points_encoded=false";
-      ghUrl += "&profile=${selectedProfile?.ghConfigName ?? RoutingProfile.bike2Default.ghConfigName}";
+      ghUrl += "&profile=${bikeType.ghConfigName}";
       // Add the supported details. This must be specified in the GraphHopper config.
       ghUrl += "&details=surface";
       ghUrl += "&details=max_speed";
       ghUrl += "&details=smoothness";
-      ghUrl += "&details=lanes";
+      ghUrl += "&details=get_off_bike";
       ghUrl += "&details=road_class";
       if (waypoints.length == 2) {
         ghUrl += "&algorithm=alternative_route";
@@ -385,8 +270,10 @@ class Routing with ChangeNotifier {
   Future<List<r.Route>?> loadRoutes() async {
     if (isFetchingRoute) return null;
 
+    final bikeType = getIt<Profile>().bikeType;
+
     // Do nothing if the waypoints were already fetched (or both are null).
-    if (fetchedWaypoints == selectedWaypoints) return null;
+    if (fetchedWaypoints == selectedWaypoints && fetchedBikeType == bikeType) return null;
     if (selectedWaypoints == null || selectedWaypoints!.isEmpty) {
       hadErrorDuringFetch = false;
       notifyListeners();
@@ -426,9 +313,6 @@ class Routing with ChangeNotifier {
       notifyListeners();
       return null;
     }
-
-    // Select the correct profile.
-    selectedProfile = await selectProfile();
 
     // Load the GraphHopper response.
     final ghResponse = await loadGHRouteResponse(selectedWaypoints!);
@@ -501,11 +385,10 @@ class Routing with ChangeNotifier {
           }
 
           // Add an instruction for each relevant waypoint
-          List<Instruction> instructions =
-              createInstructions(sgSelectorResponse, path);
+          List<Instruction> instructions = createInstructions(sgSelectorResponse, path);
 
           var route = r.Route(
-            id: i,
+            idx: i,
             path: path,
             route: sgSelectorResponse.route,
             signalGroups: sgsInOrderOfRoute,
@@ -524,25 +407,34 @@ class Routing with ChangeNotifier {
     selectedRoute = routes.first;
     allRoutes = routes;
     fetchedWaypoints = selectedWaypoints!;
+    fetchedBikeType = bikeType;
     isFetchingRoute = false;
 
-    final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(routes.first);
-
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(routes.first);
+    final discomforts = getIt<Discomforts>();
 
+    for (r.Route route in routes) {
+      await status.fetch(route);
+      status.updateStatus(route);
+      await discomforts.findDiscomforts(route);
+    }
+    // The Status and Discomforts must be first fetched for every route
+    // before we can compare all routes with every other route to find the most unique attribute.
+    for (r.Route route in routes) {
+      findMostUniqueAttributeForRoute(route.idx);
+    }
     notifyListeners();
     return routes;
   }
 
   /// Find the waypoint x meters before the current instruction
   /// DistanceToInstructionPoint x must be given as an argument.
-  LatLng? findWaypointMetersBeforeInstruction(int distanceToInstructionPoint, SGSelectorResponse sgSelectorResponse, int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
+  LatLng? findWaypointMetersBeforeInstruction(int distanceToInstructionPoint, SGSelectorResponse sgSelectorResponse,
+      int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
     double totalDistanceToInstructionPoint = 0;
     LatLng p2 = LatLng(sgSelectorResponse.route[i].lat, sgSelectorResponse.route[i].lon);
     LatLng p1;
-    for (var j = i-1; j >= 0; j--) {
+    for (var j = i - 1; j >= 0; j--) {
       p1 = LatLng(sgSelectorResponse.route[j].lat, sgSelectorResponse.route[j].lon);
 
       var distanceToPreviousNavigationNode = Snapper.vincenty.distance(p1, p2);
@@ -573,8 +465,8 @@ class Routing with ChangeNotifier {
     List<GHInstruction> instructionList = [];
 
     // Get the GraphHopper coordinates that matches lat and long of current waypoint.
-    final ghCoordinate = path.points.coordinates.firstWhereOrNull((element) =>
-    element.lat == waypoint.lat && element.lon == waypoint.lon);
+    final ghCoordinate = path.points.coordinates
+        .firstWhereOrNull((element) => element.lat == waypoint.lat && element.lon == waypoint.lon);
 
     if (ghCoordinate != null) {
       final index = path.points.coordinates.indexOf(ghCoordinate);
@@ -587,7 +479,9 @@ class Routing with ChangeNotifier {
 
           int instructionIndex = path.instructions.indexOf(instruction);
           final previousInstruction = instructionIndex > 0 ? path.instructions[instructionIndex - 1] : null;
-          final isFollowTheRouteInstructionAfterWaypoint = instruction.text == "Dem Straßenverlauf folgen" && previousInstruction != null && previousInstruction.text.startsWith("Wegpunkt");
+          final isFollowTheRouteInstructionAfterWaypoint = instruction.text == "Dem Straßenverlauf folgen" &&
+              previousInstruction != null &&
+              previousInstruction.text.startsWith("Wegpunkt");
 
           if (!isWaypoint && !isFollowTheRouteInstructionAfterWaypoint) {
             instructionList.add(instruction);
@@ -613,7 +507,9 @@ class Routing with ChangeNotifier {
     if (!hasGHInstruction && waypoint.distanceToNextSignal == 0.0 && waypoint.signalGroupId != null) {
       // if waypoint does not belong to a GHInstruction check if there is a sg at the exact point
       return waypoint.signalGroupId;
-    } else if (hasGHInstruction && waypoint.distanceToNextSignal != null && waypoint.distanceToNextSignal! <= distance!) {
+    } else if (hasGHInstruction &&
+        waypoint.distanceToNextSignal != null &&
+        waypoint.distanceToNextSignal! <= distance!) {
       // if waypoint belongs to a GHInstruction check if there is a sg near the point
       return waypoint.signalGroupId;
     }
@@ -621,18 +517,30 @@ class Routing with ChangeNotifier {
   }
 
   /// Create the instruction text based on the type of instruction.
-  List<InstructionText> createInstructionText(bool isFirstCall, InstructionType instructionType, String ghInstructionText, String? signalGroupId, String laneType, double distanceToNextSg) {
+  List<InstructionText> createInstructionText(bool isFirstCall, InstructionType instructionType,
+      String ghInstructionText, String? signalGroupId, String laneType, double distanceToNextSg) {
     String prefix = isFirstCall ? "In 300 Metern" : "";
     String sgType = (laneType == "Radfahrer") ? "Radampel" : "Ampel";
 
     switch (instructionType) {
       case InstructionType.directionOnly:
-        return [InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction, distanceToNextSg: distanceToNextSg)];
+        return [
+          InstructionText(
+              text: "$prefix $ghInstructionText",
+              type: InstructionTextType.direction,
+              distanceToNextSg: distanceToNextSg)
+        ];
       case InstructionType.signalGroupOnly:
-        return [InstructionText(text: "$prefix $sgType", type: InstructionTextType.signalGroup, distanceToNextSg: distanceToNextSg)];
+        return [
+          InstructionText(
+              text: "$prefix $sgType", type: InstructionTextType.signalGroup, distanceToNextSg: distanceToNextSg)
+        ];
       case InstructionType.directionAndSignalGroup:
         return [
-          InstructionText(text: "$prefix $ghInstructionText", type: InstructionTextType.direction, distanceToNextSg: distanceToNextSg),
+          InstructionText(
+              text: "$prefix $ghInstructionText",
+              type: InstructionTextType.direction,
+              distanceToNextSg: distanceToNextSg),
           InstructionText(text: sgType, type: InstructionTextType.signalGroup, distanceToNextSg: distanceToNextSg)
         ];
       default:
@@ -655,7 +563,8 @@ class Routing with ChangeNotifier {
     for (var i = 0; i < sgSelectorResponse.route.length; i++) {
       final currentWaypoint = sgSelectorResponse.route[i];
       String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint);
-      String? signalGroupId = getSignalGroupIdForWaypoint(currentWaypoint, ghInstructionText.isNotEmpty, 50); // TODO: check distance between sg and instruction
+      String? signalGroupId = getSignalGroupIdForWaypoint(
+          currentWaypoint, ghInstructionText.isNotEmpty, 50); // TODO: check distance between sg and instruction
       String laneType = sgSelectorResponse.signalGroups[signalGroupId]?.laneType ?? "";
       InstructionType? instructionType = getInstructionType(ghInstructionText, signalGroupId);
       if (instructionType == null) {
@@ -665,18 +574,19 @@ class Routing with ChangeNotifier {
       // Try to create first instruction call 300m before the point the instruction is referring to
       // Or to concatenate with the previous instruction if the distance is less than 300m
       // If concatenation is not possible no firstInstructionCall will be added to the route.
-      var waypointFirstInstructionCall = findWaypointMetersBeforeInstruction(300, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+      var waypointFirstInstructionCall =
+          findWaypointMetersBeforeInstruction(300, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
       if (waypointFirstInstructionCall != null) {
         Instruction firstInstructionCall = Instruction(
             lat: waypointFirstInstructionCall.latitude,
             lon: waypointFirstInstructionCall.longitude,
             text: createInstructionText(true, instructionType, ghInstructionText, signalGroupId, laneType, 300),
             instructionType: instructionType,
-            signalGroupId: signalGroupId
-        );
+            signalGroupId: signalGroupId);
         instructions.add(firstInstructionCall);
       } else if (lastInstructionPoint != null && !instructions.last.alreadyConcatenated) {
-        var distanceToActualInstructionPoint = Snapper.vincenty.distance(lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
+        var distanceToActualInstructionPoint =
+            Snapper.vincenty.distance(lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
         var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
         // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
         if (distanceToActualInstructionPoint > threshold) {
@@ -687,15 +597,15 @@ class Routing with ChangeNotifier {
       // Create second instruction call at the point the instruction is referring to.
       if (instructionType == InstructionType.signalGroupOnly) {
         // Put instruction point 100m before sg.
-        var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(100, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+        var waypointSecondInstructionCall =
+            findWaypointMetersBeforeInstruction(100, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           Instruction secondInstructionCall = Instruction(
               lat: waypointSecondInstructionCall.latitude,
               lon: waypointSecondInstructionCall.longitude,
               text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, 100),
               instructionType: instructionType,
-              signalGroupId: signalGroupId
-          );
+              signalGroupId: signalGroupId);
           instructions.add(secondInstructionCall);
           lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
         } else if (instructions.last.instructionType == InstructionType.signalGroupOnly) {
@@ -707,10 +617,10 @@ class Routing with ChangeNotifier {
           Instruction secondInstructionCall = Instruction(
               lat: previousSgLaneEnd[1],
               lon: previousSgLaneEnd[0],
-              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg),
+              text: createInstructionText(
+                  false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg),
               instructionType: instructionType,
-              signalGroupId: signalGroupId
-          );
+              signalGroupId: signalGroupId);
           instructions.add(secondInstructionCall);
           lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
         } else {
@@ -721,10 +631,10 @@ class Routing with ChangeNotifier {
         Instruction secondInstructionCall = Instruction(
             lat: currentWaypoint.lat,
             lon: currentWaypoint.lon,
-            text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, currentWaypoint.distanceToNextSignal ?? 0),
+            text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType,
+                currentWaypoint.distanceToNextSignal ?? 0),
             instructionType: instructionType,
-            signalGroupId: signalGroupId
-        );
+            signalGroupId: signalGroupId);
         instructions.add(secondInstructionCall);
         lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
       }
@@ -733,15 +643,18 @@ class Routing with ChangeNotifier {
   }
 
   /// Determine the instruction type after concatenation.
-  InstructionType getInstructionTypAfterConcatenation(InstructionType originalInstructionType, InstructionType addedInstructionType) {
+  InstructionType getInstructionTypAfterConcatenation(
+      InstructionType originalInstructionType, InstructionType addedInstructionType) {
     switch (originalInstructionType) {
       case InstructionType.signalGroupOnly:
-        if (addedInstructionType == InstructionType.directionOnly || addedInstructionType == InstructionType.directionAndSignalGroup) {
+        if (addedInstructionType == InstructionType.directionOnly ||
+            addedInstructionType == InstructionType.directionAndSignalGroup) {
           return InstructionType.directionAndSignalGroup;
         }
         return InstructionType.signalGroupOnly;
       case InstructionType.directionOnly:
-        if (addedInstructionType == InstructionType.signalGroupOnly || addedInstructionType == InstructionType.directionAndSignalGroup) {
+        if (addedInstructionType == InstructionType.signalGroupOnly ||
+            addedInstructionType == InstructionType.directionAndSignalGroup) {
           return InstructionType.directionAndSignalGroup;
         }
         return InstructionType.directionOnly;
@@ -751,15 +664,18 @@ class Routing with ChangeNotifier {
   }
 
   /// Concatenate the current instruction with the previous one.
-  void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId, List<Instruction> instructions, String laneType) {
+  void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId,
+      List<Instruction> instructions, String laneType) {
     var prevoiusDistToSg = instructions.last.text.last.distanceToNextSg;
-    var textToConcatenate = createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg);
+    var textToConcatenate =
+        createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg);
     for (int i = 0; i < textToConcatenate.length; i++) {
       textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}}";
       instructions.last.text.add(textToConcatenate[i]);
     }
     instructions.last.alreadyConcatenated = true;
-    instructions.last.instructionType = getInstructionTypAfterConcatenation(instructions.last.instructionType, instructionType);
+    instructions.last.instructionType =
+        getInstructionTypAfterConcatenation(instructions.last.instructionType, instructionType);
   }
 
   /// Determine the type of instruction to be created.
@@ -778,40 +694,19 @@ class Routing with ChangeNotifier {
   /// Load the routes from a route shortcut from the server (lightweight).
   /// Note: this function should only be used for migration.
   Future<r.Route?> loadRouteFromShortcutRouteForMigration(ShortcutRoute shortcutRoute) async {
-    if (isFetchingRoute) return null;
-
-    isFetchingRoute = true;
-    hadErrorDuringFetch = false;
-    waypointsOutOfBoundaries = false;
-    notifyListeners();
-
     // Do not allow shortcuts with waypoints length < 2.
     if (shortcutRoute.waypoints.length < 2) {
-      hadErrorDuringFetch = true;
-      waypointsOutOfBoundaries = false;
-      isFetchingRoute = false;
-      notifyListeners();
       return null;
     }
 
     // Check if the waypoints are inside of the city boundaries.
     if (!inCityBoundary(shortcutRoute.waypoints)) {
-      hadErrorDuringFetch = true;
-      waypointsOutOfBoundaries = true;
-      isFetchingRoute = false;
-      notifyListeners();
       return null;
     }
-
-    // Select the correct profile.
-    selectedProfile = await selectProfile();
 
     // Load the GraphHopper response.
     final ghResponse = await loadGHRouteResponse(shortcutRoute.waypoints);
     if (ghResponse == null || ghResponse.paths.isEmpty) {
-      hadErrorDuringFetch = true;
-      isFetchingRoute = false;
-      notifyListeners();
       return null;
     }
 
@@ -836,7 +731,7 @@ class Routing with ChangeNotifier {
 
           // TODO: add method for calculating instructions
           var route = r.Route(
-            id: i,
+            idx: i,
             path: path,
             route: [],
             signalGroups: sgsInOrderOfRoute,
@@ -852,9 +747,6 @@ class Routing with ChangeNotifier {
         .values
         .toList();
 
-    isFetchingRoute = false;
-
-    notifyListeners();
     return routes.first;
   }
 
@@ -864,12 +756,137 @@ class Routing with ChangeNotifier {
 
     selectedRoute = allRoutes![idx];
 
-    final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(selectedRoute!);
-
+    // FIXME: The following code should maybe be removed.
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(selectedRoute!);
+    for (r.Route route in allRoutes!) {
+      await status.fetch(route);
+    }
+    status.updateStatus(selectedRoute!);
 
     notifyListeners();
+  }
+
+  /// Returns a string with the most unique attribute for the given route compared to other routes in allRoutes.
+  findMostUniqueAttributeForRoute(int idx) {
+    if (allRoutes == null || allRoutes!.length <= idx) return;
+    if (allRoutes!.length <= 1) return; // nothing to compare route with
+
+    // The order of comparators defines their importance (first - most important feature)
+    final comparators = [
+      // Statistics related to speed advisory
+      (
+        "Mehr Ampeln\nverbunden",
+        (r.Route r, r.Route o) {
+          if (o.ok == 0) return r.ok > 0;
+          return (r.ok / o.ok - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nKreuzungen",
+        (r.Route r, r.Route o) {
+          if (o.crossings.isEmpty) return r.crossings.isEmpty;
+          return (o.crossings.length / r.crossings.length - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nGefahrenstellen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "accidenthotspot").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "accidenthotspot").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Besserer\nBodenbelag",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "surface").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "surface").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nBaustellen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "construction").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "construction").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Seltener\nAbsteigen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "dismount").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "dismount").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nFußgängerzonen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "pedestrians").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "pedestrians").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\n100 km/h\nStraßen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "carspeed").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "carspeed").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Weniger\nSteile Anstiege",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "incline").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "incline").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Schneller",
+        (r.Route r, r.Route o) {
+          if (o.path.time == 0) return r.path.time > 0;
+          return (o.path.time / r.path.time - 1) > 0.2;
+        }
+      ),
+      (
+        "Kürzer",
+        (r.Route r, r.Route o) {
+          if (o.path.distance == 0) return r.path.distance > 0;
+          return (o.path.distance / r.path.distance - 1) > 0.05;
+        }
+      ),
+      (
+        "Weniger\nSteile Abfahrten",
+        (r.Route r, r.Route o) {
+          final lR = r.foundDiscomforts?.where((e) => e.type == "decline").length ?? 0;
+          final lO = o.foundDiscomforts?.where((e) => e.type == "decline").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.4;
+        }
+      ),
+    ];
+
+    final route = allRoutes![idx];
+    for (int i = 0; i < comparators.length; i++) {
+      final (name, comparator) = comparators[i];
+      final otherRoutes = allRoutes!.where((o) => o.idx != route.idx);
+      final isMostUnique = otherRoutes.every((o) => comparator(route, o));
+      if (isMostUnique) {
+        route.mostUniqueAttribute = name;
+        return;
+      }
+    }
+
+    route.mostUniqueAttribute = null;
   }
 }

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/lock.dart';
@@ -85,7 +88,7 @@ class RideViewState extends State<RideView> {
         ride.initializeTTS();
 
         // Save current route if the app crashes or the user unintentionally closes it.
-        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
+        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
@@ -128,7 +131,7 @@ class RideViewState extends State<RideView> {
                 }
 
                 // Save current route if the app crashes or the user unintentionally closes it.
-                ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
+                ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
                 needsReroute = false;
                 await ride.selectRoute(routes.first);
@@ -139,8 +142,13 @@ class RideViewState extends State<RideView> {
           },
         );
 
+        bool? isDark;
+        if (mounted) {
+          isDark = Theme.of(context).brightness == Brightness.dark;
+        }
+
         // Start tracking once the `sessionId` is set and the positioning stream is available.
-        await tracking.start(deviceWidth, deviceHeight);
+        await tracking.start(deviceWidth, deviceHeight, settings.saveBatteryModeEnabled, isDark);
 
         // Allow user to rotate the screen in ride view.
         // Landscape-Mode will be removed in FinishRideButton.
@@ -204,85 +212,137 @@ class RideViewState extends State<RideView> {
 
     return PopScope(
       onPopInvoked: (type) async => false,
-      child: Scaffold(
-        body: ScreenTrackingView(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            clipBehavior: Clip.none,
-            children: [
-              RideMapView(
-                onMapMoved: onMapMoved,
-                cameraFollowUserLocation: cameraFollowsUserLocation,
-              ),
-              if (settings.saveBatteryModeEnabled)
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 15,
-                  left: 10,
-                  child: const Image(
-                    width: 100,
-                    image: AssetImage('assets/images/mapbox-logo-transparent.png'),
-                  ),
+      child: AnnotatedRegionWrapper(
+        colorMode: Theme.of(context).brightness,
+        bottomBackgroundColor: const Color(0xFF000000),
+        bottomTextBrightness: Brightness.light,
+        child: Scaffold(
+          body: ScreenTrackingView(
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              clipBehavior: Clip.none,
+              children: [
+                RideMapView(
+                  onMapMoved: onMapMoved,
+                  cameraFollowUserLocation: cameraFollowsUserLocation,
                 ),
-              if (settings.saveBatteryModeEnabled)
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 5,
-                  right: 10,
-                  child: IconButton(
-                    onPressed: () => MapboxAttribution.showAttribution(context),
-                    icon: const Icon(
-                      Icons.info_outline_rounded,
-                      size: 25,
-                      color: CI.radkulturRed,
+                if (settings.saveBatteryModeEnabled && Platform.isAndroid)
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 15,
+                    left: 10,
+                    child: const Image(
+                      width: 100,
+                      image: AssetImage('assets/images/mapbox-logo-transparent.png'),
                     ),
                   ),
+                Positioned(
+                  right: positionSpeedometerRight,
+                  child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
                 ),
-              Positioned(
-                right: positionSpeedometerRight,
-                child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
-              ),
-              if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
-              FinishRideButton(),
-              const AudioButton(),
-              if (!cameraFollowsUserLocation)
-                SafeArea(
-                  bottom: true,
-                  child: Padding(
-                    padding: paddingCenterButton,
-                    child: BigButtonPrimary(
-                      label: "Zentrieren",
-                      elevation: 20,
-                      onPressed: () {
-                        final ride = getIt<Ride>();
-                        if (ride.userSelectedSG != null) ride.unselectSG();
-                        setState(() {
-                          cameraFollowsUserLocation = true;
-                        });
-                      },
-                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
-                    ),
-                  ),
-                ),
-              if (simulatorEnabled)
-                const Positioned(
-                  left: 0,
-                  top: 0,
-                  child: SafeArea(
+                if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
+                FinishRideButton(),
+                const AudioButton(),
+                if (!cameraFollowsUserLocation)
+                  SafeArea(
+                    bottom: true,
                     child: Padding(
-                      padding: EdgeInsets.only(top: 48),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SimulatorState(
-                            tileAlignment: TileAlignment.left,
-                            onlyShowErrors: true,
-                          ),
-                          SensorState(),
-                        ],
+                      padding: paddingCenterButton,
+                      child: BigButtonPrimary(
+                        label: "Zentrieren",
+                        elevation: 20,
+                        onPressed: () {
+                          final ride = getIt<Ride>();
+                          if (ride.userSelectedSG != null) ride.unselectSG();
+                          setState(() {
+                            cameraFollowsUserLocation = true;
+                          });
+                        },
+                        boxConstraints:
+                            BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
                       ),
                     ),
                   ),
+                if (simulatorEnabled)
+                  const Positioned(
+                    left: 0,
+                    top: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 48),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SimulatorState(
+                              tileAlignment: TileAlignment.left,
+                              onlyShowErrors: true,
+                            ),
+                            SensorState(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                if (settings.saveBatteryModeEnabled && Platform.isAndroid)
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 5,
+                    right: 10,
+                    child: IconButton(
+                      onPressed: () => MapboxAttribution.showAttribution(context),
+                      icon: const Icon(
+                        Icons.info_outline_rounded,
+                        size: 25,
+                        color: CI.radkulturRed,
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  right: positionSpeedometerRight,
+                  child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
                 ),
-            ],
+                if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
+                FinishRideButton(),
+                if (!cameraFollowsUserLocation)
+                  SafeArea(
+                    bottom: true,
+                    child: Padding(
+                      padding: paddingCenterButton,
+                      child: BigButtonPrimary(
+                        label: "Zentrieren",
+                        elevation: 20,
+                        onPressed: () {
+                          final ride = getIt<Ride>();
+                          if (ride.userSelectedSG != null) ride.unselectSG();
+                          setState(() {
+                            cameraFollowsUserLocation = true;
+                          });
+                        },
+                        boxConstraints:
+                            BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                      ),
+                    ),
+                  ),
+                if (simulatorEnabled)
+                  const Positioned(
+                    left: 0,
+                    top: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 48),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SimulatorState(
+                              tileAlignment: TileAlignment.left,
+                              onlyShowErrors: true,
+                            ),
+                            SensorState(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

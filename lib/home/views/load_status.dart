@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/main.dart';
 
@@ -29,7 +30,7 @@ class LoadStatusViewState extends State<LoadStatusView> {
         context: context,
         builder: (BuildContext context) {
           return DialogLayout(
-            title: "Vermehrte Anzahl an Nutzenden",
+            title: "Mehr Nutzende als normalerweise",
             text: loadStatus.text ?? "",
             actions: [
               BigButtonTertiary(
@@ -50,23 +51,20 @@ class LoadStatusViewState extends State<LoadStatusView> {
 
     return BlendIn(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-        ),
+        padding: const EdgeInsets.fromLTRB(42, 16, 24, 0),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Vermehrte Anzahl an Nutzenden',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+            Flexible(
+              child: Content(
+                text: "Mehr Nutzende als normalerweise",
+                context: context,
               ),
             ),
             SmallIconButtonSecondary(
               icon: Icons.info,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+              color: Theme.of(context).colorScheme.onBackground,
               splash: Theme.of(context).colorScheme.surfaceTint,
               fill: Colors.transparent,
               borderColor: Theme.of(context).colorScheme.onSurface,

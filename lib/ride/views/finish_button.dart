@@ -161,8 +161,8 @@ class FinishRideButton extends StatelessWidget {
           padding: const EdgeInsets.all(4),
           fill: Colors.black.withOpacity(0.4),
           content: Padding(
-            padding: isLandscapeMode ?
-                  const EdgeInsets.only(left: 6, right: 6, top: 16, bottom: 16)
+            padding: isLandscapeMode
+                ? const EdgeInsets.only(left: 6, right: 6, top: 16, bottom: 16)
                 : const EdgeInsets.only(left: 16, right: 6, top: 16, bottom: 16),
             child: Column(
               children: [

@@ -12,7 +12,6 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class SGStatusMapViewLegendElement {
@@ -47,20 +46,26 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
 
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
-    final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
     final sourceLocsExists = await mapController?.style.styleSourceExists("sg-locs");
     if (sourceLocsExists != null && !sourceLocsExists) {
       await mapController?.style.addSource(
         mapbox.GeoJsonSource(
-            id: "sg-locs", data: "https://$baseUrl/$statusProviderSubPath/predictions-locations.geojson"),
+          id: "sg-locs",
+          // Primarily use the status of the prediction service.
+          data: "https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson",
+        ),
       );
     }
 
     final sourceSGLanesExists = await mapController?.style.styleSourceExists("sg-lanes");
     if (sourceSGLanesExists != null && !sourceSGLanesExists) {
       await mapController?.style.addSource(
-        mapbox.GeoJsonSource(id: "sg-lanes", data: "https://$baseUrl/$statusProviderSubPath/predictions-lanes.geojson"),
+        mapbox.GeoJsonSource(
+          id: "sg-lanes",
+          // Primarily use the status of the prediction service.
+          data: "https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson",
+        ),
       );
     }
 
@@ -277,8 +282,8 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.radkulturGreen),
     ];
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: Stack(
           children: [

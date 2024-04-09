@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -35,6 +33,9 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
 
   /// How many screenshots we have already fetched (if counter is same as count of designs we have finished loading).
   int loadingCounter = 0;
+
+  /// Whether to show the layer explanations.
+  bool showLayerExplanations = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -96,12 +97,71 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
     super.dispose();
   }
 
+  Widget showExplanations() {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 8,
+              child: Column(
+                children: [
+                  Small(
+                    text: "¹",
+                    context: context,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  ),
+                ],
+              ),
+            ),
+            const SmallHSpace(),
+            SizedBox(
+              width: MediaQuery.of(context).size.width - 48,
+              child: Small(
+                text: "Statische Grüne Wellen. Passierbar bei einer Geschwindigkeit von 18 km/h.",
+                context: context,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+              ),
+            ),
+          ],
+        ),
+        const SmallVSpace(),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 8,
+              child: Column(
+                children: [
+                  Small(
+                    text: "²",
+                    context: context,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  ),
+                ],
+              ),
+            ),
+            const SmallHSpace(),
+            SizedBox(
+              width: MediaQuery.of(context).size.width - 48,
+              child: Small(
+                text: "Für Radfahrende optimierte Wege.",
+                context: context,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Show a grid view with all available layers.
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -113,6 +173,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
               physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
               children: [
                 // The layer for the elevation.
                 LayerSelectionItem(
@@ -133,14 +194,6 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
                 LayerSelectionItem(
                   icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                      ? Image.asset("assets/images/construction-light.png")
-                      : Image.asset("assets/images/construction-dark.png"),
-                  title: 'Baustellen',
-                  selected: layers.showConstructionSites,
-                  onTap: () => layers.setShowConstructionSites(!layers.showConstructionSites),
-                ),
-                LayerSelectionItem(
-                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Image.asset("assets/images/air-light.png")
                       : Image.asset("assets/images/air-dark.png"),
                   title: 'Aufpumpen',
@@ -157,17 +210,9 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
                 LayerSelectionItem(
                   icon: Theme.of(context).colorScheme.brightness == Brightness.light
-                      ? Image.asset("assets/images/accident-light.png")
-                      : Image.asset("assets/images/accident-dark.png"),
-                  title: 'Gefahren',
-                  selected: layers.showAccidentHotspots,
-                  onTap: () => layers.setShowAccidentHotspots(!layers.showAccidentHotspots),
-                ),
-                LayerSelectionItem(
-                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Image.asset("assets/images/green-wave-light.png")
                       : Image.asset("assets/images/green-wave-dark.png"),
-                  title: 'Grüne Wellen',
+                  title: 'Grüne Wellen¹',
                   selected: layers.showGreenWaveLayer,
                   onTap: () => layers.setShowGreenWaveLayer(!layers.showGreenWaveLayer),
                 ),
@@ -175,7 +220,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   icon: Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Image.asset("assets/images/velo-routes-light.png")
                       : Image.asset("assets/images/velo-routes-dark.png"),
-                  title: 'Velorouten',
+                  title: 'Velorouten²',
                   selected: layers.showVeloRoutesLayer,
                   onTap: () => layers.setShowVeloRoutesLayer(!layers.showVeloRoutesLayer),
                 ),
@@ -189,7 +234,35 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
               ],
             ),
-            if (Platform.isAndroid) const VSpace(),
+            const SmallVSpace(),
+            GestureDetector(
+              onTap: () => setState(() {
+                showLayerExplanations = !showLayerExplanations;
+              }),
+              child: Center(
+                child: Text(
+                  "Mehr Informationen",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    decorationColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
+            AnimatedCrossFade(
+              firstCurve: Curves.easeInOutCubic,
+              secondCurve: Curves.easeInOutCubic,
+              sizeCurve: Curves.easeInOutCubic,
+              duration: const Duration(milliseconds: 1000),
+              firstChild: Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: showExplanations(),
+              ),
+              secondChild: Container(),
+              crossFadeState: showLayerExplanations ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            ),
+            const VSpace(),
             Content(text: "Kartendesign", context: context),
             const SmallVSpace(),
             GridView.count(
@@ -290,7 +363,7 @@ class LayerSelectionItem extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 52),
+                const SizedBox(height: 60),
                 BoldSmall(text: title, context: context),
               ],
             ),

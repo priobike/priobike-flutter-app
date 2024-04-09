@@ -3,20 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class SpeedometerSpeedArcPainter extends CustomPainter {
-  final double minSpeed;
-  final double maxSpeed;
-  final double speed;
+  final double pct;
   final bool isDark;
+  final bool batterySaveMode;
+
+  /// The last percentage value of the speedometer arc. Only made for battery save mode.
+  final double? lastPct;
 
   SpeedometerSpeedArcPainter({
-    required this.minSpeed,
-    required this.maxSpeed,
-    required speed,
+    required pct,
     required this.isDark,
-  }) : speed = speed.clamp(
-          minSpeed + 0.01, // Always show a little bit of the arc.
-          maxSpeed,
-        );
+    required this.batterySaveMode,
+    this.lastPct,
+  }) : pct = pct == 0 ? 0.001 : pct;
 
   /// Paints the tail of the pointer
   void paintSpeedArcTail(Canvas canvas, Size size) {
@@ -25,9 +24,9 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
-    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
     final angle = startAngle + pct * (endAngle - startAngle);
-    final sweepAngle = angle - startAngle;
+    var sweepAngle = angle - startAngle;
+
     () {
       final rect = Rect.fromCircle(center: center, radius: radius);
       final paint = Paint()
@@ -50,6 +49,52 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     }();
   }
 
+  void paintSpeedArcTailBatterySave(Canvas canvas, Size size) {
+    if (lastPct == null) return;
+    if (pct == lastPct) return;
+    // Scale the opacity of the glow based on the speed.
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 32;
+    const startAngle = -5 * pi / 4;
+    const endAngle = pi / 4;
+
+    final angle = startAngle + pct * (endAngle - startAngle);
+    final lastAngle = startAngle + lastPct! * (endAngle - startAngle);
+
+    final colors = [
+      Colors.white.withOpacity(0.0),
+      Colors.white.withOpacity(0.0),
+      angle < lastAngle ? Colors.white.withOpacity(isDark ? 0.6 : 0.8) : Colors.white.withOpacity(0),
+      angle < lastAngle ? Colors.white.withOpacity(0) : Colors.white.withOpacity(isDark ? 0.6 : 0.8),
+      Colors.white.withOpacity(0.0),
+      Colors.white.withOpacity(0.0)
+    ];
+
+    // The used part of the speedometer arc in percentage.
+    // Used to adjust the percentage values.
+    const diff = 0.75;
+
+    // Calculate borders for the sweep gradient.
+    final minBorder = pct < lastPct! ? (pct - 0.001) * diff : (lastPct! - 0.001) * diff;
+    final min = pct < lastPct! ? pct * diff : lastPct! * diff;
+    final max = pct > lastPct! ? pct * diff : lastPct! * diff;
+    final maxBorder = pct > lastPct! ? (pct + 0.001) * diff : (lastPct! + 0.001) * diff;
+
+    () {
+      final rect = Rect.fromCircle(center: center, radius: radius);
+      final paint = Paint()
+        ..shader = SweepGradient(
+          tileMode: TileMode.clamp,
+          colors: colors,
+          stops: [0, minBorder, min, max, maxBorder, 1],
+          transform: const GradientRotation(startAngle),
+        ).createShader(rect)
+        ..strokeWidth = 55
+        ..style = PaintingStyle.stroke;
+      canvas.drawArc(rect, startAngle, endAngle - startAngle, false, paint);
+    }();
+  }
+
   /// Paints the inner part of the pointer.
   void paintSpeedPointer(Canvas canvas, Size size) {
     const double rectangleHeight = 56;
@@ -58,7 +103,6 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
-    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
     final angle = startAngle + pct * (endAngle - startAngle);
 
     final Offset rectanglePosition = Offset(
@@ -105,7 +149,6 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
-    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
     final angle = startAngle + pct * (endAngle - startAngle);
 
     final Offset rectanglePosition = Offset(
@@ -140,12 +183,12 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    paintSpeedArcTail(canvas, size);
+    batterySaveMode ? paintSpeedArcTailBatterySave(canvas, size) : paintSpeedArcTail(canvas, size);
     paintSpeedPointerBackground(canvas, size);
     paintSpeedPointer(canvas, size);
   }
 
   @override
   bool shouldRepaint(covariant SpeedometerSpeedArcPainter oldDelegate) =>
-      oldDelegate.speed != speed || oldDelegate.isDark != isDark;
+      oldDelegate.pct != pct || oldDelegate.lastPct != lastPct || oldDelegate.isDark != isDark;
 }

@@ -21,9 +21,11 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/details/map_legend.dart';
 import 'package:priobike/routing/views/details/shortcuts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
+import 'package:priobike/routing/views/profile.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
@@ -70,6 +72,9 @@ class RoutingViewState extends State<RoutingView> {
   /// may be caused by energy saving options or disallowed precise geolocation.
   final int locationAccuracyThreshold = 100;
 
+  /// If everything has loaded.
+  bool hasInitiallyLoaded = false;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -109,6 +114,11 @@ class RoutingViewState extends State<RoutingView> {
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
           showAlertGPSQualityDialog();
         }
+
+        if (!mounted) return;
+        setState(() {
+          hasInitiallyLoaded = true;
+        });
       },
     );
 
@@ -200,6 +210,7 @@ class RoutingViewState extends State<RoutingView> {
     showAppSheet(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (_) => const LayerSelectionView(),
     );
   }
@@ -319,8 +330,8 @@ class RoutingViewState extends State<RoutingView> {
     final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
 
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Stack(
@@ -370,7 +381,24 @@ class RoutingViewState extends State<RoutingView> {
               child: Padding(
                 padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
                 child: const Column(
-                  children: [CenterButton(), SmallVSpace(), CompassButton()],
+                  children: [
+                    CenterButton(),
+                    SmallVSpace(),
+                    CompassButton(),
+                    SmallVSpace(),
+                    ProfileButton(),
+                  ],
+                ),
+              ),
+            ),
+
+            // Side Bar right
+            const Positioned(
+              right: 8,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: MapLegend(),
                 ),
               ),
             ),
@@ -379,7 +407,7 @@ class RoutingViewState extends State<RoutingView> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 132),
+                  padding: EdgeInsets.only(bottom: 128),
                   child: ShortcutsRow(),
                 ),
               ),
@@ -404,6 +432,7 @@ class RoutingViewState extends State<RoutingView> {
             RouteDetailsBottomSheet(
               onSelectStartButton: onStartRide,
               onSelectSaveButton: () => showSaveShortcutSheet(context),
+              hasInitiallyLoaded: hasInitiallyLoaded,
             ),
           ],
         ),

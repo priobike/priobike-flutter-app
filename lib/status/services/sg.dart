@@ -6,7 +6,6 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 
@@ -20,36 +19,22 @@ class PredictionSGStatus with ChangeNotifier {
   /// The cached sg status, by the sg name.
   Map<String, SGStatusData> cache = {};
 
-  /// The number of sgs that are ok.
-  int ok = 0;
-
-  /// The number of sgs that are offline.
-  int offline = 0;
-
-  /// The number of sgs that have a bad quality.
-  int bad = 0;
-
-  /// The number of disconnected sgs.
-  int disconnected = 0;
-
   PredictionSGStatus();
 
-  /// Populate the sg status cache with the current route and
-  /// Recalculate the status for this route.
-  Future<void> fetch(Route? route) async {
+  /// Populate the sg status cache for all SGs of the given route.
+  Future<void> fetch(Route route) async {
     if (isLoading) return;
 
-    log.i("Fetching sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
+    log.i("Fetching sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
 
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
-    final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
     isLoading = true;
     notifyListeners();
 
     final pending = List<Future>.empty(growable: true);
-    for (final sg in route?.signalGroups ?? []) {
+    for (final sg in route.signalGroups) {
       if (cache.containsKey(sg.id)) {
         final now = DateTime.now().millisecondsSinceEpoch / 1000;
         final lastFetched = cache[sg.id]!.statusUpdateTime;
@@ -57,7 +42,8 @@ class PredictionSGStatus with ChangeNotifier {
       }
 
       try {
-        var url = "https://$baseUrl/$statusProviderSubPath/${sg.id}/status.json";
+        // Primarily use the status of the prediction service.
+        var url = "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
@@ -86,32 +72,38 @@ class PredictionSGStatus with ChangeNotifier {
     // Wait for all requests to finish.
     await Future.wait(pending);
 
-    ok = 0;
-    offline = 0;
-    bad = 0;
-    for (final sg in route?.signalGroups ?? []) {
+    log.i("Updated sg status cache for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// Calculate the status for the given route.
+  void updateStatus(Route route) {
+    route.ok = 0;
+    route.offline = 0;
+    route.bad = 0;
+    route.disconnected = 0;
+
+    for (final sg in route.signalGroups) {
       if (!cache.containsKey(sg.id)) {
-        offline++;
+        route.offline++;
         continue;
       }
       final status = cache[sg.id]!;
       switch (status.predictionState) {
         case SGPredictionState.ok:
-          ok++;
+          route.ok++;
           break;
         case SGPredictionState.offline:
-          offline++;
+          route.offline++;
           break;
         case SGPredictionState.bad:
-          bad++;
+          route.bad++;
           break;
       }
     }
-
-    disconnected = route?.crossings.where((c) => !c.connected).length ?? 0;
-
-    log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
-    isLoading = false;
+    route.disconnected = route.crossings.where((c) => !c.connected).length;
+    log.i("Fetched sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
     notifyListeners();
   }
 
@@ -129,10 +121,6 @@ class PredictionSGStatus with ChangeNotifier {
   /// Reset the status.
   Future<void> reset() async {
     cache = {};
-    offline = 0;
-    bad = 0;
-    disconnected = 0;
-    ok = 0;
     isLoading = false;
     notifyListeners();
   }

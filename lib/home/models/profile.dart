@@ -1,23 +1,51 @@
 import 'package:flutter/material.dart';
 
 enum BikeType {
-  ebike,
+  citybike,
   racingbike,
   mountainbike,
   cargobike,
 }
 
+extension BikeTypeRoutingProfile on BikeType {
+  String get ghConfigName {
+    switch (this) {
+      case BikeType.citybike:
+        return "bike2_default";
+      case BikeType.mountainbike:
+        return "mtb2_default";
+      case BikeType.racingbike:
+        return "racingbike2_default";
+      case BikeType.cargobike:
+        return "racingbike2_default";
+    }
+  }
+}
+
 extension BikeTypeDescription on BikeType {
   String description() {
     switch (this) {
-      case BikeType.ebike:
-        return "E-Bike";
+      case BikeType.citybike:
+        return "Stadtrad";
       case BikeType.racingbike:
         return "Rennrad";
       case BikeType.mountainbike:
-        return "MTB";
+        return "Mountainbike";
       case BikeType.cargobike:
         return "Lastenrad";
+    }
+  }
+
+  String get explanation {
+    switch (this) {
+      case BikeType.citybike:
+        return "Das beste Routing für normale Fahrräder.";
+      case BikeType.mountainbike:
+        return "Mit diesem Routing werden auch unbefestigte Wege berücksichtigt.";
+      case BikeType.racingbike:
+        return "Das Rennradrouting vermeidet unbefestigte Wege und Kopfsteinpflaster.";
+      case BikeType.cargobike:
+        return "Unbefestigte Abschnitte und Kopfsteinpflaster werden vermieden.";
     }
   }
 }
@@ -25,12 +53,12 @@ extension BikeTypeDescription on BikeType {
 extension BikeTypeIcon on BikeType {
   IconData? icon() {
     switch (this) {
-      case BikeType.ebike:
-        return Icons.electric_bike;
+      case BikeType.citybike:
+        return null;
       case BikeType.racingbike:
-        return Icons.directions_bike;
+        return null;
       case BikeType.mountainbike:
-        return Icons.pedal_bike;
+        return null;
       case BikeType.cargobike:
         return null;
     }
@@ -38,70 +66,16 @@ extension BikeTypeIcon on BikeType {
 }
 
 extension BikeTypeIconAsSting on BikeType {
-  String? iconAsString() {
+  String iconAsString() {
     switch (this) {
-      case BikeType.ebike:
-        return null;
+      case BikeType.citybike:
+        return "assets/icons/fahrrad.png";
       case BikeType.racingbike:
-        return null;
+        return "assets/icons/rennrad.png";
       case BikeType.mountainbike:
-        return null;
+        return "assets/icons/mtb.png";
       case BikeType.cargobike:
         return "assets/icons/lastenrad.png";
-    }
-  }
-}
-
-enum PreferenceType {
-  fast,
-  comfortible,
-}
-
-extension PreferenceTypeDescription on PreferenceType {
-  String description() {
-    switch (this) {
-      case PreferenceType.fast:
-        return "Zeit";
-      case PreferenceType.comfortible:
-        return "Komfort";
-    }
-  }
-}
-
-extension PreferenceTypeIcon on PreferenceType {
-  IconData icon() {
-    switch (this) {
-      case PreferenceType.fast:
-        return Icons.access_time_outlined;
-      case PreferenceType.comfortible:
-        return Icons.chair_outlined;
-    }
-  }
-}
-
-enum ActivityType {
-  avoidIncline,
-  allowIncline,
-}
-
-extension ActivityTypeIcon on ActivityType {
-  IconData icon() {
-    switch (this) {
-      case ActivityType.avoidIncline:
-        return Icons.trending_flat_outlined;
-      case ActivityType.allowIncline:
-        return Icons.trending_up_outlined;
-    }
-  }
-}
-
-extension ActivityTypeDescription on ActivityType {
-  String description() {
-    switch (this) {
-      case ActivityType.avoidIncline:
-        return "Anstieg vermeiden";
-      case ActivityType.allowIncline:
-        return "Anstieg erlauben";
     }
   }
 }
