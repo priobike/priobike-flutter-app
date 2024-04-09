@@ -157,9 +157,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
 
   /// Load the gauge colors and steps, from the predictor.
   Future<void> loadGauge(Ride ride) async {
+    final smartglasses = getIt<SmartglassService>();
     if (ride.predictionComponent?.recommendation == null || ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
+      smartglasses.updateTacho(List.empty());
       return;
     }
 
@@ -170,6 +172,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     if (ride.userSelectedSG != null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
+      smartglasses.updateTacho(List.empty());
       return;
     }
 
@@ -225,11 +228,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     // Thus, we reverse both colors and stops to get the correct order
     gaugeColors = hardEdgeColors.reversed.toList();
     gaugeStops = hardEdgeStops.reversed.toList();
-    final smartglasses = getIt<SmartglassService>();
-    // final currentInstruction = ride.getCurrentInstruction(route!.path, getIt<Positioning>().snap!.position);
-    var tachoItems = smartglasses.createTachoForGlasses(phases);
+    var tachoItems = smartglasses.createTachoForGlasses(phases, ride, minSpeed, maxSpeed);
     log.w(tachoItems);
-    smartglasses.show("Blabla", 0, tachoItems);
+    smartglasses.updateTacho(tachoItems);
 
   }
 
