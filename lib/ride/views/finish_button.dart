@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -144,39 +145,28 @@ class FinishRideButton extends StatelessWidget {
     final isLandscapeMode = orientation == Orientation.landscape;
 
     return Positioned(
-      width: isLandscapeMode ? 105 : 90,
       top: 48, // Below the MapBox attribution.
       // Button is on the right in portrait mode and on the left in landscape mode.
       right: isLandscapeMode ? null : 0,
-      left: isLandscapeMode ? 0 : null,
+      left: isLandscapeMode ? 8 : null,
       child: SafeArea(
-        child: Tile(
-          onPressed: () => showAskForConfirmationDialog(context),
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(24),
-            bottomLeft: const Radius.circular(24),
-            topRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
-            bottomRight: isLandscapeMode ? const Radius.circular(24) : const Radius.circular(0),
-          ),
-          padding: const EdgeInsets.all(4),
-          fill: Colors.black.withOpacity(0.4),
-          content: Padding(
-            padding: isLandscapeMode
-                ? const EdgeInsets.only(left: 6, right: 6, top: 16, bottom: 16)
-                : const EdgeInsets.only(left: 16, right: 6, top: 16, bottom: 16),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.flag_rounded,
-                  color: Colors.white,
-                ),
-                const SmallHSpace(),
-                BoldSmall(
-                  text: "Ende",
-                  context: context,
-                  color: Colors.white,
-                ),
-              ],
+        child: SizedBox(
+          width: 72,
+          height: 72,
+          child: Tile(
+            onPressed: () => showAskForConfirmationDialog(context),
+            padding: const EdgeInsets.all(10),
+            borderRadius: isLandscapeMode
+                ? const BorderRadius.all(Radius.circular(24))
+                : const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    bottomLeft: Radius.circular(24),
+                  ),
+            fill: Theme.of(context).colorScheme.surfaceVariant,
+            content: Icon(
+              Icons.close_rounded,
+              size: 36,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ),
