@@ -468,13 +468,6 @@ class Routing with ChangeNotifier {
 
     selectedRoute = allRoutes![idx];
 
-    // FIXME: The following code should maybe be removed.
-    final status = getIt<PredictionSGStatus>();
-    for (r.Route route in allRoutes!) {
-      await status.fetch(route);
-    }
-    status.updateStatus(selectedRoute!);
-
     notifyListeners();
   }
 
