@@ -755,8 +755,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final frame = MediaQuery.of(context);
     // Calculate the relative margin for the route label.
-    const routeLabelMarginLeft = 168.0;
-    const routeLabelMarginRight = 168.0;
+    const routeLabelMarginLeft = 86.0;
+    final routeLabelMarginRight = frame.size.width - 86.0;
     final routeLabelMarginTop = frame.padding.top;
     // Fit initial bottom sheet size of 128px.
     final routeLabelMarginBottom = frame.size.height - 140;
