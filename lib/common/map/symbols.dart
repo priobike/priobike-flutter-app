@@ -40,9 +40,9 @@ class SymbolLoader {
     await add("surface", "assets/images/discomforts/surface.png", 200, 183);
     await add("dismount", "assets/images/discomforts/dismount.png", 200, 183);
 
-    await add("start", "assets/images/start.drawio.png", 83, 83);
-    await add("destination", "assets/images/destination.drawio.png", 84, 84);
-    await add("waypoint", "assets/images/waypoint.drawio.png", 84, 84);
+    await add("start", "assets/images/start.png", 400, 400);
+    await add("destination", "assets/images/destination.png", 400, 400);
+    await add("waypoint", "assets/images/waypoint.png", 400, 400);
 
     await add("iconclicklayer", "assets/images/icon-click-layer.png", 75, 98);
     await add("airdark", "assets/images/air-dark.png", 200, 200);

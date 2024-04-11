@@ -80,12 +80,12 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        ByteData startBd = await rootBundle.load("assets/images/start.drawio.png");
+        ByteData startBd = await rootBundle.load("assets/images/start-noshadow.png");
         final Uint8List startBytes = Uint8List.view(startBd.buffer);
         final ui.Codec startCodec = await ui.instantiateImageCodec(startBytes);
         startImage = (await startCodec.getNextFrame()).image;
 
-        ByteData destinationBd = await rootBundle.load("assets/images/destination.drawio.png");
+        ByteData destinationBd = await rootBundle.load("assets/images/destination-noshadow.png");
         final Uint8List destinationBytes = Uint8List.view(destinationBd.buffer);
         final ui.Codec destinationCodec = await ui.instantiateImageCodec(destinationBytes);
         destinationImage = (await destinationCodec.getNextFrame()).image;

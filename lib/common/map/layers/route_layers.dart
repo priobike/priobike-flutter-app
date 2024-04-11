@@ -455,6 +455,7 @@ class WaypointsLayer {
           "properties": {
             "isFirst": entry.key == 0,
             "isLast": entry.key == waypoints.length - 1,
+            "idx": entry.key + 1,
           },
         },
       );
@@ -475,12 +476,18 @@ class WaypointsLayer {
     if (!waypointsIconsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-              sourceId: sourceId,
-              id: layerId,
-              iconSize: iconSize,
-              textAllowOverlap: true,
-              textIgnorePlacement: true,
-              iconAllowOverlap: true),
+            sourceId: sourceId,
+            id: layerId,
+            iconSize: iconSize,
+            textAllowOverlap: true,
+            textIgnorePlacement: true,
+            iconAllowOverlap: true,
+            textColor: const Color(0xFF003064).value,
+            textFont: ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
+            textSize: 12,
+            textAnchor: mapbox.TextAnchor.CENTER,
+            textOpacity: 1,
+          ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
@@ -492,6 +499,18 @@ class WaypointsLayer {
             ["get", "isLast"],
             "destination",
             "waypoint",
+          ]));
+      // Only show idx label if it's not the first or last waypoint, otherwise show blank text
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'text-field',
+          json.encode([
+            "case",
+            ["get", "isFirst"],
+            "",
+            ["get", "isLast"],
+            "",
+            ["get", "idx"],
           ]));
     }
   }

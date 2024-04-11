@@ -382,7 +382,7 @@ class RideMapViewState extends State<RideMapView> {
     await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
-    await WaypointsLayer().install(mapController!, iconSize: 0.33, at: index);
+    await WaypointsLayer().install(mapController!, iconSize: 0.2, at: index);
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
     await TrafficLightsLayer(isDark, hideBehindPosition: true).install(

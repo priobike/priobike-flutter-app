@@ -591,7 +591,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await WaypointsLayer().install(
       mapController!,
-      iconSize: 0.2,
+      iconSize: 0.1,
       at: index,
     );
     index = await getIndex(DiscomfortsLayer.layerId);
@@ -1425,9 +1425,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                     width: 24,
                     height: 24,
                     child: Opacity(
-                      opacity: math.max(0, (animation.value - 0.5) * 2),
+                      opacity: math.min(1, math.max(0, (animation.value - 0.25) * 2)),
                       child: Image.asset(
-                        'assets/images/waypoint.drawio.png',
+                        'assets/images/waypoint-noshadow.png',
                         fit: BoxFit.contain,
                       ),
                     ),
