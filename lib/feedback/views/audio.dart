@@ -27,10 +27,12 @@ class AudioRatingViewState extends State<AudioRatingView> {
   String textQ1 = "Ich denke, dass ich die Sprachausgabe häufig benutzen möchte.";
   String textQ2 = "Ich fand die Sprachausgabe zu komplex.";
   String textQ3 = "Ich fand die Sprachausgabe einfach zu benutzen.";
-  String textQ4 = "Ich denke, ich bräuchte die Hilfe einer technisch versierten Person, um die Sprachausgabe zu benutzen.";
+  String textQ4 = "Ich denke, ich bräuchte die Hilfe einer technisch versierten Person, "
+                  "um die Sprachausgabe zu benutzen.";
   String textQ5 = "Ich fand die unterschiedlichen Funktionen der Sprachausgabe gut integriert.";
   String textQ6 = "Ich finde, dass es in der Sprachausgabe zu viele Inkonsistenzen gibt";
-  String textQ7 = "Ich könnte mir vorstellen, dass die meisten Leute sehr schnell lernen, die Sprachausgabe zu benutzen.";
+  String textQ7 = "Ich könnte mir vorstellen, dass die meisten Leute sehr schnell lernen, "
+                  "die Sprachausgabe zu benutzen.";
   String textQ8 = "Ich fand die Sprachausgabe sehr umständlich zu bedienen.";
   String textQ9 = "Ich fühlte mich sehr sicher im Umgang mit der Sprachausgabe.";
   String textQ10 = "Ich musste eine Menge Dinge lernen, bevor ich mit der Sprachausgabe arbeiten konnte";
