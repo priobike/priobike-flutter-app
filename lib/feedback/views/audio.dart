@@ -24,18 +24,25 @@ class AudioRatingViewState extends State<AudioRatingView> {
   int scoreQ10 = 0;
 
   /// The text of the 10 questions.
-  String textQ1 = "Ich denke, dass ich die Sprachausgabe häufig benutzen möchte.";
+  String textQ1 =
+      "Ich denke, dass ich die Sprachausgabe häufig benutzen möchte.";
   String textQ2 = "Ich fand die Sprachausgabe zu komplex.";
   String textQ3 = "Ich fand die Sprachausgabe einfach zu benutzen.";
-  String textQ4 = "Ich denke, ich bräuchte die Hilfe einer technisch versierten Person, "
-                  "um die Sprachausgabe zu benutzen.";
-  String textQ5 = "Ich fand die unterschiedlichen Funktionen der Sprachausgabe gut integriert.";
-  String textQ6 = "Ich finde, dass es in der Sprachausgabe zu viele Inkonsistenzen gibt";
-  String textQ7 = "Ich könnte mir vorstellen, dass die meisten Leute sehr schnell lernen, "
-                  "die Sprachausgabe zu benutzen.";
+  String textQ4 =
+      "Ich denke, ich bräuchte die Hilfe einer technisch versierten Person, "
+      "um die Sprachausgabe zu benutzen.";
+  String textQ5 =
+      "Ich fand die unterschiedlichen Funktionen der Sprachausgabe gut integriert.";
+  String textQ6 =
+      "Ich finde, dass es in der Sprachausgabe zu viele Inkonsistenzen gibt";
+  String textQ7 =
+      "Ich könnte mir vorstellen, dass die meisten Leute sehr schnell lernen, "
+      "die Sprachausgabe zu benutzen.";
   String textQ8 = "Ich fand die Sprachausgabe sehr umständlich zu bedienen.";
-  String textQ9 = "Ich fühlte mich sehr sicher im Umgang mit der Sprachausgabe.";
-  String textQ10 = "Ich musste eine Menge Dinge lernen, bevor ich mit der Sprachausgabe arbeiten konnte";
+  String textQ9 =
+      "Ich fühlte mich sehr sicher im Umgang mit der Sprachausgabe.";
+  String textQ10 =
+      "Ich musste eine Menge Dinge lernen, bevor ich mit der Sprachausgabe arbeiten konnte";
 
   final TextEditingController _textController = TextEditingController();
 
@@ -121,7 +128,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
               children: [
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 1", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 1",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ1,
@@ -147,7 +156,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 2", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 2",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ2,
@@ -173,7 +184,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 3", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 3",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ3,
@@ -199,7 +212,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 4", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 4",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ4,
@@ -225,7 +240,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 5", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 5",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ5,
@@ -251,7 +268,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 6", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 6",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ6,
@@ -277,7 +296,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 7", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 7",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ7,
@@ -303,7 +324,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 8", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 8",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ8,
@@ -329,7 +352,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 9", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 9",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ9,
@@ -355,7 +380,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Text("Frage 10", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text("Frage 10",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 5),
                 Content(
                     text: textQ10,
@@ -381,7 +408,10 @@ class AudioRatingViewState extends State<AudioRatingView> {
                 const SizedBox(height: 15),
                 const Divider(),
                 const SizedBox(height: 15),
-                Content(text: "Anmerkungen:", context: context, color: Theme.of(context).colorScheme.tertiary),
+                Content(
+                    text: "Anmerkungen:",
+                    context: context,
+                    color: Theme.of(context).colorScheme.tertiary),
                 const SizedBox(height: 5),
                 TextField(
                   controller: _textController,
