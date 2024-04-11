@@ -163,7 +163,10 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        SubHeader(text: "Prognoseverfügbarkeit", context: context),
+                                        BoldContent(
+                                          text: "Prognoseverfügbarkeit",
+                                          context: context,
+                                        ),
                                         Content(
                                           text: "entlang deiner Route",
                                           context: context,
