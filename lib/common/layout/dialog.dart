@@ -153,7 +153,7 @@ void showAudioEvaluationDialog(context, Function submit) {
                 physics: const RangeMaintainingScrollPhysics(),
                 child: Column(
                   children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                    const SizedBox(height: 186),
                     Text(
                       'Dein Feedback zur Sprachausgabe',
                       style: Theme.of(context).textTheme.titleSmall,
@@ -174,7 +174,8 @@ void showAudioEvaluationDialog(context, Function submit) {
                         showFinishDriveDialog(context, submit);
                       },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                    )
+                    ),
+                    const SizedBox(height: 256),
                   ],
                 ),
               ),
