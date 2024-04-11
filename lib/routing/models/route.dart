@@ -9,11 +9,8 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
-/// Taken from https://github.com/priobike/priobike-graphhopper-drn/blob/main/converter/mapping.py
+/// Adopted from https://github.com/priobike/priobike-graphhopper-drn/blob/main/converter/mapping.py
 const drnOSMMapping = {
-  "Aufgeweiteter Radaufstellstreifen": {
-    "highway": "tertiary",
-  },
   "Busfahrstreifen mit Radverkehr": {
     "cycleway": "share_busway",
     "highway": "service",
@@ -30,32 +27,23 @@ const drnOSMMapping = {
     "traffic_sign": "DE:244.1",
     "highway": "residential",
   },
-  "Fußgängerüberweg/-furt (Schiebestrecke)": {
+  "Fußgängerüberweg/-furt": {
     "highway": "pedestrian",
   },
-  "Fußgängerzone - immer befahrbar": {
+  "Befahrbare Fußgängerzone": {
     "highway": "pedestrian",
     "bicycle": "yes",
   },
-  "Fußgängerzone (meist zeitlich begrenzt)": {
+  "Fußgängerzone": {
     "highway": "pedestrian",
   },
-  "Fußgängerzone - zeitlich begrenzt": {
-    "highway": "pedestrian",
-  },
-  "Gehweg (Fahrrad frei)": {
+  "Befahrbarer Gehweg": {
     "highway": "footway",
     "foot": "designated",
     "bicycle": "yes",
     "traffic_sign": "DE:239,1022-10",
   },
-  "Gehweg (nur ZZ 1022-10)": {
-    "highway": "footway",
-    "foot": "designated",
-    "bicycle": "yes",
-    "traffic_sign": "DE:239,1022-10",
-  },
-  "Gehweg (Schiebestrecke)": {
+  "Gehweg": {
     "highway": "footway",
   },
   "Gemeinsamer Geh-/Radweg": {
@@ -70,7 +58,7 @@ const drnOSMMapping = {
     "foot": "designated",
     "segregated": "yes",
   },
-  "Kommunaltrasse": {
+  "Durch Fahrräder, Busse, und Taxen befahrbar": {
     "cycleway": "share_busway",
     "highway": "tertiary",
   },
@@ -78,16 +66,12 @@ const drnOSMMapping = {
     "highway": "cycleway",
     "bicycle": "designated",
   },
-  "Protected Bike Lane": {
-    "highway": "cycleway",
-    "bicycle": "designated",
-  },
-  "Radfahrstreifen": {
+  "Radfahrstreifen auf Straße": {
     "highway": "tertiary",
     "cycleway:right": "lane",
     "cycleway:right:bicycle": "designated",
   },
-  "Radweg (mit Grünstreifen vom Gehweg getrennt)": {
+  "Baulich getrennter Radweg": {
     "highway": "path",
     "bicycle": "designated",
     "foot": "designated",
@@ -99,19 +83,16 @@ const drnOSMMapping = {
     "cycleway:lane": "advisory",
     "cycleway:protection:right": "dashed_line",
   },
-  "Straße mit Mischverkehr ab 50 km/h": {
+  "Straße": {
     "highway": "tertiary",
   },
-  "Straße mit Mischverkehr bis 30 km/h": {
+  "Wohnstraße": {
     "highway": "residential",
   },
-  "Verkehrsberuhigter Bereich / Befahrbarer Wohnweg": {
+  "Verkehrsberuhigter Bereich": {
     "highway": "living_street",
   },
-  "Verkehrsberuhigter Geschäftsbereich": {
-    "highway": "living_street",
-  },
-  "Wege in Grünflächen": {
+  "Weg in Grünflächen": {
     "highway": "path",
     "bicycle": "designated",
     "foot": "designated",
@@ -124,28 +105,27 @@ const drnOSMMapping = {
 
 /// Uses [drnOSMMapping] to find the DRN name for the given OSM tags.
 String? drnNameFromOSMTags(Map<String, String> givenOSMTags) {
+  int bestNMatches = 0;
+  String? bestMatch;
   for (var drnName in drnOSMMapping.keys) {
     final osmTags = drnOSMMapping[drnName]!;
-    if (osmTags.length != givenOSMTags.entries.length) {
-      continue;
-    }
-
-    var match = true;
-    for (var tagKey in osmTags.keys) {
-      if (!givenOSMTags.containsKey(tagKey)) {
-        match = false;
-        break;
-      }
-      if (givenOSMTags[tagKey] != osmTags[tagKey]) {
-        match = false;
-        break;
+    int nMatches = 0;
+    for (var key in osmTags.keys) {
+      if (givenOSMTags.containsKey(key) && givenOSMTags[key] == osmTags[key]) {
+        nMatches++;
       }
     }
-    if (match) {
-      return drnName;
+    if (nMatches == osmTags.length) {
+      if (nMatches > bestNMatches) {
+        bestNMatches = nMatches;
+        bestMatch = drnName;
+      }
     }
   }
-  return null;
+  if (bestNMatches == 0) {
+    return null;
+  }
+  return bestMatch;
 }
 
 class Route {
@@ -210,6 +190,8 @@ class Route {
     osmWayNames = {};
     for (var wayId in osmTags.keys) {
       final name = drnNameFromOSMTags(osmTags[wayId]!);
+      print("Way $wayId: $name");
+      print(osmTags[wayId]!);
       if (name != null) {
         osmWayNames[wayId] = name;
       }

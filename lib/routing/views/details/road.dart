@@ -74,7 +74,7 @@ final roadClassColor = {
   "Absteigen": const Color(0xFFFFD600),
   "Bahnsteig": const Color(0xFFDC576C),
   "Korridor": const Color(0xFFFF4260),
-  "Sonstiges": const Color(0xFF676767)
+  "Sonstiges": const Color(0xFF676767),
 };
 
 class RoadClassChart extends StatefulWidget {
@@ -162,6 +162,9 @@ class RoadClassChartState extends State<RoadClassChart> {
         }
       }
     }
+    // Order by distance.
+    roadClassDistances =
+        Map.fromEntries(roadClassDistances.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)));
   }
 
   /// Render the bar chart.
@@ -227,12 +230,15 @@ class RoadClassChartState extends State<RoadClassChart> {
                 ),
               ),
               const SizedBox(width: 8),
-              Flexible(child: Content(text: e.key, context: context)),
+              Flexible(fit: FlexFit.tight, child: Content(text: e.key, context: context)),
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child:
-                      Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
+                  child: Content(
+                      text: e.value > 1000
+                          ? '${(e.value / 1000).toStringAsFixed(0)} km'
+                          : '${e.value.toStringAsFixed(0)} m',
+                      context: context),
                 ),
               ),
             ],

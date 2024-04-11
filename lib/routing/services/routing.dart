@@ -131,7 +131,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Resolves the OSM way IDs for the given route.
-  Future<Map<int, Map<String, String>>?> resolveOSMWayIds(List<GHSegment> osmWayId) async {
+  Future<Map<int, Map<String, String>>> resolveOSMWayIds(List<GHSegment> osmWayId) async {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final overpassPath = settings.routingEndpoint.overpassServicePath;
@@ -159,7 +159,7 @@ class Routing with ChangeNotifier {
       return osmWays;
     } else {
       log.e("Failed to load OSM way IDs: ${response.statusCode} ${response.body}");
-      return null;
+      return {}; // Not tragical, just return an empty map.
     }
   }
 
@@ -371,14 +371,7 @@ class Routing with ChangeNotifier {
     }
 
     // Load the OSM tags for each path.
-    final osmTags = await Future.wait(ghResponse.paths.map((path) => resolveOSMWayIds(path.details.osmWayId)));
-    if (osmTags.contains(null)) {
-      hadErrorDuringFetch = true;
-      isFetchingRoute = false;
-      notifyListeners();
-      return null;
-    }
-
+    var osmTags = await Future.wait(ghResponse.paths.map((path) => resolveOSMWayIds(path.details.osmWayId)));
     if (ghResponse.paths.length != osmTags.length) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
