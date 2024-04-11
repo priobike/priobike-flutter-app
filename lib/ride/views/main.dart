@@ -27,7 +27,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../common/layout/spacing.dart';
 import '../../common/layout/text.dart';
 import '../../common/layout/tiles.dart';
-import '../../smartglasses/SmartglassService.dart';
+import '../../smartglasses/smartglass_service.dart';
 
 class RideView extends StatefulWidget {
   const RideView({super.key});

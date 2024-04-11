@@ -17,7 +17,8 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/smartglasses/SmartglassService.dart';
+import 'package:priobike/smartglasses/distance_helper.dart';
+import 'package:priobike/smartglasses/smartglass_service.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -319,8 +320,14 @@ class Ride with ChangeNotifier {
       calcDistanceToNextSG = null;
     }
     final smartglasses = getIt<SmartglassService>();
-    final currentInstruction = getCurrentInstruction(route!.path, getIt<Positioning>().snap!.position);
-    smartglasses.updateInstructions(currentInstruction!.text, currentInstruction.sign);
+    final distHelper = DistanceHelper();
+    final currentInstruction = distHelper.find(route!.path, route!.path.instructions, getIt<Positioning>().snap!.position, 500);
+    // final currentInstruction = getCurrentInstruction(route!.path, getIt<Positioning>().snap!.position);
+    var dist = 0;
+    if(currentInstruction != null) {
+       dist = calcDistanceToNextInstruction(currentInstruction!, route!.path, getIt<Positioning>().snap!.position);
+    }
+    smartglasses.updateInstructions("${dist}m ${currentInstruction!.text}", currentInstruction.sign);
 
     notifyListeners();
   }
@@ -331,7 +338,6 @@ class Ride with ChangeNotifier {
     for(int i = 0; i < path.points.coordinates.length; i++) {
       final n1 = path.points.coordinates[i];
       final p1 = LatLng(n1.lat, n1.lon);
-      // final p2 = LatLng(currentLocation.latitude, currentLocation.longitude);
       final b = vincenty.bearing(p1, currentLocation); // [-180°, 180°]
       final dist = vincenty.distance(p1, currentLocation);
       if (dist < minDist) {
@@ -348,6 +354,14 @@ class Ride with ChangeNotifier {
     }
     return instructionsWithoutWaypoints.last;
   }
+
+  calcDistanceToNextInstruction(GHInstruction nextInstruction, GHRouteResponsePath routeResponsePath, LatLng currentLocation) {
+    // We assume the for now the next instruction will be strait on the line
+    final coordinate = routeResponsePath.points.coordinates[nextInstruction.interval[0]];
+    final p1 = LatLng(coordinate.lat, coordinate.lon);
+    return vincenty.distance(p1, currentLocation).round();
+  }
+
 
   /// Stop the navigation.
   Future<void> stopNavigation() async {

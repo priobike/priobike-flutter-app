@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_smartglasses_tooz/flutter_smartglasses_tooz.dart';
-import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/settings/models/speed.dart';
 
 import '../logging/logger.dart';
@@ -17,7 +16,7 @@ class SmartglassService {
 
   final _flutterSmartglassesToozPlugin = FlutterSmartglassesTooz();
   final eventChannel = const EventChannel('flutter_smartglasses_tooz/events');
-  var is_registered = false;
+  var isRegistered = false;
 
   SmartglassService init() {
     eventChannel.receiveBroadcastStream().listen(_onEvent);
@@ -28,9 +27,9 @@ class SmartglassService {
   void _onEvent(Object? event) {
     log.w("Called from native: $event");
     if (event == "onDeregisterSuccess") {
-      is_registered = false;
+      isRegistered = false;
     }else if (event == "onRegisterSuccess") {
-      is_registered = true;
+      isRegistered = true;
     }
   }
 
@@ -108,9 +107,9 @@ class SmartglassService {
     await _flutterSmartglassesToozPlugin.drawMap();
   }
   void register() async {
-    is_registered = (await _flutterSmartglassesToozPlugin.isRegistered())!;
-    log.w("Try to register tooz smart glasses... $is_registered");
-    if(!is_registered) {
+    isRegistered = (await _flutterSmartglassesToozPlugin.isRegistered())!;
+    log.w("Try to register tooz smart glasses... $isRegistered");
+    if(!isRegistered) {
       await _flutterSmartglassesToozPlugin.register();
     }
     await _flutterSmartglassesToozPlugin.drawInitialView();

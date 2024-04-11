@@ -24,7 +24,7 @@ import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-import '../../../smartglasses/SmartglassService.dart';
+import '../../../smartglasses/smartglass_service.dart';
 
 class RideSpeedometerView extends StatefulWidget {
   /// Height to puck bounding box.

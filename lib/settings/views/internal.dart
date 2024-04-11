@@ -28,7 +28,7 @@ import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/simulator/services/simulator.dart';
-import 'package:priobike/smartglasses/SmartglassService.dart';
+import 'package:priobike/smartglasses/smartglass_service.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status_tabs.dart';
@@ -377,7 +377,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     // Todo: this only works if the widget is rebuild.
-                    title: smartglasses.is_registered ? "Tooz ist verbunden": "Tooz verbinden",
+                    title: smartglasses.isRegistered ? "Tooz ist verbunden": "Tooz verbinden",
                     icon: Icons.smart_screen,
                     callback: () => smartglasses.register(),
                   ),
@@ -390,7 +390,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     context: context,
                   ),
                 ),
-                if(smartglasses.is_registered)
+                if(smartglasses.isRegistered)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: SettingsElement(
