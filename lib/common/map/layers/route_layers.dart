@@ -463,7 +463,7 @@ class WaypointsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0, textSize = 12.0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -484,7 +484,7 @@ class WaypointsLayer {
             iconAllowOverlap: true,
             textColor: const Color(0xFF003064).value,
             textFont: ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
-            textSize: 12,
+            textSize: textSize,
             textAnchor: mapbox.TextAnchor.CENTER,
             textOpacity: 1,
           ),
