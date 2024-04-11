@@ -33,7 +33,6 @@ import 'package:priobike/routing/views/widgets/routing_tutorial.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/views/simulator_state.dart';
-import 'package:priobike/tutorial/service.dart';
 
 class RoutingView extends StatefulWidget {
   const RoutingView({super.key});
@@ -63,9 +62,6 @@ class RoutingViewState extends State<RoutingView> {
 
   /// The associated MapValues service, which is injected by the provider.
   late MapValues mapValues;
-
-  /// The associated Tutorial service, which is injected by the provider.
-  late Tutorial tutorial;
 
   /// The timer that updates the location puck position on the map.
   Timer? timer;
@@ -139,8 +135,6 @@ class RoutingViewState extends State<RoutingView> {
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
-    tutorial = getIt<Tutorial>();
-    tutorial.addListener(update);
   }
 
   @override
@@ -150,7 +144,6 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
-    tutorial.removeListener(update);
     timer?.cancel();
 
     // Unregister Service since the app will run out of the needed scope.
@@ -443,21 +436,7 @@ class RoutingViewState extends State<RoutingView> {
               hasInitiallyLoaded: hasInitiallyLoaded,
             ),
 
-            // Display the tutorial for the routing info when the first route got created to inform the user about the traffic lights.
-            if (routing!.selectedRoute != null &&
-                tutorial.isCompleted("priobike.tutorial.routing.info") != null &&
-                !tutorial.isCompleted("priobike.tutorial.routing.info")!) ...[
-              const RoutingTutorialView(), // Side Bar right
-              const Positioned(
-                right: 8,
-                child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: MapLegend(),
-                  ),
-                ),
-              ),
-            ]
+            const RoutingTutorialView(),
           ],
         ),
       ),

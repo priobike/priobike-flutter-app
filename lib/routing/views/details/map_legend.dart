@@ -13,7 +13,10 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class MapLegend extends StatefulWidget {
-  const MapLegend({super.key});
+  /// The closing function if in tutorial view.
+  final void Function()? tutorialViewClose;
+
+  const MapLegend({super.key, this.tutorialViewClose});
 
   @override
   MapLegendState createState() => MapLegendState();
@@ -30,7 +33,10 @@ class MapLegendState extends State<MapLegend> {
   bool showInfo = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
+  Future<void> update() async {
+    // Small delay to ensure timing for tutorial view.
+    await Future.delayed(const Duration(milliseconds: 250));
+
     setState(() {
       showInfo = !routing.isFetchingRoute && routing.selectedRoute != null;
     });
@@ -186,11 +192,16 @@ class MapLegendState extends State<MapLegend> {
           height: 58,
           child: Tile(
             fill: Theme.of(context).colorScheme.surfaceVariant,
-            onPressed: showMapLegendSheet,
-            content: Icon(
-              Icons.info_outline,
-              color: Theme.of(context).colorScheme.onBackground,
-            ),
+            onPressed: widget.tutorialViewClose != null ? widget.tutorialViewClose! : showMapLegendSheet,
+            content: widget.tutorialViewClose != null
+                ? Icon(
+                    Icons.close,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )
+                : Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
           ),
         ),
       ],
