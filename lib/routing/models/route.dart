@@ -9,6 +9,145 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
+/// Taken from https://github.com/priobike/priobike-graphhopper-drn/blob/main/converter/mapping.py
+const drnOSMMapping = {
+  "Aufgeweiteter Radaufstellstreifen": {
+    "highway": "tertiary",
+  },
+  "Busfahrstreifen mit Radverkehr": {
+    "cycleway": "share_busway",
+    "highway": "service",
+  },
+  "Fähre": {
+    "route": "ferry",
+    "bicycle": "yes",
+  },
+  "Fahrradstraße": {
+    "bicycle_road": "yes",
+    "bicycle": "designated",
+    "maxspeed": "30",
+    "source:maxspeed": "DE:bicycle_road",
+    "traffic_sign": "DE:244.1",
+    "highway": "residential",
+  },
+  "Fußgängerüberweg/-furt (Schiebestrecke)": {
+    "highway": "pedestrian",
+  },
+  "Fußgängerzone - immer befahrbar": {
+    "highway": "pedestrian",
+    "bicycle": "yes",
+  },
+  "Fußgängerzone (meist zeitlich begrenzt)": {
+    "highway": "pedestrian",
+  },
+  "Fußgängerzone - zeitlich begrenzt": {
+    "highway": "pedestrian",
+  },
+  "Gehweg (Fahrrad frei)": {
+    "highway": "footway",
+    "foot": "designated",
+    "bicycle": "yes",
+    "traffic_sign": "DE:239,1022-10",
+  },
+  "Gehweg (nur ZZ 1022-10)": {
+    "highway": "footway",
+    "foot": "designated",
+    "bicycle": "yes",
+    "traffic_sign": "DE:239,1022-10",
+  },
+  "Gehweg (Schiebestrecke)": {
+    "highway": "footway",
+  },
+  "Gemeinsamer Geh-/Radweg": {
+    "highway": "path",
+    "bicycle": "designated",
+    "foot": "designated",
+    "segregated": "no",
+  },
+  "Getrennter Geh-/Radweg": {
+    "highway": "path",
+    "bicycle": "designated",
+    "foot": "designated",
+    "segregated": "yes",
+  },
+  "Kommunaltrasse": {
+    "cycleway": "share_busway",
+    "highway": "tertiary",
+  },
+  "Kopenhagener Radweg": {
+    "highway": "cycleway",
+    "bicycle": "designated",
+  },
+  "Protected Bike Lane": {
+    "highway": "cycleway",
+    "bicycle": "designated",
+  },
+  "Radfahrstreifen": {
+    "highway": "tertiary",
+    "cycleway:right": "lane",
+    "cycleway:right:bicycle": "designated",
+  },
+  "Radweg (mit Grünstreifen vom Gehweg getrennt)": {
+    "highway": "path",
+    "bicycle": "designated",
+    "foot": "designated",
+    "segregated": "yes",
+  },
+  "Schutzstreifen": {
+    "highway": "tertiary",
+    "cycleway:right": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:protection:right": "dashed_line",
+  },
+  "Straße mit Mischverkehr ab 50 km/h": {
+    "highway": "tertiary",
+  },
+  "Straße mit Mischverkehr bis 30 km/h": {
+    "highway": "residential",
+  },
+  "Verkehrsberuhigter Bereich / Befahrbarer Wohnweg": {
+    "highway": "living_street",
+  },
+  "Verkehrsberuhigter Geschäftsbereich": {
+    "highway": "living_street",
+  },
+  "Wege in Grünflächen": {
+    "highway": "path",
+    "bicycle": "designated",
+    "foot": "designated",
+    "segregated": "no",
+  },
+  "Wirtschaftsweg": {
+    "highway": "track",
+  },
+};
+
+/// Uses [drnOSMMapping] to find the DRN name for the given OSM tags.
+String? drnNameFromOSMTags(Map<String, String> givenOSMTags) {
+  for (var drnName in drnOSMMapping.keys) {
+    final osmTags = drnOSMMapping[drnName]!;
+    if (osmTags.length != givenOSMTags.entries.length) {
+      continue;
+    }
+
+    var match = true;
+    for (var tagKey in osmTags.keys) {
+      if (!givenOSMTags.containsKey(tagKey)) {
+        match = false;
+        break;
+      }
+      if (givenOSMTags[tagKey] != osmTags[tagKey]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      return drnName;
+    }
+  }
+  return null;
+}
+
 class Route {
   /// The route idx.
   final int idx;
@@ -21,6 +160,12 @@ class Route {
   /// This is set by the SG selector with an interpolated
   /// route that contains the signal groups.
   final List<NavigationNode> route;
+
+  /// A map from the OSM way IDs to their resolved OSM tags.
+  final Map<int, Map<String, String>> osmTags;
+
+  /// A map from the OSM way IDs to our mapping and translation of way types.
+  late final Map<int, String?> osmWayNames;
 
   /// A list of signal groups in the order of the route.
   final List<Sg> signalGroups;
@@ -60,7 +205,16 @@ class Route {
     required this.signalGroupsDistancesOnRoute,
     required this.crossings,
     required this.crossingsDistancesOnRoute,
-  });
+    required this.osmTags,
+  }) {
+    osmWayNames = {};
+    for (var wayId in osmTags.keys) {
+      final name = drnNameFromOSMTags(osmTags[wayId]!);
+      if (name != null) {
+        osmWayNames[wayId] = name;
+      }
+    }
+  }
 
   Map<String, dynamic> toJson() => {
         'idx': idx,
@@ -70,6 +224,8 @@ class Route {
         'signalGroupsDistancesOnRoute': signalGroupsDistancesOnRoute,
         'crossings': crossings.map((e) => e.toJson()).toList(),
         'crossingsDistancesOnRoute': crossingsDistancesOnRoute,
+        'osmTags': osmTags,
+        'osmWayNames': osmWayNames,
       };
 
   factory Route.fromJson(dynamic json) => Route(
@@ -80,6 +236,7 @@ class Route {
         signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
         crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
+        osmTags: json['osmTags'],
       );
 
   /// The route, connected to the start and end point.
@@ -116,6 +273,7 @@ class Route {
       ],
       crossings: crossings,
       crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+      osmTags: osmTags,
     );
   }
 

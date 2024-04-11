@@ -130,6 +130,14 @@ class RoadClassChartState extends State<RoadClassChart> {
       }
     }
 
+    // Gather corresponding OSM way IDs.
+    final List<int> osmWayIDs = [];
+    for (GHSegment segment in routing.selectedRoute!.path.details.osmWayId) {
+      for (var coordIdx = segment.from; coordIdx < segment.to; coordIdx++) {
+        osmWayIDs.add(segment.value);
+      }
+    }
+
     const vincenty = Distance(roundResult: false);
     roadClassDistances = {};
     for (GHSegment segment in routing.selectedRoute!.path.details.roadClass) {
@@ -137,8 +145,13 @@ class RoadClassChartState extends State<RoadClassChart> {
         final coordFrom = routing.selectedRoute!.path.points.coordinates[coordIdx];
         final coordTo = routing.selectedRoute!.path.points.coordinates[coordIdx + 1];
         final distance = vincenty.distance(LatLng(coordFrom.lat, coordFrom.lon), LatLng(coordTo.lat, coordTo.lon));
-        // Use translation as key to summarize same translation keys. Use "Unbekannt" as standard value.
-        String key = roadClassTranslation[segment.value] ?? "Unbekannt";
+        String key = "Unbekannt";
+        final osmWayID = osmWayIDs[coordIdx];
+        if (routing.selectedRoute!.osmWayNames.containsKey(osmWayID)) {
+          key = routing.selectedRoute!.osmWayNames[osmWayID]!;
+        } else if (roadClassTranslation.containsKey(segment.value)) {
+          key = roadClassTranslation[segment.value]!;
+        }
         if (getOffBikeIndices.contains(coordIdx)) {
           key = "$key (Absteigen)";
         }
@@ -214,7 +227,7 @@ class RoadClassChartState extends State<RoadClassChart> {
                 ),
               ),
               const SizedBox(width: 8),
-              Content(text: e.key, context: context),
+              Flexible(child: Content(text: e.key, context: context)),
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,

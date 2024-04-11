@@ -130,6 +130,39 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Resolves the OSM way IDs for the given route.
+  Future<Map<int, Map<String, String>>?> resolveOSMWayIds(List<GHSegment> osmWayId) async {
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+    final overpassPath = settings.routingEndpoint.overpassServicePath;
+    final osmWayIds = osmWayId.where((e) => e.value is int).map((e) => e.value).toSet();
+    var formData = "data=[out:json];(";
+    for (final id in osmWayIds) {
+      formData += "way($id);";
+    }
+    formData += ");out tags;";
+    final overpassUrl = "https://$baseUrl/$overpassPath/api/interpreter";
+    final overpassEndpoint = Uri.parse(overpassUrl);
+    log.i("Loading OSM way IDs from $overpassUrl - $formData");
+
+    final response = await Http.postWWWForm(overpassEndpoint, formData);
+    if (response.statusCode == 200) {
+      log.i("Loaded OSM way IDs from $overpassUrl");
+      Map<int, Map<String, String>> osmWays = {};
+      final json = jsonDecode(utf8.decode(response.bodyBytes));
+      final elements = json["elements"];
+      for (final element in elements) {
+        final id = element["id"];
+        final tags = element["tags"];
+        osmWays[id] = Map<String, String>.from(tags);
+      }
+      return osmWays;
+    } else {
+      log.e("Failed to load OSM way IDs: ${response.statusCode} ${response.body}");
+      return null;
+    }
+  }
+
   /// Select the remaining waypoints.
   Future<void> selectRemainingWaypoints() async {
     final userPos = getIt<Positioning>().lastPosition;
@@ -226,6 +259,7 @@ class Routing with ChangeNotifier {
       ghUrl += "&details=smoothness";
       ghUrl += "&details=get_off_bike";
       ghUrl += "&details=road_class";
+      ghUrl += "&details=osm_way_id";
       if (waypoints.length == 2) {
         ghUrl += "&algorithm=alternative_route";
         ghUrl += "&ch.disable=true";
@@ -336,6 +370,22 @@ class Routing with ChangeNotifier {
       return null;
     }
 
+    // Load the OSM tags for each path.
+    final osmTags = await Future.wait(ghResponse.paths.map((path) => resolveOSMWayIds(path.details.osmWayId)));
+    if (osmTags.contains(null)) {
+      hadErrorDuringFetch = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
+
+    if (ghResponse.paths.length != osmTags.length) {
+      hadErrorDuringFetch = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
+
     // Create the routes.
     final routes = ghResponse.paths
         .asMap()
@@ -381,6 +431,8 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
+          final osmTagsForRoute = osmTags[i]!;
+
           var route = r.Route(
             idx: i,
             path: path,
@@ -389,6 +441,7 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
             crossings: orderedCrossings,
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
+            osmTags: osmTagsForRoute,
           );
           // Connect the route to the start and end points.
           route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
@@ -451,6 +504,7 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: [],
             crossings: [],
             crossingsDistancesOnRoute: [],
+            osmTags: {},
           );
           // Connect the route to the start and end points.
           route = route.connected(shortcutRoute.waypoints.first, shortcutRoute.waypoints.last);
