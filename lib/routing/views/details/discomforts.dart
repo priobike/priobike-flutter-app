@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -82,6 +83,10 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
       // No discomfort segments are grey.
       discomfortColors[noDiscomfortsText] = const Color(0xFFd6d6d6);
     }
+
+    // Sort the discomforts by distance.
+    discomfortDistances =
+        Map.fromEntries(discomfortDistances.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)));
   }
 
   /// Render the bar chart.
@@ -122,9 +127,6 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
     var elements = <Widget>[];
     for (int i = 0; i < discomfortDistances.length; i++) {
       final e = discomfortDistances.entries.elementAt(i);
-      var pct = ((e.value / routing.selectedRoute!.path.distance) * 100);
-      // Catch case pct > 100.
-      pct = pct > 100 ? 100 : pct;
       var text = e.key;
       elements.add(Padding(
         padding: const EdgeInsets.only(top: 4),
@@ -145,14 +147,15 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
               ),
             ),
             const SizedBox(width: 8),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.67,
+            Expanded(
               child: Content(text: text, context: context),
             ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
+            const HSpace(),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Content(
+                text: e.value > 1000 ? '${(e.value / 1000).toStringAsFixed(0)} km' : '${e.value.toStringAsFixed(0)} m',
+                context: context,
               ),
             ),
           ],
