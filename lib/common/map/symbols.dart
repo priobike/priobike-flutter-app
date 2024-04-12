@@ -31,14 +31,16 @@ class SymbolLoader {
     await add("trafficlighttouchindicatordark", "assets/images/trafficlights/touch-indicator-dark.png", 400, 400);
     await add("trafficlighttouchindicatorlight", "assets/images/trafficlights/touch-indicator-light.png", 400, 400);
 
-    await add("accidenthotspot", "assets/images/discomforts/accidenthotspot.png", 200, 183);
-    await add("carspeed", "assets/images/discomforts/carspeed.png", 200, 183);
-    await add("construction", "assets/images/discomforts/construction.png", 200, 183);
-    await add("decline", "assets/images/discomforts/decline.png", 200, 183);
-    await add("incline", "assets/images/discomforts/incline.png", 200, 183);
-    await add("pedestrians", "assets/images/discomforts/pedestrians.png", 200, 183);
-    await add("surface", "assets/images/discomforts/surface.png", 200, 183);
-    await add("dismount", "assets/images/discomforts/dismount.png", 200, 183);
+    await add("accidenthotspot", "assets/images/pois/accidenthotspot.png", 200, 183);
+    await add("carspeed", "assets/images/pois/carspeed.png", 200, 183);
+    await add("construction", "assets/images/pois/construction.png", 200, 183);
+    await add("decline", "assets/images/pois/decline.png", 200, 183);
+    await add("incline", "assets/images/pois/incline.png", 200, 183);
+    await add("pedestrians", "assets/images/pois/pedestrians.png", 200, 183);
+    await add("surface", "assets/images/pois/surface.png", 200, 183);
+    await add("dismount", "assets/images/pois/dismount.png", 200, 183);
+    await add("greenwave", "assets/images/pois/greenwave.png", 200, 183);
+    await add("veloroute", "assets/images/pois/veloroute.png", 200, 183);
 
     await add("start", "assets/images/start.png", 400, 400);
     await add("destination", "assets/images/destination.png", 400, 400);

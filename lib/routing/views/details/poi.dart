@@ -6,32 +6,32 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
-class DiscomfortsChart extends StatefulWidget {
-  const DiscomfortsChart({super.key});
+class PoisChart extends StatefulWidget {
+  const PoisChart({super.key});
 
   @override
-  DiscomfortsChartState createState() => DiscomfortsChartState();
+  PoisChartState createState() => PoisChartState();
 }
 
-class DiscomfortsChartState extends State<DiscomfortsChart> {
+class PoisChartState extends State<PoisChart> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The details state of discomforts.
-  bool showDiscomfortDetails = true;
+  /// The details state of pois.
+  bool showPoiDetails = true;
 
   /// The chart data.
-  Map<String, double> discomfortDistances = {};
+  Map<String, double> poiDistances = {};
 
   /// The chart color data.
-  Map<String, Color> discomfortColors = {};
+  Map<String, Color> poiColors = {};
 
-  /// The text for route segments without discomforts.
-  static const noDiscomfortsText = 'Keine bekannten Probleme';
+  /// The text for route segments without pois.
+  static const noPoisText = 'Keine weiteren Details';
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    processDiscomfortData();
+    processPoiData();
     setState(() {});
   }
 
@@ -42,7 +42,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
     routing = getIt<Routing>();
     routing.addListener(update);
 
-    processDiscomfortData();
+    processPoiData();
   }
 
   @override
@@ -52,55 +52,50 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
   }
 
   /// Process the route data and create the chart series.
-  void processDiscomfortData() {
-    if (routing.selectedRoute == null || routing.selectedRoute!.foundDiscomforts == null) {
-      return setState(() => discomfortDistances = {});
+  void processPoiData() {
+    if (routing.selectedRoute == null || routing.selectedRoute!.foundPois == null) {
+      return setState(() => poiDistances = {});
     }
 
     const vincenty = Distance(roundResult: false);
-    discomfortDistances = {};
-    discomfortColors = {};
-    for (final discomfort in routing.selectedRoute!.foundDiscomforts!) {
-      for (var idx = 0; idx < discomfort.coordinates.length - 1; idx++) {
-        final distance = vincenty.distance(
-            LatLng(discomfort.coordinates[idx].latitude, discomfort.coordinates[idx].longitude),
-            LatLng(discomfort.coordinates[idx + 1].latitude, discomfort.coordinates[idx + 1].longitude));
-        if (discomfortDistances.containsKey(discomfort.description)) {
-          discomfortDistances[discomfort.description] = discomfortDistances[discomfort.description]! + distance;
+    poiDistances = {};
+    poiColors = {};
+    for (final poi in routing.selectedRoute!.foundPois!) {
+      for (var idx = 0; idx < poi.coordinates.length - 1; idx++) {
+        final distance = vincenty.distance(LatLng(poi.coordinates[idx].latitude, poi.coordinates[idx].longitude),
+            LatLng(poi.coordinates[idx + 1].latitude, poi.coordinates[idx + 1].longitude));
+        if (poiDistances.containsKey(poi.description)) {
+          poiDistances[poi.description] = poiDistances[poi.description]! + distance;
         } else {
-          discomfortDistances[discomfort.description] = distance;
-          discomfortColors[discomfort.description] = discomfort.color;
+          poiDistances[poi.description] = distance;
+          poiColors[poi.description] = poi.color;
         }
       }
     }
 
-    // Fill up with road where no discomforts were found.
-    final totalDistance =
-        discomfortDistances.values.fold<double>(0, (previousValue, element) => previousValue + element);
+    // Fill up with road where no pois were found.
+    final totalDistance = poiDistances.values.fold<double>(0, (previousValue, element) => previousValue + element);
     if (totalDistance < routing.selectedRoute!.path.distance) {
       final remainingDistance = routing.selectedRoute!.path.distance - totalDistance;
-      discomfortDistances[noDiscomfortsText] = remainingDistance;
-      // No discomfort segments are grey.
-      discomfortColors[noDiscomfortsText] = const Color(0xFFd6d6d6);
+      poiDistances[noPoisText] = remainingDistance;
+      // No poi segments are grey.
+      poiColors[noPoisText] = const Color(0xFFd6d6d6);
     }
 
-    // Sort the discomforts by distance.
-    discomfortDistances =
-        Map.fromEntries(discomfortDistances.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)));
+    // Sort the pois by distance.
+    poiDistances = Map.fromEntries(poiDistances.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)));
   }
 
   /// Render the bar chart.
   Widget renderBar() {
-    if (discomfortDistances.isEmpty ||
-        routing.selectedRoute == null ||
-        routing.selectedRoute!.foundDiscomforts == null) {
+    if (poiDistances.isEmpty || routing.selectedRoute == null || routing.selectedRoute!.foundPois == null) {
       return Container();
     }
 
     final availableWidth = (MediaQuery.of(context).size.width - 62);
     var elements = <Widget>[];
-    for (int i = 0; i < discomfortDistances.length; i++) {
-      final e = discomfortDistances.entries.elementAt(i);
+    for (int i = 0; i < poiDistances.length; i++) {
+      final e = poiDistances.entries.elementAt(i);
       var pct = (e.value / routing.selectedRoute!.path.distance);
       // Catch case pct > 1.
       pct = pct > 1 ? 1 : pct;
@@ -108,7 +103,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
         width: (availableWidth * pct).floorToDouble(),
         height: 32,
         decoration: BoxDecoration(
-          color: discomfortColors[e.key],
+          color: poiColors[e.key],
           border: Border.all(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.white.withOpacity(0.07)
@@ -123,10 +118,10 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   /// Render the details below the bar chart.
   Widget renderDetails() {
-    if (discomfortDistances.isEmpty || routing.selectedRoute == null) return Container();
+    if (poiDistances.isEmpty || routing.selectedRoute == null) return Container();
     var elements = <Widget>[];
-    for (int i = 0; i < discomfortDistances.length; i++) {
-      final e = discomfortDistances.entries.elementAt(i);
+    for (int i = 0; i < poiDistances.length; i++) {
+      final e = poiDistances.entries.elementAt(i);
       var text = e.key;
       elements.add(Padding(
         padding: const EdgeInsets.only(top: 4),
@@ -137,7 +132,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
               height: 14,
               width: 14,
               decoration: BoxDecoration(
-                color: discomfortColors[e.key],
+                color: poiColors[e.key],
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Theme.of(context).brightness == Brightness.dark
@@ -169,9 +164,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (discomfortDistances.isEmpty ||
-        routing.selectedRoute == null ||
-        routing.selectedRoute!.foundDiscomforts == null) {
+    if (poiDistances.isEmpty || routing.selectedRoute == null || routing.selectedRoute!.foundPois == null) {
       return Container();
     }
 
@@ -187,18 +180,18 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
           GestureDetector(
             onTap: () {
               setState(() {
-                showDiscomfortDetails = !showDiscomfortDetails;
+                showPoiDetails = !showPoiDetails;
               });
             },
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Content(text: "Unwegsamkeiten", context: context),
+              Content(text: "Weitere Details", context: context),
               SizedBox(
                 width: 40,
                 height: 40,
                 child: SmallIconButtonTertiary(
-                  icon: showDiscomfortDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
+                  icon: showPoiDetails ? Icons.keyboard_arrow_up_sharp : Icons.keyboard_arrow_down_sharp,
                   onPressed: () => setState(() {
-                    showDiscomfortDetails = !showDiscomfortDetails;
+                    showPoiDetails = !showPoiDetails;
                   }),
                 ),
               ),
@@ -207,7 +200,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
           const SizedBox(height: 8),
           GestureDetector(
             onTap: () => setState(() {
-              showDiscomfortDetails = !showDiscomfortDetails;
+              showPoiDetails = !showPoiDetails;
             }),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -223,7 +216,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
                     child: renderDetails(),
                   ),
                   secondChild: Container(),
-                  crossFadeState: showDiscomfortDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                  crossFadeState: showPoiDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                 ),
               ],
             ),

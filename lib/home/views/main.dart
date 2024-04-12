@@ -26,7 +26,7 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -70,8 +70,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
-  /// The associated discomfort service, which is injected by the provider.
-  late Discomforts discomforts;
+  /// The associated poi service, which is injected by the provider.
+  late Pois pois;
 
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
@@ -103,7 +103,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     loadStatus = getIt<LoadStatus>();
     routing = getIt<Routing>();
     ride = getIt<Ride>();
-    discomforts = getIt<Discomforts>();
+    pois = getIt<Pois>();
     predictionSGStatus = getIt<PredictionSGStatus>();
 
     /// List that holds the number of app uses when the rate function should be triggered.
