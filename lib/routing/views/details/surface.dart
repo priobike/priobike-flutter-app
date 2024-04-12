@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -156,15 +157,15 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
               ),
             ),
             const SizedBox(width: 8),
-            Content(text: surfaceTypeTranslation[e.key] ?? "Unbekannt", context: context),
             Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Content(
-                  text:
-                      e.value > 1000 ? '${(e.value / 1000).toStringAsFixed(0)} km' : '${e.value.toStringAsFixed(0)} m',
-                  context: context,
-                ),
+              child: Content(text: surfaceTypeTranslation[e.key] ?? "Unbekannt", context: context),
+            ),
+            const HSpace(),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Content(
+                text: e.value > 1000 ? '${(e.value / 1000).toStringAsFixed(0)} km' : '${e.value.toStringAsFixed(0)} m',
+                context: context,
               ),
             ),
           ],
