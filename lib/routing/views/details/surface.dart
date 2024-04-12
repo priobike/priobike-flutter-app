@@ -97,6 +97,9 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
         }
       }
     }
+    // Order by distance.
+    surfaceTypeDistances =
+        Map.fromEntries(surfaceTypeDistances.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)));
   }
 
   /// Render the bar chart.
@@ -134,9 +137,6 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
     var elements = <Widget>[];
     for (int i = 0; i < surfaceTypeDistances.length; i++) {
       final e = surfaceTypeDistances.entries.elementAt(i);
-      var pct = ((e.value / routing.selectedRoute!.path.distance) * 100);
-      // Catch case pct > 100.
-      pct = pct > 100 ? 100 : pct;
       elements.add(Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Row(
@@ -160,7 +160,11 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
+                child: Content(
+                  text:
+                      e.value > 1000 ? '${(e.value / 1000).toStringAsFixed(0)} km' : '${e.value.toStringAsFixed(0)} m',
+                  context: context,
+                ),
               ),
             ),
           ],

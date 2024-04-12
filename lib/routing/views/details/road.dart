@@ -60,7 +60,7 @@ final roadClassColor = {
   "Fernstraße": const Color(0xFFD4B700),
   "Bundesstraße": const Color(0xFFE6AA10),
   "Landstraße": const Color(0xFFFFDC00),
-  "Straße": const Color(0xFF8CCF9C),
+  "Straße": const Color.fromARGB(255, 145, 145, 145), // Also in DRN
   "Zufahrtsstraße": const Color(0xFF9C9C9C),
   "Unbekannt": const Color(0xFF7C7C7C),
   "Feldweg": const Color(0xFFA8EDB9),
@@ -69,12 +69,30 @@ final roadClassColor = {
   "Fahrradweg": const Color(0xFF28CD50),
   "Weg": const Color(0xFF58755F),
   "Spielstraße": const Color(0xFF405645),
-  "Fußweg": const Color(0xFFD8CD88),
-  "Fußgängerzone": const Color(0xFFEB9034),
+  "Fußweg": const Color(0xFFD8CD88), // Also in DRN
+  "Fußgängerzone": const Color(0xFFEB9034), // Also in DRN
   "Absteigen": const Color(0xFFFFD600),
   "Bahnsteig": const Color(0xFFDC576C),
   "Korridor": const Color(0xFFFF4260),
   "Sonstiges": const Color(0xFF676767),
+  // Additional types fetched from DRN
+  "Busfahrstreifen mit Radverkehr": const Color.fromARGB(255, 40, 136, 205),
+  "Fähre": const Color.fromARGB(255, 94, 84, 210),
+  "Fahrradstraße": const Color.fromARGB(255, 36, 229, 165),
+  "Fußgängerüberweg/-furt": const Color.fromARGB(255, 230, 76, 76),
+  "Befahrbare Fußgängerzone": const Color.fromARGB(255, 165, 214, 68),
+  "Befahrbarer Fußweg": const Color(0xFFEB9034),
+  "Gemeinsamer Geh-/Radweg": const Color.fromARGB(255, 203, 227, 94),
+  "Getrennter Geh-/Radweg": const Color.fromARGB(255, 46, 217, 129),
+  "Durch Fahrräder, Busse, und Taxen befahrbar": const Color.fromARGB(255, 40, 139, 205),
+  "Kopenhagener Radweg": const Color.fromARGB(255, 0, 255, 119),
+  "Radfahrstreifen auf Straße": const Color.fromARGB(255, 40, 147, 205),
+  "Baulich getrennter Radweg": const Color.fromARGB(255, 158, 232, 102),
+  "Schutzstreifen": const Color.fromARGB(255, 48, 193, 255),
+  "Wohnstraße": const Color(0xFF405645),
+  "Verkehrsberuhigter Bereich": const Color(0xFF405645),
+  "Weg in Grünflächen": const Color.fromARGB(255, 124, 162, 133),
+  "Wirtschaftsweg": const Color.fromARGB(255, 137, 101, 155),
 };
 
 class RoadClassChart extends StatefulWidget {
@@ -207,9 +225,6 @@ class RoadClassChartState extends State<RoadClassChart> {
     var elements = <Widget>[];
     for (int i = 0; i < roadClassDistances.length; i++) {
       final e = roadClassDistances.entries.elementAt(i);
-      var pct = ((e.value / routing.selectedRoute!.path.distance) * 100);
-      // Catch case pct > 100.
-      pct = pct > 100 ? 100 : pct;
       elements.add(
         Padding(
           padding: const EdgeInsets.only(top: 4),
@@ -235,10 +250,11 @@ class RoadClassChartState extends State<RoadClassChart> {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Content(
-                      text: e.value > 1000
-                          ? '${(e.value / 1000).toStringAsFixed(0)} km'
-                          : '${e.value.toStringAsFixed(0)} m',
-                      context: context),
+                    text: e.value > 1000
+                        ? '${(e.value / 1000).toStringAsFixed(0)} km'
+                        : '${e.value.toStringAsFixed(0)} m',
+                    context: context,
+                  ),
                 ),
               ),
             ],
