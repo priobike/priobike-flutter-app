@@ -79,15 +79,8 @@ class FeedbackViewState extends State<FeedbackView> {
   /// Submit audiofeedback.
   Future<void> submitAudiofeedback() async {
     // Send the audiofeedback and reset the feedback service.
-    var didSendSomething = false;
-    if (audiofeedback.willSendAudiofeedback) {
-      didSendSomething = await audiofeedback.send();
-    }
+    await audiofeedback.send();
     await audiofeedback.reset();
-
-    if (didSendSomething) {
-      ToastMessage.showSuccess("Danke für's Bewerten!");
-    }
   }
 
   @override
