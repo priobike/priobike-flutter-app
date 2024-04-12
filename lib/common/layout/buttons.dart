@@ -544,12 +544,11 @@ class BigButtonTertiary extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(width: 32),
             if (icon != null)
               Row(
                 children: [
@@ -576,7 +575,6 @@ class BigButtonTertiary extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 32),
           ],
         ),
       ),

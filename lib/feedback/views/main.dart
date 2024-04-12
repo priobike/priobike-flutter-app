@@ -205,7 +205,7 @@ class FeedbackViewState extends State<FeedbackView> {
                   children: [
                     BigButtonTertiary(
                       fillColor: Theme.of(context).colorScheme.background.withOpacity(0.75),
-                      label: "Strecke speichern",
+                      label: "Geplante Route speichern",
                       onPressed: () => showSaveShortcutSheet(context),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
