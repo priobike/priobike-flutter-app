@@ -149,36 +149,53 @@ void showAudioEvaluationDialog(context, Function submitAudioDialog, Function sub
           padding: const EdgeInsets.all(20.0),
           child: Stack(
             children: [
-              SingleChildScrollView(
-                physics: const RangeMaintainingScrollPhysics(),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 186),
-                    Text(
-                      'Dein Feedback zur Sprachausgabe',
-                      style: Theme.of(context).textTheme.titleSmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      "Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt und hilft dabei, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
-                      style: Theme.of(context).textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 15),
-                    const AudioRatingView(),
-                    BigButtonPrimary(
-                      label: "Danke!",
-                      onPressed: () {
+              Column(
+                children: [
+                  const SizedBox(height: 26),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      IconButton(onPressed: () {
                         Navigator.pop(context);
-                        submitAudioDialog();
                         showFinishDriveDialog(context, submit);
-                      },
-                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                      }, icon: const Icon(Icons.close, size: 50,)),
+                    ],
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height - 135,
+                    child: SingleChildScrollView(
+                      physics: const RangeMaintainingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 160),
+                          Text(
+                            'Dein Feedback zur Sprachausgabe',
+                            style: Theme.of(context).textTheme.titleSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 15),
+                          Text(
+                            "Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt und hilft dabei, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 15),
+                          const AudioRatingView(),
+                          BigButtonPrimary(
+                            label: "Danke!",
+                            onPressed: () {
+                              Navigator.pop(context);
+                              submitAudioDialog();
+                              showFinishDriveDialog(context, submit);
+                            },
+                            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                          ),
+                          const SizedBox(height: 256),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 256),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
