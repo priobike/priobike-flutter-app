@@ -35,9 +35,6 @@ class RouteLabelState extends State<RouteLabel> {
   /// The time text of the route label.
   String mainText = "";
 
-  /// The secondary text of the route label.
-  String? secondaryText;
-
   /// The corner margin for the icon that is applied to the route label.
   static const double cornerIconMargin = 10;
 
@@ -45,10 +42,10 @@ class RouteLabelState extends State<RouteLabel> {
   static const double cornerIconSize = 20;
 
   /// The max width used for calculations.
-  static const double maxWidth = 100;
+  static const double maxWidth = 120;
 
   /// The max height used for calculations.
-  static const double maxHeight = 60;
+  static const double maxHeight = 70;
 
   /// The opacity of the route label.
   double opacity = 0;
@@ -122,60 +119,51 @@ class RouteLabelState extends State<RouteLabel> {
     return AnimatedOpacity(
       opacity: widget.isMapMoving ? 0 : opacity,
       duration: const Duration(milliseconds: 150),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Align(
-              alignment: pointerAlignment,
-              child: Transform.flip(
-                flipX: flipX,
-                flipY: flipY,
-                child: CustomPaint(
-                  painter: PointerPainter(
-                    context: context,
-                    color: selected ? CI.route : CI.secondaryRoute,
-                  ),
-                  child: const SizedBox(
-                    height: cornerIconSize,
-                    width: cornerIconSize,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Align(
+                alignment: pointerAlignment,
+                child: Transform.flip(
+                  flipX: flipX,
+                  flipY: flipY,
+                  child: CustomPaint(
+                    painter: PointerPainter(
+                      context: context,
+                      color: selected ? CI.route : CI.secondaryRoute,
+                    ),
+                    child: const SizedBox(
+                      height: cornerIconSize,
+                      width: cornerIconSize,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Container(
-            margin: EdgeInsets.only(
-              left: left ? cornerIconMargin : 0,
-              top: top ? cornerIconMargin : 0,
-              right: right ? cornerIconMargin : 0,
-              bottom: bottom ? cornerIconMargin : 0,
+            Container(
+              margin: EdgeInsets.only(
+                left: left ? cornerIconMargin : 0,
+                top: top ? cornerIconMargin : 0,
+                right: right ? cornerIconMargin : 0,
+                bottom: bottom ? cornerIconMargin : 0,
+              ),
+              decoration: BoxDecoration(
+                color: selected ? CI.route : CI.secondaryRoute,
+                borderRadius: BorderRadius.circular(7.5),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: BoldSmall(
+                text: mainText,
+                context: context,
+                textAlign: TextAlign.center,
+                color: selected ? Colors.white : Colors.black,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            decoration: BoxDecoration(
-              color: selected ? CI.route : CI.secondaryRoute,
-              borderRadius: BorderRadius.circular(7.5),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                BoldSmall(
-                  text: mainText,
-                  context: context,
-                  textAlign: TextAlign.center,
-                  color: selected ? Colors.white : Colors.black,
-                ),
-                if (secondaryText != null)
-                  Small(
-                    text: secondaryText!,
-                    context: context,
-                    textAlign: TextAlign.center,
-                    color: selected ? Colors.white : Colors.black,
-                  ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

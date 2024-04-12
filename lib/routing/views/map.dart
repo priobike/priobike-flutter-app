@@ -366,11 +366,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // (AppBackButton height + top padding)
       top: (80 + frame.padding.top),
       // AppBackButton width
-      left: 64,
+      left: 86,
       // BottomSheet (122) + shortcuts (54) + attribution (16) + bottom padding
       bottom: (194 + frame.padding.bottom),
       // Width of legend
-      right: 64,
+      right: 86,
     );
 
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
@@ -754,13 +754,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapController = controller;
 
     final frame = MediaQuery.of(context);
-    const routeLabelScreenMarginHorizontal = 0.05;
-    // Calculate the relative margin for the route label.
-    final routeLabelMarginLeft = frame.size.width * routeLabelScreenMarginHorizontal;
-    final routeLabelMarginRight = frame.size.width - frame.size.width * routeLabelScreenMarginHorizontal;
+    // Fit left and right to the button margin fo 86px.
+    const routeLabelMarginLeft = 0.0;
+    final routeLabelMarginRight = frame.size.width;
     final routeLabelMarginTop = frame.padding.top;
-    // Fit initial bottom sheet size of 128px.
-    final routeLabelMarginBottom = frame.size.height - 140;
+    // Fit initial bottom sheet size of 140px - padding - shortcut row - mapbox attributes.
+    final routeLabelMarginBottom = frame.size.height - frame.padding.bottom - 140 - 8 - 32 - 16;
     final widthMid = frame.size.width / 2;
     final heightMid = frame.size.height / 2;
     routeLabelManager = RouteLabelManager(

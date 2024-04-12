@@ -449,10 +449,13 @@ class RouteLabelManager extends ChangeNotifier {
   /// Returns possible route label boxes that do not intersect with any route segment.
   List<ManagedRouteLabelCandidate> _getPossibleRouteLabelCandidates(
       ScreenCoordinate candidate, List<List<ScreenCoordinate>> allCoordinates) {
+    // If Position of the route label intersects. E.g. top left means the corner of the route label is top left and therefore the route label intersects with something.
     bool topLeftIntersects = false;
     bool topRightIntersects = false;
     bool bottomLeftIntersects = false;
     bool bottomRightIntersects = false;
+
+    const buttonHeight = 8 + 64 + 8 + 58 + 8 + 58 + 8 + 58 + 8 + 58 + 8;
 
     // Check if route label would be out of screen for each position.
     if (candidate.x + RouteLabelState.maxWidth > widthMid * 2) {
@@ -463,13 +466,58 @@ class RouteLabelManager extends ChangeNotifier {
       topRightIntersects = true;
       bottomRightIntersects = true;
     }
-    if (candidate.y + RouteLabelState.maxHeight > heightMid * 2) {
+    if (candidate.y + RouteLabelState.maxHeight > routeLabelMarginBottom) {
       topRightIntersects = true;
       topLeftIntersects = true;
     }
-    if (candidate.y - RouteLabelState.maxHeight < 0) {
+    if (candidate.y - RouteLabelState.maxHeight < 0 || candidate.y > routeLabelMarginBottom) {
       bottomLeftIntersects = true;
       bottomRightIntersects = true;
+    }
+
+    // Check intersection with buttons left and right.
+    // If candidate is in map legend zone.
+    if (candidate.x > widthMid * 2 - 8 - 32 - 8 && candidate.y < 146 + 8 + routeLabelMarginTop) {
+      topLeftIntersects = true;
+      topRightIntersects = true;
+      bottomLeftIntersects = true;
+      bottomRightIntersects = true;
+    }
+    // If route label box intersects map legend zone with bottom left.
+    if (candidate.x + RouteLabelState.maxWidth > widthMid * 2 - 8 - 32 - 8 &&
+        candidate.y - RouteLabelState.maxHeight < 146 + 8 + routeLabelMarginTop) {
+      bottomLeftIntersects = true;
+    }
+    // If route label box intersects map legend zone with bottom left.
+    if (candidate.x + RouteLabelState.maxWidth > widthMid * 2 - 8 - 32 - 8 &&
+        candidate.y < 146 + 8 + routeLabelMarginTop) {
+      topLeftIntersects = true;
+    }
+    // If route label box intersects map legend zone with bottom right.
+    if (candidate.x > widthMid * 2 - 8 - 32 - 8 &&
+        candidate.y - RouteLabelState.maxHeight < 146 + 8 + routeLabelMarginTop) {
+      bottomRightIntersects = true;
+    }
+
+    // If candidate is in buttons zone.
+    if (candidate.x < 86 && candidate.y < routeLabelMarginTop + buttonHeight) {
+      topLeftIntersects = true;
+      topRightIntersects = true;
+      bottomLeftIntersects = true;
+      bottomRightIntersects = true;
+    }
+    // If route label box intersects buttons zone with bottom left.
+    if (candidate.x < 86 && candidate.y - RouteLabelState.maxHeight < routeLabelMarginTop + buttonHeight) {
+      bottomLeftIntersects = true;
+    }
+    // If route label box intersects buttons zone with bottom right.
+    if (candidate.x - RouteLabelState.maxWidth < 86 &&
+        candidate.y - RouteLabelState.maxHeight < routeLabelMarginTop + buttonHeight) {
+      bottomRightIntersects = true;
+    }
+    // If route label box intersects buttons zone with top right.
+    if (candidate.x - RouteLabelState.maxWidth < 86 && candidate.y < routeLabelMarginTop + buttonHeight) {
+      topRightIntersects = true;
     }
 
     // Add a small offset accordingly to prevent filtering good candidates.
