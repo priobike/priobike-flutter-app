@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/audiofeedback/messages/audioanswer.dart';
-import 'package:priobike/audiofeedback/models/audioquestions.dart';
+import 'package:priobike/feedback/messages/audioanswer.dart';
+import 'package:priobike/feedback/models/audioquestions.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
