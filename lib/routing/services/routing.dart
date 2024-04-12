@@ -424,7 +424,7 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
-          final osmTagsForRoute = osmTags[i]!;
+          final osmTagsForRoute = osmTags[i];
 
           var route = r.Route(
             idx: i,
