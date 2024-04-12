@@ -76,6 +76,24 @@ class Http {
     return response;
   }
 
+  /// Make a "application/x-www-form-urlencoded" POST request.
+  static Future<http.Response> postWWWForm(Uri url, String formData, {dynamic headers}) async {
+    final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
+    if (headers == null) {
+      headers = {
+        "Cookie": cookieString,
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+    } else {
+      headers["Cookie"] = cookieString;
+      headers["Content-Type"] = "application/x-www-form-urlencoded";
+    }
+    // Passing the sticky cookie will allow us to connect to the same backend.
+    http.Response response = await _client.post(url, body: formData, headers: headers);
+    setCookies(response);
+    return response;
+  }
+
   /// Make a multipart POST request.
   static Future<http.Response> multipartPost(
     Uri url, {

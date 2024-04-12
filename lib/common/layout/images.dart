@@ -1,21 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// An alert icon.
-class AlertIcon extends Image {
-  const AlertIcon({double super.width = 24, double super.height = 24, super.key})
-      : super(
-          image: const AssetImage("assets/images/alert.drawio.png"),
-          color: null,
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.center,
-        );
-}
-
 /// A start icon.
 class StartIcon extends Image {
   const StartIcon({double super.width = 24, double super.height = 24, super.key})
       : super(
-          image: const AssetImage("assets/images/start.drawio.png"),
+          image: const AssetImage("assets/images/start-noshadow.png"),
           color: null,
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,
@@ -26,7 +15,7 @@ class StartIcon extends Image {
 class DestinationIcon extends Image {
   const DestinationIcon({double super.width = 24, double super.height = 24, super.key})
       : super(
-          image: const AssetImage("assets/images/destination.drawio.png"),
+          image: const AssetImage("assets/images/destination-noshadow.png"),
           color: null,
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,
@@ -37,7 +26,7 @@ class DestinationIcon extends Image {
 class WaypointIcon extends Image {
   const WaypointIcon({double super.width = 24, double super.height = 24, super.key})
       : super(
-          image: const AssetImage("assets/images/waypoint.drawio.png"),
+          image: const AssetImage("assets/images/waypoint-noshadow.png"),
           color: null,
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,
@@ -48,7 +37,7 @@ class WaypointIcon extends Image {
 class AddWaypointIcon extends Image {
   const AddWaypointIcon({double super.width = 24, double super.height = 24, super.key})
       : super(
-          image: const AssetImage("assets/images/waypoint-plus.drawio.png"),
+          image: const AssetImage("assets/images/waypoint-plus-noshadow.png"),
           color: null,
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,

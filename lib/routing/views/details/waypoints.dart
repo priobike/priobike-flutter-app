@@ -96,7 +96,17 @@ class RouteWaypointItem extends StatelessWidget {
           else if (isLast)
             const DestinationIcon(width: 32, height: 32)
           else
-            const WaypointIcon(width: 32, height: 32),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                const WaypointIcon(width: 32, height: 32),
+                BoldContent(
+                  text: (idx + 1).toString(),
+                  color: Colors.black,
+                  context: context,
+                )
+              ],
+            ),
 
           const SmallHSpace(),
 

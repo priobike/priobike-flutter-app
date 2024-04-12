@@ -12,11 +12,11 @@ extension IconPath on WaypointType {
   String get iconPath {
     switch (this) {
       case WaypointType.start:
-        return 'assets/images/start.drawio.png';
+        return 'assets/images/start-noshadow.png';
       case WaypointType.middle:
-        return 'assets/images/waypoint.drawio.png';
+        return 'assets/images/waypoint-noshadow.png';
       case WaypointType.destination:
-        return 'assets/images/destination.drawio.png';
+        return 'assets/images/destination-noshadow.png';
     }
   }
 }
