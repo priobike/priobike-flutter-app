@@ -4,7 +4,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/details/map_legend.dart';
 import 'package:priobike/tutorial/service.dart';
 
 /// The routing tutorial view that is shown when first creating a route.
@@ -107,7 +106,7 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
             // Side Bar right
             Positioned(
               // Pad right plus half icon width.
-              right: 8 + 29,
+              right: 30,
               child: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -115,14 +114,8 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceVariant,
                       borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        bottomLeft: Radius.circular(24),
-                      ),
-                      border: Border.all(
-                        width: showInfoContainer ? 1 : 0,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white.withOpacity(0.07)
-                            : Colors.black.withOpacity(0.07),
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
                       ),
                     ),
                     child: AnimatedCrossFade(
@@ -131,123 +124,90 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
                       firstCurve: Curves.easeInOutCubic,
                       secondCurve: Curves.easeInOutCubic,
                       sizeCurve: Curves.easeInOutCubic,
-                      firstChild: Container(
-                        // Screen width - padding left - icon width - padding - padding right - half map legend width.
-                        width: size.width - 8 - 64 - 8 - 29,
+                      firstChild: SizedBox(
+                        width: size.width - 42,
                         // MapLegend height: Icon + Padding + Icon + Padding + Icon + Padding + Icon + Padding.
-                        height: 58 + 8 + 24 + 8 + 24 + 8 + 24 + 8,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceVariant,
-                          border: Border.all(
-                            width: 1,
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white.withOpacity(0.07)
-                                : Colors.black.withOpacity(0.07),
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            bottomLeft: Radius.circular(24),
-                          ),
-                        ),
+                        height: 42 + 8 + 24 + 8 + 24 + 8 + 24 + 8,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 4),
-                          child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 58,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        BoldContent(
-                                          text: "Prognoseverfügbarkeit",
-                                          context: context,
-                                        ),
-                                        Content(
-                                          text: "entlang deiner Route",
-                                          context: context,
-                                        )
-                                      ],
+                          padding: const EdgeInsets.only(left: 12, right: 24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 42,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    BoldContent(
+                                      text: "Prognoseverfügbarkeit",
+                                      context: context,
+                                    ),
+                                    Small(
+                                      text: "entlang deiner Route",
+                                      context: context,
+                                    )
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              SizedBox(
+                                height: 32,
+                                child: Row(children: [
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: Small(text: "Ampel ohne Prognose", context: context),
+                                  ),
+                                  const HSpace(),
+                                  const Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: CI.route,
+                                  ),
+                                ]),
+                              ),
+                              SizedBox(
+                                height: 32,
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: Small(
+                                      text: "Ampel mit Prognose",
+                                      context: context,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  SizedBox(
-                                    height: 32,
-                                    child: Row(children: [
-                                      Flexible(
-                                        flex: 1,
-                                        child: Small(text: "Angebundene Kreuzungen ohne Prognose", context: context),
-                                      ),
-                                      const HSpace(),
-                                      const Icon(
-                                        Icons.play_arrow_rounded,
-                                        color: CI.route,
-                                      ),
-                                    ]),
+                                  const HSpace(),
+                                  const Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: CI.radkulturGreen,
                                   ),
-                                  SizedBox(
-                                    height: 32,
-                                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                      Flexible(
-                                        flex: 1,
-                                        child: Small(
-                                          text: "Angebundene Kreuzungen mit Prognose",
-                                          context: context,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const HSpace(),
-                                      const Icon(
-                                        Icons.play_arrow_rounded,
-                                        color: CI.radkulturGreen,
-                                      ),
-                                    ]),
-                                  ),
-                                  SizedBox(
-                                    height: 32,
-                                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                      Flexible(
-                                        flex: 1,
-                                        child: Small(text: "Nicht Angebundene Kreuzungen", context: context),
-                                      ),
-                                      const HSpace(),
-                                      const Icon(
-                                        Icons.play_arrow_rounded,
-                                        color: CI.secondaryRoute,
-                                      ),
-                                    ]),
-                                  ),
-                                ],
+                                ]),
                               ),
-                            ),
-                            const SizedBox(
-                              // half map legend width.
-                              width: 29,
-                            ),
-                          ]),
+                              SizedBox(
+                                height: 32,
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: Small(text: "Kreuzung nicht angebunden", context: context),
+                                  ),
+                                  const HSpace(),
+                                  const Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: CI.secondaryRoute,
+                                  ),
+                                ]),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      secondChild: Container(
+                      secondChild: const SizedBox(
                         // MapLegend height: Icon + Padding + Icon + Padding + Icon + Padding + Icon + Padding.
-                        height: 58 + 8 + 24 + 8 + 24 + 8 + 24 + 8,
+                        height: 42 + 8 + 24 + 8 + 24 + 8 + 24 + 8,
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 8,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: MapLegend(
-                    tutorialViewClose: _endAnimation,
                   ),
                 ),
               ),

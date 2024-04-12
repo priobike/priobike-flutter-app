@@ -13,10 +13,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class MapLegend extends StatefulWidget {
-  /// The closing function if in tutorial view.
-  final void Function()? tutorialViewClose;
-
-  const MapLegend({super.key, this.tutorialViewClose});
+  const MapLegend({super.key});
 
   @override
   MapLegendState createState() => MapLegendState();
@@ -84,12 +81,13 @@ class MapLegendState extends State<MapLegend> {
         GestureDetector(
           onTap: showMapLegendSheet,
           child: Container(
-            width: 58,
-            constraints: const BoxConstraints(minHeight: 58),
+            margin: const EdgeInsets.only(top: 20),
+            width: 42,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceVariant,
-              borderRadius: const BorderRadius.all(
-                Radius.circular(24),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
               ),
               border: Border.all(
                 width: 1,
@@ -112,7 +110,7 @@ class MapLegendState extends State<MapLegend> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     const SizedBox(
-                      height: 58,
+                      height: 20,
                     ),
                     const SmallVSpace(),
                     Container(
@@ -188,20 +186,16 @@ class MapLegendState extends State<MapLegend> {
           ),
         ),
         SizedBox(
-          width: 58,
-          height: 58,
+          width: 42,
+          height: 42,
           child: Tile(
             fill: Theme.of(context).colorScheme.surfaceVariant,
-            onPressed: widget.tutorialViewClose != null ? widget.tutorialViewClose! : showMapLegendSheet,
-            content: widget.tutorialViewClose != null
-                ? Icon(
-                    Icons.close,
-                    color: Theme.of(context).colorScheme.onBackground,
-                  )
-                : Icon(
-                    Icons.info_outline,
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
+            padding: const EdgeInsets.all(0), // Needed to center the icon
+            onPressed: showMapLegendSheet,
+            content: Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
           ),
         ),
       ],

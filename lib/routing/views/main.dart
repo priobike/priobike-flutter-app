@@ -393,17 +393,6 @@ class RoutingViewState extends State<RoutingView> {
               ),
             ),
 
-            // Side Bar right
-            const Positioned(
-              right: 8,
-              child: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: MapLegend(),
-                ),
-              ),
-            ),
-
             const SafeArea(
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -437,6 +426,17 @@ class RoutingViewState extends State<RoutingView> {
             ),
 
             const RoutingTutorialView(),
+
+            // Side Bar right
+            const Positioned(
+              right: 8,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: MapLegend(),
+                ),
+              ),
+            ),
           ],
         ),
       ),
