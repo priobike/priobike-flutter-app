@@ -466,11 +466,11 @@ class RouteLabelManager extends ChangeNotifier {
       topRightIntersects = true;
       bottomRightIntersects = true;
     }
-    if (candidate.y + RouteLabelState.maxHeight > heightMid * 2) {
+    if (candidate.y + RouteLabelState.maxHeight > routeLabelMarginBottom) {
       topRightIntersects = true;
       topLeftIntersects = true;
     }
-    if (candidate.y - RouteLabelState.maxHeight < 0) {
+    if (candidate.y - RouteLabelState.maxHeight < 0 || candidate.y > routeLabelMarginBottom) {
       bottomLeftIntersects = true;
       bottomRightIntersects = true;
     }
@@ -487,6 +487,11 @@ class RouteLabelManager extends ChangeNotifier {
     if (candidate.x + RouteLabelState.maxWidth > widthMid * 2 - 8 - 32 - 8 &&
         candidate.y - RouteLabelState.maxHeight < 146 + 8 + routeLabelMarginTop) {
       bottomLeftIntersects = true;
+    }
+    // If route label box intersects map legend zone with bottom left.
+    if (candidate.x + RouteLabelState.maxWidth > widthMid * 2 - 8 - 32 - 8 &&
+        candidate.y < 146 + 8 + routeLabelMarginTop) {
+      topLeftIntersects = true;
     }
     // If route label box intersects map legend zone with bottom right.
     if (candidate.x > widthMid * 2 - 8 - 32 - 8 &&
@@ -509,6 +514,10 @@ class RouteLabelManager extends ChangeNotifier {
     if (candidate.x - RouteLabelState.maxWidth < 86 &&
         candidate.y - RouteLabelState.maxHeight < routeLabelMarginTop + buttonHeight) {
       bottomRightIntersects = true;
+    }
+    // If route label box intersects buttons zone with top right.
+    if (candidate.x - RouteLabelState.maxWidth < 86 && candidate.y < routeLabelMarginTop + buttonHeight) {
+      topRightIntersects = true;
     }
 
     // Add a small offset accordingly to prevent filtering good candidates.

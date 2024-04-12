@@ -758,8 +758,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     const routeLabelMarginLeft = 0.0;
     final routeLabelMarginRight = frame.size.width;
     final routeLabelMarginTop = frame.padding.top;
-    // Fit initial bottom sheet size of 140px.
-    final routeLabelMarginBottom = frame.size.height - 140;
+    // Fit initial bottom sheet size of 140px - padding - shortcut row - mapbox attributes.
+    final routeLabelMarginBottom = frame.size.height - frame.padding.bottom - 140 - 8 - 32 - 16;
     final widthMid = frame.size.width / 2;
     final heightMid = frame.size.height / 2;
     routeLabelManager = RouteLabelManager(
