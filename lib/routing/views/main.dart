@@ -419,12 +419,6 @@ class RoutingViewState extends State<RoutingView> {
                   )
                 : Container(),
 
-            RouteDetailsBottomSheet(
-              onSelectStartButton: onStartRide,
-              onSelectSaveButton: () => showSaveShortcutSheet(context),
-              hasInitiallyLoaded: hasInitiallyLoaded,
-            ),
-
             const RoutingTutorialView(),
 
             // Side Bar right
@@ -436,6 +430,12 @@ class RoutingViewState extends State<RoutingView> {
                   child: MapLegend(),
                 ),
               ),
+            ),
+
+            RouteDetailsBottomSheet(
+              onSelectStartButton: onStartRide,
+              onSelectSaveButton: () => showSaveShortcutSheet(context),
+              hasInitiallyLoaded: hasInitiallyLoaded,
             ),
           ],
         ),
