@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -29,7 +30,10 @@ class MapLegendState extends State<MapLegend> {
   bool showInfo = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
+  Future<void> update() async {
+    // Small delay to ensure timing for tutorial view.
+    await Future.delayed(const Duration(milliseconds: 250));
+
     setState(() {
       showInfo = !routing.isFetchingRoute && routing.selectedRoute != null;
     });
@@ -44,6 +48,13 @@ class MapLegendState extends State<MapLegend> {
 
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+
+    // To ensure animating for routing tutorial view.
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        showInfo = !routing.isFetchingRoute && routing.selectedRoute != null;
+      });
+    });
   }
 
   @override
@@ -70,12 +81,19 @@ class MapLegendState extends State<MapLegend> {
         GestureDetector(
           onTap: showMapLegendSheet,
           child: Container(
-            width: 58,
-            constraints: const BoxConstraints(minHeight: 58),
+            margin: const EdgeInsets.only(top: 20),
+            width: 42,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceVariant,
-              borderRadius: const BorderRadius.all(
-                Radius.circular(24),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
+              ),
+              border: Border.all(
+                width: 1,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withOpacity(0.07)
+                    : Colors.black.withOpacity(0.07),
               ),
             ),
             child: AnimatedCrossFade(
@@ -92,7 +110,7 @@ class MapLegendState extends State<MapLegend> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     const SizedBox(
-                      height: 58,
+                      height: 20,
                     ),
                     const SmallVSpace(),
                     Container(
@@ -168,10 +186,11 @@ class MapLegendState extends State<MapLegend> {
           ),
         ),
         SizedBox(
-          width: 58,
-          height: 58,
+          width: 42,
+          height: 42,
           child: Tile(
             fill: Theme.of(context).colorScheme.surfaceVariant,
+            padding: const EdgeInsets.all(0), // Needed to center the icon
             onPressed: showMapLegendSheet,
             content: Icon(
               Icons.info_outline,
