@@ -328,102 +328,82 @@ class Ride with ChangeNotifier {
       return null;
     }
 
-    Phase? currentColor = recommendation.calcCurrentSignalPhase;
+    Phase? currentPhase = recommendation.calcCurrentSignalPhase;
     // Calculate the countdown.
     int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     if (countdown < 0) {
       countdown = 0; // Must not be negative for later calculations.
     }
-    Phase? nextColor;
+    Phase? nextPhase;
     int durationNextPhase = -1;
-    Phase? secondNextColor;
+    Phase? secondNextPhase;
     int durationSecondNextPhase = -1;
-    Phase? thirdNextColor;
+    Phase? thirdNextPhase;
 
     // The current phase ends at index countdown + 2.
     if (recommendation.calcPhasesFromNow.length > countdown + 2) {
       // Calculate the time and color of the next phase after the current phase.
       durationNextPhase = calcTimeToNextPhaseAfterIndex(countdown + 2) ?? -1;
-      nextColor = recommendation.calcPhasesFromNow[countdown + 2];
+      nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
 
       if (recommendation.calcPhasesFromNow.length > countdown + durationNextPhase + 2) {
         // Calculate the time and color of the second next phase after the current phase.
         durationSecondNextPhase = calcTimeToNextPhaseAfterIndex(countdown + durationNextPhase + 2) ?? -1;
-        secondNextColor = recommendation.calcPhasesFromNow[countdown + durationNextPhase + 2];
+        secondNextPhase = recommendation.calcPhasesFromNow[countdown + durationNextPhase + 2];
 
         if (recommendation.calcPhasesFromNow.length > countdown + durationNextPhase + durationSecondNextPhase + 2) {
           // Calculate the color of the third next phase after the current phase.
-          thirdNextColor =
+          thirdNextPhase =
               recommendation.calcPhasesFromNow[countdown + durationNextPhase + durationSecondNextPhase + 2];
         }
       }
     }
 
-    // If the traffic light will turn to green
-    // and can be arrived with current speed
-    // the countdown will be announced.
-    if (nextColor == Phase.green &&
-        countdown + durationNextPhase >= instructionText.distanceToNextSg / speed &&
-        countdown > 3) {
-      // Add countdown information and timestamp.
-      instructionText.addCountdown(countdown);
-      instructionText.text = "${instructionText.text} grün in";
-      return instructionText;
-    }
-    // If the traffic light will turn to green
-    // and can be arrived with max speed of 25 km/h or current speed (if higher)
-    // the countdown for turning red will be announced.
-    else if (nextColor == Phase.green &&
-        countdown + durationNextPhase >= instructionText.distanceToNextSg * 3.6 / max(25, speed) &&
-        countdown + durationNextPhase > 3) {
-      // Add countdown information and timestamp.
-      instructionText.addCountdown(countdown + durationNextPhase);
-      instructionText.text = "${instructionText.text} rot in";
-      return instructionText;
-    }
-    // If the traffic light is green
-    // and the countdown is higher than the time needed to arrive at the traffic light with 25 km/h or current speed (if higher)
-    // it will be announced.
-    else if (currentColor == Phase.green &&
-        nextColor == Phase.red &&
-        countdown >= instructionText.distanceToNextSg * 3.6 / max(25, speed) &&
-        countdown > 3) {
-      // Add countdown information and timestamp.
-      instructionText.addCountdown(countdown);
-      instructionText.text = "${instructionText.text} rot in";
-      return instructionText;
-    }
-    // Otherwise check if the second cycle can be reached with a max speed of 25 km/h or current speed (if higher).
-    else if (countdown + durationNextPhase >= instructionText.distanceToNextSg * 3.6 / max(25, speed)) {
-      instructionText.addCountdown(countdown + durationNextPhase);
-      switch (secondNextColor) {
-        case Phase.red:
-          instructionText.text = "${instructionText.text} rot in";
-          return instructionText;
-        case Phase.green:
-          instructionText.text = "${instructionText.text} grün in";
-          return instructionText;
-        default:
-          return null;
+    if (currentPhase == Phase.green && nextPhase == Phase.red) {
+      if (countdown  >= instructionText.distanceToNextSg / max(25, speed) &&
+          countdown > 3) {
+        // The traffic light is green and can be crossed with the max of current speed or 25km/h.
+        // before turning red.
+        instructionText.addCountdown(countdown);
+        instructionText.text = "${instructionText.text} rot in";
+        return instructionText;
+      } else if ((secondNextPhase == Phase.green &&
+          instructionText.distanceToNextSg * 3.6 / (countdown + durationNextPhase) >= 8 &&
+          countdown + durationNextPhase > 3)) {
+        // The traffic light will turn red and then green again
+        // and can be crossed with a minimum speed of 8km/h without stopping.
+        instructionText.addCountdown(countdown + durationNextPhase);
+        instructionText.text = "${instructionText.text} grün in";
+        return instructionText;
+      } else if (countdown > 3) {
+        // Let the user know when the traffic light is going to turn red.
+        instructionText.addCountdown(countdown);
+        instructionText.text = "${instructionText.text} rot in";
+        return instructionText;
+      } else if (countdown + durationNextPhase > 3) {
+        // Let the user know when the traffic light is going to turn green again.
+        instructionText.addCountdown(countdown + durationNextPhase);
+        instructionText.text = "${instructionText.text} grün in";
+        return instructionText;
       }
-    }
-    // Otherwise check if the third cycle can be reached.
-    else if (countdown + durationNextPhase + durationSecondNextPhase >=
-        instructionText.distanceToNextSg * 3.6 / max(25, speed)) {
-      instructionText.addCountdown(countdown + durationNextPhase + durationSecondNextPhase);
-      switch (thirdNextColor) {
-        case Phase.red:
-          instructionText.text = "${instructionText.text} rot in";
-          return instructionText;
-        case Phase.green:
-          instructionText.text = "${instructionText.text} grün in";
-          return instructionText;
-        default:
-          return null;
+    } else if (nextPhase == Phase.green) {
+      if (countdown + durationNextPhase >=
+          instructionText.distanceToNextSg / speed &&
+          countdown > 3) {
+        // The traffic light will turn green and can be crossed with the current speed.
+        instructionText.addCountdown(countdown);
+        instructionText.text = "${instructionText.text} grün in";
+        return instructionText;
+      } else if (secondNextPhase == Phase.red &&
+          countdown + durationNextPhase > 3) {
+        // Let the user know when the traffic light is going to turn red.
+        instructionText.addCountdown(countdown + durationNextPhase);
+        instructionText.text = "${instructionText.text} rot in";
+        return instructionText;
       }
     }
 
-    // No recommendation can be made, instruction part must not be played.
+    // No recommendation can be made.
     return null;
   }
 
