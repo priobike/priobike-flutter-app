@@ -208,8 +208,7 @@ class Route {
         'signalGroupsDistancesOnRoute': signalGroupsDistancesOnRoute,
         'crossings': crossings.map((e) => e.toJson()).toList(),
         'crossingsDistancesOnRoute': crossingsDistancesOnRoute,
-        'osmTags': osmTags,
-        'osmWayNames': osmWayNames,
+        'osmTags': (osmTags.map((key, value) => MapEntry(key.toString(), value))),
       };
 
   factory Route.fromJson(dynamic json) => Route(
@@ -220,7 +219,8 @@ class Route {
         signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
         crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
-        osmTags: json['osmTags'],
+        osmTags:
+            (json['osmTags'] as Map).map((key, value) => MapEntry(int.parse(key), Map<String, String>.from(value))),
       );
 
   /// The route, connected to the start and end point.
