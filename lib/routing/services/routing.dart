@@ -629,7 +629,7 @@ class Routing with ChangeNotifier {
       } else {
         // Put instruction point 10m before the crossing.
         var waypointSecondInstructionCall =
-        findWaypointMetersBeforeInstruction(10, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+            findWaypointMetersBeforeInstruction(10, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           // Put the instruction at the point provided by GraphHopper.
           Instruction secondInstructionCall = Instruction(
