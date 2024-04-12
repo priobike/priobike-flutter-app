@@ -138,7 +138,7 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
                                 height: 42,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     BoldContent(
                                       text: "Prognoseverfügbarkeit",
