@@ -42,9 +42,9 @@ class Audiofeedback with ChangeNotifier {
     isSendingAudiofeedback = true;
     notifyListeners();
 
-    final sessionId = getIt<Ride>().sessionId;
+    final sessionId = getIt<Ride>().sessionId ?? "";
     final userId = await User.getOrCreateId();
-    final trackId = getIt<Tracking>().track?.sessionId;
+    final trackId = getIt<Tracking>().track?.sessionId ?? "";
 
     // Send all of the answered audioquestions to the backend.
     final endpoint =

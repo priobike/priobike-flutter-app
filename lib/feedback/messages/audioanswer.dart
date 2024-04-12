@@ -3,39 +3,39 @@ class PostAudioAnswerRequest {
   final String userId;
 
   /// The id of the session, if provided.
-  final String? sessionId;
+  final String sessionId;
 
   /// The id of the track, if provided.
-  final String? trackId;
+  final String trackId;
 
   /// The scores of the answers, if provided. Max length: 10.
-  final List<int?> susAnswers;
+  final List<int> susAnswers;
 
   /// The value of the comment, if provided.
-  final String? comment;
+  final String comment;
 
   const PostAudioAnswerRequest({
     required this.userId,
-    this.sessionId,
-    this.trackId,
+    required this.sessionId,
+    required this.trackId,
     required this.susAnswers,
-    this.comment,
+    required this.comment,
   });
 
   factory PostAudioAnswerRequest.fromJson(Map<String, dynamic> json) => PostAudioAnswerRequest(
         userId: json['user_id'],
         sessionId: json['session_id'],
         trackId: json['track_id'],
-        susAnswers: List<int?>.from(json['sus_answers']),
+        susAnswers: List<int>.from(json['sus_answers']),
         comment: json['comment'],
       );
 
   Map<String, dynamic> toJson() => {
         'user_id': userId,
-        if (sessionId != null) 'session_id': sessionId,
-        if (trackId != null) 'track_id': trackId,
+        'session_id': sessionId,
+        'track_id': trackId,
         'sus_answers': susAnswers,
-        if (comment != null) 'comment': comment,
+        'comment': comment,
       };
 }
 

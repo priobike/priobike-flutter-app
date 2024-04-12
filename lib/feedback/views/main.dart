@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/feedback/services/audiofeedback.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
@@ -35,6 +36,9 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// The associated feedback service, which is injected by the provider.
   late Feedback feedback;
+
+  /// The associated audiofeedback service, which is injected by the provider.
+  late Audiofeedback audiofeedback;
 
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
@@ -72,6 +76,20 @@ class FeedbackViewState extends State<FeedbackView> {
     }
   }
 
+  /// Submit audiofeedback.
+  Future<void> submitAudiofeedback() async {
+    // Send the audiofeedback and reset the feedback service.
+    var didSendSomething = false;
+    if (audiofeedback.willSendAudiofeedback) {
+      didSendSomething = await audiofeedback.send();
+    }
+    await audiofeedback.reset();
+
+    if (didSendSomething) {
+      ToastMessage.showSuccess("Danke für's Bewerten!");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -82,6 +100,8 @@ class FeedbackViewState extends State<FeedbackView> {
     tracking.addListener(update);
     feedback = getIt<Feedback>();
     feedback.addListener(update);
+    audiofeedback = getIt<Audiofeedback>();
+    audiofeedback.addListener(update);
     statistics = getIt<Statistics>();
     statistics.addListener(update);
     settings = getIt<Settings>();
@@ -121,6 +141,7 @@ class FeedbackViewState extends State<FeedbackView> {
     routing.removeListener(update);
     tracking.removeListener(update);
     feedback.removeListener(update);
+    audiofeedback.removeListener(update);
     statistics.removeListener(update);
     settings.removeListener(update);
     super.dispose();
@@ -220,7 +241,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     BigButtonPrimary(
                       label: "Fertig",
                       onPressed: () => settings.saveAudioInstructionsEnabled
-                          ? showAudioEvaluationDialog(context, submit)
+                          ? showAudioEvaluationDialog(context, submitAudiofeedback, submit)
                           : showFinishDriveDialog(context, submit),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
+import 'package:priobike/feedback/models/audioquestions.dart';
+import 'package:priobike/feedback/services/audiofeedback.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 
 /// A view with 5 stars to rate the current ride.
 class AudioRatingView extends StatefulWidget {
@@ -11,6 +14,9 @@ class AudioRatingView extends StatefulWidget {
 }
 
 class AudioRatingViewState extends State<AudioRatingView> {
+  /// The feedback service, which is injected by the provider.
+  late Audiofeedback audiofeedback;
+
   /// The score of the 10 questions questions.
   int scoreQ1 = 0;
   int scoreQ2 = 0;
@@ -45,6 +51,14 @@ class AudioRatingViewState extends State<AudioRatingView> {
   @override
   void initState() {
     super.initState();
+    audiofeedback = getIt<Audiofeedback>();
+    audiofeedback.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    audiofeedback.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is called when a response is tapped.
@@ -89,7 +103,28 @@ class AudioRatingViewState extends State<AudioRatingView> {
       },
     );
 
-    // TODO: Save the rating
+    // Save the rating.
+    updateAudioFeedback();
+  }
+
+  Future<void> updateAudioFeedback() async {
+    final audioquestions = Audioquestions(
+      susAnswers: [
+        scoreQ1,
+        scoreQ2,
+        scoreQ3,
+        scoreQ4,
+        scoreQ5,
+        scoreQ6,
+        scoreQ7,
+        scoreQ8,
+        scoreQ9,
+        scoreQ10,
+      ],
+      comment: _textController.text,
+    );
+
+    await audiofeedback.update(id: "Audiofeedback", audioquestion: audioquestions);
   }
 
   Widget getLabels() {
@@ -394,6 +429,13 @@ class AudioRatingViewState extends State<AudioRatingView> {
                       ),
                       hintText: "Hier ist Platz für Anmerkungen und Kommentare",
                       hintStyle: TextStyle(fontSize: 15)),
+                  onChanged: (value) {
+                    setState(() {
+                      _textController.text = value;
+                    });
+                    // Save the comment in Feedback.
+                    updateAudioFeedback();
+                  },
                 ),
                 const SizedBox(height: 30),
               ],
