@@ -627,16 +627,32 @@ class Routing with ChangeNotifier {
           concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
         }
       } else {
-        // Put the instruction at the point provided by GraphHopper.
-        Instruction secondInstructionCall = Instruction(
-            lat: currentWaypoint.lat,
-            lon: currentWaypoint.lon,
-            text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType,
-                currentWaypoint.distanceToNextSignal ?? 0),
-            instructionType: instructionType,
-            signalGroupId: signalGroupId);
-        instructions.add(secondInstructionCall);
-        lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
+        // Put instruction point 10m before the crossing.
+        var waypointSecondInstructionCall =
+        findWaypointMetersBeforeInstruction(10, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+        if (waypointSecondInstructionCall != null) {
+          // Put the instruction at the point provided by GraphHopper.
+          Instruction secondInstructionCall = Instruction(
+              lat: waypointSecondInstructionCall.latitude,
+              lon: waypointSecondInstructionCall.longitude,
+              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType,
+                  currentWaypoint.distanceToNextSignal ?? 0),
+              instructionType: instructionType,
+              signalGroupId: signalGroupId);
+          instructions.add(secondInstructionCall);
+          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
+        } else {
+          // Put the instruction at the point provided by GraphHopper.
+          Instruction secondInstructionCall = Instruction(
+              lat: currentWaypoint.lat,
+              lon: currentWaypoint.lon,
+              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType,
+                  currentWaypoint.distanceToNextSignal ?? 0),
+              instructionType: instructionType,
+              signalGroupId: signalGroupId);
+          instructions.add(secondInstructionCall);
+          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
+        }
       }
     }
     return instructions;
