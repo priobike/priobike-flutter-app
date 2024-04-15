@@ -23,6 +23,7 @@ import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/map_legend.dart';
 import 'package:priobike/routing/views/details/shortcuts.dart';
+import 'package:priobike/routing/views/edit_waypoint_sheet.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/profile.dart';
@@ -43,16 +44,16 @@ class RoutingView extends StatefulWidget {
 
 class RoutingViewState extends State<RoutingView> {
   /// The associated geocoding service, which is injected by the provider.
-  Geocoding? geocoding;
+  late Geocoding geocoding;
 
   /// The associated routing service, which is injected by the provider.
-  Routing? routing;
+  late Routing routing;
 
   /// The associated position service, which is injected by the provider.
-  Positioning? positioning;
+  late Positioning positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  Shortcuts? shortcuts;
+  late Shortcuts shortcuts;
 
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
@@ -90,16 +91,16 @@ class RoutingViewState extends State<RoutingView> {
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
-        await positioning?.requestSingleLocation(onNoPermission: () {
+        await positioning.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
-          showLocationAccessDeniedDialog(context, positioning!.positionSource);
+          showLocationAccessDeniedDialog(context, positioning.positionSource);
         });
         // Calling requestSingleLocation function to fill lastPosition of PositionService regularly.
         // Note: using dart timer because geolocator has no options for ios to set the gps interval.
         timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-          await positioning?.requestSingleLocation(onNoPermission: () {
+          await positioning.requestSingleLocation(onNoPermission: () {
             Navigator.of(context).pop();
-            showLocationAccessDeniedDialog(context, positioning!.positionSource);
+            showLocationAccessDeniedDialog(context, positioning.positionSource);
           });
           // Move screen if was centered before.
           if (mapValues.isCentered) {
@@ -109,10 +110,10 @@ class RoutingViewState extends State<RoutingView> {
 
         // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
         // a location shortcut instead of a route shortcut.
-        await routing?.loadRoutes();
+        await routing.loadRoutes();
         // Checking threshold for location accuracy
-        if (positioning?.lastPosition?.accuracy != null &&
-            positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
+        if (positioning.lastPosition?.accuracy != null &&
+            positioning.lastPosition!.accuracy >= locationAccuracyThreshold) {
           showAlertGPSQualityDialog();
         }
 
@@ -124,13 +125,13 @@ class RoutingViewState extends State<RoutingView> {
     );
 
     geocoding = getIt<Geocoding>();
-    geocoding!.addListener(update);
+    geocoding.addListener(update);
     routing = getIt<Routing>();
-    routing!.addListener(update);
+    routing.addListener(update);
     shortcuts = getIt<Shortcuts>();
-    shortcuts!.addListener(update);
+    shortcuts.addListener(update);
     positioning = getIt<Positioning>();
-    positioning!.addListener(update);
+    positioning.addListener(update);
     layers = getIt<Layers>();
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
@@ -139,10 +140,10 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   void dispose() {
-    geocoding!.removeListener(update);
-    routing!.removeListener(update);
-    shortcuts!.removeListener(update);
-    positioning!.removeListener(update);
+    geocoding.removeListener(update);
+    routing.removeListener(update);
+    shortcuts.removeListener(update);
+    positioning.removeListener(update);
     layers.removeListener(update);
     timer?.cancel();
 
@@ -252,7 +253,7 @@ class RoutingViewState extends State<RoutingView> {
                 const SmallVSpace(),
 
                 // if point is outside of supported bounding box
-                (routing!.waypointsOutOfBoundaries)
+                (routing.waypointsOutOfBoundaries)
                     ? Column(
                         children: [
                           Small(
@@ -280,7 +281,7 @@ class RoutingViewState extends State<RoutingView> {
                           BigButtonPrimary(
                             label: "Erneut versuchen",
                             onPressed: () async {
-                              await routing?.loadRoutes();
+                              await routing.loadRoutes();
                             },
                           ),
                         ],
@@ -339,8 +340,8 @@ class RoutingViewState extends State<RoutingView> {
           children: [
             const RoutingMapView(),
 
-            if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
-            if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
+            if (routing.isFetchingRoute || geocoding.isFetchingAddress) renderLoadingIndicator(),
+            if (routing.hadErrorDuringFetch) renderTryAgainButton(),
 
             // Top Bar
             SafeArea(
@@ -432,10 +433,24 @@ class RoutingViewState extends State<RoutingView> {
               ),
             ),
 
-            RouteDetailsBottomSheet(
-              onSelectStartButton: onStartRide,
-              onSelectSaveButton: () => showSaveShortcutSheet(context),
-              hasInitiallyLoaded: hasInitiallyLoaded,
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInCubic,
+              bottom: routing.tappedWaypointIdx == null ? 0 : -140,
+              left: 0,
+              child: RouteDetailsBottomSheet(
+                onSelectStartButton: onStartRide,
+                onSelectSaveButton: () => showSaveShortcutSheet(context),
+                hasInitiallyLoaded: hasInitiallyLoaded,
+              ),
+            ),
+
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInCubic,
+              bottom: routing.tappedWaypointIdx == null ? -140 : 0,
+              left: 0,
+              child: const EditWaypointBottomSheet(),
             ),
           ],
         ),

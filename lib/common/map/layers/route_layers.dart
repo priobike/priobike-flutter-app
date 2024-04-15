@@ -447,6 +447,7 @@ class WaypointsLayer {
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
       features.add(
         {
+          "id": "waypoint-${entry.key}",
           "type": "Feature",
           "geometry": {
             "type": "Point",

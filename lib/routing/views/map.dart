@@ -234,7 +234,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Called when the listener callback of the Routing service ChangeNotifier is fired.
   updateRoute() async {
     updateRouteMapLayers();
-    fitCameraToRouteBounds();
+    if (routing.tappedWaypointIdx != null) {
+      Waypoint tappedWaypoint = routing.selectedWaypoints![routing.tappedWaypointIdx!];
+      // Move the camera to the center of the waypoint.
+      fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
+    } else {
+      fitCameraToRouteBounds();
+    }
 
     routeLabelManager?.resetService();
     routeLabelManager?.updateRouteLabels();
@@ -639,6 +645,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         routing.switchToRoute(routeIdx);
         return;
       }
+
+      // Case waypoint
+      if (id.startsWith("waypoint-")) {
+        final waypointIdx = int.tryParse(id.split("-")[1]);
+        if (waypointIdx == null) return;
+        if (routing.selectedWaypoints == null) return;
+        routing.setTappedWaypointIdx(waypointIdx);
+
+        return;
+      }
     }
 
     Map? properties = queriedRenderedFeature.queriedFeature.feature["properties"] as Map?;
@@ -861,6 +877,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           RentalStationsLayer.clickLayerId,
           RentalStationsLayer.textLayerId,
           ParkingStationsLayer.clickLayerId,
+          WaypointsLayer.layerId,
         ],
       ),
     );

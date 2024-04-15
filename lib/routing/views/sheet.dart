@@ -56,7 +56,13 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   late double initialChildSize;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {});
+  void update() {
+    if (routing.tappedWaypointIdx != null) {
+      // reset scroll extend when waypoint tapped.
+      controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 500), curve: Curves.easeInCubic);
+    }
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -297,6 +303,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
+      width: frame.size.width,
       child: Stack(children: [
         DraggableScrollableSheet(
           initialChildSize: initialChildSize,

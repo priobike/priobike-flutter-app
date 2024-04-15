@@ -60,6 +60,8 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
+  int? tappedWaypointIdx;
+
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -668,5 +670,17 @@ class Routing with ChangeNotifier {
     }
 
     route.mostUniqueAttribute = null;
+  }
+
+  /// Sets the tapped waypoint idx.
+  void setTappedWaypointIdx(int idx) {
+    tappedWaypointIdx = idx;
+    notifyListeners();
+  }
+
+  /// Sets the tapped waypoint idx.
+  void unsetTappedWaypointIdx() {
+    tappedWaypointIdx = null;
+    notifyListeners();
   }
 }
