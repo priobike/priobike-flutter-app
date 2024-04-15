@@ -144,6 +144,8 @@ void showAudioEvaluationDialog(context, Function submitAudioDialog, Function sub
       ),
     ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+      var keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+      var deviceHeight = MediaQuery.of(context).size.height;
       return Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -163,7 +165,7 @@ void showAudioEvaluationDialog(context, Function submitAudioDialog, Function sub
                     ],
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height - 135,
+                    height: keyboardHeight > 0 ? deviceHeight - 135 - keyboardHeight : deviceHeight - 135,
                     child: SingleChildScrollView(
                       physics: const RangeMaintainingScrollPhysics(),
                       child: Column(
