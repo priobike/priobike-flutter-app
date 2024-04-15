@@ -157,11 +157,16 @@ void showAudioEvaluationDialog(context, Function submitAudioDialog, Function sub
                   Row(
                     children: [
                       const Spacer(),
-                      IconButton(onPressed: () {
-                        Navigator.pop(context);
-                        submitEmptyAudioDialog();
-                        showFinishDriveDialog(context, submit);
-                      }, icon: const Icon(Icons.close, size: 50,)),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            submitEmptyAudioDialog();
+                            showFinishDriveDialog(context, submit);
+                          },
+                          icon: const Icon(
+                            Icons.close,
+                            size: 50,
+                          )),
                     ],
                   ),
                   SizedBox(
