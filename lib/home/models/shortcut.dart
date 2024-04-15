@@ -53,7 +53,7 @@ abstract class Shortcut {
       longLink ??= link;
 
       // Create a new shortcut from the long link.
-      final subUrls = longLink.split('/');
+      final subUrls = longLink.split('/import/');
       final shortcutBase64 = subUrls.last;
       final shortcutBytes = base64.decode(shortcutBase64);
       final shortcutUTF8 = utf8.decode(shortcutBytes);
