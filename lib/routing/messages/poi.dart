@@ -73,11 +73,18 @@ class PoisResponse {
 
   factory PoisResponse.fromJson(Map<String, dynamic> json) {
     return PoisResponse(
-      constructions: (json['constructions'] as List).map((construction) => PoiPoints.fromJson(construction)).toList(),
-      accidenthotspots:
-          (json['accidenthotspots'] as List).map((accidenthotspot) => PoiPoints.fromJson(accidenthotspot)).toList(),
-      greenwaves: (json['greenwaves'] as List).map((greenwave) => PoiPoints.fromJson(greenwave)).toList(),
-      veloroutes: (json['veloroutes'] as List).map((veloroute) => PoiPoints.fromJson(veloroute)).toList(),
+      constructions: (json['constructions'] as List) //
+          .map((construction) => PoiPoints.fromJson(construction))
+          .toList(),
+      accidenthotspots: (json['accidenthotspots'] as List) //
+          .map((accidenthotspot) => PoiPoints.fromJson(accidenthotspot))
+          .toList(),
+      greenwaves: (json['greenwaves'] as List) //
+          .map((greenwave) => PoiPoints.fromJson(greenwave))
+          .toList(),
+      veloroutes: (json['veloroutes'] as List) //
+          .map((veloroute) => PoiPoints.fromJson(veloroute))
+          .toList(),
     );
   }
 

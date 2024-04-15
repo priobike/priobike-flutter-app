@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -88,15 +90,30 @@ class PoisChartState extends State<PoisChart> {
 
   /// Render the bar chart.
   Widget renderBar() {
+    final fallbackView = Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.07)
+            : Colors.black.withOpacity(0.07),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
+
     if (poiDistances.isEmpty || routing.selectedRoute == null || routing.selectedRoute!.foundPois == null) {
-      return Container();
+      return fallbackView;
     }
 
     final availableWidth = (MediaQuery.of(context).size.width - 62);
     var elements = <Widget>[];
+    var sumOfPoiDistances = poiDistances.values.fold<double>(0, (previousValue, element) => previousValue + element);
+    sumOfPoiDistances = max(sumOfPoiDistances, routing.selectedRoute!.path.distance);
+    if (sumOfPoiDistances == 0) {
+      return fallbackView;
+    }
     for (int i = 0; i < poiDistances.length; i++) {
       final e = poiDistances.entries.elementAt(i);
-      var pct = (e.value / routing.selectedRoute!.path.distance);
+      var pct = (e.value / sumOfPoiDistances);
       // Catch case pct > 1.
       pct = pct > 1 ? 1 : pct;
       elements.add(Container(
