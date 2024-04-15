@@ -96,35 +96,72 @@ void showEditShortcutSheet(context, int idx) {
 }
 
 /// The view that will be displayed in an app sheet.
-class EditOptionsView extends StatelessWidget {
+class EditOptionsView extends StatefulWidget {
   /// The shortcut of the view.
   final Shortcut shortcut;
 
   /// The index of the shortcut.
   final int idx;
 
-  /// The callback that will be executed when the delete button is pressed.
-  final Function onDeleteShortcut;
-
-  /// The callback that will be executed when the edit button is pressed.
-  final Function onEditShortcut;
-
-  /// The callback that will be executed when the share button is pressed.
-  final Function onShareShortcut;
-
   const EditOptionsView({
     super.key,
     required this.shortcut,
     required this.idx,
-    required this.onDeleteShortcut,
-    required this.onEditShortcut,
-    required this.onShareShortcut,
   });
+
+  @override
+  EditOptionsViewState createState() => EditOptionsViewState();
+}
+
+class EditOptionsViewState extends State<EditOptionsView> {
+  /// The shortcuts service, which is injected by the provider.
+  late Shortcuts shortcuts;
+
+  @override
+  void initState() {
+    super.initState();
+    shortcuts = getIt<Shortcuts>();
+  }
 
   /// The callback that will be executed when the delete button is pressed.
   void onDelete(BuildContext context) {
-    onDeleteShortcut(idx);
+    onDeleteShortcut(widget.idx);
     Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a shortcut should be deleted.
+  Future<void> onDeleteShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
+
+    final newShortcuts = shortcuts.shortcuts!.toList();
+    newShortcuts.removeAt(idx);
+
+    shortcuts.updateShortcuts(newShortcuts);
+  }
+
+  /// A callback that is executed when a shortcut should be edited.
+  Future<void> onEditShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
+
+    showEditShortcutSheet(context, idx);
+  }
+
+  /// A callback that is executed when a shortcut should be shared.
+  Future<void> onShareShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
+    final Shortcut shortcut = shortcuts.shortcuts![idx];
+    String shortcutTypeText = '';
+    shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
+    final text = 'Probiere $shortcutTypeText in der PrioBike-App aus:';
+    String longLink = shortcut.getLongLink();
+    String? shortLink = await LinkShortener.createShortLink(longLink);
+    if (shortLink == null) return;
+    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie Dir hier holen:';
+    const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
+    const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
+    String subject = '';
+    shortcut.type == "ShortcutLocation" ? subject = 'Ort teilen' : subject = 'Route teilen';
+    await Share.share('$text \n$shortLink \n$getAppText \n$playStoreLink \n$appStoreLink', subject: subject);
   }
 
   @override
@@ -139,12 +176,12 @@ class EditOptionsView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SmallVSpace(),
-              BoldSubHeader(text: shortcut.name, context: context),
+              BoldSubHeader(text: widget.shortcut.name, context: context),
               const VSpace(),
               BigButtonPrimary(
                 label: "Teilen",
                 boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => onShareShortcut(idx),
+                onPressed: () => onShareShortcut(widget.idx),
               ),
               const SmallVSpace(),
               BigButtonTertiary(
@@ -152,7 +189,7 @@ class EditOptionsView extends StatelessWidget {
                 boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
+                    builder: (BuildContext context) => QRCodeView(shortcut: widget.shortcut),
                   ),
                 ),
               ),
@@ -160,7 +197,7 @@ class EditOptionsView extends StatelessWidget {
               BigButtonTertiary(
                 label: "Bearbeiten",
                 boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => onEditShortcut(idx),
+                onPressed: () => onEditShortcut(widget.idx),
               ),
               const SmallVSpace(),
               BigButtonPrimary(
@@ -239,41 +276,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     shortcuts.updateShortcuts(reorderedShortcuts);
   }
 
-  /// A callback that is executed when a shortcut should be deleted.
-  Future<void> onDeleteShortcut(int idx) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
-
-    final newShortcuts = shortcuts.shortcuts!.toList();
-    newShortcuts.removeAt(idx);
-
-    shortcuts.updateShortcuts(newShortcuts);
-  }
-
-  /// A callback that is executed when a shortcut should be edited.
-  Future<void> onEditShortcut(int idx) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
-
-    showEditShortcutSheet(context, idx);
-  }
-
-  /// A callback that is executed when a shortcut should be shared.
-  Future<void> onShareShortcut(int idx) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
-    final Shortcut shortcut = shortcuts.shortcuts![idx];
-    String shortcutTypeText = '';
-    shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
-    final text = 'Probiere $shortcutTypeText in der PrioBike-App aus:';
-    String longLink = shortcut.getLongLink();
-    String? shortLink = await LinkShortener.createShortLink(longLink);
-    if (shortLink == null) return;
-    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie Dir hier holen:';
-    const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
-    const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
-    String subject = '';
-    shortcut.type == "ShortcutLocation" ? subject = 'Ort teilen' : subject = 'Route teilen';
-    await Share.share('$text \n$shortLink \n$getAppText \n$playStoreLink \n$appStoreLink', subject: subject);
-  }
-
   /// A callback that is executed when the more button is pressed.
   onMorePressed(Shortcut shortcut, int idx) {
     showAppSheet(
@@ -281,9 +283,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
       builder: (BuildContext context) => EditOptionsView(
         idx: idx,
         shortcut: shortcut,
-        onDeleteShortcut: onDeleteShortcut,
-        onEditShortcut: onEditShortcut,
-        onShareShortcut: onShareShortcut,
       ),
     );
   }
