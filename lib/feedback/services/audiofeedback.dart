@@ -37,7 +37,14 @@ class Audiofeedback with ChangeNotifier {
 
   /// Send an answered audioquestion.
   Future<bool> send() async {
-    if (!willSendAudiofeedback) return false;
+    if (!willSendAudiofeedback) {
+      // Send an empty result if there are no pending answers to track the audio usage.
+      const audioquestions = Audioquestions(
+        susAnswers: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        comment: "",
+      );
+      update(id: "Audiofeedback", audioquestion: audioquestions);
+    }
 
     isSendingAudiofeedback = true;
     notifyListeners();

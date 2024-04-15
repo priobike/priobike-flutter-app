@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/feedback/models/audioquestions.dart';
 import 'package:priobike/feedback/services/audiofeedback.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/logging/toast.dart';
@@ -79,6 +80,14 @@ class FeedbackViewState extends State<FeedbackView> {
   /// Submit audiofeedback.
   Future<void> submitAudiofeedback() async {
     // Send the audiofeedback and reset the feedback service.
+    await audiofeedback.send();
+    await audiofeedback.reset();
+  }
+
+  /// Submit empty audiofeedback.
+  Future<void> submitEmptyAudiofeedback() async {
+    // Reset the feedback service and send the audiofeedback.
+    await audiofeedback.reset();
     await audiofeedback.send();
     await audiofeedback.reset();
   }
@@ -234,7 +243,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     BigButtonPrimary(
                       label: "Fertig",
                       onPressed: () => settings.saveAudioInstructionsEnabled
-                          ? showAudioEvaluationDialog(context, submitAudiofeedback, submit)
+                          ? showAudioEvaluationDialog(context, submitAudiofeedback, submitEmptyAudiofeedback, submit)
                           : showFinishDriveDialog(context, submit),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),

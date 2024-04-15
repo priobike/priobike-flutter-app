@@ -129,7 +129,7 @@ void showSaveShortcutSheet(context) {
 }
 
 /// Shows a dialog to rate the audio functionality.
-void showAudioEvaluationDialog(context, Function submitAudioDialog, Function submit) {
+void showAudioEvaluationDialog(context, Function submitAudioDialog, Function submitEmptyAudioDialog, Function submit) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -157,6 +157,7 @@ void showAudioEvaluationDialog(context, Function submitAudioDialog, Function sub
                       const Spacer(),
                       IconButton(onPressed: () {
                         Navigator.pop(context);
+                        submitEmptyAudioDialog();
                         showFinishDriveDialog(context, submit);
                       }, icon: const Icon(Icons.close, size: 50,)),
                     ],
