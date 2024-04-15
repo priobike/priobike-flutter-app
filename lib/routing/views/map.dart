@@ -167,6 +167,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The bool that holds the state of map moving.
   bool isMapMoving = false;
 
+  /// The bool that holds the state whether the edit waypoint indicator is displayed.
+  bool showEditWaypointIndicator = false;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -238,8 +241,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       Waypoint tappedWaypoint = routing.selectedWaypoints![routing.tappedWaypointIdx!];
       // Move the camera to the center of the waypoint.
       fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
+      // Wait for animation.
+      await Future.delayed(const Duration(seconds: 1));
+      // Display the waypoint indicator.
+      setState(() {
+        showEditWaypointIndicator = true;
+      });
     } else {
       fitCameraToRouteBounds();
+      // Hide waypoint indicator if not set.
+      setState(() {
+        showEditWaypointIndicator = false;
+      });
     }
 
     routeLabelManager?.resetService();
@@ -1294,12 +1307,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     highlightCancelButton = false;
   }
 
-  /// Set POI popup.
-  Future<void> setPOIPopup() async {}
-
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
+    final frame = MediaQuery.of(context);
 
     return Stack(
       children: [
@@ -1458,9 +1469,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             children: [
               Positioned(
                 left: 0,
-                top: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 282,
+                top: frame.size.height - frame.padding.bottom - 282,
                 child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
+                  width: frame.size.width,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1594,7 +1605,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           AnimatedPositioned(
             duration: const Duration(milliseconds: 150),
             // Subtract half the width of the widget to center it.
-            left: poiPopup!.screenCoordinateX - (MediaQuery.of(context).size.width * 0.3),
+            left: poiPopup!.screenCoordinateX - (frame.size.width * 0.3),
             top: poiPopup!.screenCoordinateY,
             child: AnimatedOpacity(
               opacity: poiPopup!.poiOpacity,
@@ -1612,6 +1623,26 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               content: const CircularProgressIndicator(),
             ),
           ),
+
+        if (showEditWaypointIndicator)
+          Padding(
+            padding: EdgeInsets.only(
+              // (AppBackButton height + top padding)
+              top: (80 + frame.padding.top),
+              // AppBackButton width
+              left: 0,
+              // (BottomSheet + bottom padding)
+              bottom: (146 + frame.padding.bottom),
+              right: 0,
+            ),
+            child: Center(
+              child: Image.asset(
+                "assets/images/waypoint.png",
+                width: 60,
+                height: 60,
+              ),
+            ),
+          )
       ],
     );
   }

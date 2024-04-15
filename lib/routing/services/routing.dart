@@ -226,6 +226,7 @@ class Routing with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
+    tappedWaypointIdx = null;
     notifyListeners();
   }
 
@@ -683,4 +684,7 @@ class Routing with ChangeNotifier {
     tappedWaypointIdx = null;
     notifyListeners();
   }
+
+  /// Removes the tapped waypoint.
+  void removeTappedWaypoint() {}
 }

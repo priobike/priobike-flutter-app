@@ -44,17 +44,19 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
     super.dispose();
   }
 
-  Widget renderDragIndicator(BuildContext context) {
-    return Container(
-      alignment: AlignmentDirectional.center,
-      width: 32,
-      height: 6,
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: const BoxDecoration(
-        color: Colors.grey,
-        borderRadius: BorderRadius.all(Radius.circular(4.0)),
-      ),
-    );
+  void _removeWaypoint() {
+    if (routing.tappedWaypointIdx == null) return;
+    int idx = routing.tappedWaypointIdx!;
+    routing.unsetTappedWaypointIdx();
+    routing.removeWaypointAt(idx);
+  }
+
+  void _setWaypoint() {
+    if (routing.tappedWaypointIdx == null) return;
+    int idx = routing.tappedWaypointIdx!;
+    // TODO Get lat lon.
+
+    routing.unsetTappedWaypointIdx();
   }
 
   @override
@@ -121,8 +123,8 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                 const SmallHSpace(),
                 Expanded(
                   child: BigButtonSecondary(
-                    label: "Entfernen",
-                    onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : () => {},
+                    label: "Löschen",
+                    onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : _removeWaypoint,
                     addPadding: false,
                   ),
                 ),
@@ -130,7 +132,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                 Expanded(
                   child: BigButtonPrimary(
                     label: "Setzen",
-                    onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : () => {},
+                    onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : _setWaypoint,
                     addPadding: false,
                   ),
                 ),
