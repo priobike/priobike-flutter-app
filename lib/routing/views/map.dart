@@ -29,7 +29,7 @@ import 'package:priobike/routing/models/poi_popup.dart';
 import 'package:priobike/routing/models/screen_edge.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
@@ -65,8 +65,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated discomfort service, which is injected by the provider.
-  late Discomforts discomforts;
+  /// The associated poi service, which is injected by the provider.
+  late Pois pois;
 
   /// The associated location service, which is injected by the provider.
   late Positioning positioning;
@@ -178,9 +178,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     SelectedRouteLayer.layerId,
     RouteCrossingsCircleLayer.layerId,
     SelectedRouteCrossingsCircleLayer.layerId,
-    DiscomfortsLayer.layerIdBackground,
-    DiscomfortsLayer.layerId,
-    DiscomfortsLayer.layerIdSymbol,
+    PoisLayer.layerIdBackground,
+    PoisLayer.layerId,
+    PoisLayer.layerIdSymbol,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
@@ -258,7 +258,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns = getIt<MapDesigns>();
     positioning = getIt<Positioning>();
     routing = getIt<Routing>();
-    discomforts = getIt<Discomforts>();
+    pois = getIt<Pois>();
     status = getIt<PredictionSGStatus>();
     mapFunctions = getIt<MapFunctions>();
     mapValues = getIt<MapValues>();
@@ -281,7 +281,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns.removeListener(loadMapDesign);
     positioning.removeListener(displayCurrentUserLocation);
     routing.removeListener(updateRoute);
-    discomforts.removeListener(updateDiscomforts);
+    pois.removeListener(updatePois);
     status.removeListener(updateSelectedRouteLayer);
     mapFunctions.removeListener(updateMapFunctions);
     routeLabelManager?.removeListener(onRouteLabelUpdate);
@@ -441,7 +441,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     if (!mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
+    await PoisLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
   }
 
   /// Load the map layers.
@@ -528,12 +528,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
-  /// Update discomforts layer.
-  updateDiscomforts() async {
+  /// Update pois layer.
+  updatePois() async {
     if (mapController == null) return;
     if (!mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
+    await PoisLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').update(mapController!);
   }
 
   /// Update selected route layer.
@@ -544,8 +544,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
     if (!mounted) return;
-    // Discomforts on selected route are highlighted.
-    await DiscomfortsLayer(isDark).update(mapController!);
+    // Pois on selected route are highlighted.
+    await PoisLayer(isDark).update(mapController!);
     if (!mounted) return;
     await RouteCrossingsCircleLayer().update(mapController!);
     if (!mounted) return;
@@ -563,7 +563,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await WaypointsLayer().update(mapController!);
-    await updateDiscomforts();
+    await updatePois();
     await updateSelectedRouteLayer();
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
@@ -594,9 +594,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       iconSize: 0.1,
       at: index,
     );
-    index = await getIndex(DiscomfortsLayer.layerId);
+    index = await getIndex(PoisLayer.layerId);
     if (!mounted) return;
-    await DiscomfortsLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').install(
+    await PoisLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').install(
       mapController!,
       at: index,
     );
@@ -800,7 +800,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapDesigns.addListener(loadMapDesign);
     positioning.addListener(displayCurrentUserLocation);
     routing.addListener(updateRoute);
-    discomforts.addListener(updateDiscomforts);
+    pois.addListener(updatePois);
     status.addListener(updateSelectedRouteLayer);
     mapFunctions.addListener(updateMapFunctions);
     routeLabelManager?.addListener(onRouteLabelUpdate);

@@ -27,7 +27,7 @@ import 'package:priobike/ride/services/free_ride.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
@@ -88,7 +88,7 @@ Future<void> main() async {
   getIt.registerSingleton<Profile>(Profile());
   getIt.registerSingleton<News>(News());
   getIt.registerSingleton<Shortcuts>(Shortcuts());
-  getIt.registerSingleton<Discomforts>(Discomforts());
+  getIt.registerSingleton<Pois>(Pois());
   getIt.registerSingleton<Geocoding>(Geocoding());
   getIt.registerSingleton<Geosearch>(Geosearch());
   getIt.registerSingleton<Routing>(Routing());

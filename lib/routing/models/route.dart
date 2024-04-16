@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
-import 'package:priobike/routing/models/discomfort.dart';
+import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -178,8 +178,8 @@ class Route {
   /// The number of disconnected sgs.
   int disconnected = 0;
 
-  /// The found discomforts.
-  List<DiscomfortSegment>? foundDiscomforts;
+  /// The found pois.
+  List<PoiSegment>? foundPois;
 
   Route({
     required this.idx,

@@ -149,8 +149,8 @@ flutter:
     # Screenshots
     - assets/images/screenshots/
 
-    # Discomforts
-    - assets/images/discomforts/
+    # Pois
+    - assets/images/pois/
 
     # wiki images
     - assets/images/wiki/

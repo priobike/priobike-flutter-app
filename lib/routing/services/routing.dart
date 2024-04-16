@@ -16,7 +16,7 @@ import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
@@ -478,14 +478,14 @@ class Routing with ChangeNotifier {
     isFetchingRoute = false;
 
     final status = getIt<PredictionSGStatus>();
-    final discomforts = getIt<Discomforts>();
+    final pois = getIt<Pois>();
 
     for (r.Route route in routes) {
       await status.fetch(route);
       status.updateStatus(route);
-      await discomforts.findDiscomforts(route);
+      await pois.findPois(route);
     }
-    // The Status and Discomforts must be first fetched for every route
+    // The Status and Pois must be first fetched for every route
     // before we can compare all routes with every other route to find the most unique attribute.
     for (r.Route route in routes) {
       findMostUniqueAttributeForRoute(route.idx);
@@ -571,17 +571,17 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nGefahrenstellen",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "accidenthotspot").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "accidenthotspot").length ?? 0;
-          if (lO == 0) return lR > 0;
-          return (lR / lO - 1) > 0.2;
+          final lR = r.foundPois?.where((e) => e.type == "accidenthotspot" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "accidenthotspot" && e.isWarning).length ?? 0;
+          if (lR == 0) return lO > 0;
+          return (lO / lR - 1) > 0.2;
         }
       ),
       (
         "Besserer\nBodenbelag",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "surface").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "surface").length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == "surface" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "surface" && e.isWarning).length ?? 0;
           if (lO == 0) return lR > 0;
           return (lR / lO - 1) > 0.2;
         }
@@ -589,8 +589,26 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nBaustellen",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "construction").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "construction").length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == "construction" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "construction" && e.isWarning).length ?? 0;
+          if (lR == 0) return lO > 0;
+          return (lO / lR - 1) > 0.2;
+        }
+      ),
+      (
+        "Mehr\nVelorouten",
+        (r.Route r, r.Route o) {
+          final lR = r.foundPois?.where((e) => e.type == "veloroute").length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "veloroute").length ?? 0;
+          if (lO == 0) return lR > 0;
+          return (lR / lO - 1) > 0.2;
+        }
+      ),
+      (
+        "Mehr\nGrünwellen",
+        (r.Route r, r.Route o) {
+          final lR = r.foundPois?.where((e) => e.type == "greenwave").length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "greenwave").length ?? 0;
           if (lO == 0) return lR > 0;
           return (lR / lO - 1) > 0.2;
         }
@@ -598,37 +616,37 @@ class Routing with ChangeNotifier {
       (
         "Seltener\nAbsteigen",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "dismount").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "dismount").length ?? 0;
-          if (lO == 0) return lR > 0;
-          return (lR / lO - 1) > 0.2;
+          final lR = r.foundPois?.where((e) => e.type == "dismount" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "dismount" && e.isWarning).length ?? 0;
+          if (lR == 0) return lO > 0;
+          return (lO / lR - 1) > 0.2;
         }
       ),
       (
         "Weniger\nFußgängerzonen",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "pedestrians").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "pedestrians").length ?? 0;
-          if (lO == 0) return lR > 0;
-          return (lR / lO - 1) > 0.2;
+          final lR = r.foundPois?.where((e) => e.type == "pedestrians" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "pedestrians" && e.isWarning).length ?? 0;
+          if (lR == 0) return lO > 0;
+          return (lO / lR - 1) > 0.2;
         }
       ),
       (
         "Weniger\n100 km/h\nStraßen",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "carspeed").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "carspeed").length ?? 0;
-          if (lO == 0) return lR > 0;
-          return (lR / lO - 1) > 0.2;
+          final lR = r.foundPois?.where((e) => e.type == "carspeed" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "carspeed" && e.isWarning).length ?? 0;
+          if (lR == 0) return lO > 0;
+          return (lO / lR - 1) > 0.2;
         }
       ),
       (
         "Weniger\nSteile Anstiege",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "incline").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "incline").length ?? 0;
-          if (lO == 0) return lR > 0;
-          return (lR / lO - 1) > 0.2;
+          final lR = r.foundPois?.where((e) => e.type == "incline" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "incline" && e.isWarning).length ?? 0;
+          if (lR == 0) return lO > 0;
+          return (lO / lR - 1) > 0.2;
         }
       ),
       (
@@ -648,10 +666,10 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nSteile Abfahrten",
         (r.Route r, r.Route o) {
-          final lR = r.foundDiscomforts?.where((e) => e.type == "decline").length ?? 0;
-          final lO = o.foundDiscomforts?.where((e) => e.type == "decline").length ?? 0;
-          if (lO == 0) return lR > 0;
-          return (lR / lO - 1) > 0.4;
+          final lR = r.foundPois?.where((e) => e.type == "decline" && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == "decline" && e.isWarning).length ?? 0;
+          if (lR == 0) return lO > 0;
+          return (lO / lR - 1) > 0.4;
         }
       ),
     ];
