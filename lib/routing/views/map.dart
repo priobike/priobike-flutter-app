@@ -1372,10 +1372,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final point = ScreenCoordinate(x: x, y: y);
 
-    // add new waypoint at the new position
-    await replaceWaypoint(point, routing.tappedWaypointIdx!);
-
+    int idx = routing.tappedWaypointIdx!;
     routing.unsetTappedWaypointIdx();
+
+    // replace waypoint at the new position
+    await replaceWaypoint(point, idx);
   }
 
   @override
