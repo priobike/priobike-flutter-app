@@ -14,12 +14,16 @@ class PostAudioAnswerRequest {
   /// The value of the comment, if provided.
   final String comment;
 
+  /// The value whether the app is in debug mode.
+  final bool debug;
+
   const PostAudioAnswerRequest({
     required this.userId,
     required this.sessionId,
     required this.trackId,
     required this.susAnswers,
     required this.comment,
+    required this.debug,
   });
 
   factory PostAudioAnswerRequest.fromJson(Map<String, dynamic> json) => PostAudioAnswerRequest(
@@ -28,6 +32,7 @@ class PostAudioAnswerRequest {
         trackId: json['track_id'],
         susAnswers: List<int>.from(json['sus_answers']),
         comment: json['comment'],
+        debug: json['debug'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -36,6 +41,7 @@ class PostAudioAnswerRequest {
         'track_id': trackId,
         'sus_answers': susAnswers,
         'comment': comment,
+        'debug': debug,
       };
 }
 

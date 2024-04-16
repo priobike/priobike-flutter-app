@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:priobike/feedback/messages/audioanswer.dart';
 import 'package:priobike/feedback/models/audioquestions.dart';
 import 'package:priobike/http.dart';
@@ -63,6 +63,7 @@ class Audiofeedback with ChangeNotifier {
         trackId: trackId,
         susAnswers: entry.value.susAnswers,
         comment: entry.value.comment,
+        debug: kDebugMode,
       );
 
       try {
