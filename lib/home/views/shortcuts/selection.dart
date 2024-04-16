@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -223,23 +225,32 @@ class ShortcutsViewState extends State<ShortcutsView> {
       ),
     ];
 
-    views += shortcuts.shortcuts
-            ?.map(
-              (shortcut) => ShortcutView(
-                onPressed: () async {
-                  // Allow only one shortcut to be fetched at a time.
-                  if (!routing.isFetchingRoute) {
-                    await widget.onSelectShortcut(shortcut);
-                  }
-                },
+    for (int i = 0; i < (shortcuts.shortcuts?.length ?? 0); i++) {
+      final shortcut = shortcuts.shortcuts![i];
+      views.add(
+        ShortcutView(
+          onPressed: () async {
+            // Allow only one shortcut to be fetched at a time.
+            if (!routing.isFetchingRoute) {
+              await widget.onSelectShortcut(shortcut);
+            }
+          },
+          onLongPressed: () async {
+            showAppSheet(
+              context: context,
+              builder: (BuildContext context) => EditOptionsView(
+                idx: i,
                 shortcut: shortcut,
-                width: shortcutWidth,
-                height: shortcutHeight,
-                rightPad: shortcutRightPad,
               ),
-            )
-            .toList() ??
-        [];
+            );
+          },
+          shortcut: shortcut,
+          width: shortcutWidth,
+          height: shortcutHeight,
+          rightPad: shortcutRightPad,
+        ),
+      );
+    }
 
     List<Widget> animatedViews = views
         .asMap()

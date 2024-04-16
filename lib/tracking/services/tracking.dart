@@ -208,10 +208,14 @@ class Tracking with ChangeNotifier {
 
   Future<void> sampleBatteryState() async {
     if (track == null) return;
-    battery ??= Battery();
-    final level = await battery!.batteryLevel;
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    track!.batteryStates.add(BatteryState(level: level, timestamp: timestamp));
+    try {
+      battery ??= Battery();
+      final level = await battery!.batteryLevel;
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      track!.batteryStates.add(BatteryState(level: level, timestamp: timestamp));
+    } catch (e, stacktrace) {
+      log.e("Could not sample battery state: $e $stacktrace");
+    }
   }
 
   /// Start collecting GPS data.

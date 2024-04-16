@@ -518,14 +518,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Gamification",
-                    icon: settings.enableGamification ? Icons.check_box : Icons.check_box_outline_blank,
-                    callback: () => settings.setEnableGamification(!settings.enableGamification),
-                  ),
-                ),
                 const SmallVSpace(),
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Shortcuts;
@@ -97,35 +96,72 @@ void showEditShortcutSheet(context, int idx) {
 }
 
 /// The view that will be displayed in an app sheet.
-class EditOptionsView extends StatelessWidget {
+class EditOptionsView extends StatefulWidget {
   /// The shortcut of the view.
   final Shortcut shortcut;
 
   /// The index of the shortcut.
   final int idx;
 
-  /// The callback that will be executed when the delete button is pressed.
-  final Function onDeleteShortcut;
-
-  /// The callback that will be executed when the edit button is pressed.
-  final Function onEditShortcut;
-
-  /// The callback that will be executed when the share button is pressed.
-  final Function onShareShortcut;
-
   const EditOptionsView({
     super.key,
     required this.shortcut,
     required this.idx,
-    required this.onDeleteShortcut,
-    required this.onEditShortcut,
-    required this.onShareShortcut,
   });
+
+  @override
+  EditOptionsViewState createState() => EditOptionsViewState();
+}
+
+class EditOptionsViewState extends State<EditOptionsView> {
+  /// The shortcuts service, which is injected by the provider.
+  late Shortcuts shortcuts;
+
+  @override
+  void initState() {
+    super.initState();
+    shortcuts = getIt<Shortcuts>();
+  }
 
   /// The callback that will be executed when the delete button is pressed.
   void onDelete(BuildContext context) {
-    onDeleteShortcut(idx);
+    onDeleteShortcut(widget.idx);
     Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a shortcut should be deleted.
+  Future<void> onDeleteShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
+
+    final newShortcuts = shortcuts.shortcuts!.toList();
+    newShortcuts.removeAt(idx);
+
+    shortcuts.updateShortcuts(newShortcuts);
+  }
+
+  /// A callback that is executed when a shortcut should be edited.
+  Future<void> onEditShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
+
+    showEditShortcutSheet(context, idx);
+  }
+
+  /// A callback that is executed when a shortcut should be shared.
+  Future<void> onShareShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
+    final Shortcut shortcut = shortcuts.shortcuts![idx];
+    String shortcutTypeText = '';
+    shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
+    final text = 'Probiere $shortcutTypeText in der PrioBike-App aus:';
+    String longLink = shortcut.getLongLink();
+    String? shortLink = await LinkShortener.createShortLink(longLink);
+    if (shortLink == null) return;
+    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie Dir hier holen:';
+    const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
+    const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
+    String subject = '';
+    shortcut.type == "ShortcutLocation" ? subject = 'Ort teilen' : subject = 'Route teilen';
+    await Share.share('$text \n$shortLink \n$getAppText \n$playStoreLink \n$appStoreLink', subject: subject);
   }
 
   @override
@@ -140,12 +176,12 @@ class EditOptionsView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SmallVSpace(),
-              BoldSubHeader(text: shortcut.name, context: context),
+              BoldSubHeader(text: widget.shortcut.name, context: context),
               const VSpace(),
               BigButtonPrimary(
                 label: "Teilen",
                 boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => onShareShortcut(idx),
+                onPressed: () => onShareShortcut(widget.idx),
               ),
               const SmallVSpace(),
               BigButtonTertiary(
@@ -153,7 +189,7 @@ class EditOptionsView extends StatelessWidget {
                 boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
+                    builder: (BuildContext context) => QRCodeView(shortcut: widget.shortcut),
                   ),
                 ),
               ),
@@ -161,7 +197,7 @@ class EditOptionsView extends StatelessWidget {
               BigButtonTertiary(
                 label: "Bearbeiten",
                 boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => onEditShortcut(idx),
+                onPressed: () => onEditShortcut(widget.idx),
               ),
               const SmallVSpace(),
               BigButtonPrimary(
@@ -240,41 +276,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     shortcuts.updateShortcuts(reorderedShortcuts);
   }
 
-  /// A callback that is executed when a shortcut should be deleted.
-  Future<void> onDeleteShortcut(int idx) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
-
-    final newShortcuts = shortcuts.shortcuts!.toList();
-    newShortcuts.removeAt(idx);
-
-    shortcuts.updateShortcuts(newShortcuts);
-  }
-
-  /// A callback that is executed when a shortcut should be edited.
-  Future<void> onEditShortcut(int idx) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
-
-    showEditShortcutSheet(context, idx);
-  }
-
-  /// A callback that is executed when a shortcut should be shared.
-  Future<void> onShareShortcut(int idx) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
-    final Shortcut shortcut = shortcuts.shortcuts![idx];
-    String shortcutTypeText = '';
-    shortcut.type == "ShortcutLocation" ? shortcutTypeText = 'meinen Ort' : shortcutTypeText = 'meine Route';
-    final text = 'Probiere $shortcutTypeText in der PrioBike-App aus:';
-    String longLink = shortcut.getLongLink();
-    String? shortLink = await LinkShortener.createShortLink(longLink);
-    if (shortLink == null) return;
-    const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie Dir hier holen:';
-    const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
-    const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
-    String subject = '';
-    shortcut.type == "ShortcutLocation" ? subject = 'Ort teilen' : subject = 'Route teilen';
-    await Share.share('$text \n$shortLink \n$getAppText \n$playStoreLink \n$appStoreLink', subject: subject);
-  }
-
   /// A callback that is executed when the more button is pressed.
   onMorePressed(Shortcut shortcut, int idx) {
     showAppSheet(
@@ -282,9 +283,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
       builder: (BuildContext context) => EditOptionsView(
         idx: idx,
         shortcut: shortcut,
-        onDeleteShortcut: onDeleteShortcut,
-        onEditShortcut: onEditShortcut,
-        onShareShortcut: onShareShortcut,
       ),
     );
   }
@@ -322,216 +320,133 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
             ),
           ),
           Tile(
-            padding: const EdgeInsets.all(0),
+            padding: const EdgeInsets.only(left: 8),
             showShadow: false,
             borderWidth: 0,
             borderColor: Theme.of(context).colorScheme.background,
             borderRadius: const BorderRadius.all(
               Radius.circular(0),
             ),
-            content: Container(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    // button height as width because of square pictogram (2x48 + small vertical space).
-                    width: 96,
-                    height: 96,
-                    child: Stack(
-                      children: [
-                        if (shortcut is ShortcutRoute)
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1)),
-                              color: Theme.of(context).colorScheme.surfaceVariant,
-                            ),
-                            child: ShortcutPictogram(
-                              key: ValueKey(shortcut.hashCode),
-                              shortcut: shortcut,
-                              // Fixed height of pictogram.
-                              height: 96,
-                              color: CI.radkulturRed,
-                              strokeWidth: 4,
-                            ),
-                          )
-                        else if (shortcut is ShortcutLocation)
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border:
-                                  Border.all(width: 2, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1)),
-                              color: Theme.of(context).colorScheme.surfaceVariant,
-                            ),
-                            child: ShortcutPictogram(
-                              key: ValueKey(shortcut.hashCode),
-                              shortcut: shortcut,
-                              // Fixed height of pictogram.
-                              height: 96,
-                              color: CI.radkulturRed,
-                              iconSize: 24,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  // Space between middle content and map.
-                  const SmallHSpace(),
-                  Expanded(
-                    child: SizedBox(
-                      // height of pictogram.
-                      height: 112,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const SizedBox(
-                            height: 10,
+                          BoldContent(
+                            text: shortcut.name,
+                            color: Theme.of(context).colorScheme.onBackground,
+                            context: context,
                           ),
-                          Padding(
-                            // Padding to align with location icon.
-                            padding: const EdgeInsets.only(left: 4),
-                            child: BoldContent(
-                              text: shortcut.name,
-                              context: context,
-                            ),
-                          ),
-                          if (shortcut is ShortcutLocation)
-                            Padding(
-                              // Padding to align with location icon.
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Small(
-                                text: shortcut.getShortInfo(),
-                                overflow: TextOverflow.ellipsis,
-                                context: context,
-                                color: Theme.of(context).colorScheme.tertiary,
-                                maxLines: 4,
-                              ),
-                            ),
-                          if (shortcut is ShortcutRoute) ...[
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 10,
-                                  height: 10,
-                                  // To align with route name.
-                                  margin: const EdgeInsets.only(left: 6),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                                // The space of the location icon + the padding of the waypoint item to align the texts vertically.
-                                const SizedBox(
-                                  width: 6,
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 2),
-                                    child: Small(
-                                      text: shortcut.getFirstAddress() ?? "",
-                                      overflow: TextOverflow.ellipsis,
-                                      context: context,
-                                      color: Theme.of(context).colorScheme.tertiary,
-                                      maxLines: 1,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 14,
-                                  height: 14,
-                                  margin: const EdgeInsets.only(left: 4),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                  child: Center(
-                                    child: Container(
-                                      width: 5,
-                                      height: 5,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Theme.of(context).colorScheme.background,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                // The space of the location icon to align the texts vertically.
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                                    child: Small(
-                                      text: shortcut.getLastAddress() ?? "",
-                                      overflow: TextOverflow.ellipsis,
-                                      context: context,
-                                      color: Theme.of(context).colorScheme.tertiary,
-                                      maxLines: 1,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
                           const SizedBox(height: 4),
-                          if (shortcut is ShortcutRoute)
-                            Row(
-                              children: [
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Icon(
-                                  Icons.access_time,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  size: 14,
-                                ),
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                                  child: Small(text: shortcut.routeTimeText ?? "-", context: context),
-                                ),
-                                const HSpace(),
-                                Icon(
-                                  Icons.route,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  size: 14,
-                                ),
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                                  child: Small(text: shortcut.routeLengthText ?? "-", context: context),
-                                ),
-                              ],
-                            ),
-                          const SizedBox(
-                            height: 10,
+                          Small(
+                            text: shortcut is ShortcutLocation
+                                ? "Ort"
+                                : "Route von ${shortcut.getWaypoints().first.address?.split(",").firstOrNull} nach ${shortcut.getWaypoints().last.address?.split(",").firstOrNull}",
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            context: context,
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  const SmallHSpace(),
-                  SmallIconButtonTertiary(
-                    icon: Icons.more_vert,
-                    onPressed: () => onMorePressed(shortcut, key),
-                  ),
-                  const SmallHSpace(),
-                ],
-              ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: SmallIconButtonTertiary(
+                        icon: Icons.more_horiz_rounded,
+                        onPressed: () => onMorePressed(shortcut, key),
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                        withBorder: false,
+                      ),
+                    ),
+                  ],
+                ),
+                const SmallVSpace(),
+                Row(
+                  children: [
+                    if (shortcut is ShortcutRoute)
+                      ClipRRect(
+                        child: ShortcutPictogram(
+                          key: ValueKey(shortcut.hashCode),
+                          shortcut: shortcut,
+                          height: MediaQuery.of(context).size.width * 0.5,
+                          color: CI.radkulturRed,
+                          strokeWidth: 4,
+                          borderRadius: 8,
+                        ),
+                      )
+                    else if (shortcut is ShortcutLocation)
+                      ShortcutPictogram(
+                        key: ValueKey(shortcut.hashCode),
+                        shortcut: shortcut,
+                        height: MediaQuery.of(context).size.width * 0.5,
+                        color: CI.radkulturRed,
+                        iconSize: 42,
+                        borderRadius: 8,
+                      ),
+                    const SizedBox(width: 14),
+                    if (shortcut is ShortcutRoute)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          BoldContent(text: shortcut.routeTimeText ?? "-", context: context),
+                          const SizedBox(height: 4),
+                          Content(
+                            text: "Fahrtdauer",
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            context: context,
+                          ),
+                          const SmallVSpace(),
+                          BoldContent(text: shortcut.routeLengthText ?? "-", context: context),
+                          const SizedBox(height: 4),
+                          Content(
+                            text: "Distanz",
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            context: context,
+                          ),
+                          const SmallVSpace(),
+                          BoldContent(text: "${shortcut.waypoints.length}", context: context),
+                          const SizedBox(height: 4),
+                          Content(
+                            text: "Wegpunkte",
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            context: context,
+                          ),
+                        ],
+                      ),
+                    if (shortcut is ShortcutLocation)
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoldContent(
+                              text: shortcut.waypoint.address ?? "-",
+                              context: context,
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Content(
+                              text: "Adresse",
+                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                              context: context,
+                            ),
+                          ],
+                        ),
+                      ),
+                    const HSpace(),
+                  ],
+                ),
+                const SmallVSpace(),
+                Divider(
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                  thickness: 0.5,
+                ),
+                const SmallVSpace(),
+              ],
             ),
             onPressed: () async {
               HapticFeedback.mediumImpact();

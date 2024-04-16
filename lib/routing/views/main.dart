@@ -29,6 +29,7 @@ import 'package:priobike/routing/views/profile.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/routing/views/widgets/center_button.dart';
 import 'package:priobike/routing/views/widgets/compass_button.dart';
+import 'package:priobike/routing/views/widgets/routing_tutorial.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/views/simulator_state.dart';
@@ -392,17 +393,6 @@ class RoutingViewState extends State<RoutingView> {
               ),
             ),
 
-            // Side Bar right
-            const Positioned(
-              right: 8,
-              child: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: MapLegend(),
-                ),
-              ),
-            ),
-
             const SafeArea(
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -428,6 +418,19 @@ class RoutingViewState extends State<RoutingView> {
                     ),
                   )
                 : Container(),
+
+            const RoutingTutorialView(),
+
+            // Side Bar right
+            const Positioned(
+              right: 8,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: MapLegend(),
+                ),
+              ),
+            ),
 
             RouteDetailsBottomSheet(
               onSelectStartButton: onStartRide,

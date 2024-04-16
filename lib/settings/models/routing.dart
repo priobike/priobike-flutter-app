@@ -24,3 +24,14 @@ extension RoutingEndpointServicePath on RoutingEndpoint {
     }
   }
 }
+
+extension OverpassServicePath on RoutingEndpoint {
+  String get overpassServicePath {
+    switch (this) {
+      case RoutingEndpoint.graphhopper:
+        return "overpass";
+      case RoutingEndpoint.graphhopperDRN:
+        return "drn-overpass";
+    }
+  }
+}

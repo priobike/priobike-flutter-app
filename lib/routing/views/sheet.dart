@@ -152,12 +152,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     }
     return Stack(children: [
       Container(
-        margin: const EdgeInsets.only(left: 8, top: 32),
-        width: 16,
+        margin: const EdgeInsets.only(left: 7, top: 32),
+        width: 18,
         height: (routing.selectedWaypoints?.length ?? 0) * 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.grey,
+          color: CI.routeBackground,
         ),
       ),
       Container(

@@ -13,6 +13,7 @@ concurrency:
 jobs:
   test:
     runs-on: self-hosted
+    # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
     container: ghcr.io/cirruslabs/flutter:3.16.9
     steps:
       - uses: actions/checkout@v2
@@ -24,6 +25,7 @@ jobs:
   distribute:
     runs-on: self-hosted
     needs: test
+    # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
     container: ghcr.io/cirruslabs/flutter:3.16.9
     steps:
       - uses: actions/checkout@v2

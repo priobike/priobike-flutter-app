@@ -278,12 +278,16 @@ class GHDetails {
   /// The road class of the line segments.
   final List<GHSegment> roadClass;
 
+  /// The OSM way IDs of the line segments.
+  final List<GHSegment> osmWayId;
+
   const GHDetails({
     required this.surface,
     required this.maxSpeed,
     required this.smoothness,
     required this.getOffBike,
     required this.roadClass,
+    required this.osmWayId,
   });
 
   factory GHDetails.fromJson(Map<String, dynamic> json) {
@@ -293,6 +297,7 @@ class GHDetails {
       smoothness: (json['smoothness'] as List).map((e) => GHSegment.fromJson(e)).toList(),
       getOffBike: (json['get_off_bike'] as List).map((e) => GHSegment.fromJson(e)).toList(),
       roadClass: (json['road_class'] as List).map((e) => GHSegment.fromJson(e)).toList(),
+      osmWayId: (json['osm_way_id'] as List).map((e) => GHSegment.fromJson(e)).toList(),
     );
   }
 
@@ -302,6 +307,7 @@ class GHDetails {
         'smoothness': smoothness.map((e) => e.toJson()).toList(),
         'get_off_bike': getOffBike.map((e) => e.toJson()).toList(),
         'road_class': roadClass.map((e) => e.toJson()).toList(),
+        'osm_way_id': osmWayId.map((e) => e.toJson()).toList(),
       };
 }
 

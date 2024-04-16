@@ -366,11 +366,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // (AppBackButton height + top padding)
       top: (80 + frame.padding.top),
       // AppBackButton width
-      left: 64,
+      left: 86,
       // BottomSheet (122) + shortcuts (54) + attribution (16) + bottom padding
       bottom: (194 + frame.padding.bottom),
       // Width of legend
-      right: 64,
+      right: 86,
     );
 
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
@@ -591,7 +591,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await WaypointsLayer().install(
       mapController!,
-      iconSize: 0.2,
+      iconSize: 0.1,
       at: index,
     );
     index = await getIndex(DiscomfortsLayer.layerId);
@@ -754,13 +754,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapController = controller;
 
     final frame = MediaQuery.of(context);
-    const routeLabelScreenMarginHorizontal = 0.05;
-    // Calculate the relative margin for the route label.
-    final routeLabelMarginLeft = frame.size.width * routeLabelScreenMarginHorizontal;
-    final routeLabelMarginRight = frame.size.width - frame.size.width * routeLabelScreenMarginHorizontal;
+    // Fit left and right to the button margin fo 86px.
+    const routeLabelMarginLeft = 0.0;
+    final routeLabelMarginRight = frame.size.width;
     final routeLabelMarginTop = frame.padding.top;
-    // Fit initial bottom sheet size of 128px.
-    final routeLabelMarginBottom = frame.size.height - 140;
+    // Fit initial bottom sheet size of 140px - padding - shortcut row - mapbox attributes.
+    final routeLabelMarginBottom = frame.size.height - frame.padding.bottom - 140 - 8 - 32 - 16;
     final widthMid = frame.size.width / 2;
     final heightMid = frame.size.height / 2;
     routeLabelManager = RouteLabelManager(
@@ -899,11 +898,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is executed when the map was longclicked.
-  onMapLongClick(BuildContext context, double x, double y) async {
+  onTapCreateWaypoint(BuildContext context, double x, double y) async {
     if (mapController == null) return;
     // Convert x and y into a lat/lon.
     final point = ScreenCoordinate(x: x, y: y);
-    await addWaypoint(point);
+    // In the special case that the user adds a waypoint through the map,
+    // we add the waypoint at the best position on the route.
+    await addWaypoint(point, atBestLocationOnRoute: true);
   }
 
   /// Check if user tapped on an existing waypoint and return the waypoint if found.
@@ -932,7 +933,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Add a waypoint at the tapped position.
-  Future<void> addWaypoint(ScreenCoordinate point) async {
+  /// When the parameter atBestLocationOnRoute is set to true,
+  /// we select the best position inbetween existing waypoints with
+  /// regard to the route.
+  Future<void> addWaypoint(ScreenCoordinate point, {atBestLocationOnRoute = false}) async {
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
     final fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
@@ -995,8 +999,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // and the waypoint must be appended to end of list
     int index;
     if (draggedWaypoint != null && draggedWaypointIndex != null) {
+      // Insert the waypoint at the index where it was before the dragging.
       index = draggedWaypointIndex!;
+    } else if (atBestLocationOnRoute) {
+      // Find the best index where the waypoint should be inserted.
+      index = routing.getBestWaypointInsertIndex(coordLatLng);
     } else {
+      // Simply add the waypoint at the end.
       index = routing.selectedWaypoints!.length;
     }
     await routing.addWaypoint(waypoint, index);
@@ -1336,7 +1345,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               animationController.reverse();
 
               // if the user pressed on the map, add a waypoint
-              await onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+              await onTapCreateWaypoint(context, details.localPosition.dx, details.localPosition.dy);
             }
             _resetDragging();
           },
@@ -1415,9 +1424,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                     width: 24,
                     height: 24,
                     child: Opacity(
-                      opacity: math.max(0, (animation.value - 0.5) * 2),
+                      opacity: math.min(1, math.max(0, (animation.value - 0.25) * 2)),
                       child: Image.asset(
-                        'assets/images/waypoint.drawio.png',
+                        'assets/images/waypoint-noshadow.png',
                         fit: BoxFit.contain,
                       ),
                     ),

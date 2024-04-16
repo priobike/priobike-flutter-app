@@ -77,9 +77,6 @@ class Settings with ChangeNotifier {
   /// If the audio instructions are enabled.
   bool saveAudioInstructionsEnabled;
 
-  /// Enable "old" gamification for app
-  bool enableGamification;
-
   /// Whether the user has seen the user transfer dialog.
   bool didViewUserTransfer;
 
@@ -386,23 +383,6 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const enableGamificationKey = "priobike.settings.enableGamification";
-  static const defaultEnableGamification = false;
-
-  Future<bool> setEnableGamification(bool enableGamification, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.enableGamification;
-    this.enableGamification = enableGamification;
-    final bool success = await storage.setBool(enableGamificationKey, enableGamification);
-    if (!success) {
-      log.e("Failed to set enablePerformanceOverlay to $enableGamification");
-      this.enableGamification = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
   static const didViewUserTransferKey = "priobike.settings.didViewUserTransfer";
   static const defaultDidViewUserTransfer = false;
 
@@ -504,7 +484,6 @@ class Settings with ChangeNotifier {
     this.saveAudioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
-    this.enableGamification = defaultEnableGamification,
     this.didViewUserTransfer = defaultDidViewUserTransfer,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
@@ -556,11 +535,6 @@ class Settings with ChangeNotifier {
       isIncreasedSpeedPrecisionInSpeedometerEnabled =
           storage.getBool(isIncreasedSpeedPrecisionInSpeedometerEnabledKey) ??
               defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
@@ -682,6 +656,5 @@ class Settings with ChangeNotifier {
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
-        "enableGamification": enableGamification,
       };
 }
