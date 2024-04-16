@@ -10,7 +10,13 @@ void showAppSheet({
   showModalBottomSheet(
     context: context,
     showDragHandle: showDragHandle,
-    builder: builder,
+    builder: (context) {
+      // Clip the content to the rounded corners.
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: builder(context),
+      );
+    },
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
