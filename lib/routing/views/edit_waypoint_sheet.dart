@@ -39,6 +39,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
     routing = getIt<Routing>();
     routing.addListener(update);
     mapFunctions = getIt<MapFunctions>();
+    mapFunctions.addListener(update);
 
     controller = DraggableScrollableController();
   }
@@ -46,18 +47,19 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
   @override
   void dispose() {
     routing.removeListener(update);
+    mapFunctions.removeListener(update);
     super.dispose();
   }
 
   void _removeWaypoint() {
-    if (routing.tappedWaypointIdx == null) return;
-    int idx = routing.tappedWaypointIdx!;
-    routing.unsetTappedWaypointIdx();
+    if (mapFunctions.tappedWaypointIdx == null) return;
+    int idx = mapFunctions.tappedWaypointIdx!;
+    mapFunctions.unsetTappedWaypointIdx();
     routing.removeWaypointAt(idx);
   }
 
   void _setWaypoint() {
-    if (routing.tappedWaypointIdx == null) return;
+    if (mapFunctions.tappedWaypointIdx == null) return;
     mapFunctions.getCoordinatesForMovedWaypoint();
   }
 
@@ -118,7 +120,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                     fillColor: Theme.of(context).colorScheme.surfaceVariant,
                     onPressed: routing.isFetchingRoute || routing.selectedRoute == null
                         ? null
-                        : () => routing.unsetTappedWaypointIdx(),
+                        : () => mapFunctions.unsetTappedWaypointIdx(),
                     addPadding: false,
                   ),
                 ),

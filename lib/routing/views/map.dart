@@ -221,7 +221,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Updates the centering.
-  updateMapFunctions() {
+  updateMapFunctions() async {
     if (mapFunctions.needsCentering) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
@@ -235,14 +235,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     if (mapFunctions.needsNewWaypointCoordinates) {
       setCoordinatesForMovedWaypoint();
+      mapFunctions.needsNewWaypointCoordinates = false;
     }
-  }
 
-  /// Called when the listener callback of the Routing service ChangeNotifier is fired.
-  updateRoute() async {
-    updateRouteMapLayers();
-    if (routing.tappedWaypointIdx != null) {
-      Waypoint tappedWaypoint = routing.selectedWaypoints![routing.tappedWaypointIdx!];
+    if (mapFunctions.tappedWaypointIdx != null) {
+      Waypoint tappedWaypoint = routing.selectedWaypoints![mapFunctions.tappedWaypointIdx!];
       // Move the camera to the center of the waypoint.
       fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
       // Wait for animation.
@@ -252,12 +249,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         showEditWaypointIndicator = true;
       });
     } else {
-      fitCameraToRouteBounds();
-      // Hide waypoint indicator if not set.
       setState(() {
         showEditWaypointIndicator = false;
       });
     }
+  }
+
+  /// Called when the listener callback of the Routing service ChangeNotifier is fired.
+  updateRoute() async {
+    updateRouteMapLayers();
+
+    fitCameraToRouteBounds();
 
     routeLabelManager?.resetService();
     routeLabelManager?.updateRouteLabels();
@@ -668,7 +670,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         final waypointIdx = int.tryParse(id.split("-")[1]);
         if (waypointIdx == null) return;
         if (routing.selectedWaypoints == null) return;
-        routing.setTappedWaypointIdx(waypointIdx);
+        mapFunctions.setTappedWaypointIdx(waypointIdx);
 
         return;
       }
@@ -1363,7 +1365,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   void setCoordinatesForMovedWaypoint() async {
     if (mapController == null) return;
     if (routing.selectedWaypoints == null) return;
-    if (routing.tappedWaypointIdx == null) return;
+    if (mapFunctions.tappedWaypointIdx == null) return;
 
     final frame = MediaQuery.of(context);
     final x = frame.size.width / 2;
@@ -1372,8 +1374,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final point = ScreenCoordinate(x: x, y: y);
 
-    int idx = routing.tappedWaypointIdx!;
-    routing.unsetTappedWaypointIdx();
+    int idx = mapFunctions.tappedWaypointIdx!;
+    mapFunctions.unsetTappedWaypointIdx();
 
     // replace waypoint at the new position
     await replaceWaypoint(point, idx);

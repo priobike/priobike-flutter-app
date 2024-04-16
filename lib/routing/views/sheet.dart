@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/discomforts.dart';
 import 'package:priobike/routing/views/details/height.dart';
@@ -49,6 +50,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
+  /// The associated map functions service, which is injected by the provider.
+  late MapFunctions mapFunctions;
+
   /// The scroll controller for the bottom sheet.
   late DraggableScrollableController controller;
 
@@ -57,7 +61,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    if (routing.tappedWaypointIdx != null) {
+    if (mapFunctions.tappedWaypointIdx != null) {
       // reset scroll extend when waypoint tapped.
       controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 500), curve: Curves.easeInCubic);
     }
@@ -72,12 +76,15 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+    mapFunctions = getIt<MapFunctions>();
+    mapFunctions.addListener(update);
     controller = DraggableScrollableController();
   }
 
   @override
   void dispose() {
     routing.removeListener(update);
+    mapFunctions.removeListener(update);
     status.removeListener(update);
     super.dispose();
   }

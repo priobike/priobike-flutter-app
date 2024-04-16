@@ -135,6 +135,7 @@ class RoutingViewState extends State<RoutingView> {
     layers = getIt<Layers>();
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
+    mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
   }
 
@@ -145,6 +146,7 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts.removeListener(update);
     positioning.removeListener(update);
     layers.removeListener(update);
+    mapFunctions.removeListener(update);
     timer?.cancel();
 
     // Unregister Service since the app will run out of the needed scope.
@@ -436,7 +438,7 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: routing.tappedWaypointIdx == null ? 0 : -140,
+              bottom: mapFunctions.tappedWaypointIdx == null ? 0 : -140,
               left: 0,
               child: RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
@@ -448,7 +450,7 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: routing.tappedWaypointIdx == null ? -140 : 0,
+              bottom: mapFunctions.tappedWaypointIdx == null ? -140 : 0,
               left: 0,
               child: const EditWaypointBottomSheet(),
             ),
