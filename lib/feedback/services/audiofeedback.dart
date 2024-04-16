@@ -58,13 +58,14 @@ class Audiofeedback with ChangeNotifier {
         Uri.parse('https://priobike.vkw.tu-dresden.de/staging/audio-evaluation-service/answers/send-answer');
     for (final entry in pending.values.toList().asMap().entries) {
       final request = PostAudioAnswerRequest(
-        userId: userId,
-        sessionId: sessionId,
-        trackId: trackId,
-        susAnswers: entry.value.susAnswers,
-        comment: entry.value.comment,
-        debug: kDebugMode,
-      );
+          userId: userId,
+          sessionId: sessionId,
+          trackId: trackId,
+          susAnswers: entry.value.susAnswers,
+          comment: entry.value.comment,
+          debug: kDebugMode,
+          // TODO implement how to detect driving with screen off.
+          driveWithoutScreen: false);
 
       try {
         final response =

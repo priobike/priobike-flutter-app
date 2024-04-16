@@ -17,6 +17,9 @@ class PostAudioAnswerRequest {
   /// The value whether the app is in debug mode.
   final bool debug;
 
+  /// The value whether the app was used without the screen.
+  final bool driveWithoutScreen;
+
   const PostAudioAnswerRequest({
     required this.userId,
     required this.sessionId,
@@ -24,6 +27,7 @@ class PostAudioAnswerRequest {
     required this.susAnswers,
     required this.comment,
     required this.debug,
+    required this.driveWithoutScreen,
   });
 
   factory PostAudioAnswerRequest.fromJson(Map<String, dynamic> json) => PostAudioAnswerRequest(
@@ -33,6 +37,7 @@ class PostAudioAnswerRequest {
         susAnswers: List<int>.from(json['sus_answers']),
         comment: json['comment'],
         debug: json['debug'],
+        driveWithoutScreen: json['driveWithoutScreen'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -42,6 +47,7 @@ class PostAudioAnswerRequest {
         'sus_answers': susAnswers,
         'comment': comment,
         'debug': debug,
+        'driveWithoutScreen': driveWithoutScreen,
       };
 }
 
