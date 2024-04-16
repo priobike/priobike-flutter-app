@@ -8,6 +8,9 @@ class MapFunctions with ChangeNotifier {
   /// A bool specifying whether the map should get centered north.
   bool needsCenteringNorth = false;
 
+  /// A bool specifying whether the map should fetch coordinates for move waypoint.
+  bool needsNewWaypointCoordinates = false;
+
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
 
@@ -24,6 +27,12 @@ class MapFunctions with ChangeNotifier {
   /// Apply centering of bearing.
   void setCameraCenterNorth() {
     needsCenteringNorth = true;
+    notifyListeners();
+  }
+
+  /// Get new coordinates of moved waypoint.
+  void getCoordinatesForMovedWaypoint() {
+    needsNewWaypointCoordinates = true;
     notifyListeners();
   }
 }

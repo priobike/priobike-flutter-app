@@ -684,7 +684,4 @@ class Routing with ChangeNotifier {
     tappedWaypointIdx = null;
     notifyListeners();
   }
-
-  /// Removes the tapped waypoint.
-  void removeTappedWaypoint() {}
 }

@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 /// A bottom sheet to display edit waypoint actions.
@@ -19,6 +20,9 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// The associated map functions service, which is injected by the provider.
+  late MapFunctions mapFunctions;
+
   /// The scroll controller for the bottom sheet.
   late DraggableScrollableController controller;
 
@@ -34,6 +38,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
 
     routing = getIt<Routing>();
     routing.addListener(update);
+    mapFunctions = getIt<MapFunctions>();
 
     controller = DraggableScrollableController();
   }
@@ -53,10 +58,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
 
   void _setWaypoint() {
     if (routing.tappedWaypointIdx == null) return;
-    int idx = routing.tappedWaypointIdx!;
-    // TODO Get lat lon.
-
-    routing.unsetTappedWaypointIdx();
+    mapFunctions.getCoordinatesForMovedWaypoint();
   }
 
   @override

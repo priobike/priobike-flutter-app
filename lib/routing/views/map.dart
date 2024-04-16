@@ -232,6 +232,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       centerCameraToNorth();
       mapFunctions.needsCenteringNorth = false;
     }
+
+    if (mapFunctions.needsNewWaypointCoordinates) {
+      setCoordinatesForMovedWaypoint();
+    }
   }
 
   /// Called when the listener callback of the Routing service ChangeNotifier is fired.
@@ -1006,13 +1010,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           );
         },
       );
-      // If the user is dragging a waypoint outside of the city boundary, restore the original waypoint and return
-      // otherwise the user is trying to add a new waypoint and we can just return
-      if (draggedWaypoint != null) {
-        await routing.addWaypoint(draggedWaypoint!, draggedWaypointIndex);
-        await getIt<Geosearch>().addToSearchHistory(draggedWaypoint!);
-        await routing.loadRoutes();
-      }
       return;
     }
 
@@ -1039,6 +1036,63 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       index = routing.selectedWaypoints!.length;
     }
     await routing.addWaypoint(waypoint, index);
+    await getIt<Geosearch>().addToSearchHistory(waypoint);
+    await routing.loadRoutes();
+  }
+
+  /// Replaces a waypoint at the tapped position.
+  Future<void> replaceWaypoint(ScreenCoordinate point, int idx) async {
+    final coord = await mapController!.coordinateForPixel(point);
+    final geocoding = getIt<Geocoding>();
+    final fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
+    final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
+    final longitude = pointCoord.coordinates.lng.toDouble();
+    final latitude = pointCoord.coordinates.lat.toDouble();
+    final coordLatLng = LatLng(latitude, longitude);
+
+    final pointIsInBoundary = getIt<Boundary>().checkIfPointIsInBoundary(longitude, latitude);
+    if (!pointIsInBoundary) {
+      if (!mounted) return;
+      final backend = getIt<Settings>().backend;
+      await showGeneralDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierColor: Colors.black.withOpacity(0.4),
+        transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        ),
+        pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+          return DialogLayout(
+            title: 'Wegpunkt außerhalb des Stadtgebiets',
+            text:
+                'Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe Deinen Wegpunkt an.',
+            actions: [
+              BigButtonPrimary(
+                label: "Ok",
+                onPressed: () => Navigator.of(context).pop(),
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+              )
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    // remove old waypoint from before dragging from routing.
+    routing.selectedWaypoints!.removeAt(idx);
+
+    String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
+
+    tutorial.complete("priobike.tutorial.draw-waypoints");
+    final waypoint = Waypoint(latitude, longitude, address: address);
+
+    await routing.addWaypoint(waypoint, idx);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
     await routing.loadRoutes();
   }
@@ -1232,9 +1286,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     draggedWaypointIndex = routing.getIndexOfWaypoint(draggedWaypoint!);
 
-    // remove old waypoint from before dragging from routing and search history
-    routing.selectedWaypoints!.remove(draggedWaypoint!);
-    getIt<Geosearch>().removeItemFromSearchHistory(draggedWaypoint!);
+    if (draggedWaypointIndex == null) return;
 
     final point = ScreenCoordinate(x: dx, y: dy);
 
@@ -1242,7 +1294,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     hideDragWaypoint = true;
 
     // add new waypoint at the new position
-    await addWaypoint(point);
+    await replaceWaypoint(point, draggedWaypointIndex!);
   }
 
   /// Check if the user dragged a waypoint to the cancel button to stop dragging
@@ -1305,6 +1357,25 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     hideDragWaypoint = false;
     currentScreenEdge = ScreenEdge.none;
     highlightCancelButton = false;
+  }
+
+  /// Get the coordinates for the moved waypoint.
+  void setCoordinatesForMovedWaypoint() async {
+    if (mapController == null) return;
+    if (routing.selectedWaypoints == null) return;
+    if (routing.tappedWaypointIdx == null) return;
+
+    final frame = MediaQuery.of(context);
+    final x = frame.size.width / 2;
+    // Subtract padding to get the correct centering.
+    final y = (frame.size.height + frame.padding.top + 80 - 140 - frame.padding.bottom) / 2;
+
+    final point = ScreenCoordinate(x: x, y: y);
+
+    // add new waypoint at the new position
+    await replaceWaypoint(point, routing.tappedWaypointIdx!);
+
+    routing.unsetTappedWaypointIdx();
   }
 
   @override
