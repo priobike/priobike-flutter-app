@@ -9,7 +9,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/details/discomforts.dart';
+import 'package:priobike/routing/views/details/poi.dart';
 import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
@@ -340,7 +340,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                                 const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
                                 const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
                                 const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                                const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: PoisChart()),
                                 // Big button size + padding.
                                 SizedBox(
                                   height: 40 + 8 + frame.padding.bottom,

@@ -20,7 +20,7 @@ import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -232,8 +232,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated discomforts service, which is injected by the provider.
-  late Discomforts discomforts;
+  /// The associated pois service, which is injected by the provider.
+  late Pois pois;
 
   /// The associated predictionSGStatus service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
@@ -250,7 +250,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     routing = getIt<Routing>();
-    discomforts = getIt<Discomforts>();
+    pois = getIt<Pois>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     settings = getIt<Settings>();
   }
