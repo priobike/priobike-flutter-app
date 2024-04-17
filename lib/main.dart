@@ -100,7 +100,6 @@ Future<void> main() async {
   getIt.registerSingleton<Tracking>(Tracking());
   getIt.registerSingleton<Statistics>(Statistics());
   getIt.registerSingleton<Feedback>(Feedback());
-  getIt.registerSingleton<AudioFeedback>(AudioFeedback());
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<FreeRide>(FreeRide());
   getIt.registerSingleton<Traffic>(Traffic());

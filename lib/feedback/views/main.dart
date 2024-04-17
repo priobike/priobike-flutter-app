@@ -105,8 +105,6 @@ class FeedbackViewState extends State<FeedbackView> {
     audiofeedback.addListener(update);
     statistics = getIt<Statistics>();
     statistics.addListener(update);
-    settings = getIt<Settings>();
-    settings.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -144,7 +142,6 @@ class FeedbackViewState extends State<FeedbackView> {
     feedback.removeListener(update);
     audiofeedback.removeListener(update);
     statistics.removeListener(update);
-    settings.removeListener(update);
     super.dispose();
   }
 
