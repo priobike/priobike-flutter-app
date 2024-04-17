@@ -55,22 +55,39 @@ class TrafficChartState extends State<TrafficChart> {
       final color = trafficService.trafficColor ?? CI.radkulturRed;
       wrapper = (widget) => Stack(
             alignment: Alignment.bottomCenter,
-            children: [
-              widget,
-              Container(
-                margin: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    topRight: Radius.circular(4),
-                    bottomRight: Radius.circular(4),
-                    bottomLeft: Radius.circular(4),
-                  ),
-                ),
-                height: nowHeight,
-              ),
-            ],
+            children: nowHeight > height
+                ? [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(4),
+                          topRight: Radius.circular(4),
+                          bottomRight: Radius.circular(4),
+                          bottomLeft: Radius.circular(4),
+                        ),
+                      ),
+                      height: nowHeight,
+                    ),
+                    widget,
+                  ]
+                : [
+                    widget,
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(4),
+                          topRight: Radius.circular(4),
+                          bottomRight: Radius.circular(4),
+                          bottomLeft: Radius.circular(4),
+                        ),
+                      ),
+                      height: nowHeight,
+                    ),
+                  ],
           );
     }
 
@@ -82,12 +99,9 @@ class TrafficChartState extends State<TrafficChart> {
               height: height,
               margin: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.07)
-                      : Colors.black.withOpacity(0.07),
-                ),
-                color: Colors.grey.withOpacity(0.2),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? const Color.fromARGB(255, 205, 205, 205)
+                    : const Color.fromARGB(255, 77, 77, 77),
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(4),
               ),

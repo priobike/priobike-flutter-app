@@ -192,10 +192,9 @@ class FeedbackViewState extends State<FeedbackView> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Hinweis',
-          text: "Du bist während der Fahrt häufig von der ursprünglich geplanten Route abgewichen. \n\n"
-              "Die Geschwindigkeitsempfehlungen werden dadurch potentiell beeinträchtigt, da diese nur entlang der Route funktionieren. \n\n"
-              "Trotz der automatischen Neu-Berechnung der Route während der Fahrt empfehlen wir daher eine möglichst genaue Erstellung der Route vor Fahrtantritt. "
-              "Nutze dafür Funktionen wie das Setzen von Zwischenzielen oder das Verschieben von Wegpunkten. ",
+          text: "Du scheinst nicht entlang Deiner ursprünglichen Route gefahren zu sein.\n\n"
+              "Bitte beachte, dass die App Deine Route benötigt, um die passende Ampel auszuwählen und eine Prognose darzustellen.\n\n"
+              "Tipp: Um ein Rerouting zu vermeiden kannst Du Zwischenwegpunkte setzen, um Deine Route besser zu planen.",
           actions: [
             BigButtonPrimary(
               label: "Schließen",

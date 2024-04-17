@@ -91,6 +91,7 @@ class Routing with ChangeNotifier {
   int getBestWaypointInsertIndex(LatLng position) {
     if (selectedWaypoints == null) return 0;
     if (selectedWaypoints!.isEmpty) return 0;
+    if (selectedWaypoints!.length == 1) return 1;
 
     var bestDist = double.infinity;
     var bestIdx = 0;

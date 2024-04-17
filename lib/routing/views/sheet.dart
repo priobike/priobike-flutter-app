@@ -58,9 +58,14 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  /// A timer that updates the arrival time every minute.
+  Timer? arrivalTimeUpdateTimer;
+
   @override
   void initState() {
     super.initState();
+
+    arrivalTimeUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) => update());
 
     routing = getIt<Routing>();
     routing.addListener(update);
@@ -71,6 +76,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   @override
   void dispose() {
+    arrivalTimeUpdateTimer?.cancel();
+    arrivalTimeUpdateTimer = null;
+
     routing.removeListener(update);
     status.removeListener(update);
     super.dispose();
