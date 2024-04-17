@@ -8,7 +8,10 @@ import 'package:geolocator/geolocator.dart';
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/sources/interface.dart';
+import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/services/ride.dart';
 
 /// Unwrap a double from a json source safely.
 double checkDouble(dynamic value) {
@@ -243,8 +246,11 @@ class PathMockPositionSource extends PositionSource {
   /// The path (a list of coordinates) to follow.
   final List<LatLng> positions;
 
-  /// The static speed with which the path should be followed.
-  double speed;
+  /// The ideal speed with which the path should be followed.
+  double idealSpeed;
+
+  /// If the position source should pick the optimal speed automatically.
+  bool autoSpeed;
 
   /// The calculation timer.
   Timer? timer;
@@ -252,7 +258,7 @@ class PathMockPositionSource extends PositionSource {
   /// The last position.
   Position? lastPosition;
 
-  PathMockPositionSource({required this.positions, this.speed = 18 / 3.6});
+  PathMockPositionSource({required this.positions, this.idealSpeed = 18 / 3.6, this.autoSpeed = false});
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.
@@ -325,6 +331,9 @@ class PathMockPositionSource extends PositionSource {
         return;
       }
 
+      var chosenSpeedOrAutoSpeed = idealSpeed;
+      if (autoSpeed) chosenSpeedOrAutoSpeed = calcAutoSpeed(lastPosition?.speed) ?? idealSpeed;
+
       final random = Random(); // Simulate GPS inaccuracy.
       final bearing = vincenty.bearing(from, to) - 2.5 + 5 * random.nextDouble(); // [-180°, 180°]
       final currentLocation = vincenty.offset(from, distanceOnSegment - 1 + 2 * random.nextDouble(), bearing);
@@ -334,7 +343,7 @@ class PathMockPositionSource extends PositionSource {
         latitude: currentLocation.latitude,
         longitude: currentLocation.longitude,
         altitude: 0,
-        speed: speed,
+        speed: chosenSpeedOrAutoSpeed,
         heading: heading, // Not 0, since 0 indicates an error.
         accuracy: 1,
         speedAccuracy: 1,
@@ -344,10 +353,72 @@ class PathMockPositionSource extends PositionSource {
       );
       streamController.add(lastPosition!);
 
-      distance += 1 * speed;
+      distance += 1 * chosenSpeedOrAutoSpeed;
     });
 
     return streamController.stream;
+  }
+
+  /// Simulate a cyclist that selects an optimal speed based on the traffic light phases.
+  double? calcAutoSpeed(double? prevSpeed) {
+    final ride = getIt<Ride>();
+    final dist = ride.calcDistanceToNextSG;
+    if (dist == null) return null;
+    final phasesFromNow = ride.predictionProvider?.recommendation?.calcPhasesFromNow;
+    if (phasesFromNow == null || phasesFromNow.isEmpty) return null;
+
+    var minSpeedAdjustment = double.infinity;
+    var bestSpeed = idealSpeed;
+
+    // Find the centers of the phases.
+    var phaseStarts = List<int>.from([]);
+    var phaseEnds = List<int>.from([]);
+    var inGreen = false;
+    for (int i = 0; i < phasesFromNow.length; i++) {
+      final phase = phasesFromNow[i];
+      if (phase == Phase.green && !inGreen) {
+        phaseStarts.add(i);
+        inGreen = true;
+      } else if (phase != Phase.green && inGreen) {
+        phaseEnds.add(i);
+        inGreen = false;
+      }
+    }
+    if (inGreen) phaseEnds.add(phasesFromNow.length);
+
+    if(phaseStarts.length != phaseEnds.length) return null;
+    if (phaseStarts.isEmpty || phaseEnds.isEmpty) return null;
+    for (int i = 0; i < phaseStarts.length; i++) {
+      var phaseStart = phaseStarts[i];
+      final phaseCenter = (phaseStarts[i] + phaseEnds[i]) ~/ 2;
+      var phaseEnd = phaseEnds[i];
+      // Add a safety margin to the start and end.
+      phaseStart = min(phaseStart + 2, phaseCenter);
+      phaseEnd = max(phaseEnd - 2, phaseCenter);
+      // Check if the ideal speed is inside this phase.
+      final secondOfArrivalWithIdealSpeed = dist / idealSpeed;
+      if (secondOfArrivalWithIdealSpeed >= phaseStart && secondOfArrivalWithIdealSpeed <= phaseEnd) {
+        // The ideal speed is inside this phase.
+        bestSpeed = idealSpeed;
+        break;
+      }
+      for (int t in [phaseStart, phaseCenter, phaseEnd]) {
+        if (t == 0) continue;
+        final targetSpeed = dist / t;
+        final speedAdjustment = (targetSpeed - idealSpeed).abs();
+        if (speedAdjustment < minSpeedAdjustment && targetSpeed > 0) {
+          minSpeedAdjustment = speedAdjustment;
+          bestSpeed = targetSpeed;
+        }
+      }
+    }
+
+    // Bilinear interpolation between the previous speed and the best speed.
+    if (prevSpeed != null) {
+      const alpha = 0.25;
+      bestSpeed = alpha * bestSpeed + (1 - alpha) * prevSpeed;
+    }
+    return bestSpeed;
   }
 
   /// Get one position of the device.
@@ -361,7 +432,7 @@ class PathMockPositionSource extends PositionSource {
         latitude: firstPosition.latitude,
         longitude: firstPosition.longitude,
         altitude: 0,
-        speed: speed,
+        speed: 0,
         heading: 0,
         accuracy: 1,
         speedAccuracy: 1,

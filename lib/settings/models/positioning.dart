@@ -2,6 +2,7 @@ enum PositioningMode {
   gnss,
   follow18kmh,
   follow40kmh,
+  autospeed,
   sensor,
   recordedDresden,
   recordedHamburg,
@@ -19,6 +20,8 @@ extension PositioningDescription on PositioningMode {
         return "Route mit 18 km/h folgen";
       case PositioningMode.follow40kmh:
         return "Route mit 40 km/h folgen";
+      case PositioningMode.autospeed:
+        return "Der besten Grünphase folgen";
       case PositioningMode.sensor:
         return "Speed Sensor Daten";
       case PositioningMode.recordedDresden:
