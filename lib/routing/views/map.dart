@@ -39,6 +39,7 @@ import 'package:priobike/routing/services/route_labels.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/poi_popup.dart';
 import 'package:priobike/routing/views/details/route_label.dart';
+import 'package:priobike/routing/views/widgets/target_marker_icon.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -1702,24 +1703,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ),
           ),
 
-        if (showEditWaypointIndicator)
-          Padding(
-            padding: EdgeInsets.only(
-              // (AppBackButton height + top padding)
-              top: (80 + frame.padding.top),
-              // AppBackButton width
-              left: 0,
-              // (BottomSheet + bottom padding)
-              bottom: (146 + frame.padding.bottom),
-              right: 0,
-            ),
-            child: Center(
-              child: Image.asset(
-                "assets/images/waypoint.png",
-                width: 60,
-                height: 60,
-              ),
-            ),
+        if (showEditWaypointIndicator && mapFunctions.tappedWaypointIdx != null && routing.selectedWaypoints != null)
+          TargetMarkerIcon(
+            idx: mapFunctions.tappedWaypointIdx!,
+            waypointSize: routing.selectedWaypoints!.length,
           )
       ],
     );

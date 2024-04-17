@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -77,12 +80,46 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
             borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: Column(children: [
               const SmallVSpace(),
-              BoldContent(text: "Wegpunkt Bearbeiten", context: context),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    const SmallHSpace(),
+                    Padding(
+                      padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                      child: BoldContent(text: "Wegpunkt Bearbeiten", context: context),
+                    ),
+                    const SmallHSpace(),
+                    if (mapFunctions.tappedWaypointIdx == null || routing.selectedWaypoints == null)
+                      Container()
+                    else if (mapFunctions.tappedWaypointIdx == 0)
+                      const StartIcon(width: 20, height: 20)
+                    else if (mapFunctions.tappedWaypointIdx! == routing.selectedWaypoints!.length - 1)
+                      const DestinationIcon(width: 20, height: 20)
+                    else
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const WaypointIcon(width: 20, height: 20),
+                          Padding(
+                            padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+                            child: BoldSmall(
+                              text: (mapFunctions.tappedWaypointIdx! + 1).toString(),
+                              color: Colors.black,
+                              context: context,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ]),
               Small(
                 text: "Du kannst den gewählten Wegpunkt durch Bewegen der Karte verschieben oder entfernen",
                 context: context,
@@ -129,6 +166,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                   child: BigButtonSecondary(
                     label: "Löschen",
                     onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : _removeWaypoint,
+                    fillColor: Theme.of(context).colorScheme.surfaceVariant,
                     addPadding: false,
                   ),
                 ),
