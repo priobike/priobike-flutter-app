@@ -118,7 +118,7 @@ class Positioning with ChangeNotifier {
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
           [settings.backend.center];
-      positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
+      positionSource = PathMockPositionSource(idealSpeed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
       final routing = getIt<Routing>();
@@ -126,8 +126,16 @@ class Positioning with ChangeNotifier {
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
           [settings.backend.center];
-      positionSource = PathMockPositionSource(speed: 40 / 3.6, positions: positions);
+      positionSource = PathMockPositionSource(idealSpeed: 40 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (40 km/h).");
+    } else if (settings.positioningMode == PositioningMode.autospeed) {
+      final routing = getIt<Routing>();
+      final positions = routing.selectedRoute?.route // Fallback to center location of city.
+              .map((e) => LatLng(e.lat, e.lon))
+              .toList() ??
+          [settings.backend.center];
+      positionSource = PathMockPositionSource(idealSpeed: 18 / 3.6, positions: positions, autoSpeed: true);
+      log.i("Using mocked auto speed positioning source.");
     } else if (settings.positioningMode == PositioningMode.sensor) {
       final routing = getIt<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
@@ -248,7 +256,7 @@ class Positioning with ChangeNotifier {
     if (speed < 0) return;
     // Currently, this is only supported by the PathMockPositionSource.
     if (positionSource is PathMockPositionSource) {
-      (positionSource as PathMockPositionSource).speed = speed;
+      (positionSource as PathMockPositionSource).idealSpeed = speed;
     }
   }
 }
