@@ -1394,6 +1394,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // check if user long pressed on map or waypoint
             // if on map, create new waypoint
             // if on waypoint, start dragging waypoint
+            if (mapFunctions.tappedWaypointIdx != null) return;
+
             draggedWaypoint =
                 _checkIfWaypointIsAtTappedPosition(x: details.localPosition.dx, y: details.localPosition.dy);
 
@@ -1430,6 +1432,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             _dragWaypoint();
           },
           onLongPressEnd: (details) async {
+            if (mapFunctions.tappedWaypointIdx != null) return;
+
             if (draggedWaypoint != null) {
               showAuxiliaryMarking = false;
               currentScreenEdge = ScreenEdge.none;
