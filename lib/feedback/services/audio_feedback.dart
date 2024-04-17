@@ -7,6 +7,8 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
 
@@ -54,8 +56,9 @@ class AudioFeedback with ChangeNotifier {
     final trackId = getIt<Tracking>().track?.sessionId ?? "";
 
     // Send all of the answered audioQuestions to the backend.
-    final endpoint =
-        Uri.parse('https://priobike.vkw.tu-dresden.de/staging/audio-evaluation-service/answers/send-answer');
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+    final endpoint = Uri.parse('https://$baseUrl/audio-evaluation-service/answers/send-answer');
     for (final entry in pending.values.toList().asMap().entries) {
       final request = PostAudioAnswerRequest(
           userId: userId,
