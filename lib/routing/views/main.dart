@@ -361,11 +361,12 @@ class RoutingViewState extends State<RoutingView> {
                       child: Column(
                         children: [
                           SizedBox(
-                            width: 58,
-                            height: 58,
+                            width: 42,
+                            height: 42,
                             child: Tile(
                               fill: Theme.of(context).colorScheme.surfaceVariant,
                               onPressed: onLayerSelection,
+                              padding: const EdgeInsets.all(8),
                               content: Icon(
                                 Icons.layers_rounded,
                                 color: Theme.of(context).colorScheme.onBackground,
@@ -380,7 +381,7 @@ class RoutingViewState extends State<RoutingView> {
 
             SafeArea(
               child: Padding(
-                padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
+                padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 128 : 80, left: 8),
                 child: const Column(
                   children: [
                     CenterButton(),

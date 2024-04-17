@@ -47,18 +47,18 @@ class CompassButtonState extends State<CompassButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 58,
-      height: 58,
+      width: 42,
+      height: 42,
       child: Tile(
         fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: _centerNorth,
+        padding: const EdgeInsets.all(8),
         content: Transform.rotate(
           angle: mapValues.cameraBearing.toInt() * math.pi / -180,
           child: CompassIcon(
             context: context,
           ),
         ),
-        padding: const EdgeInsets.all(10),
       ),
     );
   }
