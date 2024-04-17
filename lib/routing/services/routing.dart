@@ -505,11 +505,13 @@ class Routing with ChangeNotifier {
   /// Find the waypoint x meters before the current instruction
   /// DistanceToInstructionPoint x must be given as an argument.
   LatLng? findWaypointMetersBeforeInstruction(int distanceToInstructionPoint, SGSelectorResponse sgSelectorResponse,
-      int i, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
+      int currentNavigationNodeIdx, LatLng? lastInstructionPoint, bool? isFirstInstruction) {
     double totalDistanceToInstructionPoint = 0;
-    LatLng p2 = LatLng(sgSelectorResponse.route[i].lat, sgSelectorResponse.route[i].lon);
+    LatLng p2 = LatLng(
+        sgSelectorResponse.route[currentNavigationNodeIdx].lat, sgSelectorResponse.route[currentNavigationNodeIdx].lon);
     LatLng p1;
-    for (var j = i - 1; j >= 0; j--) {
+    // Iterating backwards from the current navigation node until the first matching node.
+    for (var j = currentNavigationNodeIdx - 1; j >= 0; j--) {
       p1 = LatLng(sgSelectorResponse.route[j].lat, sgSelectorResponse.route[j].lon);
 
       var distanceToPreviousNavigationNode = Snapper.vincenty.distance(p1, p2);
@@ -635,8 +637,10 @@ class Routing with ChangeNotifier {
     LatLng? lastInstructionPoint;
 
     // Check for all points in the route if there should be an instruction created.
-    for (var i = 0; i < sgSelectorResponse.route.length; i++) {
-      final currentWaypoint = sgSelectorResponse.route[i];
+    for (var currentNavigationNodeIdx = 0;
+        currentNavigationNodeIdx < sgSelectorResponse.route.length;
+        currentNavigationNodeIdx++) {
+      final currentWaypoint = sgSelectorResponse.route[currentNavigationNodeIdx];
       String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint);
       String? signalGroupId = getSignalGroupIdForWaypoint(
           currentWaypoint, ghInstructionText.isNotEmpty, 50); // TODO: check distance between sg and instruction
@@ -649,8 +653,8 @@ class Routing with ChangeNotifier {
       // Try to create first instruction call 300m before the point the instruction is referring to
       // Or to concatenate with the previous instruction if the distance is less than 300m
       // If concatenation is not possible no firstInstructionCall will be added to the route.
-      var waypointFirstInstructionCall =
-          findWaypointMetersBeforeInstruction(300, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+      var waypointFirstInstructionCall = findWaypointMetersBeforeInstruction(
+          300, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
       if (waypointFirstInstructionCall != null) {
         Instruction firstInstructionCall = Instruction(
             lat: waypointFirstInstructionCall.latitude,
@@ -672,8 +676,8 @@ class Routing with ChangeNotifier {
       // Create second instruction call at the point the instruction is referring to.
       if (instructionType == InstructionType.signalGroupOnly) {
         // Put instruction point 100m before sg.
-        var waypointSecondInstructionCall =
-            findWaypointMetersBeforeInstruction(100, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+        var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(
+            100, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           Instruction secondInstructionCall = Instruction(
               lat: waypointSecondInstructionCall.latitude,
@@ -688,12 +692,12 @@ class Routing with ChangeNotifier {
           // This point is equal to the last point in the signal crossing geometry attribute.
           var sgId = instructions.last.signalGroupId;
           var previousSgLaneEnd = sgSelectorResponse.signalGroups[sgId]!.geometry!.last;
-          var prevoiusDistToSg = instructions.last.text.last.distanceToNextSg;
+          var previousDistToSg = instructions.last.text.last.distanceToNextSg;
           Instruction secondInstructionCall = Instruction(
               lat: previousSgLaneEnd[1],
               lon: previousSgLaneEnd[0],
               text: createInstructionText(
-                  false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg),
+                  false, instructionType, ghInstructionText, signalGroupId, laneType, previousDistToSg),
               instructionType: instructionType,
               signalGroupId: signalGroupId);
           instructions.add(secondInstructionCall);
@@ -703,8 +707,8 @@ class Routing with ChangeNotifier {
         }
       } else {
         // Put instruction point 10m before the crossing.
-        var waypointSecondInstructionCall =
-            findWaypointMetersBeforeInstruction(10, sgSelectorResponse, i, lastInstructionPoint, instructions.isEmpty);
+        var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(
+            10, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           // Put the instruction at the point provided by GraphHopper.
           Instruction secondInstructionCall = Instruction(
