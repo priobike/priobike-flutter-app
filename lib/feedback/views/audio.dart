@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
-import 'package:priobike/feedback/models/audioquestions.dart';
-import 'package:priobike/feedback/services/audiofeedback.dart';
+import 'package:priobike/feedback/models/audio_questions.dart';
+import 'package:priobike/feedback/services/audio_feedback.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 
@@ -15,7 +15,7 @@ class AudioRatingView extends StatefulWidget {
 
 class AudioRatingViewState extends State<AudioRatingView> {
   /// The feedback service, which is injected by the provider.
-  late Audiofeedback audiofeedback;
+  late AudioFeedback audioFeedback;
 
   /// The score of the 10 questions questions.
   int scoreQ1 = 0;
@@ -51,13 +51,13 @@ class AudioRatingViewState extends State<AudioRatingView> {
   @override
   void initState() {
     super.initState();
-    audiofeedback = getIt<Audiofeedback>();
-    audiofeedback.addListener(update);
+    audioFeedback = getIt<AudioFeedback>();
+    audioFeedback.addListener(update);
   }
 
   @override
   void dispose() {
-    audiofeedback.removeListener(update);
+    audioFeedback.removeListener(update);
     super.dispose();
   }
 
@@ -108,7 +108,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
   }
 
   Future<void> updateAudioFeedback() async {
-    final audioquestions = Audioquestions(
+    final audioQuestions = AudioQuestions(
       susAnswers: [
         scoreQ1,
         scoreQ2,
@@ -124,7 +124,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
       comment: _textController.text,
     );
 
-    await audiofeedback.update(id: "Audiofeedback", audioquestion: audioquestions);
+    await audioFeedback.update(id: "AudioFeedback", audioQuestion: audioQuestions);
   }
 
   Widget getLabels() {

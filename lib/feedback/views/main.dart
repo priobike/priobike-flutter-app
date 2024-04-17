@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/feedback/services/audiofeedback.dart';
+import 'package:priobike/feedback/services/audio_feedback.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
@@ -38,7 +38,7 @@ class FeedbackViewState extends State<FeedbackView> {
   late Feedback feedback;
 
   /// The associated audiofeedback service, which is injected by the provider.
-  late Audiofeedback audiofeedback;
+  late AudioFeedback audiofeedback;
 
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
@@ -101,7 +101,7 @@ class FeedbackViewState extends State<FeedbackView> {
     tracking.addListener(update);
     feedback = getIt<Feedback>();
     feedback.addListener(update);
-    audiofeedback = getIt<Audiofeedback>();
+    audiofeedback = getIt<AudioFeedback>();
     audiofeedback.addListener(update);
     statistics = getIt<Statistics>();
     statistics.addListener(update);

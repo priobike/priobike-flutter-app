@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
-import 'package:priobike/feedback/services/audiofeedback.dart';
+import 'package:priobike/feedback/services/audio_feedback.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -100,7 +100,7 @@ Future<void> main() async {
   getIt.registerSingleton<Tracking>(Tracking());
   getIt.registerSingleton<Statistics>(Statistics());
   getIt.registerSingleton<Feedback>(Feedback());
-  getIt.registerSingleton<Audiofeedback>(Audiofeedback());
+  getIt.registerSingleton<AudioFeedback>(AudioFeedback());
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<FreeRide>(FreeRide());
   getIt.registerSingleton<Traffic>(Traffic());
