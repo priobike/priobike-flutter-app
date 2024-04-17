@@ -643,7 +643,7 @@ class Routing with ChangeNotifier {
       final currentWaypoint = sgSelectorResponse.route[currentNavigationNodeIdx];
       String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint);
       String? signalGroupId = getSignalGroupIdForWaypoint(
-          currentWaypoint, ghInstructionText.isNotEmpty, 50); // TODO: check distance between sg and instruction
+          currentWaypoint, ghInstructionText.isNotEmpty, 20); // TODO: check distance between sg and instruction
       String laneType = sgSelectorResponse.signalGroups[signalGroupId]?.laneType ?? "";
       InstructionType? instructionType = getInstructionType(ghInstructionText, signalGroupId);
       if (instructionType == null) {
@@ -663,13 +663,31 @@ class Routing with ChangeNotifier {
             instructionType: instructionType,
             signalGroupId: signalGroupId);
         instructions.add(firstInstructionCall);
+        lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
       } else if (lastInstructionPoint != null && !instructions.last.alreadyConcatenated) {
-        var distanceToActualInstructionPoint =
-            Snapper.vincenty.distance(lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
-        var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
-        // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
-        if (distanceToActualInstructionPoint > threshold) {
-          concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
+        if (instructions.last.instructionType != InstructionType.directionOnly) {
+          // Put the instruction call at the point when crossing the previous sg is finished
+          // This point is equal to the last point in the signal crossing geometry attribute.
+          var sgId = instructions.last.signalGroupId;
+          var previousSgLaneEnd = sgSelectorResponse.signalGroups[sgId]!.geometry!.last;
+          var previousDistToSg = instructions.last.text.last.distanceToNextSg;
+          Instruction firstInstructionCall = Instruction(
+              lat: previousSgLaneEnd[1],
+              lon: previousSgLaneEnd[0],
+              text: createInstructionText(
+                  true, instructionType, ghInstructionText, signalGroupId, laneType, previousDistToSg),
+              instructionType: instructionType,
+              signalGroupId: signalGroupId);
+          instructions.add(firstInstructionCall);
+          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
+        } else {
+          var distanceToActualInstructionPoint =
+              Snapper.vincenty.distance(lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
+          var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
+          // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
+          if (distanceToActualInstructionPoint > threshold) {
+            concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
+          }
         }
       }
 
@@ -761,11 +779,15 @@ class Routing with ChangeNotifier {
   /// Concatenate the current instruction with the previous one.
   void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId,
       List<Instruction> instructions, String laneType) {
-    var prevoiusDistToSg = instructions.last.text.last.distanceToNextSg;
+    if (instructions.last.signalGroupId == signalGroupId) {
+      // Do not concatenate two information about the same signal group.
+      return;
+    }
+    var previousDistToSg = instructions.last.text.last.distanceToNextSg;
     var textToConcatenate =
-        createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, prevoiusDistToSg);
+        createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, previousDistToSg);
     for (int i = 0; i < textToConcatenate.length; i++) {
-      textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}}";
+      textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}";
       instructions.last.text.add(textToConcatenate[i]);
     }
     instructions.last.alreadyConcatenated = true;
