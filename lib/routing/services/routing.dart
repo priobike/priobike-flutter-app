@@ -642,8 +642,7 @@ class Routing with ChangeNotifier {
         currentNavigationNodeIdx++) {
       final currentWaypoint = sgSelectorResponse.route[currentNavigationNodeIdx];
       String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint);
-      String? signalGroupId = getSignalGroupIdForWaypoint(
-          currentWaypoint, ghInstructionText.isNotEmpty, 20); // TODO: check distance between sg and instruction
+      String? signalGroupId = getSignalGroupIdForWaypoint(currentWaypoint, ghInstructionText.isNotEmpty, 25);
       String laneType = sgSelectorResponse.signalGroups[signalGroupId]?.laneType ?? "";
       InstructionType? instructionType = getInstructionType(ghInstructionText, signalGroupId);
       if (instructionType == null) {
@@ -683,7 +682,7 @@ class Routing with ChangeNotifier {
         } else {
           var distanceToActualInstructionPoint =
               Snapper.vincenty.distance(lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
-          var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50; // TODO: adjust threshold
+          var threshold = (instructionType == InstructionType.signalGroupOnly) ? 150 : 50;
           // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
           if (distanceToActualInstructionPoint > threshold) {
             concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
@@ -756,7 +755,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Determine the instruction type after concatenation.
-  InstructionType getInstructionTypAfterConcatenation(
+  InstructionType getInstructionTypeAfterConcatenation(
       InstructionType originalInstructionType, InstructionType addedInstructionType) {
     switch (originalInstructionType) {
       case InstructionType.signalGroupOnly:
@@ -792,7 +791,7 @@ class Routing with ChangeNotifier {
     }
     instructions.last.alreadyConcatenated = true;
     instructions.last.instructionType =
-        getInstructionTypAfterConcatenation(instructions.last.instructionType, instructionType);
+        getInstructionTypeAfterConcatenation(instructions.last.instructionType, instructionType);
   }
 
   /// Determine the type of instruction to be created.
