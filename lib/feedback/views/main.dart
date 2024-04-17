@@ -7,15 +7,15 @@ import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/feedback/services/audio_feedback.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/feedback/views/audio_rating_view.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
-import 'package:priobike/settings/services/settings.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -36,9 +36,6 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// The associated feedback service, which is injected by the provider.
   late Feedback feedback;
-
-  /// The associated audiofeedback service, which is injected by the provider.
-  late AudioFeedback audiofeedback;
 
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
@@ -74,21 +71,6 @@ class FeedbackViewState extends State<FeedbackView> {
       // Call the callback.
       await widget.onSubmitted(context);
     }
-  }
-
-  /// Submit audiofeedback.
-  Future<void> submitAudiofeedback() async {
-    // Send the audiofeedback and reset the feedback service.
-    await audiofeedback.send();
-    await audiofeedback.reset();
-  }
-
-  /// Submit empty audiofeedback.
-  Future<void> submitEmptyAudiofeedback() async {
-    // Reset the feedback service and send the audiofeedback.
-    await audiofeedback.reset();
-    await audiofeedback.send();
-    await audiofeedback.reset();
   }
 
   @override
@@ -237,9 +219,12 @@ class FeedbackViewState extends State<FeedbackView> {
                     const SmallVSpace(),
                     BigButtonPrimary(
                       label: "Fertig",
-                      onPressed: () => settings.saveAudioInstructionsEnabled
-                          ? showAudioEvaluationDialog(context, submitAudiofeedback, submitEmptyAudiofeedback, submit)
-                          : showFinishDriveDialog(context, submit),
+                      onPressed: () async {
+                        showFinishDriveDialog(context, submit);
+                        if (settings.saveAudioInstructionsEnabled) {
+                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AudioRatingView()));
+                        }
+                      },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                   ],

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/feedback/views/audio.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -123,91 +122,6 @@ void showSaveShortcutSheet(context) {
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),
         ],
-      );
-    },
-  );
-}
-
-/// Shows a dialog to rate the audio functionality.
-void showAudioEvaluationDialog(context, Function submitAudioDialog, Function submitEmptyAudioDialog, Function submit) {
-  showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor:
-        Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.4) : Colors.black.withOpacity(0.4),
-    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
-      ),
-    ),
-    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-      var keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      var deviceHeight = MediaQuery.of(context).size.height;
-      return Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  const SizedBox(height: 26),
-                  Row(
-                    children: [
-                      const Spacer(),
-                      IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            submitEmptyAudioDialog();
-                            showFinishDriveDialog(context, submit);
-                          },
-                          icon: const Icon(
-                            Icons.close,
-                            size: 50,
-                          )),
-                    ],
-                  ),
-                  SizedBox(
-                    height: keyboardHeight > 0 ? deviceHeight - 135 - keyboardHeight : deviceHeight - 135,
-                    child: SingleChildScrollView(
-                      physics: const RangeMaintainingScrollPhysics(),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 160),
-                          Text(
-                            'Dein Feedback zur Sprachausgabe',
-                            style: Theme.of(context).textTheme.titleSmall,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 15),
-                          Text(
-                            "Liebe Nutzerin, lieber Nutzer,\n\nvielen Dank für das Testen der Sprachausgabe, die ich im Rahmen einer Studienarbeit entwickelt habe. Ich würde mich über eine Bewertung der Funktionalität freuen. Dein Feedback wird für die Auswertung des Navigationsansatzes benötigt und hilft dabei, die Sprachausgabe zu verbessern.\n\nVielen Dank!",
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 15),
-                          const AudioRatingView(),
-                          BigButtonPrimary(
-                            label: "Danke!",
-                            onPressed: () {
-                              Navigator.pop(context);
-                              submitAudioDialog();
-                              showFinishDriveDialog(context, submit);
-                            },
-                            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                          ),
-                          const SizedBox(height: 256),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       );
     },
   );
