@@ -52,7 +52,7 @@ class CompassButtonState extends State<CompassButton> {
       child: Tile(
         fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: _centerNorth,
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(4),
         content: Transform.rotate(
           angle: mapValues.cameraBearing.toInt() * math.pi / -180,
           child: CompassIcon(
