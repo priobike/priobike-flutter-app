@@ -472,7 +472,6 @@ class Ride with ChangeNotifier {
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
-    // TODO: check how much inaccuracy between current point and instruction point is ok (20m?)
     Instruction? currentInstruction = route!.instructions.firstWhereOrNull(
         (element) => !element.executed && vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
 
