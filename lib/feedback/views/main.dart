@@ -54,6 +54,9 @@ class FeedbackViewState extends State<FeedbackView> {
 
   Widget? trackHistory;
 
+  /// The bool that stores the state of the audio feedback send.
+  bool audioFeedbackSend = false;
+
   /// Submit feedback.
   Future<void> submit() async {
     // Send the feedback and reset the feedback service.
@@ -221,8 +224,9 @@ class FeedbackViewState extends State<FeedbackView> {
                       label: "Fertig",
                       onPressed: () async {
                         showFinishDriveDialog(context, submit);
-                        if (settings.saveAudioInstructionsEnabled) {
+                        if (settings.saveAudioInstructionsEnabled && !audioFeedbackSend) {
                           await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AudioRatingView()));
+                          audioFeedbackSend = true;
                         }
                       },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
