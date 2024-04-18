@@ -708,7 +708,10 @@ class Routing with ChangeNotifier {
         // Put instruction point 100m before sg.
         var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(
             100, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
-        if (waypointSecondInstructionCall != null) {
+        if (waypointSecondInstructionCall != null &&
+            lastInstructionPoint != null &&
+            Snapper.vincenty.distance(lastInstructionPoint, waypointSecondInstructionCall) > 50) {
+          // Only put secondInstructionCall if distance to actual instruction point is greater than 50m for reasons of overlapping speak times.
           Instruction secondInstructionCall = Instruction(
               lat: waypointSecondInstructionCall.latitude,
               lon: waypointSecondInstructionCall.longitude,
