@@ -60,7 +60,7 @@ class Instruction {
   InstructionType instructionType;
 
   /// The ID of the corresponding signal group.
-  final String? signalGroupId;
+  late String? signalGroupId;
 
   /// If the instruction has already been concatenated.
   bool alreadyConcatenated = false;
