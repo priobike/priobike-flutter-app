@@ -85,7 +85,7 @@ class RideViewState extends State<RideView> {
         ride = getIt<Ride>();
 
         // Configure the TTS.
-        ride.initializeTTS();
+        await ride.initializeTTS();
 
         // Save current route if the app crashes or the user unintentionally closes it.
         ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
@@ -113,7 +113,7 @@ class RideViewState extends State<RideView> {
 
             // Play audio instructions if enabled.
             if (settings.saveAudioInstructionsEnabled) {
-              await ride.playAudioInstruction();
+              ride.playAudioInstruction();
             }
 
             // If we are > <x>m from the route, we need to reroute.

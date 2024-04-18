@@ -79,6 +79,9 @@ class Ride with ChangeNotifier {
   /// An instance for text-to-speach.
   FlutterTts ftts = FlutterTts();
 
+  /// The audio session instance.
+  late AudioSession audioSession;
+
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
 
@@ -407,8 +410,6 @@ class Ride with ChangeNotifier {
 
   /// Configure the TTS.
   Future<void> initializeTTS() async {
-    await ftts.setLanguage("de-DE");
-
     if (Platform.isIOS) {
       // Use siri voice if available.
       List<dynamic> voices = await ftts.getVoices;
@@ -422,18 +423,11 @@ class Ride with ChangeNotifier {
       await ftts.setSpeechRate(0.55); //speed of speech
       await ftts.setVolume(1); //volume of speech
       await ftts.setPitch(1); //pitch of sound
-      // await ftts.awaitSpeakCompletion(true);
+      await ftts.awaitSpeakCompletion(true);
+      await ftts.autoStopSharedSession(false);
 
-      await ftts.setSharedInstance(true);
-      await ftts.setIosAudioCategory(
-          IosTextToSpeechAudioCategory.playback,
-          [
-            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-            IosTextToSpeechAudioCategoryOptions.interruptSpokenAudioAndMixWithOthers,
-            IosTextToSpeechAudioCategoryOptions.duckOthers
-          ],
-          IosTextToSpeechAudioMode.voicePrompt);
+      await ftts
+          .setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [IosTextToSpeechAudioCategoryOptions.duckOthers]);
     } else {
       // Use android voice if available.
       List<dynamic> voices = await ftts.getVoices;
@@ -449,19 +443,16 @@ class Ride with ChangeNotifier {
       await ftts.setPitch(1); //pitch of sound
       await ftts.awaitSpeakCompletion(true);
     }
-  }
 
-  /// Play audio instruction.
-  Future<void> playAudioInstruction() async {
-    // Register the audio session.
-    final session = await AudioSession.instance;
-    await session.configure(
+    // Set the session configuration with the session plugin since the flutter_tts config seems not to work properly.
+    audioSession = await AudioSession.instance;
+    await audioSession.configure(
       const AudioSessionConfiguration(
         avAudioSessionCategory: AVAudioSessionCategory.playback,
         avAudioSessionMode: AVAudioSessionMode.voicePrompt,
         avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation,
         avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
-        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
+        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
         androidAudioAttributes: AndroidAudioAttributes(
           contentType: AndroidAudioContentType.speech,
           flags: AndroidAudioFlags.none,
@@ -471,7 +462,10 @@ class Ride with ChangeNotifier {
         androidWillPauseWhenDucked: false, // Prevents other audio sources from stopping.
       ),
     );
+  }
 
+  /// Play audio instruction.
+  Future<void> playAudioInstruction() async {
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
@@ -485,7 +479,7 @@ class Ride with ChangeNotifier {
       Iterator it = currentInstruction.text.iterator;
       while (it.moveNext()) {
         // Put this here to avoid music interruption in case that there is no instruction to play.
-        await session.setActive(true);
+        await audioSession.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
           // No countdown information needs to be added.
           await ftts.speak(it.current.text);
@@ -506,7 +500,7 @@ class Ride with ChangeNotifier {
           await ftts.speak(updatedCountdown.toString());
         }
       }
-      await session.setActive(false);
+      await audioSession.setActive(false);
     }
   }
 
