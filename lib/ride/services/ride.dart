@@ -426,8 +426,11 @@ class Ride with ChangeNotifier {
       await ftts.awaitSpeakCompletion(true);
       await ftts.autoStopSharedSession(false);
 
-      await ftts
-          .setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [IosTextToSpeechAudioCategoryOptions.duckOthers]);
+      await ftts.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
+        IosTextToSpeechAudioCategoryOptions.duckOthers,
+        IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+        IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP
+      ]);
     } else {
       // Use android voice if available.
       List<dynamic> voices = await ftts.getVoices;
