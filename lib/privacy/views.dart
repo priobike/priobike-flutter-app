@@ -3,7 +3,6 @@ import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -144,24 +143,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                             context: context),
                       if (privacyService.hasChanged!)
                         SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
-                      const VSpace(),
-                      IconItem(
-                          icon: Icons.route,
-                          text:
-                              "Wir speichern Deine Positionsdaten, aber nur anonymisiert und ohne Deinen Start- und Zielort.",
-                          context: context),
-                      const SmallVSpace(),
-                      IconItem(
-                          icon: Icons.lock,
-                          text:
-                              "Wenn Du die App personalisierst, indem Du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
-                          context: context),
-                      const SmallVSpace(),
-                      IconItem(
-                          icon: Icons.lightbulb,
-                          text:
-                              "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
-                          context: context),
                       const VSpace(),
                       Markdown(
                         data: privacyService.assetText!,
