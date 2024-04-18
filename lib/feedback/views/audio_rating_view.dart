@@ -27,6 +27,12 @@ class AudioRatingView extends StatefulWidget {
 class AudioRatingViewState extends State<AudioRatingView> {
   final log = Logger("AudioRatingView");
 
+  /// The score of the noDisplayQuestion.
+  int scoreQ0 = 0;
+
+  /// The text of the noDisplayQuestion.
+  String textQ0 = "Ich habe während der Fahrt zusätzlich zur Sprachausgabe auch auf das Display geschaut.";
+
   /// The score of the 10 questions questions.
   int scoreQ1 = 0;
   int scoreQ2 = 0;
@@ -68,6 +74,9 @@ class AudioRatingViewState extends State<AudioRatingView> {
     setState(
       () {
         switch (questionNr) {
+          case 0:
+            scoreQ0 = index;
+            break;
           case 1:
             scoreQ1 = index;
             break;
@@ -105,6 +114,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
 
   /// Send an answered audio question.
   Future<bool> sendAudioFeedback() async {
+    final driveWithoutScreen = (scoreQ0 == 2) ? true : false;
     final susAnswers = [
       scoreQ1,
       scoreQ2,
@@ -134,8 +144,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
         susAnswers: susAnswers,
         comment: comment,
         debug: kDebugMode,
-        // TODO implement how to detect driving with screen off.
-        driveWithoutScreen: false);
+        driveWithoutScreen: driveWithoutScreen);
 
     try {
       final response =
@@ -215,6 +224,59 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   Text("Frage 1", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
+                      text: textQ0,
+                      context: context,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      textAlign: TextAlign.center),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Radio(
+                            groupValue: 1,
+                            value: scoreQ0,
+                            onChanged: (value) {
+                              setState(() {
+                                onResponseTapped(0, 1);
+                              });
+                            },
+                          ),
+                          Small(
+                              text: "Ja",
+                              context: context,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              textAlign: TextAlign.left),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Radio(
+                            groupValue: 2,
+                            value: scoreQ0,
+                            onChanged: (value) {
+                              setState(() {
+                                onResponseTapped(0, 2);
+                              });
+                            },
+                          ),
+                          Small(
+                              text: "Nein",
+                              context: context,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              textAlign: TextAlign.left),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
+                  const SizedBox(height: 15),
+                  Text("Frage 2", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  const SizedBox(height: 5),
+                  Content(
                       text: textQ1,
                       context: context,
                       color: Theme.of(context).colorScheme.tertiary,
@@ -238,7 +300,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 2", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 3", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ2,
@@ -264,7 +326,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 3", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 4", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ3,
@@ -290,7 +352,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 4", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 5", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ4,
@@ -316,7 +378,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 5", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 6", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ5,
@@ -342,7 +404,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 6", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 7", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ6,
@@ -368,7 +430,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 7", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 8", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ7,
@@ -394,7 +456,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 8", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 9", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ8,
@@ -420,7 +482,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 9", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 10", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ9,
@@ -446,7 +508,7 @@ class AudioRatingViewState extends State<AudioRatingView> {
                   const SizedBox(height: 15),
                   Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                   const SizedBox(height: 15),
-                  Text("Frage 10", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                  Text("Frage 11", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
                   const SizedBox(height: 5),
                   Content(
                       text: textQ10,
