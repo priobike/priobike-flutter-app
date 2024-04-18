@@ -386,7 +386,7 @@ class PathMockPositionSource extends PositionSource {
     }
     if (inGreen) phaseEnds.add(phasesFromNow.length);
 
-    if(phaseStarts.length != phaseEnds.length) return null;
+    if (phaseStarts.length != phaseEnds.length) return null;
     if (phaseStarts.isEmpty || phaseEnds.isEmpty) return null;
     for (int i = 0; i < phaseStarts.length; i++) {
       var phaseStart = phaseStarts[i];
