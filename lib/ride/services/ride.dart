@@ -422,17 +422,20 @@ class Ride with ChangeNotifier {
       await ftts.setSpeechRate(0.55); //speed of speech
       await ftts.setVolume(1); //volume of speech
       await ftts.setPitch(1); //pitch of sound
-      await ftts.awaitSpeakCompletion(true);
+      // await ftts.awaitSpeakCompletion(true);
+
+      await ftts.setSharedInstance(true);
       await ftts.setIosAudioCategory(
-          IosTextToSpeechAudioCategory.ambient,
+          IosTextToSpeechAudioCategory.playback,
           [
             IosTextToSpeechAudioCategoryOptions.allowBluetooth,
             IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-            IosTextToSpeechAudioCategoryOptions.mixWithOthers
+            IosTextToSpeechAudioCategoryOptions.interruptSpokenAudioAndMixWithOthers,
+            IosTextToSpeechAudioCategoryOptions.duckOthers
           ],
           IosTextToSpeechAudioMode.voicePrompt);
     } else {
-      // Use siri voice if available.
+      // Use android voice if available.
       List<dynamic> voices = await ftts.getVoices;
       if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
         await ftts.setVoice({
@@ -455,6 +458,9 @@ class Ride with ChangeNotifier {
     await session.configure(
       const AudioSessionConfiguration(
         avAudioSessionCategory: AVAudioSessionCategory.playback,
+        avAudioSessionMode: AVAudioSessionMode.voicePrompt,
+        avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation,
+        avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
         avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
         androidAudioAttributes: AndroidAudioAttributes(
           contentType: AndroidAudioContentType.speech,
@@ -462,7 +468,7 @@ class Ride with ChangeNotifier {
           usage: AndroidAudioUsage.assistanceNavigationGuidance,
         ),
         androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
-        androidWillPauseWhenDucked: false, // Verhindert, dass Spotify automatisch pausiert
+        androidWillPauseWhenDucked: false, // Prevents other audio sources from stopping.
       ),
     );
 
