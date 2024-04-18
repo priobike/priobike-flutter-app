@@ -18,6 +18,27 @@ enum Phase {
   greenFlashing,
 }
 
+extension PhaseDescription on Phase {
+  String get description {
+    switch (this) {
+      case Phase.dark:
+        return "Dunkel";
+      case Phase.red:
+        return "Rot";
+      case Phase.amber:
+        return "Gelb";
+      case Phase.green:
+        return "Grün";
+      case Phase.redAmber:
+        return "Rot-Gelb";
+      case Phase.amberFlashing:
+        return "Gelb blinkend";
+      case Phase.greenFlashing:
+        return "Grün blinkend";
+    }
+  }
+}
+
 extension PhaseColor on Phase {
   static Phase fromInt(int i) {
     switch (i) {
