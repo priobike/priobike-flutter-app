@@ -13,6 +13,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/crossing.dart';
+import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
@@ -25,7 +26,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/routing/models/instruction.dart';
 
 /// A typed tuple for a crossing and its distance.
 class TupleCrossingsDistances {
@@ -181,7 +181,14 @@ class Routing with ChangeNotifier {
     if (response.statusCode == 200) {
       log.i("Loaded OSM way IDs from $overpassUrl");
       Map<int, Map<String, String>> osmWays = {};
-      final json = jsonDecode(utf8.decode(response.bodyBytes));
+      dynamic json;
+      try {
+        json = jsonDecode(utf8.decode(response.bodyBytes));
+      } catch (e) {
+        // If the Overpass returns an error, it's send as a HTML page. Thus, jsonDecode will fail.
+        log.e("Failed to parse OSM way IDs: $e");
+        return {};
+      }
       final elements = json["elements"];
       for (final element in elements) {
         final id = element["id"];
