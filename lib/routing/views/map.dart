@@ -245,11 +245,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
       // Wait for animation.
       await Future.delayed(const Duration(seconds: 1));
+      // Add highlighting.
+      if (!mounted) return;
+      await WaypointsLayer().update(mapController!);
+
       // Display the waypoint indicator.
       setState(() {
         showEditWaypointIndicator = true;
       });
     } else {
+      // Remove highlighting.
+      if (!mounted) return;
+      await WaypointsLayer().update(mapController!);
       setState(() {
         showEditWaypointIndicator = false;
       });
