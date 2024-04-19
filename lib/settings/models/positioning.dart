@@ -9,6 +9,7 @@ enum PositioningMode {
   hamburgStatic1,
   dresdenStatic1,
   dresdenStatic2,
+  straightLine,
 }
 
 extension PositioningDescription on PositioningMode {
@@ -34,6 +35,8 @@ extension PositioningDescription on PositioningMode {
         return "Statisch (Dresden, POT vor Ampel 1)";
       case PositioningMode.dresdenStatic2:
         return "Statisch (Dresden, POT vor Ampel 2)";
+      case PositioningMode.straightLine:
+        return "Luftlinie durch Hamburg";
     }
   }
 }
