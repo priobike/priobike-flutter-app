@@ -241,13 +241,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     if (mapFunctions.tappedWaypointIdx != null) {
       Waypoint tappedWaypoint = routing.selectedWaypoints![mapFunctions.tappedWaypointIdx!];
+      // Add highlighting.
+      if (!mounted) return;
+      await WaypointsLayer().update(mapController!);
+
       // Move the camera to the center of the waypoint.
       fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
       // Wait for animation.
       await Future.delayed(const Duration(seconds: 1));
-      // Add highlighting.
-      if (!mounted) return;
-      await WaypointsLayer().update(mapController!);
 
       // Display the waypoint indicator.
       setState(() {
@@ -257,9 +258,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // Remove highlighting.
       if (!mounted) return;
       await WaypointsLayer().update(mapController!);
+
       setState(() {
         showEditWaypointIndicator = false;
       });
+
+      // To update the screen.
+      if (Platform.isAndroid) {
+        final cameraState = await mapController!.getCameraState();
+        mapController!.flyTo(
+          CameraOptions(
+            zoom: cameraState.zoom + 0.001,
+          ),
+          MapAnimationOptions(duration: 100),
+        );
+      }
     }
   }
 
@@ -1094,13 +1107,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       return;
     }
 
-    // remove old waypoint from before dragging from routing.
-    routing.selectedWaypoints!.removeAt(idx);
-
     String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
 
     tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
+
+    // remove old waypoint from before dragging from routing.
+    routing.selectedWaypoints!.removeAt(idx);
 
     await routing.addWaypoint(waypoint, idx);
     await getIt<Geosearch>().addToSearchHistory(waypoint);

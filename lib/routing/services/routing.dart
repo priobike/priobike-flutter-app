@@ -871,7 +871,6 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
-          // TODO: add method for calculating instructions
           var route = r.Route(
             idx: i,
             path: path,
