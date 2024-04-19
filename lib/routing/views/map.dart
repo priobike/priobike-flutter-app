@@ -227,16 +227,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       displayCurrentUserLocation();
       fitCameraToUserPosition();
       mapFunctions.needsCentering = false;
+      return;
     }
 
     if (mapFunctions.needsCenteringNorth) {
       centerCameraToNorth();
       mapFunctions.needsCenteringNorth = false;
+      return;
     }
 
     if (mapFunctions.needsNewWaypointCoordinates) {
       setCoordinatesForMovedWaypoint();
       mapFunctions.needsNewWaypointCoordinates = false;
+      return;
     }
 
     if (mapFunctions.tappedWaypointIdx != null) {
@@ -277,7 +280,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Called when the listener callback of the Routing service ChangeNotifier is fired.
-  updateRoute() async {
+  updateRoute() {
     updateRouteMapLayers();
 
     fitCameraToRouteBounds();
