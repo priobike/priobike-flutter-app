@@ -169,8 +169,8 @@ class ProfileButtonState extends State<ProfileButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 58,
-      height: 58,
+      width: 42,
+      height: 42,
       child: Tile(
         fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: showSelectionDialog,
@@ -180,7 +180,7 @@ class ProfileButtonState extends State<ProfileButton> {
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,
         ),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(4),
       ),
     );
   }

@@ -10,7 +10,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/details/discomforts.dart';
+import 'package:priobike/routing/views/details/poi.dart';
 import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
@@ -68,9 +68,14 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     setState(() {});
   }
 
+  /// A timer that updates the arrival time every minute.
+  Timer? arrivalTimeUpdateTimer;
+
   @override
   void initState() {
     super.initState();
+
+    arrivalTimeUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) => update());
 
     routing = getIt<Routing>();
     routing.addListener(update);
@@ -83,6 +88,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   @override
   void dispose() {
+    arrivalTimeUpdateTimer?.cancel();
+    arrivalTimeUpdateTimer = null;
+
     routing.removeListener(update);
     mapFunctions.removeListener(update);
     status.removeListener(update);
@@ -354,7 +362,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                                 const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
                                 const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
                                 const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                                const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: PoisChart()),
                                 // Big button size + padding.
                                 SizedBox(
                                   height: 40 + 8 + frame.padding.bottom,

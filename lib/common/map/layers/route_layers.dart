@@ -252,18 +252,18 @@ class SelectedRouteLayer {
   }
 }
 
-class DiscomfortsLayer {
+class PoisLayer {
   /// The ID of the Mapbox source.
-  static const sourceId = "route-discomforts";
+  static const sourceId = "route-pois";
 
   /// The ID of the main Mapbox layer.
-  static const layerId = "route-discomforts-layer";
+  static const layerId = "route-pois-layer";
 
   /// The ID of the background Mapbox layer.
-  static const layerIdBackground = "route-discomforts-background-layer";
+  static const layerIdBackground = "route-pois-background-layer";
 
   /// The ID of the symbol/text layer.
-  static const layerIdSymbol = "route-discomforts-symbol-layer";
+  static const layerIdSymbol = "route-pois-symbol-layer";
 
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
@@ -271,18 +271,19 @@ class DiscomfortsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  DiscomfortsLayer(this.isDark) {
+  PoisLayer(this.isDark) {
     final routing = getIt<Routing>();
 
     // Alternative routes
     for (final route in routing.allRoutes ?? []) {
       if (route.idx == routing.selectedRoute?.idx) continue;
-      for (final discomfort in route.foundDiscomforts ?? []) {
-        if (discomfort.coordinates.isEmpty) continue;
+      for (final poi in route.foundPois ?? []) {
+        if (!poi.isWarning) continue; // Don't display pois that are not warnings.
+        if (poi.coordinates.isEmpty) continue;
         // A section of the route.
         final geometry = {
           "type": "LineString",
-          "coordinates": discomfort.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
+          "coordinates": poi.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
         };
 
         features.add(
@@ -293,7 +294,7 @@ class DiscomfortsLayer {
               "textHaloColor": isDark ? "#003064" : "#FFFFFF",
               "color": "#d9c89e",
               "bgcolor": "#d1b873",
-              "symbol": discomfort.type,
+              "symbol": poi.type,
               "symbolopacity": 0,
             },
             "geometry": geometry,
@@ -303,24 +304,25 @@ class DiscomfortsLayer {
     }
 
     // Selected route
-    for (final discomfort in routing.selectedRoute?.foundDiscomforts ?? []) {
-      if (discomfort.coordinates.isEmpty) continue;
+    for (final poi in routing.selectedRoute?.foundPois ?? []) {
+      if (!poi.isWarning) continue; // Don't display pois that are not warnings.
+      if (poi.coordinates.isEmpty) continue;
       // A section of the route.
       final geometry = {
         "type": "LineString",
-        "coordinates": discomfort.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
+        "coordinates": poi.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
       };
 
       features.add(
         {
           "type": "Feature",
           "properties": {
-            "description": discomfort.description,
+            "description": poi.description,
             "textColor": isDark ? "#FFFFFF" : "#003064",
             "textHaloColor": isDark ? "#003064" : "#FFFFFF",
             "color": "#ffdc00",
             "bgcolor": "#ad9600",
-            "symbol": discomfort.type,
+            "symbol": poi.type,
             "symbolopacity": 1,
           },
           "geometry": geometry,
@@ -339,8 +341,8 @@ class DiscomfortsLayer {
     } else {
       await update(mapController);
     }
-    final routeDiscomfortsSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
-    if (!routeDiscomfortsSymbolLayerExists) {
+    final routePoisSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
+    if (!routePoisSymbolLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
             sourceId: sourceId,
@@ -392,8 +394,8 @@ class DiscomfortsLayer {
             ["get", "textHaloColor"],
           ));
     }
-    final routeDiscomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!routeDiscomfortsLayerExists) {
+    final routePoisLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!routePoisLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
             sourceId: sourceId,
@@ -406,8 +408,8 @@ class DiscomfortsLayer {
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
     }
-    final routeDiscomfortsBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
-    if (!routeDiscomfortsBackgroundLayerExists) {
+    final routePoisBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
+    if (!routePoisBackgroundLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
             sourceId: sourceId,

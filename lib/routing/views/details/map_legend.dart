@@ -352,7 +352,7 @@ class _MapLegendView extends StatelessWidget {
                         ),
                         // Icon
                         Image.asset(
-                          "assets/images/discomforts/accidenthotspot.png",
+                          "assets/images/pois/accidenthotspot.png",
                           width: 24,
                           height: 24,
                           fit: BoxFit.contain,

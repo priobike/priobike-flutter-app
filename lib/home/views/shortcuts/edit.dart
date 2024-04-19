@@ -20,7 +20,7 @@ import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -96,147 +96,37 @@ void showEditShortcutSheet(context, int idx) {
 }
 
 /// The view that will be displayed in an app sheet.
-class EditOptionsView extends StatelessWidget {
+class EditOptionsView extends StatefulWidget {
   /// The shortcut of the view.
   final Shortcut shortcut;
 
   /// The index of the shortcut.
   final int idx;
 
-  /// The callback that will be executed when the delete button is pressed.
-  final Function onDeleteShortcut;
-
-  /// The callback that will be executed when the edit button is pressed.
-  final Function onEditShortcut;
-
-  /// The callback that will be executed when the share button is pressed.
-  final Function onShareShortcut;
-
   const EditOptionsView({
     super.key,
     required this.shortcut,
     required this.idx,
-    required this.onDeleteShortcut,
-    required this.onEditShortcut,
-    required this.onShareShortcut,
   });
 
-  /// The callback that will be executed when the delete button is pressed.
-  void onDelete(BuildContext context) {
-    onDeleteShortcut(idx);
-    Navigator.pop(context);
-  }
-
   @override
-  Widget build(BuildContext context) {
-    // Show a grid view with all available layers.
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SmallVSpace(),
-              BoldSubHeader(text: shortcut.name, context: context),
-              const VSpace(),
-              BigButtonPrimary(
-                label: "Teilen",
-                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => onShareShortcut(idx),
-              ),
-              const SmallVSpace(),
-              BigButtonTertiary(
-                label: "QR-Code",
-                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
-                  ),
-                ),
-              ),
-              const SmallVSpace(),
-              BigButtonTertiary(
-                label: "Bearbeiten",
-                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => onEditShortcut(idx),
-              ),
-              const SmallVSpace(),
-              BigButtonPrimary(
-                fillColor: CI.radkulturYellow,
-                textColor: Colors.black,
-                label: "Löschen",
-                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
-                onPressed: () => onDelete(context),
-              ),
-              const SmallVSpace(),
-              SizedBox(
-                height: MediaQuery.of(context).padding.bottom,
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  EditOptionsViewState createState() => EditOptionsViewState();
 }
 
-class ShortcutsEditView extends StatefulWidget {
-  const ShortcutsEditView({super.key});
-
-  @override
-  ShortcutsEditViewState createState() => ShortcutsEditViewState();
-}
-
-class ShortcutsEditViewState extends State<ShortcutsEditView> {
+class EditOptionsViewState extends State<EditOptionsView> {
+  /// The shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
-
-  /// The associated routing service, which is injected by the provider.
-  late Routing routing;
-
-  /// The associated discomforts service, which is injected by the provider.
-  late Discomforts discomforts;
-
-  /// The associated predictionSGStatus service, which is injected by the provider.
-  late PredictionSGStatus predictionSGStatus;
-
-  /// The associcated settings service, which is injected by the provider.
-  late Settings settings;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {});
 
   @override
   void initState() {
     super.initState();
     shortcuts = getIt<Shortcuts>();
-    shortcuts.addListener(update);
-    routing = getIt<Routing>();
-    discomforts = getIt<Discomforts>();
-    predictionSGStatus = getIt<PredictionSGStatus>();
-    settings = getIt<Settings>();
   }
 
-  @override
-  void dispose() {
-    shortcuts.removeListener(update);
-    super.dispose();
-  }
-
-  /// A callback that is executed when the order of the shortcuts change.
-  Future<void> onChangeShortcutOrder(int oldIndex, int newIndex) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
-
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
-    }
-
-    final reorderedShortcuts = shortcuts.shortcuts!.toList();
-    final shortcut = reorderedShortcuts.removeAt(oldIndex);
-    reorderedShortcuts.insert(newIndex, shortcut);
-
-    shortcuts.updateShortcuts(reorderedShortcuts);
+  /// The callback that will be executed when the delete button is pressed.
+  void onDelete(BuildContext context) {
+    onDeleteShortcut(widget.idx);
+    Navigator.pop(context);
   }
 
   /// A callback that is executed when a shortcut should be deleted.
@@ -274,6 +164,118 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     await Share.share('$text \n$shortLink \n$getAppText \n$playStoreLink \n$appStoreLink', subject: subject);
   }
 
+  @override
+  Widget build(BuildContext context) {
+    // Show a grid view with all available layers.
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SmallVSpace(),
+              BoldSubHeader(text: widget.shortcut.name, context: context),
+              const VSpace(),
+              BigButtonPrimary(
+                label: "Teilen",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => onShareShortcut(widget.idx),
+              ),
+              const SmallVSpace(),
+              BigButtonTertiary(
+                label: "QR-Code",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => QRCodeView(shortcut: widget.shortcut),
+                  ),
+                ),
+              ),
+              const SmallVSpace(),
+              BigButtonTertiary(
+                label: "Bearbeiten",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => onEditShortcut(widget.idx),
+              ),
+              const SmallVSpace(),
+              BigButtonPrimary(
+                fillColor: CI.radkulturYellow,
+                textColor: Colors.black,
+                label: "Löschen",
+                boxConstraints: BoxConstraints(minHeight: 36, minWidth: MediaQuery.of(context).size.width - 40),
+                onPressed: () => onDelete(context),
+              ),
+              const SmallVSpace(),
+              SizedBox(
+                height: MediaQuery.of(context).padding.bottom,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ShortcutsEditView extends StatefulWidget {
+  const ShortcutsEditView({super.key});
+
+  @override
+  ShortcutsEditViewState createState() => ShortcutsEditViewState();
+}
+
+class ShortcutsEditViewState extends State<ShortcutsEditView> {
+  late Shortcuts shortcuts;
+
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
+  /// The associated pois service, which is injected by the provider.
+  late Pois pois;
+
+  /// The associated predictionSGStatus service, which is injected by the provider.
+  late PredictionSGStatus predictionSGStatus;
+
+  /// The associcated settings service, which is injected by the provider.
+  late Settings settings;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
+  @override
+  void initState() {
+    super.initState();
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+    routing = getIt<Routing>();
+    pois = getIt<Pois>();
+    predictionSGStatus = getIt<PredictionSGStatus>();
+    settings = getIt<Settings>();
+  }
+
+  @override
+  void dispose() {
+    shortcuts.removeListener(update);
+    super.dispose();
+  }
+
+  /// A callback that is executed when the order of the shortcuts change.
+  Future<void> onChangeShortcutOrder(int oldIndex, int newIndex) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
+
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    final reorderedShortcuts = shortcuts.shortcuts!.toList();
+    final shortcut = reorderedShortcuts.removeAt(oldIndex);
+    reorderedShortcuts.insert(newIndex, shortcut);
+
+    shortcuts.updateShortcuts(reorderedShortcuts);
+  }
+
   /// A callback that is executed when the more button is pressed.
   onMorePressed(Shortcut shortcut, int idx) {
     showAppSheet(
@@ -281,9 +283,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
       builder: (BuildContext context) => EditOptionsView(
         idx: idx,
         shortcut: shortcut,
-        onDeleteShortcut: onDeleteShortcut,
-        onEditShortcut: onEditShortcut,
-        onShareShortcut: onShareShortcut,
       ),
     );
   }

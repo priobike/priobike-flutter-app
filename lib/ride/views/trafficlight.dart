@@ -73,8 +73,11 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final recommendation = ride.predictionProvider!.recommendation!;
     // If the phase change time is null, we hide the countdown.
     if (recommendation.calcCurrentPhaseChangeTime == null) {
-      final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
-      if (uniqueColors.length == 1) return alternativeView("Kein\nFarbwechsel");
+      final uniqueColors = recommendation.calcPhasesFromNow.toSet();
+      if (uniqueColors.length == 1) {
+        final color = uniqueColors.first;
+        alternativeView("Bleibt\n${color.description}");
+      }
       return alternativeView("Prognose\nzu alt");
     }
     // Calculate the countdown.

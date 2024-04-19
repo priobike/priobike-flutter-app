@@ -366,6 +366,21 @@ class SettingsViewState extends State<SettingsView> {
                         child: Content(text: "Nutzbarkeit", context: context),
                       ),
                       const SmallVSpace(),
+                      SettingsElement(
+                        title: "Sprachausgabe aktivieren",
+                        icon: settings.saveAudioInstructionsEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                        callback: () =>
+                            settings.setSaveAudioInstructionsEnabled(!settings.saveAudioInstructionsEnabled),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                        child: Small(
+                          text:
+                              "Aktiviere die Sprachausgabe, um während der Fahrt Informationen über Lautsprecher oder Kopfhörer zu erhalten. Du kannst die App somit jetzt auch ohne eingeschaltetes Display aus der Hosentasche heraus nutzen.",
+                          context: context,
+                        ),
+                      ),
+                      const SmallVSpace(),
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(

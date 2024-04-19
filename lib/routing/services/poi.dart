@@ -10,7 +10,7 @@ import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/models/discomfort.dart';
+import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -105,8 +105,8 @@ const translationsMap = {
   "carpet": "Wegabschnitt über Teppich",
 };
 
-class Discomforts with ChangeNotifier {
-  Discomforts();
+class Pois with ChangeNotifier {
+  Pois();
 
   /// Get the coordinates for a given segment.
   List<LatLng> getCoordinates(GHSegment segment, GHRouteResponsePath path) {
@@ -149,8 +149,8 @@ class Discomforts with ChangeNotifier {
     }
   }
 
-  /// Find discomforts for the given route.
-  Future<void> findDiscomforts(Route route) async {
+  /// Find pois for the given route.
+  Future<void> findPois(Route route) async {
     final path = route.path;
 
     final profile = getIt<Profile>();
@@ -178,12 +178,13 @@ class Discomforts with ChangeNotifier {
       final translation = translationsMap[segment.value!];
       if (translation == null) continue;
       final snapper = Snapper(nodes: route.route, position: cs[0]);
-      unsmooth.add(DiscomfortSegment(
+      unsmooth.add(PoiSegment(
         coordinates: cs,
         description: translation,
         type: "surface",
         distanceOnRoute: snapper.snap().distanceOnRoute,
         color: const Color(0xffd7191c),
+        isWarning: true,
       ));
     }
 
@@ -232,22 +233,26 @@ class Discomforts with ChangeNotifier {
       if (segment.value! > 0) {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         criticalElevation.add(
-          DiscomfortSegment(
-              coordinates: cs,
-              description: "${segment.value!.round()}% Steigung.",
-              type: "incline",
-              distanceOnRoute: snapper.snap().distanceOnRoute,
-              color: const Color(0xFFfdae61)),
+          PoiSegment(
+            coordinates: cs,
+            description: "${segment.value!.round()}% Steigung.",
+            type: "incline",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color(0xFFfdae61),
+            isWarning: true,
+          ),
         );
       } else {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         criticalElevation.add(
-          DiscomfortSegment(
-              coordinates: cs,
-              description: "${segment.value!.round()}% Gefälle bergab.",
-              type: "decline",
-              distanceOnRoute: snapper.snap().distanceOnRoute,
-              color: const Color(0xFFffffbf)),
+          PoiSegment(
+            coordinates: cs,
+            description: "${segment.value!.round()}% Gefälle bergab.",
+            type: "decline",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color(0xFFffffbf),
+            isWarning: true,
+          ),
         );
       }
     }
@@ -262,22 +267,26 @@ class Discomforts with ChangeNotifier {
       if (segment.value! >= 100) {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         unwantedSpeed.add(
-          DiscomfortSegment(
-              coordinates: cs,
-              description: "${segment.value!.toInt()} km/h Tempolimit",
-              type: "carspeed",
-              distanceOnRoute: snapper.snap().distanceOnRoute,
-              color: const Color(0xFF543005)),
+          PoiSegment(
+            coordinates: cs,
+            description: "${segment.value!.toInt()} km/h Tempolimit",
+            type: "carspeed",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color(0xFF543005),
+            isWarning: true,
+          ),
         );
       } else if (segment.value! <= 10) {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         unwantedSpeed.add(
-          DiscomfortSegment(
-              coordinates: cs,
-              description: "Fußgängerzone",
-              type: "pedestrians",
-              distanceOnRoute: snapper.snap().distanceOnRoute,
-              color: const Color(0xFFa6d96a)),
+          PoiSegment(
+            coordinates: cs,
+            description: "Fußgängerzone",
+            type: "pedestrians",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color.fromARGB(255, 228, 129, 79),
+            isWarning: true,
+          ),
         );
       }
     }
@@ -289,12 +298,14 @@ class Discomforts with ChangeNotifier {
       final cs = getCoordinates(segment, path);
       final snapper = Snapper(nodes: route.route, position: cs[0]);
       dismount.add(
-        DiscomfortSegment(
-            coordinates: cs,
-            description: "Absteigen",
-            type: "dismount",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color(0xFFf46d43)),
+        PoiSegment(
+          coordinates: cs,
+          description: "Absteigen",
+          type: "dismount",
+          distanceOnRoute: snapper.snap().distanceOnRoute,
+          color: const Color(0xFFf46d43),
+          isWarning: true,
+        ),
       );
     }
 
@@ -312,12 +323,14 @@ class Discomforts with ChangeNotifier {
         final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         constructions.add(
-          DiscomfortSegment(
-              coordinates: cs,
-              description: "Baustelle",
-              type: "construction",
-              distanceOnRoute: snapper.snap().distanceOnRoute,
-              color: const Color(0xFFd73027)),
+          PoiSegment(
+            coordinates: cs,
+            description: "Baustelle",
+            type: "construction",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color.fromARGB(255, 215, 39, 136),
+            isWarning: true,
+          ),
         );
       }
     }
@@ -327,26 +340,66 @@ class Discomforts with ChangeNotifier {
         final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         accidentHotspots.add(
-          DiscomfortSegment(
-              coordinates: cs,
-              description: "Unfallschwerpunkt",
-              type: "accidenthotspot",
-              distanceOnRoute: snapper.snap().distanceOnRoute,
-              color: const Color(0xFF4575b4)),
+          PoiSegment(
+            coordinates: cs,
+            description: "Unfallschwerpunkt",
+            type: "accidenthotspot",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color.fromARGB(255, 210, 0, 70),
+            isWarning: true,
+          ),
+        );
+      }
+    }
+    final veloRoutes = List.empty(growable: true);
+    if (poisResponse != null) {
+      for (final segment in poisResponse.veloroutes) {
+        final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
+        veloRoutes.add(
+          PoiSegment(
+            coordinates: cs,
+            description: "Velo-Route",
+            type: "veloroute",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color.fromARGB(255, 55, 129, 226),
+            isWarning: false,
+          ),
+        );
+      }
+    }
+    final greenwaves = List.empty(growable: true);
+    if (poisResponse != null) {
+      for (final segment in poisResponse.greenwaves) {
+        final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
+        greenwaves.add(
+          PoiSegment(
+            coordinates: cs,
+            description: "Auf Radfahrende abgestimmte Ampelschaltung (Statische grüne Welle)",
+            type: "greenwave",
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color.fromARGB(255, 0, 166, 81),
+            isWarning: false,
+          ),
         );
       }
     }
 
-    route.foundDiscomforts = List.empty(growable: true);
-    route.foundDiscomforts = [
+    route.foundPois = List.empty(growable: true);
+    route.foundPois = [
+      // Negative pois
       ...dismount,
       ...accidentHotspots,
       ...constructions,
       ...unsmooth,
       ...criticalElevation,
       ...unwantedSpeed,
+      // Positive pois
+      ...veloRoutes,
+      ...greenwaves,
     ];
-    route.foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
+    route.foundPois!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
 
     notifyListeners();
   }

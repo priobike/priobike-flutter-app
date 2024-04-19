@@ -28,6 +28,12 @@ class Sg {
   /// The bearing of the signal group.
   final double? bearing;
 
+  /// The geometry of the signal group.
+  final List<dynamic>? geometry;
+
+  /// The lane type of the signal group.
+  final String? laneType;
+
   const Sg({
     required this.id,
     required this.label,
@@ -38,6 +44,8 @@ class Sg {
     this.datastreamPrimarySignal,
     this.datastreamSignalProgram,
     this.bearing,
+    this.geometry,
+    this.laneType,
   });
 
   factory Sg.fromJson(Map<String, dynamic> json) => Sg(
@@ -50,6 +58,8 @@ class Sg {
         datastreamPrimarySignal: json['datastreamPrimarySignal'],
         datastreamSignalProgram: json['datastreamSignalProgram'],
         bearing: json['bearing'],
+        geometry: json['geometry'],
+        laneType: json['laneType'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -62,5 +72,7 @@ class Sg {
         'datastreamPrimarySignal': datastreamPrimarySignal,
         'datastreamSignalProgram': datastreamSignalProgram,
         'bearing': bearing,
+        'geometry': geometry,
+        'laneType': laneType,
       };
 }

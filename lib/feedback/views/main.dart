@@ -8,9 +8,11 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/feedback/views/audio_rating_view.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
@@ -38,6 +40,9 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -48,6 +53,9 @@ class FeedbackViewState extends State<FeedbackView> {
   ui.Image? destinationImage;
 
   Widget? trackHistory;
+
+  /// The bool that stores the state of the audio feedback send.
+  bool audioFeedbackSend = false;
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -80,6 +88,8 @@ class FeedbackViewState extends State<FeedbackView> {
     feedback.addListener(update);
     statistics = getIt<Statistics>();
     statistics.addListener(update);
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -116,6 +126,7 @@ class FeedbackViewState extends State<FeedbackView> {
     tracking.removeListener(update);
     feedback.removeListener(update);
     statistics.removeListener(update);
+    settings.removeListener(update);
     super.dispose();
   }
 
@@ -163,10 +174,9 @@ class FeedbackViewState extends State<FeedbackView> {
       pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return DialogLayout(
           title: 'Hinweis',
-          text: "Du bist während der Fahrt häufig von der ursprünglich geplanten Route abgewichen. \n\n"
-              "Die Geschwindigkeitsempfehlungen werden dadurch potentiell beeinträchtigt, da diese nur entlang der Route funktionieren. \n\n"
-              "Trotz der automatischen Neu-Berechnung der Route während der Fahrt empfehlen wir daher eine möglichst genaue Erstellung der Route vor Fahrtantritt. "
-              "Nutze dafür Funktionen wie das Setzen von Zwischenzielen oder das Verschieben von Wegpunkten. ",
+          text: "Du scheinst nicht entlang Deiner ursprünglichen Route gefahren zu sein.\n\n"
+              "Bitte beachte, dass die App Deine Route benötigt, um die passende Ampel auszuwählen und eine Prognose darzustellen.\n\n"
+              "Tipp: Um ein Rerouting zu vermeiden kannst Du Zwischenwegpunkte setzen, um Deine Route besser zu planen.",
           actions: [
             BigButtonPrimary(
               label: "Schließen",
@@ -212,7 +222,13 @@ class FeedbackViewState extends State<FeedbackView> {
                     const SmallVSpace(),
                     BigButtonPrimary(
                       label: "Fertig",
-                      onPressed: () => showFinishDriveDialog(context, submit),
+                      onPressed: () async {
+                        showFinishDriveDialog(context, submit);
+                        if (settings.saveAudioInstructionsEnabled && !audioFeedbackSend) {
+                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AudioRatingView()));
+                          audioFeedbackSend = true;
+                        }
+                      },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                   ],

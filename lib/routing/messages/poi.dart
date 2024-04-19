@@ -53,18 +53,38 @@ class PoiRoutePoint {
 
 class PoisResponse {
   /// List of construction sites (segments along the route).
-  final List<PoiSegment> constructions;
+  final List<PoiPoints> constructions;
 
   /// List of accident hotspots (segments along the route).
-  final List<PoiSegment> accidenthotspots;
+  final List<PoiPoints> accidenthotspots;
 
-  const PoisResponse({required this.constructions, required this.accidenthotspots});
+  /// List of green waves (segments along the route).
+  final List<PoiPoints> greenwaves;
+
+  /// List of velo routes (segments along the route).
+  final List<PoiPoints> veloroutes;
+
+  const PoisResponse({
+    required this.constructions,
+    required this.accidenthotspots,
+    required this.greenwaves,
+    required this.veloroutes,
+  });
 
   factory PoisResponse.fromJson(Map<String, dynamic> json) {
     return PoisResponse(
-      constructions: (json['constructions'] as List).map((construction) => PoiSegment.fromJson(construction)).toList(),
-      accidenthotspots:
-          (json['accidenthotspots'] as List).map((accidenthotspot) => PoiSegment.fromJson(accidenthotspot)).toList(),
+      constructions: (json['constructions'] as List) //
+          .map((construction) => PoiPoints.fromJson(construction))
+          .toList(),
+      accidenthotspots: (json['accidenthotspots'] as List) //
+          .map((accidenthotspot) => PoiPoints.fromJson(accidenthotspot))
+          .toList(),
+      greenwaves: (json['greenwaves'] as List) //
+          .map((greenwave) => PoiPoints.fromJson(greenwave))
+          .toList(),
+      veloroutes: (json['veloroutes'] as List) //
+          .map((veloroute) => PoiPoints.fromJson(veloroute))
+          .toList(),
     );
   }
 
@@ -72,18 +92,20 @@ class PoisResponse {
     return {
       'constructions': constructions,
       'accidenthotspots': accidenthotspots,
+      'greenwaves': greenwaves,
+      'veloroutes': veloroutes,
     };
   }
 }
 
-class PoiSegment {
+class PoiPoints {
   /// List of points that define the poi.
   final List<PoiCoordinate> points;
 
-  const PoiSegment({required this.points});
+  const PoiPoints({required this.points});
 
-  factory PoiSegment.fromJson(List<dynamic> json) {
-    return PoiSegment(
+  factory PoiPoints.fromJson(List<dynamic> json) {
+    return PoiPoints(
       points: json.map((point) => PoiCoordinate.fromJson(point)).toList(),
     );
   }
