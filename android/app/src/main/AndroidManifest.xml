@@ -1,42 +1,50 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Tell Google Play Store that your app uses Bluetooth LE
      Set android:required="true" if bluetooth is necessary -->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
-    <uses-permission
-        android:name="android.permission.INTERNET"/>
-    <uses-permission
-        android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission
-        android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission
-        android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission
-        android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission
-        android:name="android.permission.VIBRATE"/>
-    <uses-permission
-        android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- New Bluetooth permissions in Android 12
     https://developer.android.com/about/versions/12/features/bluetooth-permissions -->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- legacy for Android 11 or lower -->
-    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
 
     <uses-feature
         android:name="android.hardware.camera.any"
-        android:required="false"/>
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false"/>
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
-        android:required="false"/>
+        android:required="false" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
 
     <application
         android:name="${applicationName}"
@@ -45,7 +53,7 @@
         android:usesCleartextTraffic="true">
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
+            android:value="@integer/google_play_services_version" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -60,7 +68,7 @@
                  to determine the Window background behind the Flutter UI. -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme"/>
+                android:resource="@style/NormalTheme" />
             <!-- Displays an Android View that continues showing the launch screen
                  Drawable until Flutter paints its first frame, then this splash
                  screen fades out. A splash screen is useful to avoid any visual
@@ -68,31 +76,34 @@
                  Flutter's first frame. -->
             <meta-data
                 android:name="io.flutter.embedding.android.SplashScreenDrawable"
-                android:resource="@drawable/launch_background"/>
+                android:resource="@drawable/launch_background" />
             <!-- Overrides the default Firebase Messaging channel such that also heads up notifications can be shown (https://firebase.flutter.dev/docs/messaging/notifications) -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
-                android:value="fcm-channel"/>
+                android:value="fcm-channel" />
             <!-- Disables Firebase Analytics -->
             <meta-data
                 android:name="firebase_analytics_collection_deactivated"
-                android:value="true"/>
+                android:value="true" />
+
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action
-                    android:name="com.google.firebase.MESSAGING_EVENT"/>
-                <category
-                    android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <!-- Enable deep links to launch our app -->
-            <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="true" />
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:host="priobike.vkw.tu-dresden.de" />
                 <data android:scheme="https" />
             </intent-filter>
@@ -101,6 +112,6 @@
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
-            android:value="2"/>
+            android:value="2" />
     </application>
 </manifest>

@@ -209,10 +209,20 @@ class Positioning with ChangeNotifier {
             intervalDuration: const Duration(seconds: 1),
             accuracy: desiredAccuracy,
             distanceFilter: 0,
+            foregroundNotificationConfig: const ForegroundNotificationConfig(
+              notificationIcon: AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
+              notificationText: "Die Navigation läuft.",
+              notificationTitle: "Navigation",
+              setOngoing: true,
+              enableWakeLock: true,
+            ),
           )
-        : LocationSettings(
+        : AppleSettings(
             accuracy: desiredAccuracy,
             distanceFilter: 0,
+            allowBackgroundLocationUpdates: true,
+            activityType: ActivityType.fitness,
+            showBackgroundLocationIndicator: true,
           );
 
     var positionStream = await positionSource!.startPositioning(

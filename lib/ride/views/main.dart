@@ -13,6 +13,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/audio_button.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -83,6 +84,9 @@ class RideViewState extends State<RideView> {
         // Start a new session.
         ride = getIt<Ride>();
 
+        // Configure the TTS.
+        await ride.initializeTTS();
+
         // Save current route if the app crashes or the user unintentionally closes it.
         ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
@@ -106,6 +110,11 @@ class RideViewState extends State<RideView> {
           onNewPosition: () async {
             await ride.updatePosition();
             await tracking.updatePosition();
+
+            // Play audio instructions if enabled.
+            if (settings.saveAudioInstructionsEnabled) {
+              ride.playAudioInstruction();
+            }
 
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance || needsReroute) {
@@ -224,6 +233,53 @@ class RideViewState extends State<RideView> {
                     child: const Image(
                       width: 100,
                       image: AssetImage('assets/images/mapbox-logo-transparent.png'),
+                    ),
+                  ),
+                Positioned(
+                  right: positionSpeedometerRight,
+                  child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
+                ),
+                if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
+                FinishRideButton(),
+                const AudioButton(),
+                if (!cameraFollowsUserLocation)
+                  SafeArea(
+                    bottom: true,
+                    child: Padding(
+                      padding: paddingCenterButton,
+                      child: BigButtonPrimary(
+                        label: "Zentrieren",
+                        elevation: 20,
+                        onPressed: () {
+                          final ride = getIt<Ride>();
+                          if (ride.userSelectedSG != null) ride.unselectSG();
+                          setState(() {
+                            cameraFollowsUserLocation = true;
+                          });
+                        },
+                        boxConstraints:
+                            BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                      ),
+                    ),
+                  ),
+                if (simulatorEnabled)
+                  const Positioned(
+                    left: 0,
+                    top: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 48),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SimulatorState(
+                              tileAlignment: TileAlignment.left,
+                              onlyShowErrors: true,
+                            ),
+                            SensorState(),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 if (settings.saveBatteryModeEnabled && Platform.isAndroid)
