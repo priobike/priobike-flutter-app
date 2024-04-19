@@ -1646,7 +1646,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ],
           ),
 
-        if (routeLabelManager != null && routeLabelManager!.managedRouteLabels.isNotEmpty)
+        if (routeLabelManager != null &&
+            mapFunctions.tappedWaypointIdx == null &&
+            routeLabelManager!.managedRouteLabels.isNotEmpty)
           ...routeLabelManager!.managedRouteLabels.map((ManagedRouteLabel managedRouteLabel) {
             if (managedRouteLabel.ready()) {
               return Positioned(
