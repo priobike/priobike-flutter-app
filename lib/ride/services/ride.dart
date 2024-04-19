@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'dart:io';
+import 'dart:math';
+import 'package:audio_session/audio_session.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/interfaces/prediction_component.dart';
-import 'package:priobike/ride/services/hybrid_predictor.dart';
-import 'package:priobike/ride/services/prediction_service.dart';
-import 'package:priobike/ride/services/predictor.dart';
+import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/routing/models/instruction.dart';
+import 'package:priobike/ride/services/prediction.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/smartglasses/distance_helper.dart';
 import 'package:priobike/smartglasses/smartglass_service.dart';
 import 'package:priobike/status/messages/sg.dart';
@@ -70,14 +71,20 @@ class Ride with ChangeNotifier {
   /// status update was calculated based on the prediction.
   void Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
-  /// The wrapper-service for the used prediction mode.
-  PredictionComponent? predictionComponent;
+  /// The prediction provider.
+  PredictionProvider? predictionProvider;
 
   /// List of Waypoints if the last ride got killed by the os.
   List<Waypoint>? lastRoute;
 
   /// Selected Route id if the last ride got killed by the os.
   int lastRouteID = 0;
+
+  /// An instance for text-to-speach.
+  FlutterTts ftts = FlutterTts();
+
+  /// The audio session instance.
+  late AudioSession audioSession;
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -133,9 +140,9 @@ class Ride with ChangeNotifier {
   }
 
   /// Subscribe to the signal group.
-  void selectSG(Sg? sg) {
+  Future<void> selectSG(Sg? sg) async {
     if (!navigationIsActive) return;
-    bool? unsubscribed = predictionComponent?.selectSG(sg);
+    bool? unsubscribed = await predictionProvider?.selectSG(sg);
 
     if (unsubscribed ?? false) calcDistanceToNextSG = null;
 
@@ -143,8 +150,8 @@ class Ride with ChangeNotifier {
   }
 
   /// Callback that gets called when the prediction component client established a connection.
-  void onPredictionComponentClientConnected() {
-    predictionComponent!.selectSG(userSelectedSG ?? calcCurrentSG);
+  Future<void> onPredictionComponentClientConnected() async {
+    await predictionProvider!.selectSG(userSelectedSG ?? calcCurrentSG);
   }
 
   /// Select the next signal group.
@@ -200,28 +207,12 @@ class Ride with ChangeNotifier {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
-    final settings = getIt<Settings>();
-    final predictionMode = settings.predictionMode;
-    if (predictionMode == PredictionMode.usePredictionService) {
-      // Connect the prediction service MQTT client.
-      predictionComponent = PredictionService(
-          onConnected: onPredictionComponentClientConnected,
-          notifyListeners: notifyListeners,
-          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient();
-    } else if (predictionMode == PredictionMode.usePredictor) {
-      // Connect the predictor MQTT client.
-      predictionComponent = Predictor(
-          onConnected: onPredictionComponentClientConnected,
-          notifyListeners: notifyListeners,
-          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient();
-    } else {
-      // Hybrid mode -> connect both clients.
-      predictionComponent = HybridPredictor(
-          notifyListeners: notifyListeners, onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient();
-    }
+    // Connect the prediction service MQTT client.
+    predictionProvider = PredictionProvider(
+        onConnected: onPredictionComponentClientConnected,
+        notifyListeners: notifyListeners,
+        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
+    predictionProvider!.connectMQTTClient();
 
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
@@ -329,7 +320,203 @@ class Ride with ChangeNotifier {
     }
     smartglasses.updateInstructions("${dist}m ${currentInstruction!.text}", currentInstruction.sign);
 
+    // Also update the recommendation
+    predictionProvider?.recalculateRecommendation();
+
     notifyListeners();
+  }
+
+  /// Check if instruction contains sg information and if so add countdown
+  InstructionText? generateTextToPlay(InstructionText instructionText, double speed) {
+    // Check if Not supported crossing
+    // or we do not have all auxiliary data that the app calculated
+    // or prediction quality is not good enough.
+    if (calcCurrentSG == null ||
+        predictionProvider?.recommendation == null ||
+        (predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+      // No sg countdown information can be added and thus instruction part must not be played.
+      return null;
+    }
+
+    final recommendation = predictionProvider!.recommendation!;
+    if (recommendation.calcCurrentPhaseChangeTime == null) {
+      // If the phase change time is null, instruction part must not be played.
+      return null;
+    }
+
+    Phase? currentPhase = recommendation.calcCurrentSignalPhase;
+    // Calculate the countdown.
+    int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    if (countdown < 0) {
+      countdown = 0; // Must not be negative for later calculations.
+    }
+    Phase? nextPhase;
+    int durationNextPhase = -1;
+    Phase? secondNextPhase;
+
+    // The current phase ends at index countdown + 2.
+    if (recommendation.calcPhasesFromNow.length > countdown + 2) {
+      // Calculate the time and color of the next phase after the current phase.
+      durationNextPhase = calcTimeToNextPhaseAfterIndex(countdown + 2) ?? -1;
+      nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
+
+      if (recommendation.calcPhasesFromNow.length > countdown + durationNextPhase + 2) {
+        // Calculate the color of the second next phase after the current phase.
+        secondNextPhase = recommendation.calcPhasesFromNow[countdown + durationNextPhase + 2];
+      }
+    }
+
+    if (currentPhase == Phase.green && nextPhase == Phase.red) {
+      if (countdown >= instructionText.distanceToNextSg / max(25, speed) && countdown > 3) {
+        // The traffic light is green and can be crossed with the max of current speed or 25km/h.
+        // before turning red.
+        instructionText.addCountdown(countdown);
+        instructionText.text = "${instructionText.text} rot in";
+        return instructionText;
+      } else if ((secondNextPhase == Phase.green &&
+          instructionText.distanceToNextSg * 3.6 / (countdown + durationNextPhase) >= 8 &&
+          countdown + durationNextPhase > 3)) {
+        // The traffic light will turn red and then green again
+        // and can be crossed with a minimum speed of 8km/h without stopping.
+        instructionText.addCountdown(countdown + durationNextPhase);
+        instructionText.text = "${instructionText.text} grün in";
+        return instructionText;
+      } else if (countdown > 3) {
+        // Let the user know when the traffic light is going to turn red.
+        instructionText.addCountdown(countdown);
+        instructionText.text = "${instructionText.text} rot in";
+        return instructionText;
+      } else if (countdown + durationNextPhase > 3) {
+        // Let the user know when the traffic light is going to turn green again.
+        instructionText.addCountdown(countdown + durationNextPhase);
+        instructionText.text = "${instructionText.text} grün in";
+        return instructionText;
+      }
+    } else if (nextPhase == Phase.green) {
+      if (countdown + durationNextPhase >= instructionText.distanceToNextSg / speed && countdown > 3) {
+        // The traffic light will turn green and can be crossed with the current speed.
+        instructionText.addCountdown(countdown);
+        instructionText.text = "${instructionText.text} grün in";
+        return instructionText;
+      } else if (secondNextPhase == Phase.red && countdown + durationNextPhase > 3) {
+        // Let the user know when the traffic light is going to turn red.
+        instructionText.addCountdown(countdown + durationNextPhase);
+        instructionText.text = "${instructionText.text} rot in";
+        return instructionText;
+      }
+    }
+
+    // No recommendation can be made.
+    return null;
+  }
+
+  /// Calculates the time to the next phase after the given index.
+  int? calcTimeToNextPhaseAfterIndex(int index) {
+    final recommendation = predictionProvider!.recommendation!;
+
+    final phases = recommendation.calcPhasesFromNow.sublist(index, recommendation.calcPhasesFromNow.length - 1);
+    final nextPhaseColor = phases.first;
+    final indexNextPhaseEnd = phases.indexWhere((element) => element != nextPhaseColor);
+
+    return indexNextPhaseEnd;
+  }
+
+  /// Configure the TTS.
+  Future<void> initializeTTS() async {
+    if (Platform.isIOS) {
+      // Use siri voice if available.
+      List<dynamic> voices = await ftts.getVoices;
+      if (voices.any((element) => element["name"] == "Helena" && element["locale"] == "de-DE")) {
+        await ftts.setVoice({
+          "name": "Helena",
+          "locale": "de-DE",
+        });
+      }
+
+      await ftts.setSpeechRate(0.55); //speed of speech
+      await ftts.setVolume(1); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+      await ftts.autoStopSharedSession(false);
+
+      await ftts.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
+        IosTextToSpeechAudioCategoryOptions.duckOthers,
+        IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+        IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP
+      ]);
+    } else {
+      // Use android voice if available.
+      List<dynamic> voices = await ftts.getVoices;
+      if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
+        await ftts.setVoice({
+          "name": "de-DE-language",
+          "locale": "de-DE",
+        });
+      }
+
+      await ftts.setSpeechRate(0.7); //speed of speech
+      await ftts.setVolume(1); //volume of speech
+      await ftts.setPitch(1); //pitch of sound
+      await ftts.awaitSpeakCompletion(true);
+    }
+
+    // Set the session configuration with the session plugin since the flutter_tts config seems not to work properly.
+    audioSession = await AudioSession.instance;
+    await audioSession.configure(
+      const AudioSessionConfiguration(
+        avAudioSessionCategory: AVAudioSessionCategory.playback,
+        avAudioSessionMode: AVAudioSessionMode.voicePrompt,
+        avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation,
+        avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
+        androidAudioAttributes: AndroidAudioAttributes(
+          contentType: AndroidAudioContentType.speech,
+          flags: AndroidAudioFlags.none,
+          usage: AndroidAudioUsage.assistanceNavigationGuidance,
+        ),
+        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
+        androidWillPauseWhenDucked: false, // Prevents other audio sources from stopping.
+      ),
+    );
+  }
+
+  /// Play audio instruction.
+  Future<void> playAudioInstruction() async {
+    final snap = getIt<Positioning>().snap;
+    if (snap == null || route == null) return;
+
+    Instruction? currentInstruction = route!.instructions.firstWhereOrNull(
+        (element) => !element.executed && vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
+
+    if (currentInstruction != null) {
+      currentInstruction.executed = true;
+
+      Iterator it = currentInstruction.text.iterator;
+      while (it.moveNext()) {
+        // Put this here to avoid music interruption in case that there is no instruction to play.
+        await audioSession.setActive(true);
+        if (it.current.type == InstructionTextType.direction) {
+          // No countdown information needs to be added.
+          await ftts.speak(it.current.text);
+        } else {
+          final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
+          // Check for countdown information.
+          var instructionTextToPlay = generateTextToPlay(it.current, speed);
+          if (instructionTextToPlay == null) {
+            continue;
+          }
+          await ftts.speak(instructionTextToPlay.text);
+          // Calc updatedCountdown since initial creation and time that has passed while speaking
+          // (to avoid countdown inaccuracy)
+          // Also take into account 1s delay for actually speaking the countdown.
+          int updatedCountdown = instructionTextToPlay.countdown! -
+              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
+              1;
+          await ftts.speak(updatedCountdown.toString());
+        }
+      }
+      await audioSession.setActive(false);
+    }
   }
 
   GHInstruction? getCurrentInstruction(GHRouteResponsePath path, LatLng currentLocation) {
@@ -365,7 +552,7 @@ class Ride with ChangeNotifier {
 
   /// Stop the navigation.
   Future<void> stopNavigation() async {
-    if (predictionComponent != null) predictionComponent!.stopNavigation();
+    if (predictionProvider != null) predictionProvider!.stopNavigation();
     navigationIsActive = false;
     onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
     notifyListeners();
@@ -375,8 +562,8 @@ class Ride with ChangeNotifier {
   Future<void> reset() async {
     route = null;
     navigationIsActive = false;
-    await predictionComponent?.reset();
-    predictionComponent = null;
+    await predictionProvider?.reset();
+    predictionProvider = null;
     userSelectedSG = null;
     userSelectedSGIndex = null;
     calcCurrentSG = null;

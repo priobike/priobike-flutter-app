@@ -45,11 +45,12 @@ class CenterButtonState extends State<CenterButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 58,
-      height: 58,
+      width: 42,
+      height: 42,
       child: Tile(
         fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: _gpsCentralization,
+        padding: const EdgeInsets.all(0),
         content: Icon(
           mapValues.isCentered ? Icons.gps_fixed_rounded : Icons.gps_not_fixed_rounded,
           color: Theme.of(context).colorScheme.onBackground,

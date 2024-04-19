@@ -12,12 +12,10 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/load.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/load_status.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/poi/your_bike.dart';
-import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/restart_route_dialog.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
@@ -28,13 +26,13 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/poi.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tracking/views/track_history.dart';
@@ -44,7 +42,10 @@ import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+  /// The shortcut loaded by a share link.
+  final Shortcut? shortcut;
+
+  const HomeView({super.key, this.shortcut});
 
   @override
   HomeViewState createState() => HomeViewState();
@@ -69,17 +70,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
-  /// The associated discomfort service, which is injected by the provider.
-  late Discomforts discomforts;
+  /// The associated poi service, which is injected by the provider.
+  late Pois pois;
 
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
-
-  /// The associated status history service, which is injected by the provider.
-  late StatusHistory statusHistory;
 
   /// The load status service, which is injected by the provider.
   late LoadStatus loadStatus;
@@ -103,10 +101,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     shortcuts.addListener(update);
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     loadStatus = getIt<LoadStatus>();
-    statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
     ride = getIt<Ride>();
-    discomforts = getIt<Discomforts>();
+    pois = getIt<Pois>();
     predictionSGStatus = getIt<PredictionSGStatus>();
 
     /// List that holds the number of app uses when the rate function should be triggered.
@@ -125,6 +122,18 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           // Execute callback if page is mounted
           if (mounted) {
             showRestartRouteDialog(context, ride.lastRouteID, lastRoute);
+          }
+        },
+      );
+    }
+
+    // Check if a shortcut from a share link should be imported.
+    if (widget.shortcut != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          // Execute callback if page is mounted
+          if (mounted) {
+            showSaveShortcutFromShortcutSheet(context, shortcut: widget.shortcut!);
           }
         },
       );
@@ -152,7 +161,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     if (state == AppLifecycleState.resumed) {
       predictionStatusSummary.fetch();
       loadStatus.fetch();
-      statusHistory.fetch();
       news.getArticles();
     }
   }
@@ -161,7 +169,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   void didPopNext() {
     predictionStatusSummary.fetch();
     loadStatus.fetch();
-    statusHistory.fetch();
     news.getArticles();
   }
 
@@ -227,7 +234,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       throw UnimplementedError();
     }
 
-    routing.selectShortcut(newShortcut);
+    routing.selectWaypoints(newShortcut.getWaypoints());
 
     pushRoutingView();
   }
@@ -247,7 +254,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           routing.reset();
-          discomforts.reset();
           predictionSGStatus.reset();
         }
       },
@@ -261,6 +267,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   @override
   Widget build(BuildContext context) {
+    final showStatusView = predictionStatusSummary.getProblem() != null;
+
     return Scaffold(
       body: RefreshIndicator(
         edgeOffset: 128 + MediaQuery.of(context).padding.top,
@@ -271,7 +279,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
           await predictionStatusSummary.fetch();
           await loadStatus.fetch();
-          await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
@@ -281,9 +288,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           HapticFeedback.lightImpact();
         },
         child: AnnotatedRegionWrapper(
-          backgroundColor: Theme.of(context).colorScheme.background,
-          brightness: Theme.of(context).brightness,
-          statusBarIconBrightness: Brightness.light,
+          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          colorMode: Theme.of(context).brightness,
           child: CustomScrollView(
             slivers: <Widget>[
               NavBarView(
@@ -294,7 +300,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                 child: Column(
                   children: [
                     const LoadStatusView(),
-                    if (settings.useCounter >= 3 && !settings.dismissedSurvey) const VSpace(),
+                    if (settings.useCounter >= 3 && !settings.dismissedSurvey) const SmallVSpace(),
                     if (settings.useCounter >= 3 && !settings.dismissedSurvey)
                       BlendIn(
                         child: Container(
@@ -305,16 +311,20 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         ),
                       ),
                     const VSpace(),
-                    const BlendIn(
-                      child: Row(children: [
-                        SizedBox(width: 20),
-                        Expanded(
-                          child: StatusView(showPercentage: false),
+                    const SmallVSpace(),
+                    if (showStatusView)
+                      const BlendIn(
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20),
+                            Expanded(
+                              child: StatusView(showPercentage: false),
+                            ),
+                            SizedBox(width: 20),
+                          ],
                         ),
-                        SizedBox(width: 20),
-                      ]),
-                    ),
-                    const VSpace(),
+                      ),
+                    if (showStatusView) const VSpace(),
                     BlendIn(
                       delay: const Duration(milliseconds: 250),
                       child: Row(
@@ -345,15 +355,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                               builder: (context) => const ImportShortcutDialog(),
                             ),
                             icon: Icons.add_rounded,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fill: Theme.of(context).colorScheme.surface,
                             splash: Theme.of(context).colorScheme.surfaceTint,
                           ),
                           const SizedBox(width: 8),
                           SmallIconButtonPrimary(
                             icon: Icons.list_rounded,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fill: Theme.of(context).colorScheme.surface,
                             splash: Theme.of(context).colorScheme.surfaceTint,
                             onPressed: onOpenShortcutEditView,
                           ),
@@ -383,35 +389,38 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       delay: Duration(milliseconds: 750),
                       child: YourBikeView(),
                     ),
-                    const SmallVSpace(),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 24, right: 24, bottom: 16),
-                      child: BlendIn(
-                        delay: Duration(milliseconds: 750),
-                        child: ProfileView(),
+                    BlendIn(
+                      delay: const Duration(milliseconds: 1000),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
                       ),
                     ),
+                    const SmallVSpace(),
                     const TrackHistoryView(),
-                    Container(
-                      alignment: Alignment.topLeft,
-                      padding: const EdgeInsets.only(left: 40, right: 40),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          BoldSubHeader(
-                            text: "Wie funktioniert PrioBike?",
-                            context: context,
-                            textAlign: TextAlign.center,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(height: 4),
-                          Content(
-                            text: "Erfahre mehr über die App.",
-                            context: context,
-                            textAlign: TextAlign.center,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ],
+                    BlendIn(
+                      delay: const Duration(milliseconds: 1000),
+                      child: Container(
+                        alignment: Alignment.topLeft,
+                        padding: const EdgeInsets.only(left: 40, right: 40),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoldSubHeader(
+                              text: "Wie funktioniert PrioBike?",
+                              context: context,
+                              textAlign: TextAlign.center,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(height: 4),
+                            Content(
+                              text: "Erfahre mehr über die App.",
+                              context: context,
+                              textAlign: TextAlign.center,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const VSpace(),
@@ -420,10 +429,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       child: WikiView(),
                     ),
                     const VSpace(),
-                    BoldSmall(
-                      text: "#radkultur hamburg",
-                      context: context,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    BlendIn(
+                      delay: const Duration(milliseconds: 1500),
+                      child: BoldSmall(
+                        text: "#radkultur hamburg",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const VSpace(),
                     const SizedBox(height: 32),

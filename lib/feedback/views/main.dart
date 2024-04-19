@@ -8,9 +8,11 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/feedback/views/audio_rating_view.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
@@ -38,6 +40,9 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -48,6 +53,9 @@ class FeedbackViewState extends State<FeedbackView> {
   ui.Image? destinationImage;
 
   Widget? trackHistory;
+
+  /// The bool that stores the state of the audio feedback send.
+  bool audioFeedbackSend = false;
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -80,15 +88,17 @@ class FeedbackViewState extends State<FeedbackView> {
     feedback.addListener(update);
     statistics = getIt<Statistics>();
     statistics.addListener(update);
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        ByteData startBd = await rootBundle.load("assets/images/start.drawio.png");
+        ByteData startBd = await rootBundle.load("assets/images/start-noshadow.png");
         final Uint8List startBytes = Uint8List.view(startBd.buffer);
         final ui.Codec startCodec = await ui.instantiateImageCodec(startBytes);
         startImage = (await startCodec.getNextFrame()).image;
 
-        ByteData destinationBd = await rootBundle.load("assets/images/destination.drawio.png");
+        ByteData destinationBd = await rootBundle.load("assets/images/destination-noshadow.png");
         final Uint8List destinationBytes = Uint8List.view(destinationBd.buffer);
         final ui.Codec destinationCodec = await ui.instantiateImageCodec(destinationBytes);
         destinationImage = (await destinationCodec.getNextFrame()).image;
@@ -103,6 +113,9 @@ class FeedbackViewState extends State<FeedbackView> {
         }
 
         setState(() {});
+
+        if (!mounted) return;
+        if (tracking.previousTracks!.last.routes.length > 4) _showReroutingWarning(context);
       },
     );
   }
@@ -113,6 +126,7 @@ class FeedbackViewState extends State<FeedbackView> {
     tracking.removeListener(update);
     feedback.removeListener(update);
     statistics.removeListener(update);
+    settings.removeListener(update);
     super.dispose();
   }
 
@@ -144,15 +158,45 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
+  Future<void> _showReroutingWarning(context) async {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return DialogLayout(
+          title: 'Hinweis',
+          text: "Du scheinst nicht entlang Deiner ursprünglichen Route gefahren zu sein.\n\n"
+              "Bitte beachte, dass die App Deine Route benötigt, um die passende Ampel auszuwählen und eine Prognose darzustellen.\n\n"
+              "Tipp: Um ein Rerouting zu vermeiden kannst Du Zwischenwegpunkte setzen, um Deine Route besser zu planen.",
+          actions: [
+            BigButtonPrimary(
+              label: "Schließen",
+              onPressed: () => Navigator.of(context).pop(),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (feedback.isSendingFeedback) return renderLoadingIndicator();
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return Container();
 
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      brightness: Theme.of(context).brightness,
-      systemNavigationBarIconBrightness: Brightness.light,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         // To avoid recalculating the map and its painting when the keyboard appears.
         resizeToAvoidBottomInset: false,
@@ -171,14 +215,20 @@ class FeedbackViewState extends State<FeedbackView> {
                   children: [
                     BigButtonTertiary(
                       fillColor: Theme.of(context).colorScheme.background.withOpacity(0.75),
-                      label: "Strecke speichern",
+                      label: "Geplante Route speichern",
                       onPressed: () => showSaveShortcutSheet(context),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                     const SmallVSpace(),
                     BigButtonPrimary(
                       label: "Fertig",
-                      onPressed: () => showFinishDriveDialog(context, submit),
+                      onPressed: () async {
+                        showFinishDriveDialog(context, submit);
+                        if (settings.saveAudioInstructionsEnabled && !audioFeedbackSend) {
+                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AudioRatingView()));
+                          audioFeedbackSend = true;
+                        }
+                      },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                   ],

@@ -11,76 +11,12 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-
-/// Shows a dialog for saving a shortcut location.
-void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
-  showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withOpacity(0.4),
-    transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
-      ),
-    ),
-    pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-      final nameController = TextEditingController();
-      return DialogLayout(
-        title: 'Ort speichern',
-        text: "Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.",
-        actions: [
-          TextField(
-            autofocus: MediaQuery.of(dialogContext).viewInsets.bottom > 0,
-            controller: nameController,
-            maxLength: 20,
-            decoration: InputDecoration(
-              hintText: "Zuhause, Arbeit, ...",
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
-              filled: true,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                borderSide: BorderSide.none,
-              ),
-              suffixIcon: Icon(
-                Icons.bookmark,
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              counterStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
-              ),
-            ),
-          ),
-          BigButtonPrimary(
-            label: "Speichern",
-            onPressed: () async {
-              final name = nameController.text;
-              if (name.trim().isEmpty) {
-                ToastMessage.showError("Name darf nicht leer sein.");
-                return;
-              }
-              await getIt<Shortcuts>().saveNewShortcutLocation(name, waypoint);
-              await getIt<Geosearch>().addToSearchHistory(waypoint);
-              ToastMessage.showSuccess("Ort gespeichert!");
-              Navigator.pop(context);
-            },
-            boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-          )
-        ],
-      );
-    },
-  );
-}
 
 /// Result of a address search query.
 class SearchItem extends StatelessWidget {
@@ -357,8 +293,6 @@ class RouteSearchState extends State<RouteSearch> {
 
   /// A callback that is fired when a waypoint is tapped.
   Future<void> tappedWaypoint({required Waypoint waypoint, required bool addToHistory}) async {
-    /// The current position is not saved in the search history.
-    geosearch.clearGeosearch();
     // FIXME we should pay attention to release notes if this Flutter bug might be fixed in the future.
     // Note: still not fixed with flutter 3.16.0.
     // Prevents the keyboard to be focused on pop screen. This can cause ugly map effects on Android.

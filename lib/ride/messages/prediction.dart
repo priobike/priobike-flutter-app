@@ -18,6 +18,27 @@ enum Phase {
   greenFlashing,
 }
 
+extension PhaseDescription on Phase {
+  String get description {
+    switch (this) {
+      case Phase.dark:
+        return "Dunkel";
+      case Phase.red:
+        return "Rot";
+      case Phase.amber:
+        return "Gelb";
+      case Phase.green:
+        return "Grün";
+      case Phase.redAmber:
+        return "Rot-Gelb";
+      case Phase.amberFlashing:
+        return "Gelb blinkend";
+      case Phase.greenFlashing:
+        return "Grün blinkend";
+    }
+  }
+}
+
 extension PhaseColor on Phase {
   static Phase fromInt(int i) {
     switch (i) {
@@ -166,7 +187,7 @@ class PredictorPrediction implements Prediction {
       calcQualitiesFromNow = calcQualitiesFromNow + thenQuality.sublist((index - now.length) % then.length);
     }
     // Fill the phases with "then" (the average behavior) until we have enough values.
-    while (calcPhasesFromNow.length < refTimeIdx + 300) {
+    while (calcPhasesFromNow.length < refTimeIdx + 180) {
       calcPhasesFromNow = calcPhasesFromNow + then;
       calcQualitiesFromNow = calcQualitiesFromNow + thenQuality;
     }

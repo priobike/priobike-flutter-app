@@ -1,9 +1,9 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
-import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -44,6 +44,9 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the map is scrolled.
   final void Function(mapbox.ScreenCoordinate)? onMapScroll;
 
+  /// A callback that is executed when the map is scrolled.
+  final void Function(mapbox.MapIdleEventData)? onMapIdle;
+
   /// The margins for the Mapbox logo.
   /// (where those margins get applied depends on the corresponding ornament position)
   final Point<num>? logoViewMargins;
@@ -61,11 +64,15 @@ class AppMap extends StatefulWidget {
   /// If the energy saving mode should be used.
   final bool saveBatteryModeEnabled;
 
+  /// Use the Mapbox positioning.
+  final bool useMapboxPositioning;
+
   const AppMap(
       {this.onMapCreated,
       this.onStyleLoaded,
       this.onCameraChanged,
       this.onMapLongClick,
+      this.onMapIdle,
       this.onMapTap,
       this.onMapScroll,
       this.logoViewMargins,
@@ -73,6 +80,7 @@ class AppMap extends StatefulWidget {
       this.attributionButtonMargins,
       this.attributionButtonOrnamentPosition,
       this.saveBatteryModeEnabled = false,
+      this.useMapboxPositioning = false,
       super.key});
 
   @override
@@ -114,7 +122,6 @@ class AppMapState extends State<AppMap> {
     }
 
     final Widget map = mapbox.MapWidget(
-      resourceOptions: mapbox.ResourceOptions(accessToken: Keys.mapboxAccessToken),
       key: const ValueKey("mapbox-map"),
       styleUri: Theme.of(context).colorScheme.brightness == Brightness.light
           ? mapDesigns.mapDesign.lightStyle
@@ -123,6 +130,7 @@ class AppMapState extends State<AppMap> {
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,
       onCameraChangeListener: widget.onCameraChanged,
+      onMapIdleListener: widget.onMapIdle,
       onScrollListener: widget.onMapScroll,
       // ONLY AFFECTS ANDROID
       // If set to false, surfaceView is used instead.
@@ -133,12 +141,14 @@ class AppMapState extends State<AppMap> {
       // We use this to mitigate blank maps (observed when using the surfaceView and using the app excessively
       // (e.g. starting a lot of rides/opening and closing map views without closing the app in between))
       textureView: true,
+      // Using TLHC since this is the recommended hosting mode and VD as fallback to make sure performance is not an issue.
+      // See: https://github.com/flutter/flutter/wiki/Android-Platform-Views for more detailed information.
+      androidHostingMode: mapbox.AndroidPlatformViewHostingMode.TLHC_VD,
       mapOptions: mapbox.MapOptions(
         // Setting this to UNIQUE allows Mapbox to perform optimizations (only possible if the GL context is not
         // shared (not used by other frameworks/code except Mapbox))
         contextMode: mapbox.ContextMode.UNIQUE,
         crossSourceCollisions: false,
-        optimizeForTerrain: false,
         pixelRatio: devicePixelRatio,
       ),
       cameraOptions: mapbox.CameraOptions(
@@ -153,7 +163,7 @@ class AppMapState extends State<AppMap> {
 
     // Render map with 2.5x size if battery saving mode is enabled.
     // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
-    return widget.saveBatteryModeEnabled
+    return widget.saveBatteryModeEnabled && Platform.isAndroid
         ? Transform.scale(
             scale: Settings.scalingFactor,
             child: map,
@@ -164,7 +174,13 @@ class AppMapState extends State<AppMap> {
   /// A wrapper for the default onMapCreated callback.
   /// In this callback we configure the default settings.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
-    controller.location.updateSettings(mapbox.LocationComponentSettings(enabled: false));
+    if (widget.useMapboxPositioning) {
+      controller.location.updateSettings(mapbox.LocationComponentSettings(
+        enabled: true,
+        puckBearingEnabled: true,
+        puckBearing: mapbox.PuckBearing.HEADING,
+      ));
+    }
     controller.compass.updateSettings(mapbox.CompassSettings(enabled: false));
     controller.scaleBar.updateSettings(mapbox.ScaleBarSettings(enabled: false));
     controller.attribution.updateSettings(mapbox.AttributionSettings(

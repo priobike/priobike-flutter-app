@@ -10,6 +10,7 @@ class POIPopup {
   /// The screen coordinate Y.
   double screenCoordinateY;
 
+  /// The opacity of the poi popup.
   double poiOpacity;
 
   POIPopup({

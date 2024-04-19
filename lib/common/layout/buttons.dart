@@ -1,8 +1,12 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 /// The value of the opacity of a disabled button.
 const double disabledOpacity = 0.5;
+
+/// The value of the saturation of a disabled button.
+const double disabledSaturation = 0.75;
 
 /// A small icon button (primary).
 class SmallIconButtonPrimary extends StatelessWidget {
@@ -286,11 +290,14 @@ class BigButtonPrimary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final usedFillColor = fillColor ?? Theme.of(context).colorScheme.surface;
+    final usedFillColorHSL = HSLColor.fromColor(usedFillColor);
+    final fillSaturation = usedFillColorHSL.saturation;
+    final disabledColor =
+        HSLColor.fromColor(usedFillColor).withSaturation(fillSaturation * disabledSaturation).toColor();
+
     return RawMaterialButton(
-      fillColor: onPressed != null
-          ? fillColor ?? Theme.of(context).colorScheme.surface
-          : (fillColor?.withOpacity(disabledOpacity) ??
-              Theme.of(context).colorScheme.surface.withOpacity(disabledOpacity)),
+      fillColor: onPressed != null ? usedFillColor : disabledColor,
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.surfaceTint : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -394,10 +401,20 @@ class BigButtonSecondary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final usedFillColor = fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5);
+    final usedFillColorHSL = HSLColor.fromColor(usedFillColor);
+    final fillSaturation = usedFillColorHSL.saturation;
+    final disabledColor =
+        HSLColor.fromColor(usedFillColor).withSaturation(fillSaturation * disabledSaturation).toColor();
+
+    final borderColor = Theme.of(context).colorScheme.primary;
+    final borderColorHSL = HSLColor.fromColor(borderColor);
+    final borderSaturation = borderColorHSL.saturation;
+    final disabledBorderColor =
+        HSLColor.fromColor(borderColor).withSaturation(borderSaturation * disabledSaturation).toColor();
+
     return RawMaterialButton(
-      fillColor: onPressed != null
-          ? fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5)
-          : (fillColor?.withOpacity(disabledOpacity) ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5)),
+      fillColor: onPressed != null ? usedFillColor : disabledColor,
       splashColor: onPressed != null ? splashColor ?? Theme.of(context).colorScheme.onSecondary : null,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -410,11 +427,7 @@ class BigButtonSecondary extends StatelessWidget {
       materialTapTargetSize: addPadding ? MaterialTapTargetSize.padded : MaterialTapTargetSize.shrinkWrap,
       onPressed: onPressed,
       shape: RoundedRectangleBorder(
-        side: BorderSide(
-            width: 2,
-            color: onPressed != null
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.primary.withOpacity(disabledOpacity)),
+        side: BorderSide(width: 2, color: onPressed != null ? borderColor : disabledBorderColor),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
@@ -508,8 +521,14 @@ class BigButtonTertiary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final usedFillColor = fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5);
+    final usedFillColorHSL = HSLColor.fromColor(usedFillColor);
+    final fillSaturation = usedFillColorHSL.saturation;
+    final disabledColor =
+        HSLColor.fromColor(usedFillColor).withSaturation(fillSaturation * disabledSaturation).toColor();
+
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
+      fillColor: onPressed != null ? usedFillColor : disabledColor,
       splashColor: splashColor ?? Theme.of(context).colorScheme.onTertiary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
@@ -525,12 +544,11 @@ class BigButtonTertiary extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(width: 32),
             if (icon != null)
               Row(
                 children: [
@@ -557,7 +575,6 @@ class BigButtonTertiary extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 32),
           ],
         ),
       ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -7,12 +9,13 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/details/discomforts.dart';
+import 'package:priobike/routing/views/details/poi.dart';
 import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
+import 'package:priobike/routing/views/widgets/loading_icon.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -26,7 +29,14 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// A callback that is executed when a shortcut should be saved.
   final void Function() onSelectSaveButton;
 
-  const RouteDetailsBottomSheet({required this.onSelectStartButton, required this.onSelectSaveButton, super.key});
+  /// Whether the parent view has everything initially loaded.
+  final bool hasInitiallyLoaded;
+
+  const RouteDetailsBottomSheet(
+      {required this.onSelectStartButton,
+      required this.onSelectSaveButton,
+      super.key,
+      required this.hasInitiallyLoaded});
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
@@ -36,31 +46,40 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated position service, which is injected by the provider.
-  late Positioning positioning;
-
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
+  /// The scroll controller for the bottom sheet.
+  late DraggableScrollableController controller;
+
+  /// The initial child size of the bottom sheet.
+  late double initialChildSize;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
+
+  /// A timer that updates the arrival time every minute.
+  Timer? arrivalTimeUpdateTimer;
 
   @override
   void initState() {
     super.initState();
 
+    arrivalTimeUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) => update());
+
     routing = getIt<Routing>();
     routing.addListener(update);
-    positioning = getIt<Positioning>();
-    positioning.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+    controller = DraggableScrollableController();
   }
 
   @override
   void dispose() {
+    arrivalTimeUpdateTimer?.cancel();
+    arrivalTimeUpdateTimer = null;
+
     routing.removeListener(update);
-    positioning.removeListener(update);
     status.removeListener(update);
     super.dispose();
   }
@@ -81,12 +100,16 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final waypoint = reorderedWaypoints.removeAt(oldIndex);
     reorderedWaypoints.insert(newIndex, waypoint);
 
-    routing.selectWaypoints(reorderedWaypoints);
-    routing.loadRoutes();
+    await routing.selectWaypoints(reorderedWaypoints);
+    // load asynchronously and check in build method if route is ready
+    unawaited(routing.loadRoutes());
   }
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch() async {
+    // Close the bottom sheet to the initial size.
+    controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 100), curve: Curves.easeInOutCubic);
+
     final bool showOwnLocationInSearch = routing.selectedWaypoints != null ? true : false;
     final result = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => RouteSearch(showCurrentPositionAsWaypoint: showOwnLocationInSearch)));
@@ -98,14 +121,16 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     // Add the own location as a start point to the route, if the waypoint selected in the search is the
     // first waypoint of the route. Thus making it the destination of the route.
     if (waypoints.isEmpty) {
+      final positioning = getIt<Positioning>();
       if (positioning.lastPosition != null) {
         waypoints.add(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
       }
     }
     final newWaypoints = [...waypoints, waypoint];
 
-    routing.selectWaypoints(newWaypoints);
-    routing.loadRoutes();
+    await routing.selectWaypoints(newWaypoints);
+    // load asynchronously and check in build method if route is ready
+    unawaited(routing.loadRoutes());
   }
 
   Widget renderDragIndicator(BuildContext context) {
@@ -135,12 +160,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     }
     return Stack(children: [
       Container(
-        margin: const EdgeInsets.only(left: 8, top: 32),
-        width: 16,
+        margin: const EdgeInsets.only(left: 7, top: 32),
+        width: 18,
         height: (routing.selectedWaypoints?.length ?? 0) * 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.grey,
+          color: CI.routeBackground,
         ),
       ),
       Container(
@@ -175,88 +200,122 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
 
-    var text = "Zum Ziel";
-    if (routing.selectedProfile?.explanation != null) {
-      text = routing.selectedProfile!.explanation;
-    }
-    final int okTrafficLights = status.ok;
-    final int allTrafficLights = status.ok + status.bad + status.offline + status.disconnected;
+    final int okTrafficLights = routing.selectedRoute!.ok;
+    final int allTrafficLights =
+        routing.selectedRoute!.ok + routing.selectedRoute!.bad + routing.selectedRoute!.offline;
 
-    String textTrafficLights;
-    double percentageTrafficLights = 0;
-    if (allTrafficLights > 0) {
-      textTrafficLights = "$okTrafficLights von $allTrafficLights Ampeln verbunden";
-      percentageTrafficLights = okTrafficLights / allTrafficLights;
-    } else {
-      textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
-    }
+    double percentageTrafficLights = allTrafficLights > 0 ? okTrafficLights / allTrafficLights : 0;
 
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Column(children: [
-          Small(text: text, context: context),
           const SizedBox(height: 2),
           BoldSmall(
               text:
                   "${routing.selectedRoute!.timeText} - ${routing.selectedRoute!.arrivalTimeText}, ${routing.selectedRoute!.lengthText}",
               context: context),
-          const SizedBox(height: 2),
-          Row(
-            children: [
-              Small(
-                text: textTrafficLights,
-                context: context,
-              ),
-              const SmallHSpace(),
-              SizedBox(
-                width: 18,
-                height: 18,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      value: percentageTrafficLights,
-                      strokeWidth: 4,
-                      backgroundColor: allTrafficLights > 0
-                          ? CI.radkulturGreen.withOpacity(0.2)
-                          : Theme.of(context).colorScheme.onTertiary,
-                      valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
+          const SizedBox(height: 8),
+          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Container(
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
+              child: allTrafficLights > 0
+                  ? Text.rich(
+                      textAlign: TextAlign.center,
+                      TextSpan(
+                        style: const TextStyle(
+                          height: 1.1,
+                          fontFamily: 'HamburgSans',
+                          fontSize: 13,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: okTrafficLights.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: okTrafficLights > 0 ? CI.radkulturGreen : null,
+                            ),
+                          ),
+                          TextSpan(
+                            text: " Ampel${allTrafficLights == 1 ? "" : "n"} mit Prognose",
+                          ),
+                        ],
+                      ),
+                    )
+                  : Small(
+                      text: "Es befinden sich keine Ampeln auf der Route",
+                      context: context,
+                      textAlign: TextAlign.center,
+                      height: 1.1,
                     ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: percentageTrafficLights > 0
-                          ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
-                          : Theme.of(context).colorScheme.onTertiary,
-                      size: 18,
-                    ),
-                  ],
-                ),
+            ),
+            const SmallHSpace(),
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: percentageTrafficLights,
+                    strokeWidth: 4,
+                    backgroundColor: allTrafficLights > 0
+                        ? CI.radkulturGreen.withOpacity(0.2)
+                        : Theme.of(context).colorScheme.onTertiary,
+                    valueColor: const AlwaysStoppedAnimation<Color>(CI.radkulturGreen),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: percentageTrafficLights > 0
+                        ? CI.radkulturGreen.withOpacity(percentageTrafficLights)
+                        : Theme.of(context).colorScheme.onTertiary,
+                    size: 18,
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 2),
+            ),
+          ]),
         ]),
       ]),
     );
   }
 
+  /// Helper function to determine if the bottom sheet is ready to be displayed.
+  bool _checkIfBottomSheetIsReady() {
+    if (!widget.hasInitiallyLoaded) return false;
+
+    // After loading Route
+    if (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) {
+      return true;
+    }
+
+    // Free Routing or Shortcut Location
+    if (routing.selectedWaypoints == null) return true;
+    if (routing.selectedWaypoints!.length <= 1) return true;
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
+    initialChildSize = 118 / frame.size.height + (frame.padding.bottom / frame.size.height);
+
+    final bottomSheetIsReady = _checkIfBottomSheetIsReady();
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: Stack(children: [
         DraggableScrollableSheet(
-          initialChildSize: 128 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          initialChildSize: initialChildSize,
           maxChildSize: 1,
-          minChildSize: 128 / frame.size.height + (frame.padding.bottom / frame.size.height),
+          minChildSize: initialChildSize,
+          controller: controller,
           builder: (BuildContext context, ScrollController controller) {
             return Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
               ),
               child: SingleChildScrollView(
@@ -265,41 +324,38 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    AnimatedCrossFade(
-                      firstCurve: Curves.easeInOutCubic,
-                      secondCurve: Curves.easeInOutCubic,
-                      sizeCurve: Curves.easeInOutCubic,
+                    if (!bottomSheetIsReady) const LoadingIcon(),
+                    AnimatedOpacity(
                       duration: const Duration(milliseconds: 1000),
-                      firstChild: Container(),
-                      secondChild: renderTopInfoSection(context),
-                      crossFadeState: routing.selectedRoute == null || routing.isFetchingRoute
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
-                    ),
-                    const SmallVSpace(),
-                    AnimatedCrossFade(
-                      firstCurve: Curves.easeInOutCubic,
-                      secondCurve: Curves.easeInOutCubic,
-                      sizeCurve: Curves.easeInOutCubic,
-                      duration: const Duration(milliseconds: 1000),
-                      firstChild: Container(),
-                      secondChild: renderBottomSheetWaypoints(context),
-                      crossFadeState: routing.isFetchingRoute ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                    ),
-                    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                      const TutorialView(
-                        id: "priobike.tutorial.draw-waypoints",
-                        text: "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                        padding: EdgeInsets.only(left: 18),
-                      ),
-                    const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
-                    const Padding(padding: EdgeInsets.only(top: 8), child: DiscomfortsChart()),
-                    // Big button size + padding.
-                    SizedBox(
-                      height: 40 + 8 + frame.padding.bottom,
+                      curve: Curves.easeInOutCubic,
+                      opacity: bottomSheetIsReady ? 1 : 0,
+                      child: bottomSheetIsReady
+                          // This additional check is needed to prevent a flickering behavior when we add a new waypoint.
+                          // (Stuff like the top info section would change during the animation and thus would cause a flickering effect.)
+                          // A major refactor of the bottom sheet is needed to fix this properly.
+                          ? Column(
+                              children: [
+                                renderTopInfoSection(context),
+                                renderBottomSheetWaypoints(context),
+                                if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                                  const TutorialView(
+                                    id: "priobike.tutorial.draw-waypoints",
+                                    text:
+                                        "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
+                                    padding: EdgeInsets.only(left: 18),
+                                  ),
+                                const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
+                                const Padding(padding: EdgeInsets.only(top: 8), child: PoisChart()),
+                                // Big button size + padding.
+                                SizedBox(
+                                  height: 40 + 8 + frame.padding.bottom,
+                                ),
+                              ],
+                            )
+                          : Container(),
                     ),
                   ],
                 ),
@@ -312,7 +368,17 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           left: 0,
           child: Container(
             padding: const EdgeInsets.only(top: 8, bottom: 4),
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
+                  Theme.of(context).colorScheme.surfaceVariant,
+                ],
+                stops: const [0.0, 0.5],
+              ),
+            ),
             width: frame.size.width,
             height: frame.padding.bottom + 48,
             child: Row(

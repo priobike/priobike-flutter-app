@@ -61,9 +61,11 @@ class QRCodeViewState extends State<QRCodeView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
+        // Prevent the keyboard from pushing the view up
+        resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
           child: Column(
@@ -132,18 +134,16 @@ class QRCodeViewState extends State<QRCodeView> {
                           borderRadius: BorderRadius.circular(32),
                           padding: const EdgeInsets.all(0),
                           content: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            height: MediaQuery.of(context).size.width * 0.8,
+                            // On very small screens the QR code must be even smaller.
+                            width: MediaQuery.of(context).size.width < 380
+                                ? MediaQuery.of(context).size.width * 0.6
+                                : MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.width < 380
+                                ? MediaQuery.of(context).size.width * 0.6
+                                : MediaQuery.of(context).size.width * 0.8,
                             child: state == QRCodeViewMode.scanning
                                 ? ScanQRCodeView(
-                                    onScan: (shortcut) {
-                                      setState(
-                                        () {
-                                          this.shortcut = shortcut;
-                                          state = QRCodeViewMode.scanned;
-                                        },
-                                      );
-                                    },
+                                    onScan: (shortcut) => Navigator.of(context).pop(shortcut),
                                   )
                                 : Padding(
                                     padding: const EdgeInsets.all(8),
@@ -179,20 +179,6 @@ class QRCodeViewState extends State<QRCodeView> {
                                   text: "Scanne diesen QR-Code mit einer anderen PrioBike-App, um die Route zu teilen.",
                                   context: context,
                                   textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          if (state == QRCodeViewMode.scanned)
-                            Column(
-                              children: [
-                                Content(text: shortcut!.getShortInfo(), context: context),
-                                const VSpace(),
-                                BigButtonPrimary(
-                                  iconColor: Colors.white,
-                                  label: "Speichern!",
-                                  onPressed: () => saveShortCut(),
-                                  boxConstraints:
-                                      BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                                 ),
                               ],
                             ),

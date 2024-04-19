@@ -161,6 +161,20 @@ class GHCoordinate {
         lat,
         if (elevation != null) elevation!,
       ];
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is GHCoordinate &&
+        other.runtimeType == runtimeType &&
+        other.lon == lon &&
+        other.lat == lat &&
+        other.elevation == elevation;
+  }
+
+  @override
+  int get hashCode => Object.hash(lon, lat, elevation);
 }
 
 class GHBoundingBox {
@@ -258,18 +272,22 @@ class GHDetails {
   /// The smoothness of the line segments.
   final List<GHSegment> smoothness;
 
-  /// The lanes of the line segments.
-  final List<GHSegment> lanes;
+  /// The get_off_bike state of the line segments.
+  final List<GHSegment> getOffBike;
 
   /// The road class of the line segments.
   final List<GHSegment> roadClass;
+
+  /// The OSM way IDs of the line segments.
+  final List<GHSegment> osmWayId;
 
   const GHDetails({
     required this.surface,
     required this.maxSpeed,
     required this.smoothness,
-    required this.lanes,
+    required this.getOffBike,
     required this.roadClass,
+    required this.osmWayId,
   });
 
   factory GHDetails.fromJson(Map<String, dynamic> json) {
@@ -277,8 +295,9 @@ class GHDetails {
       surface: (json['surface'] as List).map((e) => GHSegment.fromJson(e)).toList(),
       maxSpeed: (json['max_speed'] as List).map((e) => GHSegment.fromJson(e)).toList(),
       smoothness: (json['smoothness'] as List).map((e) => GHSegment.fromJson(e)).toList(),
-      lanes: (json['lanes'] as List).map((e) => GHSegment.fromJson(e)).toList(),
+      getOffBike: (json['get_off_bike'] as List).map((e) => GHSegment.fromJson(e)).toList(),
       roadClass: (json['road_class'] as List).map((e) => GHSegment.fromJson(e)).toList(),
+      osmWayId: (json['osm_way_id'] as List).map((e) => GHSegment.fromJson(e)).toList(),
     );
   }
 
@@ -286,8 +305,9 @@ class GHDetails {
         'surface': surface.map((e) => e.toJson()).toList(),
         'max_speed': maxSpeed.map((e) => e.toJson()).toList(),
         'smoothness': smoothness.map((e) => e.toJson()).toList(),
-        'lanes': lanes.map((e) => e.toJson()).toList(),
+        'get_off_bike': getOffBike.map((e) => e.toJson()).toList(),
         'road_class': roadClass.map((e) => e.toJson()).toList(),
+        'osm_way_id': osmWayId.map((e) => e.toJson()).toList(),
       };
 }
 

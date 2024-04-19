@@ -67,7 +67,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
               ShortcutRoute shortcutRoute = ShortcutRoute(id: UniqueKey().toString(), name: "", waypoints: lastRoute);
               // Set waypoints and load ride view.
               Navigator.pop(context);
-              showSaveShortcutSheet(context, shortcut: shortcutRoute);
+              showSaveShortcutFromShortcutSheet(context, shortcut: shortcutRoute);
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
           ),

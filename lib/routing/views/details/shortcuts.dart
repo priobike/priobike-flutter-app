@@ -46,7 +46,7 @@ class ShortcutsState extends State<ShortcutsRow> {
 
   /// Load route from shortcuts.
   _loadShortcutsRoute(Shortcut shortcut) async {
-    routing.selectShortcut(shortcut);
+    routing.selectWaypoints(shortcut.getWaypoints());
     await routing.loadRoutes();
   }
 

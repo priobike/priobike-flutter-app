@@ -16,12 +16,12 @@ import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
+import 'package:priobike/ride/views/free.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
@@ -29,9 +29,8 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/smartglasses/smartglass_service.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/status/views/status_tabs.dart';
+import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -55,9 +54,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
   /// The associated load status service, which is injected by the provider.
   late LoadStatus loadStatus;
-
-  /// The associated status history service, which is injected by the provider.
-  late StatusHistory statusHistory;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
@@ -93,9 +89,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);
     loadStatus = getIt<LoadStatus>();
-    statusHistory = getIt<StatusHistory>();
-    statusHistory.fetch();
-    statusHistory.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     routing = getIt<Routing>();
@@ -115,21 +108,12 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     settings.removeListener(update);
     position.removeListener(update);
     predictionStatusSummary.removeListener(update);
-    statusHistory.removeListener(update);
     shortcuts.removeListener(update);
     routing.removeListener(update);
     news.removeListener(update);
     weather.removeListener(update);
     simulator.removeListener(update);
     super.dispose();
-  }
-
-  /// A callback that is executed when a predictor mode is selected.
-  Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
-    // Tell the settings service that we selected the new predictor mode.
-    await settings.setPredictionMode(predictionMode);
-
-    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a sg labels mode is selected.
@@ -168,7 +152,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
     // Reset the associated services.
     await predictionStatusSummary.reset();
-    await statusHistory.reset();
     await shortcuts.reset();
     await routing.reset();
     await news.reset();
@@ -179,7 +162,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await predictionStatusSummary.fetch();
     await loadStatus.fetch();
     loadStatus.sendAppStartNotification();
-    await statusHistory.fetch();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 
@@ -210,8 +192,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Theme.of(context).brightness,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(
           child: SafeArea(
@@ -227,32 +209,44 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   ],
                 ),
                 const VSpace(),
-                const StatusTabsView(),
+                const Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: StatusView(showPercentage: true),
+                    ),
+                    SizedBox(width: 10),
+                  ],
+                ),
                 const VSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Freie Fahrt",
+                    icon: Icons.directions_bike_rounded,
+                    callback: () => Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const FreeRideView(),
+                      ),
+                      (route) => false,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Freie Fahrt Filter",
+                    icon: settings.isFreeRideFilterEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setFreeRideFilterEnabled(!settings.isFreeRideFilterEnabled),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     title: "Performance-Overlay",
                     icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Prognosealgorithmus",
-                    subtitle: settings.predictionMode.description,
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                            elements: PredictionMode.values,
-                            selected: settings.predictionMode,
-                            title: (PredictionMode e) => e.description,
-                            callback: onSelectPredictionMode);
-                      },
-                    ),
                   ),
                 ),
                 Padding(
@@ -272,6 +266,17 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                         );
                       },
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Erhöhte Genauigkeit der Geschwindigkeit im Tacho",
+                    icon: settings.isIncreasedSpeedPrecisionInSpeedometerEnabled
+                        ? Icons.check_box
+                        : Icons.check_box_outline_blank,
+                    callback: () => settings.setIncreasedSpeedPrecisionInSpeedometerEnabled(
+                        !settings.isIncreasedSpeedPrecisionInSpeedometerEnabled),
                   ),
                 ),
                 Padding(
@@ -568,14 +573,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     callback: () async {
                       await getIt<Settings>().setDidViewUserTransfer(false);
                     },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Gamification",
-                    icon: settings.enableGamification ? Icons.check_box : Icons.check_box_outline_blank,
-                    callback: () => settings.setEnableGamification(!settings.enableGamification),
                   ),
                 ),
                 const SmallVSpace(),

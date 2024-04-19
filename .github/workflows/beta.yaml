@@ -13,7 +13,8 @@ concurrency:
 jobs:
   test:
     runs-on: self-hosted
-    container: ghcr.io/cirruslabs/flutter:3.16.4
+    # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
+    container: ghcr.io/cirruslabs/flutter:3.16.9
     steps:
       - uses: actions/checkout@v2
       - name: Run unit tests
@@ -24,7 +25,8 @@ jobs:
   distribute:
     runs-on: self-hosted
     needs: test
-    container: ghcr.io/cirruslabs/flutter:3.16.4
+    # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
+    container: ghcr.io/cirruslabs/flutter:3.16.9
     steps:
       - uses: actions/checkout@v2
       - name: Build the Android app bundle

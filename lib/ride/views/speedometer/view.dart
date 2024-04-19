@@ -9,7 +9,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/alert.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
@@ -20,7 +19,6 @@ import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -36,8 +34,7 @@ class RideSpeedometerView extends StatefulWidget {
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
 }
 
-class RideSpeedometerViewState extends State<RideSpeedometerView>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTickerProviderStateMixin {
   static const viewId = "ride.views.speedometer";
 
   /// The minimum speed in km/h.
@@ -55,42 +52,53 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// The default gauge color for the speedometer.
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
   /// The current gauge colors, if we have the necessary data.
-  List<Color> gaugeColors = [defaultGaugeColor];
+  List<Color> gaugeColors = [defaultGaugeColor, defaultGaugeColor];
 
   /// The current gauge stops, if we have the necessary data.
-  List<double> gaugeStops = [];
+  List<double> gaugeStops = [0.0, 1.0];
 
-  /// The animation controller for the speed animation.
-  late AnimationController speedAnimationController;
+  /// The animation controller for the speed animation. Only used if battery save mode is disabled.
+  AnimationController? speedAnimationController;
 
-  /// The speed animation.
-  late Animation<double> speedAnimation;
+  /// The speed animation. Only used if battery save mode is disabled.
+  Animation<double>? speedAnimation;
 
-  /// The value of the speed animation.
-  double speedAnimationPct = 0;
+  /// The current percentage of the speed in the speedometer.
+  double speedAnimationPct = 0.0;
+
+  /// The current speed.
+  double speed = 0.0;
+
+  /// The last percentage of the speed in the speedometer. Only used in battery save mode.
+  double? lastSpeedAnimationPct;
 
   /// Update the speedometer.
-  void updateSpeedometer() {
-    // Fetch the maximum speed from the settings service.
-    maxSpeed = getIt<Settings>().speedMode.maxSpeed;
-
-    // Animate the speed to the new value.
-    final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
-
-    // Scale between minSpeed and maxSpeed.
-    final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
-    // Animate to the new value.
-    speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
-    // Load the gauge colors and steps, from the predictor.
-    if (!routing.hadErrorDuringFetch) {
-      loadGauge(ride);
+  void updateSpeedometerWithAnimation(double kmh) {
+    // Don't animate the speed if it is the same.
+    if (kmh == speed) {
+      return;
     }
+    speed = kmh;
+    final newSpeedAnimationPct = (kmh - minSpeed) / (maxSpeed - minSpeed);
+    speedAnimationController?.animateTo(newSpeedAnimationPct,
+        duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+  }
 
-    setState(() {});
+  /// Update the speedometer.
+  void updateSpeedometerWithoutAnimation(double kmh) {
+    final newSpeedAnimationPct = (kmh - minSpeed) / (maxSpeed - minSpeed);
+    // Update always required to update the tail accordingly.
+    setState(() {
+      lastSpeedAnimationPct = speedAnimationPct;
+      speedAnimationPct = newSpeedAnimationPct;
+    });
   }
 
   /// Update the layout of the speedometer.
@@ -98,23 +106,26 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     setState(() {});
   }
 
+  void updateSpeedometer() {
+    // Load the gauge colors and steps.
+    if (!routing.hadErrorDuringFetch) {
+      loadGauge(ride);
+    }
+
+    final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
+
+    if (settings.saveBatteryModeEnabled) {
+      updateSpeedometerWithoutAnimation(kmh);
+    } else {
+      updateSpeedometerWithAnimation(kmh);
+    }
+  }
+
   @override
   void initState() {
-    hideNavigationBarAndroid();
     super.initState();
-    // Initialize the speed animation.
-    speedAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-      animationBehavior: AnimationBehavior.preserve,
-    );
-    speedAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(speedAnimationController);
-    speedAnimation.addListener(() {
-      setState(() {
-        speedAnimationPct = speedAnimation.value;
-      });
-    });
-
+    hideNavigationBarAndroid();
+    settings = getIt<Settings>();
     positioning = getIt<Positioning>();
     positioning.addListener(updateSpeedometer);
     routing = getIt<Routing>();
@@ -122,26 +133,31 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
 
-    updateSpeedometer();
-
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  Future<void> didChangeMetrics() async {
-    if (Platform.isAndroid) {
-      await Future.delayed(const Duration(milliseconds: 10));
-      SystemChrome.restoreSystemUIOverlays();
+    if (!settings.saveBatteryModeEnabled) {
+      // Initialize the speed animation.
+      speedAnimationController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1000),
+        animationBehavior: AnimationBehavior.preserve,
+      );
+      speedAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(speedAnimationController!);
+      speedAnimation!.addListener(() {
+        setState(() {
+          speedAnimationPct = speedAnimation!.value;
+        });
+      });
     }
+
+    // Fetch the maximum speed from the settings service.
+    maxSpeed = settings.speedMode.maxSpeed;
   }
 
   @override
   void dispose() {
-    speedAnimationController.dispose();
+    speedAnimationController?.dispose();
     positioning.removeListener(updateSpeedometer);
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -158,7 +174,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
   /// Load the gauge colors and steps, from the predictor.
   Future<void> loadGauge(Ride ride) async {
     final smartglasses = getIt<SmartglassService>();
-    if (ride.predictionComponent?.recommendation == null || ride.calcDistanceToNextSG == null) {
+    if (ride.predictionProvider?.recommendation == null || ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
       smartglasses.updateTacho(List.empty());
@@ -176,8 +192,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       return;
     }
 
-    final phases = ride.predictionComponent!.recommendation!.calcPhasesFromNow;
-    final qualities = ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
+    final phases = ride.predictionProvider!.recommendation!.calcPhasesFromNow;
+    final qualities = ride.predictionProvider!.recommendation!.calcQualitiesFromNow;
 
     var colors = <Color>[];
     for (var i = 0; i < phases.length; i++) {
@@ -201,7 +217,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       },
     ).toList();
 
-    // Add stops and colos to indicate unavailable prediction ranges
+    // Add stops and colors to indicate unavailable prediction ranges
     if (stops.isNotEmpty) {
       stops.add(stops.last);
       stops.add(0.0);
@@ -211,21 +227,38 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       colors.add(defaultGaugeColor);
     }
 
+    // Filter unnecessary color steps.
+    // This step is needed to prevent calculating unnecessary gradiant steps in the speedometer arc.
+    List<Color> colorsFiltered = [];
+    List<double> stopsFiltered = [];
+    Color? lastColor;
+    for (var i = 0; i < colors.length; i++) {
+      if (lastColor == null || lastColor != colors[i]) {
+        colorsFiltered.add(colors[i]);
+        stopsFiltered.add(stops[i]);
+        lastColor = colors[i];
+      }
+    }
+
     // Duplicate each color and stop to create "hard edges" instead of a gradient between steps
     // Such that green 0.1, red 0.3 -> green 0.1, green 0.3, red 0.3
     List<Color> hardEdgeColors = [];
     List<double> hardEdgeStops = [];
-    for (var i = 0; i < colors.length; i++) {
-      hardEdgeColors.add(colors[i]);
-      hardEdgeStops.add(stops[i]);
-      if (i + 1 < colors.length) {
-        hardEdgeColors.add(colors[i]);
-        hardEdgeStops.add(stops[i + 1]);
+    for (var i = 0; i < colorsFiltered.length; i++) {
+      hardEdgeColors.add(colorsFiltered[i]);
+      hardEdgeStops.add(stopsFiltered[i]);
+      if (i + 1 < colorsFiltered.length) {
+        hardEdgeColors.add(colorsFiltered[i]);
+        hardEdgeStops.add(stopsFiltered[i + 1]);
       }
     }
 
     // The resulting stops and colors will be from high speed -> low speed
     // Thus, we reverse both colors and stops to get the correct order
+    setState(() {
+      gaugeColors = hardEdgeColors.reversed.toList();
+      gaugeStops = hardEdgeStops.reversed.toList();
+    });
     gaugeColors = hardEdgeColors.reversed.toList();
     gaugeStops = hardEdgeStops.reversed.toList();
     var tachoItems = smartglasses.createTachoForGlasses(phases, ride, minSpeed, maxSpeed);
@@ -273,6 +306,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
       sizedBoxWidth = originalSpeedometerWidth;
     }
     final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
+    // The traffic light view should not fill the complete available space and leave a small margin.
+    final trafficLightViewSize = Size(originalSpeedometerWidth * 0.75, originalSpeedometerHeight * 0.75);
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -376,15 +411,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                         offset: const Offset(0, 42),
                         child: Center(
                           child: RideTrafficLightView(
-                            size: size,
+                            size: trafficLightViewSize,
                           ),
-                        ),
-                      ),
-                    if (!showAlert)
-                      Transform.translate(
-                        offset: const Offset(0, 42),
-                        child: RideCenterButtonsView(
-                          size: size,
                         ),
                       ),
                     IgnorePointer(
@@ -393,11 +421,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                         child: CustomPaint(
                           size: size,
                           painter: SpeedometerSpeedArcPainter(
-                            minSpeed: minSpeed,
-                            maxSpeed: maxSpeed,
                             isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                            // Scale the animation pct between minSpeed and maxSpeed
-                            speed: speedkmh,
+                            pct: speedAnimationPct,
+                            lastPct: lastSpeedAnimationPct,
+                            batterySaveMode: settings.saveBatteryModeEnabled,
                           ),
                         ),
                       ),
@@ -410,13 +437,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                             text:
                                 "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
                             context: context,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white,
                           ),
                         ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
-                          '${speedkmh.toStringAsFixed(0)} km/h',
+                          '${speedkmh.toStringAsFixed(settings.isIncreasedSpeedPrecisionInSpeedometerEnabled ? 3 : 0)} km/h',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 28,
@@ -430,10 +457,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       child: Text(
                         'PrioBike App - Work in Progress.',
                         style: Theme.of(context).textTheme.displaySmall!.merge(
-                              TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: 8,
-                              ),
+                              const TextStyle(color: Colors.white, fontSize: 8),
                             ),
                       ),
                     ),
@@ -441,7 +465,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView>
                       padding: const EdgeInsets.only(bottom: 10),
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
-                        child: ride.predictionComponent?.currentMode == PredictionMode.usePredictor
+                        child: ride.predictionProvider?.usesPredictorFailover == true
                             // Display a small dot to indicate that the fallback is active.
                             ? Container(
                                 decoration: BoxDecoration(

@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-# platform :ios, '11.0'
+# platform :ios, '12.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -49,6 +49,12 @@ post_install do |installer|
       File.open(xcconfig_path, "w") { |file| file << xcconfig_mod }
       # Deployment target was 11.0, but Xcode 15 requires 13.0
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+
+      # Disable unused microphone api
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+                  '$(inherited)',
+                  'AUDIO_SESSION_MICROPHONE=0'
+                ]
     end
   end
 end

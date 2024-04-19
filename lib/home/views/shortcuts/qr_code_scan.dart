@@ -69,7 +69,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
       if (scanData.code == null) return;
       if (!scanData.code!.contains("https://") && !scanData.code!.contains("/link/")) return;
       final scannedShortcut = await Shortcut.fromLink(scanData.code!);
-      if (scannedShortcut != null) {
+      if (scannedShortcut != null && shortcut == null) {
         shortcut = scannedShortcut;
         widget.onScan(scannedShortcut);
       }

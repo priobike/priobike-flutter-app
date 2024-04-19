@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
@@ -25,19 +26,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    loadPolicy();
     setState(() {});
-  }
-
-  /// Load the privacy policy.
-  void loadPolicy() {
-    // Load once the window was built.
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async {
-        final assetText = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
-        await privacyService.loadPolicy(assetText);
-      },
-    );
   }
 
   @override
@@ -47,7 +36,9 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     privacyService = getIt<PrivacyPolicy>();
     privacyService.addListener(update);
 
-    loadPolicy();
+    if (!privacyService.hasLoaded) {
+      privacyService.loadPolicy();
+    }
   }
 
   @override
@@ -58,19 +49,76 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    final confirmedPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
-    await privacyService.confirm(confirmedPolicy);
+    if (privacyService.assetText == null) return;
+    await privacyService.confirm(privacyService.assetText!);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!privacyService.hasLoaded) return Container();
+    // Display loading indicator.
+    if (!privacyService.hasLoaded) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: AnnotatedRegionWrapper(
+          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          colorMode: Theme.of(context).brightness,
+          child: const Center(
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Display error text and retry button.
+    if (privacyService.hasError) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: AnnotatedRegionWrapper(
+          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          colorMode: Theme.of(context).brightness,
+          child: SafeArea(
+            child: Pad(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  BoldSubHeader(
+                    context: context,
+                    text: "Achtung",
+                  ),
+                  const SmallVSpace(),
+                  Content(
+                    context: context,
+                    textAlign: TextAlign.center,
+                    text:
+                        "Die PrioBike-Services sind zur Zeit nicht erreichbar. Vergewissere Dich außerdem, dass eine Verbindung zum Internet besteht und versuche es erneut.",
+                  ),
+                  const VSpace(),
+                  BigButtonPrimary(
+                    label: "Erneut versuchen",
+                    onPressed: () {
+                      privacyService.loadPolicy();
+                    },
+                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     if ((privacyService.isConfirmed == true) && (widget.child != null)) return widget.child!;
 
     return Scaffold(
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: AnnotatedRegionWrapper(
+        bottomBackgroundColor: Theme.of(context).colorScheme.background,
+        colorMode: Theme.of(context).brightness,
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -96,25 +144,12 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       if (privacyService.hasChanged!)
                         SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
-                      IconItem(
-                          icon: Icons.route,
-                          text:
-                              "Wir speichern Deine Positionsdaten, aber nur anonymisiert und ohne Deinen Start- und Zielort.",
-                          context: context),
-                      const SmallVSpace(),
-                      IconItem(
-                          icon: Icons.lock,
-                          text:
-                              "Wenn Du die App personalisierst, indem Du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
-                          context: context),
-                      const SmallVSpace(),
-                      IconItem(
-                          icon: Icons.lightbulb,
-                          text:
-                              "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
-                          context: context),
-                      const VSpace(),
-                      Content(text: privacyService.assetText!, context: context),
+                      Markdown(
+                        data: privacyService.assetText!,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                      ),
                       const SizedBox(height: 256),
                     ],
                   ),

@@ -14,12 +14,10 @@ import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/load.dart';
-import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
-import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
@@ -63,24 +61,16 @@ class LoaderState extends State<Loader> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  /// The shortcut loaded by a share link.
+  Shortcut? shortcut;
+
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
-    // Init the HTTP client for all services.
-    Http.initClient();
-
     // We have 2 types of services:
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
     // 2. Services that are not critically needed.
     // Loader-functions for non-critical services should handle their own errors
     // while critical services should throw their errors.
-
-    // Non critical services:
-    final loadStatus = getIt<LoadStatus>();
-    loadStatus.sendAppStartNotification();
-    loadStatus.fetch();
-    getIt<News>().getArticles();
-    getIt<PredictionStatusSummary>().fetch();
-    getIt<Weather>().fetch();
 
     // Critical services:
     try {
@@ -108,7 +98,7 @@ class LoaderState extends State<Loader> {
       if (widget.shareUrl != null) {
         String url = widget.shareUrl!;
         final shortcut = await Shortcut.fromLink(url);
-        if (shortcut != null) getIt<Shortcuts>().saveNewShortcutObject(shortcut);
+        this.shortcut = shortcut;
       }
 
       settings.incrementUseCounter();
@@ -119,6 +109,14 @@ class LoaderState extends State<Loader> {
       settings.incrementConnectionErrorCounter();
       return;
     }
+
+    // Non critical services:
+    final loadStatus = getIt<LoadStatus>();
+    loadStatus.sendAppStartNotification();
+    loadStatus.fetch();
+    getIt<News>().getArticles();
+    getIt<PredictionStatusSummary>().fetch();
+    getIt<Weather>().fetch();
 
     // Finish loading.
     setState(() {
@@ -182,8 +180,12 @@ class LoaderState extends State<Loader> {
               label: "Zurücksetzen",
               onPressed: () async {
                 await _resetData();
-                ToastMessage.showSuccess("Daten zurück gesetzt!");
-                if (mounted) Navigator.of(context).pop();
+                // remove all views and push RestartApp view, so the user can only restart the app
+                await Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RestartApp()),
+                  (Route<dynamic> route) => false,
+                );
               },
               boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
             ),
@@ -203,9 +205,9 @@ class LoaderState extends State<Loader> {
     final frame = MediaQuery.of(context);
     return AnnotatedRegionWrapper(
       // Set to light to make sure the system bar is displayed in white on the red background of the loader.
-      statusBarIconBrightness: Brightness.light,
-      backgroundColor: Theme.of(context).colorScheme.background,
-      brightness: Brightness.dark,
+      topTextBrightness: Brightness.light,
+      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      colorMode: Brightness.dark,
       child: Stack(
         children: [
           Container(
@@ -240,17 +242,12 @@ class LoaderState extends State<Loader> {
                             Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
                             const VSpace(),
                             BoldContent(
-                              text: "Verbindungsfehler",
+                              text: "Fehler beim Starten der App",
                               context: context,
                             ),
                             const SmallVSpace(),
                             Content(
-                              text: "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen.",
-                              context: context,
-                              textAlign: TextAlign.center,
-                            ),
-                            Content(
-                              text: "Prüfe Deine Verbindung und versuche es später erneut.",
+                              text: "Ein unbekannter Fehler ist aufgetreten.\nDie App kann nicht gestartet werden.",
                               context: context,
                               textAlign: TextAlign.center,
                             ),
@@ -293,9 +290,39 @@ class LoaderState extends State<Loader> {
               duration: const Duration(milliseconds: 500),
               switchInCurve: Curves.easeInOutCubic,
               switchOutCurve: Curves.easeInOutCubic,
-              child: shouldBlendIn ? const HomeView() : Container(),
+              child: shouldBlendIn
+                  ? HomeView(
+                      shortcut: shortcut,
+                    )
+                  : Container(),
             )
         ],
+      ),
+    );
+  }
+}
+
+class RestartApp extends StatelessWidget {
+  const RestartApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error, color: Colors.red, size: 48),
+            const VSpace(),
+            BoldContent(text: "Bitte App neustarten", context: context),
+            const SmallVSpace(),
+            Content(
+              text: "Die Daten wurden zurückgesetzt.\nDie App muss neu gestartet werden, um fortzufahren.",
+              context: context,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -66,7 +66,6 @@ class RideMapViewState extends State<RideMapView> {
   final List layerOrder = [
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
-    DiscomfortsLayer.layerId,
     WaypointsLayer.layerId,
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
@@ -130,8 +129,6 @@ class RideMapViewState extends State<RideMapView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
-    if (!mounted) return;
-    await DiscomfortsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
@@ -383,23 +380,16 @@ class RideMapViewState extends State<RideMapView> {
     var index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
-    index = await getIndex(DiscomfortsLayer.layerId);
-    if (!mounted) return;
-    await DiscomfortsLayer(isDark).install(
-      mapController!,
-      iconSize: 0.2,
-      at: index,
-      showLabels: false,
-    );
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
-    await WaypointsLayer().install(mapController!, iconSize: 0.33, at: index);
+    await WaypointsLayer().install(mapController!, iconSize: 0.2, at: index, textSize: 18.0);
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
     await TrafficLightsLayer(isDark, hideBehindPosition: true).install(
       mapController!,
       iconSize: 0.5,
       at: index,
+      showTouchIndicator: true,
     );
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
@@ -444,32 +434,8 @@ class RideMapViewState extends State<RideMapView> {
       ).toJson(),
     );
 
-    // Calculate the correct screen coordinates since the map got scaled.
-    // Note: only necessary for IOS. Potential point of failure in future.
-    if (settings.saveBatteryModeEnabled && Platform.isIOS) {
-      if (!mounted) return;
-      final frame = MediaQuery.of(context);
-
-      // Get the scaled width and height.
-      double scaleWidth = frame.size.width / Settings.scalingFactor;
-      double scaleHeight = frame.size.height / Settings.scalingFactor;
-
-      // Normalize the screen coordinate to the scaled area.
-      double normalizedX = actualScreenCoordinate.x - (frame.size.width - scaleWidth) / 2;
-      double normalizedY = actualScreenCoordinate.y - (frame.size.height - scaleHeight) / 2;
-
-      // Get the width and height ratio factor in relation to the scaled screen size.
-      double ratioX = normalizedX / scaleWidth;
-      double ratioY = normalizedY / scaleHeight;
-
-      // Calculate the screen coordinates with the ratio in relation to the actual screen.
-      actualScreenCoordinate.x = frame.size.width * ratioX;
-      actualScreenCoordinate.y = frame.size.height * ratioY;
-    }
-
     // Returns the Features for a given screen coordinate.
-    // Note: Android seems to consider the scale factor.
-    final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
+    final List<mapbox.QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
       mapbox.RenderedQueryGeometry(
         value: json.encode(actualScreenCoordinate.encode()),
         type: mapbox.Type.SCREEN_COORDINATE,
@@ -485,9 +451,9 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// A callback that is called when the user taps a feature.
-  onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
+  onFeatureTapped(mapbox.QueriedRenderedFeature queriedFeature) async {
     // Map the id of the layer to the corresponding feature.
-    final id = queriedFeature.feature['id'];
+    final id = queriedFeature.queriedFeature.feature['id'];
     if ((id as String).startsWith("traffic-light-clickable")) {
       final sgIdx = int.tryParse(id.split("-")[3]);
       if (sgIdx == null) return;

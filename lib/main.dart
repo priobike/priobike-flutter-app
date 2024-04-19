@@ -4,14 +4,16 @@ import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
 import 'package:priobike/common/fcm.dart';
+import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/poi.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/migration/user_transfer_view.dart';
@@ -20,13 +22,15 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
+import 'package:priobike/ride/services/free_ride.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/poi.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -35,7 +39,6 @@ import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/smartglasses/smartglass_service.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
@@ -72,6 +75,11 @@ Future<void> main() async {
   // widget tree down further, as a restriction of Android.
   await FCM.load(settings.backend);
 
+  // Init the HTTP client for all services.
+  Http.initClient();
+
+  MapboxOptions.setAccessToken(Keys.mapboxAccessToken);
+
   // Register the services.
   getIt.registerSingleton<Weather>(Weather());
   getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
@@ -81,7 +89,7 @@ Future<void> main() async {
   getIt.registerSingleton<Profile>(Profile());
   getIt.registerSingleton<News>(News());
   getIt.registerSingleton<Shortcuts>(Shortcuts());
-  getIt.registerSingleton<Discomforts>(Discomforts());
+  getIt.registerSingleton<Pois>(Pois());
   getIt.registerSingleton<Geocoding>(Geocoding());
   getIt.registerSingleton<Geosearch>(Geosearch());
   getIt.registerSingleton<Routing>(Routing());
@@ -93,9 +101,9 @@ Future<void> main() async {
   getIt.registerSingleton<Statistics>(Statistics());
   getIt.registerSingleton<Feedback>(Feedback());
   getIt.registerSingleton<Ride>(Ride());
+  getIt.registerSingleton<FreeRide>(FreeRide());
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
-  getIt.registerSingleton<StatusHistory>(StatusHistory());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<Simulator>(Simulator());
   getIt.registerSingleton<SpeedSensor>(SpeedSensor());
@@ -128,7 +136,15 @@ class App extends StatelessWidget {
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
           onGenerateRoute: (routeSettings) {
-            String url = routeSettings.name!;
+            String? url = routeSettings.name!;
+
+            // Check if url is a short or long link.
+            if (!url.contains("/link/") && !url.contains("/import/")) url = null;
+
+            // Required to make sure that home view doesn't get opened twice if the user clicks on an
+            // import link while the app is already open in the background.
+            navigatorKey.currentState?.popUntil((route) => false);
+
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(
@@ -154,7 +170,7 @@ class App extends StatelessWidget {
               // For container/tiles/buttons/...
               surface: CI.radkulturRed,
               // For content on surfaces (color with high contrast).
-              onSurface: Color(0xFFFFFFFF),
+              onSurface: Color(0xFF000000),
               // Neutral alternative for surface.
               surfaceVariant: Color(0xFFFFFFFF),
               // For content on the alternative surface (color with high contrast).

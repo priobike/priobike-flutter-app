@@ -11,14 +11,12 @@ import 'package:priobike/settings/models/backend.dart' hide Simulator;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
-import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/simulator/services/simulator.dart';
-import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,9 +37,6 @@ class Settings with ChangeNotifier {
 
   /// The selected backend.
   Backend backend;
-
-  /// The selected prediction mode.
-  PredictionMode predictionMode;
 
   /// The selected positioning mode.
   PositioningMode positioningMode;
@@ -79,8 +74,8 @@ class Settings with ChangeNotifier {
   /// If the save battery mode is enabled.
   bool dismissedSurvey;
 
-  /// Enable "old" gamification for app
-  bool enableGamification;
+  /// If the audio instructions are enabled.
+  bool saveAudioInstructionsEnabled;
 
   /// Whether the user has seen the user transfer dialog.
   bool didViewUserTransfer;
@@ -93,6 +88,12 @@ class Settings with ChangeNotifier {
 
   /// Enable simulator mode for app.
   bool enableSimulatorMode;
+
+  /// If the filter for the free ride view is enabled.
+  bool isFreeRideFilterEnabled;
+
+  /// If we want to show the speed with increased precision in the speedometer.
+  bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -138,23 +139,6 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set backend to $backend");
       this.backend = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
-  static const predictionModeKey = "priobike.settings.predictionMode";
-  static const defaultPredictionMode = PredictionMode.hybrid;
-
-  Future<bool> setPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.predictionMode;
-    this.predictionMode = predictionMode;
-    final bool success = await storage.setString(predictionModeKey, predictionMode.name);
-    if (!success) {
-      log.e("Failed to set predictionMode to $predictionMode");
-      this.predictionMode = prev;
     } else {
       notifyListeners();
     }
@@ -382,17 +366,17 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const enableGamificationKey = "priobike.settings.enableGamification";
-  static const defaultEnableGamification = false;
+  static const saveAudioInstructionsEnabledKey = "priobike.settings.audioInstructionsEnabled";
+  static const defaultSaveAudioInstructionsEnabled = false;
 
-  Future<bool> setEnableGamification(bool enableGamification, [SharedPreferences? storage]) async {
+  Future<bool> setSaveAudioInstructionsEnabled(bool saveAudioInstructionsEnabled, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.enableGamification;
-    this.enableGamification = enableGamification;
-    final bool success = await storage.setBool(enableGamificationKey, enableGamification);
+    final prev = this.saveAudioInstructionsEnabled;
+    this.saveAudioInstructionsEnabled = saveAudioInstructionsEnabled;
+    final bool success = await storage.setBool(saveAudioInstructionsEnabledKey, saveAudioInstructionsEnabled);
     if (!success) {
-      log.e("Failed to set enablePerformanceOverlay to $enableGamification");
-      this.enableGamification = prev;
+      log.e("Failed to set saveAudioInstructionsEnabled to $saveAudioInstructionsEnabled");
+      this.saveAudioInstructionsEnabled = prev;
     } else {
       notifyListeners();
     }
@@ -445,11 +429,48 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const isFreeRideFilterEnabledKey = "priobike.settings.isFreeRideFilterEnabled";
+  static const defaultIsFreeRideFilterEnabled = false;
+
+  Future<bool> setFreeRideFilterEnabled(bool isFreeRideFilterEnabled, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.isFreeRideFilterEnabled;
+    this.isFreeRideFilterEnabled = isFreeRideFilterEnabled;
+    final bool success = await storage.setBool(isFreeRideFilterEnabledKey, isFreeRideFilterEnabled);
+    if (!success) {
+      log.e("Failed to set isFreeRideFilterEnabled to $isFreeRideFilterEnabled");
+      this.isFreeRideFilterEnabled = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const isIncreasedSpeedPrecisionInSpeedometerEnabledKey =
+      "priobike.settings.isIncreasedSpeedPrecisionInSpeedometerEnabled";
+  static const defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled = false;
+
+  Future<bool> setIncreasedSpeedPrecisionInSpeedometerEnabled(bool isIncreasedSpeedPrecisionInSpeedometerEnabled,
+      [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.isIncreasedSpeedPrecisionInSpeedometerEnabled;
+    this.isIncreasedSpeedPrecisionInSpeedometerEnabled = isIncreasedSpeedPrecisionInSpeedometerEnabled;
+    final bool success = await storage.setBool(
+        isIncreasedSpeedPrecisionInSpeedometerEnabledKey, isIncreasedSpeedPrecisionInSpeedometerEnabled);
+    if (!success) {
+      log.e(
+          "Failed to set isIncreasedSpeedPrecisionInSpeedometerEnabled to $isIncreasedSpeedPrecisionInSpeedometerEnabled");
+      this.isIncreasedSpeedPrecisionInSpeedometerEnabled = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings(
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
-    this.predictionMode = defaultPredictionMode,
     this.positioningMode = defaultPositioningMode,
     this.routingEndpoint = defaultRoutingEndpoint,
     this.sgLabelsMode = defaultSGLabelsMode,
@@ -460,12 +481,14 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+    this.saveAudioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
-    this.enableGamification = defaultEnableGamification,
     this.didViewUserTransfer = defaultDidViewUserTransfer,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
+    this.isFreeRideFilterEnabled = defaultIsFreeRideFilterEnabled,
+    this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -475,11 +498,6 @@ class Settings with ChangeNotifier {
 
     try {
       backend = Backend.values.byName(storage.getString(backendKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      predictionMode = PredictionMode.values.byName(storage.getString(predictionModeKey)!);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
@@ -508,8 +526,18 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
-
-    enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
+    try {
+      isFreeRideFilterEnabled = storage.getBool(isFreeRideFilterEnabledKey) ?? defaultIsFreeRideFilterEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      isIncreasedSpeedPrecisionInSpeedometerEnabled =
+          storage.getBool(isIncreasedSpeedPrecisionInSpeedometerEnabledKey) ??
+              defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the stored settings.
@@ -546,6 +574,12 @@ class Settings with ChangeNotifier {
       /* Do nothing and use the default value given by the constructor. */
     }
     try {
+      saveAudioInstructionsEnabled =
+          storage.getBool(saveAudioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
       dismissedSurvey = storage.getBool(dismissedSurveyKey) ?? defaultDismissedSurvey;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
@@ -578,7 +612,6 @@ class Settings with ChangeNotifier {
 
     PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
     LoadStatus loadStatus = getIt<LoadStatus>();
-    StatusHistory statusHistory = getIt<StatusHistory>();
     Shortcuts shortcuts = getIt<Shortcuts>();
     Routing routing = getIt<Routing>();
     News news = getIt<News>();
@@ -587,7 +620,6 @@ class Settings with ChangeNotifier {
 
     // Reset the associated services.
     await predictionStatusSummary.reset();
-    await statusHistory.reset();
     await shortcuts.reset();
     await routing.reset();
     await news.reset();
@@ -598,7 +630,6 @@ class Settings with ChangeNotifier {
     await predictionStatusSummary.fetch();
     await loadStatus.fetch();
     loadStatus.sendAppStartNotification();
-    await statusHistory.fetch();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 
@@ -613,7 +644,6 @@ class Settings with ChangeNotifier {
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "didViewWarning": didViewWarning,
         "backend": backend.name,
-        "predictionMode": predictionMode.name,
         "positioningMode": positioningMode.name,
         "routingEndpoint": routingEndpoint.name,
         "sgLabelsMode": sgLabelsMode.name,
@@ -626,6 +656,5 @@ class Settings with ChangeNotifier {
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
-        "enableGamification": enableGamification,
       };
 }

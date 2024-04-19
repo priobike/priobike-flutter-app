@@ -26,6 +26,9 @@ class ShortcutPictogram extends StatefulWidget {
   /// The stroke width of the pictogram.
   final double strokeWidth;
 
+  /// The border radius of the pictogram.
+  final double borderRadius;
+
   const ShortcutPictogram({
     super.key,
     this.shortcut,
@@ -33,6 +36,7 @@ class ShortcutPictogram extends StatefulWidget {
     this.color = Colors.black,
     this.iconSize = 64,
     this.strokeWidth = 6,
+    this.borderRadius = 18,
   });
 
   @override
@@ -118,7 +122,7 @@ class ShortcutPictogramState extends State<ShortcutPictogram> {
             duration: const Duration(milliseconds: 1000),
             child: backgroundImage != null
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(widget.borderRadius),
                     child: Image(
                       image: backgroundImage!,
                       fit: BoxFit.contain,

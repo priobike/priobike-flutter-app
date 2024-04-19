@@ -2,15 +2,14 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
+import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -30,18 +29,52 @@ class AllRoutesLayer {
 
   AllRoutesLayer() {
     final routing = getIt<Routing>();
-    for (MapEntry<int, Route> entry in routing.allRoutes?.asMap().entries ?? []) {
-      final geometry = {
-        "type": "LineString",
-        "coordinates": entry.value.route.map((e) => [e.lon, e.lat]).toList(),
-      };
-      features.add(
-        {
-          "id": "route-${entry.key}", // Required for click listener.
-          "type": "Feature",
-          "geometry": geometry,
-        },
-      );
+    if (routing.allRoutes == null) return;
+
+    for (Route route in routing.allRoutes!) {
+      final navNodes = route.route;
+
+      final status = getIt<PredictionSGStatus>();
+      Map<String, dynamic>? currentFeature;
+      for (int i = navNodes.length - 1; i >= 0; i--) {
+        final navNode = navNodes[i];
+        final sgStatus = status.cache[navNode.signalGroupId];
+
+        var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+        // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+        if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
+        // Interpolate between green and grey, by the prediction quality.
+
+        Color color = Color.fromRGBO(
+            (0 * q + 198 * (1 - q)).round(), (255 * q + 198 * (1 - q)).round(), (106 * q + 198 * (1 - q)).round(), 1);
+
+        final colorHSL = HSLColor.fromColor(color);
+        color = colorHSL.withSaturation(colorHSL.saturation * 0.25).toColor();
+
+        String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
+
+        if (currentFeature == null || currentFeature["color"] != color) {
+          if (currentFeature != null) {
+            currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+            features.add(currentFeature);
+          }
+          currentFeature = {
+            "id": "route-${route.idx}", // Required for click listener.
+            "type": "Feature",
+            "properties": {
+              "color": colorString,
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [navNode.lon, navNode.lat]
+              ],
+            },
+          };
+        } else {
+          currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+        }
+      }
     }
   }
 
@@ -82,10 +115,13 @@ class AllRoutesLayer {
             id: layerId,
             lineColor: const Color(0xFFC6C6C6).value,
             lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
             lineWidth: lineWidth,
           ),
           mapbox.LayerPosition(at: at));
     }
+
+    await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -96,6 +132,25 @@ class AllRoutesLayer {
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
+}
+
+class HashableLatLng {
+  final LatLng coord;
+
+  HashableLatLng(this.coord);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is HashableLatLng &&
+        other.runtimeType == runtimeType &&
+        other.coord.longitude == coord.longitude &&
+        other.coord.latitude == coord.latitude;
+  }
+
+  @override
+  int get hashCode => Object.hash(coord.longitude, coord.latitude);
 }
 
 class SelectedRouteLayer {
@@ -179,7 +234,7 @@ class SelectedRouteLayer {
           mapbox.LineLayer(
             sourceId: sourceId,
             id: layerIdBackground,
-            lineColor: const Color(0xFFC6C6C6).value,
+            lineColor: CI.routeBackground.value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: bgLineWidth,
@@ -197,177 +252,18 @@ class SelectedRouteLayer {
   }
 }
 
-class RouteLabelLayer {
-  /// The features to display.
-  final List<dynamic> features = List.empty(growable: true);
-
+class PoisLayer {
   /// The ID of the Mapbox source.
-  static const sourceId = "route-label";
+  static const sourceId = "route-pois";
 
   /// The ID of the main Mapbox layer.
-  static const layerId = "route-label-layer";
+  static const layerId = "route-pois-layer";
 
-  RouteLabelLayer(List<Map> chosenCoordinates) {
-    final routing = getIt<Routing>();
+  /// The ID of the background Mapbox layer.
+  static const layerIdBackground = "route-pois-background-layer";
 
-    // // Conditions for having route labels. Limited to 2 route alternatives.
-    if (routing.allRoutes != null && routing.allRoutes!.length == 2 && routing.selectedRoute != null) {
-      // Determine the relation between the chosenCoordinate.
-      // Will be calculated for 2 coordinates only.
-      if (chosenCoordinates.length != 2) return;
-      final GHCoordinate coordinate1 = chosenCoordinates[0]["coordinate"];
-      final GHCoordinate coordinate2 = chosenCoordinates[1]["coordinate"];
-
-      final coordinates = routing.allRoutes![0].path.points.coordinates;
-
-      // Prerequisite that location is hamburg and therefore only positive lat and lon values.
-      // Also orientation is lon: the greater the further right, lat: the greater the more top.
-      final double diffLat = coordinate1.lat - coordinate2.lat;
-      final double diffLon = coordinate1.lon - coordinate2.lon;
-
-      final double diffLatRoute = (coordinates[0].lat - coordinates[coordinates.length - 1].lat).abs();
-      final double diffLonRoute = (coordinates[0].lon - coordinates[coordinates.length - 1].lon).abs();
-
-      String coordinate1Orientation = "left"; //Standard orientation.
-      String coordinate2Orientation = "right"; //Standard orientation.
-
-      coordinate1Orientation = calculateOrientation(diffLat, diffLon, diffLatRoute, diffLonRoute, true);
-      coordinate2Orientation = calculateOrientation(diffLat, diffLon, diffLatRoute, diffLonRoute, false);
-
-      // Set the correct image and text offset.
-      chosenCoordinates[0]["feature"]["properties"]["imageSource"] =
-          "route-label-${chosenCoordinates[0]["feature"]["properties"]["isPrimary"] ? "primary" : "secondary"}-$coordinate1Orientation";
-      chosenCoordinates[0]["feature"]["properties"]["textOffset"] =
-          getTextOffsetFromOrientation(coordinate1Orientation, chosenCoordinates[0]["time"].toString().length);
-      chosenCoordinates[0]["feature"]["properties"]["anchor"] = coordinate1Orientation;
-
-      chosenCoordinates[1]["feature"]["properties"]["imageSource"] =
-          "route-label-${chosenCoordinates[1]["feature"]["properties"]["isPrimary"] ? "primary" : "secondary"}-$coordinate2Orientation";
-      chosenCoordinates[1]["feature"]["properties"]["textOffset"] =
-          getTextOffsetFromOrientation(coordinate2Orientation, chosenCoordinates[1]["time"].toString().length);
-      chosenCoordinates[1]["feature"]["properties"]["anchor"] = coordinate2Orientation;
-
-      // Adding feature to feature list.
-      features.add(chosenCoordinates[0]["feature"]);
-      features.add(chosenCoordinates[1]["feature"]);
-    }
-  }
-
-  /// Install the overlay on the layer controller.
-  Future<void> install(
-    mapbox.MapboxMap mapController, {
-    iconSize = 0.4,
-    textSize = 14.0,
-    at = 0,
-  }) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (!sourceExists) {
-      await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
-      );
-    } else {
-      await update(mapController);
-    }
-
-    final routeLabelsLayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!routeLabelsLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.SymbolLayer(
-            sourceId: sourceId,
-            id: layerId,
-            iconSize: iconSize,
-            iconOpacity: 1,
-            textOpacity: 1,
-            iconAllowOverlap: true,
-            iconIgnorePlacement: true,
-            textSize: textSize,
-            textAllowOverlap: true,
-            textIgnorePlacement: true,
-            minZoom: 7.0,
-          ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "imageSource"]));
-      await mapController.style.setStyleLayerProperty(layerId, 'icon-opacity', json.encode(showAfter(zoom: 10)));
-      await mapController.style.setStyleLayerProperty(layerId, 'icon-anchor', json.encode(["get", "anchor"]));
-      await mapController.style.setStyleLayerProperty(layerId, 'text-anchor', json.encode(["get", "anchor"]));
-      await mapController.style.setStyleLayerProperty(layerId, 'text-field', json.encode(["get", "text"]));
-      await mapController.style.setStyleLayerProperty(layerId, 'text-offset', json.encode(["get", "textOffset"]));
-      await mapController.style.setStyleLayerProperty(
-          layerId,
-          'text-color',
-          json.encode([
-            "case",
-            ["get", "isPrimary"],
-            "#ffffff",
-            "#000000"
-          ]));
-      await mapController.style.setStyleLayerProperty(
-          layerId,
-          'text-opacity',
-          json.encode(
-            showAfter(zoom: 10),
-          ));
-    }
-  }
-
-  /// Update the overlay on the map controller (without updating the layers).
-  update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (sourceExists) {
-      final source = await mapController.style.getSource(sourceId);
-      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
-    }
-  }
-
-  /// Returns the orientation of the route label.
-  String calculateOrientation(diffLat, diffLon, routeDiffLat, routeDiffLon, isFirst) {
-    if (routeDiffLat < routeDiffLon) {
-      // Case route is more horizontal.
-      // Only consider top and bottom.
-      if (diffLat > 0 && isFirst || diffLat < 0 && !isFirst) {
-        // C1 is above of C2.
-        return "bottom";
-      } else {
-        return "top";
-      }
-    } else {
-      // Case route is more vertical.
-      // Only consider left and right.
-      if (diffLon > 0 && isFirst || diffLon < 0 && !isFirst) {
-        // C1 is right of C2.
-        return "left";
-      } else {
-        return "right";
-      }
-    }
-  }
-
-  /// Returns the text offset of the route label.
-  List<double> getTextOffsetFromOrientation(String orientation, int digits) {
-    // Careful: values may need to be adjusted on size changes to the route label.
-    switch (orientation) {
-      case "top":
-        return [0, 1.0];
-      case "bottom":
-        return [0, -1.1];
-      case "left":
-        return [1.6 - (0.3 * (digits - 1)), 0]; // 1.0 for 3 digits, 1.3 for 2 digits, 1.6 for 1 digit.
-      case "right":
-        return [-1.7 + (0.3 * (digits - 1)), 0]; // -1.1 for 3 digits, -1.4 for 2 digits, -1.7 for 1 digit.
-    }
-    return [1.5, 0];
-  }
-}
-
-class DiscomfortsLayer {
-  /// The ID of the Mapbox source.
-  static const sourceId = "discomforts";
-
-  /// The ID of the main Mapbox layer.
-  static const layerId = "discomforts-layer";
-
-  /// The ID of the marker Mapbox layer.
-  static const layerIdMarker = "discomforts-markers";
+  /// The ID of the symbol/text layer.
+  static const layerIdSymbol = "route-pois-symbol-layer";
 
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
@@ -375,40 +271,59 @@ class DiscomfortsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  DiscomfortsLayer(this.isDark) {
-    final discomforts = getIt<Discomforts>().foundDiscomforts;
-    for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
-      if (e.value.coordinates.isEmpty) continue;
+  PoisLayer(this.isDark) {
+    final routing = getIt<Routing>();
+
+    // Alternative routes
+    for (final route in routing.allRoutes ?? []) {
+      if (route.idx == routing.selectedRoute?.idx) continue;
+      for (final poi in route.foundPois ?? []) {
+        if (!poi.isWarning) continue; // Don't display pois that are not warnings.
+        if (poi.coordinates.isEmpty) continue;
+        // A section of the route.
+        final geometry = {
+          "type": "LineString",
+          "coordinates": poi.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
+        };
+
+        features.add(
+          {
+            "type": "Feature",
+            "properties": {
+              "textColor": isDark ? "#FFFFFF" : "#003064",
+              "textHaloColor": isDark ? "#003064" : "#FFFFFF",
+              "color": "#d9c89e",
+              "bgcolor": "#d1b873",
+              "symbol": poi.type,
+              "symbolopacity": 0,
+            },
+            "geometry": geometry,
+          },
+        );
+      }
+    }
+
+    // Selected route
+    for (final poi in routing.selectedRoute?.foundPois ?? []) {
+      if (!poi.isWarning) continue; // Don't display pois that are not warnings.
+      if (poi.coordinates.isEmpty) continue;
       // A section of the route.
       final geometry = {
         "type": "LineString",
-        "coordinates": e.value.coordinates.map((e) => [e.longitude, e.latitude]).toList(),
+        "coordinates": poi.coordinates.map((point) => [point.longitude, point.latitude]).toList(),
       };
-      double weight = 1;
-      if (e.value.weight != null) {
-        const maxWeight = 20;
-        if (e.value.weight! < Discomforts.userReportedDiscomfortWeightThreshold) {
-          weight = 0;
-        } else if (e.value.weight! < maxWeight) {
-          // Scale weights to 0.75 - 1.0.
-          weight = 0.5 + (e.value.weight! / maxWeight) * 0.5;
-        }
-      }
-
-      var text = e.value.description;
-      if (e.value.weight != null) {
-        text += " (${e.value.weight}x gemeldet)";
-      }
 
       features.add(
         {
-          "id": "discomfort-${e.key}", // Required for click listener.
           "type": "Feature",
           "properties": {
-            "description": text,
-            "color": "#003064",
-            "userReported": e.value.weight != null,
-            "opacity": weight,
+            "description": poi.description,
+            "textColor": isDark ? "#FFFFFF" : "#003064",
+            "textHaloColor": isDark ? "#003064" : "#FFFFFF",
+            "color": "#ffdc00",
+            "bgcolor": "#ad9600",
+            "symbol": poi.type,
+            "symbolopacity": 1,
           },
           "geometry": geometry,
         },
@@ -417,13 +332,7 @@ class DiscomfortsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(
-    mapbox.MapboxMap mapController, {
-    showLabels = true,
-    iconSize = 0.25,
-    lineWidth = 5.0,
-    at = 0,
-  }) async {
+  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -432,17 +341,15 @@ class DiscomfortsLayer {
     } else {
       await update(mapController);
     }
-    if (showLabels) {
-      final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
-      if (!discomfortsMarkersExist) {
-        await mapController.style.addLayerAt(
+    final routePoisSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
+    if (!routePoisSymbolLayerExists) {
+      await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
             sourceId: sourceId,
-            id: layerIdMarker,
-            iconImage: "dangerspot",
-            iconSize: iconSize,
+            id: layerIdSymbol,
+            iconSize: 0.15,
             iconAllowOverlap: true,
-            iconOpacity: 0,
+            iconOpacity: 1,
             textHaloColor: isDark ? const Color(0xFF003064).value : const Color(0xFFFFFFFF).value,
             textColor: isDark ? const Color(0xFFFFFFFF).value : const Color(0xFF003064).value,
             textHaloWidth: 0.2,
@@ -450,65 +357,74 @@ class DiscomfortsLayer {
             textSize: 12,
             textAnchor: mapbox.TextAnchor.CENTER,
             textAllowOverlap: true,
-            textOpacity: 0,
-            minZoom: 12.0,
+            textIgnorePlacement: true,
+            textOpacity: 1,
+            minZoom: 9.0,
           ),
-          mapbox.LayerPosition(at: at),
-        );
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'icon-opacity',
-            json.encode(showAfter(zoom: 15, opacity: [
-              "case",
-              ["get", "userReported"],
-              0,
-              1,
-            ])));
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'text-offset',
-            json.encode(
-              [
-                "literal",
-                [0, 2]
-              ],
-            ));
-        await mapController.style
-            .setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "description"]));
-        await mapController.style.setStyleLayerProperty(
-            layerIdMarker,
-            'text-opacity',
-            json.encode(showAfter(zoom: 17, opacity: [
-              "case",
-              [
-                ">",
-                ["get", "opacity"],
-                0
-              ],
-              1,
-              0,
-            ])));
-      }
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerIdSymbol, 'icon-image', json.encode(["get", "symbol"]));
+      await mapController.style
+          .setStyleLayerProperty(layerIdSymbol, 'icon-opacity', json.encode(["get", "symbolopacity"]));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-offset',
+          json.encode(
+            [
+              "literal",
+              [0, 2]
+            ],
+          ));
+      await mapController.style.setStyleLayerProperty(layerIdSymbol, 'text-field', json.encode(["get", "description"]));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-opacity',
+          json.encode(
+            showAfter(zoom: 16),
+          ));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-color',
+          json.encode(
+            ["get", "textColor"],
+          ));
+      await mapController.style.setStyleLayerProperty(
+          layerIdSymbol,
+          'text-halo-color',
+          json.encode(
+            ["get", "textHaloColor"],
+          ));
     }
-    final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!discomfortsLayerExists) {
+    final routePoisLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!routePoisLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
             sourceId: sourceId,
             id: layerId,
+            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
-            lineWidth: lineWidth,
-            lineDasharray: [1, 2],
+            lineWidth: fgLineWidth,
           ),
           mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerId, 'line-opacity', json.encode(["get", "opacity"]));
       await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
+    }
+    final routePoisBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
+    if (!routePoisBackgroundLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerIdBackground,
+            lineColor: const Color.fromARGB(255, 0, 0, 0).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: bgLineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerIdBackground, 'line-color', json.encode(["get", "bgcolor"]));
     }
   }
 
-  /// Update the overlay on the map controller (without updating the layers).
-  update(mapbox.MapboxMap mapController) async {
+  update(mapbox.MapboxMap mapController, {String? below}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
       final source = await mapController.style.getSource(sourceId);
@@ -541,6 +457,7 @@ class WaypointsLayer {
           "properties": {
             "isFirst": entry.key == 0,
             "isLast": entry.key == waypoints.length - 1,
+            "idx": entry.key + 1,
           },
         },
       );
@@ -548,7 +465,7 @@ class WaypointsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0, textSize = 12.0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -561,12 +478,18 @@ class WaypointsLayer {
     if (!waypointsIconsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-              sourceId: sourceId,
-              id: layerId,
-              iconSize: iconSize,
-              textAllowOverlap: true,
-              textIgnorePlacement: true,
-              iconAllowOverlap: true),
+            sourceId: sourceId,
+            id: layerId,
+            iconSize: iconSize,
+            textAllowOverlap: true,
+            textIgnorePlacement: true,
+            iconAllowOverlap: true,
+            textColor: const Color(0xFF003064).value,
+            textFont: ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
+            textSize: textSize,
+            textAnchor: mapbox.TextAnchor.CENTER,
+            textOpacity: 1,
+          ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
@@ -578,6 +501,18 @@ class WaypointsLayer {
             ["get", "isLast"],
             "destination",
             "waypoint",
+          ]));
+      // Only show idx label if it's not the first or last waypoint, otherwise show blank text
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'text-field',
+          json.encode([
+            "case",
+            ["get", "isFirst"],
+            "",
+            ["get", "isLast"],
+            "",
+            ["get", "idx"],
           ]));
     }
   }
