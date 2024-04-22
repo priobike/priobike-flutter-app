@@ -50,4 +50,13 @@ class MapFunctions with ChangeNotifier {
     tappedWaypointIdx = null;
     notifyListeners();
   }
+
+  /// Reset all map functions attributes.
+  void reset() {
+    needsCentering = false;
+    needsCenteringNorth = false;
+    needsNewWaypointCoordinates = false;
+    tappedWaypointIdx = null;
+    notifyListeners();
+  }
 }
