@@ -22,6 +22,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
+    <!-- The STORAGE permission is required for TTS synthesize to file. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <!-- legacy for Android 11 or lower -->
     <uses-permission
         android:name="android.permission.BLUETOOTH"
