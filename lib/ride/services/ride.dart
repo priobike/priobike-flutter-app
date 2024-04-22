@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:flutter_tts/flutter_tts.dart';
@@ -77,6 +78,9 @@ class Ride with ChangeNotifier {
 
   /// An instance for text-to-speach.
   FlutterTts ftts = FlutterTts();
+
+  /// The audio session instance.
+  late AudioSession audioSession;
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -442,6 +446,25 @@ class Ride with ChangeNotifier {
       await ftts.setPitch(1); //pitch of sound
       await ftts.awaitSpeakCompletion(true);
     }
+
+    // Set the session configuration with the session plugin since the flutter_tts config seems not to work properly.
+    audioSession = await AudioSession.instance;
+    await audioSession.configure(
+      const AudioSessionConfiguration(
+        avAudioSessionCategory: AVAudioSessionCategory.playback,
+        avAudioSessionMode: AVAudioSessionMode.voicePrompt,
+        avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation,
+        avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
+        androidAudioAttributes: AndroidAudioAttributes(
+          contentType: AndroidAudioContentType.speech,
+          flags: AndroidAudioFlags.none,
+          usage: AndroidAudioUsage.assistanceNavigationGuidance,
+        ),
+        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
+        androidWillPauseWhenDucked: false, // Prevents other audio sources from stopping.
+      ),
+    );
   }
 
   /// Play audio instruction.
@@ -458,6 +481,7 @@ class Ride with ChangeNotifier {
       Iterator it = currentInstruction.text.iterator;
       while (it.moveNext()) {
         // Put this here to avoid music interruption in case that there is no instruction to play.
+        await audioSession.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
           // No countdown information needs to be added.
           await ftts.speak(it.current.text);
@@ -478,6 +502,7 @@ class Ride with ChangeNotifier {
           await ftts.speak(updatedCountdown.toString());
         }
       }
+      await audioSession.setActive(false);
     }
   }
 
