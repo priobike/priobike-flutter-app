@@ -204,9 +204,6 @@ class PredictorPrediction implements Prediction {
     predictionQuality = calcQualitiesFromNow[refTimeIdx];
     return Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
   }
-
-  @override
-  String get signalGroupId => thingName;
 }
 
 class PredictionServicePrediction implements Prediction {
@@ -223,7 +220,6 @@ class PredictionServicePrediction implements Prediction {
   double predictionQuality;
 
   /// The signal group id for the prediction.
-  @override
   final String signalGroupId;
 
   /// The reference time for this prediction.

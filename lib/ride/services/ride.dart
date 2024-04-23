@@ -83,7 +83,7 @@ class Ride with ChangeNotifier {
   /// The audio session instance.
   late AudioSession audioSession;
 
-  /// A tuple that holds information about the last recommendation to check the difference when a new recommendation is received.
+  /// A map that holds information about the last recommendation to check the difference when a new recommendation is received.
   Map<String, Object> lastRecommendation = {};
 
   static const lastRouteKey = "priobike.ride.lastRoute";
@@ -528,8 +528,8 @@ class Ride with ChangeNotifier {
 
     // Check if the prediction is a recommendation for the next traffic light on the route
     // and do not play instruction if this is not the case.
-    var sgIdPredicted = predictionProvider?.prediction?.signalGroupId;
-    bool isRecommendation = sgIdPredicted != null ? calcCurrentSG!.id.endsWith(sgIdPredicted) : false;
+    final thingName = predictionProvider?.status?.thingName;
+    bool isRecommendation = thingName != null ? calcCurrentSG!.id == thingName : false;
     if (!isRecommendation) return;
 
     // If the phase change time is null, instruction part must not be played.
