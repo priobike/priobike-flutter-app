@@ -575,7 +575,8 @@ class Ride with ChangeNotifier {
     if (snap == null) {
       closeToInstruction = false;
     } else {
-      var distanceToSg = vincenty.distance(snap.position, LatLng(calcCurrentSG!.position.lat, calcCurrentSG!.position.lon));
+      var distanceToSg =
+          vincenty.distance(snap.position, LatLng(calcCurrentSG!.position.lat, calcCurrentSG!.position.lon));
       if (distanceToSg > 500) {
         // Do not play instruction if the distance to the sg is more than 500m.
         return;
