@@ -626,6 +626,7 @@ class Ride with ChangeNotifier {
     if (predictionProvider != null) predictionProvider!.stopNavigation();
     navigationIsActive = false;
     onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
+    await audioSession.setActive(false);
     notifyListeners();
   }
 
