@@ -1107,9 +1107,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
 
-    // remove old waypoint from before dragging from routing.
+    // Remove old waypoint.
     routing.selectedWaypoints!.removeAt(idx);
 
+    // Add waypoint at index and load route.
     await routing.addWaypoint(waypoint, idx);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
     await routing.loadRoutes();

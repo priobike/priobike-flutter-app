@@ -343,7 +343,7 @@ class Routing with ChangeNotifier {
 
     final bikeType = getIt<Profile>().bikeType;
 
-    // Reset map function values.
+    // Map function values can be cleared.
     getIt<MapFunctions>().reset();
 
     // Do nothing if the waypoints were already fetched (or both are null).
