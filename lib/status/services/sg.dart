@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -115,6 +116,10 @@ class PredictionSGStatus with ChangeNotifier {
     cache[status.thingName] = status;
     // Note: We don't need to update the statistics here,
     // because we are in the ride and the statistics are not shown.
+
+    // Check if a new prediction info should be played.
+    getIt<Ride>().playNewPredictionStatusInformation();
+
     notifyListeners();
   }
 
