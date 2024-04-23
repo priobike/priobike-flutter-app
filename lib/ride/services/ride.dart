@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+
 import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
@@ -11,8 +12,8 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/ride/services/prediction.dart';
+import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -81,6 +82,9 @@ class Ride with ChangeNotifier {
 
   /// The audio session instance.
   late AudioSession audioSession;
+
+  /// A tuple that holds information about the last recommendation to check the difference when a new recommendation is received.
+  Map<String, Object> lastRecommendation = {};
 
   static const lastRouteKey = "priobike.ride.lastRoute";
   static const lastRouteIDKey = "priobike.ride.lastRouteID";
@@ -337,6 +341,11 @@ class Ride with ChangeNotifier {
     if (countdown < 0) {
       countdown = 0; // Must not be negative for later calculations.
     }
+
+    // Save the current recommendation information for comparison with updates later.
+    lastRecommendation.clear();
+    lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': DateTime.now()};
+
     Phase? nextPhase;
     int durationNextPhase = -1;
     Phase? secondNextPhase;
@@ -503,6 +512,103 @@ class Ride with ChangeNotifier {
         }
       }
       await audioSession.setActive(false);
+    }
+  }
+
+  void playNewPredictionStatusInformation() async {
+    // Check if Not supported crossing
+    // or we do not have all auxiliary data that the app calculated
+    // or prediction quality is not good enough.
+    if (calcCurrentSG == null ||
+        predictionProvider?.recommendation == null ||
+        (predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+      // No sg countdown information can be added and thus instruction part must not be played.
+      return;
+    }
+
+    // Check if the prediction is a recommendation for the next traffic light on the route
+    // and do not play instruction if this is not the case.
+    var sgIdPredicted = predictionProvider?.prediction?.signalGroupId;
+    bool isRecommendation = sgIdPredicted != null ? calcCurrentSG!.id.endsWith(sgIdPredicted) : false;
+    if (!isRecommendation) return;
+
+    // If the phase change time is null, instruction part must not be played.
+    final recommendation = predictionProvider!.recommendation!;
+    if (recommendation.calcCurrentPhaseChangeTime == null) return;
+
+    // If there is only one color, instruction part must not be played.
+    final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
+    if (uniqueColors.length == 1) return;
+
+    // Do not play instruction part for amber or redamber.
+    if (recommendation.calcCurrentSignalPhase == Phase.amber) return;
+    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) return;
+
+    Phase? currentPhase = recommendation.calcCurrentSignalPhase;
+    // Calculate the countdown.
+    int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    // Do not play instruction if countdown < 5.
+    if (countdown < 5) return;
+    Phase? nextPhase;
+
+    // The current phase ends at index countdown + 2.
+    if (recommendation.calcPhasesFromNow.length > countdown + 2) {
+      // Calculate the color of the next phase after the current phase.
+      nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
+    }
+
+    // Check if the recommendation phase has changed.
+    bool hasPhaseChanged =
+        lastRecommendation['phase'] == null ? true : lastRecommendation['phase'] as Phase != currentPhase;
+    // Check if the countdown has changed more than 3 seconds.
+    bool hasSignificantTimeChange;
+    int? lastCountdown = lastRecommendation['countdown'] as int?;
+    if (lastCountdown != null) {
+      int lastTimeDifference = DateTime.now().difference(lastRecommendation['timestamp'] as DateTime).inSeconds;
+      hasSignificantTimeChange = ((lastCountdown - lastTimeDifference) - countdown).abs() > 3;
+    } else {
+      hasSignificantTimeChange = true;
+    }
+
+    bool closeToInstruction;
+    final snap = getIt<Positioning>().snap;
+    if (snap == null) {
+      closeToInstruction = false;
+    } else {
+      // Check if the current position is in a radius of 50m of an instruction that contains sg information.
+      var nextInstruction = route!.instructions.firstWhereOrNull((element) =>
+          (element.instructionType != InstructionType.directionOnly) &&
+          vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 50);
+      closeToInstruction = nextInstruction != null;
+    }
+
+    if (!closeToInstruction && (hasPhaseChanged || hasSignificantTimeChange)) {
+      var instructionTimeStamp = DateTime.now();
+
+      // Save the current recommendation information for comparison with updates later BEFORE playing the instruction.
+      lastRecommendation.clear();
+      lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': instructionTimeStamp};
+
+      // Cannot make a recommendation if the next phase is not known.
+      if (nextPhase == null) return;
+
+      String sgType = (calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
+      InstructionText instructionText =
+          InstructionText(text: "Nächste $sgType", type: InstructionTextType.signalGroup, distanceToNextSg: 0);
+      final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
+      var textToPlay = generateTextToPlay(instructionText, speed);
+      if (textToPlay == null) return;
+      await ftts.speak(textToPlay.text);
+      // Calc updatedCountdown since initial creation and time that has passed while speaking
+      // (to avoid countdown inaccuracy)
+      // Also take into account 1s delay for actually speaking the countdown.
+      int updatedCountdown =
+          textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) - 1;
+      await ftts.speak(updatedCountdown.toString());
+    } else {
+      // Nevertheless save the current recommendation information for comparison with updates later.
+      lastRecommendation.clear();
+      lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': DateTime.timestamp()};
     }
   }
 
