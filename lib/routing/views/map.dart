@@ -371,26 +371,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     // Animation duration.
     const duration = 1000;
-    final frame = MediaQuery.of(context);
-    MbxEdgeInsets padding = MbxEdgeInsets(
-      // (AppBackButton height + top padding)
-      top: (80 + frame.padding.top),
-      // AppBackButton width
-      left: 0,
-      // (BottomSheet + bottom padding)
-      bottom: (146 + frame.padding.bottom),
-      right: 0,
-    );
 
+    // There is a bug in mapbox which causes padding to be saved for other flyTo/easeTo calls.
+    // Therefore we can not apply padding here.
     await mapController?.flyTo(
       CameraOptions(
-          center: Point(
-            coordinates: Position(
-              lon,
-              lat,
-            ),
-          ).toJson(),
-          padding: padding),
+        center: Point(
+          coordinates: Position(
+            lon,
+            lat,
+          ),
+        ).toJson(),
+      ),
       MapAnimationOptions(duration: duration),
     );
   }

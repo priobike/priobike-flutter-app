@@ -16,75 +16,62 @@ class TargetMarkerIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context);
-
-    return Padding(
-      padding: EdgeInsets.only(
-        // (AppBackButton height + top padding)
-        top: (80 + frame.padding.top),
-        // AppBackButton width
-        left: 0,
-        // (BottomSheet + bottom padding)
-        bottom: (146 + frame.padding.bottom),
-        right: 0,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Stack(
-            children: [
-              CustomPaint(
-                painter: TargetMarkerLocationPainter(
-                  context: context,
-                ),
-                child: const SizedBox(height: 40, width: 22),
-              ),
-              if (idx == 0)
-                const Padding(
-                  padding: EdgeInsets.only(top: 1, left: 1),
-                  child: StartIcon(width: 20, height: 20),
-                )
-              else if (idx == waypointSize - 1)
-                const Padding(
-                  padding: EdgeInsets.only(top: 1, left: 1),
-                  child: DestinationIcon(width: 20, height: 20),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.only(top: 1, left: 1),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const WaypointIcon(width: 20, height: 20),
-                      Padding(
-                        padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
-                        child: BoldSmall(
-                          text: (idx + 1).toString(),
-                          color: Colors.black,
-                          context: context,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(
-            height: 8,
-          ),
-          Center(
-            child: CustomPaint(
-              painter: TargetMarkerPainter(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Stack(
+          children: [
+            CustomPaint(
+              painter: TargetMarkerLocationPainter(
                 context: context,
               ),
-              child: const SizedBox(height: 10, width: 10),
+              child: const SizedBox(height: 40, width: 22),
             ),
+            if (idx == 0)
+              const Padding(
+                padding: EdgeInsets.only(top: 1, left: 1),
+                child: StartIcon(width: 20, height: 20),
+              )
+            else if (idx == waypointSize - 1)
+              const Padding(
+                padding: EdgeInsets.only(top: 1, left: 1),
+                child: DestinationIcon(width: 20, height: 20),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.only(top: 1, left: 1),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const WaypointIcon(width: 20, height: 20),
+                    Padding(
+                      padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
+                      child: BoldSmall(
+                        text: (idx + 1).toString(),
+                        color: Colors.black,
+                        context: context,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(
+          height: 8,
+        ),
+        Center(
+          child: CustomPaint(
+            painter: TargetMarkerPainter(
+              context: context,
+            ),
+            child: const SizedBox(height: 10, width: 10),
           ),
-          const SizedBox(
-            height: 48,
-          )
-        ],
-      ),
+        ),
+        const SizedBox(
+          height: 48,
+        )
+      ],
     );
   }
 }
