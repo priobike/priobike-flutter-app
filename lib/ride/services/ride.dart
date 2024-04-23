@@ -575,6 +575,12 @@ class Ride with ChangeNotifier {
     if (snap == null) {
       closeToInstruction = false;
     } else {
+      var distanceToSg = vincenty.distance(snap.position, LatLng(calcCurrentSG!.position.lat, calcCurrentSG!.position.lon));
+      if (distanceToSg > 500) {
+        // Do not play instruction if the distance to the sg is more than 500m.
+        return;
+      }
+
       // Check if the current position is in a radius of 50m of an instruction that contains sg information.
       var nextInstruction = route!.instructions.firstWhereOrNull((element) =>
           (element.instructionType != InstructionType.directionOnly) &&
@@ -598,6 +604,7 @@ class Ride with ChangeNotifier {
       final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
       var textToPlay = generateTextToPlay(instructionText, speed);
       if (textToPlay == null) return;
+      await audioSession.setActive(true);
       await ftts.speak(textToPlay.text);
       // Calc updatedCountdown since initial creation and time that has passed while speaking
       // (to avoid countdown inaccuracy)
@@ -605,6 +612,7 @@ class Ride with ChangeNotifier {
       int updatedCountdown =
           textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) - 1;
       await ftts.speak(updatedCountdown.toString());
+      await audioSession.setActive(false);
     } else {
       // Nevertheless save the current recommendation information for comparison with updates later.
       lastRecommendation.clear();
