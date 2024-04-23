@@ -318,7 +318,7 @@ class Ride with ChangeNotifier {
     if(currentInstruction != null) {
        dist = calcDistanceToNextInstruction(currentInstruction!, route!.path, getIt<Positioning>().snap!.position);
     }
-    smartglasses.updateInstructions("${dist}m ${currentInstruction!.text}", currentInstruction.sign);
+    smartglasses.updateInstructions(currentInstruction!.text, currentInstruction.sign, dist);
 
     // Also update the recommendation
     predictionProvider?.recalculateRecommendation();

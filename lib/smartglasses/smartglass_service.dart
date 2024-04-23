@@ -37,13 +37,13 @@ class SmartglassService {
     await _flutterSmartglassesToozPlugin.updateCard();
   }
 
-  void show(String text, int sign, List<Map<String, dynamic>> tachoItems) async {
+  void show(String text, int sign, List<Map<String, dynamic>> tachoItems, int distance) async {
     log.w("Update smartglass view with text: $text, $sign");
-    await _flutterSmartglassesToozPlugin.drawTacho(text, sign, tachoItems, calcCurrentSpeed());
+    await _flutterSmartglassesToozPlugin.drawTacho(text, sign, tachoItems, calcCurrentSpeed(), distance);
   }
-  void updateInstructions(String text, int sign) async {
+  void updateInstructions(String text, int sign, int distance) async {
     log.w("Update smartglass view with text: $text, $sign");
-    await _flutterSmartglassesToozPlugin.toozifierUpdateInstructions(text, sign);
+    await _flutterSmartglassesToozPlugin.toozifierUpdateInstructions(text, sign, distance);
   }
   void updateTacho(List<Map<String, dynamic>> tachoItems) async {
     await _flutterSmartglassesToozPlugin.toozifierUpdateTacho(tachoItems, calcCurrentSpeed());

@@ -425,7 +425,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                         map['end'] = index * 100 + 100;
                         return map;
                       });
-                      smartglasses.show("Sample text", 0, list);
+                      smartglasses.show("Gerade aus", 0, list, 50);
                     },
                   ),
                 ),
