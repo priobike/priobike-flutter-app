@@ -95,6 +95,9 @@ class Settings with ChangeNotifier {
   /// If we want to show the speed with increased precision in the speedometer.
   bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
 
+  /// If we want to use the predictions from a recorded track.
+  bool usePredictionsFromRecordedTrack = false;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -467,6 +470,24 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const usePredictionsFromRecordedTrackKey = "priobike.settings.usePredictionsFromRecordedTrack";
+  static const defaultUsePredictionsFromRecordedTrack = false;
+
+  Future<bool> setUsePredictionsFromRecordedTrack(bool usePredictionsFromRecordedTrack,
+      [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.usePredictionsFromRecordedTrack;
+    this.usePredictionsFromRecordedTrack = usePredictionsFromRecordedTrack;
+    final bool success = await storage.setBool(usePredictionsFromRecordedTrackKey, usePredictionsFromRecordedTrack);
+    if (!success) {
+      log.e("Failed to set usePredictionsFromRecordedTrack to $usePredictionsFromRecordedTrack");
+      this.usePredictionsFromRecordedTrack = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings(
     this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -489,6 +510,7 @@ class Settings with ChangeNotifier {
     this.enableSimulatorMode = defaultSimulatorMode,
     this.isFreeRideFilterEnabled = defaultIsFreeRideFilterEnabled,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
+    this.usePredictionsFromRecordedTrack = defaultUsePredictionsFromRecordedTrack,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -535,6 +557,12 @@ class Settings with ChangeNotifier {
       isIncreasedSpeedPrecisionInSpeedometerEnabled =
           storage.getBool(isIncreasedSpeedPrecisionInSpeedometerEnabledKey) ??
               defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      usePredictionsFromRecordedTrack =
+          storage.getBool(usePredictionsFromRecordedTrackKey) ?? defaultUsePredictionsFromRecordedTrack;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

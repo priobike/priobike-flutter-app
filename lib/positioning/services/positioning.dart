@@ -13,6 +13,7 @@ import 'package:priobike/positioning/sources/gnss.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
 import 'package:priobike/positioning/sources/sensor.dart';
+import 'package:priobike/positioning/sources/track.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
@@ -159,6 +160,9 @@ class Positioning with ChangeNotifier {
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
       positionSource = StaticMockPositionSource(const LatLng(51.030241, 13.728205), 1);
       log.i("Using mocked position source for traffic light 2 in Dresden.");
+    } else if (settings.positioningMode == PositioningMode.track) {
+      positionSource = TrackPositionSource.mockHamburg;
+      log.i("Using track positioning source for Hamburg.");
     } else {
       throw Exception("Unknown position source.");
     }

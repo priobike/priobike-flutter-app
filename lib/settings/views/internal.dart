@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter/services.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -6,6 +9,7 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/map/image_cache.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
@@ -15,6 +19,7 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/ride/views/free.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator;
@@ -241,6 +246,44 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Performance-Overlay",
                     icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Shortcut von track.json importieren",
+                    icon: Icons.directions_bike_rounded,
+                    callback: () async {
+                      String filecontents = await rootBundle.loadString("assets/tracks/hamburg/users/track.json");
+                      dynamic json = jsonDecode(filecontents);
+                      final metadata = json["metadata"];
+                      final selectedWaypoints = metadata["selectedWaypoints"];
+                      final List<Waypoint> waypoints = [];
+                      for (final waypoint in selectedWaypoints) {
+                        waypoints.add(
+                          Waypoint(
+                            waypoint["lat"],
+                            waypoint["lon"],
+                            address: waypoint["address"],
+                          ),
+                        );
+                      }
+                      final routeShortcut = ShortcutRoute(
+                        id: UniqueKey().toString(),
+                        name: "track.json",
+                        waypoints: waypoints,
+                      );
+                      getIt<Shortcuts>().saveNewShortcutObject(routeShortcut);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Ampelprognosen aus track.json",
+                    icon: settings.usePredictionsFromRecordedTrack ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () =>
+                        settings.setUsePredictionsFromRecordedTrack(!settings.usePredictionsFromRecordedTrack),
                   ),
                 ),
                 Padding(
