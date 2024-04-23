@@ -1385,8 +1385,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final frame = MediaQuery.of(context);
     final x = frame.size.width / 2;
-    // Subtract padding to get the correct centering.
-    final y = (frame.size.height + frame.padding.top + 80 - 140 - frame.padding.bottom) / 2;
+    final y = frame.size.height / 2;
 
     final point = ScreenCoordinate(x: x, y: y);
 
