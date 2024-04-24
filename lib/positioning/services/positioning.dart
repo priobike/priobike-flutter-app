@@ -159,6 +159,9 @@ class Positioning with ChangeNotifier {
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
       positionSource = StaticMockPositionSource(const LatLng(51.030241, 13.728205), 1);
       log.i("Using mocked position source for traffic light 2 in Dresden.");
+    } else if (settings.positioningMode == PositioningMode.straightLine) {
+      positionSource = StraightLineMockPositionSource();
+      log.i("Using mocked straight line position source.");
     } else {
       throw Exception("Unknown position source.");
     }

@@ -453,3 +453,92 @@ class PathMockPositionSource extends PositionSource {
   @override
   Future<void> stopPositioning() async => timer?.cancel();
 }
+
+/// A mock position source that drives in a straight line.
+/// The speed is a sine wave between 0 and 50 km/h.
+class StraightLineMockPositionSource extends PositionSource {
+  static const vincenty = Distance(roundResult: false);
+
+  // The calculation timer.
+  Timer? timer;
+
+  StraightLineMockPositionSource();
+
+  /// Check if location services are enabled.
+  /// With the mock client, this only returns true.
+  @override
+  Future<bool> isLocationServicesEnabled() async => true;
+
+  /// Check the location permissions.
+  /// With the mock client, this does nothing and returns "always allowed".
+  @override
+  Future<LocationPermission> checkPermission() async => LocationPermission.always;
+
+  /// Request the location permissions.
+  /// With the mock client, this does nothing and returns "always allowed".
+  @override
+  Future<LocationPermission> requestPermission() async => LocationPermission.always;
+
+  /// Get the position stream of the device.
+  /// With the mock client, this starts a stream of the mocked positions.
+  @override
+  Future<Stream<Position>> startPositioning({required LocationSettings? locationSettings}) async {
+    // Create a new stream, which we will later use to push positions.
+    final streamController = StreamController<Position>();
+
+    var currLatLng = const l.LatLng(53.550518, 9.971212);
+    const heading = 90.0;
+
+    timer = Timer.periodic(const Duration(milliseconds: 1000), (t) {
+      // Speed is set based on a sine wave between 0 and 50 km/h.
+      final speed = 50 * sin(DateTime.now().millisecondsSinceEpoch / 1000 / 10) + 50;
+      final dist = speed / 3.6;
+      final newLatLng = vincenty.offset(currLatLng, dist, heading);
+      currLatLng = newLatLng;
+
+      streamController.add(
+        Position(
+          latitude: currLatLng.latitude,
+          longitude: currLatLng.longitude,
+          altitude: 0,
+          speed: speed,
+          heading: heading, // Not 0, since 0 indicates an error.
+          accuracy: 1,
+          speedAccuracy: 1,
+          timestamp: DateTime.now().toUtc(),
+          headingAccuracy: 1,
+          altitudeAccuracy: 1,
+        ),
+      );
+    });
+
+    return streamController.stream;
+  }
+
+  /// Get one position of the device.
+  /// With the mock client, this returns the mocked position.
+  @override
+  Future<Position> getPosition({required LocationAccuracy desiredAccuracy}) async {
+    return Position(
+      latitude: 51.0,
+      longitude: 13.0,
+      altitude: 0,
+      speed: 0,
+      heading: 0, // Not 0, since 0 indicates an error.
+      accuracy: 1,
+      speedAccuracy: 1,
+      timestamp: DateTime.now().toUtc(),
+      headingAccuracy: 0,
+      altitudeAccuracy: 0,
+    );
+  }
+
+  /// Open the location settings.
+  /// With the mock client, this does nothing and returns true.
+  @override
+  Future<bool> openLocationSettings() async => true;
+
+  /// Stop the geolocation.
+  @override
+  Future<void> stopPositioning() async => timer?.cancel();
+}

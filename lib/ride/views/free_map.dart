@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/sg_layers_free.dart';
@@ -14,6 +15,16 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/free_ride.dart';
 import 'package:priobike/settings/services/settings.dart';
+
+double getBearingDiff(double bearing1, double bearing2) {
+  double diff = bearing1 - bearing2;
+  if (diff < -180) {
+    diff = 360 + diff;
+  } else if (diff > 180) {
+    diff = 360 - diff;
+  }
+  return diff;
+}
 
 class FreeRideMapView extends StatefulWidget {
   const FreeRideMapView({super.key});
@@ -196,61 +207,88 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
     onPositioningUpdate();
 
-    // The current user bearing.
-    var currentBearing = 0.0;
-    var currentLat = 0.0;
-    var currentLon = 0.0;
+    // Keep track of the last bearings to calculate a correction factor.
+    final lastGPSPositionsForCorr =
+        List<Position>.empty(growable: true); // Note: may lack some positions that were too close to the last one.
+    final lastMagBearingsForCorr = List<double>.empty(growable: true); // Note: only updated on new position.
 
+    // Will store our calculated bearing, which is a mixture of the
+    // GPS bearing and the magnetometer bearing.
+    double? currentCalcBearing;
+
+    final positioning = getIt<Positioning>(); // Note: positioning is initiated in the above view.
+    // The position is updated every 1 second, but the orientation is updated more frequently.
+    // Thus, we choose a shorter updated interval to react more quickly to orientation changes.
     positionUpdateTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) async {
       if (mapController == null) return;
+
+      // Get the current orientation from the mapbox puck layer.
       mapbox.Layer? puckLayer;
       if (Platform.isAndroid) {
         puckLayer = await mapController?.style.getLayer("mapbox-location-indicator-layer");
       } else {
         puckLayer = await mapController?.style.getLayer("puck");
       }
+      if (puckLayer == null || puckLayer is! mapbox.LocationIndicatorLayer || puckLayer.bearing == null) return;
+      final magBearing = puckLayer.bearing!;
 
-      var location = (puckLayer as mapbox.LocationIndicatorLayer).location;
-      if (location == null) return;
-      if (location.isEmpty) return;
-      final newLat = location[0] ?? currentLat;
-      final newLon = location[1] ?? currentLon;
+      // Fetch the current position and its calculated bearing.
+      var lastPosition = positioning.lastPosition;
+      if (lastPosition == null) return;
 
-      // Use the GPS bearing if the magnetometer is >15° or <-15° off.
-      // This may happen if the magnetometer is decalibrated.
-      final gpsBearing = vincenty.bearing(LatLng(currentLat, currentLon), LatLng(newLat, newLon));
-      final magnetometerBearing = puckLayer.bearing ?? gpsBearing; // Use GPS bearing as a fallback.
-      double bearing;
-      // Calculate signed diff between both bearings.
-      double bDiff = magnetometerBearing - gpsBearing;
-      if (bDiff > 180) {
-        bDiff -= 360;
-      } else if (bDiff < -180) {
-        bDiff += 360;
+      final receivedNewPosition = lastGPSPositionsForCorr.isEmpty || lastGPSPositionsForCorr.last != lastPosition;
+
+      // Sometimes the orientation may be decalibrated. As a result,
+      // we will have a constant offset between the GPS bearing and the magnetometer bearing.
+      // Thus, we calculate the mean deviation between the GPS bearing and the magnetometer bearing
+      // and use this as a correction factor for the magnetometer bearing.
+      double sumDeviation = 0;
+      if (lastGPSPositionsForCorr.length != lastMagBearingsForCorr.length) {
+        throw Exception("Unequal length of bearing lists.");
       }
-      // If the diff is >15° or <-15°, use the GPS bearing.
-      if (bDiff.abs() > 15) {
-        bearing = gpsBearing;
-      } else {
-        bearing = magnetometerBearing;
+      for (int i = 0; i < lastGPSPositionsForCorr.length; i++) {
+        sumDeviation += lastGPSPositionsForCorr[i].heading - lastMagBearingsForCorr[i];
       }
-      // If the positions are too near to each other, use the magnetometer.
-      if (vincenty.distance(LatLng(currentLat, currentLon), LatLng(newLat, newLon)) < 1) {
-        bearing = magnetometerBearing;
+      double meanDeviation = lastGPSPositionsForCorr.isEmpty ? 0 : sumDeviation / lastGPSPositionsForCorr.length;
+
+      // Update the last bearings, but only if we actually got a new GPS position.
+      if (receivedNewPosition) {
+        // Sometimes the last GNSS position may be very close to the current one.
+        // In this case, the orientation will fluctuate a lot. Thus, we only add the
+        // received GPS position if it is not too close to the last one.
+        var shouldAdd = lastGPSPositionsForCorr.isEmpty ||
+            vincenty.distance(
+                  LatLng(lastPosition.latitude, lastPosition.longitude),
+                  LatLng(lastGPSPositionsForCorr.last.latitude, lastGPSPositionsForCorr.last.longitude),
+                ) >
+                (5 / 3.6) * 1; // 5 km/h at 1 second.
+        if (shouldAdd) {
+          lastGPSPositionsForCorr.add(lastPosition);
+          lastMagBearingsForCorr.add(magBearing);
+          if (lastGPSPositionsForCorr.length > 5 /* 5 seconds (only updated on new position) */) {
+            lastGPSPositionsForCorr.removeAt(0);
+            lastMagBearingsForCorr.removeAt(0);
+          }
+        }
       }
 
-      currentLat = newLat;
-      currentLon = newLon;
-      currentBearing = bearing;
+      // Apply the correction factor.
+      currentCalcBearing = magBearing + meanDeviation;
+
       mapController!.flyTo(
         mapbox.CameraOptions(
-          center: mapbox.Point(coordinates: mapbox.Position(currentLon, currentLat)).toJson(),
-          bearing: currentBearing,
+          center: mapbox.Point(
+            coordinates: mapbox.Position(
+              lastPosition.longitude,
+              lastPosition.latitude,
+            ),
+          ).toJson(),
+          bearing: currentCalcBearing,
           zoom: 18.5,
           pitch: 60,
           padding: mapbox.MbxEdgeInsets(top: 200, bottom: 0, right: 0, left: 0),
         ),
-        mapbox.MapAnimationOptions(duration: 250),
+        mapbox.MapAnimationOptions(duration: 1000),
       );
     });
 
@@ -272,6 +310,8 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       for (final entry in freeRide.receivedPredictions.entries) {
         // Check if we have all necessary information.
         if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty) continue;
+        if (currentCalcBearing == null) continue;
+        if (positioning.lastPosition == null) continue;
 
         bool? greenNow;
         int? secondsToPhaseChange;
@@ -301,17 +341,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         // 1. A sg facing towards the user is considered as relevant.
         // 360 need to be considered.
 
-        double getBearingDiff(double bearing1, double bearing2) {
-          double diff = bearing1 - bearing2;
-          if (diff < -180) {
-            diff = 360 + diff;
-          } else if (diff > 180) {
-            diff = 360 - diff;
-          }
-          return diff;
-        }
-
-        final bearingDiff = getBearingDiff(currentBearing, sgBearing);
+        final bearingDiff = getBearingDiff(currentCalcBearing!, sgBearing);
         if (-45 < bearingDiff && bearingDiff < 45) {
           isRelevant = true;
         }
@@ -328,7 +358,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
               laneEndBearing = 180 + (180 - laneEndBearing.abs());
             }
 
-            final bearingDiffLastSegment = getBearingDiff(currentBearing, laneEndBearing);
+            final bearingDiffLastSegment = getBearingDiff(currentCalcBearing!, laneEndBearing);
 
             // relative left is okay.
             // Just not
@@ -343,12 +373,15 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         if (-180 < bearingDiff && bearingDiff < 0) {
           if (coordinates != null && coordinates.length > 1) {
             final last = coordinates[coordinates.length - 1];
-            double laneEndPositionBearing = vincenty.bearing(LatLng(currentLon, currentLat), LatLng(last[1], last[0]));
+            double laneEndPositionBearing = vincenty.bearing(
+              LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
+              LatLng(last[1], last[0]),
+            );
             if (laneEndPositionBearing < 0) {
               laneEndPositionBearing = 180 + (180 - laneEndPositionBearing.abs());
             }
 
-            final bearingDiffUserSG = getBearingDiff(currentBearing, laneEndPositionBearing);
+            final bearingDiffUserSG = getBearingDiff(currentCalcBearing!, laneEndPositionBearing);
 
             if (170 < bearingDiffUserSG && bearingDiffUserSG < 0) {
               isRelevant = true;
@@ -363,9 +396,9 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
           "lineWidth": isRelevant ? 5 : 1,
         };
       }
-      AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: currentBearing)
+      AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: currentCalcBearing)
           .update(mapController!);
-      AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: currentBearing)
+      AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: currentCalcBearing)
           .update(mapController!);
     });
   }
