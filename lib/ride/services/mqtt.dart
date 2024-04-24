@@ -7,8 +7,10 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:typed_data/typed_buffers.dart';
 
 Logger log = Logger("MQTT");
 
@@ -71,6 +73,8 @@ class MockMqttServerClient extends MockMqttClient {
 class MockMqttClient extends MqttClient {
   Logger log = Logger("MQTT-Client");
 
+  bool initSetupCompleted = false;
+
   DateTime? localStartTime;
   DateTime? trackStartTime;
 
@@ -90,38 +94,53 @@ class MockMqttClient extends MqttClient {
   @override
   Stream<List<MqttReceivedMessage<MqttMessage>>>? get updates => _updates.stream;
 
+  void loadPredictionsP(dynamic metadata) {
+    if (pPredictionsBySgId.isNotEmpty) return;
+
+    final predictions = metadata["predictorPredictions"];
+    for (final prediction in predictions) {
+      final pPrediction = PredictorPrediction.fromJson(prediction);
+      if (pPredictionsBySgId.containsKey(pPrediction.thingName)) {
+        pPredictionsBySgId[pPrediction.thingName]!.add(pPrediction);
+      } else {
+        pPredictionsBySgId[pPrediction.thingName] = [pPrediction];
+      }
+    }
+  }
+
+  void loadPredictionsPS(dynamic metadata) {
+    if (psPredictionsBySgId.isNotEmpty) return;
+
+    final predictions = metadata["predictionServicePredictions"];
+    for (final prediction in predictions) {
+      final psPrediction = PredictionServicePrediction.fromJson(prediction);
+      if (psPredictionsBySgId.containsKey(psPrediction.signalGroupId)) {
+        psPredictionsBySgId[psPrediction.signalGroupId]!.add(psPrediction);
+      } else {
+        psPredictionsBySgId[psPrediction.signalGroupId] = [psPrediction];
+      }
+    }
+  }
+
   @override
   Future<MqttClientConnectionStatus?> connect([String? username, String? password]) async {
+    super.connectionStatus?.state = MqttConnectionState.connected;
+    if (initSetupCompleted) return super.connectionStatus;
+
     String filecontents = await rootBundle.loadString("assets/tracks/hamburg/users/track.json");
     dynamic json = jsonDecode(filecontents);
     final metadata = json["metadata"];
-    if (psPredictionsBySgId.isEmpty || pPredictionsBySgId.isEmpty) {
-      if (type == "PredictionService") {
-        final predictions = metadata["predictionServicePredictions"];
-        for (final prediction in predictions) {
-          final psPrediction = PredictionServicePrediction.fromJson(prediction);
-          if (psPredictionsBySgId.containsKey(psPrediction.signalGroupId)) {
-            psPredictionsBySgId[psPrediction.signalGroupId]!.add(psPrediction);
-          } else {
-            psPredictionsBySgId[psPrediction.signalGroupId] = [psPrediction];
-          }
-        }
-      } else {
-        final predictions = metadata["predictorPredictions"];
-        for (final prediction in predictions) {
-          final pPrediction = PredictorPrediction.fromJson(prediction);
-          if (pPredictionsBySgId.containsKey(pPrediction.thingName)) {
-            pPredictionsBySgId[pPrediction.thingName]!.add(pPrediction);
-          } else {
-            pPredictionsBySgId[pPrediction.thingName] = [pPrediction];
-          }
-        }
-      }
+    if (type == "PredictionService") {
+      loadPredictionsPS(metadata);
+    } else if (type == "Predictor") {
+      loadPredictionsP(metadata);
+    } else {
+      throw Exception("Unknown type $type");
     }
 
-    trackStartTime ??= DateTime.fromMillisecondsSinceEpoch(metadata["startTime"]);
+    trackStartTime ??= DateTime.fromMillisecondsSinceEpoch(metadata["startTime"] + (0 * 1000));
     localStartTime ??= DateTime.now();
-    super.connectionStatus?.state = MqttConnectionState.connected;
+    initSetupCompleted = true;
     return super.connectionStatus;
   }
 
@@ -134,23 +153,32 @@ class MockMqttClient extends MqttClient {
     }
   }
 
-  MqttMessage createMessageFromPrediction(Map<String, dynamic> prediction) {
+  MqttPublishMessage createMessageFromPrediction(Map<String, dynamic> prediction) {
     final data = jsonEncode(prediction);
     final bytes = utf8.encode(data);
-    final buffer = MqttByteBuffer.fromList(bytes);
-    final message = MqttMessage.createFrom(buffer);
+    final uint8Buffer = Uint8Buffer();
+    uint8Buffer.addAll(bytes);
+    final header = MqttHeader();
+    header.qos = MqttQos.atLeastOnce;
+    header.retain = true;
+    header.duplicate = false;
+    final payload = MqttPublishPayload();
+    payload.message = uint8Buffer;
+    final message = MqttPublishMessage();
+    message.header = header;
+    message.payload = payload;
     return message;
   }
 
   PredictionServicePrediction psPredictionWithNewTime(DateTime startTime, PredictionServicePrediction psPrediction) {
     final json = psPrediction.toJson();
-    json["startTime"] = startTime.millisecondsSinceEpoch;
+    json["startTime"] = startTime.toIso8601String();
     return PredictionServicePrediction.fromJson(json);
   }
 
   PredictorPrediction pPredictionWithNewTime(DateTime referenceTime, PredictorPrediction pPrediction) {
     final json = pPrediction.toJson();
-    json["referenceTime"] = referenceTime.millisecondsSinceEpoch;
+    json["referenceTime"] = referenceTime.toIso8601String();
     return PredictorPrediction.fromJson(json);
   }
 
@@ -167,76 +195,50 @@ class MockMqttClient extends MqttClient {
     final trackTime = trackStartTime!.add(Duration(seconds: secondsDriven));
     log.i(
         "Current Time: $currentTime - Local start time: $localStartTime - Track start time: $trackStartTime - Seconds driven: $secondsDriven - Track time: $trackTime");
-    if (type == "PredictionService") {
-      if (!psPredictionsBySgId.containsKey(topic)) {
-        return null;
-      }
-      final predictions = psPredictionsBySgId[topic]!;
-      PredictionServicePrediction? initPrediction;
-      for (final prediction in predictions) {
-        final timeDiff = prediction.startTime.difference(trackTime).inSeconds;
-        if (timeDiff <= 0) {
-          initPrediction = prediction;
-          continue;
-        }
-        if (timeDiff > 0) {
-          if (initPrediction != null) {
-            final predictionDiff = trackStartTime!.difference(initPrediction.startTime).inSeconds;
-            final newPredictionStartTime = localStartTime!.add(Duration(seconds: predictionDiff));
-            final initPredictionUpdated = psPredictionWithNewTime(newPredictionStartTime, initPrediction);
-            log.i("$type : Mocking init prediction at time $newPredictionStartTime");
-            _updates.add([MqttReceivedMessage(topic, createMessageFromPrediction(initPredictionUpdated.toJson()))]);
-            initPrediction = null;
-          }
 
-          log.i("$type : New mock prediction in $timeDiff seconds.");
-          final timer = Timer(Duration(seconds: timeDiff), () {
-            final predictionDiff = trackStartTime!.difference(prediction.startTime).inSeconds;
-            final newPredictionStartTime = localStartTime!.add(Duration(seconds: predictionDiff));
-            final predictionUpdated = psPredictionWithNewTime(newPredictionStartTime, prediction);
-            _updates.add([MqttReceivedMessage(topic, createMessageFromPrediction(predictionUpdated.toJson()))]);
-          });
-          if (newPredictionTimersBySgId.containsKey(topic)) {
-            newPredictionTimersBySgId[topic]!.add(timer);
-          } else {
-            newPredictionTimersBySgId[topic] = [timer];
-          }
-        }
+    final predictionsBySgId = type == "PredictionService" ? psPredictionsBySgId : pPredictionsBySgId;
+    if (!predictionsBySgId.containsKey(topic)) {
+      return null;
+    }
+    final predictions = predictionsBySgId[topic]!;
+    Prediction? initPrediction;
+    for (final prediction in predictions) {
+      dynamic p = prediction;
+      final referenceTime = type == "PredictionService" ? p.startTime : p.referenceTime;
+      final timeDiff = referenceTime.difference(trackTime).inSeconds;
+      if (timeDiff <= 0) {
+        initPrediction = prediction;
+        continue;
       }
-    } else {
-      if (!pPredictionsBySgId.containsKey(topic)) {
-        return null;
-      }
-      final predictions = pPredictionsBySgId[topic]!;
-      PredictorPrediction? initPrediction;
-      for (final prediction in predictions) {
-        final timeDiff = prediction.referenceTime.difference(trackTime).inSeconds;
-        if (timeDiff <= 0) {
-          initPrediction = prediction;
-          continue;
+      if (timeDiff >= 0) {
+        if (initPrediction != null) {
+          dynamic initP = initPrediction;
+          final initPReferenceTime = type == "PredictionService" ? initP.startTime : initP.referenceTime;
+          final predictionDiff = trackStartTime!.difference(initPReferenceTime).inSeconds;
+          final newPredictionStartTime = localStartTime!.add(Duration(seconds: predictionDiff));
+          final initPredictionUpdated = type == "PredictionService"
+              ? psPredictionWithNewTime(newPredictionStartTime, initP)
+              : pPredictionWithNewTime(newPredictionStartTime, initP);
+          final message = createMessageFromPrediction(initPredictionUpdated.toJson());
+          log.i("$type : Mocking init prediction at time $newPredictionStartTime");
+          _updates.add([MqttReceivedMessage(topic, message)]);
+          initPrediction = null;
         }
-        if (timeDiff > 0) {
-          if (initPrediction != null) {
-            final predictionDiff = trackStartTime!.difference(initPrediction.referenceTime).inSeconds;
-            final newPredictionStartTime = localStartTime!.add(Duration(seconds: predictionDiff));
-            final initPredictionUpdated = pPredictionWithNewTime(newPredictionStartTime, initPrediction);
-            log.i("$type : Mocking init prediction at time $newPredictionStartTime");
-            _updates.add([MqttReceivedMessage(topic, createMessageFromPrediction(initPredictionUpdated.toJson()))]);
-            initPrediction = null;
-          }
 
-          log.i("$type : New mock prediction in $timeDiff seconds.");
-          final timer = Timer(Duration(seconds: timeDiff), () {
-            final predictionDiff = trackStartTime!.difference(prediction.referenceTime).inSeconds;
-            final newPredictionStartTime = localStartTime!.add(Duration(seconds: predictionDiff));
-            final predictionUpdated = pPredictionWithNewTime(newPredictionStartTime, prediction);
-            _updates.add([MqttReceivedMessage(topic, createMessageFromPrediction(predictionUpdated.toJson()))]);
-          });
-          if (newPredictionTimersBySgId.containsKey(topic)) {
-            newPredictionTimersBySgId[topic]!.add(timer);
-          } else {
-            newPredictionTimersBySgId[topic] = [timer];
-          }
+        log.i("$type : New mock prediction in $timeDiff seconds.");
+        final predictionDiff = trackStartTime!.difference(referenceTime).inSeconds;
+        final newPredictionStartTime = localStartTime!.add(Duration(seconds: predictionDiff));
+        final predictionUpdated = type == "PredictionService"
+            ? psPredictionWithNewTime(newPredictionStartTime, p)
+            : pPredictionWithNewTime(newPredictionStartTime, p);
+        final message = createMessageFromPrediction(predictionUpdated.toJson());
+        final timer = Timer(Duration(seconds: timeDiff), () {
+          _updates.add([MqttReceivedMessage(topic, message)]);
+        });
+        if (newPredictionTimersBySgId.containsKey(topic)) {
+          newPredictionTimersBySgId[topic]!.add(timer);
+        } else {
+          newPredictionTimersBySgId[topic] = [timer];
         }
       }
     }

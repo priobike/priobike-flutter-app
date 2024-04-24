@@ -38,8 +38,16 @@ class TrackPositionSource extends PositionSource {
     final gpsCSV = json["gpsCSV"];
     final lines = gpsCSV.split("\n");
 
+    double? initTimestamp;
+
     for (int i = 1; i < lines.length; i++) {
       final columns = lines[i].split(",");
+      if (initTimestamp == null) {
+        initTimestamp = checkDouble(columns[0]);
+        continue;
+      }
+      // Skip the first 100 seconds.
+      if (checkDouble(columns[0]) < initTimestamp + (0 * 1000)) continue;
       final timestamp = columns[0];
       final lon = columns[1];
       final lat = columns[2];
