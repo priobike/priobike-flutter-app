@@ -55,7 +55,9 @@ class FreeRideViewState extends State<FreeRideView> {
             Navigator.of(context).pop();
             showLocationAccessDeniedDialog(context, positioning.positionSource);
           },
-          onNewPosition: () async {},
+          onNewPosition: () async {
+            // Note: Only called in routing mode since it depends on the snapped position. (Maybe a FIXME)
+          },
         );
 
         // Allow user to rotate the screen in ride view.
