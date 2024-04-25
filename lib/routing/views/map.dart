@@ -298,26 +298,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     // Animation duration.
     const duration = 1000;
-    final frame = MediaQuery.of(context);
-    MbxEdgeInsets padding = MbxEdgeInsets(
-      // (AppBackButton height + top padding)
-      top: (80 + frame.padding.top),
-      // AppBackButton width
-      left: 0,
-      // (BottomSheet + bottom padding)
-      bottom: (146 + frame.padding.bottom),
-      right: 0,
-    );
 
     await mapController?.flyTo(
       CameraOptions(
-          center: Point(
-            coordinates: Position(
-              positioning.lastPosition!.longitude,
-              positioning.lastPosition!.latitude,
-            ),
-          ).toJson(),
-          padding: padding),
+        center: Point(
+          coordinates: Position(
+            positioning.lastPosition!.longitude,
+            positioning.lastPosition!.latitude,
+          ),
+        ).toJson(),
+      ),
       MapAnimationOptions(duration: duration),
     );
   }
@@ -905,16 +895,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
-  /// A callback that is executed when the map was longclicked.
-  onTapCreateWaypoint(BuildContext context, double x, double y) async {
-    if (mapController == null) return;
-    // Convert x and y into a lat/lon.
-    final point = ScreenCoordinate(x: x, y: y);
-    // In the special case that the user adds a waypoint through the map,
-    // we add the waypoint at the best position on the route.
-    await addWaypoint(point, atBestLocationOnRoute: true);
-  }
-
   /// Add a waypoint at the tapped position.
   /// When the parameter atBestLocationOnRoute is set to true,
   /// we select the best position inbetween existing waypoints with
@@ -1177,7 +1157,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final point = ScreenCoordinate(x: x, y: y);
 
     int idx = mapFunctions.tappedWaypointIdx!;
-    mapFunctions.unsetTappedWaypointIdx();
 
     // replace waypoint at the new position
     await replaceWaypoint(point, idx);
