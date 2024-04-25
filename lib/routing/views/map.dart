@@ -93,9 +93,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A map controller for the map.
   MapboxMap? mapController;
 
-  /// Where the user is currently tapping.
-  Offset? tapPosition;
-
   /// The animation for the on-tap animation.
   late Animation<double> animation;
 
@@ -1204,81 +1201,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
           attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
         ),
-
-        // Show an animation when the user taps the map.
-        if (tapPosition != null)
-          IgnorePointer(
-            child: Stack(
-              children: [
-                Positioned(
-                  left: tapPosition!.dx - animation.value * 140 - 12,
-                  top: tapPosition!.dy - animation.value * 140 - 12,
-                  child: Opacity(
-                    opacity: math.max(0, math.min(1, (animation.value) * 4)),
-                    child: Container(
-                      width: animation.value * 256 + 24,
-                      height: animation.value * 256 + 24,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(1.0 - animation.value),
-                          width: 8.0 - animation.value * 8,
-                        ),
-                        borderRadius: BorderRadius.circular(128),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: tapPosition!.dx - (1.0 - animation.value) * 64 - 12,
-                  top: tapPosition!.dy - (1.0 - animation.value) * 64 - 12,
-                  child: Opacity(
-                    opacity: math.max(0, (animation.value - 0.5) * 2),
-                    child: Container(
-                      width: (1.0 - animation.value) * 128 + 24,
-                      height: (1.0 - animation.value) * 128 + 24,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.2 * animation.value),
-                        borderRadius: BorderRadius.circular(128),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: tapPosition!.dx - 12,
-                  top: math.min(12 + tapPosition!.dy - 256 + 256 * math.max(0, (animation.value - 0.25) * 4 / 3),
-                          tapPosition!.dy) -
-                      12,
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Opacity(
-                      opacity: math.max(0, (animation.value - 0.5) * 2),
-                      child: Image.asset(
-                        'assets/images/pin.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: tapPosition!.dx - 12,
-                  top: (tapPosition!.dy - 256 + 256 * math.max(0, (animation.value - 0.25) * 4 / 3)) - 12,
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Opacity(
-                      opacity: math.min(1, math.max(0, (animation.value - 0.25) * 2)),
-                      child: Image.asset(
-                        'assets/images/waypoint-noshadow.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
 
         if (routeLabelManager != null &&
             mapFunctions.tappedWaypointIdx == null &&
