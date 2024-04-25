@@ -118,7 +118,9 @@ class PredictionSGStatus with ChangeNotifier {
     // because we are in the ride and the statistics are not shown.
 
     // Check if a new prediction info should be played.
-    getIt<Ride>().playNewPredictionStatusInformation();
+    if (getIt<Settings>().saveAudioInstructionsEnabled) {
+      getIt<Ride>().playNewPredictionStatusInformation();
+    }
 
     notifyListeners();
   }
