@@ -36,7 +36,7 @@ const String _speedSensorName = "SPD-BLE0594113";
   d= [constantly 0]
   e= [constantly 0]
   f= current angle
-  g= difference between current f and previously sent f
+  g= difference between current f and previously sent f (seems buggy, sometimes it stays on the same value even though the wheel is not moving)
   */
 
 const String _characteristicsUuid = "00002A5B-0000-1000-8000-00805F9B34FB";
@@ -75,8 +75,11 @@ class SpeedSensor with ChangeNotifier {
   /// The speed characteristic.
   BluetoothCharacteristic? _speedCharacteristic;
 
-  /// Probably getting remove...
+  /// The last number of rotations.
   int? _lastNumberOfRotations;
+
+  /// The last rotation angle.
+  int? _lastRotationAngle;
 
   /// The current status text.
   String statusText = "";
@@ -237,6 +240,7 @@ class SpeedSensor with ChangeNotifier {
 
     _speedCharacteristicListener = _speedCharacteristic!.lastValueStream.listen((value) {
       final drivenDistance = _calculateDrivenDistance(value);
+      log.i("1 - Driven distance: $drivenDistance");
       PositionSource? source = positioning.positionSource;
       if (source != null) {
         SpeedSensorPositioningSource speedSensorPositioningSource = source as SpeedSensorPositioningSource;
@@ -251,7 +255,7 @@ class SpeedSensor with ChangeNotifier {
   /// @parameter values (data from the speed characteristic,
   /// the structure of this is described at the start of the class)
   double _calculateDrivenDistance(List<int> values) {
-    log.i("Calculating speed.");
+    log.i("Calculating speed for values: $values");
 
     // Return 0 if less then 7 elements. [a, b, c, d, e, f, g]
     if (values.length < 7) return 0;
@@ -271,11 +275,20 @@ class SpeedSensor with ChangeNotifier {
 
     _lastNumberOfRotations = rotations;
 
-    final rotationAngelDifference = values[6];
+    // The value at index 6 should only contain the angle difference. However there seems to be a bug that sometimes
+    // the value is not updated and remains at a certain number even though the wheel is not moving. Therefore we
+    // add an extra check to see if the actual rotation angle value (index 5) is the same as the last time.
+    // If it is, we set the difference to 0.
+    int rotationAngelDifference;
+    if (values[5] == _lastRotationAngle) {
+      rotationAngelDifference = 0;
+    } else {
+      rotationAngelDifference = values[6];
+    }
+    _lastRotationAngle = values[5];
+
     final partialRotationDifference = rotationAngelDifference / 360;
-
     final rotationDifference = completeRotationDifference + partialRotationDifference;
-
     return _wheelCircumferenceMeter * rotationDifference;
   }
 
