@@ -10,6 +10,7 @@ import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -445,10 +446,12 @@ class WaypointsLayer {
 
   WaypointsLayer() {
     final routing = getIt<Routing>();
+    final mapFunctions = getIt<MapFunctions>();
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
       features.add(
         {
+          "id": "waypoint-${entry.key}",
           "type": "Feature",
           "geometry": {
             "type": "Point",
@@ -458,6 +461,7 @@ class WaypointsLayer {
             "isFirst": entry.key == 0,
             "isLast": entry.key == waypoints.length - 1,
             "idx": entry.key + 1,
+            "editing": mapFunctions.tappedWaypointIdx == entry.key
           },
         },
       );
@@ -491,6 +495,15 @@ class WaypointsLayer {
             textOpacity: 1,
           ),
           mapbox.LayerPosition(at: at));
+      await mapController.style.addLayerAt(
+          mapbox.CircleLayer(
+              sourceId: sourceId,
+              id: "$layerId-circle",
+              circleOpacity: 0.0,
+              circleColor: CI.route.value,
+              circleBlur: 0.4,
+              circleRadius: 16),
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-image',
@@ -513,6 +526,16 @@ class WaypointsLayer {
             ["get", "isLast"],
             "",
             ["get", "idx"],
+          ]));
+      // If this waypoint is being edited add a circle layer as selection.
+      await mapController.style.setStyleLayerProperty(
+          "$layerId-circle",
+          'circle-opacity',
+          json.encode([
+            "case",
+            ["get", "editing"],
+            0.66,
+            0,
           ]));
     }
   }

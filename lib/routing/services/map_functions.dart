@@ -8,6 +8,12 @@ class MapFunctions with ChangeNotifier {
   /// A bool specifying whether the map should get centered north.
   bool needsCenteringNorth = false;
 
+  /// A bool specifying whether the map should fetch coordinates for move waypoint.
+  bool needsNewWaypointCoordinates = false;
+
+  /// The index of the tappedWaypoint.
+  int? tappedWaypointIdx;
+
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
 
@@ -24,6 +30,33 @@ class MapFunctions with ChangeNotifier {
   /// Apply centering of bearing.
   void setCameraCenterNorth() {
     needsCenteringNorth = true;
+    notifyListeners();
+  }
+
+  /// Get new coordinates of moved waypoint.
+  void getCoordinatesForMovedWaypoint() {
+    needsNewWaypointCoordinates = true;
+    notifyListeners();
+  }
+
+  /// Sets the tapped waypoint idx.
+  void setTappedWaypointIdx(int idx) {
+    tappedWaypointIdx = idx;
+    notifyListeners();
+  }
+
+  /// Sets the tapped waypoint idx.
+  void unsetTappedWaypointIdx() {
+    tappedWaypointIdx = null;
+    notifyListeners();
+  }
+
+  /// Reset all map functions attributes.
+  void reset() {
+    needsCentering = false;
+    needsCenteringNorth = false;
+    needsNewWaypointCoordinates = false;
+    tappedWaypointIdx = null;
     notifyListeners();
   }
 }

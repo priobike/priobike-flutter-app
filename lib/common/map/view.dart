@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/logging/logger.dart';
@@ -36,7 +35,7 @@ class AppMap extends StatefulWidget {
   final void Function(mapbox.CameraChangedEventData)? onCameraChanged;
 
   /// A callback that is executed when the map is longclicked.
-  final void Function(Point<double>, LatLng)? onMapLongClick;
+  final void Function(mapbox.ScreenCoordinate)? onMapLongClick;
 
   /// A callback that is executed when the map is taped.
   final void Function(mapbox.ScreenCoordinate)? onMapTap;
@@ -129,6 +128,7 @@ class AppMapState extends State<AppMap> {
       onMapCreated: onMapCreated,
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,
+      onLongTapListener: widget.onMapLongClick,
       onCameraChangeListener: widget.onCameraChanged,
       onMapIdleListener: widget.onMapIdle,
       onScrollListener: widget.onMapScroll,
