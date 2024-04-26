@@ -91,7 +91,7 @@ class RideViewState extends State<RideView> {
         ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
         // Set `sessionId` to a random new value and bind the callbacks.
-        await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
+        await ride.startNavigation();
         await ride.selectRoute(routing.selectedRoute!);
 
         // Connect the datastream mqtt client, if the user enabled real-time data.

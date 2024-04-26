@@ -17,7 +17,6 @@ import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The distance model.
@@ -62,11 +61,6 @@ class Ride with ChangeNotifier {
 
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
-
-  /// The callback that gets executed when a new prediction
-  /// was received from the prediction service and a new
-  /// status update was calculated based on the prediction.
-  void Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
   /// The prediction provider.
   PredictionProvider? predictionProvider;
@@ -203,22 +197,20 @@ class Ride with ChangeNotifier {
   }
 
   /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(Function(SGStatusData)? onNewPredictionStatusDuringRide) async {
+  Future<void> startNavigation() async {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
     // Connect the prediction service MQTT client.
     predictionProvider = PredictionProvider(
-        onConnected: onPredictionComponentClientConnected,
-        notifyListeners: notifyListeners,
-        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
+      onConnected: onPredictionComponentClientConnected,
+      notifyListeners: notifyListeners,
+    );
     predictionProvider!.connectMQTTClient();
 
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
     navigationIsActive = true;
-    // Notify listeners of a new sg status update.
-    this.onNewPredictionStatusDuringRide = onNewPredictionStatusDuringRide;
   }
 
   /// Update the position.
@@ -625,7 +617,6 @@ class Ride with ChangeNotifier {
   Future<void> stopNavigation() async {
     if (predictionProvider != null) predictionProvider!.stopNavigation();
     navigationIsActive = false;
-    onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
     await audioSession.setActive(false);
     notifyListeners();
   }
