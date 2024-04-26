@@ -19,7 +19,6 @@ import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -342,9 +341,6 @@ class Routing with ChangeNotifier {
     if (isFetchingRoute) return null;
 
     final bikeType = getIt<Profile>().bikeType;
-
-    // Map function values can be cleared.
-    getIt<MapFunctions>().reset();
 
     // Do nothing if the waypoints were already fetched (or both are null).
     if (fetchedWaypoints == selectedWaypoints && fetchedBikeType == bikeType) return null;

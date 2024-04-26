@@ -24,6 +24,9 @@ import 'package:priobike/tutorial/view.dart';
 
 /// A bottom sheet to display route details.
 class RouteDetailsBottomSheet extends StatefulWidget {
+  /// The associated map functions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
   /// A callback that is executed when the riding is started.
   final void Function() onSelectStartButton;
 
@@ -33,11 +36,13 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// Whether the parent view has everything initially loaded.
   final bool hasInitiallyLoaded;
 
-  const RouteDetailsBottomSheet(
-      {required this.onSelectStartButton,
-      required this.onSelectSaveButton,
-      super.key,
-      required this.hasInitiallyLoaded});
+  const RouteDetailsBottomSheet({
+    super.key,
+    required this.onSelectStartButton,
+    required this.onSelectSaveButton,
+    required this.hasInitiallyLoaded,
+    required this.mapFunctions,
+  });
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
@@ -50,9 +55,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
-  /// The associated map functions service, which is injected by the provider.
-  late MapFunctions mapFunctions;
-
   /// The scroll controller for the bottom sheet.
   late DraggableScrollableController controller;
 
@@ -61,7 +63,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    if (mapFunctions.tappedWaypointIdx != null) {
+    if (widget.mapFunctions.tappedWaypointIdx != null) {
       // reset scroll extend when waypoint tapped.
       controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 500), curve: Curves.easeInCubic);
     }
@@ -81,8 +83,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
-    mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
+    widget.mapFunctions.addListener(update);
     controller = DraggableScrollableController();
   }
 
@@ -92,7 +93,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     arrivalTimeUpdateTimer = null;
 
     routing.removeListener(update);
-    mapFunctions.removeListener(update);
+    widget.mapFunctions.removeListener(update);
     status.removeListener(update);
     super.dispose();
   }

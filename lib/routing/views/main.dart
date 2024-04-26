@@ -85,10 +85,6 @@ class RoutingViewState extends State<RoutingView> {
   void initState() {
     super.initState();
 
-    // Register Service.
-    getIt.registerSingleton<MapFunctions>(MapFunctions());
-    getIt.registerSingleton<MapValues>(MapValues());
-
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
@@ -135,9 +131,9 @@ class RoutingViewState extends State<RoutingView> {
     positioning.addListener(update);
     layers = getIt<Layers>();
     layers.addListener(update);
-    mapFunctions = getIt<MapFunctions>();
+    mapFunctions = MapFunctions();
     mapFunctions.addListener(update);
-    mapValues = getIt<MapValues>();
+    mapValues = MapValues();
   }
 
   @override
@@ -150,9 +146,6 @@ class RoutingViewState extends State<RoutingView> {
     mapFunctions.removeListener(update);
     timer?.cancel();
 
-    // Unregister Service since the app will run out of the needed scope.
-    getIt.unregister<MapFunctions>(instance: mapFunctions);
-    getIt.unregister<MapValues>(instance: mapValues);
     super.dispose();
   }
 
@@ -341,7 +334,10 @@ class RoutingViewState extends State<RoutingView> {
         resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
-            const RoutingMapView(),
+            RoutingMapView(
+              mapValues: mapValues,
+              mapFunctions: mapFunctions,
+            ),
 
             if (routing.isFetchingRoute || geocoding.isFetchingAddress) renderLoadingIndicator(),
             if (routing.hadErrorDuringFetch) renderTryAgainButton(),
@@ -386,24 +382,32 @@ class RoutingViewState extends State<RoutingView> {
             SafeArea(
               child: Padding(
                 padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 128 : 80, left: 8),
-                child: const Column(
+                child: Column(
                   children: [
-                    CenterButton(),
-                    SmallVSpace(),
-                    CompassButton(),
-                    SmallVSpace(),
-                    ProfileButton(),
+                    CenterButton(
+                      mapValues: mapValues,
+                      mapFunctions: mapFunctions,
+                    ),
+                    const SmallVSpace(),
+                    CompassButton(
+                      mapValues: mapValues,
+                      mapFunctions: mapFunctions,
+                    ),
+                    const SmallVSpace(),
+                    const ProfileButton(),
                   ],
                 ),
               ),
             ),
 
-            const SafeArea(
+            SafeArea(
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 128),
-                  child: ShortcutsRow(),
+                  padding: const EdgeInsets.only(bottom: 128),
+                  child: ShortcutsRow(
+                    mapFunctions: mapFunctions,
+                  ),
                 ),
               ),
             ),
@@ -448,6 +452,7 @@ class RoutingViewState extends State<RoutingView> {
                 onSelectStartButton: onStartRide,
                 onSelectSaveButton: () => showSaveShortcutSheet(context),
                 hasInitiallyLoaded: hasInitiallyLoaded,
+                mapFunctions: mapFunctions,
               ),
             ),
 
@@ -456,7 +461,9 @@ class RoutingViewState extends State<RoutingView> {
               curve: Curves.easeInCubic,
               bottom: mapFunctions.tappedWaypointIdx == null ? -140 : 0,
               left: 0,
-              child: const EditWaypointBottomSheet(),
+              child: EditWaypointBottomSheet(
+                mapFunctions: mapFunctions,
+              ),
             ),
 
             AnimatedPositioned(
@@ -464,7 +471,9 @@ class RoutingViewState extends State<RoutingView> {
               curve: Curves.easeInCubic,
               bottom: mapFunctions.addWaypointAtScreenCoordinate == null ? -140 : 0,
               left: 0,
-              child: const AddWaypointBottomSheet(),
+              child: AddWaypointBottomSheet(
+                mapFunctions: mapFunctions,
+              ),
             ),
           ],
         ),

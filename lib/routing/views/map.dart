@@ -49,7 +49,13 @@ const double cancelButtonIconSize = 50;
 const double poiScreenMargin = 0.1;
 
 class RoutingMapView extends StatefulWidget {
-  const RoutingMapView({super.key});
+  /// The associated mapValues service, which is injected by the provider.
+  final MapValues mapValues;
+
+  /// The associated mapFunctions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
+  const RoutingMapView({super.key, required this.mapValues, required this.mapFunctions});
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
@@ -77,12 +83,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
-
-  /// The associated mapFunctions service, which is injected by the provider.
-  late MapFunctions mapFunctions;
-
-  /// The associated mapValues service, which is injected by the provider.
-  late MapValues mapValues;
 
   /// The associated tutorial service, which is injected by the provider.
   late Tutorial tutorial;
@@ -190,31 +190,31 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Updates the centering.
   updateMapFunctions() async {
-    if (mapFunctions.needsCentering) {
+    if (widget.mapFunctions.needsCentering) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
-      mapFunctions.needsCentering = false;
+      widget.mapFunctions.needsCentering = false;
       return;
     }
 
-    if (mapFunctions.needsCenteringNorth) {
+    if (widget.mapFunctions.needsCenteringNorth) {
       centerCameraToNorth();
-      mapFunctions.needsCenteringNorth = false;
+      widget.mapFunctions.needsCenteringNorth = false;
       return;
     }
 
-    if (mapFunctions.needsNewWaypointCoordinates) {
+    if (widget.mapFunctions.needsNewWaypointCoordinates) {
       setCoordinatesForMovedWaypoint();
-      mapFunctions.needsNewWaypointCoordinates = false;
+      widget.mapFunctions.needsNewWaypointCoordinates = false;
       return;
     }
 
-    if (mapFunctions.needsWaypointCentering) {
-      if (mapFunctions.tappedWaypointIdx != null) {
-        Waypoint tappedWaypoint = routing.selectedWaypoints![mapFunctions.tappedWaypointIdx!];
+    if (widget.mapFunctions.needsWaypointCentering) {
+      if (widget.mapFunctions.tappedWaypointIdx != null) {
+        Waypoint tappedWaypoint = routing.selectedWaypoints![widget.mapFunctions.tappedWaypointIdx!];
         // Add highlighting.
         if (!mounted) return;
-        await WaypointsLayer(tappedWaypointIdx: mapFunctions.tappedWaypointIdx!).update(mapController!);
+        await WaypointsLayer(tappedWaypointIdx: widget.mapFunctions.tappedWaypointIdx!).update(mapController!);
 
         // Move the camera to the center of the waypoint.
         fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
@@ -228,8 +228,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         return;
       }
 
-      if (mapFunctions.addWaypointAtScreenCoordinate != null) {
-        final coordinate = await mapController!.coordinateForPixel(mapFunctions.addWaypointAtScreenCoordinate!);
+      if (widget.mapFunctions.addWaypointAtScreenCoordinate != null) {
+        final coordinate = await mapController!.coordinateForPixel(widget.mapFunctions.addWaypointAtScreenCoordinate!);
         final pointCoord = Point.fromJson(Map<String, dynamic>.from(coordinate));
         final longitude = pointCoord.coordinates.lng.toDouble();
         final latitude = pointCoord.coordinates.lat.toDouble();
@@ -247,7 +247,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
-    if (mapFunctions.needsRemoveHighlighting) {
+    if (widget.mapFunctions.needsRemoveHighlighting) {
       // Remove highlighting.
       if (!mounted) return;
       await WaypointsLayer().update(mapController!);
@@ -290,8 +290,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing = getIt<Routing>();
     pois = getIt<Pois>();
     status = getIt<PredictionSGStatus>();
-    mapFunctions = getIt<MapFunctions>();
-    mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
@@ -312,7 +310,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing.removeListener(updateRoute);
     pois.removeListener(updatePois);
     status.removeListener(updateSelectedRouteLayer);
-    mapFunctions.removeListener(updateMapFunctions);
+    widget.mapFunctions.removeListener(updateMapFunctions);
     routeLabelManager?.removeListener(onRouteLabelUpdate);
     super.dispose();
   }
@@ -648,13 +646,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         final waypointIdx = int.tryParse(id.split("-")[1]);
         if (waypointIdx == null) return;
         if (routing.selectedWaypoints == null) return;
-        mapFunctions.setTappedWaypointIdx(waypointIdx);
-        mapFunctions.setCameraCenterOnWaypointLocation();
+        widget.mapFunctions.setTappedWaypointIdx(waypointIdx);
+        widget.mapFunctions.setCameraCenterOnWaypointLocation();
         return;
       }
 
       // Only check for more features if edit waypoint mode is not active.
-      if (mapFunctions.tappedWaypointIdx != null) return;
+      if (widget.mapFunctions.tappedWaypointIdx != null) return;
 
       // Case Route or Route label.
       if ((id).startsWith("route-")) {
@@ -826,7 +824,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing.addListener(updateRoute);
     pois.addListener(updatePois);
     status.addListener(updateSelectedRouteLayer);
-    mapFunctions.addListener(updateMapFunctions);
+    widget.mapFunctions.addListener(updateMapFunctions);
     routeLabelManager?.addListener(onRouteLabelUpdate);
 
     await getFirstLabelLayer();
@@ -854,7 +852,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
     // Do not handle onTap when add waypoint mode is active.
-    if (mapFunctions.addWaypointAtScreenCoordinate != null) return;
+    if (widget.mapFunctions.addWaypointAtScreenCoordinate != null) return;
 
     if (poiPopup != null) {
       await resetPOISelection();
@@ -933,7 +931,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     // Only handle if add waypoint mode is not active.
-    if (mapFunctions.addWaypointAtScreenCoordinate == null) {
+    if (widget.mapFunctions.addWaypointAtScreenCoordinate == null) {
       if (features.isNotEmpty) {
         // Handle edit waypoint.
         onFeatureTapped(features[0]!);
@@ -942,10 +940,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
 
     // Only handle if edit waypoint mode is not active.
-    if (mapFunctions.tappedWaypointIdx == null) {
+    if (widget.mapFunctions.tappedWaypointIdx == null) {
       // No Waypoint Long press and therefore go in add waypoint mode.
-      mapFunctions.setAddNewWaypointAt(actualScreenCoordinate);
-      mapFunctions.setCameraCenterOnWaypointLocation();
+      widget.mapFunctions.setAddNewWaypointAt(actualScreenCoordinate);
+      widget.mapFunctions.setCameraCenterOnWaypointLocation();
     }
   }
 
@@ -1110,7 +1108,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final CameraState camera = await mapController!.getCameraState();
 
     // Set bearing in mapFunctions.
-    mapValues.setCameraBearing(camera.bearing);
+    widget.mapValues.setCameraBearing(camera.bearing);
 
     // When the camera position changed, set not centered.
     if (camera.center["coordinates"] == null) return;
@@ -1125,9 +1123,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final double lonUser = double.parse(positioning.lastPosition!.longitude.toStringAsFixed(4));
 
     if (lat == latUser && lon == lonUser) {
-      mapValues.setCameraCentered();
+      widget.mapValues.setCameraCentered();
     } else {
-      mapValues.setCameraNotCentered();
+      widget.mapValues.setCameraNotCentered();
     }
   }
 
@@ -1234,17 +1232,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final point = ScreenCoordinate(x: x, y: y);
 
-    if (mapFunctions.tappedWaypointIdx != null) {
+    if (widget.mapFunctions.tappedWaypointIdx != null) {
       if (routing.selectedWaypoints == null) return;
 
-      int idx = mapFunctions.tappedWaypointIdx!;
+      int idx = widget.mapFunctions.tappedWaypointIdx!;
 
       // replace waypoint at the new position
+      widget.mapFunctions.reset();
       await replaceWaypoint(point, idx);
     }
 
-    if (mapFunctions.addWaypointAtScreenCoordinate != null) {
+    if (widget.mapFunctions.addWaypointAtScreenCoordinate != null) {
       // Add waypoint at best location.
+      widget.mapFunctions.reset();
       await addWaypoint(point, atBestLocationOnRoute: true);
     }
   }
@@ -1269,7 +1269,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         ),
 
         if (routeLabelManager != null &&
-            mapFunctions.tappedWaypointIdx == null &&
+            widget.mapFunctions.tappedWaypointIdx == null &&
+            widget.mapFunctions.addWaypointAtScreenCoordinate == null &&
             routeLabelManager!.managedRouteLabels.isNotEmpty)
           ...routeLabelManager!.managedRouteLabels.map((ManagedRouteLabel managedRouteLabel) {
             if (managedRouteLabel.ready()) {
@@ -1328,14 +1329,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
 
         // Show waypoint indicator for edit waypoint.
-        if (showWaypointIndicator && mapFunctions.tappedWaypointIdx != null && routing.selectedWaypoints != null)
+        if (showWaypointIndicator && widget.mapFunctions.tappedWaypointIdx != null && routing.selectedWaypoints != null)
           TargetMarkerIcon(
-            idx: mapFunctions.tappedWaypointIdx!,
+            idx: widget.mapFunctions.tappedWaypointIdx!,
             waypointSize: routing.selectedWaypoints!.length,
           ),
 
         // Show waypoint indicator for add waypoint.
-        if (showWaypointIndicator && mapFunctions.addWaypointAtScreenCoordinate != null)
+        if (showWaypointIndicator && widget.mapFunctions.addWaypointAtScreenCoordinate != null)
           const TargetMarkerIcon(
             idx: 0,
             waypointSize: 1,

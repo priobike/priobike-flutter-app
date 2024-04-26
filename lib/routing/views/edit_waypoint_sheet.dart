@@ -11,8 +11,12 @@ import 'package:priobike/routing/services/routing.dart';
 
 /// A bottom sheet to display edit waypoint actions.
 class EditWaypointBottomSheet extends StatefulWidget {
+  /// The associated map functions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
   const EditWaypointBottomSheet({
     super.key,
+    required this.mapFunctions,
   });
 
   @override
@@ -22,9 +26,6 @@ class EditWaypointBottomSheet extends StatefulWidget {
 class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
-
-  /// The associated map functions service, which is injected by the provider.
-  late MapFunctions mapFunctions;
 
   /// The scroll controller for the bottom sheet.
   late DraggableScrollableController controller;
@@ -38,8 +39,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
 
     routing = getIt<Routing>();
     routing.addListener(update);
-    mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
+    widget.mapFunctions.addListener(update);
 
     controller = DraggableScrollableController();
   }
@@ -47,24 +47,24 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
   @override
   void dispose() {
     routing.removeListener(update);
-    mapFunctions.removeListener(update);
+    widget.mapFunctions.removeListener(update);
     super.dispose();
   }
 
   void _removeWaypoint() {
-    if (mapFunctions.tappedWaypointIdx == null) return;
-    int idx = mapFunctions.tappedWaypointIdx!;
-    mapFunctions.unsetTappedWaypointIdx();
+    if (widget.mapFunctions.tappedWaypointIdx == null) return;
+    int idx = widget.mapFunctions.tappedWaypointIdx!;
+    widget.mapFunctions.unsetTappedWaypointIdx();
     routing.removeWaypointAt(idx);
   }
 
   void _setWaypoint() {
-    if (mapFunctions.tappedWaypointIdx == null) return;
-    mapFunctions.getCoordinatesForWaypoint();
+    if (widget.mapFunctions.tappedWaypointIdx == null) return;
+    widget.mapFunctions.getCoordinatesForWaypoint();
   }
 
   void _cancel() {
-    mapFunctions.unsetTappedWaypointIdx();
+    widget.mapFunctions.unsetTappedWaypointIdx();
   }
 
   @override
@@ -99,11 +99,11 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                       child: BoldContent(text: "Wegpunkt Bearbeiten", context: context),
                     ),
                     const SmallHSpace(),
-                    if (mapFunctions.tappedWaypointIdx == null || routing.selectedWaypoints == null)
+                    if (widget.mapFunctions.tappedWaypointIdx == null || routing.selectedWaypoints == null)
                       Container()
-                    else if (mapFunctions.tappedWaypointIdx == 0)
+                    else if (widget.mapFunctions.tappedWaypointIdx == 0)
                       const StartIcon(width: 20, height: 20)
-                    else if (mapFunctions.tappedWaypointIdx! == routing.selectedWaypoints!.length - 1)
+                    else if (widget.mapFunctions.tappedWaypointIdx! == routing.selectedWaypoints!.length - 1)
                       const DestinationIcon(width: 20, height: 20)
                     else
                       Stack(
@@ -113,7 +113,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                           Padding(
                             padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
                             child: BoldSmall(
-                              text: (mapFunctions.tappedWaypointIdx! + 1).toString(),
+                              text: (widget.mapFunctions.tappedWaypointIdx! + 1).toString(),
                               color: Colors.black,
                               context: context,
                             ),

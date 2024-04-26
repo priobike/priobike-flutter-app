@@ -10,8 +10,12 @@ import 'package:priobike/routing/services/routing.dart';
 
 /// A bottom sheet to display edit waypoint actions.
 class AddWaypointBottomSheet extends StatefulWidget {
+  /// The associated map functions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
   const AddWaypointBottomSheet({
     super.key,
+    required this.mapFunctions,
   });
 
   @override
@@ -21,9 +25,6 @@ class AddWaypointBottomSheet extends StatefulWidget {
 class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
-
-  /// The associated map functions service, which is injected by the provider.
-  late MapFunctions mapFunctions;
 
   /// The scroll controller for the bottom sheet.
   late DraggableScrollableController controller;
@@ -37,8 +38,7 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
 
     routing = getIt<Routing>();
     routing.addListener(update);
-    mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
+    widget.mapFunctions.addListener(update);
 
     controller = DraggableScrollableController();
   }
@@ -46,16 +46,16 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
   @override
   void dispose() {
     routing.removeListener(update);
-    mapFunctions.removeListener(update);
+    widget.mapFunctions.removeListener(update);
     super.dispose();
   }
 
   void _setWaypoint() {
-    mapFunctions.getCoordinatesForWaypoint();
+    widget.mapFunctions.getCoordinatesForWaypoint();
   }
 
   void _cancel() {
-    mapFunctions.unsetAddNewWaypointAt();
+    widget.mapFunctions.unsetAddNewWaypointAt();
   }
 
   @override

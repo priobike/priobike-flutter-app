@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/main.dart';
 import 'dart:math' as math;
 
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 
 class CompassButton extends StatefulWidget {
-  const CompassButton({super.key});
+  /// The associated MapValues service, which is injected by the provider.
+  final MapValues mapValues;
+
+  /// The associated MapFunctions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
+  const CompassButton({super.key, required this.mapValues, required this.mapFunctions});
 
   @override
   State<StatefulWidget> createState() => CompassButtonState();
 }
 
 class CompassButtonState extends State<CompassButton> {
-  /// The associated MapFunctions service, which is injected by the provider.
-  late MapFunctions mapFunctions;
-
-  /// The associated MapValues service, which is injected by the provider.
-  late MapValues mapValues;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -28,20 +27,18 @@ class CompassButtonState extends State<CompassButton> {
   void initState() {
     super.initState();
 
-    mapFunctions = getIt<MapFunctions>();
-    mapValues = getIt<MapValues>();
-    mapValues.addListener(update);
+    widget.mapValues.addListener(update);
   }
 
   @override
   void dispose() {
-    mapValues.removeListener(update);
+    widget.mapValues.removeListener(update);
     super.dispose();
   }
 
   /// Private center north Function which calls mapFunctionsService
   void _centerNorth() {
-    mapFunctions.setCameraCenterNorth();
+    widget.mapFunctions.setCameraCenterNorth();
   }
 
   @override
@@ -54,7 +51,7 @@ class CompassButtonState extends State<CompassButton> {
         onPressed: _centerNorth,
         padding: const EdgeInsets.all(4),
         content: Transform.rotate(
-          angle: mapValues.cameraBearing.toInt() * math.pi / -180,
+          angle: widget.mapValues.cameraBearing.toInt() * math.pi / -180,
           child: CompassIcon(
             context: context,
           ),
