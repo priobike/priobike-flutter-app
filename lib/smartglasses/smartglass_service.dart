@@ -43,7 +43,9 @@ class SmartglassService {
   }
   void updateInstructions(String text, int sign, int distance) async {
     log.w("Update smartglass view with text: $text, $sign");
-    await _flutterSmartglassesToozPlugin.toozifierUpdateInstructions(text, sign, distance);
+    final strlen = text.length;
+    final end = strlen > 35 ? 35 : strlen;
+    await _flutterSmartglassesToozPlugin.toozifierUpdateInstructions(text.substring(0, end), sign, distance);
   }
   void updateTacho(List<Map<String, dynamic>> tachoItems) async {
     await _flutterSmartglassesToozPlugin.toozifierUpdateTacho(tachoItems, calcCurrentSpeed());
