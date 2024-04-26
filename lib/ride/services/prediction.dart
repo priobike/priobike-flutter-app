@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
-import 'package:priobike/ride/services/mqtt.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -150,17 +151,39 @@ class PredictionProvider {
     }
   }
 
+  /// Init the prediction MQTT client.
+  MqttClient initClient(String logName, String path, int port) {
+    final clientId = 'priobike-app-${UniqueKey().toString()}'; // Random client ID.
+    final client = MqttServerClient(path, clientId);
+    client.logging(on: false);
+    client.keepAlivePeriod = 30;
+    client.secure = false;
+    client.port = port;
+    client.autoReconnect = true;
+    client.resubscribeOnAutoReconnect = true;
+    client.onDisconnected = () => log.i("🛜❌ $logName MQTT client disconnected");
+    client.onConnected = () => log.i("🛜✅ $logName MQTT client connected");
+    client.onSubscribed = (topic) => log.i("🫡✅ $logName MQTT client subscribed to $topic");
+    client.onUnsubscribed = (topic) => log.i("🫡❌ $logName MQTT client unsubscribed from $topic");
+    client.onAutoReconnect = () => log.i("🛜🔁 $logName MQTT client auto reconnect");
+    client.onAutoReconnected = () => log.i("🛜🔁✅ $logName MQTT client auto reconnected");
+    client.setProtocolV311(); // Default Mosquitto protocol
+    client.connectionMessage =
+        MqttConnectMessage().withClientIdentifier(client.clientIdentifier).startClean().withWillQos(MqttQos.atMostOnce);
+    return client;
+  }
+
   /// Establish a connection with the MQTT client.
   Future<void> connectMQTTClient() async {
     // Get the backend that is currently selected.
     try {
       final settings = getIt<Settings>();
-      psClient = getMQTTClient(
+      psClient = initClient(
         "PredictionService",
         settings.backend.predictionServiceMQTTPath,
         settings.backend.predictionServiceMQTTPort,
       );
-      pClient = getMQTTClient(
+      pClient = initClient(
         "Predictor",
         settings.backend.predictorMQTTPath,
         settings.backend.predictorMQTTPort,

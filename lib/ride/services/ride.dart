@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+
 import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
@@ -11,11 +12,13 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/ride/services/prediction.dart';
+import 'package:priobike/ride/services/prediction_mock.dart';
+import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -203,11 +206,17 @@ class Ride with ChangeNotifier {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
-    // Connect the prediction service MQTT client.
-    predictionProvider = PredictionProvider(
-        onConnected: onPredictionComponentClientConnected,
-        notifyListeners: notifyListeners,
-        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
+    // Connect the prediction service client.
+    final settings = getIt<Settings>();
+    predictionProvider = settings.usePredictionsFromRecordedTrack
+        ? MockPredictionProvider(
+            onConnected: onPredictionComponentClientConnected,
+            notifyListeners: notifyListeners,
+            onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide)
+        : PredictionProvider(
+            onConnected: onPredictionComponentClientConnected,
+            notifyListeners: notifyListeners,
+            onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
     predictionProvider!.connectMQTTClient();
 
     // Mark that navigation is now active.
