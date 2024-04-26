@@ -643,21 +643,24 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final id = queriedRenderedFeature.queriedFeature.feature['id'];
 
     if (id != null) {
-      // Case Route or Route label.
-      if ((id as String).startsWith("route-")) {
-        final routeIdx = int.tryParse(id.split("-")[1]);
-        if (routeIdx == null || (routing.selectedRoute != null && routeIdx == routing.selectedRoute!.idx)) return;
-        routing.switchToRoute(routeIdx);
-        return;
-      }
-
       // Case waypoint
-      if (id.startsWith("waypoint-")) {
+      if ((id as String).startsWith("waypoint-")) {
         final waypointIdx = int.tryParse(id.split("-")[1]);
         if (waypointIdx == null) return;
         if (routing.selectedWaypoints == null) return;
         mapFunctions.setTappedWaypointIdx(waypointIdx);
         mapFunctions.setCameraCenterOnWaypointLocation();
+        return;
+      }
+
+      // Only check for more features if edit waypoint mode is not active.
+      if (mapFunctions.tappedWaypointIdx != null) return;
+
+      // Case Route or Route label.
+      if ((id).startsWith("route-")) {
+        final routeIdx = int.tryParse(id.split("-")[1]);
+        if (routeIdx == null || (routing.selectedRoute != null && routeIdx == routing.selectedRoute!.idx)) return;
+        routing.switchToRoute(routeIdx);
         return;
       }
     }
@@ -850,6 +853,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
   Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
+    // Do not handle onTap when add waypoint mode is active.
+    if (mapFunctions.addWaypointAtScreenCoordinate != null) return;
 
     if (poiPopup != null) {
       await resetPOISelection();
@@ -927,7 +932,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
     );
 
-    // If waypoint is long pressed.
+    // Only handle if add waypoint mode is not active.
     if (mapFunctions.addWaypointAtScreenCoordinate == null) {
       if (features.isNotEmpty) {
         // Handle edit waypoint.
@@ -936,6 +941,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
+    // Only handle if edit waypoint mode is not active.
     if (mapFunctions.tappedWaypointIdx == null) {
       // No Waypoint Long press and therefore go in add waypoint mode.
       mapFunctions.setAddNewWaypointAt(actualScreenCoordinate);
