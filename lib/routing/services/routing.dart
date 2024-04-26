@@ -338,7 +338,8 @@ class Routing with ChangeNotifier {
 
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
-  Future<List<r.Route>?> loadRoutes() async {
+  /// Optional data are for example POIs along the route and the status along the route.
+  Future<List<r.Route>?> loadRoutes({bool fetchOptionalData = true}) async {
     if (isFetchingRoute) return null;
 
     final bikeType = getIt<Profile>().bikeType;
@@ -496,21 +497,31 @@ class Routing with ChangeNotifier {
     fetchedBikeType = bikeType;
     isFetchingRoute = false;
 
+    if (fetchOptionalData) fetchOptionalRouteData();
+
+    notifyListeners();
+    return routes;
+  }
+
+  /// Fetch optional data for all routes.
+  Future<void> fetchOptionalRouteData() async {
+    if (allRoutes == null) return;
+
     final status = getIt<PredictionSGStatus>();
     final pois = getIt<Pois>();
 
-    for (r.Route route in routes) {
+    for (r.Route route in allRoutes!) {
       await status.fetch(route);
       status.updateStatus(route);
       await pois.findPois(route);
     }
     // The Status and Pois must be first fetched for every route
     // before we can compare all routes with every other route to find the most unique attribute.
-    for (r.Route route in routes) {
+    for (r.Route route in allRoutes!) {
       findMostUniqueAttributeForRoute(route.idx);
     }
+
     notifyListeners();
-    return routes;
   }
 
   /// Find the waypoint x meters before the current instruction
