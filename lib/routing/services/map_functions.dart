@@ -58,6 +58,7 @@ class MapFunctions with ChangeNotifier {
   /// Sets the tapped waypoint idx.
   void unsetTappedWaypointIdx() {
     tappedWaypointIdx = null;
+    needsRemoveHighlighting = true;
     notifyListeners();
   }
 
@@ -70,18 +71,13 @@ class MapFunctions with ChangeNotifier {
   /// Unsets the add new waypoint at screen coordinates.
   void unsetAddNewWaypointAt() {
     addWaypointAtScreenCoordinate = null;
+    needsRemoveHighlighting = true;
     notifyListeners();
   }
 
   /// Apply centering.
   void setCameraCenterOnWaypointLocation() {
     needsWaypointCentering = true;
-    notifyListeners();
-  }
-
-  /// Apply remove highlighting.
-  void setRemoveWaypointHighlighting() {
-    needsRemoveHighlighting = true;
     notifyListeners();
   }
 

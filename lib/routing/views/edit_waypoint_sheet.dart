@@ -65,7 +65,6 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
 
   void _cancel() {
     mapFunctions.unsetTappedWaypointIdx();
-    mapFunctions.setRemoveWaypointHighlighting();
   }
 
   @override

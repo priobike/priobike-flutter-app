@@ -56,7 +56,6 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
 
   void _cancel() {
     mapFunctions.unsetAddNewWaypointAt();
-    mapFunctions.setRemoveWaypointHighlighting();
   }
 
   @override
