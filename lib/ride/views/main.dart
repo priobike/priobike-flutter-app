@@ -24,7 +24,6 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/views/sensor_state.dart';
 import 'package:priobike/simulator/views/simulator_state.dart';
-import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -77,7 +76,6 @@ class RideViewState extends State<RideView> {
         final positioning = getIt<Positioning>();
         final datastream = getIt<Datastream>();
         routing = getIt<Routing>();
-        final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
