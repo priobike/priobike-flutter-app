@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:battery_plus/battery_plus.dart' hide BatteryState;
+import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -211,8 +211,17 @@ class Tracking with ChangeNotifier {
     try {
       battery ??= Battery();
       final level = await battery!.batteryLevel;
+      final batteryState = await battery!.batteryState;
+      // When battery is full and charging, battery is full is returned.
+      final isInBatterySaveMode = await battery!.isInBatterySaveMode;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      track!.batteryStates.add(BatteryState(level: level, timestamp: timestamp));
+      track!.batteryStates.add(
+        BatteryHistory(
+            level: level,
+            timestamp: timestamp,
+            batteryState: batteryState.toString(),
+            isInBatterySaveMode: isInBatterySaveMode),
+      );
     } catch (e, stacktrace) {
       log.e("Could not sample battery state: $e $stacktrace");
     }

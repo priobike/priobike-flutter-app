@@ -10,28 +10,39 @@ import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
 
-class BatteryState {
+class BatteryHistory {
   /// The battery level, in percent.
   int level;
 
   /// The timestamp of the battery state.
   int timestamp;
 
-  BatteryState({required this.level, required this.timestamp});
+  /// The state of the battery.
+  String batteryState;
+
+  /// If the system is in battery save mode.
+  bool isInBatterySaveMode;
+
+  BatteryHistory(
+      {required this.level, required this.timestamp, required this.batteryState, required this.isInBatterySaveMode});
 
   /// Convert the battery state to a json object.
   Map<String, dynamic> toJson() {
     return {
       'level': level,
       'timestamp': timestamp,
+      'batteryState': batteryState,
+      'isInBatterySaveMode': isInBatterySaveMode,
     };
   }
 
   /// Create a battery state from a json object.
-  factory BatteryState.fromJson(Map<String, dynamic> json) {
-    return BatteryState(
+  factory BatteryHistory.fromJson(Map<String, dynamic> json) {
+    return BatteryHistory(
       level: json['level'],
       timestamp: json['timestamp'],
+      batteryState: json['batteryState'],
+      isInBatterySaveMode: json['isInBatterySaveMode'],
     );
   }
 }
@@ -131,7 +142,7 @@ class Track {
   bool canUseGamification;
 
   /// The battery states sampled during the ride.
-  List<BatteryState> batteryStates = [];
+  List<BatteryHistory> batteryStates = [];
 
   /// The lightning mode.
   bool? isDarkMode;
@@ -221,9 +232,9 @@ class Track {
   factory Track.fromJson(Map<String, dynamic> json) {
     // Assuring backwards compatibility.
     // Battery states were added later, so we need to check if they exist.
-    List<BatteryState> batteryStates = [];
+    List<BatteryHistory> batteryStates = [];
     if (json.containsKey("batteryStates")) {
-      batteryStates = (json['batteryStates'] as List<dynamic>).map((e) => BatteryState.fromJson(e)).toList();
+      batteryStates = (json['batteryStates'] as List<dynamic>).map((e) => BatteryHistory.fromJson(e)).toList();
     }
     return Track(
       uploaded: json['uploaded'],
