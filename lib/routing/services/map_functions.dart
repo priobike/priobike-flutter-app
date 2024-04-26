@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/logging/logger.dart';
 
 class MapFunctions with ChangeNotifier {
@@ -11,14 +12,17 @@ class MapFunctions with ChangeNotifier {
   /// A bool specifying whether the map should fetch coordinates for move waypoint.
   bool needsNewWaypointCoordinates = false;
 
+  /// A bool specifying whether the map should be centered to the waypoint icon.
+  bool needsWaypointCentering = false;
+
+  /// A bool specifying whether the waypoint layer needs highlight.
+  bool needsRemoveHighlighting = false;
+
   /// The index of the tappedWaypoint.
   int? tappedWaypointIdx;
 
-  /// The initial x screen coordinate of the new waypoint to add.
-  double? addWaypointAtX;
-
-  /// The initial y screen coordinate of the new waypoint to add.
-  double? addWaypointAtY;
+  /// The initial screen coordinate of the new waypoint to add.
+  ScreenCoordinate? addWaypointAtScreenCoordinate;
 
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
@@ -40,7 +44,7 @@ class MapFunctions with ChangeNotifier {
   }
 
   /// Get new coordinates of moved waypoint.
-  void getCoordinatesForMovedWaypoint() {
+  void getCoordinatesForWaypoint() {
     needsNewWaypointCoordinates = true;
     notifyListeners();
   }
@@ -57,11 +61,28 @@ class MapFunctions with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sets the tapped waypoint idx.
-  void setAddNewWaypointAt(double x, double y) {
+  /// Sets the add new waypoint at screen coordinates.
+  void setAddNewWaypointAt(ScreenCoordinate screenCoordinate) {
+    addWaypointAtScreenCoordinate = screenCoordinate;
     notifyListeners();
-    addWaypointAtX = x;
-    addWaypointAtY = y;
+  }
+
+  /// Unsets the add new waypoint at screen coordinates.
+  void unsetAddNewWaypointAt() {
+    addWaypointAtScreenCoordinate = null;
+    notifyListeners();
+  }
+
+  /// Apply centering.
+  void setCameraCenterOnWaypointLocation() {
+    needsWaypointCentering = true;
+    notifyListeners();
+  }
+
+  /// Apply remove highlighting.
+  void setRemoveWaypointHighlighting() {
+    needsRemoveHighlighting = true;
+    notifyListeners();
   }
 
   /// Reset all map functions attributes.
@@ -70,8 +91,9 @@ class MapFunctions with ChangeNotifier {
     needsCenteringNorth = false;
     needsNewWaypointCoordinates = false;
     tappedWaypointIdx = null;
-    addWaypointAtX = null;
-    addWaypointAtY = null;
+    addWaypointAtScreenCoordinate = null;
+    needsWaypointCentering = false;
+    needsRemoveHighlighting = false;
     notifyListeners();
   }
 }

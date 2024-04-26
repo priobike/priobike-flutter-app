@@ -136,7 +136,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   bool isMapMoving = false;
 
   /// The bool that holds the state whether the edit waypoint indicator is displayed.
-  bool showEditWaypointIndicator = false;
+  bool showWaypointIndicator = false;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -209,28 +209,51 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       return;
     }
 
-    if (mapFunctions.tappedWaypointIdx != null) {
-      Waypoint tappedWaypoint = routing.selectedWaypoints![mapFunctions.tappedWaypointIdx!];
-      // Add highlighting.
-      if (!mounted) return;
-      await WaypointsLayer().update(mapController!);
+    if (mapFunctions.needsWaypointCentering) {
+      if (mapFunctions.tappedWaypointIdx != null) {
+        Waypoint tappedWaypoint = routing.selectedWaypoints![mapFunctions.tappedWaypointIdx!];
+        // Add highlighting.
+        if (!mounted) return;
+        await WaypointsLayer(tappedWaypointIdx: mapFunctions.tappedWaypointIdx!).update(mapController!);
 
-      // Move the camera to the center of the waypoint.
-      fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
-      // Wait for animation.
-      await Future.delayed(const Duration(seconds: 1));
+        // Move the camera to the center of the waypoint.
+        fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
+        // Wait for animation.
+        await Future.delayed(const Duration(seconds: 1));
 
-      // Display the waypoint indicator.
-      setState(() {
-        showEditWaypointIndicator = true;
-      });
-    } else {
+        // Display the waypoint indicator.
+        setState(() {
+          showWaypointIndicator = true;
+        });
+        return;
+      }
+
+      if (mapFunctions.addWaypointAtScreenCoordinate != null) {
+        final coordinate = await mapController!.coordinateForPixel(mapFunctions.addWaypointAtScreenCoordinate!);
+        final pointCoord = Point.fromJson(Map<String, dynamic>.from(coordinate));
+        final longitude = pointCoord.coordinates.lng.toDouble();
+        final latitude = pointCoord.coordinates.lat.toDouble();
+
+        // Move the camera to the center of the waypoint.
+        fitCameraToCoordinate(latitude, longitude);
+        // Wait for animation.
+        await Future.delayed(const Duration(seconds: 1));
+
+        // Display the waypoint indicator.
+        setState(() {
+          showWaypointIndicator = true;
+        });
+        return;
+      }
+    }
+
+    if (mapFunctions.needsRemoveHighlighting) {
       // Remove highlighting.
       if (!mounted) return;
       await WaypointsLayer().update(mapController!);
 
       setState(() {
-        showEditWaypointIndicator = false;
+        showWaypointIndicator = false;
       });
 
       // To update the screen.
@@ -243,6 +266,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           MapAnimationOptions(duration: 100),
         );
       }
+      return;
     }
   }
 
@@ -633,7 +657,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         if (waypointIdx == null) return;
         if (routing.selectedWaypoints == null) return;
         mapFunctions.setTappedWaypointIdx(waypointIdx);
-
+        mapFunctions.setCameraCenterOnWaypointLocation();
         return;
       }
     }
@@ -904,14 +928,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     // If waypoint is long pressed.
-    if (features.isNotEmpty) {
-      // Handle edit waypoint.
-      onFeatureTapped(features[0]!);
-      return;
+    if (mapFunctions.addWaypointAtScreenCoordinate == null) {
+      if (features.isNotEmpty) {
+        // Handle edit waypoint.
+        onFeatureTapped(features[0]!);
+        return;
+      }
     }
 
-    // No Waypoint Long press and therefore go in add waypoint mode.
-    mapFunctions.setAddNewWaypointAt(actualScreenCoordinate.x, actualScreenCoordinate.y);
+    if (mapFunctions.tappedWaypointIdx == null) {
+      // No Waypoint Long press and therefore go in add waypoint mode.
+      mapFunctions.setAddNewWaypointAt(actualScreenCoordinate);
+      mapFunctions.setCameraCenterOnWaypointLocation();
+    }
   }
 
   /// Resets the current POI selection.
@@ -1192,8 +1221,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Get the coordinates for the moved waypoint.
   void setCoordinatesForMovedWaypoint() async {
     if (mapController == null) return;
-    if (routing.selectedWaypoints == null) return;
-    if (mapFunctions.tappedWaypointIdx == null) return;
 
     final frame = MediaQuery.of(context);
     final x = frame.size.width / 2;
@@ -1201,10 +1228,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final point = ScreenCoordinate(x: x, y: y);
 
-    int idx = mapFunctions.tappedWaypointIdx!;
+    if (mapFunctions.tappedWaypointIdx != null) {
+      if (routing.selectedWaypoints == null) return;
 
-    // replace waypoint at the new position
-    await replaceWaypoint(point, idx);
+      int idx = mapFunctions.tappedWaypointIdx!;
+
+      // replace waypoint at the new position
+      await replaceWaypoint(point, idx);
+    }
+
+    if (mapFunctions.addWaypointAtScreenCoordinate != null) {
+      // Add waypoint at best location.
+      await addWaypoint(point, atBestLocationOnRoute: true);
+    }
   }
 
   @override
@@ -1221,7 +1257,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           onCameraChanged: onCameraChanged,
           onMapIdle: onMapIdle,
           onMapTap: onMapTap,
-          onMapLongClick: onMapTap,
+          onMapLongClick: onMapLongTap,
           logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
           attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
         ),
@@ -1285,11 +1321,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             ),
           ),
 
-        if (showEditWaypointIndicator && mapFunctions.tappedWaypointIdx != null && routing.selectedWaypoints != null)
+        // Show waypoint indicator for edit waypoint.
+        if (showWaypointIndicator && mapFunctions.tappedWaypointIdx != null && routing.selectedWaypoints != null)
           TargetMarkerIcon(
             idx: mapFunctions.tappedWaypointIdx!,
             waypointSize: routing.selectedWaypoints!.length,
-          )
+          ),
+
+        // Show waypoint indicator for add waypoint.
+        if (showWaypointIndicator && mapFunctions.addWaypointAtScreenCoordinate != null)
+          const TargetMarkerIcon(
+            idx: 0,
+            waypointSize: 1,
+          ),
       ],
     );
   }

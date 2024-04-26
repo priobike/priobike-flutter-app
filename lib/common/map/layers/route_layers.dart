@@ -10,7 +10,6 @@ import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -444,9 +443,11 @@ class WaypointsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  WaypointsLayer() {
+  /// If a waypoint is tapped and needs highlighting.
+  int? tappedWaypointIdx;
+
+  WaypointsLayer({this.tappedWaypointIdx}) {
     final routing = getIt<Routing>();
-    final mapFunctions = getIt<MapFunctions>();
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
       features.add(
@@ -461,7 +462,7 @@ class WaypointsLayer {
             "isFirst": entry.key == 0,
             "isLast": entry.key == waypoints.length - 1,
             "idx": entry.key + 1,
-            "editing": mapFunctions.tappedWaypointIdx == entry.key
+            "editing": tappedWaypointIdx == entry.key
           },
         },
       );

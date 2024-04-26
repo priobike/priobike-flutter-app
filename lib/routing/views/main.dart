@@ -21,6 +21,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/add_waypoint_sheet.dart';
 import 'package:priobike/routing/views/details/map_legend.dart';
 import 'package:priobike/routing/views/details/shortcuts.dart';
 import 'package:priobike/routing/views/edit_waypoint_sheet.dart';
@@ -439,7 +440,9 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: mapFunctions.tappedWaypointIdx == null ? 0 : -140,
+              bottom: mapFunctions.tappedWaypointIdx == null && mapFunctions.addWaypointAtScreenCoordinate == null
+                  ? 0
+                  : -140,
               left: 0,
               child: RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
@@ -454,6 +457,14 @@ class RoutingViewState extends State<RoutingView> {
               bottom: mapFunctions.tappedWaypointIdx == null ? -140 : 0,
               left: 0,
               child: const EditWaypointBottomSheet(),
+            ),
+
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInCubic,
+              bottom: mapFunctions.addWaypointAtScreenCoordinate == null ? -140 : 0,
+              left: 0,
+              child: const AddWaypointBottomSheet(),
             ),
           ],
         ),
