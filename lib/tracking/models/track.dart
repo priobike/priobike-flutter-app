@@ -12,16 +12,16 @@ import 'package:priobike/tracking/models/tap_tracking.dart';
 
 class BatteryHistory {
   /// The battery level, in percent.
-  int level;
+  int? level;
 
   /// The timestamp of the battery state.
-  int timestamp;
+  int? timestamp;
 
   /// The state of the battery.
-  String batteryState;
+  String? batteryState;
 
   /// If the system is in battery save mode.
-  bool isInBatterySaveMode;
+  bool? isInBatterySaveMode;
 
   BatteryHistory(
       {required this.level, required this.timestamp, required this.batteryState, required this.isInBatterySaveMode});
@@ -39,10 +39,10 @@ class BatteryHistory {
   /// Create a battery state from a json object.
   factory BatteryHistory.fromJson(Map<String, dynamic> json) {
     return BatteryHistory(
-      level: json['level'],
-      timestamp: json['timestamp'],
-      batteryState: json['batteryState'],
-      isInBatterySaveMode: json['isInBatterySaveMode'],
+      level: json.containsKey('level') ? json['level'] : null,
+      timestamp: json.containsKey('timestamp') ? json['timestamp'] : null,
+      batteryState: json.containsKey('batteryState') ? json['batteryState'] : null,
+      isInBatterySaveMode: json.containsKey('isInBatterySaveMode') ? json['isInBatterySaveMode'] : null,
     );
   }
 }
