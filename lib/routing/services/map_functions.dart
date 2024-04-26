@@ -14,6 +14,12 @@ class MapFunctions with ChangeNotifier {
   /// The index of the tappedWaypoint.
   int? tappedWaypointIdx;
 
+  /// The initial x screen coordinate of the new waypoint to add.
+  double? addWaypointAtX;
+
+  /// The initial y screen coordinate of the new waypoint to add.
+  double? addWaypointAtY;
+
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
 
@@ -51,12 +57,21 @@ class MapFunctions with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sets the tapped waypoint idx.
+  void setAddNewWaypointAt(double x, double y) {
+    notifyListeners();
+    addWaypointAtX = x;
+    addWaypointAtY = y;
+  }
+
   /// Reset all map functions attributes.
   void reset() {
     needsCentering = false;
     needsCenteringNorth = false;
     needsNewWaypointCoordinates = false;
     tappedWaypointIdx = null;
+    addWaypointAtX = null;
+    addWaypointAtY = null;
     notifyListeners();
   }
 }

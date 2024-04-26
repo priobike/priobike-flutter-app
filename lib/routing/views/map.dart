@@ -822,7 +822,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when a tap on the map is registered.
   /// This also resolves if a certain feature is being tapped on. This function
-  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
+  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 1.0.0)
   /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
   Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
@@ -867,6 +867,51 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       onFeatureTapped(features[0]!);
       return;
     }
+  }
+
+  /// A callback which is executed when a long tap on the map is registered.
+  /// This function should get screen coordinates. However, at the moment (mapbox_maps_flutter version 1.0.0)
+  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
+  Future<void> onMapLongTap(ScreenCoordinate screenCoordinate) async {
+    if (mapController == null || !mounted) return;
+
+    if (poiPopup != null) {
+      await resetPOISelection();
+    }
+
+    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
+    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
+    // fixed in an upcoming version we need to remove this conversion.
+    final ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
+      Point(
+        coordinates: Position(
+          screenCoordinate.y,
+          screenCoordinate.x,
+        ),
+      ).toJson(),
+    );
+
+    final List<QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
+      RenderedQueryGeometry(
+        value: json.encode(actualScreenCoordinate.encode()),
+        type: Type.SCREEN_COORDINATE,
+      ),
+      RenderedQueryOptions(
+        layerIds: [
+          WaypointsLayer.layerId,
+        ],
+      ),
+    );
+
+    // If waypoint is long pressed.
+    if (features.isNotEmpty) {
+      // Handle edit waypoint.
+      onFeatureTapped(features[0]!);
+      return;
+    }
+
+    // No Waypoint Long press and therefore go in add waypoint mode.
+    mapFunctions.setAddNewWaypointAt(actualScreenCoordinate.x, actualScreenCoordinate.y);
   }
 
   /// Resets the current POI selection.
