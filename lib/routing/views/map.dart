@@ -144,6 +144,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The bool that holds the state whether the edit waypoint indicator is displayed.
   bool showWaypointIndicator = false;
 
+  /// The bool that holds the state whether the edit waypoint indicator is displayed.
+  bool showRoutePreview = false;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -993,8 +996,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     // Only update if adding waypoint at is active.
     if (showWaypointIndicator == false || widget.mapFunctions.addWaypointAtScreenCoordinate == null) {
+      if (showRoutePreview == false) return;
       if (!mounted) return;
       await RoutePreviewLayer().update(mapController!);
+      showRoutePreview = false;
       return;
     }
     // Get the coordinate of the center of the screen.
@@ -1011,6 +1016,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await RoutePreviewLayer(addedPosition: addedPosition, snappedPosition: bestNavigationNodeCoordinate)
         .update(mapController!);
+    showRoutePreview = true;
   }
 
   /// Add a waypoint at the tapped position.
