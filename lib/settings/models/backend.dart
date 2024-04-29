@@ -43,6 +43,19 @@ extension BackendName on Backend {
   }
 }
 
+extension LinkShortener on Backend {
+  String get linkShortenerApiKey {
+    switch (this) {
+      case Backend.production:
+        return Keys.linkShortenerApiKeyProduction;
+      case Backend.staging:
+        return Keys.linkShortenerApiKeyStaging;
+      case Backend.release:
+        return Keys.linkShortenerApiKeyRelease;
+    }
+  }
+}
+
 extension BackendPredictionServiceMqtt on Backend {
   String get predictionServiceMQTTPath {
     switch (this) {
@@ -312,17 +325,6 @@ extension Simulator on Backend {
         return "app";
       case Backend.release:
         return "app";
-    }
-  }
-
-  String get linkShortenerApiKey {
-    switch (this) {
-      case Backend.production:
-        return Keys.linkShortenerApiKeyProduction;
-      case Backend.staging:
-        return Keys.linkShortenerApiKeyStaging;
-      case Backend.release:
-        return Keys.linkShortenerApiKeyRelease;
     }
   }
 }
