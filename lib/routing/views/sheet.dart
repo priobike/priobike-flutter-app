@@ -63,7 +63,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    if (widget.mapFunctions.tappedWaypointIdx != null) {
+    if (widget.mapFunctions.tappedWaypointIdx != null || widget.mapFunctions.selectPointOnMap) {
       // reset scroll extend when waypoint tapped.
       controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 500), curve: Curves.easeInCubic);
     }
@@ -147,6 +147,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     unawaited(routing.loadRoutes());
   }
 
+  void onSelectOnMap() {
+    widget.mapFunctions.setSelectPointOnMap();
+  }
+
   Widget renderDragIndicator(BuildContext context) {
     return Container(
       alignment: AlignmentDirectional.center,
@@ -205,6 +209,16 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
             }),
           ),
           SearchWaypointItem(onSelect: onSearch),
+          const SmallVSpace(),
+          Row(children: [
+            Expanded(
+              child: BigButtonSecondary(
+                label: "Auf Karte auswählen",
+                fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                onPressed: onSelectOnMap,
+              ),
+            ),
+          ]),
         ],
       )
     ]);

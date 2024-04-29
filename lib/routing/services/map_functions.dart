@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/logging/logger.dart';
 
 class MapFunctions with ChangeNotifier {
@@ -21,8 +20,8 @@ class MapFunctions with ChangeNotifier {
   /// The index of the tappedWaypoint.
   int? tappedWaypointIdx;
 
-  /// The initial screen coordinate of the new waypoint to add.
-  ScreenCoordinate? addWaypointAtScreenCoordinate;
+  /// The bool that holds the state if select on map is active.
+  bool selectPointOnMap = false;
 
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
@@ -63,14 +62,14 @@ class MapFunctions with ChangeNotifier {
   }
 
   /// Sets the add new waypoint at screen coordinates.
-  void setAddNewWaypointAt(ScreenCoordinate screenCoordinate) {
-    addWaypointAtScreenCoordinate = screenCoordinate;
+  void setSelectPointOnMap() {
+    selectPointOnMap = true;
     notifyListeners();
   }
 
   /// Unsets the add new waypoint at screen coordinates.
-  void unsetAddNewWaypointAt() {
-    addWaypointAtScreenCoordinate = null;
+  void unsetSelectPointOnMap() {
+    selectPointOnMap = false;
     needsRemoveHighlighting = true;
     notifyListeners();
   }
@@ -87,7 +86,7 @@ class MapFunctions with ChangeNotifier {
     needsCenteringNorth = false;
     needsNewWaypointCoordinates = false;
     tappedWaypointIdx = null;
-    addWaypointAtScreenCoordinate = null;
+    selectPointOnMap = false;
     needsWaypointCentering = false;
     needsRemoveHighlighting = false;
     notifyListeners();

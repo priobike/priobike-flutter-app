@@ -237,24 +237,24 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         });
         return;
       }
+    }
 
-      if (widget.mapFunctions.addWaypointAtScreenCoordinate != null) {
-        final coordinate = await mapController!.coordinateForPixel(widget.mapFunctions.addWaypointAtScreenCoordinate!);
-        final pointCoord = Point.fromJson(Map<String, dynamic>.from(coordinate));
-        final longitude = pointCoord.coordinates.lng.toDouble();
-        final latitude = pointCoord.coordinates.lat.toDouble();
+    if (widget.mapFunctions.selectPointOnMap) {
+      // Display the waypoint indicator.
+      setState(() {
+        showWaypointIndicator = true;
+      });
 
-        // Move the camera to the center of the waypoint.
-        fitCameraToCoordinate(latitude, longitude);
-        // Wait for animation.
-        await Future.delayed(const Duration(seconds: 1));
-
-        // Display the waypoint indicator.
-        setState(() {
-          showWaypointIndicator = true;
-        });
-        return;
+      if (Platform.isAndroid) {
+        final cameraState = await mapController!.getCameraState();
+        mapController!.flyTo(
+          CameraOptions(
+            zoom: cameraState.zoom + 0.001,
+          ),
+          MapAnimationOptions(duration: 100),
+        );
       }
+      return;
     }
 
     if (widget.mapFunctions.needsRemoveHighlighting) {
@@ -872,7 +872,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
     // Do not handle onTap when add waypoint mode is active.
-    if (widget.mapFunctions.addWaypointAtScreenCoordinate != null) return;
+    if (widget.mapFunctions.selectPointOnMap) return;
 
     if (poiPopup != null) {
       await resetPOISelection();
@@ -950,20 +950,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
     );
 
-    // Only handle if add waypoint mode is not active.
-    if (widget.mapFunctions.addWaypointAtScreenCoordinate == null) {
-      if (features.isNotEmpty) {
-        // Handle edit waypoint.
-        onFeatureTapped(features[0]!);
-        return;
-      }
-    }
-
-    // Only handle if edit waypoint mode is not active.
-    if (widget.mapFunctions.tappedWaypointIdx == null) {
-      // No Waypoint Long press and therefore go in add waypoint mode.
-      widget.mapFunctions.setAddNewWaypointAt(actualScreenCoordinate);
-      widget.mapFunctions.setCameraCenterOnWaypointLocation();
+    if (features.isNotEmpty) {
+      // Handle edit waypoint.
+      onFeatureTapped(features[0]!);
+      return;
     }
   }
 
@@ -997,7 +987,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> updateRoutePreview() async {
     if (mapController == null || !mounted) return;
     // Only update if adding waypoint at is active.
-    if (showWaypointIndicator == false || widget.mapFunctions.addWaypointAtScreenCoordinate == null) {
+    if (showWaypointIndicator == false || !widget.mapFunctions.selectPointOnMap) {
       if (showRoutePreview == false) return;
       if (!mounted) return;
       await RoutePreviewLayer().update(mapController!);
@@ -1315,7 +1305,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       await replaceWaypoint(point, idx);
     }
 
-    if (widget.mapFunctions.addWaypointAtScreenCoordinate != null) {
+    if (widget.mapFunctions.selectPointOnMap) {
       // Add waypoint at best location.
       widget.mapFunctions.reset();
       await addWaypoint(point, atBestLocationOnRoute: true);
@@ -1343,7 +1333,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
         if (routeLabelManager != null &&
             widget.mapFunctions.tappedWaypointIdx == null &&
-            widget.mapFunctions.addWaypointAtScreenCoordinate == null &&
+            !widget.mapFunctions.selectPointOnMap &&
             routeLabelManager!.managedRouteLabels.isNotEmpty)
           ...routeLabelManager!.managedRouteLabels.map((ManagedRouteLabel managedRouteLabel) {
             if (managedRouteLabel.ready()) {
@@ -1409,7 +1399,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           ),
 
         // Show waypoint indicator for add waypoint.
-        if (showWaypointIndicator && widget.mapFunctions.addWaypointAtScreenCoordinate != null)
+        if (showWaypointIndicator && widget.mapFunctions.selectPointOnMap)
           const TargetMarkerIcon(
             idx: 0,
             waypointSize: 1,

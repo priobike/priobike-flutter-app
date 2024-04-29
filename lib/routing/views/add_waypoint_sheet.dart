@@ -55,7 +55,7 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
   }
 
   void _cancel() {
-    widget.mapFunctions.unsetAddNewWaypointAt();
+    widget.mapFunctions.unsetSelectPointOnMap();
   }
 
   @override
