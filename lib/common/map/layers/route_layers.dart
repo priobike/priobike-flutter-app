@@ -598,7 +598,7 @@ class RoutePreviewLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {fgLineWidth = 7.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {fgLineWidth = 3.5, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
