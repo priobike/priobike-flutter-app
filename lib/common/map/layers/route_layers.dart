@@ -307,8 +307,6 @@ class PoisLayer {
           {
             "type": "Feature",
             "properties": {
-              "textColor": isDark ? "#FFFFFF" : "#003064",
-              "textHaloColor": isDark ? "#003064" : "#FFFFFF",
               "color": "#d9c89e",
               "bgcolor": "#d1b873",
               "symbol": poi.type,
@@ -337,8 +335,6 @@ class PoisLayer {
           "type": "Feature",
           "properties": {
             "description": poi.description,
-            "textColor": isDark ? "#FFFFFF" : "#003064",
-            "textHaloColor": isDark ? "#003064" : "#FFFFFF",
             "color": "#ffdc00",
             "bgcolor": "#ad9600",
             "symbol": poi.type.mapboxIcon,
@@ -367,8 +363,8 @@ class PoisLayer {
         mapbox.SymbolLayer(
           sourceId: sourceId,
           id: layerIdCount,
-          textHaloColor: isDark ? const Color(0xFF003064).value : const Color(0xFFFFFFFF).value,
-          textColor: isDark ? const Color(0xFFFFFFFF).value : const Color(0xFF003064).value,
+          textHaloColor: const Color(0xFFFFFFFF).value,
+          textColor: const Color(0xFF003064).value,
           textHaloWidth: 0.2,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
@@ -395,18 +391,6 @@ class PoisLayer {
           'text-opacity',
           json.encode(
             showAfter(zoom: 16),
-          ));
-      await mapController.style.setStyleLayerProperty(
-          layerIdCount,
-          'text-color',
-          json.encode(
-            ["get", "textColor"],
-          ));
-      await mapController.style.setStyleLayerProperty(
-          layerIdCount,
-          'text-halo-color',
-          json.encode(
-            ["get", "textHaloColor"],
           ));
     }
     final routePoisSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
@@ -448,18 +432,6 @@ class PoisLayer {
           'text-opacity',
           json.encode(
             showAfter(zoom: 16),
-          ));
-      await mapController.style.setStyleLayerProperty(
-          layerIdSymbol,
-          'text-color',
-          json.encode(
-            ["get", "textColor"],
-          ));
-      await mapController.style.setStyleLayerProperty(
-          layerIdSymbol,
-          'text-halo-color',
-          json.encode(
-            ["get", "textHaloColor"],
           ));
     }
     final routePoisLayerExists = await mapController.style.styleLayerExists(layerId);
