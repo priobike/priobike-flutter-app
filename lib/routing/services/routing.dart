@@ -116,6 +116,31 @@ class Routing with ChangeNotifier {
     return bestIdx;
   }
 
+  /// Get the best index to insert a new waypoint for the currently selected waypoints.
+  LatLng? getClosestNavigationNodeToPosition(LatLng position) {
+    if (selectedWaypoints == null) return null;
+    if (selectedWaypoints!.isEmpty) return null;
+    if (selectedWaypoints!.length == 1) return LatLng(selectedWaypoints![0].lat, selectedWaypoints![0].lon);
+    if (selectedRoute == null) return null;
+    if (selectedRoute!.route.isEmpty) return null;
+
+    // init with start waypoint.
+    var bestNavigationNode = LatLng(selectedWaypoints![0].lat, selectedWaypoints![0].lon);
+    var bestDist = double.infinity;
+
+    for (final navigationNode in selectedRoute!.route) {
+      // Snap the position to the segment between waypoints i and i+1
+      // and calculate the distance to the snapped position.
+      final navigationNodeCoordinate = LatLng(navigationNode.lat, navigationNode.lon);
+      final d = Snapper.vincenty.distance(position, navigationNodeCoordinate);
+      if (d < bestDist) {
+        bestDist = d;
+        bestNavigationNode = navigationNodeCoordinate;
+      }
+    }
+    return bestNavigationNode;
+  }
+
   /// Get the index of a waypoint in the selected waypoints.
   int getIndexOfWaypoint(Waypoint waypoint) {
     if (selectedWaypoints == null) return 0;

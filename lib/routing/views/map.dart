@@ -132,6 +132,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The relative vertical margin in pixel for the poi pop up to be displayed.
   late double poiPopUpMarginBottom;
 
+  /// The absolute center x of the screen.
+  late double centerX;
+
+  /// The absolute center y of the screen.
+  late double centerY;
+
   /// The bool that holds the state of map moving.
   bool isMapMoving = false;
 
@@ -145,6 +151,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     IntersectionsLayer.layerId,
     AllRoutesLayer.layerId,
     AllRoutesLayer.layerIdClick,
+    RoutePreviewLayer.layerId,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
     PoisLayer.layerIdBackground,
@@ -299,6 +306,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       poiPopUpMarginRight = size.width - size.width * poiScreenMargin;
       poiPopUpMarginTop = size.height * poiScreenMargin;
       poiPopUpMarginBottom = size.height - size.height * poiScreenMargin;
+      centerX = size.width / 2;
+      centerY = size.height / 2;
     });
   }
 
@@ -606,6 +615,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(PoisLayer.layerId);
     if (!mounted) return;
     await PoisLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').install(
+      mapController!,
+      at: index,
+    );
+    index = await getIndex(SelectedRouteLayer.layerId);
+    if (!mounted) return;
+    await RoutePreviewLayer().install(
       mapController!,
       at: index,
     );
@@ -973,6 +988,31 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
+  /// Updates the route preview visualization if needed.
+  Future<void> updateRoutePreview() async {
+    if (mapController == null || !mounted) return;
+    // Only update if adding waypoint at is active.
+    if (showWaypointIndicator == false || widget.mapFunctions.addWaypointAtScreenCoordinate == null) {
+      if (!mounted) return;
+      await RoutePreviewLayer().update(mapController!);
+      return;
+    }
+    // Get the coordinate of the center of the screen.
+
+    final centerCoordinate = await mapController!.coordinateForPixel(ScreenCoordinate(x: centerX, y: centerY));
+    final centerPoint = Point.fromJson(Map<String, dynamic>.from(centerCoordinate));
+
+    // Snap the screenCoordinates to the route.
+    final addedPosition = LatLng(centerPoint.coordinates.lat.toDouble(), centerPoint.coordinates.lng.toDouble());
+    final bestNavigationNodeCoordinate = routing.getClosestNavigationNodeToPosition(addedPosition);
+
+    if (bestNavigationNodeCoordinate == null) return;
+
+    if (!mounted) return;
+    await RoutePreviewLayer(addedPosition: addedPosition, snappedPosition: bestNavigationNodeCoordinate)
+        .update(mapController!);
+  }
+
   /// Add a waypoint at the tapped position.
   /// When the parameter atBestLocationOnRoute is set to true,
   /// we select the best position inbetween existing waypoints with
@@ -1185,6 +1225,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     updateBearingAndCenteringButtons();
 
     updatePOIPopupScreenPosition();
+
+    updateRoutePreview();
   }
 
   /// A callback that is executed when the camera movement changes.
