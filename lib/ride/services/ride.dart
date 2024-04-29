@@ -594,7 +594,6 @@ class Ride with ChangeNotifier {
   Future<void> stopNavigation() async {
     if (predictionProvider != null) predictionProvider!.stopNavigation();
     navigationIsActive = false;
-    onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
     notifyListeners();
   }
 
