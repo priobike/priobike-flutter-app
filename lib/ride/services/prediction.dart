@@ -31,18 +31,12 @@ class PredictionProvider {
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
   late final Function notifyListeners;
 
-  /// The callback that gets executed when a new prediction
-  /// was received from the prediction service and a new
-  /// status update was calculated based on the prediction.
-  late final Function(SGStatusData)? onNewPredictionStatusDuringRide;
-
   /// A callback that gets executed when the client is connected.
   late final Function onConnected;
 
   PredictionProvider({
     required this.onConnected,
     required this.notifyListeners,
-    required this.onNewPredictionStatusDuringRide,
   });
 
   /// Logger for this class.
@@ -255,9 +249,6 @@ class PredictionProvider {
       // Needs to be called before onNewPredictionStatusDuringRide() to ensure that (if used) the hybrid mode selects the
       // used prediction component before correctly.
       notifyListeners();
-
-      // Notify that a new prediction status was obtained.
-      onNewPredictionStatusDuringRide?.call(status);
     }
   }
 
@@ -305,9 +296,6 @@ class PredictionProvider {
       // Needs to be called before onNewPredictionStatusDuringRide() to ensure that (if used) the hybrid mode selects the
       // used prediction component before correctly.
       notifyListeners();
-
-      // Notify that a new prediction status was obtained.
-      onNewPredictionStatusDuringRide?.call(status);
     }
   }
 
