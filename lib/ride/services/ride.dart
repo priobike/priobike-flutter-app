@@ -77,7 +77,7 @@ class Ride with ChangeNotifier {
   int lastRouteID = 0;
 
   /// An instance for text-to-speach.
-  late FlutterTts ftts;
+  FlutterTts? ftts;
 
   /// A map that holds information about the last recommendation to check the difference when a new recommendation is received.
   Map<String, Object> lastRecommendation = {};
@@ -419,39 +419,39 @@ class Ride with ChangeNotifier {
 
     if (Platform.isIOS) {
       // Use siri voice if available.
-      List<dynamic> voices = await ftts.getVoices;
+      List<dynamic> voices = await ftts!.getVoices;
       if (voices.any((element) => element["name"] == "Helena" && element["locale"] == "de-DE")) {
-        await ftts.setVoice({
+        await ftts!.setVoice({
           "name": "Helena",
           "locale": "de-DE",
         });
       }
 
-      await ftts.setSpeechRate(0.55); //speed of speech
-      await ftts.setVolume(1); //volume of speech
-      await ftts.setPitch(1); //pitch of sound
-      await ftts.awaitSpeakCompletion(true);
-      await ftts.autoStopSharedSession(false);
+      await ftts!.setSpeechRate(0.55); //speed of speech
+      await ftts!.setVolume(1); //volume of speech
+      await ftts!.setPitch(1); //pitch of sound
+      await ftts!.awaitSpeakCompletion(true);
+      await ftts!.autoStopSharedSession(false);
 
-      await ftts.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
+      await ftts!.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
         IosTextToSpeechAudioCategoryOptions.duckOthers,
         IosTextToSpeechAudioCategoryOptions.allowBluetooth,
         IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP
       ]);
     } else {
       // Use android voice if available.
-      List<dynamic> voices = await ftts.getVoices;
+      List<dynamic> voices = await ftts!.getVoices;
       if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
-        await ftts.setVoice({
+        await ftts!.setVoice({
           "name": "de-DE-language",
           "locale": "de-DE",
         });
       }
 
-      await ftts.setSpeechRate(0.7); //speed of speech
-      await ftts.setVolume(1); //volume of speech
-      await ftts.setPitch(1); //pitch of sound
-      await ftts.awaitSpeakCompletion(true);
+      await ftts!.setSpeechRate(0.7); //speed of speech
+      await ftts!.setVolume(1); //volume of speech
+      await ftts!.setPitch(1); //pitch of sound
+      await ftts!.awaitSpeakCompletion(true);
     }
   }
 
@@ -459,6 +459,7 @@ class Ride with ChangeNotifier {
   Future<void> playAudioInstruction() async {
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
+    if (ftts == null) return;
 
     Instruction? currentInstruction = route!.instructions.firstWhereOrNull(
         (element) => !element.executed && vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
@@ -471,7 +472,7 @@ class Ride with ChangeNotifier {
         // Put this here to avoid music interruption in case that there is no instruction to play.
         if (it.current.type == InstructionTextType.direction) {
           // No countdown information needs to be added.
-          await ftts.speak(it.current.text);
+          await ftts!.speak(it.current.text);
         } else {
           final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
           // Check for countdown information.
@@ -479,20 +480,21 @@ class Ride with ChangeNotifier {
           if (instructionTextToPlay == null) {
             continue;
           }
-          await ftts.speak(instructionTextToPlay.text);
+          await ftts!.speak(instructionTextToPlay.text);
           // Calc updatedCountdown since initial creation and time that has passed while speaking
           // (to avoid countdown inaccuracy)
           // Also take into account 1s delay for actually speaking the countdown.
           int updatedCountdown = instructionTextToPlay.countdown! -
               (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
               1;
-          await ftts.speak(updatedCountdown.toString());
+          await ftts!.speak(updatedCountdown.toString());
         }
       }
     }
   }
 
   void playNewPredictionStatusInformation() async {
+    if (ftts == null) return;
     // Check if Not supported crossing
     // or we do not have all auxiliary data that the app calculated
     // or prediction quality is not good enough.
@@ -582,13 +584,13 @@ class Ride with ChangeNotifier {
       final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
       var textToPlay = _generateTextToPlay(instructionText, speed);
       if (textToPlay == null) return;
-      await ftts.speak(textToPlay.text);
+      await ftts!.speak(textToPlay.text);
       // Calc updatedCountdown since initial creation and time that has passed while speaking
       // (to avoid countdown inaccuracy)
       // Also take into account 1s delay for actually speaking the countdown.
       int updatedCountdown =
           textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) - 1;
-      await ftts.speak(updatedCountdown.toString());
+      await ftts!.speak(updatedCountdown.toString());
     } else {
       // Nevertheless save the current recommendation information for comparison with updates later.
       lastRecommendation.clear();
