@@ -112,6 +112,7 @@ class RideViewState extends State<RideView> {
             // Play audio instructions if enabled.
             if (settings.saveAudioInstructionsEnabled) {
               ride.playAudioInstruction();
+              ride.playNewPredictionStatusInformation();
             }
 
             // If we are > <x>m from the route, we need to reroute.
