@@ -125,8 +125,11 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 100), curve: Curves.easeInOutCubic);
 
     final bool showOwnLocationInSearch = routing.selectedWaypoints != null ? true : false;
-    final result = await Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => RouteSearch(showCurrentPositionAsWaypoint: showOwnLocationInSearch)));
+    final result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => RouteSearch(
+              showCurrentPositionAsWaypoint: showOwnLocationInSearch,
+              mapFunctions: widget.mapFunctions,
+            )));
     if (result == null) return;
 
     final waypoint = result as Waypoint;

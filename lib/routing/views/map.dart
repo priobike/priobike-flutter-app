@@ -239,12 +239,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
-    if (widget.mapFunctions.selectPointOnMap) {
-      // Display the waypoint indicator.
+    if (widget.mapFunctions.needsRemoveHighlighting) {
+      // Remove highlighting.
+      if (!mounted) return;
+      await WaypointsLayer().update(mapController!);
+
       setState(() {
-        showWaypointIndicator = true;
+        showWaypointIndicator = false;
       });
 
+      // To update the screen.
       if (Platform.isAndroid) {
         final cameraState = await mapController!.getCameraState();
         mapController!.flyTo(
@@ -257,16 +261,31 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       return;
     }
 
-    if (widget.mapFunctions.needsRemoveHighlighting) {
-      // Remove highlighting.
-      if (!mounted) return;
-      await WaypointsLayer().update(mapController!);
+    if (widget.mapFunctions.selectPointOnMap) {
+      // Display the waypoint indicator.
+      setState(() {
+        showWaypointIndicator = true;
+      });
 
+      updateRoutePreview();
+
+      if (Platform.isAndroid) {
+        final cameraState = await mapController!.getCameraState();
+        mapController!.flyTo(
+          CameraOptions(
+            zoom: cameraState.zoom + 0.001,
+          ),
+          MapAnimationOptions(duration: 100),
+        );
+      }
+      return;
+    } else {
       setState(() {
         showWaypointIndicator = false;
       });
 
-      // To update the screen.
+      updateRoutePreview();
+
       if (Platform.isAndroid) {
         final cameraState = await mapController!.getCameraState();
         mapController!.flyTo(
@@ -990,6 +1009,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (showWaypointIndicator == false || !widget.mapFunctions.selectPointOnMap) {
       if (showRoutePreview == false) return;
       if (!mounted) return;
+      print("REMOVEEEEEEEEEE");
       await RoutePreviewLayer().update(mapController!);
       showRoutePreview = false;
       return;

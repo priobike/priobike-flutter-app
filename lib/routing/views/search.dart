@@ -17,6 +17,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 
 /// Result of a address search query.
 class SearchItem extends StatelessWidget {
@@ -178,13 +179,21 @@ class HistoryItemState extends State<HistoryItem> {
   }
 }
 
-/// The button with the current position.
-class CurrentPosition extends StatelessWidget {
+/// The button with used in the search view.
+class SearchButton extends StatelessWidget {
   /// Callback when the current position is tapped.
   final Function onTapped;
 
-  const CurrentPosition({
+  /// The text of the button.
+  final String text;
+
+  /// The icon of the button.
+  final IconData icon;
+
+  const SearchButton({
     required this.onTapped,
+    required this.text,
+    required this.icon,
     super.key,
   });
 
@@ -195,24 +204,20 @@ class CurrentPosition extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListTile(
-        title: BoldContent(
-          text: "Aktueller Standort",
-          context: context,
-        ),
-        trailing: Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: Icon(
-            Icons.arrow_forward,
-            color: Theme.of(context).colorScheme.primary,
+          title: BoldContent(
+            text: text,
+            context: context,
           ),
-        ),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        onTap: () => onTapped(
-          waypoint: Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
-          addToHistory: false,
-        ),
-      ),
+          trailing: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          onTap: () => onTapped()),
     );
   }
 }
@@ -223,7 +228,10 @@ class RouteSearch extends StatefulWidget {
   /// current user position should be a suggested waypoint.
   final bool showCurrentPositionAsWaypoint;
 
-  const RouteSearch({super.key, required this.showCurrentPositionAsWaypoint});
+  /// The associated map functions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
+  const RouteSearch({super.key, required this.showCurrentPositionAsWaypoint, required this.mapFunctions});
 
   @override
   RouteSearchState createState() => RouteSearchState();
@@ -307,6 +315,12 @@ class RouteSearchState extends State<RouteSearch> {
       Navigator.of(context).pop(waypoint);
       if (addToHistory) geosearch.addToSearchHistory(waypoint);
     }
+  }
+
+  /// A callback that is fired when a waypoint is tapped.
+  void tappedSelectOnMap() {
+    widget.mapFunctions.setSelectPointOnMap();
+    Navigator.of(context).pop();
   }
 
   /// Calculate distance to the user for each waypoint and optionally sorts the results in ascending order.
@@ -450,12 +464,19 @@ class RouteSearchState extends State<RouteSearch> {
                   if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
                     Column(
                       children: [
-                        CurrentPosition(
-                          onTapped: tappedWaypoint,
-                        ),
+                        SearchButton(
+                            onTapped: () => tappedWaypoint(
+                                  waypoint:
+                                      Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
+                                  addToHistory: false,
+                                ),
+                            text: "Aktueller Standort",
+                            icon: Icons.arrow_forward),
                         const SmallVSpace(),
                       ],
                     ),
+                  SearchButton(onTapped: tappedSelectOnMap, text: "Auf Karte auswählen", icon: Icons.map),
+                  const SmallVSpace(),
                   Padding(
                     padding: const EdgeInsets.only(left: 28),
                     child: Divider(
