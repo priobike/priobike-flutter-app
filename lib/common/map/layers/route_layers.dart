@@ -292,9 +292,11 @@ class PoisLayer {
     final routing = getIt<Routing>();
 
     // Alternative routes
-    for (final route in routing.allRoutes ?? []) {
+    if (routing.allRoutes == null) return;
+    for (final route in routing.allRoutes!) {
       if (route.idx == routing.selectedRoute?.idx) continue;
-      for (final poi in route.foundPois ?? []) {
+      if (route.foundPois == null) continue;
+      for (final poi in route.foundPois!) {
         if (!poi.isWarning) continue; // Don't display pois that are not warnings.
         if (poi.coordinates.isEmpty) continue;
         // A section of the route.
@@ -309,7 +311,7 @@ class PoisLayer {
             "properties": {
               "color": "#d9c89e",
               "bgcolor": "#d1b873",
-              "symbol": poi.type,
+              "symbol": poi.type.mapboxIcon,
               "symbolopacity": 0,
             },
             "geometry": geometry,
