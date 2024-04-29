@@ -13,7 +13,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/audio_button.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -84,8 +83,10 @@ class RideViewState extends State<RideView> {
         // Start a new session.
         ride = getIt<Ride>();
 
-        // Configure the TTS.
-        await ride.initializeTTS();
+        if (settings.saveAudioInstructionsEnabled) {
+          // Configure the TTS.
+          await ride.initializeTTS();
+        }
 
         // Save current route if the app crashes or the user unintentionally closes it.
         ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
@@ -241,7 +242,6 @@ class RideViewState extends State<RideView> {
                 ),
                 if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
                 FinishRideButton(),
-                const AudioButton(),
                 if (!cameraFollowsUserLocation)
                   SafeArea(
                     bottom: true,
