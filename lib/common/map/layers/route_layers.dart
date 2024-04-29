@@ -8,6 +8,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -166,21 +167,30 @@ class SelectedRouteLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  SelectedRouteLayer() {
+  /// If the layer should show the status of the predictions.
+  final bool showStatus;
+
+  /// Get the color for the status.
+  String getStatusColor(PredictionSGStatus status, NavigationNode navNode) {
+    final sgStatus = status.cache[navNode.signalGroupId];
+    String color;
+    var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+    // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+    if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
+    // Interpolate between green and blue, by the prediction quality.
+    color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
+    return color;
+  }
+
+  SelectedRouteLayer({this.showStatus = false}) {
     final routing = getIt<Routing>();
     final navNodes = routing.selectedRoute?.route ?? [];
 
-    final status = getIt<PredictionSGStatus>();
+    final status = showStatus ? getIt<PredictionSGStatus>() : null;
     Map<String, dynamic>? currentFeature;
     for (int i = navNodes.length - 1; i >= 0; i--) {
       final navNode = navNodes[i];
-      final sgStatus = status.cache[navNode.signalGroupId];
-      String color;
-      var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
-      // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
-      if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
-      // Interpolate between green and blue, by the prediction quality.
-      color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
+      final color = status != null ? getStatusColor(status, navNode) : CI.route.value;
       if (currentFeature == null || currentFeature["color"] != color) {
         if (currentFeature != null) {
           currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
@@ -220,13 +230,15 @@ class SelectedRouteLayer {
           mapbox.LineLayer(
             sourceId: sourceId,
             id: layerId,
-            lineColor: const Color(0xFFC6C6C6).value,
+            lineColor: CI.route.value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: fgLineWidth,
           ),
           mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
+      if (showStatus) {
+        await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
+      }
     }
     final routeBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
     if (!routeBackgroundLayerExists) {

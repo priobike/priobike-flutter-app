@@ -26,12 +26,12 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/poi_popup.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
+import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/route_labels.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/details/poi_popup.dart';
@@ -551,7 +551,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (!mounted) return;
-    await SelectedRouteLayer().update(mapController!);
+    await SelectedRouteLayer(showStatus: true).update(mapController!);
     if (!mounted) return;
     // Pois on selected route are highlighted.
     await PoisLayer(isDark).update(mapController!);
@@ -611,7 +611,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
-    await SelectedRouteLayer().install(
+    await SelectedRouteLayer(showStatus: true).install(
       mapController!,
       at: index,
     );

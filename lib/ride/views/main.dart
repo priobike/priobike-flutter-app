@@ -13,7 +13,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/audio_button.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -24,7 +23,6 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/views/sensor_state.dart';
 import 'package:priobike/simulator/views/simulator_state.dart';
-import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -77,21 +75,22 @@ class RideViewState extends State<RideView> {
         final positioning = getIt<Positioning>();
         final datastream = getIt<Datastream>();
         routing = getIt<Routing>();
-        final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
         ride = getIt<Ride>();
 
-        // Configure the TTS.
-        await ride.initializeTTS();
+        if (settings.saveAudioInstructionsEnabled) {
+          // Configure the TTS.
+          await ride.initializeTTS();
+        }
 
         // Save current route if the app crashes or the user unintentionally closes it.
         ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
         // Set `sessionId` to a random new value and bind the callbacks.
-        await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
+        await ride.startNavigation();
         await ride.selectRoute(routing.selectedRoute!);
 
         // Connect the datastream mqtt client, if the user enabled real-time data.
@@ -114,6 +113,7 @@ class RideViewState extends State<RideView> {
             // Play audio instructions if enabled.
             if (settings.saveAudioInstructionsEnabled) {
               ride.playAudioInstruction();
+              ride.playNewPredictionStatusInformation();
             }
 
             // If we are > <x>m from the route, we need to reroute.
@@ -241,7 +241,6 @@ class RideViewState extends State<RideView> {
                 ),
                 if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
                 FinishRideButton(),
-                const AudioButton(),
                 if (!cameraFollowsUserLocation)
                   SafeArea(
                     bottom: true,

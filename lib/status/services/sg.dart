@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -105,23 +104,6 @@ class PredictionSGStatus with ChangeNotifier {
     }
     route.disconnected = route.crossings.where((c) => !c.connected).length;
     log.i("Fetched sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
-    notifyListeners();
-  }
-
-  /// During the ride we receive predictions from a MQTT service.
-  /// When we receive a new prediction, we want to update the status.
-  /// In this way the UI can adapt to the new prediction.
-  onNewPredictionStatusDuringRide(SGStatusData status) {
-    log.i("Received new prediction status for ${status.thingName}.");
-    cache[status.thingName] = status;
-    // Note: We don't need to update the statistics here,
-    // because we are in the ride and the statistics are not shown.
-
-    // Check if a new prediction info should be played.
-    if (getIt<Settings>().saveAudioInstructionsEnabled) {
-      getIt<Ride>().playNewPredictionStatusInformation();
-    }
-
     notifyListeners();
   }
 

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Route, Shortcuts;
 import 'package:flutter_tts/flutter_tts.dart';
@@ -17,7 +16,6 @@ import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The distance model.
@@ -63,11 +61,6 @@ class Ride with ChangeNotifier {
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
-  /// The callback that gets executed when a new prediction
-  /// was received from the prediction service and a new
-  /// status update was calculated based on the prediction.
-  void Function(SGStatusData)? onNewPredictionStatusDuringRide;
-
   /// The prediction provider.
   PredictionProvider? predictionProvider;
 
@@ -78,10 +71,7 @@ class Ride with ChangeNotifier {
   int lastRouteID = 0;
 
   /// An instance for text-to-speach.
-  FlutterTts ftts = FlutterTts();
-
-  /// The audio session instance.
-  late AudioSession audioSession;
+  FlutterTts? ftts;
 
   /// A map that holds information about the last recommendation to check the difference when a new recommendation is received.
   Map<String, Object> lastRecommendation = {};
@@ -203,22 +193,20 @@ class Ride with ChangeNotifier {
   }
 
   /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(Function(SGStatusData)? onNewPredictionStatusDuringRide) async {
+  Future<void> startNavigation() async {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
     // Connect the prediction service MQTT client.
     predictionProvider = PredictionProvider(
-        onConnected: onPredictionComponentClientConnected,
-        notifyListeners: notifyListeners,
-        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
+      onConnected: onPredictionComponentClientConnected,
+      notifyListeners: notifyListeners,
+    );
     predictionProvider!.connectMQTTClient();
 
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
     navigationIsActive = true;
-    // Notify listeners of a new sg status update.
-    this.onNewPredictionStatusDuringRide = onNewPredictionStatusDuringRide;
   }
 
   /// Update the position.
@@ -318,7 +306,7 @@ class Ride with ChangeNotifier {
   }
 
   /// Check if instruction contains sg information and if so add countdown
-  InstructionText? generateTextToPlay(InstructionText instructionText, double speed) {
+  InstructionText? _generateTextToPlay(InstructionText instructionText, double speed) {
     // Check if Not supported crossing
     // or we do not have all auxiliary data that the app calculated
     // or prediction quality is not good enough.
@@ -353,7 +341,7 @@ class Ride with ChangeNotifier {
     // The current phase ends at index countdown + 2.
     if (recommendation.calcPhasesFromNow.length > countdown + 2) {
       // Calculate the time and color of the next phase after the current phase.
-      durationNextPhase = calcTimeToNextPhaseAfterIndex(countdown + 2) ?? -1;
+      durationNextPhase = _calcTimeToNextPhaseAfterIndex(countdown + 2) ?? -1;
       nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
 
       if (recommendation.calcPhasesFromNow.length > countdown + durationNextPhase + 2) {
@@ -407,7 +395,7 @@ class Ride with ChangeNotifier {
   }
 
   /// Calculates the time to the next phase after the given index.
-  int? calcTimeToNextPhaseAfterIndex(int index) {
+  int? _calcTimeToNextPhaseAfterIndex(int index) {
     final recommendation = predictionProvider!.recommendation!;
 
     final phases = recommendation.calcPhasesFromNow.sublist(index, recommendation.calcPhasesFromNow.length - 1);
@@ -419,67 +407,51 @@ class Ride with ChangeNotifier {
 
   /// Configure the TTS.
   Future<void> initializeTTS() async {
+    ftts = FlutterTts();
+
     if (Platform.isIOS) {
       // Use siri voice if available.
-      List<dynamic> voices = await ftts.getVoices;
+      List<dynamic> voices = await ftts!.getVoices;
       if (voices.any((element) => element["name"] == "Helena" && element["locale"] == "de-DE")) {
-        await ftts.setVoice({
+        await ftts!.setVoice({
           "name": "Helena",
           "locale": "de-DE",
         });
       }
 
-      await ftts.setSpeechRate(0.55); //speed of speech
-      await ftts.setVolume(1); //volume of speech
-      await ftts.setPitch(1); //pitch of sound
-      await ftts.awaitSpeakCompletion(true);
-      await ftts.autoStopSharedSession(false);
+      await ftts!.setSpeechRate(0.55); //speed of speech
+      await ftts!.setVolume(1); //volume of speech
+      await ftts!.setPitch(1); //pitch of sound
+      await ftts!.awaitSpeakCompletion(true);
+      await ftts!.autoStopSharedSession(false);
 
-      await ftts.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
+      await ftts!.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
         IosTextToSpeechAudioCategoryOptions.duckOthers,
         IosTextToSpeechAudioCategoryOptions.allowBluetooth,
         IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP
       ]);
     } else {
       // Use android voice if available.
-      List<dynamic> voices = await ftts.getVoices;
+      List<dynamic> voices = await ftts!.getVoices;
       if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
-        await ftts.setVoice({
+        await ftts!.setVoice({
           "name": "de-DE-language",
           "locale": "de-DE",
         });
       }
 
-      await ftts.setSpeechRate(0.7); //speed of speech
-      await ftts.setVolume(1); //volume of speech
-      await ftts.setPitch(1); //pitch of sound
-      await ftts.awaitSpeakCompletion(true);
+      await ftts!.setSpeechRate(0.7); //speed of speech
+      await ftts!.setVolume(1); //volume of speech
+      await ftts!.setPitch(1); //pitch of sound
+      await ftts!.awaitSpeakCompletion(true);
     }
-
-    // Set the session configuration with the session plugin since the flutter_tts config seems not to work properly.
-    audioSession = await AudioSession.instance;
-    await audioSession.configure(
-      const AudioSessionConfiguration(
-        avAudioSessionCategory: AVAudioSessionCategory.playback,
-        avAudioSessionMode: AVAudioSessionMode.voicePrompt,
-        avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation,
-        avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
-        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
-        androidAudioAttributes: AndroidAudioAttributes(
-          contentType: AndroidAudioContentType.speech,
-          flags: AndroidAudioFlags.none,
-          usage: AndroidAudioUsage.assistanceNavigationGuidance,
-        ),
-        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
-        androidWillPauseWhenDucked: false, // Prevents other audio sources from stopping.
-      ),
-    );
   }
 
   /// Play audio instruction.
   Future<void> playAudioInstruction() async {
     final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
+    if (ftts == null) return;
 
     Instruction? currentInstruction = route!.instructions.firstWhereOrNull(
         (element) => !element.executed && vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 20);
@@ -490,32 +462,31 @@ class Ride with ChangeNotifier {
       Iterator it = currentInstruction.text.iterator;
       while (it.moveNext()) {
         // Put this here to avoid music interruption in case that there is no instruction to play.
-        await audioSession.setActive(true);
         if (it.current.type == InstructionTextType.direction) {
           // No countdown information needs to be added.
-          await ftts.speak(it.current.text);
+          await ftts!.speak(it.current.text);
         } else {
           final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
           // Check for countdown information.
-          var instructionTextToPlay = generateTextToPlay(it.current, speed);
+          var instructionTextToPlay = _generateTextToPlay(it.current, speed);
           if (instructionTextToPlay == null) {
             continue;
           }
-          await ftts.speak(instructionTextToPlay.text);
+          await ftts!.speak(instructionTextToPlay.text);
           // Calc updatedCountdown since initial creation and time that has passed while speaking
           // (to avoid countdown inaccuracy)
           // Also take into account 1s delay for actually speaking the countdown.
           int updatedCountdown = instructionTextToPlay.countdown! -
               (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
               1;
-          await ftts.speak(updatedCountdown.toString());
+          await ftts!.speak(updatedCountdown.toString());
         }
       }
-      await audioSession.setActive(false);
     }
   }
 
   void playNewPredictionStatusInformation() async {
+    if (ftts == null) return;
     // Check if Not supported crossing
     // or we do not have all auxiliary data that the app calculated
     // or prediction quality is not good enough.
@@ -603,17 +574,15 @@ class Ride with ChangeNotifier {
       InstructionText instructionText =
           InstructionText(text: "Nächste $sgType", type: InstructionTextType.signalGroup, distanceToNextSg: 0);
       final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
-      var textToPlay = generateTextToPlay(instructionText, speed);
+      var textToPlay = _generateTextToPlay(instructionText, speed);
       if (textToPlay == null) return;
-      await audioSession.setActive(true);
-      await ftts.speak(textToPlay.text);
+      await ftts!.speak(textToPlay.text);
       // Calc updatedCountdown since initial creation and time that has passed while speaking
       // (to avoid countdown inaccuracy)
       // Also take into account 1s delay for actually speaking the countdown.
       int updatedCountdown =
           textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) - 1;
-      await ftts.speak(updatedCountdown.toString());
-      await audioSession.setActive(false);
+      await ftts!.speak(updatedCountdown.toString());
     } else {
       // Nevertheless save the current recommendation information for comparison with updates later.
       lastRecommendation.clear();
@@ -625,8 +594,6 @@ class Ride with ChangeNotifier {
   Future<void> stopNavigation() async {
     if (predictionProvider != null) predictionProvider!.stopNavigation();
     navigationIsActive = false;
-    onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
-    await audioSession.setActive(false);
     notifyListeners();
   }
 
