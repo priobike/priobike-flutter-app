@@ -10,8 +10,8 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/details/poi.dart';
 import 'package:priobike/routing/views/details/height.dart';
+import 'package:priobike/routing/views/details/poi.dart';
 import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
@@ -338,7 +338,11 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 child: Column(
                   children: [
                     renderDragIndicator(context),
-                    if (!bottomSheetIsReady) const LoadingIcon(),
+                    if (!bottomSheetIsReady)
+                      const SizedBox(
+                        height: 32,
+                        child: LoadingIcon(),
+                      ),
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 1000),
                       curve: Curves.easeInOutCubic,

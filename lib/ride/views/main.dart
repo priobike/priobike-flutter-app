@@ -121,7 +121,7 @@ class RideViewState extends State<RideView> {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
                 await routing.selectRemainingWaypoints();
-                final routes = await routing.loadRoutes();
+                final routes = await routing.loadRoutes(fetchOptionalData: false);
 
                 if (routes == null || routes.isEmpty) {
                   // If we have no routes (e.g. because of routing error or because the user left the city boundaries),
