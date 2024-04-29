@@ -5,9 +5,10 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/ride/services/live_tracking.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart' hide Simulator;
+import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -94,6 +95,9 @@ class Settings with ChangeNotifier {
 
   /// Enable simulator mode for app.
   bool enableSimulatorMode;
+
+  /// Enable live tracking mode for app.
+  bool enableLiveTrackingMode;
 
   /// If the filter for the free ride view is enabled.
   bool isFreeRideFilterEnabled;
@@ -445,6 +449,18 @@ class Settings with ChangeNotifier {
   Future<void> setSimulatorMode(bool enableSimulatorMode) async {
     this.enableSimulatorMode = enableSimulatorMode;
     if (enableSimulatorMode) {
+      getIt<LiveTracking>().makeReadyForRide();
+    } else {
+      getIt<LiveTracking>().cleanUp();
+    }
+    notifyListeners();
+  }
+
+  static const defaultLiveTrackingMode = false;
+
+  Future<void> setLiveTrackingMode(bool enableLiveTrackingMode) async {
+    this.enableLiveTrackingMode = enableLiveTrackingMode;
+    if (enableLiveTrackingMode) {
       getIt<Simulator>().makeReadyForRide();
     } else {
       getIt<Simulator>().cleanUp();
@@ -529,6 +545,7 @@ class Settings with ChangeNotifier {
     this.didViewUserTransfer = defaultDidViewUserTransfer,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
+    this.enableLiveTrackingMode = defaultLiveTrackingMode,
     this.isFreeRideFilterEnabled = defaultIsFreeRideFilterEnabled,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
   });
