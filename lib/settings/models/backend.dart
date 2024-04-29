@@ -283,6 +283,52 @@ extension BackendShortcuts on Backend {
   }
 }
 
+extension LiveTracking on Backend {
+  String get liveTrackingMQTTPath {
+    switch (this) {
+      case Backend.production:
+        return "";
+      case Backend.staging:
+        return "";
+      case Backend.release:
+        return "";
+    }
+  }
+
+  int get liveTrackingMQTTPort {
+    switch (this) {
+      case Backend.production:
+        return 0;
+      case Backend.staging:
+        return 0;
+      case Backend.release:
+        return 0;
+    }
+  }
+
+  String get liveTrackingMQTTPublishPassword {
+    switch (this) {
+      case Backend.production:
+        return "";
+      case Backend.staging:
+        return "";
+      case Backend.release:
+        return "";
+    }
+  }
+
+  String get liveTrackingMQTTPublishUsername {
+    switch (this) {
+      case Backend.production:
+        return "";
+      case Backend.staging:
+        return "";
+      case Backend.release:
+        return "";
+    }
+  }
+}
+
 extension Simulator on Backend {
   String get simulatorMQTTPath {
     switch (this) {
