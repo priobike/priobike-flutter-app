@@ -588,6 +588,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await updateSelectedRouteLayer();
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
+    await RoutePreviewLayer().update(mapController!);
+    if (!mounted) return;
   }
 
   /// Load all route map layers.
@@ -1002,21 +1004,44 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       showRoutePreview = false;
       return;
     }
-    // Get the coordinate of the center of the screen.
+
+    if (routing.selectedWaypoints == null) return;
 
     final centerCoordinate = await mapController!.coordinateForPixel(ScreenCoordinate(x: centerX, y: centerY));
     final centerPoint = Point.fromJson(Map<String, dynamic>.from(centerCoordinate));
 
     // Snap the screenCoordinates to the route.
     final addedPosition = LatLng(centerPoint.coordinates.lat.toDouble(), centerPoint.coordinates.lng.toDouble());
-    final bestNavigationNodeCoordinate = routing.getClosestNavigationNodeToPosition(addedPosition);
 
-    if (bestNavigationNodeCoordinate == null) return;
+    final bestWaypointIndex = routing.getBestWaypointInsertIndex(addedPosition);
 
-    if (!mounted) return;
-    await RoutePreviewLayer(addedPosition: addedPosition, snappedPosition: bestNavigationNodeCoordinate)
-        .update(mapController!);
-    showRoutePreview = true;
+    if (bestWaypointIndex == 0) {
+      if (!mounted) return;
+      await RoutePreviewLayer(
+        addedPosition: addedPosition,
+        snappedWaypoint: LatLng(
+            routing.selectedWaypoints![bestWaypointIndex].lat, routing.selectedWaypoints![bestWaypointIndex].lon),
+      ).update(mapController!);
+      showRoutePreview = true;
+    } else if (bestWaypointIndex == routing.selectedWaypoints!.length) {
+      if (!mounted) return;
+      await RoutePreviewLayer(
+        addedPosition: addedPosition,
+        snappedWaypoint: LatLng(routing.selectedWaypoints![bestWaypointIndex - 1].lat,
+            routing.selectedWaypoints![bestWaypointIndex - 1].lon),
+      ).update(mapController!);
+      showRoutePreview = true;
+      return;
+    } else if (bestWaypointIndex > 0) {
+      await RoutePreviewLayer(
+        addedPosition: addedPosition,
+        snappedWaypoint: LatLng(routing.selectedWaypoints![bestWaypointIndex - 1].lat,
+            routing.selectedWaypoints![bestWaypointIndex - 1].lon),
+        snappedSecondWaypoint: LatLng(
+            routing.selectedWaypoints![bestWaypointIndex].lat, routing.selectedWaypoints![bestWaypointIndex].lon),
+      ).update(mapController!);
+      showRoutePreview = true;
+    }
   }
 
   /// Add a waypoint at the tapped position.

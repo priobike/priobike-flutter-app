@@ -576,11 +576,14 @@ class RoutePreviewLayer {
   /// The coordinate of the added position.
   final LatLng? addedPosition;
 
-  /// The coordinate of the snapped position on the route.
-  final LatLng? snappedPosition;
+  /// The coordinate of the snapped waypoint on the route.
+  final LatLng? snappedWaypoint;
 
-  RoutePreviewLayer({this.addedPosition, this.snappedPosition}) {
-    if (addedPosition != null && snappedPosition != null) {
+  /// The coordinate of the snapped second waypoint on the route.
+  final LatLng? snappedSecondWaypoint;
+
+  RoutePreviewLayer({this.addedPosition, this.snappedWaypoint, this.snappedSecondWaypoint}) {
+    if (addedPosition != null && snappedWaypoint != null) {
       features.add(
         {
           "type": "Feature",
@@ -588,10 +591,24 @@ class RoutePreviewLayer {
             "type": "LineString",
             "coordinates": [
               [addedPosition!.longitude, addedPosition!.latitude],
-              [snappedPosition!.longitude, snappedPosition!.latitude]
+              [snappedWaypoint!.longitude, snappedWaypoint!.latitude]
             ],
           },
-          'properties': {},
+        },
+      );
+    }
+
+    if (addedPosition != null && snappedSecondWaypoint != null) {
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [addedPosition!.longitude, addedPosition!.latitude],
+              [snappedSecondWaypoint!.longitude, snappedSecondWaypoint!.latitude]
+            ],
+          },
         },
       );
     }
