@@ -538,6 +538,12 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      saveAudioInstructionsEnabled =
+          storage.getBool(saveAudioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the stored settings.
@@ -570,12 +576,6 @@ class Settings with ChangeNotifier {
     }
     try {
       saveBatteryModeEnabled = storage.getBool(saveBatteryModeEnabledKey) ?? defaultSaveBatteryModeEnabled;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      saveAudioInstructionsEnabled =
-          storage.getBool(saveAudioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
