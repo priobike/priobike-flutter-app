@@ -39,7 +39,6 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
 
     routing = getIt<Routing>();
     routing.addListener(update);
-    widget.mapFunctions.addListener(update);
 
     controller = DraggableScrollableController();
   }
@@ -47,7 +46,6 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
   @override
   void dispose() {
     routing.removeListener(update);
-    widget.mapFunctions.removeListener(update);
     super.dispose();
   }
 

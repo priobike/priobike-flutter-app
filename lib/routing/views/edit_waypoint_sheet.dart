@@ -148,7 +148,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                   child: BigButtonTertiary(
                     label: "Abbrechen",
                     fillColor: Theme.of(context).colorScheme.surfaceVariant,
-                    onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : _cancel,
+                    onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _cancel,
                     addPadding: false,
                   ),
                 ),
@@ -156,7 +156,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                 Expanded(
                   child: BigButtonSecondary(
                     label: "Löschen",
-                    onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : _removeWaypoint,
+                    onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _removeWaypoint,
                     fillColor: Theme.of(context).colorScheme.surfaceVariant,
                     addPadding: false,
                   ),
@@ -165,7 +165,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                 Expanded(
                   child: BigButtonPrimary(
                     label: "Setzen",
-                    onPressed: routing.isFetchingRoute || routing.selectedRoute == null ? null : _setWaypoint,
+                    onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _setWaypoint,
                     addPadding: false,
                   ),
                 ),
