@@ -1,6 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
+enum POIType {
+  // Positive
+  greenWave,
+  veloroute,
+  // Negative
+  dismount,
+  accidentHotspot,
+  construction,
+  pedestrians,
+  carSpeed,
+  decline,
+  incline,
+  surface,
+  // Aggregated
+  aggregated,
+}
+
+extension POITypeMapboxIcon on POIType {
+  String get mapboxIcon {
+    switch (this) {
+      case POIType.greenWave:
+        return "";
+      case POIType.veloroute:
+        return "";
+      case POIType.dismount:
+        return "dismount";
+      case POIType.accidentHotspot:
+        return "accidenthotspot";
+      case POIType.construction:
+        return "construction";
+      case POIType.pedestrians:
+        return "pedestrians";
+      case POIType.carSpeed:
+        return "carspeed";
+      case POIType.decline:
+        return "decline";
+      case POIType.incline:
+        return "incline";
+      case POIType.surface:
+        return "surface";
+      case POIType.aggregated:
+        return "aggregated";
+    }
+  }
+}
+
 class PoiSegment {
   /// A random unique id for this route.
   late String id;
@@ -9,7 +55,7 @@ class PoiSegment {
   final String description;
 
   /// An identifier of the type of poi.
-  final String type;
+  final POIType type;
 
   /// The coordinates of the poi.
   /// If there are more than 2 coordinates, this will be interpreted as a line.
@@ -25,6 +71,9 @@ class PoiSegment {
   /// Whether the segment should appear as a warning on the route.
   final bool isWarning;
 
+  /// The number of POIs in this segment.
+  final int poiCount;
+
   PoiSegment({
     String? id,
     required this.description,
@@ -33,6 +82,7 @@ class PoiSegment {
     required this.distanceOnRoute,
     required this.color,
     required this.isWarning,
+    required this.poiCount,
   }) {
     if (id == null) {
       this.id = UniqueKey().toString();
@@ -54,7 +104,8 @@ class PoiSegment {
         'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
         'distanceOnRoute': distanceOnRoute,
         'color': color.toString(),
-        'isWarning': isWarning
+        'isWarning': isWarning,
+        'poiCount': poiCount,
       };
 
   factory PoiSegment.fromJson(dynamic json) => PoiSegment(
@@ -65,5 +116,6 @@ class PoiSegment {
         distanceOnRoute: json['distanceOnRoute'],
         color: json['color'],
         isWarning: json['isWarning'],
+        poiCount: json['poiCount'],
       );
 }

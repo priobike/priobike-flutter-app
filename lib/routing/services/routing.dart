@@ -15,6 +15,7 @@ import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/navigation.dart';
+import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -948,8 +949,8 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nGefahrenstellen",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "accidenthotspot" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "accidenthotspot" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.accidentHotspot && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.accidentHotspot && e.isWarning).length ?? 0;
           if (lR == 0) return lO > 0;
           return (lO / lR - 1) > 0.2;
         }
@@ -957,8 +958,8 @@ class Routing with ChangeNotifier {
       (
         "Besserer\nBodenbelag",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "surface" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "surface" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.surface && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.surface && e.isWarning).length ?? 0;
           if (lO == 0) return lR > 0;
           return (lR / lO - 1) > 0.2;
         }
@@ -966,8 +967,8 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nBaustellen",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "construction" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "construction" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.construction && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.construction && e.isWarning).length ?? 0;
           if (lR == 0) return lO > 0;
           return (lO / lR - 1) > 0.2;
         }
@@ -975,8 +976,8 @@ class Routing with ChangeNotifier {
       (
         "Mehr\nVelorouten",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "veloroute").length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "veloroute").length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.veloroute).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.veloroute).length ?? 0;
           if (lO == 0) return lR > 0;
           return (lR / lO - 1) > 0.2;
         }
@@ -984,8 +985,8 @@ class Routing with ChangeNotifier {
       (
         "Mehr\nGrünwellen",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "greenwave").length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "greenwave").length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.greenWave).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.greenWave).length ?? 0;
           if (lO == 0) return lR > 0;
           return (lR / lO - 1) > 0.2;
         }
@@ -993,8 +994,8 @@ class Routing with ChangeNotifier {
       (
         "Seltener\nAbsteigen",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "dismount" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "dismount" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.dismount && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.dismount && e.isWarning).length ?? 0;
           if (lR == 0) return lO > 0;
           return (lO / lR - 1) > 0.2;
         }
@@ -1002,8 +1003,8 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nFußgängerzonen",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "pedestrians" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "pedestrians" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.pedestrians && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.pedestrians && e.isWarning).length ?? 0;
           if (lR == 0) return lO > 0;
           return (lO / lR - 1) > 0.2;
         }
@@ -1011,8 +1012,8 @@ class Routing with ChangeNotifier {
       (
         "Weniger\n100 km/h\nStraßen",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "carspeed" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "carspeed" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.carSpeed && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.carSpeed && e.isWarning).length ?? 0;
           if (lR == 0) return lO > 0;
           return (lO / lR - 1) > 0.2;
         }
@@ -1020,8 +1021,8 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nSteile Anstiege",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "incline" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "incline" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.incline && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.incline && e.isWarning).length ?? 0;
           if (lR == 0) return lO > 0;
           return (lO / lR - 1) > 0.2;
         }
@@ -1043,8 +1044,8 @@ class Routing with ChangeNotifier {
       (
         "Weniger\nSteile Abfahrten",
         (r.Route r, r.Route o) {
-          final lR = r.foundPois?.where((e) => e.type == "decline" && e.isWarning).length ?? 0;
-          final lO = o.foundPois?.where((e) => e.type == "decline" && e.isWarning).length ?? 0;
+          final lR = r.foundPois?.where((e) => e.type == POIType.decline && e.isWarning).length ?? 0;
+          final lO = o.foundPois?.where((e) => e.type == POIType.decline && e.isWarning).length ?? 0;
           if (lR == 0) return lO > 0;
           return (lO / lR - 1) > 0.4;
         }

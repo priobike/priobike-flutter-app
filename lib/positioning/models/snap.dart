@@ -19,7 +19,7 @@ class Snap {
   /// The distance to the route.
   final double distanceToRoute;
 
-  /// The distance on the route.
+  /// The distance on the route (in m).
   final double distanceOnRoute;
 
   /// The snap metadata.

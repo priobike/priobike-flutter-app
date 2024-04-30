@@ -4,11 +4,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
-import 'package:priobike/routing/models/poi.dart';
+import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/navigation.dart';
+import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/models/instruction.dart';
 
 /// Adopted from https://github.com/priobike/priobike-graphhopper-drn/blob/main/converter/mapping.py
 /// Note: This is not exactly the same mapping. In the DRN data,
@@ -184,6 +184,9 @@ class Route {
 
   /// The found pois.
   List<PoiSegment>? foundPois;
+
+  /// The found warning pois (aggregated - if, for example, some POIs share the same location).
+  List<PoiSegment>? foundWarningPoisAggregated;
 
   Route({
     required this.idx,

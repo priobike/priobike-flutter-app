@@ -5,13 +5,13 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/http.dart';
-import 'package:priobike/routing/messages/poi.dart';
-import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/messages/poi.dart';
 import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -149,6 +149,45 @@ class Pois with ChangeNotifier {
     }
   }
 
+  /// Add a poi to the aggregated pois.
+  List<PoiSegment> _addToAggregatedWarningPois(List<PoiSegment> aggregatedPois, PoiSegment poi) {
+    PoiSegment? newAggregatedPoi;
+
+    for (final existingPoiSegment in aggregatedPois) {
+      if (!existingPoiSegment.isWarning) continue;
+      final distanceOnRouteDiff = (existingPoiSegment.distanceOnRoute - poi.distanceOnRoute).abs();
+      if ((existingPoiSegment.coordinates[0].latitude == poi.coordinates[0].latitude &&
+              existingPoiSegment.coordinates[0].longitude == poi.coordinates[0].longitude) ||
+          distanceOnRouteDiff < 5) {
+        final coordinates = existingPoiSegment.coordinates.length > poi.coordinates.length
+            ? existingPoiSegment.coordinates
+            : poi.coordinates;
+        final distanceOnRoute = existingPoiSegment.distanceOnRoute < poi.distanceOnRoute
+            ? existingPoiSegment.distanceOnRoute
+            : poi.distanceOnRoute;
+        newAggregatedPoi = PoiSegment(
+          coordinates: coordinates,
+          description: "${existingPoiSegment.description}, ${poi.description}",
+          type: POIType.aggregated,
+          distanceOnRoute: distanceOnRoute,
+          color: const Color(0xFFfdae61),
+          isWarning: true,
+          poiCount: existingPoiSegment.poiCount + poi.poiCount,
+        );
+        aggregatedPois.remove(existingPoiSegment);
+        break;
+      }
+    }
+
+    if (newAggregatedPoi != null) {
+      aggregatedPois.add(newAggregatedPoi);
+    } else {
+      aggregatedPois.add(poi);
+    }
+
+    return aggregatedPois;
+  }
+
   /// Find pois for the given route.
   Future<void> findPois(Route route) async {
     final path = route.path;
@@ -161,6 +200,8 @@ class Pois with ChangeNotifier {
       WarnType.warnRobustBikes: profile.bikeType == BikeType.mountainbike,
       WarnType.warnAll: true,
     };
+
+    List<PoiSegment> aggregatedWarningPois = [];
 
     final unsmooth = List.empty(growable: true);
     for (final segment in path.details.surface) {
@@ -178,14 +219,17 @@ class Pois with ChangeNotifier {
       final translation = translationsMap[segment.value!];
       if (translation == null) continue;
       final snapper = Snapper(nodes: route.route, position: cs[0]);
-      unsmooth.add(PoiSegment(
+      final poiSegment = PoiSegment(
         coordinates: cs,
         description: translation,
-        type: "surface",
+        type: POIType.surface,
         distanceOnRoute: snapper.snap().distanceOnRoute,
         color: const Color(0xffd7191c),
         isWarning: true,
-      ));
+        poiCount: 1,
+      );
+      unsmooth.add(poiSegment);
+      aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
     }
 
     // Traverse the points and calculate the elevation in degrees.
@@ -232,28 +276,30 @@ class Pois with ChangeNotifier {
       final cs = getCoordinates(segment, path);
       if (segment.value! > 0) {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
-        criticalElevation.add(
-          PoiSegment(
-            coordinates: cs,
-            description: "${segment.value!.round()}% Steigung.",
-            type: "incline",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color(0xFFfdae61),
-            isWarning: true,
-          ),
+        final poiSegment = PoiSegment(
+          coordinates: cs,
+          description: "${segment.value!.round()}% Steigung.",
+          type: POIType.incline,
+          distanceOnRoute: snapper.snap().distanceOnRoute,
+          color: const Color(0xFFfdae61),
+          isWarning: true,
+          poiCount: 1,
         );
+        criticalElevation.add(poiSegment);
+        aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
       } else {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
-        criticalElevation.add(
-          PoiSegment(
-            coordinates: cs,
-            description: "${segment.value!.round()}% Gefälle bergab.",
-            type: "decline",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color(0xFFffffbf),
-            isWarning: true,
-          ),
+        final poiSegment = PoiSegment(
+          coordinates: cs,
+          description: "${segment.value!.round()}% Gefälle bergab.",
+          type: POIType.decline,
+          distanceOnRoute: snapper.snap().distanceOnRoute,
+          color: const Color(0xFFffffbf),
+          isWarning: true,
+          poiCount: 1,
         );
+        criticalElevation.add(poiSegment);
+        aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
       }
     }
 
@@ -266,28 +312,30 @@ class Pois with ChangeNotifier {
       final cs = getCoordinates(segment, path);
       if (segment.value! >= 100) {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
-        unwantedSpeed.add(
-          PoiSegment(
-            coordinates: cs,
-            description: "${segment.value!.toInt()} km/h Tempolimit",
-            type: "carspeed",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color(0xFF543005),
-            isWarning: true,
-          ),
+        final poiSegment = PoiSegment(
+          coordinates: cs,
+          description: "${segment.value!.toInt()} km/h Tempolimit",
+          type: POIType.carSpeed,
+          distanceOnRoute: snapper.snap().distanceOnRoute,
+          color: const Color(0xFF543005),
+          isWarning: true,
+          poiCount: 1,
         );
+        unwantedSpeed.add(poiSegment);
+        aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
       } else if (segment.value! <= 10) {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
-        unwantedSpeed.add(
-          PoiSegment(
-            coordinates: cs,
-            description: "Fußgängerzone",
-            type: "pedestrians",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color.fromARGB(255, 228, 129, 79),
-            isWarning: true,
-          ),
+        final poiSegment = PoiSegment(
+          coordinates: cs,
+          description: "Fußgängerzone",
+          type: POIType.pedestrians,
+          distanceOnRoute: snapper.snap().distanceOnRoute,
+          color: const Color.fromARGB(255, 228, 129, 79),
+          isWarning: true,
+          poiCount: 1,
         );
+        unwantedSpeed.add(poiSegment);
+        aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
       }
     }
 
@@ -297,16 +345,17 @@ class Pois with ChangeNotifier {
       if (segment.value == false) continue;
       final cs = getCoordinates(segment, path);
       final snapper = Snapper(nodes: route.route, position: cs[0]);
-      dismount.add(
-        PoiSegment(
-          coordinates: cs,
-          description: "Absteigen",
-          type: "dismount",
-          distanceOnRoute: snapper.snap().distanceOnRoute,
-          color: const Color(0xFFf46d43),
-          isWarning: true,
-        ),
+      final poiSegment = PoiSegment(
+        coordinates: cs,
+        description: "Absteigen",
+        type: POIType.dismount,
+        distanceOnRoute: snapper.snap().distanceOnRoute,
+        color: const Color(0xFFf46d43),
+        isWarning: true,
+        poiCount: 1,
       );
+      dismount.add(poiSegment);
+      aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
     }
 
     PoisResponse? poisResponse;
@@ -322,16 +371,17 @@ class Pois with ChangeNotifier {
       for (final segment in poisResponse.constructions) {
         final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
         final snapper = Snapper(nodes: route.route, position: cs[0]);
-        constructions.add(
-          PoiSegment(
-            coordinates: cs,
-            description: "Baustelle",
-            type: "construction",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color.fromARGB(255, 215, 39, 136),
-            isWarning: true,
-          ),
+        final poiSegment = PoiSegment(
+          coordinates: cs,
+          description: "Baustelle",
+          type: POIType.construction,
+          distanceOnRoute: snapper.snap().distanceOnRoute,
+          color: const Color.fromARGB(255, 215, 39, 136),
+          isWarning: true,
+          poiCount: 1,
         );
+        constructions.add(poiSegment);
+        aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
       }
     }
     final accidentHotspots = List.empty(growable: true);
@@ -339,16 +389,17 @@ class Pois with ChangeNotifier {
       for (final segment in poisResponse.accidenthotspots) {
         final cs = segment.points.map((e) => LatLng(e.lat, e.lng)).toList();
         final snapper = Snapper(nodes: route.route, position: cs[0]);
-        accidentHotspots.add(
-          PoiSegment(
-            coordinates: cs,
-            description: "Unfallschwerpunkt",
-            type: "accidenthotspot",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-            color: const Color.fromARGB(255, 210, 0, 70),
-            isWarning: true,
-          ),
+        final poiSegment = PoiSegment(
+          coordinates: cs,
+          description: "Unfallschwerpunkt",
+          type: POIType.accidentHotspot,
+          distanceOnRoute: snapper.snap().distanceOnRoute,
+          color: const Color.fromARGB(255, 210, 0, 70),
+          isWarning: true,
+          poiCount: 1,
         );
+        accidentHotspots.add(poiSegment);
+        aggregatedWarningPois = _addToAggregatedWarningPois(aggregatedWarningPois, poiSegment);
       }
     }
     final veloRoutes = List.empty(growable: true);
@@ -360,10 +411,11 @@ class Pois with ChangeNotifier {
           PoiSegment(
             coordinates: cs,
             description: "Velo-Route",
-            type: "veloroute",
+            type: POIType.veloroute,
             distanceOnRoute: snapper.snap().distanceOnRoute,
             color: const Color.fromARGB(255, 55, 129, 226),
             isWarning: false,
+            poiCount: 1,
           ),
         );
       }
@@ -377,10 +429,11 @@ class Pois with ChangeNotifier {
           PoiSegment(
             coordinates: cs,
             description: "Auf Radfahrende abgestimmte Ampelschaltung (Statische grüne Welle)",
-            type: "greenwave",
+            type: POIType.greenWave,
             distanceOnRoute: snapper.snap().distanceOnRoute,
             color: const Color.fromARGB(255, 0, 166, 81),
             isWarning: false,
+            poiCount: 1,
           ),
         );
       }
@@ -399,7 +452,9 @@ class Pois with ChangeNotifier {
       ...veloRoutes,
       ...greenwaves,
     ];
+    route.foundWarningPoisAggregated = aggregatedWarningPois;
     route.foundPois!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
+    route.foundWarningPoisAggregated!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
 
     notifyListeners();
   }

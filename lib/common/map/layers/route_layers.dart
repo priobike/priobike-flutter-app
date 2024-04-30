@@ -9,6 +9,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
+import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/map_functions.dart';
@@ -278,6 +279,9 @@ class PoisLayer {
   /// The ID of the symbol/text layer.
   static const layerIdSymbol = "route-pois-symbol-layer";
 
+  /// The ID of the text POI count layer.
+  static const layerIdCount = "route-pois-count-layer";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -288,9 +292,11 @@ class PoisLayer {
     final routing = getIt<Routing>();
 
     // Alternative routes
-    for (final route in routing.allRoutes ?? []) {
+    if (routing.allRoutes == null) return;
+    for (final route in routing.allRoutes!) {
       if (route.idx == routing.selectedRoute?.idx) continue;
-      for (final poi in route.foundPois ?? []) {
+      if (route.foundPois == null) continue;
+      for (final poi in route.foundPois!) {
         if (!poi.isWarning) continue; // Don't display pois that are not warnings.
         if (poi.coordinates.isEmpty) continue;
         // A section of the route.
@@ -303,11 +309,9 @@ class PoisLayer {
           {
             "type": "Feature",
             "properties": {
-              "textColor": isDark ? "#FFFFFF" : "#003064",
-              "textHaloColor": isDark ? "#003064" : "#FFFFFF",
               "color": "#d9c89e",
               "bgcolor": "#d1b873",
-              "symbol": poi.type,
+              "symbol": poi.type.mapboxIcon,
               "symbolopacity": 0,
             },
             "geometry": geometry,
@@ -317,7 +321,9 @@ class PoisLayer {
     }
 
     // Selected route
-    for (final poi in routing.selectedRoute?.foundPois ?? []) {
+    if (routing.selectedRoute == null) return;
+    if (routing.selectedRoute?.foundWarningPoisAggregated == null) return;
+    for (final poi in routing.selectedRoute!.foundWarningPoisAggregated!) {
       if (!poi.isWarning) continue; // Don't display pois that are not warnings.
       if (poi.coordinates.isEmpty) continue;
       // A section of the route.
@@ -331,12 +337,11 @@ class PoisLayer {
           "type": "Feature",
           "properties": {
             "description": poi.description,
-            "textColor": isDark ? "#FFFFFF" : "#003064",
-            "textHaloColor": isDark ? "#003064" : "#FFFFFF",
             "color": "#ffdc00",
             "bgcolor": "#ad9600",
-            "symbol": poi.type,
+            "symbol": poi.type.mapboxIcon,
             "symbolopacity": 1,
+            "poiCount": poi.poiCount > 1 ? poi.poiCount : "",
           },
           "geometry": geometry,
         },
@@ -353,6 +358,42 @@ class PoisLayer {
       );
     } else {
       await update(mapController);
+    }
+    final poiCountLayerExists = await mapController.style.styleLayerExists(layerIdCount);
+    if (!poiCountLayerExists) {
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: layerIdCount,
+          textHaloColor: const Color(0xFFFFFFFF).value,
+          textColor: const Color(0xFF003064).value,
+          textHaloWidth: 0.2,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textAllowOverlap: true,
+          textIgnorePlacement: true,
+          textOpacity: 1,
+          minZoom: 9.0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+      await mapController.style.setStyleLayerProperty(
+          layerIdCount,
+          'text-offset',
+          json.encode(
+            [
+              "literal",
+              [0, 0.1]
+            ],
+          ));
+      await mapController.style.setStyleLayerProperty(layerIdCount, 'text-field', json.encode(["get", "poiCount"]));
+      await mapController.style.setStyleLayerProperty(
+          layerIdCount,
+          'text-opacity',
+          json.encode(
+            showAfter(zoom: 16),
+          ));
     }
     final routePoisSymbolLayerExists = await mapController.style.styleLayerExists(layerIdSymbol);
     if (!routePoisSymbolLayerExists) {
@@ -393,18 +434,6 @@ class PoisLayer {
           'text-opacity',
           json.encode(
             showAfter(zoom: 16),
-          ));
-      await mapController.style.setStyleLayerProperty(
-          layerIdSymbol,
-          'text-color',
-          json.encode(
-            ["get", "textColor"],
-          ));
-      await mapController.style.setStyleLayerProperty(
-          layerIdSymbol,
-          'text-halo-color',
-          json.encode(
-            ["get", "textHaloColor"],
           ));
     }
     final routePoisLayerExists = await mapController.style.styleLayerExists(layerId);

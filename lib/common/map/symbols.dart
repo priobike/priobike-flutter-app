@@ -41,6 +41,7 @@ class SymbolLoader {
     await add("dismount", "assets/images/pois/dismount.png", 200, 183);
     await add("greenwave", "assets/images/pois/greenwave.png", 200, 183);
     await add("veloroute", "assets/images/pois/veloroute.png", 200, 183);
+    await add("aggregated", "assets/images/pois/aggregated.png", 200, 183);
 
     await add("start", "assets/images/start.png", 400, 400);
     await add("destination", "assets/images/destination.png", 400, 400);
