@@ -1181,10 +1181,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Remove old waypoint.
     routing.selectedWaypoints!.removeAt(idx);
 
-    // Add waypoint at index and load route.
-    await routing.addWaypoint(waypoint, idx);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
-    await routing.loadRoutes();
+
+    // Only change the location of the current waypoint and not load a route if selected waypoint length was 1.
+    if (routing.selectedWaypoints!.isEmpty) {
+      routing.selectWaypoints([waypoint]);
+    } else {
+      // Add waypoint at index and load route.
+      await routing.addWaypoint(waypoint, idx);
+      await routing.loadRoutes();
+    }
   }
 
   /// Updates the bearing and centering button.
@@ -1328,9 +1334,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // replace waypoint at the new position
       widget.mapFunctions.reset();
       await replaceWaypoint(point, idx);
-    }
-
-    if (widget.mapFunctions.selectPointOnMap) {
+    } else if (widget.mapFunctions.selectPointOnMap) {
       // Add waypoint at best location.
       widget.mapFunctions.reset();
       await addWaypoint(point, atBestLocationOnRoute: true);
