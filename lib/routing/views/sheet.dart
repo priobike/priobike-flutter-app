@@ -20,7 +20,6 @@ import 'package:priobike/routing/views/widgets/loading_icon.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:priobike/tutorial/view.dart';
 
 /// A bottom sheet to display route details.
 class RouteDetailsBottomSheet extends StatefulWidget {
@@ -355,13 +354,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                               children: [
                                 renderTopInfoSection(context),
                                 renderBottomSheetWaypoints(context),
-                                if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-                                  const TutorialView(
-                                    id: "priobike.tutorial.draw-waypoints",
-                                    text:
-                                        "Durch langes Drücken auf die Karte kannst Du direkt einen Wegpunkt platzieren.",
-                                    padding: EdgeInsets.only(left: 18),
-                                  ),
                                 const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
                                 const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
                                 const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
