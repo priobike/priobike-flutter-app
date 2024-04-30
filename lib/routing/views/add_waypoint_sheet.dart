@@ -51,10 +51,12 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
     super.dispose();
   }
 
+  /// The callback that is executed when set waypoint is tapped.
   void _setWaypoint() {
     widget.mapFunctions.getCoordinatesForWaypoint();
   }
 
+  /// The callback that is executed when cancel is tapped.
   void _cancel() {
     widget.mapFunctions.unsetSelectPointOnMap();
   }
