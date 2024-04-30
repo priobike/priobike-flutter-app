@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -228,10 +229,14 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               text:
                   "${routing.selectedRoute!.timeText} - ${routing.selectedRoute!.arrivalTimeText}, ${routing.selectedRoute!.lengthText}",
               context: context),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
+            const SizedBox(
+              width: 18,
+            ),
             Container(
               constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
+              padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
               child: allTrafficLights > 0
                   ? Text.rich(
                       textAlign: TextAlign.center,
