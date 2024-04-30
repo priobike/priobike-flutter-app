@@ -9,7 +9,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 
-/// A bottom sheet to display edit waypoint actions.
+/// A bottom sheet to display add waypoint actions.
 class AddWaypointBottomSheet extends StatefulWidget {
   /// The associated map functions service, which is injected by the provider.
   final MapFunctions mapFunctions;
