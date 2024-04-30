@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -87,9 +88,13 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
                       child: BoldContent(text: "Wegpunkt Hinzufügen", context: context),
                     ),
                     const SmallHSpace(),
+                    const StartIcon(width: 20, height: 20),
                   ]),
+              const SizedBox(
+                height: 4,
+              ),
               Small(
-                text: "Du kannst den Wegpunkt durch Bewegen der Karte platzieren",
+                text: "Du kannst den Wegpunkt durch Bewegen der Karte platzieren und hinzufügen.",
                 context: context,
                 textAlign: TextAlign.center,
               )

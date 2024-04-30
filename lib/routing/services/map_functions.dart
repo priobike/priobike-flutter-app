@@ -70,7 +70,6 @@ class MapFunctions with ChangeNotifier {
   /// Unsets the add new waypoint at screen coordinates.
   void unsetSelectPointOnMap() {
     selectPointOnMap = false;
-    needsRemoveHighlighting = true;
     notifyListeners();
   }
 

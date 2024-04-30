@@ -244,6 +244,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await WaypointsLayer().update(mapController!);
 
+      widget.mapFunctions.needsRemoveHighlighting = false;
+
       setState(() {
         showWaypointIndicator = false;
       });
@@ -1009,7 +1011,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (showWaypointIndicator == false || !widget.mapFunctions.selectPointOnMap) {
       if (showRoutePreview == false) return;
       if (!mounted) return;
-      print("REMOVEEEEEEEEEE");
       await RoutePreviewLayer().update(mapController!);
       showRoutePreview = false;
       return;

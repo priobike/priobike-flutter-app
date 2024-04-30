@@ -121,8 +121,11 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                         ],
                       ),
                   ]),
+              const SizedBox(
+                height: 4,
+              ),
               Small(
-                text: "Du kannst den gewählten Wegpunkt durch Bewegen der Karte verschieben oder entfernen",
+                text: "Du kannst den gewählten Wegpunkt durch Bewegen der Karte verschieben oder entfernen.",
                 context: context,
                 textAlign: TextAlign.center,
               )
