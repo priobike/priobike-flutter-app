@@ -943,6 +943,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> onMapLongTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
 
+    // Do not handle onLongTap when add waypoint mode is active.
+    if (widget.mapFunctions.selectPointOnMap) return;
+
     if (poiPopup != null) {
       await resetPOISelection();
     }
@@ -1026,6 +1029,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final bestWaypointIndex = routing.getBestWaypointInsertIndex(addedPosition);
 
+    // Update the route preview layer depending on the best waypoint index.
     if (bestWaypointIndex == 0) {
       if (!mounted) return;
       await RoutePreviewLayer(

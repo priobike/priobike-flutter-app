@@ -150,6 +150,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     unawaited(routing.loadRoutes());
   }
 
+  /// The callback that is executed when select on map is tapped.
   void onSelectOnMap() {
     widget.mapFunctions.setSelectPointOnMap();
   }
