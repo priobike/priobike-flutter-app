@@ -15,7 +15,11 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     required this.isDark,
     required this.batterySaveMode,
     this.lastPct,
-  }) : pct = pct == 0 ? 0.001 : pct;
+  }) : pct = pct == 0 // Don't allow 0, because the gradient starts at 0 and if the speed is 0 as well, we get an error.
+            ? 0.001
+            : pct > 1 // Cap the percentage value at 1.
+                ? 1
+                : pct;
 
   /// Paints the tail of the pointer
   void paintSpeedArcTail(Canvas canvas, Size size) {
