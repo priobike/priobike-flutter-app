@@ -84,6 +84,9 @@ class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    const SizedBox(
+                      width: 20,
+                    ),
                     const SmallHSpace(),
                     Padding(
                       padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
