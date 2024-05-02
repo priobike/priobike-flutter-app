@@ -9,21 +9,21 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 
-/// A bottom sheet to display edit waypoint actions.
-class EditWaypointBottomSheet extends StatefulWidget {
+/// A bottom sheet to display add waypoint actions.
+class AddWaypointBottomSheet extends StatefulWidget {
   /// The associated map functions service, which is injected by the provider.
   final MapFunctions mapFunctions;
 
-  const EditWaypointBottomSheet({
+  const AddWaypointBottomSheet({
     super.key,
     required this.mapFunctions,
   });
 
   @override
-  State<StatefulWidget> createState() => EditWaypointBottomSheetState();
+  State<StatefulWidget> createState() => AddWaypointBottomSheetState();
 }
 
-class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
+class AddWaypointBottomSheetState extends State<AddWaypointBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
@@ -39,7 +39,6 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
 
     routing = getIt<Routing>();
     routing.addListener(update);
-    widget.mapFunctions.addListener(update);
 
     controller = DraggableScrollableController();
   }
@@ -47,24 +46,17 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
   @override
   void dispose() {
     routing.removeListener(update);
-    widget.mapFunctions.removeListener(update);
     super.dispose();
   }
 
-  void _removeWaypoint() {
-    if (widget.mapFunctions.tappedWaypointIdx == null) return;
-    int idx = widget.mapFunctions.tappedWaypointIdx!;
-    widget.mapFunctions.unsetTappedWaypointIdx();
-    routing.removeWaypointAt(idx);
-  }
-
+  /// The callback that is executed when set waypoint is tapped.
   void _setWaypoint() {
-    if (widget.mapFunctions.tappedWaypointIdx == null) return;
     widget.mapFunctions.getCoordinatesForWaypoint();
   }
 
+  /// The callback that is executed when cancel is tapped.
   void _cancel() {
-    widget.mapFunctions.unsetTappedWaypointIdx();
+    widget.mapFunctions.unsetSelectPointOnMap();
   }
 
   @override
@@ -96,36 +88,16 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                     const SmallHSpace(),
                     Padding(
                       padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
-                      child: BoldContent(text: "Wegpunkt Bearbeiten", context: context),
+                      child: BoldContent(text: "Wegpunkt Hinzufügen", context: context),
                     ),
                     const SmallHSpace(),
-                    if (widget.mapFunctions.tappedWaypointIdx == null || routing.selectedWaypoints == null)
-                      Container()
-                    else if (widget.mapFunctions.tappedWaypointIdx == 0)
-                      const StartIcon(width: 20, height: 20)
-                    else if (widget.mapFunctions.tappedWaypointIdx! == routing.selectedWaypoints!.length - 1)
-                      const DestinationIcon(width: 20, height: 20)
-                    else
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          const WaypointIcon(width: 20, height: 20),
-                          Padding(
-                            padding: EdgeInsets.only(top: Platform.isAndroid ? 3 : 0),
-                            child: BoldSmall(
-                              text: (widget.mapFunctions.tappedWaypointIdx! + 1).toString(),
-                              color: Colors.black,
-                              context: context,
-                            ),
-                          ),
-                        ],
-                      ),
+                    const StartIcon(width: 20, height: 20),
                   ]),
               const SizedBox(
                 height: 4,
               ),
               Small(
-                text: "Du kannst den gewählten Wegpunkt durch Bewegen der Karte verschieben oder entfernen.",
+                text: "Du kannst den Wegpunkt durch Bewegen der Karte platzieren und hinzufügen.",
                 context: context,
                 textAlign: TextAlign.center,
               )
@@ -148,24 +120,15 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                   child: BigButtonTertiary(
                     label: "Abbrechen",
                     fillColor: Theme.of(context).colorScheme.surfaceVariant,
-                    onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _cancel,
-                    addPadding: false,
-                  ),
-                ),
-                const SmallHSpace(),
-                Expanded(
-                  child: BigButtonSecondary(
-                    label: "Löschen",
-                    onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _removeWaypoint,
-                    fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                    onPressed: routing.isFetchingRoute ? null : _cancel,
                     addPadding: false,
                   ),
                 ),
                 const SmallHSpace(),
                 Expanded(
                   child: BigButtonPrimary(
-                    label: "Setzen",
-                    onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _setWaypoint,
+                    label: "Hinzufügen",
+                    onPressed: routing.isFetchingRoute ? null : _setWaypoint,
                     addPadding: false,
                   ),
                 ),

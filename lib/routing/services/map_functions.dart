@@ -11,8 +11,17 @@ class MapFunctions with ChangeNotifier {
   /// A bool specifying whether the map should fetch coordinates for move waypoint.
   bool needsNewWaypointCoordinates = false;
 
+  /// A bool specifying whether the map should be centered to the waypoint icon.
+  bool needsWaypointCentering = false;
+
+  /// A bool specifying whether the waypoint layer needs highlight.
+  bool needsRemoveHighlighting = false;
+
   /// The index of the tappedWaypoint.
   int? tappedWaypointIdx;
+
+  /// The bool that holds the state if select on map is active.
+  bool selectPointOnMap = false;
 
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
@@ -34,7 +43,7 @@ class MapFunctions with ChangeNotifier {
   }
 
   /// Get new coordinates of moved waypoint.
-  void getCoordinatesForMovedWaypoint() {
+  void getCoordinatesForWaypoint() {
     needsNewWaypointCoordinates = true;
     notifyListeners();
   }
@@ -48,6 +57,25 @@ class MapFunctions with ChangeNotifier {
   /// Sets the tapped waypoint idx.
   void unsetTappedWaypointIdx() {
     tappedWaypointIdx = null;
+    needsRemoveHighlighting = true;
+    notifyListeners();
+  }
+
+  /// Sets the add new waypoint at screen coordinates.
+  void setSelectPointOnMap() {
+    selectPointOnMap = true;
+    notifyListeners();
+  }
+
+  /// Unsets the add new waypoint at screen coordinates.
+  void unsetSelectPointOnMap() {
+    selectPointOnMap = false;
+    notifyListeners();
+  }
+
+  /// Apply centering.
+  void setCameraCenterOnWaypointLocation() {
+    needsWaypointCentering = true;
     notifyListeners();
   }
 
@@ -57,6 +85,9 @@ class MapFunctions with ChangeNotifier {
     needsCenteringNorth = false;
     needsNewWaypointCoordinates = false;
     tappedWaypointIdx = null;
+    selectPointOnMap = false;
+    needsWaypointCentering = false;
+    needsRemoveHighlighting = false;
     notifyListeners();
   }
 }
