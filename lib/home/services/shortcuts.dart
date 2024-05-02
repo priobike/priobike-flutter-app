@@ -11,6 +11,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/tutorial/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Shortcuts with ChangeNotifier {
@@ -54,6 +55,9 @@ class Shortcuts with ChangeNotifier {
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
     await storeShortcuts();
 
+    // Complete the tutorial.
+    getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
+
     notifyListeners();
   }
 
@@ -64,6 +68,9 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;
     await storeShortcuts();
+
+    // Complete the tutorial.
+    getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     notifyListeners();
   }
@@ -88,6 +95,9 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     shortcuts = [shortcut] + shortcuts!;
     await storeShortcuts();
+
+    // Complete the tutorial.
+    getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     if (shortcut.runtimeType == ShortcutRoute) {
       ToastMessage.showSuccess("Route gespeichert!");
@@ -115,6 +125,11 @@ class Shortcuts with ChangeNotifier {
     final backend = getIt<Settings>().backend;
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
     storage.setString("priobike.home.shortcuts.${backend.regionName}", jsonStr);
+
+    // Activates the tutorial if more then 3 shortcuts were stored.
+    if (shortcuts!.length > 3) {
+      getIt<Tutorial>().activate("priobike.tutorial.share-shortcut");
+    }
   }
 
   /// Load the custom shortcuts.

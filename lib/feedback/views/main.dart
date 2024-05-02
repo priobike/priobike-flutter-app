@@ -16,6 +16,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
+import 'package:priobike/tutorial/service.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -110,6 +111,12 @@ class FeedbackViewState extends State<FeedbackView> {
             startImage: startImage!,
             destinationImage: destinationImage!,
           );
+        }
+
+        // Activates the tutorial if more then 5 tracks were driven.
+        print(tracking.previousTracks!.length);
+        if (tracking.previousTracks != null && tracking.previousTracks!.length >= 5) {
+          getIt<Tutorial>().activate("priobike.tutorial.select-shortcut");
         }
 
         setState(() {});

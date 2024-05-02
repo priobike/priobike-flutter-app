@@ -62,13 +62,13 @@ class Tutorial with ChangeNotifier {
 
   /// Load the activated tutorials from the shared preferences.
   Future<void> loadActivated() async {
-    if (completed != null) return;
+    if (active != null) return;
     final storage = await SharedPreferences.getInstance();
     final activatedStr = storage.getString("priobike.tutorial.activated");
     if (activatedStr != null) {
-      completed = Map<String, bool>.from(jsonDecode(activatedStr));
+      active = Map<String, bool>.from(jsonDecode(activatedStr));
     } else {
-      completed = {};
+      active = {};
     }
     notifyListeners();
   }
@@ -100,6 +100,7 @@ class Tutorial with ChangeNotifier {
   /// Mark a tutorial as active.
   Future<void> activate(String id) async {
     if (active == null) return;
+    if (active![id] == true) return;
     active![id] = true;
     await storeCompleted();
     notifyListeners();

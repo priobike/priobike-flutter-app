@@ -36,7 +36,6 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tracking/views/track_history.dart';
-import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
@@ -212,9 +211,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       showInvalidShortcutSheet(context);
       return;
     }
-
-    // Tell the tutorial service that the shortcut was selected.
-    getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     // Create new Shortcut copy to avoid changing the original Shortcut.
     final Shortcut newShortcut;
