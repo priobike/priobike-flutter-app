@@ -114,7 +114,6 @@ class FeedbackViewState extends State<FeedbackView> {
         }
 
         // Activates the tutorial if more then 5 tracks were driven.
-        print(tracking.previousTracks!.length);
         if (tracking.previousTracks != null && tracking.previousTracks!.length >= 5) {
           getIt<Tutorial>().activate("priobike.tutorial.select-shortcut");
         }

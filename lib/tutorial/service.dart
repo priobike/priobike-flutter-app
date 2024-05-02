@@ -55,6 +55,7 @@ class Tutorial with ChangeNotifier {
   /// Mark a tutorial as completed.
   Future<void> complete(String id) async {
     if (completed == null) return;
+    if (completed![id] == true) return;
     completed![id] = true;
     await storeCompleted();
     notifyListeners();

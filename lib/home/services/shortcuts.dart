@@ -126,8 +126,8 @@ class Shortcuts with ChangeNotifier {
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
     storage.setString("priobike.home.shortcuts.${backend.regionName}", jsonStr);
 
-    // Activates the tutorial if more then 3 shortcuts were stored.
-    if (shortcuts!.length > 3) {
+    // Activates the tutorial if more then 3 (+2 default shortcuts) shortcuts were stored.
+    if (shortcuts!.length >= 5) {
       getIt<Tutorial>().activate("priobike.tutorial.share-shortcut");
     }
   }

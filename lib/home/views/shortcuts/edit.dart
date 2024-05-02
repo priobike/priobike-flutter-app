@@ -25,6 +25,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/tutorial/service.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Show a sheet to edit the current shortcuts name.
@@ -121,6 +122,13 @@ class EditOptionsViewState extends State<EditOptionsView> {
   void initState() {
     super.initState();
     shortcuts = getIt<Shortcuts>();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        // Complete share tutorial if this site was visited by the user.
+        getIt<Tutorial>().complete("priobike.tutorial.share-shortcut");
+      },
+    );
   }
 
   /// The callback that will be executed when the delete button is pressed.

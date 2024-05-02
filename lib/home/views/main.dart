@@ -377,6 +377,15 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                               padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
                             ),
                           ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 20),
+                            child: TutorialView(
+                              id: "priobike.tutorial.share-shortcut",
+                              text:
+                                  'Fährst Du eine Route besonders gern und möchtest sie mit deinen Freunden teilen? Du kannst deine Strecke per Link oder QR Code teilen. Drücke dafür lang auf deine gespeicherte Strecke.',
+                              padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
+                            ),
+                          ),
                           ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
                         ],
                       ),
