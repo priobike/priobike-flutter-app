@@ -443,15 +443,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       try {
         await BikeAirStationLayer(isDark).install(mapController!, at: index);
       } catch (e) {
-        log.e("Failed to install ${BikeAirStationLayer.layerId}");
+        log.e("Error while installing layer BikeAirStationLayer: $e");
       }
     } else {
       if (!mounted) return;
-      try {
-        await BikeAirStationLayer.remove(mapController!);
-      } catch (e) {
-        log.e("Failed to install ${BikeAirStationLayer.layerId}");
-      }
+      await BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
       final index = await getIndex(ParkingStationsLayer.layerId);
@@ -459,7 +455,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       try {
         await ParkingStationsLayer(isDark).install(mapController!, at: index);
       } catch (e) {
-        log.e("Failed to install ${ParkingStationsLayer.layerId}");
+        log.e("Error while installing layer ParkingStationsLayer: $e");
       }
     } else {
       if (!mounted) return;
@@ -471,7 +467,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       try {
         await RentalStationsLayer(isDark).install(mapController!, at: index);
       } catch (e) {
-        log.e("Failed to install ${RentalStationsLayer.layerId}");
+        log.e("Error while installing layer RentalStationsLayer: $e");
       }
     } else {
       if (!mounted) return;
@@ -483,7 +479,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       try {
         await BikeShopLayer(isDark).install(mapController!, at: index);
       } catch (e) {
-        log.e("Failed to install ${BikeShopLayer.layerId}");
+        log.e("Error while installing layer BikeShopLayer: $e");
       }
     } else {
       if (!mounted) return;
@@ -495,7 +491,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       try {
         await GreenWaveLayer(isDark).install(mapController!, at: index);
       } catch (e) {
-        log.e("Failed to install ${GreenWaveLayer.layerId}");
+        log.e("Error while installing layer GreenWaveLayer: $e");
       }
     } else {
       if (!mounted) return;
@@ -507,7 +503,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       try {
         await TrafficLayer(isDark).install(mapController!, at: index);
       } catch (e) {
-        log.e("Failed to install ${TrafficLayer.layerId}");
+        log.e("Error while installing layer TrafficLayer: $e");
       }
     } else {
       if (!mounted) return;
@@ -519,7 +515,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       try {
         await VeloRoutesLayer(isDark).install(mapController!, at: index);
       } catch (e) {
-        log.e("Failed to install ${VeloRoutesLayer.layerId}");
+        log.e("Error while installing layer VeloRoutesLayer: $e");
       }
     } else {
       if (!mounted) return;
@@ -531,7 +527,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     try {
       await IntersectionsLayer(isDark).install(mapController!, at: index);
     } catch (e) {
-      log.e("Failed to install ${IntersectionsLayer.layerId}");
+      log.e("Error while installing layer IntersectionsLayer: $e");
     }
 
     /*
@@ -606,7 +602,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${OfflineCrossingsLayer.layerId}");
+      log.e("Error while installing layer OfflineCrossingsLayer: $e");
     }
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
@@ -617,7 +613,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${TrafficLightsLayer.layerId}");
+      log.e("Error while installing layer TrafficLightsLayer: $e");
     }
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
@@ -628,7 +624,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${WaypointsLayer.layerId}");
+      log.e("Error while installing layer WaypointsLayer: $e");
     }
     index = await getIndex(PoisLayer.layerId);
     if (!mounted) return;
@@ -638,7 +634,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${PoisLayer.layerId}");
+      log.e("Error while installing layer PoisLayer: $e");
     }
     index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
@@ -648,7 +644,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${SelectedRouteLayer.layerId}");
+      log.e("Error while installing layer SelectedRouteLayer: $e");
     }
     index = await getIndex(AllRoutesLayer.layerId);
     if (!mounted) return;
@@ -658,7 +654,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${AllRoutesLayer.layerId}");
+      log.e("Error while installing layer AllRoutesLayer: $e");
     }
     index = await getIndex(RouteCrossingsCircleLayer.layerId);
     if (!mounted) return;
@@ -668,7 +664,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${RouteCrossingsCircleLayer.layerId}");
+      log.e("Error while installing layer RouteCrossingsCircleLayer: $e");
     }
     index = await getIndex(SelectedRouteCrossingsCircleLayer.layerId);
     if (!mounted) return;
@@ -678,7 +674,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         at: index,
       );
     } catch (e) {
-      log.e("Failed to install ${SelectedRouteCrossingsCircleLayer.layerId}");
+      log.e("Error while installing layer SelectedRouteCrossingsCircleLayer: $e");
     }
   }
 
