@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/main.dart';
 
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 
 class CenterButton extends StatefulWidget {
-  const CenterButton({super.key});
+  /// The associated MapValues service, which is injected by the provider.
+  final MapValues mapValues;
+
+  /// The associated MapFunctions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
+  const CenterButton({super.key, required this.mapValues, required this.mapFunctions});
 
   @override
   State<StatefulWidget> createState() => CenterButtonState();
 }
 
 class CenterButtonState extends State<CenterButton> {
-  /// The associated MapFunctions service, which is injected by the provider.
-  late MapFunctions mapFunctions;
-
-  /// The associated MapValues service, which is injected by the provider.
-  late MapValues mapValues;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -26,20 +25,18 @@ class CenterButtonState extends State<CenterButton> {
   void initState() {
     super.initState();
 
-    mapFunctions = getIt<MapFunctions>();
-    mapValues = getIt<MapValues>();
-    mapValues.addListener(update);
+    widget.mapValues.addListener(update);
   }
 
   @override
   void dispose() {
-    mapValues.removeListener(update);
+    widget.mapValues.removeListener(update);
     super.dispose();
   }
 
   /// Private GPS Centralization Function which calls mapFunctionsService
   void _gpsCentralization() {
-    mapFunctions.setCameraCenterOnUserLocation();
+    widget.mapFunctions.setCameraCenterOnUserLocation();
   }
 
   @override
@@ -52,7 +49,7 @@ class CenterButtonState extends State<CenterButton> {
         onPressed: _gpsCentralization,
         padding: const EdgeInsets.all(0),
         content: Icon(
-          mapValues.isCentered ? Icons.gps_fixed_rounded : Icons.gps_not_fixed_rounded,
+          widget.mapValues.isCentered ? Icons.gps_fixed_rounded : Icons.gps_not_fixed_rounded,
           color: Theme.of(context).colorScheme.onBackground,
         ),
       ),

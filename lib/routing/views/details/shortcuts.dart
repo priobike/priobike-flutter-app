@@ -7,10 +7,14 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutsRow extends StatefulWidget {
-  const ShortcutsRow({super.key});
+  /// The associated MapFunctions service, which is injected by the provider.
+  final MapFunctions mapFunctions;
+
+  const ShortcutsRow({super.key, required this.mapFunctions});
 
   @override
   ShortcutsState createState() => ShortcutsState();
@@ -47,6 +51,7 @@ class ShortcutsState extends State<ShortcutsRow> {
   /// Load route from shortcuts.
   _loadShortcutsRoute(Shortcut shortcut) async {
     routing.selectWaypoints(shortcut.getWaypoints());
+    widget.mapFunctions.reset();
     await routing.loadRoutes();
   }
 

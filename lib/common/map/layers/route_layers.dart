@@ -12,7 +12,6 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -485,9 +484,11 @@ class WaypointsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  WaypointsLayer() {
+  /// If a waypoint is tapped and needs highlighting.
+  int? tappedWaypointIdx;
+
+  WaypointsLayer({this.tappedWaypointIdx}) {
     final routing = getIt<Routing>();
-    final mapFunctions = getIt<MapFunctions>();
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
       features.add(
@@ -502,7 +503,7 @@ class WaypointsLayer {
             "isFirst": entry.key == 0,
             "isLast": entry.key == waypoints.length - 1,
             "idx": entry.key + 1,
-            "editing": mapFunctions.tappedWaypointIdx == entry.key
+            "editing": tappedWaypointIdx == entry.key
           },
         },
       );
@@ -583,6 +584,91 @@ class WaypointsLayer {
 
   /// Update the overlay on the layer controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (sourceExists) {
+      final source = await mapController.style.getSource(sourceId);
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class RoutePreviewLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "route-preview";
+
+  /// The ID of the main Mapbox layer.
+  static const layerId = "route-preview-layer";
+
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  /// The coordinate of the added position.
+  final LatLng? addedPosition;
+
+  /// The coordinate of the snapped waypoint on the route.
+  final LatLng? snappedWaypoint;
+
+  /// The coordinate of the snapped second waypoint on the route.
+  final LatLng? snappedSecondWaypoint;
+
+  RoutePreviewLayer({this.addedPosition, this.snappedWaypoint, this.snappedSecondWaypoint}) {
+    if (addedPosition != null && snappedWaypoint != null) {
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [addedPosition!.longitude, addedPosition!.latitude],
+              [snappedWaypoint!.longitude, snappedWaypoint!.latitude]
+            ],
+          },
+        },
+      );
+    }
+
+    if (addedPosition != null && snappedSecondWaypoint != null) {
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [addedPosition!.longitude, addedPosition!.latitude],
+              [snappedSecondWaypoint!.longitude, snappedSecondWaypoint!.latitude]
+            ],
+          },
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<void> install(mapbox.MapboxMap mapController, {fgLineWidth = 3.5, at = 0}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+    final routePreviewLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!routePreviewLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+              sourceId: sourceId,
+              id: layerId,
+              lineColor: CI.route.value,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineCap: mapbox.LineCap.ROUND,
+              lineWidth: fgLineWidth,
+              lineDasharray: [0.25, 1.5]),
+          mapbox.LayerPosition(at: at));
+    }
+  }
+
+  update(mapbox.MapboxMap mapController, {String? below}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
       final source = await mapController.style.getSource(sourceId);
