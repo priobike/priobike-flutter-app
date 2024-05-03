@@ -382,14 +382,14 @@ class RideMapViewState extends State<RideMapView> {
     try {
       await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
     } catch (e) {
-      log.e("Error while installing layers: $e");
+      log.e("Error while installing layer SelectedRouteLayer: $e");
     }
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
     try {
       await WaypointsLayer().install(mapController!, iconSize: 0.2, at: index, textSize: 18.0);
     } catch (e) {
-      log.e("Error while installing layers: $e");
+      log.e("Error while installing layer WaypointsLayer: $e");
     }
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
@@ -401,7 +401,7 @@ class RideMapViewState extends State<RideMapView> {
         showTouchIndicator: true,
       );
     } catch (e) {
-      log.e("Error while installing layers: $e");
+      log.e("Error while installing layer TrafficLightsLayer: $e");
     }
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
@@ -412,21 +412,21 @@ class RideMapViewState extends State<RideMapView> {
         at: index,
       );
     } catch (e) {
-      log.e("Error while installing layers: $e");
+      log.e("Error while installing layer TrafficLightsLayerClickable: $e");
     }
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     try {
       await OfflineCrossingsLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: 0.5, at: index);
     } catch (e) {
-      log.e("Error while installing layers: $e");
+      log.e("Error while installing layer OfflineCrossingsLayer: $e");
     }
     index = await getIndex(TrafficLightLayer.layerId);
     if (!mounted) return;
     try {
       await TrafficLightLayer(isDark).install(mapController!, iconSize: 0.5, at: index);
     } catch (e) {
-      log.e("Error while installing layers: $e");
+      log.e("Error while installing layer TrafficLightLayer: $e");
     }
 
     onRoutingUpdate();

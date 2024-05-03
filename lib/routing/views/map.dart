@@ -943,7 +943,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     try {
       await SymbolLoader(mapController!).loadSymbols();
     } catch (e) {
-      log.e("Failed to install SymbolLayer");
+      log.e("Error while installing layer SymbolLoader: $e");
     }
 
     // Fit the content below the top and the bottom stuff.
@@ -956,7 +956,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     try {
       await BoundaryLayer(isDark).install(mapController!);
     } catch (e) {
-      log.e("Failed to install BoundaryLayer");
+      log.e("Error while installing layer BoundaryLayer: $e");
     }
 
     await fitCameraToRouteBounds();
