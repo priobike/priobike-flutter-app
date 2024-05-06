@@ -691,10 +691,10 @@ class Routing with ChangeNotifier {
       } else if (lastInstructionPoint != null &&
           (!instructions.last.alreadyConcatenated || instructionType == InstructionType.signalGroupOnly)) {
         if (instructions.last.instructionType != InstructionType.directionOnly) {
-          // Put the instruction call at the point when crossing the previous sg is finished
-          // This point is equal to the last point in the signal crossing geometry attribute.
+          // Put the instruction call under the previous sg
+          // This point is equal to the middle point in the signal crossing geometry attribute.
           var sgId = instructions.last.signalGroupId;
-          var previousSgLaneEnd = sgSelectorResponse.signalGroups[sgId]!.geometry!.last;
+          var previousSgLaneEnd = getActualSgPosition(sgId!, sgSelectorResponse);
           var previousDistToSg = instructions.last.text.last.distanceToNextSg;
           var distanceToActualInstructionPoint = Snapper.vincenty.distance(
               LatLng(previousSgLaneEnd[1], previousSgLaneEnd[0]), LatLng(currentWaypoint.lat, currentWaypoint.lon));
@@ -792,6 +792,13 @@ class Routing with ChangeNotifier {
       }
     }
     return instructions;
+  }
+
+  /// Get the actual position of the signal group.
+  getActualSgPosition(String sgId, SGSelectorResponse sgSelectorResponse) {
+    final length = sgSelectorResponse.signalGroups[sgId]!.geometry!.length;
+    final idx = round((length/2),decimals:  0).toInt();
+    return sgSelectorResponse.signalGroups[sgId]!.geometry![idx];
   }
 
   /// Determine the instruction type after concatenation.
