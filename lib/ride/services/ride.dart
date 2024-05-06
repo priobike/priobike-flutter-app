@@ -358,7 +358,7 @@ class Ride with ChangeNotifier {
         instructionText.text = "${instructionText.text} rot in";
         return instructionText;
       } else if ((secondNextPhase == Phase.green &&
-          instructionText.distanceToNextSg * 3.6 / (countdown + durationNextPhase) >= 8 &&
+          instructionText.distanceToNextSg * 3.6 / (countdown + durationNextPhase) >= 7 &&
           countdown + durationNextPhase > 3)) {
         // The traffic light will turn red and then green again
         // and can be crossed with a minimum speed of 8km/h without stopping.
