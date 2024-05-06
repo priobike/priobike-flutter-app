@@ -758,9 +758,9 @@ class Routing with ChangeNotifier {
           concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
         }
       } else {
-        // Put instruction point 10m before the crossing.
+        // Put instruction point 20m before the crossing.
         var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(
-            10, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
+            20, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           // Put the instruction at the point provided by GraphHopper.
           Instruction secondInstructionCall = Instruction(
@@ -797,7 +797,7 @@ class Routing with ChangeNotifier {
   /// Get the actual position of the signal group.
   getActualSgPosition(String sgId, SGSelectorResponse sgSelectorResponse) {
     final length = sgSelectorResponse.signalGroups[sgId]!.geometry!.length;
-    final idx = round((length/2),decimals:  0).toInt();
+    final idx = round((length / 2), decimals: 0).toInt();
     return sgSelectorResponse.signalGroups[sgId]!.geometry![idx];
   }
 
