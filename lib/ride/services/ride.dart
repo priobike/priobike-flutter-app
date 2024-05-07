@@ -477,14 +477,93 @@ class Ride with ChangeNotifier {
           // (to avoid countdown inaccuracy)
           // Also take into account 1s delay for actually speaking the countdown.
           int updatedCountdown = instructionTextToPlay.countdown! -
-              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
-              1;
+              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) +
+              1; // -1s delay and +2s for yellow
           await ftts!.speak(updatedCountdown.toString());
         }
       }
     }
   }
 
+  void playCountdownWhenWaitingForGreen() async {
+    final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
+    if (speed > 7) {
+      // All speed over 7 km/h is considered normal driving.
+      return;
+    }
+
+    if (ftts == null) return;
+    // Check if Not supported crossing
+    // or we do not have all auxiliary data that the app calculated
+    // or prediction quality is not good enough.
+    if (calcCurrentSG == null ||
+        predictionProvider?.recommendation == null ||
+        (predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+      // No sg countdown information can be added and thus instruction part must not be played.
+      return;
+    }
+
+    // Check if the prediction is a recommendation for the next traffic light on the route
+    // and do not play instruction if this is not the case.
+    final thingName = predictionProvider?.status?.thingName;
+    bool isRecommendation = thingName != null ? calcCurrentSG!.id == thingName : false;
+    if (!isRecommendation) return;
+
+    // If the phase change time is null, instruction part must not be played.
+    final recommendation = predictionProvider!.recommendation!;
+    if (recommendation.calcCurrentPhaseChangeTime == null) return;
+
+    // If there is only one color, instruction part must not be played.
+    final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
+    if (uniqueColors.length == 1) return;
+
+    // Do not play instruction part for amber or redamber.
+    if (recommendation.calcCurrentSignalPhase == Phase.amber) return;
+    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) return;
+
+    // Calculate the countdown.
+    int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    var timestamp = DateTime.now();
+    // Do not play instruction if countdown < 5.
+    if (countdown < 3 || countdown > 5) return;
+    Phase? nextPhase;
+
+    // The current phase ends at index countdown + 2.
+    if (recommendation.calcPhasesFromNow.length > countdown + 2) {
+      // Calculate the color of the next phase after the current phase.
+      nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
+    }
+
+    // Do play instruction only for change to green.
+    if (nextPhase != Phase.green) return;
+
+    final snap = getIt<Positioning>().snap;
+    if (snap == null) return;
+    var distOnRoute = snap.distanceOnRoute;
+    var idx = route!.signalGroups.indexWhere((element) => element.id == calcCurrentSG!.id);
+    var distSgOnRoute = 0.0;
+    if (idx != -1) {
+      distSgOnRoute = route!.signalGroupsDistancesOnRoute[idx];
+    } else {
+      // Do not play instruction if the sg is not on the route.
+      return;
+    }
+    var distanceToSg = distSgOnRoute - distOnRoute;
+    if (distanceToSg > 25) {
+      // Do not play instruction if the distance to the sg is more than 300m.
+      return;
+    }
+
+    await ftts!.speak("Grün in ");
+    // Calc updatedCountdown since initial creation and time that has passed while speaking
+    // (to avoid countdown inaccuracy)
+    // Also take into account 1s delay for actually speaking the countdown.
+    int updatedCountdown =
+        countdown - (DateTime.now().difference(timestamp).inSeconds) + 1; // -1s delay and +2s for yellow
+    await ftts!.speak(updatedCountdown.toString());
+  }
+
+  /// Play new prediction status information.
   void playNewPredictionStatusInformation() async {
     if (ftts == null) return;
     // Check if Not supported crossing
@@ -546,18 +625,35 @@ class Ride with ChangeNotifier {
     if (snap == null) {
       closeToInstruction = false;
     } else {
-      var distanceToSg =
-          vincenty.distance(snap.position, LatLng(calcCurrentSG!.position.lat, calcCurrentSG!.position.lon));
-      if (distanceToSg > 500) {
-        // Do not play instruction if the distance to the sg is more than 500m.
+      var distOnRoute = snap.distanceOnRoute;
+      var idx = route!.signalGroups.indexWhere((element) => element.id == calcCurrentSG!.id);
+      var distSgOnRoute = 0.0;
+      if (idx != -1) {
+        distSgOnRoute = route!.signalGroupsDistancesOnRoute[idx];
+      } else {
+        // Do not play instruction if the sg is not on the route.
+        return;
+      }
+      var distanceToSg = distSgOnRoute - distOnRoute;
+      if (distanceToSg > 300) {
+        // Do not play instruction if the distance to the sg is more than 300m.
+        return;
+      }
+
+      var nextInstruction = route!.instructions.firstWhereOrNull((element) => element.executed == false);
+      int nextInstructionIdx = route!.instructions.indexOf(nextInstruction!);
+      var lastInstruction = route!.instructions[nextInstructionIdx - 1];
+
+      if (lastInstruction.signalGroupId != thingName) {
+        // Do not play instruction if the sg is not in the last instruction.
         return;
       }
 
       // Check if the current position is in a radius of 50m of an instruction that contains sg information.
-      var nextInstruction = route!.instructions.firstWhereOrNull((element) =>
+      var nextSgInstruction = route!.instructions.firstWhereOrNull((element) =>
           (element.instructionType != InstructionType.directionOnly) &&
           vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 50);
-      closeToInstruction = nextInstruction != null;
+      closeToInstruction = nextSgInstruction != null;
     }
 
     if (!closeToInstruction && (hasPhaseChanged || hasSignificantTimeChange)) {
@@ -580,14 +676,26 @@ class Ride with ChangeNotifier {
       // Calc updatedCountdown since initial creation and time that has passed while speaking
       // (to avoid countdown inaccuracy)
       // Also take into account 1s delay for actually speaking the countdown.
-      int updatedCountdown =
-          textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) - 1;
+      int updatedCountdown = textToPlay.countdown! -
+          (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) +
+          1; // -1s delay and +2s yellow
       await ftts!.speak(updatedCountdown.toString());
     } else {
       // Nevertheless save the current recommendation information for comparison with updates later.
       lastRecommendation.clear();
       lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': DateTime.timestamp()};
     }
+  }
+
+  /// Check distance between current position and next sg.
+  double? calcDistanceBetweenPositionAndNextSg(LatLng currentPosition) {
+    var currentPosOnRoute = route!.route.firstWhereOrNull(
+        (element) => element.lat == currentPosition.latitude && element.lon == currentPosition.longitude);
+
+    if (currentPosOnRoute == null) {
+      return currentPosOnRoute?.distanceToNextSignal;
+    }
+    return null;
   }
 
   /// Stop the navigation.

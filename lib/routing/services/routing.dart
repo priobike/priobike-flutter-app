@@ -547,7 +547,7 @@ class Routing with ChangeNotifier {
         var distanceBefore = totalDistanceToInstructionPoint - distanceToPreviousNavigationNode;
         var remainingDistance = distanceToInstructionPoint - distanceBefore;
         // calculate point c between a and b such that distance between b and c is remainingDistance
-        double bearing = Snapper.vincenty.bearing(p1, p2);
+        double bearing = Snapper.vincenty.bearing(p2, p1);
         LatLng c = Snapper.vincenty.offset(p2, remainingDistance, bearing);
         return c;
       }
@@ -575,7 +575,7 @@ class Routing with ChangeNotifier {
 
           int instructionIndex = path.instructions.indexOf(instruction);
           final previousInstruction = instructionIndex > 0 ? path.instructions[instructionIndex - 1] : null;
-          final isFollowTheRouteInstructionAfterWaypoint = instruction.text == "Dem Straßenverlauf folgen" &&
+          final isFollowTheRouteInstructionAfterWaypoint = instruction.text.startsWith("Dem Straßenverlauf") &&
               previousInstruction != null &&
               previousInstruction.text.startsWith("Wegpunkt");
 
@@ -717,7 +717,9 @@ class Routing with ChangeNotifier {
           var threshold = (instructionType != InstructionType.directionOnly) ? 150 : 50;
           // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
           if (distanceToActualInstructionPoint > threshold) {
-            concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
+            var distanceToPlay = ((distanceToActualInstructionPoint / 10).round() * 10).toInt();
+            concatenateInstructions(
+                instructionType, ghInstructionText, signalGroupId, instructions, laneType, distanceToPlay);
           }
         }
       }
@@ -755,7 +757,10 @@ class Routing with ChangeNotifier {
           instructions.add(secondInstructionCall);
           lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
         } else {
-          concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
+          var dist = Snapper.vincenty.distance(lastInstructionPoint!, LatLng(currentWaypoint.lat, currentWaypoint.lon));
+          var distanceToPlay = ((dist / 10).round() * 10).toInt();
+          concatenateInstructions(
+              instructionType, ghInstructionText, signalGroupId, instructions, laneType, distanceToPlay);
         }
       } else {
         // Put instruction point 20m before the crossing.
@@ -776,7 +781,10 @@ class Routing with ChangeNotifier {
             instructions.last.instructionType == InstructionType.directionOnly &&
             !instructions.last.alreadyConcatenated) {
           // Concatenate instructions if possible.
-          concatenateInstructions(instructionType, ghInstructionText, signalGroupId, instructions, laneType);
+          var dist = Snapper.vincenty.distance(lastInstructionPoint!, LatLng(currentWaypoint.lat, currentWaypoint.lon));
+          var distanceToPlay = ((dist / 10).round() * 10).toInt();
+          concatenateInstructions(
+              instructionType, ghInstructionText, signalGroupId, instructions, laneType, distanceToPlay);
         } else {
           // Put the instruction at the point provided by GraphHopper.
           Instruction secondInstructionCall = Instruction(
@@ -824,7 +832,7 @@ class Routing with ChangeNotifier {
 
   /// Concatenate the current instruction with the previous one.
   void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId,
-      List<Instruction> instructions, String laneType) {
+      List<Instruction> instructions, String laneType, int? distanceToActualInstructionPoint) {
     if (instructions.last.instructionType == InstructionType.signalGroupOnly &&
         instructionType == InstructionType.signalGroupOnly &&
         instructions.last.signalGroupId == signalGroupId) {
@@ -835,7 +843,14 @@ class Routing with ChangeNotifier {
     var textToConcatenate =
         createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, previousDistToSg, 0);
     for (int i = 0; i < textToConcatenate.length; i++) {
-      textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}";
+      if (distanceToActualInstructionPoint != null && i == 0) {
+        textToConcatenate[i].text = "und dann in $distanceToActualInstructionPoint Metern ${textToConcatenate[i].text}";
+      } else if (i > 0 && instructionType != InstructionType.directionOnly) {
+        textToConcatenate[i].text = " ${textToConcatenate[i].text}";
+      } else {
+        textToConcatenate[i].text = "und dann ${textToConcatenate[i].text}";
+      }
+
       instructions.last.text.add(textToConcatenate[i]);
     }
     if (signalGroupId != null) {
