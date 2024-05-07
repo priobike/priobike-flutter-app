@@ -19,6 +19,7 @@ import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/smartglasses/distance_helper.dart';
+import 'package:priobike/smartglasses/instruction_preprocessing.dart';
 import 'package:priobike/smartglasses/smartglass_service.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -312,7 +313,10 @@ class Ride with ChangeNotifier {
     }
     final smartglasses = getIt<SmartglassService>();
     final distHelper = DistanceHelper();
-    final currentInstruction = distHelper.find(route!.path, route!.path.instructions, getIt<Positioning>().snap!.position, 500);
+    InstructionPreprocessing.debugInstruction(route!.path.instructions);
+    final preprocessedInstructions = InstructionPreprocessing.preprocess(route!.path);
+    InstructionPreprocessing.debugInstruction(preprocessedInstructions);
+    final currentInstruction = distHelper.find(route!.path, preprocessedInstructions, getIt<Positioning>().snap!.position, 500);
     // final currentInstruction = getCurrentInstruction(route!.path, getIt<Positioning>().snap!.position);
     var dist = 0;
     if(currentInstruction != null) {
