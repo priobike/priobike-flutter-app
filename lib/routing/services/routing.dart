@@ -763,9 +763,9 @@ class Routing with ChangeNotifier {
               instructionType, ghInstructionText, signalGroupId, instructions, laneType, distanceToPlay);
         }
       } else {
-        // Put instruction point 20m before the crossing.
+        // Put instruction point 25m before the crossing.
         var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(
-            20, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
+            25, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
         if (waypointSecondInstructionCall != null) {
           // Put the instruction at the point provided by GraphHopper.
           Instruction secondInstructionCall = Instruction(
