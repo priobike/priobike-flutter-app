@@ -13,6 +13,7 @@ import '../settings/services/settings.dart';
 
 class SmartglassService {
   final log = Logger("smartglasses-tooz");
+  static final DIST_FOR_SECOND_INSTRUCTION = 25;
 
   final _flutterSmartglassesToozPlugin = FlutterSmartglassesTooz();
   final eventChannel = const EventChannel('flutter_smartglasses_tooz/events');
@@ -28,7 +29,7 @@ class SmartglassService {
     log.w("Called from native: $event");
     if (event == "onDeregisterSuccess") {
       isRegistered = false;
-    }else if (event == "onRegisterSuccess") {
+    } else if (event == "onRegisterSuccess") {
       isRegistered = true;
     }
   }
@@ -37,39 +38,64 @@ class SmartglassService {
     await _flutterSmartglassesToozPlugin.updateCard();
   }
 
-  void show(String text, int sign, List<Map<String, dynamic>> tachoItems, int distance) async {
+  void show(String text, int sign, List<Map<String, dynamic>> tachoItems,
+      int distance) async {
     log.w("Update smartglass view with text: $text, $sign");
-    await _flutterSmartglassesToozPlugin.drawTacho(text, sign, tachoItems, calcCurrentSpeed(), distance);
+    await _flutterSmartglassesToozPlugin.drawTacho(
+        text, sign, tachoItems, calcCurrentSpeed(), distance);
   }
-  void updateInstructions(String text, int sign, int distance) async {
+
+  void updateInstructions(String text, int sign, int distance,
+      {bool hasSecondPage = false,
+      String? secondInstructionText,
+      int? secondSign,
+      int? secondDistance}) async {
     log.w("Update smartglass view with text: $text, $sign");
     final strlen = text.length;
     final end = strlen > 35 ? 35 : strlen;
-    await _flutterSmartglassesToozPlugin.toozifierUpdateInstructions(text.substring(0, end), sign, distance);
-  }
-  void updateTacho(List<Map<String, dynamic>> tachoItems) async {
-    await _flutterSmartglassesToozPlugin.toozifierUpdateTacho(tachoItems, calcCurrentSpeed());
+    if (hasSecondPage) {
+      await _flutterSmartglassesToozPlugin.toozifierUpdateInstructions(
+          text.substring(0, end), sign, distance,
+          hasSecondPage: hasSecondPage,
+          secondInstructionText: secondInstructionText,
+          secondSign: secondSign,
+          secondDistance: secondDistance);
+    }
+    await _flutterSmartglassesToozPlugin.toozifierUpdateInstructions(
+        text.substring(0, end), sign, distance);
   }
 
-  List<Map<String, dynamic>> createTachoForGlasses(List<Phase> phases, Ride ride, double minSpeed, double maxSpeed) {
+  void updateTacho(List<Map<String, dynamic>> tachoItems) async {
+    await _flutterSmartglassesToozPlugin.toozifierUpdateTacho(
+        tachoItems, calcCurrentSpeed());
+  }
+
+  List<Map<String, dynamic>> createTachoForGlasses(
+      List<Phase> phases, Ride ride, double minSpeed, double maxSpeed) {
     /*
     We calculate the duration of the phases in seconds for now.
     This means, the gauge will show the seconds of the green phase or red phase.
      */
     List<Map<String, dynamic>> tachoItems = List.empty(growable: true);
-    for(var phase in phases) {
+    for (var phase in phases) {
       var lastItem = tachoItems.lastOrNull;
-      if (lastItem == null || !tachoSameColor(tachoItems.last["isRed"], phase)) {
+      if (lastItem == null ||
+          !tachoSameColor(tachoItems.last["isRed"], phase)) {
         var start = 0;
         if (lastItem != null) start = lastItem["end"];
-        tachoItems.add({'isRed': phase == Phase.red ? 1 : 0, "start": start, "end": start});
-      }else{
+        tachoItems.add({
+          'isRed': phase == Phase.red ? 1 : 0,
+          "start": start,
+          "end": start
+        });
+      } else {
         tachoItems.last["end"] = tachoItems.last["end"] + 1;
       }
     }
     for (var tachoItem in tachoItems) {
       var tmp = tachoItem["end"];
-      tachoItem["end"] = calcSpeedKmh(tachoItem["start"], ride, minSpeed, maxSpeed);
+      tachoItem["end"] =
+          calcSpeedKmh(tachoItem["start"], ride, minSpeed, maxSpeed);
       tachoItem["start"] = calcSpeedKmh(tmp, ride, minSpeed, maxSpeed);
     }
     return tachoItems.reversed.toList();
@@ -82,7 +108,7 @@ class SmartglassService {
     }
     var speedKmh = (ride.calcDistanceToNextSG! / second) * 3.6;
     // Scale the speed between minSpeed and maxSpeed
-    var scaledSpeed= (speedKmh - minSpeed) / (maxSpeed - minSpeed);
+    var scaledSpeed = (speedKmh - minSpeed) / (maxSpeed - minSpeed);
     return scaledSpeed > 1 ? 1 : scaledSpeed;
   }
 
@@ -99,22 +125,24 @@ class SmartglassService {
   }
 
   bool tachoSameColor(int isRed, Phase phase) {
-    return isRed == 1 && phase == Phase.red || isRed == 0 && phase == Phase.green;
+    return isRed == 1 && phase == Phase.red ||
+        isRed == 0 && phase == Phase.green;
   }
 
   void drawRaster() async {
     await _flutterSmartglassesToozPlugin.drawRaster();
   }
+
   void drawMap() async {
     await _flutterSmartglassesToozPlugin.drawMap();
   }
+
   void register() async {
     isRegistered = (await _flutterSmartglassesToozPlugin.isRegistered())!;
     log.w("Try to register tooz smart glasses... $isRegistered");
-    if(!isRegistered) {
+    if (!isRegistered) {
       await _flutterSmartglassesToozPlugin.register();
     }
     await _flutterSmartglassesToozPlugin.drawInitialView();
   }
-
 }

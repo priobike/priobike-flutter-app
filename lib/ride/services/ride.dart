@@ -313,6 +313,7 @@ class Ride with ChangeNotifier {
     }
     final smartglasses = getIt<SmartglassService>();
     final distHelper = DistanceHelper();
+    log.i(route!.toJson());
     InstructionPreprocessing.debugInstruction(route!.path.instructions);
     final preprocessedInstructions = InstructionPreprocessing.preprocess(route!.path);
     InstructionPreprocessing.debugInstruction(preprocessedInstructions);
@@ -322,7 +323,18 @@ class Ride with ChangeNotifier {
     if(currentInstruction != null) {
        dist = calcDistanceToNextInstruction(currentInstruction!, route!.path, getIt<Positioning>().snap!.position);
     }
-    smartglasses.updateInstructions(currentInstruction!.text, currentInstruction.sign, dist);
+    final nextInstruction = distHelper.getNextInstruction(preprocessedInstructions, currentInstruction!);
+    if(nextInstruction != null && currentInstruction.distance <= SmartglassService.DIST_FOR_SECOND_INSTRUCTION) {
+      log.i("Setting two pages");
+      smartglasses.updateInstructions(currentInstruction!.text, currentInstruction.sign, dist,
+          hasSecondPage: true,
+          secondInstructionText: "Dann ${nextInstruction.text}",
+          secondSign: nextInstruction.sign,
+          secondDistance: nextInstruction.distance.round() + dist
+      );
+    }else{
+      smartglasses.updateInstructions(currentInstruction!.text, currentInstruction.sign, dist);
+    }
 
     // Also update the recommendation
     predictionProvider?.recalculateRecommendation();

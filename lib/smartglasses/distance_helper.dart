@@ -163,4 +163,12 @@ class DistanceHelper {
     return path.points.coordinates.sublist(instruction.interval[0], instruction.interval[1]);
   }
 
+  GHInstruction? getNextInstruction(List<GHInstruction> preprocessedInstructions, GHInstruction currentInstruction) {
+    final index = preprocessedInstructions.indexOf(currentInstruction);
+    if(index + 1 <= preprocessedInstructions.length) {
+      return preprocessedInstructions.elementAt(index + 1);
+    }
+    return null;
+  }
+
 }
