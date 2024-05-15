@@ -102,6 +102,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     loadStatus = getIt<LoadStatus>();
     routing = getIt<Routing>();
+    routing.addListener(update);
     ride = getIt<Ride>();
     pois = getIt<Pois>();
     predictionSGStatus = getIt<PredictionSGStatus>();
@@ -270,182 +271,200 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     final showStatusView = predictionStatusSummary.getProblem() != null;
 
     return Scaffold(
-      body: RefreshIndicator(
-        edgeOffset: 128 + MediaQuery.of(context).padding.top,
-        color: Colors.white,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        displacement: 42,
-        onRefresh: () async {
-          HapticFeedback.lightImpact();
-          await predictionStatusSummary.fetch();
-          await loadStatus.fetch();
-          await news.getArticles();
-          await getIt<Weather>().fetch();
-          // Wait for one more second, otherwise the user will get impatient.
-          await Future.delayed(
-            const Duration(seconds: 1),
-          );
-          HapticFeedback.lightImpact();
-        },
-        child: AnnotatedRegionWrapper(
-          bottomBackgroundColor: Theme.of(context).colorScheme.background,
-          colorMode: Theme.of(context).brightness,
-          child: CustomScrollView(
-            slivers: <Widget>[
-              NavBarView(
-                onTapNotificationButton: onNotificationsButtonTapped,
-                onTapSettingsButton: onSettingsButtonTapped,
-              ),
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    const LoadStatusView(),
-                    if (settings.useCounter >= 3 && !settings.dismissedSurvey) const SmallVSpace(),
-                    if (settings.useCounter >= 3 && !settings.dismissedSurvey)
-                      BlendIn(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: const SurveyView(
-                            dismissible: true,
+      body: Stack(children: [
+        RefreshIndicator(
+          edgeOffset: 128 + MediaQuery.of(context).padding.top,
+          color: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          displacement: 42,
+          onRefresh: () async {
+            HapticFeedback.lightImpact();
+            await predictionStatusSummary.fetch();
+            await loadStatus.fetch();
+            await news.getArticles();
+            await getIt<Weather>().fetch();
+            // Wait for one more second, otherwise the user will get impatient.
+            await Future.delayed(
+              const Duration(seconds: 1),
+            );
+            HapticFeedback.lightImpact();
+          },
+          child: AnnotatedRegionWrapper(
+            bottomBackgroundColor: Theme.of(context).colorScheme.background,
+            colorMode: Theme.of(context).brightness,
+            child: CustomScrollView(
+              slivers: <Widget>[
+                NavBarView(
+                  onTapNotificationButton: onNotificationsButtonTapped,
+                  onTapSettingsButton: onSettingsButtonTapped,
+                ),
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      const LoadStatusView(),
+                      if (settings.useCounter >= 3 && !settings.dismissedSurvey) const SmallVSpace(),
+                      if (settings.useCounter >= 3 && !settings.dismissedSurvey)
+                        BlendIn(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: const SurveyView(
+                              dismissible: true,
+                            ),
                           ),
                         ),
-                      ),
-                    const VSpace(),
-                    const SmallVSpace(),
-                    if (showStatusView)
-                      const BlendIn(
+                      const VSpace(),
+                      const SmallVSpace(),
+                      if (showStatusView)
+                        const BlendIn(
+                          child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Expanded(
+                                child: StatusView(showPercentage: false),
+                              ),
+                              SizedBox(width: 20),
+                            ],
+                          ),
+                        ),
+                      if (showStatusView) const VSpace(),
+                      BlendIn(
+                        delay: const Duration(milliseconds: 250),
                         child: Row(
                           children: [
-                            SizedBox(width: 20),
+                            const SizedBox(width: 40),
                             Expanded(
-                              child: StatusView(showPercentage: false),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  BoldSubHeader(
+                                    text: "Navigation",
+                                    context: context,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Content(
+                                    text: "Deine Strecken und Orte",
+                                    context: context,
+                                  ),
+                                ],
+                              ),
                             ),
-                            SizedBox(width: 20),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            SmallIconButtonPrimary(
+                              onPressed: () => showAppSheet(
+                                context: context,
+                                builder: (context) => const ImportShortcutDialog(),
+                              ),
+                              icon: Icons.add_rounded,
+                              splash: Theme.of(context).colorScheme.surfaceTint,
+                            ),
+                            const SizedBox(width: 8),
+                            SmallIconButtonPrimary(
+                              icon: Icons.list_rounded,
+                              splash: Theme.of(context).colorScheme.surfaceTint,
+                              onPressed: onOpenShortcutEditView,
+                            ),
+                            const SizedBox(width: 24),
                           ],
                         ),
                       ),
-                    if (showStatusView) const VSpace(),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 250),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 40),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                BoldSubHeader(
-                                  text: "Navigation",
-                                  context: context,
-                                ),
-                                const SizedBox(height: 4),
-                                Content(
-                                  text: "Deine Strecken und Orte",
-                                  context: context,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          SmallIconButtonPrimary(
-                            onPressed: () => showAppSheet(
-                              context: context,
-                              builder: (context) => const ImportShortcutDialog(),
-                            ),
-                            icon: Icons.add_rounded,
-                            splash: Theme.of(context).colorScheme.surfaceTint,
-                          ),
-                          const SizedBox(width: 8),
-                          SmallIconButtonPrimary(
-                            icon: Icons.list_rounded,
-                            splash: Theme.of(context).colorScheme.surfaceTint,
-                            onPressed: onOpenShortcutEditView,
-                          ),
-                          const SizedBox(width: 24),
-                        ],
-                      ),
-                    ),
-                    const VSpace(),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 500),
-                      child: Column(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: 20),
-                            child: TutorialView(
-                              id: "priobike.tutorial.select-shortcut",
-                              text:
-                                  'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
-                              padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
-                            ),
-                          ),
-                          ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
-                        ],
-                      ),
-                    ),
-                    const BlendIn(
-                      delay: Duration(milliseconds: 750),
-                      child: YourBikeView(),
-                    ),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 1000),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
-                      ),
-                    ),
-                    const SmallVSpace(),
-                    const TrackHistoryView(),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 1000),
-                      child: Container(
-                        alignment: Alignment.topLeft,
-                        padding: const EdgeInsets.only(left: 40, right: 40),
+                      const VSpace(),
+                      BlendIn(
+                        delay: const Duration(milliseconds: 500),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BoldSubHeader(
-                              text: "Wie funktioniert PrioBike?",
-                              context: context,
-                              textAlign: TextAlign.center,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            const Padding(
+                              padding: EdgeInsets.only(left: 20),
+                              child: TutorialView(
+                                id: "priobike.tutorial.select-shortcut",
+                                text:
+                                    'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
+                                padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Content(
-                              text: "Erfahre mehr über die App.",
-                              context: context,
-                              textAlign: TextAlign.center,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                            ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
                           ],
                         ),
                       ),
-                    ),
-                    const VSpace(),
-                    const BlendIn(
-                      delay: Duration(milliseconds: 1250),
-                      child: WikiView(),
-                    ),
-                    const VSpace(),
-                    BlendIn(
-                      delay: const Duration(milliseconds: 1500),
-                      child: BoldSmall(
-                        text: "#radkultur hamburg",
-                        context: context,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      const BlendIn(
+                        delay: Duration(milliseconds: 750),
+                        child: YourBikeView(),
                       ),
-                    ),
-                    const VSpace(),
-                    const SizedBox(height: 32),
-                  ],
+                      BlendIn(
+                        delay: const Duration(milliseconds: 1000),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
+                        ),
+                      ),
+                      const SmallVSpace(),
+                      const TrackHistoryView(),
+                      BlendIn(
+                        delay: const Duration(milliseconds: 1000),
+                        child: Container(
+                          alignment: Alignment.topLeft,
+                          padding: const EdgeInsets.only(left: 40, right: 40),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              BoldSubHeader(
+                                text: "Wie funktioniert PrioBike?",
+                                context: context,
+                                textAlign: TextAlign.center,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 4),
+                              Content(
+                                text: "Erfahre mehr über die App.",
+                                context: context,
+                                textAlign: TextAlign.center,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const VSpace(),
+                      const BlendIn(
+                        delay: Duration(milliseconds: 1250),
+                        child: WikiView(),
+                      ),
+                      const VSpace(),
+                      BlendIn(
+                        delay: const Duration(milliseconds: 1500),
+                        child: BoldSmall(
+                          text: "#radkultur hamburg",
+                          context: context,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const VSpace(),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+        routing.isFetchingRoute
+            ? Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                color: Theme.of(context).colorScheme.background.withOpacity(0.6),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  const SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(),
+                  ),
+                  const SmallVSpace(),
+                  Content(text: "Route wird berechnet...", context: context),
+                ]),
+              )
+            : const SizedBox(),
+      ]),
     );
   }
 }

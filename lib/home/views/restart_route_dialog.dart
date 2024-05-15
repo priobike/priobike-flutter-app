@@ -35,6 +35,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
             onPressed: () async {
               Routing routing = getIt<Routing>();
               // Set waypoints, load route and load ride view.
+              Navigator.of(context).pop();
               await routing.selectWaypoints(lastRoute);
               await routing.loadRoutes();
               // Select last route if possible (Graphhopper can change!).
@@ -55,7 +56,6 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
                   // Display error toast message.
                   ToastMessage.showError("Route konnte nicht geladen werden.");
                   // Pop the dialog.
-                  Navigator.of(context).pop();
                 }
               }
             },
