@@ -66,6 +66,15 @@ class RideViewState extends State<RideView> {
     settings = getIt<Settings>();
     settings.addListener(update);
 
+    // Hide the bottom navigation bar on Android.
+    // Should only be called once to use it defensively.
+    if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top],
+      );
+    }
+
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         final deviceWidth = MediaQuery.of(context).size.width;
@@ -173,6 +182,15 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
+
+    /// Reenable the bottom navigation bar on Android after hiding it.
+    if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+      );
+    }
+
     super.dispose();
   }
 

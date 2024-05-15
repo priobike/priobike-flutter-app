@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -122,7 +120,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
   @override
   void initState() {
     super.initState();
-    hideNavigationBarAndroid();
+
     settings = getIt<Settings>();
     positioning = getIt<Positioning>();
     positioning.addListener(updateSpeedometer);
@@ -157,16 +155,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
     routing.removeListener(updateLayout);
     ride.removeListener(updateLayout);
     super.dispose();
-  }
-
-  /// Hide the bottom navigation bar on Android. Will be reenabled in the home screen.
-  void hideNavigationBarAndroid() {
-    if (Platform.isAndroid) {
-      SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.manual,
-        overlays: [SystemUiOverlay.top],
-      );
-    }
   }
 
   /// Load the gauge colors and steps, from the predictor.

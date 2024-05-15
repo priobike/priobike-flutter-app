@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -65,14 +64,6 @@ class FinishRideButton extends StatelessWidget {
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-
-    /// Reenable the bottom navigation bar on Android after hiding it in Speedometer View
-    if (Platform.isAndroid) {
-      await SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.manual,
-        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
-      );
-    }
 
     // End the tracking and collect the data.
     final tracking = getIt<Tracking>();
