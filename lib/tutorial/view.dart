@@ -52,7 +52,9 @@ class TutorialViewState extends State<TutorialView> {
   /// Updates the tutorial status.
   void updateTutorialStatus() {
     final wasCompleted = tutorial.isCompleted(widget.id);
-    if (wasCompleted != null && !wasCompleted) {
+    final isActive = tutorial.isActive(widget.id);
+    // Only show tutorial if is active and was not completed.
+    if (wasCompleted != null && isActive != null && !wasCompleted && isActive) {
       // If the tutorial was not completed, show it.
       setState(
         () {
@@ -89,6 +91,7 @@ class TutorialViewState extends State<TutorialView> {
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         tutorial.loadCompleted();
+        tutorial.loadActivated();
       },
     );
 

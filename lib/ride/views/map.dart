@@ -379,31 +379,55 @@ class RideMapViewState extends State<RideMapView> {
 
     var index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
-    await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
+    try {
+      await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
+    } catch (e) {
+      log.e("Error while installing layer SelectedRouteLayer: $e");
+    }
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
-    await WaypointsLayer().install(mapController!, iconSize: 0.2, at: index, textSize: 18.0);
+    try {
+      await WaypointsLayer().install(mapController!, iconSize: 0.2, at: index, textSize: 18.0);
+    } catch (e) {
+      log.e("Error while installing layer WaypointsLayer: $e");
+    }
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: true).install(
-      mapController!,
-      iconSize: 0.5,
-      at: index,
-      showTouchIndicator: true,
-    );
+    try {
+      await TrafficLightsLayer(isDark, hideBehindPosition: true).install(
+        mapController!,
+        iconSize: 0.5,
+        at: index,
+        showTouchIndicator: true,
+      );
+    } catch (e) {
+      log.e("Error while installing layer TrafficLightsLayer: $e");
+    }
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayerClickable().install(
-      mapController!,
-      iconSize: 0.5,
-      at: index,
-    );
+    try {
+      await TrafficLightsLayerClickable().install(
+        mapController!,
+        iconSize: 0.5,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer TrafficLightsLayerClickable: $e");
+    }
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: 0.5, at: index);
+    try {
+      await OfflineCrossingsLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: 0.5, at: index);
+    } catch (e) {
+      log.e("Error while installing layer OfflineCrossingsLayer: $e");
+    }
     index = await getIndex(TrafficLightLayer.layerId);
     if (!mounted) return;
-    await TrafficLightLayer(isDark).install(mapController!, iconSize: 0.5, at: index);
+    try {
+      await TrafficLightLayer(isDark).install(mapController!, iconSize: 0.5, at: index);
+    } catch (e) {
+      log.e("Error while installing layer TrafficLightLayer: $e");
+    }
 
     onRoutingUpdate();
     onPositioningUpdate();

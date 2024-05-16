@@ -495,7 +495,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showAirStations) {
       final index = await getIndex(BikeAirStationLayer.layerId);
       if (!mounted) return;
-      await BikeAirStationLayer(isDark).install(mapController!, at: index);
+      try {
+        await BikeAirStationLayer(isDark).install(mapController!, at: index);
+      } catch (e) {
+        log.e("Error while installing layer BikeAirStationLayer: $e");
+      }
     } else {
       if (!mounted) return;
       await BikeAirStationLayer.remove(mapController!);
@@ -503,7 +507,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showParkingStations) {
       final index = await getIndex(ParkingStationsLayer.layerId);
       if (!mounted) return;
-      await ParkingStationsLayer(isDark).install(mapController!, at: index);
+      try {
+        await ParkingStationsLayer(isDark).install(mapController!, at: index);
+      } catch (e) {
+        log.e("Error while installing layer ParkingStationsLayer: $e");
+      }
     } else {
       if (!mounted) return;
       await ParkingStationsLayer.remove(mapController!);
@@ -511,7 +519,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showRentalStations) {
       final index = await getIndex(RentalStationsLayer.layerId);
       if (!mounted) return;
-      await RentalStationsLayer(isDark).install(mapController!, at: index);
+      try {
+        await RentalStationsLayer(isDark).install(mapController!, at: index);
+      } catch (e) {
+        log.e("Error while installing layer RentalStationsLayer: $e");
+      }
     } else {
       if (!mounted) return;
       await RentalStationsLayer.remove(mapController!);
@@ -519,7 +531,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showRepairStations) {
       final index = await getIndex(BikeShopLayer.layerId);
       if (!mounted) return;
-      await BikeShopLayer(isDark).install(mapController!, at: index);
+      try {
+        await BikeShopLayer(isDark).install(mapController!, at: index);
+      } catch (e) {
+        log.e("Error while installing layer BikeShopLayer: $e");
+      }
     } else {
       if (!mounted) return;
       await BikeShopLayer.remove(mapController!);
@@ -527,7 +543,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showGreenWaveLayer) {
       final index = await getIndex(GreenWaveLayer.layerId);
       if (!mounted) return;
-      await GreenWaveLayer(isDark).install(mapController!, at: index);
+      try {
+        await GreenWaveLayer(isDark).install(mapController!, at: index);
+      } catch (e) {
+        log.e("Error while installing layer GreenWaveLayer: $e");
+      }
     } else {
       if (!mounted) return;
       await GreenWaveLayer.remove(mapController!);
@@ -535,7 +555,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showTrafficLayer) {
       final index = await getIndex(TrafficLayer.layerId);
       if (!mounted) return;
-      await TrafficLayer(isDark).install(mapController!, at: index);
+      try {
+        await TrafficLayer(isDark).install(mapController!, at: index);
+      } catch (e) {
+        log.e("Error while installing layer TrafficLayer: $e");
+      }
     } else {
       if (!mounted) return;
       await TrafficLayer.remove(mapController!);
@@ -543,7 +567,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showVeloRoutesLayer) {
       final index = await getIndex(VeloRoutesLayer.layerId);
       if (!mounted) return;
-      await VeloRoutesLayer(isDark).install(mapController!, at: index);
+      try {
+        await VeloRoutesLayer(isDark).install(mapController!, at: index);
+      } catch (e) {
+        log.e("Error while installing layer VeloRoutesLayer: $e");
+      }
     } else {
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
@@ -551,7 +579,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final index = await getIndex(IntersectionsLayer.layerId);
     if (!mounted) return;
-    await IntersectionsLayer(isDark).install(mapController!, at: index);
+    try {
+      await IntersectionsLayer(isDark).install(mapController!, at: index);
+    } catch (e) {
+      log.e("Error while installing layer IntersectionsLayer: $e");
+    }
 
     /*
     * Only applies to Android. Due to a data leak on Android-Flutter (https://github.com/flutter/flutter/issues/118384),
@@ -620,61 +652,97 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     var index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark).install(
-      mapController!,
-      iconSize: 0.33,
-      at: index,
-    );
+    try {
+      await OfflineCrossingsLayer(isDark).install(
+        mapController!,
+        iconSize: 0.33,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer OfflineCrossingsLayer: $e");
+    }
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayer(isDark).install(
-      mapController!,
-      iconSize: 0.33,
-      at: index,
-    );
+    try {
+      await TrafficLightsLayer(isDark).install(
+        mapController!,
+        iconSize: 0.33,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer TrafficLightsLayer: $e");
+    }
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
-    await WaypointsLayer().install(
-      mapController!,
-      iconSize: 0.1,
-      at: index,
-    );
+    try {
+      await WaypointsLayer().install(
+        mapController!,
+        iconSize: 0.1,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer WaypointsLayer: $e");
+    }
     index = await getIndex(PoisLayer.layerId);
     if (!mounted) return;
-    await PoisLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').install(
-      mapController!,
-      at: index,
-    );
+    try {
+      await PoisLayer(isDark || mapDesigns.mapDesign.name == 'Satellit').install(
+        mapController!,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer PoisLayer: $e");
+    }
     index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
-    await RoutePreviewLayer().install(
-      mapController!,
-      at: index,
-    );
-    index = await getIndex(SelectedRouteLayer.layerId);
+    try {
+      await SelectedRouteLayer(showStatus: true).install(
+        mapController!,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer SelectedRouteLayer: $e");
+    }
+    index = await getIndex(RoutePreviewLayer.layerId);
     if (!mounted) return;
-    await SelectedRouteLayer(showStatus: true).install(
-      mapController!,
-      at: index,
-    );
+    try {
+      await RoutePreviewLayer().install(
+        mapController!,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer RoutePreviewLayer: $e");
+    }
     index = await getIndex(AllRoutesLayer.layerId);
     if (!mounted) return;
-    await AllRoutesLayer().install(
-      mapController!,
-      at: index,
-    );
+    try {
+      await AllRoutesLayer().install(
+        mapController!,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer AllRoutesLayer: $e");
+    }
     index = await getIndex(RouteCrossingsCircleLayer.layerId);
     if (!mounted) return;
-    await RouteCrossingsCircleLayer().install(
-      mapController!,
-      at: index,
-    );
+    try {
+      await RouteCrossingsCircleLayer().install(
+        mapController!,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer RouteCrossingsCircleLayer: $e");
+    }
     index = await getIndex(SelectedRouteCrossingsCircleLayer.layerId);
     if (!mounted) return;
-    await SelectedRouteCrossingsCircleLayer().install(
-      mapController!,
-      at: index,
-    );
+    try {
+      await SelectedRouteCrossingsCircleLayer().install(
+        mapController!,
+        at: index,
+      );
+    } catch (e) {
+      log.e("Error while installing layer SelectedRouteCrossingsCircleLayer: $e");
+    }
   }
 
   /// A callback that is called when the user taps a feature.
@@ -872,7 +940,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await getFirstLabelLayer();
 
     // Load all symbols that will be displayed on the map.
-    await SymbolLoader(mapController!).loadSymbols();
+    try {
+      await SymbolLoader(mapController!).loadSymbols();
+    } catch (e) {
+      log.e("Error while installing layer SymbolLoader: $e");
+    }
 
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
@@ -881,7 +953,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await loadGeoLayers();
 
     // Load the boundary layer.
-    await BoundaryLayer(isDark).install(mapController!);
+    try {
+      await BoundaryLayer(isDark).install(mapController!);
+    } catch (e) {
+      log.e("Error while installing layer BoundaryLayer: $e");
+    }
 
     await fitCameraToRouteBounds();
     await loadRouteMapLayers();

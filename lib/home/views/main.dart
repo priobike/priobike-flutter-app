@@ -36,7 +36,6 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tracking/views/track_history.dart';
-import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
@@ -214,9 +213,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       return;
     }
 
-    // Tell the tutorial service that the shortcut was selected.
-    getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
-
     // Create new Shortcut copy to avoid changing the original Shortcut.
     final Shortcut newShortcut;
     if (shortcut is ShortcutLocation) {
@@ -380,6 +376,15 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                                 id: "priobike.tutorial.select-shortcut",
                                 text:
                                     'Fährst Du eine Route häufiger? Du kannst neue Strecken erstellen, indem Du eine Route planst und dann auf "Strecke speichern" klickst.',
+                                padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 20),
+                              child: TutorialView(
+                                id: "priobike.tutorial.share-shortcut",
+                                text:
+                                    'Fährst Du eine Route besonders gern und möchtest sie mit deinen Freunden teilen? Du kannst deine Strecke per Link oder QR Code teilen. Drücke dafür lang auf deine gespeicherte Strecke.',
                                 padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
                               ),
                             ),
