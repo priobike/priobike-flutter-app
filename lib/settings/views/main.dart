@@ -10,7 +10,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/licenses/views.dart';
-import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -24,7 +23,6 @@ import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/status/views/map.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsElement extends StatelessWidget {
@@ -304,21 +302,6 @@ class SettingsViewState extends State<SettingsView> {
                               MaterialPageRoute(builder: (_) => const InternalSettingsView()),
                             );
                           },
-                        ),
-                      ],
-                      if (settings.backend == Backend.production) ...[
-                        const VSpace(),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 32),
-                          child: Content(text: "Beta", context: context),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: SettingsElement(
-                            title: "Logs senden",
-                            icon: Icons.ios_share_rounded,
-                            callback: () => Share.share(Logger.db.join("\n"), subject: 'Logs für PrioBike'),
-                          ),
                         ),
                       ],
                       const VSpace(),
