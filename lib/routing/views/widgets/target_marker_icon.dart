@@ -111,7 +111,8 @@ class TargetMarkerLocationPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()..color = CI.route;
+    Paint paint = Paint()
+      ..color = Theme.of(context).brightness == Brightness.dark ? CI.darkModeRoute : CI.lightModeRoute;
 
     canvas.drawCircle(Offset(size.width / 2, size.width / 2), size.width / 2, paint);
     canvas.drawPath(getTargetLocationPath(size.width, size.height), paint);

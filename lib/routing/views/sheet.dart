@@ -196,7 +196,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         height: (routing.selectedWaypoints?.length ?? 0) * 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: CI.route,
+          color: Theme.of(context).brightness == Brightness.dark ? CI.darkModeRoute : CI.lightModeRoute,
         ),
       ),
       Column(

@@ -172,7 +172,7 @@ class IntersectionsLayer {
               circleRadius: 4,
               circleStrokeColor: CI.routeBackground.value,
               circleStrokeWidth: 0.5,
-              circleColor: CI.route.value,
+              circleColor: isDark ? CI.darkModeRoute.value : CI.lightModeRoute.value,
               minZoom: 8.0),
           mapbox.LayerPosition(at: at));
     }

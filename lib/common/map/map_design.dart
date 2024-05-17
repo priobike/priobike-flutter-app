@@ -70,8 +70,8 @@ class MapDesign {
     lightStyle: 'mapbox://styles/snrmtths/clnsn1qcm00j601qyf67tekyh',
     lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
     fallbackLightScreenshot: 'assets/images/screenshots/standard-light.png',
-    darkStyle: 'mapbox://styles/snrmtths/clnsn1qdk00it01o309z89n70',
-    darkStyleNoText: 'mapbox://styles/snrmtths/cllxh6el000j301pj59tu0e1c',
+    darkStyle: 'mapbox://styles/snrmtths/clwal7o5z004201pn2qru87an',
+    darkStyleNoText: 'mapbox://styles/snrmtths/clwalkjaj004w01nyhkt39nom',
     fallbackDarkScreenshot: 'assets/images/screenshots/standard-dark.png',
   );
 
@@ -84,7 +84,7 @@ class MapDesign {
       lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
       fallbackLightScreenshot: 'assets/images/screenshots/satellite-streets.png',
       darkStyle: MapboxStyles.SATELLITE_STREETS,
-      darkStyleNoText: 'mapbox://styles/snrmtths/cllxh6el000j301pj59tu0e1c',
+      darkStyleNoText: 'mapbox://styles/snrmtths/clwalkjaj004w01nyhkt39nom',
       fallbackDarkScreenshot: 'assets/images/screenshots/satellite-streets.png',
     ),
   ];

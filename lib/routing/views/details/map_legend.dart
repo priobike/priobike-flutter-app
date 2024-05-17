@@ -118,7 +118,7 @@ class MapLegendState extends State<MapLegend> {
                       height: 24,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: CI.route,
+                        color: Theme.of(context).brightness == Brightness.dark ? CI.darkModeRoute : CI.lightModeRoute,
                         border: Border.all(color: CI.routeBackground, width: 2),
                       ),
                       child: Padding(
@@ -285,7 +285,7 @@ class _MapLegendView extends StatelessWidget {
                       height: 8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: CI.route,
+                        color: Theme.of(context).brightness == Brightness.dark ? CI.darkModeRoute : CI.lightModeRoute,
                       ),
                     ),
                     const SmallHSpace(),
@@ -304,7 +304,9 @@ class _MapLegendView extends StatelessWidget {
                       height: 8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: CI.secondaryRoute,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? CI.darkModeSecondaryRoute
+                            : CI.lightModeSecondaryRoute,
                       ),
                     ),
                     const SmallHSpace(),

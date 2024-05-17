@@ -86,7 +86,7 @@ class ShortcutView extends StatelessWidget {
               height: height,
               width: width,
               child: Padding(
-                padding: const EdgeInsets.only(left: 12, bottom: 12, right: 12),
+                padding: const EdgeInsets.only(left: 12, bottom: 8, right: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -94,20 +94,25 @@ class ShortcutView extends StatelessWidget {
                     FittedBox(
                       // Scale the text to fit the width.
                       fit: BoxFit.fitWidth,
-                      child: shortcut == null
-                          ? const Text(
-                              'Freie Route',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.only(top: 6, left: 8, right: 8),
-                              child: Text(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color:
+                              shortcut == null ? null : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
+                        ),
+                        child: shortcut == null
+                            ? const Text(
+                                'Freie Route',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : Text(
                                 shortcut!.name,
                                 style: TextStyle(
                                   fontSize: 14,
@@ -117,7 +122,7 @@ class ShortcutView extends StatelessWidget {
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ),
+                      ),
                     ),
                   ],
                 ),

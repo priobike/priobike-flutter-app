@@ -23,7 +23,7 @@ class GPXConversionWaypointsPaint extends StatefulWidget {
     super.key,
     required this.wpts,
     this.gpxColor = CI.radkulturRed,
-    this.approxColor = CI.route,
+    required this.approxColor,
     required this.gpxConversionNotifier,
   });
 

@@ -151,7 +151,11 @@ class GpxConversionWaypointsPictogramState extends State<GpxConversionWaypointsP
                             : Container(),
                       ),
                       GPXConversionWaypointsPaint(
-                          wpts: widget.wpts, gpxConversionNotifier: widget.gpxConversionNotifier),
+                        approxColor:
+                            Theme.of(context).brightness == Brightness.dark ? CI.darkModeRoute : CI.lightModeRoute,
+                        wpts: widget.wpts,
+                        gpxConversionNotifier: widget.gpxConversionNotifier,
+                      ),
                       const MapboxAttribution(
                         top: 8,
                         right: 8,

@@ -80,10 +80,7 @@ class TrackPictogram extends StatefulWidget {
     super.key,
     required this.track,
     required this.blurRadius,
-    this.colors = const [
-      CI.radkulturRedDark,
-      Color.fromARGB(255, 0, 115, 255),
-    ],
+    required this.colors,
     this.startImage,
     this.destinationImage,
     this.lineWidth = 3.0,
@@ -212,6 +209,9 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
             track: widget.track,
             blurRadius: 0,
             colors: widget.colors,
+            routeColor: Theme.of(context).brightness == Brightness.dark
+                ? CI.darkModeSecondaryRoute
+                : CI.lightModeSecondaryRoute,
             maxSpeed: maxSpeed,
             minSpeed: minSpeed,
             startImage: widget.startImage,
@@ -296,7 +296,9 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                       height: 4,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: CI.secondaryRoute,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? CI.darkModeSecondaryRoute
+                            : CI.lightModeSecondaryRoute,
                       ),
                     ),
                     const SmallHSpace(),
@@ -333,6 +335,7 @@ class TrackPainter extends CustomPainter {
   final double blurRadius;
   final List<Position> track;
   final List<Color> colors;
+  final Color routeColor;
   double? maxSpeed;
   double? minSpeed;
   final ui.Image? startImage;
@@ -350,6 +353,7 @@ class TrackPainter extends CustomPainter {
     required this.blurRadius,
     required this.track,
     required this.colors,
+    required this.routeColor,
     required this.lineWidth,
     required this.iconSize,
     required this.showSpeed,
@@ -401,17 +405,26 @@ class TrackPainter extends CustomPainter {
 
   /// Draws the initial calculated route.
   void drawRoute(Canvas canvas, List<NavigationNode> routeToDraw, Size size, MapboxMapProjectionBoundingBox bbox) {
+    final colorDarker = HSLColor.fromColor(routeColor).withLightness(0.2).toColor();
     final paint = Paint()
       ..strokeWidth = lineWidth / 2
       ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..color = routeColor;
+    final backgroundPaint = Paint()
+      ..strokeWidth = lineWidth / 1.5
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke
+      ..color = colorDarker;
     if (blurRadius > 0) {
       paint.maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
+      backgroundPaint.maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
     }
     final routeCount = routeToDraw.length;
     final routeCountFraction = routeCount * fraction;
 
     // Draw the lines between the coordinates
+    var linesToDraw = [];
     for (var i = 0; i < routeCountFraction - 1; i++) {
       final p1 = routeToDraw[i];
       final p2 = routeToDraw[i + 1];
@@ -429,7 +442,7 @@ class TrackPainter extends CustomPainter {
       final y2 = (p2.lat - bbox.maxLat) / (bbox.minLat - bbox.maxLat) * (size.height * (widthRatio)) +
           (size.height * (1 - widthRatio) * 0.5);
 
-      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint..color = CI.secondaryRoute);
+      linesToDraw.add((x1, y1, x2, y2));
     }
 
     // Interpolate the last segment
@@ -448,7 +461,16 @@ class TrackPainter extends CustomPainter {
       final x2i = x1 + (x2 - x1) * pct;
       final y2i = y1 + (y2 - y1) * pct;
 
-      canvas.drawLine(Offset(x1, y1), Offset(x2i, y2i), paint..color = CI.secondaryRoute);
+      linesToDraw.add((x1, y1, x2i, y2i));
+    }
+
+    for (var line in linesToDraw) {
+      final (x1, y1, x2, y2) = line;
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), backgroundPaint);
+    }
+    for (var line in linesToDraw) {
+      final (x1, y1, x2, y2) = line;
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
     }
   }
 

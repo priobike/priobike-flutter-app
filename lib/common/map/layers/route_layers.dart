@@ -29,7 +29,10 @@ class AllRoutesLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  AllRoutesLayer() {
+  /// If the layer should display a dark version.
+  final bool isDark;
+
+  AllRoutesLayer(this.isDark) {
     final routing = getIt<Routing>();
     if (routing.allRoutes == null) return;
 
@@ -46,14 +49,11 @@ class AllRoutesLayer {
         // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
         if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
         // Interpolate between green and grey, by the prediction quality.
-
-        Color color = Color.fromRGBO(
-            (0 * q + 198 * (1 - q)).round(), (255 * q + 198 * (1 - q)).round(), (106 * q + 198 * (1 - q)).round(), 1);
-
-        final colorHSL = HSLColor.fromColor(color);
-        color = colorHSL.withSaturation(colorHSL.saturation * 0.25).toColor();
-
-        String colorString = "rgb(${color.red}, ${color.green}, ${color.blue})";
+        final (r1, g1, b1) = (77, 219, 110);
+        final (r2, g2, b2) = isDark
+            ? (CI.darkModeSecondaryRoute.red, CI.darkModeSecondaryRoute.green, CI.darkModeSecondaryRoute.blue)
+            : (CI.lightModeSecondaryRoute.red, CI.lightModeSecondaryRoute.green, CI.lightModeSecondaryRoute.blue);
+        String color = "rgb(${r1 * q + r2 * (1 - q)}, ${g1 * q + g2 * (1 - q)}, ${b1 * q + b2 * (1 - q)})";
 
         if (currentFeature == null || currentFeature["color"] != color) {
           if (currentFeature != null) {
@@ -64,7 +64,7 @@ class AllRoutesLayer {
             "id": "route-${route.idx}", // Required for click listener.
             "type": "Feature",
             "properties": {
-              "color": colorString,
+              "color": color,
             },
             "geometry": {
               "type": "LineString",
@@ -171,6 +171,9 @@ class SelectedRouteLayer {
   /// If the layer should show the status of the predictions.
   final bool showStatus;
 
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
   /// Get the color for the status.
   String getStatusColor(PredictionSGStatus status, NavigationNode navNode) {
     final sgStatus = status.cache[navNode.signalGroupId];
@@ -179,11 +182,15 @@ class SelectedRouteLayer {
     // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
     if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
     // Interpolate between green and blue, by the prediction quality.
-    color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
+    final (r1, g1, b1) = (0, 255, 106);
+    final (r2, g2, b2) = isDark
+        ? (CI.darkModeRoute.red, CI.darkModeRoute.green, CI.darkModeRoute.blue)
+        : (CI.lightModeRoute.red, CI.lightModeRoute.green, CI.lightModeRoute.blue);
+    color = "rgb(${r1 * q + r2 * (1 - q)}, ${g1 * q + g2 * (1 - q)}, ${b1 * q + b2 * (1 - q)})";
     return color;
   }
 
-  SelectedRouteLayer({this.showStatus = false}) {
+  SelectedRouteLayer(this.isDark, {this.showStatus = false}) {
     final routing = getIt<Routing>();
     final navNodes = routing.selectedRoute?.route ?? [];
 
@@ -191,7 +198,11 @@ class SelectedRouteLayer {
     Map<String, dynamic>? currentFeature;
     for (int i = navNodes.length - 1; i >= 0; i--) {
       final navNode = navNodes[i];
-      final color = status != null ? getStatusColor(status, navNode) : CI.route.value;
+      final color = status != null
+          ? getStatusColor(status, navNode)
+          : isDark
+              ? CI.darkModeRoute.value
+              : CI.lightModeRoute.value;
       if (currentFeature == null || currentFeature["color"] != color) {
         if (currentFeature != null) {
           currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
@@ -216,7 +227,7 @@ class SelectedRouteLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 10.0, fgLineWidth = 7.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -231,7 +242,7 @@ class SelectedRouteLayer {
           mapbox.LineLayer(
             sourceId: sourceId,
             id: layerId,
-            lineColor: CI.route.value,
+            lineColor: isDark ? CI.darkModeRoute.value : CI.lightModeRoute.value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: fgLineWidth,
@@ -487,7 +498,10 @@ class WaypointsLayer {
   /// If a waypoint is tapped and needs highlighting.
   int? tappedWaypointIdx;
 
-  WaypointsLayer({this.tappedWaypointIdx}) {
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
+  WaypointsLayer(this.isDark, {this.tappedWaypointIdx}) {
     final routing = getIt<Routing>();
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
@@ -542,7 +556,7 @@ class WaypointsLayer {
               sourceId: sourceId,
               id: "$layerId-circle",
               circleOpacity: 0.0,
-              circleColor: CI.route.value,
+              circleColor: isDark ? CI.darkModeRoute.value : CI.lightModeRoute.value,
               circleBlur: 0.4,
               circleRadius: 16),
           mapbox.LayerPosition(at: at));
@@ -611,7 +625,10 @@ class RoutePreviewLayer {
   /// The coordinate of the snapped second waypoint on the route.
   final LatLng? snappedSecondWaypoint;
 
-  RoutePreviewLayer({this.addedPosition, this.snappedWaypoint, this.snappedSecondWaypoint}) {
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
+  RoutePreviewLayer(this.isDark, {this.addedPosition, this.snappedWaypoint, this.snappedSecondWaypoint}) {
     if (addedPosition != null && snappedWaypoint != null) {
       features.add(
         {
@@ -659,7 +676,7 @@ class RoutePreviewLayer {
           mapbox.LineLayer(
               sourceId: sourceId,
               id: layerId,
-              lineColor: CI.route.value,
+              lineColor: isDark ? CI.darkModeRoute.value : CI.lightModeRoute.value,
               lineJoin: mapbox.LineJoin.ROUND,
               lineCap: mapbox.LineCap.ROUND,
               lineWidth: fgLineWidth,
