@@ -81,7 +81,7 @@ class RideViewState extends State<RideView> {
         // Start a new session.
         ride = getIt<Ride>();
 
-        if (settings.saveAudioInstructionsEnabled) {
+        if (settings.audioInstructionsEnabled) {
           // Configure the TTS.
           await ride.initializeTTS();
         }
@@ -111,7 +111,7 @@ class RideViewState extends State<RideView> {
             await tracking.updatePosition();
 
             // Play audio instructions if enabled.
-            if (settings.saveAudioInstructionsEnabled) {
+            if (settings.audioInstructionsEnabled) {
               ride.playAudioInstruction();
               ride.playNewPredictionStatusInformation();
             }

@@ -8,7 +8,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/feedback/views/audio_rating_view.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -54,9 +53,6 @@ class FeedbackViewState extends State<FeedbackView> {
   ui.Image? destinationImage;
 
   Widget? trackHistory;
-
-  /// The bool that stores the state of the audio feedback send.
-  bool audioFeedbackSend = false;
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -228,13 +224,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     const SmallVSpace(),
                     BigButtonPrimary(
                       label: "Fertig",
-                      onPressed: () async {
-                        showFinishDriveDialog(context, submit);
-                        if (settings.saveAudioInstructionsEnabled && !audioFeedbackSend) {
-                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AudioRatingView()));
-                          audioFeedbackSend = true;
-                        }
-                      },
+                      onPressed: () => showFinishDriveDialog(context, submit),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
                     ),
                   ],

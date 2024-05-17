@@ -75,7 +75,7 @@ class Settings with ChangeNotifier {
   bool dismissedSurvey;
 
   /// If the audio instructions are enabled.
-  bool saveAudioInstructionsEnabled;
+  bool audioInstructionsEnabled;
 
   /// Whether the user has seen the user transfer dialog.
   bool didViewUserTransfer;
@@ -366,17 +366,17 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const saveAudioInstructionsEnabledKey = "priobike.settings.audioInstructionsEnabled";
+  static const audioInstructionsEnabledKey = "priobike.settings.audioInstructionsEnabled";
   static const defaultSaveAudioInstructionsEnabled = false;
 
-  Future<bool> setSaveAudioInstructionsEnabled(bool saveAudioInstructionsEnabled, [SharedPreferences? storage]) async {
+  Future<bool> setAudioInstructionsEnabled(bool audioInstructionsEnabled, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.saveAudioInstructionsEnabled;
-    this.saveAudioInstructionsEnabled = saveAudioInstructionsEnabled;
-    final bool success = await storage.setBool(saveAudioInstructionsEnabledKey, saveAudioInstructionsEnabled);
+    final prev = this.audioInstructionsEnabled;
+    this.audioInstructionsEnabled = audioInstructionsEnabled;
+    final bool success = await storage.setBool(audioInstructionsEnabledKey, audioInstructionsEnabled);
     if (!success) {
-      log.e("Failed to set saveAudioInstructionsEnabled to $saveAudioInstructionsEnabled");
-      this.saveAudioInstructionsEnabled = prev;
+      log.e("Failed to set audioInstructionsEnabled to $audioInstructionsEnabled");
+      this.audioInstructionsEnabled = prev;
     } else {
       notifyListeners();
     }
@@ -481,7 +481,7 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-    this.saveAudioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
+    this.audioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
     this.didViewUserTransfer = defaultDidViewUserTransfer,
@@ -539,8 +539,7 @@ class Settings with ChangeNotifier {
       /* Do nothing and use the default value given by the constructor. */
     }
     try {
-      saveAudioInstructionsEnabled =
-          storage.getBool(saveAudioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
+      audioInstructionsEnabled = storage.getBool(audioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
