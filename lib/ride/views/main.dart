@@ -294,10 +294,6 @@ class RideViewState extends State<RideView> {
                       ),
                     ),
                   ),
-                Positioned(
-                  right: positionSpeedometerRight,
-                  child: RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
-                ),
                 if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
                 FinishRideButton(),
                 if (!cameraFollowsUserLocation)
