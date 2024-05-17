@@ -106,7 +106,7 @@ class PredictorPrediction implements Prediction {
   /// The program ID of the prediction.
   final int? programId;
 
-  /// The current prediction quality in [0.0, 1.0]. Calculated periodically.
+  /// The quality that was evaluated against real data.
   @override
   double? predictionQuality;
 
@@ -118,7 +118,14 @@ class PredictorPrediction implements Prediction {
         then = base64Decode(json['then'] as String),
         thenQuality = base64Decode(json['thenQuality'] as String),
         referenceTime = DateTime.parse(json['referenceTime'] as String),
-        programId = json['programId'] as int?;
+        programId = json['programId'] as int? {
+    final quality = json['evaluatedQuality'];
+    if (quality is int) {
+      predictionQuality = quality.toDouble();
+    } else if (quality is double) {
+      predictionQuality = quality;
+    }
+  }
 
   /// Write the prediction to a JSON map.
   @override
@@ -128,6 +135,7 @@ class PredictorPrediction implements Prediction {
         'nowQuality': base64Encode(nowQuality),
         'then': base64Encode(then),
         'thenQuality': base64Encode(thenQuality),
+        'evaluatedQuality': predictionQuality,
         'referenceTime': referenceTime.toIso8601String(),
         'programId': programId,
       };
@@ -201,7 +209,10 @@ class PredictorPrediction implements Prediction {
       }
     }
     calcCurrentSignalPhase = currentPhase;
-    predictionQuality = calcQualitiesFromNow[refTimeIdx];
+    // In an old version of the predictor, the prediction quality
+    // was not evaluated against real data. In this case, we calculate
+    // the quality from the prediction vector.
+    predictionQuality ??= calcQualitiesFromNow[refTimeIdx];
     return Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
   }
 }
