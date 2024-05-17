@@ -171,10 +171,20 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
 
   /// Load the gauge colors and steps, from the predictor.
   void loadGauge() {
-    if (ride.predictionProvider?.recommendation == null || ride.calcDistanceToNextSG == null) {
+    fallback() {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
-      return;
+    }
+
+    if (ride.predictionProvider?.recommendation == null || ride.calcDistanceToNextSG == null) {
+      return fallback();
+    }
+
+    // Don't display the gauge if there is no predicted phase change.
+    // In case e.g. the traffic light is only red, the gauge would
+    // only display a red color and hence be useless.
+    if (ride.predictionProvider!.recommendation!.calcCurrentPhaseChangeTime == null) {
+      return fallback();
     }
 
     // Don't display the gauge if the user has overridden the signal group.
@@ -182,9 +192,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
     // Additionally, the distance is currently only calculated based on the upcoming signal group.
     // Therefore the gauge would show incorrect values if the user has overridden the signal group.
     if (ride.userSelectedSG != null) {
-      gaugeColors = [defaultGaugeColor, defaultGaugeColor];
-      gaugeStops = [0.0, 1.0];
-      return;
+      return fallback();
     }
 
     final phases = ride.predictionProvider!.recommendation!.calcPhasesFromNow;
