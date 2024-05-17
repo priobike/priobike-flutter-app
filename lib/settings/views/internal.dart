@@ -406,11 +406,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                             future: Logger.read(),
                             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                               if (snapshot.hasData) {
-                                return Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
-                                  child: Small(
-                                    text: snapshot.data!,
-                                    context: context,
+                                return SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
+                                    child: Small(
+                                      text: snapshot.data!.isEmpty ? "Noch keine Logs aufgezeichnet." : snapshot.data!,
+                                      context: context,
+                                    ),
                                   ),
                                 );
                               }
