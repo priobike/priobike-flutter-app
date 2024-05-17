@@ -29,6 +29,9 @@ class Settings with ChangeNotifier {
   /// The scaling factor of the map for the battery save mode.
   static const double scalingFactor = 2.5;
 
+  /// Whether the logs should be persisted.
+  bool enableLogPersistence;
+
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
 
@@ -94,6 +97,23 @@ class Settings with ChangeNotifier {
 
   /// If we want to show the speed with increased precision in the speedometer.
   bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
+
+  static const enableLogPersistenceKey = "priobike.settings.enableLogPersistence";
+  static const defaultEnableLogPersistence = false;
+
+  Future<bool> setEnableLogPersistence(bool enableLogPersistence, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableLogPersistence;
+    this.enableLogPersistence = enableLogPersistence;
+    final bool success = await storage.setBool(enableLogPersistenceKey, enableLogPersistence);
+    if (!success) {
+      log.e("Failed to set enableLogPersistence to $enableLogPersistence");
+      this.enableLogPersistence = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -469,6 +489,7 @@ class Settings with ChangeNotifier {
 
   Settings(
     this.backend, {
+    this.enableLogPersistence = defaultEnableLogPersistence,
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
     this.positioningMode = defaultPositioningMode,
@@ -493,6 +514,7 @@ class Settings with ChangeNotifier {
 
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
+    enableLogPersistence = storage.getBool(enableLogPersistenceKey) ?? defaultEnableLogPersistence;
     enablePerformanceOverlay = storage.getBool(enablePerformanceOverlayKey) ?? defaultEnablePerformanceOverlay;
     didViewWarning = storage.getBool(didViewWarningKey) ?? defaultDidViewWarning;
 
@@ -640,6 +662,7 @@ class Settings with ChangeNotifier {
 
   /// Convert the settings to a json object.
   Map<String, dynamic> toJson() => {
+        "enableLogPersistence": enableLogPersistence,
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "didViewWarning": didViewWarning,
         "backend": backend.name,

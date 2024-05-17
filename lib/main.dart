@@ -70,6 +70,9 @@ Future<void> main() async {
   final settings = getIt<Settings>();
   await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
+  // Setup the logger.
+  await Logger.init(settings.enableLogPersistence);
+
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
   await FCM.load(settings.backend);

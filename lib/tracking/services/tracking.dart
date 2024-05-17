@@ -8,6 +8,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:priobike/common/csv.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -24,46 +25,6 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class CSVCache {
-  /// The currently pending lines.
-  List<String> lines;
-
-  /// The file reference.
-  File file;
-
-  /// The maximum number of lines to cache.
-  int maxLines;
-
-  CSVCache({
-    required String header,
-    required this.file,
-    required this.maxLines,
-  }) : lines = [header];
-
-  /// Add a line to the cache.
-  Future<void> add(String line) async {
-    lines.add(line);
-    if (lines.length >= maxLines) await flush();
-  }
-
-  /// Flush the cache.
-  Future<void> flush() async {
-    if (lines.isEmpty) return;
-    // Create the file if it does not exist.
-    var fileIsNew = false;
-    if (!await file.exists()) {
-      await file.create(recursive: true);
-      fileIsNew = true;
-    }
-    // Flush the cache and write the data to the file.
-    final csv = lines.join("\n");
-    lines.clear();
-    // If the file is not new, append a newline.
-    if (!fileIsNew) await file.writeAsString("\n", mode: FileMode.append, flush: true);
-    await file.writeAsString(csv, mode: FileMode.append, flush: true);
-  }
-}
 
 /// A track of a bicycle ride.
 class Tracking with ChangeNotifier {

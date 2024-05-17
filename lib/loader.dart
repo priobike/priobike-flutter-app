@@ -256,7 +256,7 @@ class LoaderState extends State<Loader> {
                             settings.connectionErrorCounter >= 3
                                 ? BigButtonPrimary(
                                     label: "Logs teilen",
-                                    onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
+                                    onPressed: () async => Share.share(await Logger.read(), subject: 'Logs PrioBike'))
                                 : Container(),
                             settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                             settings.connectionErrorCounter >= 3

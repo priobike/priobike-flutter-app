@@ -375,9 +375,54 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Logs aufzeichnen",
+                    icon: settings.enableLogPersistence ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () async {
+                      await settings.setEnableLogPersistence(!settings.enableLogPersistence);
+                      await Logger.init(settings.enableLogPersistence);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "Logs senden",
                     icon: Icons.ios_share_rounded,
-                    callback: () => Share.share(Logger.db.join("\n"), subject: 'Logs für PrioBike'),
+                    callback: () async => Share.share(await Logger.read(), subject: 'Logs für PrioBike'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Logs öffnen",
+                    icon: Icons.open_in_browser_rounded,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        // Simple text view
+                        return SingleChildScrollView(
+                          reverse: true,
+                          child: FutureBuilder<String>(
+                            future: Logger.read(),
+                            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                              if (snapshot.hasData) {
+                                return SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
+                                    child: Small(
+                                      text: snapshot.data!.isEmpty ? "Noch keine Logs aufgezeichnet." : snapshot.data!,
+                                      context: context,
+                                    ),
+                                  ),
+                                );
+                              }
+                              return const Center(child: CircularProgressIndicator());
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Padding(
