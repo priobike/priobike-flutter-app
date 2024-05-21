@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -32,9 +33,26 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
 
+  late Settings settings;
+
+  /// A controller for the search text field.
+  final searchController = TextEditingController();
+
+  /// The sg-locs geojson.
+  var sgLocs = {};
+
+  /// The sg-lanes geojson.
+  var sgLanes = {};
+
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    settings = getIt<Settings>();
   }
 
   /// A callback which is executed when the map style was loaded.
@@ -44,33 +62,34 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     final textColor =
         Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value;
 
-    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
 
     final sourceLocsExists = await mapController?.style.styleSourceExists("sg-locs");
     if (sourceLocsExists != null && !sourceLocsExists) {
+      // Fetch the geojson from the server.
+      final url = Uri.parse("https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson");
+      final response = await Http.get(url);
+      if (response.statusCode != 200) return;
+      sgLocs = jsonDecode(response.body);
       await mapController?.style.addSource(
-        mapbox.GeoJsonSource(
-          id: "sg-locs",
-          // Primarily use the status of the prediction service.
-          data: "https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson",
-        ),
+        mapbox.GeoJsonSource(id: "sg-locs", data: json.encode(sgLocs)),
       );
     }
 
     final sourceSGLanesExists = await mapController?.style.styleSourceExists("sg-lanes");
     if (sourceSGLanesExists != null && !sourceSGLanesExists) {
+      // Fetch the geojson from the server.
+      final url = Uri.parse("https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson");
+      final response = await Http.get(url);
+      if (response.statusCode != 200) return;
+      sgLanes = jsonDecode(response.body);
       await mapController?.style.addSource(
-        mapbox.GeoJsonSource(
-          id: "sg-lanes",
-          // Primarily use the status of the prediction service.
-          data: "https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson",
-        ),
+        mapbox.GeoJsonSource(id: "sg-lanes", data: json.encode(sgLanes)),
       );
     }
 
     // Define the color scheme for the layers.
-    final color = [
+    var color = [
       "case",
       // Display black if prediction_available is false.
       [
@@ -107,6 +126,17 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
         600,
         "rgb(140, 0, 65)",
       ]
+    ];
+    // Highlight yellow if highlighted=1.
+    color = [
+      "case",
+      [
+        "==",
+        ["get", "highlighted"],
+        1
+      ],
+      "#FFFF00",
+      color,
     ];
 
     // Define the label that will be displayed on top.
@@ -274,6 +304,36 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     }
   }
 
+  /// Highlights the search result on the map.
+  Future<void> highlightOnMap(String value) async {
+    if (mapController == null) return;
+
+    final features = sgLocs["features"] as List<dynamic>;
+    for (final feature in features) {
+      final properties = feature["properties"] as Map<String, dynamic>;
+      final sgId = properties["prediction_sg_id"] as String;
+      properties["highlighted"] = sgId.contains(value) ? 1 : 0;
+      if (value.isEmpty) properties.remove("highlighted");
+    }
+    if (await mapController?.style.styleSourceExists("sg-locs") == true) {
+      final source = await mapController!.style.getSource("sg-locs");
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+
+    final featuresLanes = sgLanes["features"] as List<dynamic>;
+    for (final feature in featuresLanes) {
+      final properties = feature["properties"] as Map<String, dynamic>;
+      final sgId = properties["prediction_sg_id"] as String;
+      properties["highlighted"] = sgId.contains(value) ? 1 : 0;
+      if (value.isEmpty) properties.remove("highlighted");
+    }
+    if (await mapController?.style.styleSourceExists("sg-lanes") == true) {
+      final source = await mapController!.style.getSource("sg-lanes");
+      (source as mapbox.GeoJsonSource)
+          .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": featuresLanes}));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final legend = [
@@ -307,6 +367,43 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                 ),
               ),
             ),
+            if (settings.enableTrafficLightSearchBar)
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      left: 86,
+                      right: 12,
+                    ),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: "Suche",
+                        fillColor: Theme.of(context).colorScheme.background,
+                        filled: true,
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: SmallIconButtonTertiary(
+                          icon: Icons.close,
+                          onPressed: () {
+                            searchController.clear();
+                            setState(() {});
+                          },
+                          color: Theme.of(context).colorScheme.onBackground,
+                          fill: Colors.transparent,
+                          withBorder: false,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      ),
+                      onChanged: highlightOnMap,
+                    ),
+                  ),
+                ),
+              ),
             SafeArea(
               child: Align(
                 alignment: Alignment.bottomLeft,
