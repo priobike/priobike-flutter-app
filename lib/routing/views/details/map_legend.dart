@@ -92,7 +92,7 @@ class MapLegendState extends State<MapLegend> {
               border: Border.all(
                 width: 1,
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withOpacity(0.07)
+                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
                     : Colors.black.withOpacity(0.07),
               ),
             ),
@@ -192,6 +192,9 @@ class MapLegendState extends State<MapLegend> {
             fill: Theme.of(context).colorScheme.surfaceVariant,
             padding: const EdgeInsets.all(0), // Needed to center the icon
             onPressed: showMapLegendSheet,
+            borderColor: Theme.of(context).brightness == Brightness.light
+                ? null
+                : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
             content: Icon(
               Icons.info_outline,
               color: Theme.of(context).colorScheme.onBackground,
