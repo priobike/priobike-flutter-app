@@ -139,6 +139,18 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       color,
     ];
 
+    // Increase size if highlighted=1.
+    final circleRadius = [
+      "case",
+      [
+        "==",
+        ["get", "highlighted"],
+        1
+      ],
+      10,
+      3,
+    ];
+
     // Define the label that will be displayed on top.
     final title = [
       "concat",
@@ -223,6 +235,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       );
 
       await mapController?.style.setStyleLayerProperty('sg-circles', 'circle-color', jsonEncode(color));
+      await mapController?.style.setStyleLayerProperty('sg-circles', 'circle-radius', jsonEncode(circleRadius));
     }
 
     final sGFirstLabelsLayerExists = await mapController?.style.styleLayerExists("sg-first-labels");
@@ -312,7 +325,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     for (final feature in features) {
       final properties = feature["properties"] as Map<String, dynamic>;
       final sgId = properties["prediction_sg_id"] as String;
-      properties["highlighted"] = sgId.contains(value) ? 1 : 0;
+      properties["highlighted"] = sgId == value ? 1 : 0;
       if (value.isEmpty) properties.remove("highlighted");
     }
     if (await mapController?.style.styleSourceExists("sg-locs") == true) {
@@ -324,7 +337,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     for (final feature in featuresLanes) {
       final properties = feature["properties"] as Map<String, dynamic>;
       final sgId = properties["prediction_sg_id"] as String;
-      properties["highlighted"] = sgId.contains(value) ? 1 : 0;
+      properties["highlighted"] = sgId == value ? 1 : 0;
       if (value.isEmpty) properties.remove("highlighted");
     }
     if (await mapController?.style.styleSourceExists("sg-lanes") == true) {
