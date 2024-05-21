@@ -310,6 +310,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Ampel-Suchleiste in Status-Ansicht",
+                    icon: settings.enableTrafficLightSearchBar ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setEnableTrafficLightSearchBar(!settings.enableTrafficLightSearchBar),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "SG-Info",
                     subtitle: settings.sgLabelsMode.description,
                     icon: Icons.expand_more,

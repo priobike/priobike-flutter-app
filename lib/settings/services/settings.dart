@@ -32,6 +32,9 @@ class Settings with ChangeNotifier {
   /// Whether the logs should be persisted.
   bool enableLogPersistence;
 
+  /// Whether the traffic light search bar should be enabled.
+  bool enableTrafficLightSearchBar;
+
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
 
@@ -109,6 +112,23 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set enableLogPersistence to $enableLogPersistence");
       this.enableLogPersistence = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const enableTrafficLightSearchBarKey = "priobike.settings.enableTrafficLightSearchBar";
+  static const defaultEnableTrafficLightSearchBar = false;
+
+  Future<bool> setEnableTrafficLightSearchBar(bool enableTrafficLightSearchBar, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableTrafficLightSearchBar;
+    this.enableTrafficLightSearchBar = enableTrafficLightSearchBar;
+    final bool success = await storage.setBool(enableTrafficLightSearchBarKey, enableTrafficLightSearchBar);
+    if (!success) {
+      log.e("Failed to set enableTrafficLightSearchBar to $enableTrafficLightSearchBar");
+      this.enableTrafficLightSearchBar = prev;
     } else {
       notifyListeners();
     }
@@ -490,6 +510,7 @@ class Settings with ChangeNotifier {
   Settings(
     this.backend, {
     this.enableLogPersistence = defaultEnableLogPersistence,
+    this.enableTrafficLightSearchBar = defaultEnableTrafficLightSearchBar,
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
     this.positioningMode = defaultPositioningMode,
@@ -515,6 +536,7 @@ class Settings with ChangeNotifier {
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
     enableLogPersistence = storage.getBool(enableLogPersistenceKey) ?? defaultEnableLogPersistence;
+    enableTrafficLightSearchBar = storage.getBool(enableTrafficLightSearchBarKey) ?? defaultEnableTrafficLightSearchBar;
     enablePerformanceOverlay = storage.getBool(enablePerformanceOverlayKey) ?? defaultEnablePerformanceOverlay;
     didViewWarning = storage.getBool(didViewWarningKey) ?? defaultDidViewWarning;
 
