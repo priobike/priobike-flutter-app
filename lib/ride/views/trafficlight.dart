@@ -76,7 +76,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       final uniqueColors = recommendation.calcPhasesFromNow.toSet();
       if (uniqueColors.length == 1) {
         final color = uniqueColors.first;
-        alternativeView("Bleibt\n${color.description}");
+        return alternativeView("Bleibt\n${color.description}");
       }
       return alternativeView("Prognose\nzu alt");
     }
