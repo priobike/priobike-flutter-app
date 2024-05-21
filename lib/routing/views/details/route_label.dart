@@ -132,7 +132,13 @@ class RouteLabelState extends State<RouteLabel> {
                   child: CustomPaint(
                     painter: PointerPainter(
                       context: context,
-                      color: selected ? CI.route : CI.secondaryRoute,
+                      color: selected
+                          ? Theme.of(context).brightness == Brightness.dark
+                              ? CI.darkModeRoute
+                              : CI.lightModeRoute
+                          : Theme.of(context).brightness == Brightness.dark
+                              ? CI.darkModeSecondaryRoute
+                              : CI.lightModeSecondaryRoute,
                     ),
                     child: const SizedBox(
                       height: cornerIconSize,
@@ -150,7 +156,13 @@ class RouteLabelState extends State<RouteLabel> {
                 bottom: bottom ? cornerIconMargin : 0,
               ),
               decoration: BoxDecoration(
-                color: selected ? CI.route : CI.secondaryRoute,
+                color: selected
+                    ? Theme.of(context).brightness == Brightness.dark
+                        ? CI.darkModeRoute
+                        : CI.lightModeRoute
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? CI.darkModeSecondaryRoute
+                        : CI.lightModeSecondaryRoute,
                 borderRadius: BorderRadius.circular(7.5),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

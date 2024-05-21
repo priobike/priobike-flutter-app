@@ -225,7 +225,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         Waypoint tappedWaypoint = routing.selectedWaypoints![widget.mapFunctions.tappedWaypointIdx!];
         // Add highlighting.
         if (!mounted) return;
-        await WaypointsLayer(tappedWaypointIdx: widget.mapFunctions.tappedWaypointIdx!).update(mapController!);
+        await WaypointsLayer(isDark, tappedWaypointIdx: widget.mapFunctions.tappedWaypointIdx!).update(mapController!);
 
         // Move the camera to the center of the waypoint.
         fitCameraToCoordinate(tappedWaypoint.lat, tappedWaypoint.lon);
@@ -243,7 +243,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (widget.mapFunctions.needsRemoveHighlighting) {
       // Remove highlighting.
       if (!mounted) return;
-      await WaypointsLayer().update(mapController!);
+      await WaypointsLayer(isDark).update(mapController!);
 
       widget.mapFunctions.needsRemoveHighlighting = false;
 
@@ -617,7 +617,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (!mounted) return;
-    await SelectedRouteLayer(showStatus: true).update(mapController!);
+    await SelectedRouteLayer(isDark, showStatus: true).update(mapController!);
     if (!mounted) return;
     // Pois on selected route are highlighted.
     await PoisLayer(isDark).update(mapController!);
@@ -637,12 +637,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
-    await WaypointsLayer().update(mapController!);
+    await WaypointsLayer(isDark).update(mapController!);
     await updatePois();
     await updateSelectedRouteLayer();
     if (!mounted) return;
-    await AllRoutesLayer().update(mapController!);
-    await RoutePreviewLayer().update(mapController!);
+    await AllRoutesLayer(isDark).update(mapController!);
+    await RoutePreviewLayer(isDark).update(mapController!);
     if (!mounted) return;
   }
 
@@ -675,7 +675,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
     try {
-      await WaypointsLayer().install(
+      await WaypointsLayer(isDark).install(
         mapController!,
         iconSize: 0.1,
         at: index,
@@ -696,7 +696,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     try {
-      await SelectedRouteLayer(showStatus: true).install(
+      await SelectedRouteLayer(isDark, showStatus: true).install(
         mapController!,
         at: index,
       );
@@ -706,7 +706,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(RoutePreviewLayer.layerId);
     if (!mounted) return;
     try {
-      await RoutePreviewLayer().install(
+      await RoutePreviewLayer(isDark).install(
         mapController!,
         at: index,
       );
@@ -716,7 +716,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     index = await getIndex(AllRoutesLayer.layerId);
     if (!mounted) return;
     try {
-      await AllRoutesLayer().install(
+      await AllRoutesLayer(isDark).install(
         mapController!,
         at: index,
       );
@@ -1091,7 +1091,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (showWaypointIndicator == false || !widget.mapFunctions.selectPointOnMap) {
       if (showRoutePreview == false) return;
       if (!mounted) return;
-      await RoutePreviewLayer().update(mapController!);
+      await RoutePreviewLayer(isDark).update(mapController!);
       showRoutePreview = false;
       return;
     }
@@ -1110,6 +1110,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (bestWaypointIndex == 0) {
       if (!mounted) return;
       await RoutePreviewLayer(
+        isDark,
         addedPosition: addedPosition,
         snappedWaypoint: LatLng(
             routing.selectedWaypoints![bestWaypointIndex].lat, routing.selectedWaypoints![bestWaypointIndex].lon),
@@ -1118,6 +1119,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else if (bestWaypointIndex == routing.selectedWaypoints!.length) {
       if (!mounted) return;
       await RoutePreviewLayer(
+        isDark,
         addedPosition: addedPosition,
         snappedWaypoint: LatLng(routing.selectedWaypoints![bestWaypointIndex - 1].lat,
             routing.selectedWaypoints![bestWaypointIndex - 1].lon),
@@ -1126,6 +1128,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       return;
     } else if (bestWaypointIndex > 0) {
       await RoutePreviewLayer(
+        isDark,
         addedPosition: addedPosition,
         snappedWaypoint: LatLng(routing.selectedWaypoints![bestWaypointIndex - 1].lat,
             routing.selectedWaypoints![bestWaypointIndex - 1].lon),

@@ -14,11 +14,17 @@ class CI {
   static const Color radkulturGreen = Color.fromARGB(255, 40, 205, 80);
 
   /// The color for the route in the app.
-  static const Color route = Color.fromARGB(255, 0, 115, 255);
+  static const Color darkModeRoute = Color.fromARGB(255, 0, 170, 255);
+
+  /// The color for the route in the app.
+  static const Color lightModeRoute = Color.fromARGB(255, 0, 115, 255);
 
   /// The background color of the route.
   static const Color routeBackground = Color.fromARGB(255, 0, 69, 154);
 
   /// The color for the secondary routes in the app.
-  static const Color secondaryRoute = Color.fromARGB(255, 198, 198, 198);
+  static const Color lightModeSecondaryRoute = Color.fromARGB(255, 198, 198, 198);
+
+  /// The color for the secondary routes in the app.
+  static const Color darkModeSecondaryRoute = Color.fromARGB(255, 117, 166, 238);
 }

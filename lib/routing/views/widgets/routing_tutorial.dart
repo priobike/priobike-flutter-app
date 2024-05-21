@@ -160,9 +160,11 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
                                     child: Small(text: "Ampel ohne Prognose", context: context),
                                   ),
                                   const HSpace(),
-                                  const Icon(
+                                  Icon(
                                     Icons.play_arrow_rounded,
-                                    color: CI.route,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? CI.darkModeRoute
+                                        : CI.lightModeRoute,
                                   ),
                                 ]),
                               ),
@@ -193,9 +195,11 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
                                     child: Small(text: "Kreuzung nicht angebunden", context: context),
                                   ),
                                   const HSpace(),
-                                  const Icon(
+                                  Icon(
                                     Icons.play_arrow_rounded,
-                                    color: CI.secondaryRoute,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? CI.darkModeSecondaryRoute
+                                        : CI.lightModeSecondaryRoute,
                                   ),
                                 ]),
                               ),

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
@@ -192,29 +193,43 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                   destinationImage: widget.destinationImage,
                   blurRadius: 0,
                   showSpeedLegend: false,
+                  colors: Theme.of(context).brightness == Brightness.dark
+                      ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
+                      : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
                 ),
               ),
             Positioned(
-                top: 12,
-                left: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    BoldContent(
-                      text: relativeTime,
-                      context: context,
-                    ),
-                  ],
-                )),
+              top: 10,
+              left: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                  child: BoldContent(
+                    text: relativeTime,
+                    context: context,
+                  ),
+                ),
+              ),
+            ),
             if (trackDurationFormatted != null)
               Positioned(
                 bottom: 12,
                 left: 12,
                 child: Container(
                   alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 6, bottom: 4, left: 6, right: 6),
-                    child: Small(
+                    padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
+                    child: BoldSmall(
                       text: trackDurationFormatted,
                       context: context,
                     ),
@@ -324,7 +339,10 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   startImage: widget.startImage,
                   destinationImage: widget.destinationImage,
                   iconSize: 16,
-                  lineWidth: 6,
+                  lineWidth: 10,
+                  colors: Theme.of(context).brightness == Brightness.dark
+                      ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
+                      : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
                   // Note: in the feedback view the background image map (1000x1000 pixel) is displayed in full height.
                   // Therefore the track pictogram needs to be extended outside the screen (logically).
                   // So we calculate, how much the height is greater then the width.
@@ -437,6 +455,9 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
           mapboxTop: MediaQuery.of(context).padding.top + 10,
           mapboxRight: 20,
           mapboxWidth: 64,
+          colors: Theme.of(context).brightness == Brightness.dark
+              ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
+              : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
         );
       });
     });

@@ -119,8 +119,9 @@ class RideMapViewState extends State<RideMapView> {
   /// Update the view with the current data.
   Future<void> onStatusUpdate() async {
     if (mapController == null) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
-    await SelectedRouteLayer().update(mapController!);
+    await SelectedRouteLayer(isDark).update(mapController!);
   }
 
   /// Update the view with the current data.
@@ -128,9 +129,9 @@ class RideMapViewState extends State<RideMapView> {
     if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
-    await SelectedRouteLayer().update(mapController!);
+    await SelectedRouteLayer(isDark).update(mapController!);
     if (!mounted) return;
-    await WaypointsLayer().update(mapController!);
+    await WaypointsLayer(isDark).update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
     await TrafficLightsLayer(isDark, hideBehindPosition: true).update(mapController!);
@@ -380,14 +381,14 @@ class RideMapViewState extends State<RideMapView> {
     var index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     try {
-      await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
+      await SelectedRouteLayer(isDark).install(mapController!, bgLineWidth: 20.0, fgLineWidth: 14.0, at: index);
     } catch (e) {
       log.e("Error while installing layer SelectedRouteLayer: $e");
     }
     index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
     try {
-      await WaypointsLayer().install(mapController!, iconSize: 0.2, at: index, textSize: 18.0);
+      await WaypointsLayer(isDark).install(mapController!, iconSize: 0.2, at: index, textSize: 18.0);
     } catch (e) {
       log.e("Error while installing layer WaypointsLayer: $e");
     }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -86,7 +88,7 @@ class ShortcutView extends StatelessWidget {
               height: height,
               width: width,
               child: Padding(
-                padding: const EdgeInsets.only(left: 12, bottom: 12, right: 12),
+                padding: const EdgeInsets.only(left: 12, bottom: 8, right: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -94,30 +96,39 @@ class ShortcutView extends StatelessWidget {
                     FittedBox(
                       // Scale the text to fit the width.
                       fit: BoxFit.fitWidth,
-                      child: shortcut == null
-                          ? const Text(
-                              'Freie Route',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.only(top: 6, left: 8, right: 8),
-                              child: Text(
-                                shortcut!.name,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color:
+                              shortcut == null ? null : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
+                        ),
+                        child: shortcut == null
+                            ? const Text(
+                                'Freie Route',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                                  color: Colors.white,
                                 ),
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
+                              )
+                            : Padding(
+                                padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
+                                child: Text(
+                                  shortcut!.name,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).brightness == Brightness.light
+                                          ? Colors.black
+                                          : Colors.white),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
+                      ),
                     ),
                   ],
                 ),
