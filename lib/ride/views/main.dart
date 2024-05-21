@@ -59,12 +59,21 @@ class RideViewState extends State<RideView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  void updateRide() {
+    if (ride.userSelectedSG == null) return;
+    setState(() {
+      cameraFollowsUserLocation = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
 
     settings = getIt<Settings>();
     settings.addListener(update);
+    ride = getIt<Ride>();
+    ride.addListener(updateRide);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -79,7 +88,6 @@ class RideViewState extends State<RideView> {
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
-        ride = getIt<Ride>();
 
         if (settings.audioInstructionsEnabled) {
           // Configure the TTS.
@@ -291,48 +299,6 @@ class RideViewState extends State<RideView> {
                         Icons.info_outline_rounded,
                         size: 25,
                         color: CI.radkulturRed,
-                      ),
-                    ),
-                  ),
-                if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
-                FinishRideButton(),
-                if (!cameraFollowsUserLocation)
-                  SafeArea(
-                    bottom: true,
-                    child: Padding(
-                      padding: paddingCenterButton,
-                      child: BigButtonPrimary(
-                        label: "Zentrieren",
-                        elevation: 20,
-                        onPressed: () {
-                          final ride = getIt<Ride>();
-                          if (ride.userSelectedSG != null) ride.unselectSG();
-                          setState(() {
-                            cameraFollowsUserLocation = true;
-                          });
-                        },
-                        boxConstraints:
-                            BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
-                      ),
-                    ),
-                  ),
-                if (simulatorEnabled)
-                  const Positioned(
-                    left: 0,
-                    top: 0,
-                    child: SafeArea(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 48),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SimulatorState(
-                              tileAlignment: TileAlignment.left,
-                              onlyShowErrors: true,
-                            ),
-                            SensorState(),
-                          ],
-                        ),
                       ),
                     ),
                   ),
