@@ -367,6 +367,9 @@ class RoutingViewState extends State<RoutingView> {
                               fill: Theme.of(context).colorScheme.surfaceVariant,
                               onPressed: onLayerSelection,
                               padding: const EdgeInsets.all(8),
+                              borderColor: Theme.of(context).brightness == Brightness.light
+                                  ? null
+                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
                               content: Icon(
                                 Icons.layers_rounded,
                                 color: Theme.of(context).colorScheme.onBackground,

@@ -48,6 +48,9 @@ class CenterButtonState extends State<CenterButton> {
         fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: _gpsCentralization,
         padding: const EdgeInsets.all(0),
+        borderColor: Theme.of(context).brightness == Brightness.light
+            ? null
+            : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
         content: Icon(
           widget.mapValues.isCentered ? Icons.gps_fixed_rounded : Icons.gps_not_fixed_rounded,
           color: Theme.of(context).colorScheme.onBackground,

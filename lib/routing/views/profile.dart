@@ -174,6 +174,9 @@ class ProfileButtonState extends State<ProfileButton> {
       child: Tile(
         fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: showSelectionDialog,
+        borderColor: Theme.of(context).brightness == Brightness.light
+            ? null
+            : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
         content: Image(
           image: AssetImage(profileService.bikeType.iconAsString()),
           color: Theme.of(context).colorScheme.onBackground,
