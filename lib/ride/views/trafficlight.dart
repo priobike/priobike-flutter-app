@@ -58,7 +58,9 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   Widget build(BuildContext context) {
     // Don't show a countdown if...
     // Not supported crossing.
-    if (ride.calcCurrentSG == null) return alternativeView("Nicht\nunterstütze\nKreuzung");
+    if (ride.calcCurrentSG == null && ride.userSelectedSG == null) {
+      return alternativeView("Nicht\nunterstütze\nKreuzung");
+    }
 
     // Check if we have all auxiliary data that the app calculated.
     if (ride.predictionProvider?.recommendation == null) {
@@ -153,9 +155,12 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       ),
     );
 
+    // Only display the countdown if the distance to the next crossing is less than 500 meters and the prediction quality is good.
+    // Also display the countdown if the user has selected a crossing.
     var showCountdown = (ride.calcDistanceToNextSG ?? double.infinity) < 500;
     showCountdown =
         showCountdown && (ride.predictionProvider?.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
+    showCountdown = ride.userSelectedSG != null ? true : showCountdown;
 
     return AnimatedCrossFade(
       firstCurve: Curves.easeInOutCubic,
