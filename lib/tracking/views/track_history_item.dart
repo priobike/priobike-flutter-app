@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
@@ -206,14 +207,12 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                   borderRadius: BorderRadius.circular(8),
                   color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    BoldContent(
-                      text: relativeTime,
-                      context: context,
-                    ),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.only(top: Platform.isAndroid ? 4 : 0),
+                  child: BoldContent(
+                    text: relativeTime,
+                    context: context,
+                  ),
                 ),
               ),
             ),
@@ -228,9 +227,12 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                     borderRadius: BorderRadius.circular(8),
                     color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
                   ),
-                  child: BoldSmall(
-                    text: trackDurationFormatted,
-                    context: context,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
+                    child: BoldSmall(
+                      text: trackDurationFormatted,
+                      context: context,
+                    ),
                   ),
                 ),
               ),

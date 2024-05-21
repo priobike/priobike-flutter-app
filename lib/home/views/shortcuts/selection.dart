@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -112,15 +114,19 @@ class ShortcutView extends StatelessWidget {
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                               )
-                            : Text(
-                                shortcut!.name,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                            : Padding(
+                                padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
+                                child: Text(
+                                  shortcut!.name,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).brightness == Brightness.light
+                                          ? Colors.black
+                                          : Colors.white),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
                               ),
                       ),
                     ),
