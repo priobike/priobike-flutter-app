@@ -65,6 +65,7 @@ class RideMapViewState extends State<RideMapView> {
   final List layerOrder = [
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
+    SelectedRouteLayer.layerIdChevrons,
     WaypointsLayer.layerId,
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
@@ -118,7 +119,7 @@ class RideMapViewState extends State<RideMapView> {
     if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
-    await SelectedRouteLayer(isDark).update(mapController!);
+    await SelectedRouteLayer(isDark, showChevrons: true).update(mapController!);
   }
 
   /// Update the view with the current data.
@@ -126,7 +127,7 @@ class RideMapViewState extends State<RideMapView> {
     if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
-    await SelectedRouteLayer(isDark).update(mapController!);
+    await SelectedRouteLayer(isDark, showChevrons: true).update(mapController!);
     if (!mounted) return;
     await WaypointsLayer(isDark).update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
@@ -389,7 +390,8 @@ class RideMapViewState extends State<RideMapView> {
     var index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     try {
-      await SelectedRouteLayer(isDark).install(mapController!, bgLineWidth: 20.0, fgLineWidth: 14.0, at: index);
+      await SelectedRouteLayer(isDark, showChevrons: true)
+          .install(mapController!, bgLineWidth: 20.0, fgLineWidth: 14.0, at: index);
     } catch (e) {
       log.e("Error while installing layer SelectedRouteLayer: $e");
     }

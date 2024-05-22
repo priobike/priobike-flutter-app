@@ -42,6 +42,8 @@ class SymbolLoader {
     await add("start", "assets/images/start.png", 400, 400);
     await add("destination", "assets/images/destination.png", 400, 400);
     await add("waypoint", "assets/images/waypoint.png", 400, 400);
+    await add("routechevronlight", "assets/images/route-chevron-light.png", 12, 17);
+    await add("routechevrondark", "assets/images/route-chevron-dark.png", 12, 17);
 
     await add("iconclicklayer", "assets/images/icon-click-layer.png", 75, 98);
     await add("airdark", "assets/images/air-dark.png", 200, 200);

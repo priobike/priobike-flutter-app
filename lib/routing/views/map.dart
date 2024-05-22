@@ -157,6 +157,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     RoutePreviewLayer.layerId,
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
+    SelectedRouteLayer.layerIdChevrons,
     PoisLayer.layerIdBackground,
     PoisLayer.layerId,
     PoisLayer.layerIdSymbol,
