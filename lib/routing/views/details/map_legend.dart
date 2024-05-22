@@ -34,9 +34,11 @@ class MapLegendState extends State<MapLegend> {
     // Small delay to ensure timing for tutorial view.
     await Future.delayed(const Duration(milliseconds: 250));
 
-    setState(() {
-      showInfo = !routing.isFetchingRoute && routing.selectedRoute != null;
-    });
+    if (mounted) {
+      setState(() {
+        showInfo = !routing.isFetchingRoute && routing.selectedRoute != null;
+      });
+    }
   }
 
   @override
@@ -190,7 +192,8 @@ class MapLegendState extends State<MapLegend> {
           height: 42,
           child: Tile(
             fill: Theme.of(context).colorScheme.surfaceVariant,
-            padding: const EdgeInsets.all(0), // Needed to center the icon
+            padding: const EdgeInsets.all(0),
+            // Needed to center the icon
             onPressed: showMapLegendSheet,
             borderColor: Theme.of(context).brightness == Brightness.light
                 ? null
