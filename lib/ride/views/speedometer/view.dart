@@ -195,6 +195,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
       return fallback();
     }
 
+    // Don't display the gauge if the distance to the next signal is too large.
+    if (ride.calcDistanceToNextSG == null || ride.calcDistanceToNextSG! > 500) {
+      return fallback();
+    }
+
     final phases = ride.predictionProvider!.recommendation!.calcPhasesFromNow;
     final qualities = ride.predictionProvider!.recommendation!.calcQualitiesFromNow;
 
