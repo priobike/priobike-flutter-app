@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -70,8 +69,6 @@ class RideMapViewState extends State<RideMapView> {
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
-    TrafficLightsLayerClickable.layerId,
-    TrafficLightsLayer.touchIndicatorsLayerId,
     TrafficLightLayer.layerId,
   ];
 
@@ -157,6 +154,17 @@ class RideMapViewState extends State<RideMapView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     await TrafficLightLayer(isDark).update(mapController!);
+
+    if (ride.shouldMoveToUserSelectedSG && ride.userSelectedSG != null) {
+      // The camera target is the selected SG.
+      final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
+      await mapController?.flyTo(
+        mapbox.CameraOptions(
+            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
+        mapbox.MapAnimationOptions(duration: 200),
+      );
+      ride.shouldMoveToUserSelectedSG = false;
+    }
   }
 
   /// Snap the location indicator to the start of the route.
@@ -404,17 +412,6 @@ class RideMapViewState extends State<RideMapView> {
     } catch (e) {
       log.e("Error while installing layer TrafficLightsLayer: $e");
     }
-    index = await getIndex(TrafficLightsLayer.layerId);
-    if (!mounted) return;
-    try {
-      await TrafficLightsLayerClickable().install(
-        mapController!,
-        iconSize: 0.5,
-        at: index,
-      );
-    } catch (e) {
-      log.e("Error while installing layer TrafficLightsLayerClickable: $e");
-    }
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     try {
@@ -438,41 +435,6 @@ class RideMapViewState extends State<RideMapView> {
   /// A callback which is executed when the map is scrolled.
   Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
     widget.onMapMoved();
-  }
-
-  /// A callback which is executed when a tap on the map is registered.
-  /// This also resolves if a certain feature is being tapped on. This function
-  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
-  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
-  Future<void> onMapTap(mapbox.ScreenCoordinate screenCoordinate) async {
-    if (mapController == null || !mounted) return;
-
-    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
-    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
-    // fixed in an upcoming version we need to remove this conversion.
-    final mapbox.ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
-      mapbox.Point(
-        coordinates: mapbox.Position(
-          screenCoordinate.y,
-          screenCoordinate.x,
-        ),
-      ).toJson(),
-    );
-
-    // Returns the Features for a given screen coordinate.
-    final List<mapbox.QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
-      mapbox.RenderedQueryGeometry(
-        value: json.encode(actualScreenCoordinate.encode()),
-        type: mapbox.Type.SCREEN_COORDINATE,
-      ),
-      mapbox.RenderedQueryOptions(
-        layerIds: [TrafficLightsLayerClickable.layerId],
-      ),
-    );
-
-    if (features.isNotEmpty) {
-      onFeatureTapped(features[0]!);
-    }
   }
 
   /// A callback that is called when the user taps a feature.
@@ -569,7 +531,6 @@ class RideMapViewState extends State<RideMapView> {
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
       onMapScroll: onMapScroll,
-      onMapTap: onMapTap,
       logoViewMargins: Point(10, marginYLogo),
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(10, marginYAttribution),

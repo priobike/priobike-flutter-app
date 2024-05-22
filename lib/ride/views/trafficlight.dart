@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -34,22 +35,18 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   }
 
   Widget alternativeView(String message) => Container(
-        width: widget.size.width * 0.7,
-        height: widget.size.width * 0.7,
+        width: widget.size.width * 0.45,
+        height: widget.size.width * 0.45,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(200),
+          borderRadius: BorderRadius.circular(100),
         ),
         child: Center(
-          child: Text(
-            message,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              height: 1.1,
-            ),
+          child: BoldContent(
             textAlign: TextAlign.center,
+            text: message,
+            color: Colors.white,
+            context: context,
           ),
         ),
       );
@@ -94,8 +91,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final currentPhase = recommendation.calcCurrentSignalPhase;
 
     final trafficLight = Container(
-      width: widget.size.width * 0.7,
-      height: widget.size.width * 0.7,
+      width: widget.size.width * 0.6,
+      height: widget.size.width * 0.6,
       decoration: BoxDecoration(
         gradient: RadialGradient(
           stops: const [0.2, 0.8, 1],
@@ -119,7 +116,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
                   countdownLabel,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 86,
+                    fontSize: 64,
                     shadows: [
                       Shadow(
                         blurRadius: 32,

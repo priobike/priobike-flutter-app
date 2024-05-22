@@ -43,6 +43,9 @@ class Ride with ChangeNotifier {
   /// The signal group that the user wants to see.
   Sg? userSelectedSG;
 
+  /// The signal group that the user wants to see.
+  bool shouldMoveToUserSelectedSG = false;
+
   /// The current signal group index, calculated periodically.
   int? calcCurrentSGIndex;
 
@@ -153,6 +156,9 @@ class Ride with ChangeNotifier {
       // If there is no next signal group, select the first one if moving forward.
       // If moving backward, select the last one.
       userSelectedSGIndex = step > 0 ? 0 : route!.signalGroups.length - 1;
+    } else if (calcCurrentSG == null && userSelectedSGIndex == null) {
+      // If the current sg is null, select the next connected sg.
+      userSelectedSGIndex = calcNextConnectedSGIndex;
     } else if (userSelectedSGIndex == null) {
       // User did not manually select a signal group yet.
       userSelectedSGIndex = (calcNextConnectedSGIndex! + step) % route!.signalGroups.length;
@@ -162,6 +168,7 @@ class Ride with ChangeNotifier {
     }
     userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
     selectSG(userSelectedSG);
+    shouldMoveToUserSelectedSG = true;
     notifyListeners();
   }
 
@@ -609,6 +616,7 @@ class Ride with ChangeNotifier {
     calcCurrentSGIndex = null;
     calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
+    shouldMoveToUserSelectedSG = false;
     notifyListeners();
   }
 }

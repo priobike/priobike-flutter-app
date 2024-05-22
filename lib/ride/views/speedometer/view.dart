@@ -11,6 +11,7 @@ import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/speedometer/alert.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
+import 'package:priobike/ride/views/speedometer/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
@@ -411,6 +412,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
                             size: trafficLightViewSize,
                           ),
                         ),
+                      ),
+                    if (!showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: const RideCenterButtonsView(),
                       ),
                     IgnorePointer(
                       child: Transform.translate(
