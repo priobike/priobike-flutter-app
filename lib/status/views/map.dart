@@ -404,6 +404,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                           icon: Icons.close,
                           onPressed: () {
                             searchController.clear();
+                            highlightOnMap("");
                             setState(() {});
                           },
                           color: Theme.of(context).colorScheme.onBackground,
