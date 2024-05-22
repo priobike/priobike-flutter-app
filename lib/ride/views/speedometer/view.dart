@@ -416,9 +416,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
                     if (!showAlert)
                       Transform.translate(
                         offset: const Offset(0, 42),
-                        child: RideCenterButtonsView(
-                          size: size,
-                        ),
+                        child: const RideCenterButtonsView(),
                       ),
                     IgnorePointer(
                       child: Transform.translate(

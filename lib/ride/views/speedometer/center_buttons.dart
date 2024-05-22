@@ -21,10 +21,7 @@ Offset movePointOnCircle(double originalX, double originalY, double radius, Offs
 }
 
 class RideCenterButtonsView extends StatefulWidget {
-  /// The size of the canvas for the custom painter.
-  final Size size;
-
-  const RideCenterButtonsView({super.key, required this.size});
+  const RideCenterButtonsView({super.key});
 
   @override
   State<StatefulWidget> createState() => RideCenterButtonsViewState();
@@ -41,26 +38,38 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
   void initState() {
     super.initState();
     ride = getIt<Ride>();
-    ride.addListener(update);
   }
 
   @override
   void dispose() {
-    ride.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const opacity = 1.0;
-    final textStyle = TextStyle(
-      color: Colors.white.withOpacity(opacity),
+    const textStyle = TextStyle(
+      color: Colors.white,
       fontSize: 10,
       fontWeight: FontWeight.bold,
     );
 
+    final orientation = MediaQuery.of(context).orientation;
+    final double originalSpeedometerHeight;
+    final double originalSpeedometerWidth;
+
+    if (orientation == Orientation.portrait) {
+      // Portrait mode
+      originalSpeedometerHeight = MediaQuery.of(context).size.width;
+      originalSpeedometerWidth = MediaQuery.of(context).size.width;
+    } else {
+      // Landscape mode
+      originalSpeedometerHeight = MediaQuery.of(context).size.height;
+      originalSpeedometerWidth = MediaQuery.of(context).size.height;
+    }
+    final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
+
     // Radii of the buttons
-    final outerRadius = widget.size.width / 2 - 52;
+    final outerRadius = size.width / 2 - 52;
     final holeRadius = outerRadius / 2;
 
     const a1 = 115;
@@ -70,16 +79,16 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
       offset: Offset(x1, y1),
       child: Center(
         child: Container(
-          width: widget.size.width * 0.2,
-          height: widget.size.width * 0.25,
+          width: size.width * 0.2,
+          height: size.width * 0.25,
           padding: const EdgeInsets.only(top: 20),
-          child: Column(
+          child: const Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(
                 Icons.arrow_upward_rounded,
                 size: 40,
-                color: Colors.white.withOpacity(opacity),
+                color: Colors.white,
               ),
               Text(
                 "Nächste\nAmpel",
@@ -99,16 +108,16 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
       offset: Offset(x2, y2),
       child: Center(
         child: Container(
-          width: widget.size.width * 0.2,
-          height: widget.size.width * 0.25,
+          width: size.width * 0.2,
+          height: size.width * 0.25,
           padding: const EdgeInsets.only(top: 20),
-          child: Column(
+          child: const Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(
                 Icons.arrow_downward_rounded,
                 size: 40,
-                color: Colors.white.withOpacity(opacity),
+                color: Colors.white,
               ),
               Text(
                 "Vorherige\nAmpel",
@@ -133,7 +142,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
             ride.jumpToSG(step: 1);
           },
           rotation: angle / 2,
-          size: widget.size,
+          size: size,
           angle: angle,
           child: Container(),
         ),
@@ -144,7 +153,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
             ride.jumpToSG(step: -1);
           },
           rotation: -angle / 2,
-          size: widget.size,
+          size: size,
           angle: angle,
           child: Container(),
         ),
