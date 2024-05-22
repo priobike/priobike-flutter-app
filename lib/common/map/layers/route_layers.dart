@@ -180,9 +180,6 @@ class SelectedRouteLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// The vincenty estimator used to calculate bearings.
-  final vincenty = const Distance(roundResult: false);
-
   /// Get the color for the status.
   String getStatusColor(PredictionSGStatus status, NavigationNode navNode) {
     final sgStatus = status.cache[navNode.signalGroupId];
