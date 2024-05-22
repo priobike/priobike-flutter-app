@@ -180,6 +180,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     profile.removeListener(update);
     settings.removeListener(update);
     shortcuts.removeListener(update);
+    routing.removeListener(update);
     super.dispose();
   }
 
