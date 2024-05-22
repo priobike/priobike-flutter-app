@@ -250,8 +250,8 @@ class RideViewState extends State<RideView> {
                 if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
                 FinishRideButton(),
                 if (!cameraFollowsUserLocation)
-                  SafeArea(
-                    bottom: true,
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 8,
                     child: Padding(
                       padding: paddingCenterButton,
                       child: BigButtonPrimary(

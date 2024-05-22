@@ -35,8 +35,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   }
 
   Widget alternativeView(String message) => Container(
-        width: widget.size.width * 0.35,
-        height: widget.size.width * 0.35,
+        width: widget.size.width * 0.45,
+        height: widget.size.width * 0.45,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
           borderRadius: BorderRadius.circular(100),
@@ -91,8 +91,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final currentPhase = recommendation.calcCurrentSignalPhase;
 
     final trafficLight = Container(
-      width: widget.size.width * 0.35,
-      height: widget.size.width * 0.35,
+      width: widget.size.width * 0.6,
+      height: widget.size.width * 0.6,
       decoration: BoxDecoration(
         gradient: RadialGradient(
           stops: const [0.2, 0.8, 1],
