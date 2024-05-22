@@ -82,6 +82,17 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       }
       return alternativeView("Prognose\nzu alt");
     }
+
+    // The gauge is not displayed if the distance to the next signal is too large.
+    // But still display the distance to the next signal.
+    if (ride.calcDistanceToNextSG != null && ride.calcDistanceToNextSG! > 500) {
+      // Display the distance to the next signal in m or km.
+      final distance = ride.calcDistanceToNextSG! < 1000
+          ? "${ride.calcDistanceToNextSG!.toStringAsFixed(0)} m"
+          : "${(ride.calcDistanceToNextSG! / 1000).toStringAsFixed(1)} km";
+      return alternativeView("Ampel in \n$distance");
+    }
+
     // Calculate the countdown.
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     // If the countdown is 0 (or negative), we hide the countdown. In this way the user
