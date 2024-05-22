@@ -162,6 +162,9 @@ class SelectedRouteLayer {
   /// The ID of the main Mapbox layer.
   static const layerId = "route-layer";
 
+  /// The ID of the chevron layer.
+  static const layerIdChevrons = "route-chevrons-layer";
+
   /// The ID of the background Mapbox layer.
   static const layerIdBackground = "route-background-layer";
 
@@ -171,8 +174,14 @@ class SelectedRouteLayer {
   /// If the layer should show the status of the predictions.
   final bool showStatus;
 
+  /// If the layer should show chevrons indicating the direction.
+  final bool showChevrons;
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
+
+  /// The vincenty estimator used to calculate bearings.
+  final vincenty = const Distance(roundResult: false);
 
   /// Get the color for the status.
   String getStatusColor(PredictionSGStatus status, NavigationNode navNode) {
@@ -190,7 +199,7 @@ class SelectedRouteLayer {
     return color;
   }
 
-  SelectedRouteLayer(this.isDark, {this.showStatus = false}) {
+  SelectedRouteLayer(this.isDark, {this.showStatus = false, this.showChevrons = false}) {
     final routing = getIt<Routing>();
     final navNodes = routing.selectedRoute?.route ?? [];
 
@@ -235,6 +244,23 @@ class SelectedRouteLayer {
       );
     } else {
       await update(mapController);
+    }
+    final routeChevronsLayerExists = await mapController.style.styleLayerExists(layerIdChevrons);
+    if (!routeChevronsLayerExists && showChevrons) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: sourceId,
+            id: layerIdChevrons,
+            symbolPlacement: mapbox.SymbolPlacement.LINE,
+            symbolSpacing: 0,
+            iconSize: 1,
+            iconAllowOverlap: true,
+            iconOpacity: isDark ? 0.4 : 0.6,
+            iconIgnorePlacement: true,
+            iconRotate: 270,
+            iconImage: isDark ? "routechevrondark" : "routechevronlight",
+          ),
+          mapbox.LayerPosition(at: at));
     }
     final routeLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!routeLayerExists) {
