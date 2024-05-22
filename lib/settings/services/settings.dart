@@ -681,24 +681,4 @@ class Settings with ChangeNotifier {
     isUserTransferring = false;
     notifyListeners();
   }
-
-  /// Convert the settings to a json object.
-  Map<String, dynamic> toJson() => {
-        "enableLogPersistence": enableLogPersistence,
-        "enablePerformanceOverlay": enablePerformanceOverlay,
-        "didViewWarning": didViewWarning,
-        "backend": backend.name,
-        "positioningMode": positioningMode.name,
-        "routingEndpoint": routingEndpoint.name,
-        "sgLabelsMode": sgLabelsMode.name,
-        "colorMode": colorMode.name,
-        "speedMode": speedMode.name,
-        "datastreamMode": datastreamMode.name,
-        "connectionErrorCounter": connectionErrorCounter,
-        "useCounter": useCounter,
-        "sgSelector": sgSelector.name,
-        "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
-        "saveBatteryModeEnabled": saveBatteryModeEnabled,
-        "dismissedSurvey": dismissedSurvey,
-      };
 }
