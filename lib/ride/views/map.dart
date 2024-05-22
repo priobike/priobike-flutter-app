@@ -155,7 +155,7 @@ class RideMapViewState extends State<RideMapView> {
     if (!mounted) return;
     await TrafficLightLayer(isDark).update(mapController!);
 
-    if (ride.userSelectedSG != null) {
+    if (ride.shouldMoveToUserSelectedSG && ride.userSelectedSG != null) {
       // The camera target is the selected SG.
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
       await mapController?.flyTo(
@@ -163,6 +163,7 @@ class RideMapViewState extends State<RideMapView> {
             center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
         mapbox.MapAnimationOptions(duration: 200),
       );
+      ride.shouldMoveToUserSelectedSG = false;
     }
   }
 
