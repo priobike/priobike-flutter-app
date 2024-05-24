@@ -10,6 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/user.dart';
 import 'package:typed_data/typed_buffers.dart';
 
 class LiveTracking {
@@ -17,13 +18,13 @@ class LiveTracking {
   final log = Logger("Live-Tracking");
 
   /// The MQTT topic where we send messages from the app to.
-  static const topicApp = "app";
+  static const topicApp = "priobike-app";
 
   /// The mqtt client.
   MqttServerClient? client;
 
-  /// The unique key to identify the device in the live tracking MQTT. Remove the brackets and hash sign.
-  final appId = UniqueKey().toString().replaceAll("[", "").replaceAll("]", "").replaceAll("#", "");
+  /// The unique key to identify the device in the live tracking MQTT.
+  String? appId;
 
   /// Positioning service.
   Positioning? positioning;
@@ -32,6 +33,7 @@ class LiveTracking {
   Future<void> makeReadyForRide() async {
     positioning ??= getIt<Positioning>();
     positioning!.addListener(_sendCurrentPosition);
+    appId = (await User.getOrCreateId()).replaceAll("#", "").replaceAll("+", "");
   }
 
   /// Dispose the live tracking service.
@@ -57,7 +59,8 @@ class LiveTracking {
 
     // Publish message
     try {
-      client!.publishMessage(topicApp, qualityOfService, dataBuffer);
+      final topic = "$topicApp/$appId";
+      client!.publishMessage(topic, qualityOfService, dataBuffer);
       return true;
     } catch (e, stacktrace) {
       log.e("Error while sending $message to live tracking MQTT broker: $e, $stacktrace");
@@ -70,7 +73,7 @@ class LiveTracking {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
 
-    final clientId = appId;
+    final clientId = "priobike-app-$appId";
     try {
       client = MqttServerClient(
         settings.backend.liveTrackingMQTTPath,
@@ -94,12 +97,7 @@ class LiveTracking {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to live tracking MQTT broker.");
-      await client!
-          .connect(
-            settings.backend.liveTrackingMQTTPublishUsername,
-            settings.backend.liveTrackingMQTTPublishPassword,
-          )
-          .timeout(const Duration(seconds: 5));
+      await client!.connect().timeout(const Duration(seconds: 5));
 
       client!.connectionMessage = MqttConnectMessage()
           .withClientIdentifier(client!.clientIdentifier)

@@ -461,9 +461,9 @@ class Settings with ChangeNotifier {
   Future<void> setLiveTrackingMode(bool enableLiveTrackingMode) async {
     this.enableLiveTrackingMode = enableLiveTrackingMode;
     if (enableLiveTrackingMode) {
-      getIt<Simulator>().makeReadyForRide();
+      getIt<LiveTracking>().makeReadyForRide();
     } else {
-      getIt<Simulator>().cleanUp();
+      getIt<LiveTracking>().cleanUp();
     }
     notifyListeners();
   }

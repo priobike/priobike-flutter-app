@@ -287,44 +287,22 @@ extension LiveTracking on Backend {
   String get liveTrackingMQTTPath {
     switch (this) {
       case Backend.production:
-        return "";
+        return "j5g.vkw.tu-dresden.de";
       case Backend.staging:
-        return "";
+        return "j5g.vkw.tu-dresden.de";
       case Backend.release:
-        return "";
+        return "j5g.vkw.tu-dresden.de";
     }
   }
 
   int get liveTrackingMQTTPort {
     switch (this) {
       case Backend.production:
-        return 0;
+        return 20001;
       case Backend.staging:
-        return 0;
+        return 20001;
       case Backend.release:
-        return 0;
-    }
-  }
-
-  String get liveTrackingMQTTPublishPassword {
-    switch (this) {
-      case Backend.production:
-        return "";
-      case Backend.staging:
-        return "";
-      case Backend.release:
-        return "";
-    }
-  }
-
-  String get liveTrackingMQTTPublishUsername {
-    switch (this) {
-      case Backend.production:
-        return "";
-      case Backend.staging:
-        return "";
-      case Backend.release:
-        return "";
+        return 20001;
     }
   }
 }
