@@ -17,7 +17,6 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
-import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
