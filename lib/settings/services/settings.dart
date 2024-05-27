@@ -17,6 +17,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -448,9 +449,9 @@ class Settings with ChangeNotifier {
   Future<void> setSimulatorMode(bool enableSimulatorMode) async {
     this.enableSimulatorMode = enableSimulatorMode;
     if (enableSimulatorMode) {
-      getIt<LiveTracking>().makeReadyForRide();
+      getIt<Simulator>().makeReadyForRide();
     } else {
-      getIt<LiveTracking>().cleanUp();
+      getIt<Simulator>().cleanUp();
     }
     notifyListeners();
   }
