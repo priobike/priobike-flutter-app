@@ -14,10 +14,11 @@ import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
+import 'package:priobike/ride/services/live_tracking.dart';
 import 'package:priobike/ride/views/free.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart' hide Simulator;
+import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/routing.dart';
@@ -536,6 +537,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                               text: "Verbindung mit Simulator hergestellt. Du kannst jetzt den Simulator verwenden.",
                               context: context,
                             ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Live Tracking aktivieren (App-ID: ${getIt<LiveTracking>().appId})",
+                    icon: settings.enableLiveTrackingMode ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setLiveTrackingMode(!settings.enableLiveTrackingMode),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),

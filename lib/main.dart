@@ -23,6 +23,7 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/free_ride.dart';
+import 'package:priobike/ride/services/live_tracking.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/services/speedsensor.dart';
 import 'package:priobike/routing/services/boundary.dart';
@@ -108,6 +109,7 @@ Future<void> main() async {
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<Simulator>(Simulator());
+  getIt.registerSingleton<LiveTracking>(LiveTracking());
   getIt.registerSingleton<SpeedSensor>(SpeedSensor());
   getIt.registerSingleton<LoadStatus>(LoadStatus());
   try {

@@ -283,6 +283,30 @@ extension BackendShortcuts on Backend {
   }
 }
 
+extension LiveTracking on Backend {
+  String get liveTrackingMQTTPath {
+    switch (this) {
+      case Backend.production:
+        return "j5g.vkw.tu-dresden.de";
+      case Backend.staging:
+        return "j5g.vkw.tu-dresden.de";
+      case Backend.release:
+        return "j5g.vkw.tu-dresden.de";
+    }
+  }
+
+  int get liveTrackingMQTTPort {
+    switch (this) {
+      case Backend.production:
+        return 20001;
+      case Backend.staging:
+        return 20001;
+      case Backend.release:
+        return 20001;
+    }
+  }
+}
+
 extension Simulator on Backend {
   String get simulatorMQTTPath {
     switch (this) {
