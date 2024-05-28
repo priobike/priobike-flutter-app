@@ -1,6 +1,6 @@
-## If available, link to the Trello ticket
+## If available, link to the ticket
 
-[Ticket](https://trello.com/b/z2vLn4ZK/priobikehh)
+Closes: \#
 
 ## QA Checklist
 
