@@ -73,6 +73,7 @@ class FreeRideViewState extends State<FreeRideView> {
 
   @override
   void dispose() {
+    freeRide.removeListener(update);
     settings.removeListener(update);
     super.dispose();
   }
@@ -126,6 +127,9 @@ class FreeRideViewState extends State<FreeRideView> {
                             child: Tile(
                               onPressed: () async {
                                 await freeRide.reset();
+                                final positioning = getIt<Positioning>();
+                                await positioning.stopGeolocation();
+
                                 if (!mounted) return;
                                 Navigator.of(context).pushAndRemoveUntil(
                                   MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
