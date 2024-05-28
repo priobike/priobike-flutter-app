@@ -15,7 +15,7 @@ import 'package:priobike/routing/models/navigation.dart';
 /// A pictogram of a track.
 class TrackPictogram extends StatefulWidget {
   /// The Positions of the track.
-  final List<Position> track;
+  final List<Position>? track;
 
   /// The optional positions of the route.
   final List<NavigationNode>? routeNodes;
@@ -78,9 +78,9 @@ class TrackPictogram extends StatefulWidget {
 
   const TrackPictogram({
     super.key,
-    required this.track,
     required this.blurRadius,
     required this.colors,
+    this.track,
     this.startImage,
     this.destinationImage,
     this.lineWidth = 3.0,
@@ -108,7 +108,10 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   double fraction = 0.0;
   late Animation<double> animation;
   late AnimationController controller;
-  double? maxSpeed;
+
+  // Default values for min and max speed.
+  // Set to 30 km/h (8.334 m/s).
+  double maxSpeed = 8.334;
   double minSpeed = 0.0;
 
   /// The background image of the map for the track.
@@ -125,9 +128,22 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     final fetchedBrightness = Theme.of(context).brightness;
     if (fetchedBrightness == backgroundImageBrightness) return;
 
-    List<LatLng> coords = widget.track.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    List<LatLng> coords = [];
+
+    if (widget.track != null && widget.track!.isNotEmpty) {
+      coords.addAll(widget.track!.map((e) => LatLng(e.latitude, e.longitude)).toList());
+    }
+
     if (widget.routeNodes != null && widget.routeNodes!.isNotEmpty) {
       coords.addAll(widget.routeNodes!.map((e) => LatLng(e.lat, e.lon)).toList());
+    }
+
+    // If there are no coords, there is nothing that can be fetched.
+    if (coords.isEmpty) {
+      setState(() {
+        backgroundImageBrightness = Theme.of(context).brightness;
+      });
+      return;
     }
 
     backgroundImageFuture?.ignore();
@@ -163,10 +179,14 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     controller.forward();
 
     // Find the min and max speed
-    for (var i = 0; i < widget.track.length; i++) {
-      final p = widget.track[i];
-      if (maxSpeed == null || p.speed > maxSpeed!) {
-        maxSpeed = p.speed;
+    if (widget.track != null && widget.track!.isNotEmpty) {
+      // Reset the max speed and calculate max speed depending on the track.
+      maxSpeed = 0.0;
+      for (var i = 0; i < widget.track!.length; i++) {
+        final p = widget.track![i];
+        if (p.speed > maxSpeed) {
+          maxSpeed = p.speed;
+        }
       }
     }
 
@@ -201,32 +221,39 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                     ),
                   ),
                 )
-              : Container(),
+              : const Center(
+                  child: Icon(
+                    Icons.location_off,
+                    size: 32,
+                  ),
+                ),
         ),
-        CustomPaint(
-          painter: TrackPainter(
-            fraction: fraction,
-            track: widget.track,
-            blurRadius: 0,
-            colors: widget.colors,
-            routeColor: Theme.of(context).brightness == Brightness.dark
-                ? CI.darkModeSecondaryRoute
-                : CI.lightModeSecondaryRoute,
-            maxSpeed: maxSpeed,
-            minSpeed: minSpeed,
-            startImage: widget.startImage,
-            destinationImage: widget.destinationImage,
-            lineWidth: widget.lineWidth,
-            iconSize: widget.iconSize,
-            showSpeed: true,
-            heightRatio: widget.imageHeightRatio,
-            widthRatio: widget.imageWidthRatio,
-            // To make sure tracks fit horizontally.
-            // 1 - screen ratio + 0.1 padding.
-            mapPadding: 1 - (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) + 0.1,
-            routeNodes: widget.routeNodes,
+
+        if (widget.track != null)
+          CustomPaint(
+            painter: TrackPainter(
+              fraction: fraction,
+              track: widget.track!,
+              blurRadius: 0,
+              colors: widget.colors,
+              routeColor: Theme.of(context).brightness == Brightness.dark
+                  ? CI.darkModeSecondaryRoute
+                  : CI.lightModeSecondaryRoute,
+              maxSpeed: maxSpeed,
+              minSpeed: minSpeed,
+              startImage: widget.startImage,
+              destinationImage: widget.destinationImage,
+              lineWidth: widget.lineWidth,
+              iconSize: widget.iconSize,
+              showSpeed: true,
+              heightRatio: widget.imageHeightRatio,
+              widthRatio: widget.imageWidthRatio,
+              // To make sure tracks fit horizontally.
+              // 1 - screen ratio + 0.1 padding.
+              mapPadding: 1 - (MediaQuery.of(context).size.width / MediaQuery.of(context).size.height) + 0.1,
+              routeNodes: widget.routeNodes,
+            ),
           ),
-        ),
 
         // Legend
         if (widget.showSpeedLegend)
@@ -259,7 +286,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                     ),
                     const SmallHSpace(),
                     Text(
-                      '0 bis ${((maxSpeed ?? 0) * 3.6).toInt()} km/h',
+                      '0 bis ${(maxSpeed * 3.6).toInt()} km/h',
                       style: TextStyle(
                         fontSize: 8,
                         color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
@@ -333,7 +360,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
 class TrackPainter extends CustomPainter {
   final double fraction;
   final double blurRadius;
-  final List<Position> track;
+  final List<Position>? track;
   final List<Color> colors;
   final Color routeColor;
   double? maxSpeed;
@@ -351,7 +378,6 @@ class TrackPainter extends CustomPainter {
   TrackPainter({
     required this.fraction,
     required this.blurRadius,
-    required this.track,
     required this.colors,
     required this.routeColor,
     required this.lineWidth,
@@ -360,6 +386,7 @@ class TrackPainter extends CustomPainter {
     required this.heightRatio,
     required this.widthRatio,
     required this.mapPadding,
+    this.track,
     this.maxSpeed,
     this.minSpeed,
     this.startImage,
@@ -380,13 +407,16 @@ class TrackPainter extends CustomPainter {
     // Note: 1000 points is roughly 1000 seconds, which is 16 minutes of GPS.
     final List<Position> trackToDraw = [];
     const threshold = 300;
-    if (track.length > threshold) {
-      final step = track.length ~/ threshold;
-      for (var i = 0; (i + step) < track.length; i += step) {
-        trackToDraw.add(track[i]);
+
+    if (track != null) {
+      if (track!.length > threshold) {
+        final step = track!.length ~/ threshold;
+        for (var i = 0; (i + step) < track!.length; i += step) {
+          trackToDraw.add(track![i]);
+        }
+      } else {
+        trackToDraw.addAll(track!);
       }
-    } else {
-      trackToDraw.addAll(track);
     }
 
     List<LatLng> coords = trackToDraw.map((e) => LatLng(e.latitude, e.longitude)).toList();
@@ -400,7 +430,10 @@ class TrackPainter extends CustomPainter {
     if (routeNodes != null && routeNodes!.isNotEmpty) {
       drawRoute(canvas, routeNodes!, size, bbox);
     }
-    drawGps(canvas, trackToDraw, size, bbox);
+
+    if (trackToDraw.isNotEmpty) {
+      drawGps(canvas, trackToDraw, size, bbox);
+    }
   }
 
   /// Draws the initial calculated route.
