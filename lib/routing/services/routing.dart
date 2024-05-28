@@ -114,6 +114,14 @@ class Routing with ChangeNotifier {
         }
       }
     }
+
+    // If the first element is "Aktueller Standort" or null (also "Aktueller Standort")
+    // and the new waypoint is inserted before the first element, the index must be increased by 1.
+    if ((selectedWaypoints![0].address == "Aktueller Standort" || selectedWaypoints![0].address == null) &&
+        bestIdx == 0) {
+      bestIdx++;
+    }
+
     return bestIdx;
   }
 
