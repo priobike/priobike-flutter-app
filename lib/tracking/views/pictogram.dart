@@ -208,26 +208,20 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
       fit: StackFit.expand,
       children: [
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 1000),
-          child: backgroundImage != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Image(
-                      image: backgroundImage!,
-                      fit: BoxFit.fitHeight,
-                      key: UniqueKey(),
+            duration: const Duration(milliseconds: 1000),
+            child: backgroundImage != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Image(
+                        image: backgroundImage!,
+                        fit: BoxFit.fitHeight,
+                        key: UniqueKey(),
+                      ),
                     ),
-                  ),
-                )
-              : const Center(
-                  child: Icon(
-                    Icons.location_off,
-                    size: 32,
-                  ),
-                ),
-        ),
+                  )
+                : Container()),
 
         if (widget.track != null)
           CustomPaint(

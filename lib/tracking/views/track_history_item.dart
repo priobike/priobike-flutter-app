@@ -121,6 +121,8 @@ class TrackHistoryItemTileView extends StatefulWidget {
 }
 
 class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with TrackHistoryItem {
+  bool isLoaded = false;
+
   @override
   void initState() {
     super.initState();
@@ -128,7 +130,11 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
 
     _loadTrack(widget.track).then(
       (value) {
-        if (mounted) setState(() {});
+        if (mounted) {
+          setState(() {
+            isLoaded = true;
+          });
+        }
       },
     );
   }
@@ -182,27 +188,29 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         content: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            positions.isNotEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: TrackPictogram(
-                      key: ValueKey(widget.track.sessionId),
-                      track: positions,
-                      startImage: widget.startImage,
-                      destinationImage: widget.destinationImage,
-                      blurRadius: 0,
-                      showSpeedLegend: false,
-                      colors: Theme.of(context).brightness == Brightness.dark
-                          ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
-                          : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
-                    ),
-                  )
-                : const Center(
-                    child: Icon(
-                      Icons.location_off,
-                      size: 32,
-                    ),
-                  ),
+            isLoaded
+                ? positions.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: TrackPictogram(
+                          key: ValueKey(widget.track.sessionId),
+                          track: positions,
+                          startImage: widget.startImage,
+                          destinationImage: widget.destinationImage,
+                          blurRadius: 0,
+                          showSpeedLegend: false,
+                          colors: Theme.of(context).brightness == Brightness.dark
+                              ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
+                              : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(
+                          Icons.location_off,
+                          size: 32,
+                        ),
+                      )
+                : Container(),
             Positioned(
               top: 10,
               left: 12,
