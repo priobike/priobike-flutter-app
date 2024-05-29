@@ -88,7 +88,7 @@ class RoutingViewState extends State<RoutingView> {
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
-        await positioning.requestSingleLocation(onNoPermission: () {
+        positioning.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning.positionSource);
         });
