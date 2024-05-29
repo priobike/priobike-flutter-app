@@ -390,6 +390,7 @@ class Routing with ChangeNotifier {
       hadErrorDuringFetch = true;
       waypointsOutOfBoundaries = true;
       isFetchingRoute = false;
+      selectedRoute = null;
       notifyListeners();
       return null;
     }
@@ -399,6 +400,7 @@ class Routing with ChangeNotifier {
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      selectedRoute = null;
       notifyListeners();
       return null;
     }
@@ -408,6 +410,7 @@ class Routing with ChangeNotifier {
     if (sgSelectorResponses.contains(null)) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      selectedRoute = null;
       notifyListeners();
       return null;
     }
@@ -415,6 +418,7 @@ class Routing with ChangeNotifier {
     if (ghResponse.paths.length != sgSelectorResponses.length) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      selectedRoute = null;
       notifyListeners();
       return null;
     }
@@ -424,6 +428,7 @@ class Routing with ChangeNotifier {
     if (ghResponse.paths.length != osmTags.length) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
+      selectedRoute = null;
       notifyListeners();
       return null;
     }
@@ -518,7 +523,8 @@ class Routing with ChangeNotifier {
     for (r.Route route in allRoutes!) {
       await status.fetch(route);
       status.updateStatus(route);
-      await pois.findPois(route);
+      // Note: we should not await the pois.findPois(route) here, as it would block the loading of status.
+      pois.findPois(route);
     }
     // The Status and Pois must be first fetched for every route
     // before we can compare all routes with every other route to find the most unique attribute.

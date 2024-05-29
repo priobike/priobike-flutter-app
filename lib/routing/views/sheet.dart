@@ -219,7 +219,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               child: BigButtonSecondary(
                 label: "Auf Karte auswählen",
                 fillColor: Theme.of(context).colorScheme.surfaceVariant,
-                onPressed: onSelectOnMap,
+                onPressed: routing.hadErrorDuringFetch ? null : onSelectOnMap,
               ),
             ),
           ]),
@@ -319,17 +319,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Helper function to determine if the bottom sheet is ready to be displayed.
   bool _checkIfBottomSheetIsReady() {
     if (!widget.hasInitiallyLoaded) return false;
+    if (routing.isFetchingRoute) return false;
+    if (status.isLoading) return false;
 
-    // After loading Route
-    if (!routing.isFetchingRoute && !status.isLoading && routing.selectedRoute != null) {
-      return true;
-    }
-
-    // Free Routing or Shortcut Location
-    if (routing.selectedWaypoints == null) return true;
-    if (routing.selectedWaypoints!.length <= 1) return true;
-
-    return false;
+    return true;
   }
 
   @override
