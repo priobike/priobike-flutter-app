@@ -121,15 +121,20 @@ class TrackHistoryItemTileView extends StatefulWidget {
 }
 
 class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with TrackHistoryItem {
+  bool isLoaded = false;
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
 
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) async {
-        await _loadTrack(widget.track);
-        if (mounted) setState(() {});
+    _loadTrack(widget.track).then(
+      (value) {
+        if (mounted) {
+          setState(() {
+            isLoaded = true;
+          });
+        }
       },
     );
   }
@@ -155,7 +160,7 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
     // Determine the duration.
     final trackDurationFormatted = durationSeconds != null
         ? '${(durationSeconds! ~/ 60).toString().padLeft(2, '0')}:${(durationSeconds! % 60).toString().padLeft(2, '0')}\nMinuten'
-        : null;
+        : "--:--\nMinuten";
 
     return SizedBox(
       width: widget.width,
@@ -183,21 +188,29 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
         content: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            if (positions.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(2),
-                child: TrackPictogram(
-                  key: ValueKey(widget.track.sessionId),
-                  track: positions,
-                  startImage: widget.startImage,
-                  destinationImage: widget.destinationImage,
-                  blurRadius: 0,
-                  showSpeedLegend: false,
-                  colors: Theme.of(context).brightness == Brightness.dark
-                      ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
-                      : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
-                ),
-              ),
+            isLoaded
+                ? positions.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: TrackPictogram(
+                          key: ValueKey(widget.track.sessionId),
+                          track: positions,
+                          startImage: widget.startImage,
+                          destinationImage: widget.destinationImage,
+                          blurRadius: 0,
+                          showSpeedLegend: false,
+                          colors: Theme.of(context).brightness == Brightness.dark
+                              ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
+                              : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(
+                          Icons.location_off,
+                          size: 32,
+                        ),
+                      )
+                : Container(),
             Positioned(
               top: 10,
               left: 12,
@@ -216,26 +229,25 @@ class TrackHistoryItemTileViewState extends State<TrackHistoryItemTileView> with
                 ),
               ),
             ),
-            if (trackDurationFormatted != null)
-              Positioned(
-                bottom: 12,
-                left: 12,
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
-                    child: BoldSmall(
-                      text: trackDurationFormatted,
-                      context: context,
-                    ),
+            Positioned(
+              bottom: 12,
+              left: 12,
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
+                  child: BoldSmall(
+                    text: trackDurationFormatted,
+                    context: context,
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
@@ -331,36 +343,33 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
         List<NavigationNode> routeNodes = widget.track.routes[timestampOfFirstRoute]!.route;
 
         if (snapshot.connectionState == ConnectionState.done) {
-          content = positions.isNotEmpty
-              ? TrackPictogram(
-                  key: ValueKey(widget.track.sessionId),
-                  track: positions,
-                  blurRadius: 2,
-                  startImage: widget.startImage,
-                  destinationImage: widget.destinationImage,
-                  iconSize: 16,
-                  lineWidth: 10,
-                  colors: Theme.of(context).brightness == Brightness.dark
-                      ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
-                      : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
-                  // Note: in the feedback view the background image map (1000x1000 pixel) is displayed in full height.
-                  // Therefore the track pictogram needs to be extended outside the screen (logically).
-                  // So we calculate, how much the height is greater then the width.
-                  // This means the ratio is height / width.
-                  imageHeightRatio: MediaQuery.of(context).size.height / MediaQuery.of(context).size.width,
-                  mapboxTop: MediaQuery.of(context).padding.top + 96,
-                  mapboxRight: 20,
-                  mapboxWidth: 64,
-                  // Padding + 2 * button height + padding + padding bottom.
-                  speedLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
-                  speedLegendLeft: 20,
-                  routeNodes: routeNodes,
-                  routeLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
-                  routeLegendRight: 20,
-                )
-              : Center(
-                  child: Small(context: context, text: "Keine GPS-Daten für diesen Track"),
-                );
+          content = TrackPictogram(
+            key: ValueKey(widget.track.sessionId),
+            track: positions,
+            blurRadius: 2,
+            startImage: widget.startImage,
+            destinationImage: widget.destinationImage,
+            iconSize: 16,
+            lineWidth: 10,
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
+                : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
+            // Note: in the feedback view the background image map (1000x1000 pixel) is displayed in full height.
+            // Therefore the track pictogram needs to be extended outside the screen (logically).
+            // So we calculate, how much the height is greater then the width.
+            // This means the ratio is height / width.
+            imageHeightRatio: MediaQuery.of(context).size.height / MediaQuery.of(context).size.width,
+            mapboxTop: MediaQuery.of(context).padding.top + 96,
+            mapboxRight: 20,
+            mapboxWidth: 64,
+            // Padding + 2 * button height + padding + padding bottom.
+            speedLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
+            speedLegendLeft: 20,
+            routeNodes: routeNodes,
+            routeLegendBottom: 20 + 2 * 64 + 20 + MediaQuery.of(context).padding.bottom,
+            routeLegendRight: 20,
+            showSpeedLegend: positions.isNotEmpty,
+          );
         }
 
         return SizedBox(
@@ -370,24 +379,32 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
             alignment: Alignment.topCenter,
             children: [
               content,
-              ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                  child: Material(
-                    color: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                    child: SizedBox(
-                      height: 86 + MediaQuery.of(context).padding.top,
-                      child: Container(),
-                    ), // Extra container is required for the blur.
+              Column(children: [
+                SizedBox(
+                  height: MediaQuery.of(context).padding.top,
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                      child: Material(
+                        color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                        child: Container(),
+                      ), // Extra container is required for the blur.
+                    ),
                   ),
                 ),
-              ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
-                  child: trackStats,
+                ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                    child: Material(
+                      color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
+                        child: trackStats,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ]),
             ],
           ),
         );
@@ -458,6 +475,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
           colors: Theme.of(context).brightness == Brightness.dark
               ? const [CI.darkModeRoute, ui.Color.fromARGB(255, 0, 255, 247)]
               : [CI.lightModeRoute, const ui.Color.fromARGB(255, 0, 217, 255)],
+          showSpeedLegend: widget.positions.isNotEmpty,
         );
       });
     });
