@@ -46,40 +46,4 @@ class AuthConfig {
       linkShortenerApiKey: json['linkShortenerApiKey'],
     );
   }
-
-  /// FIXME: This is only needed until we roll out the auth service to staging.
-  static final stagingBackup = AuthConfig(
-    mapboxAccessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
-    predictionServiceMQTTUsername: "user",
-    predictionServiceMQTTPassword: "mqtt@priobike-2022",
-    predictorMQTTUsername: "user",
-    predictorMQTTPassword: "mqtt@priobike-2022",
-    simulatorMQTTPublishUsername: "app",
-    simulatorMQTTPublishPassword: "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF",
-    linkShortenerApiKey: "8a1e47f1-36ac-44e8-b648-aae112f97208",
-  );
-
-  /// FIXME: This is only needed until we roll out the auth service to production.
-  static final productionBackup = AuthConfig(
-    mapboxAccessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
-    predictionServiceMQTTUsername: "user",
-    predictionServiceMQTTPassword: "mqtt@priobike-2022",
-    predictorMQTTUsername: "user",
-    predictorMQTTPassword: "mqtt@priobike-2022",
-    simulatorMQTTPublishUsername: "app",
-    simulatorMQTTPublishPassword: "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF",
-    linkShortenerApiKey: "EeLErcMKtThp36epbHZbTLJchhMAFgiBGty7Rbov",
-  );
-
-  /// FIXME: This is only needed until we roll out the auth service to release.
-  static final releaseBackup = AuthConfig(
-    mapboxAccessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
-    predictionServiceMQTTUsername: "user",
-    predictionServiceMQTTPassword: "mqtt@priobike-2022",
-    predictorMQTTUsername: "user",
-    predictorMQTTPassword: "mqtt@priobike-2022",
-    simulatorMQTTPublishUsername: "app",
-    simulatorMQTTPublishPassword: "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF",
-    linkShortenerApiKey: "8EmdUGwC52dtaVCT0A3w4ccv0GGjEmyd5X7cxr89",
-  );
 }

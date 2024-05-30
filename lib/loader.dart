@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -24,6 +25,7 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -74,6 +76,15 @@ class LoaderState extends State<Loader> {
 
     // Critical services:
     try {
+      // Check if the authentication service is online and load the auth config.
+      // If the authentication service is not reachable, we won't open the app.
+      final auth = await Auth.load(settings.backend);
+
+      // Note: It is ok to set this once here, as the mapbox access token is not expected to change.
+      // If we want to support different mapbox tokens per deployment in the future, we need to
+      // add a listener to the settings service and update the token accordingly.
+      MapboxOptions.setAccessToken(auth.mapboxAccessToken);
+
       await Migration.migrate();
       await getIt<Profile>().loadProfile();
       await getIt<Shortcuts>().loadShortcuts();

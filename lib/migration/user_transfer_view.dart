@@ -6,8 +6,10 @@ import 'package:priobike/common/layout/icon_item.dart';
 import 'package:priobike/common/layout/loading_screen.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 /// A view that displays the user transfer view.
@@ -50,13 +52,19 @@ class UserTransferViewState extends State<UserTransferView> {
   /// A callback that is executed when the unsubscribe beta button was pressed.
   Future<void> onUnsubscribeBetaPressed() async {
     // Get beta shortcuts before backend switch.
-    setState(() {
-      isUserTransferring = true;
-    });
+    setState(() => isUserTransferring = true);
+
+    // Check if the auth service is online. If not, we shouldn't switch the backend.
+    try {
+      await Auth.load(settings.backend);
+    } catch (e) {
+      ToastMessage.showError("Das hat nicht funktioniert. Bitte versuche es erneut.");
+      setState(() => isUserTransferring = false);
+      return;
+    }
     await settings.setBackend(Backend.release);
-    setState(() {
-      isUserTransferring = false;
-    });
+
+    setState(() => isUserTransferring = false);
   }
 
   /// A callback that is executed when the stay beta button was pressed.

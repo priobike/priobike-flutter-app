@@ -19,25 +19,13 @@ class Auth {
   static Future<AuthConfig> load(Backend currentBackend) async {
     if (backend == currentBackend && auth != null) return Auth.auth!;
     final url = "https://${currentBackend.path}/auth/config.json";
-    final response = await Http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
+    // Note: it's intended that these credentials are public.
+    final headers = {'authorization': 'Basic ${base64Encode(utf8.encode('auth:fMG3dtQtYRyMdE34'))}'};
+    final response = await Http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 4));
 
     AuthConfig loadedAuth;
     if (response.statusCode != 200) {
-      final err = "Auth could not be fetched from endpoint $url: ${response.body}";
-      log.e(err);
-
-      // FIXME: Remove this fallback, after we fully deployed the auth service.
-      switch (currentBackend) {
-        case Backend.staging:
-          loadedAuth = AuthConfig.stagingBackup;
-          log.w("Using backup auth for staging.");
-        case Backend.production:
-          loadedAuth = AuthConfig.productionBackup;
-          log.w("Using backup auth for production.");
-        case Backend.release:
-          loadedAuth = AuthConfig.releaseBackup;
-          log.w("Using backup auth for release.");
-      }
+      throw Exception("Failed to load auth config: ${response.statusCode}");
     } else {
       final decoded = json.decode(response.body);
       loadedAuth = AuthConfig.fromJson(decoded);

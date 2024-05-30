@@ -3,6 +3,7 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
@@ -17,6 +18,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/simulator/services/simulator.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
@@ -664,6 +666,17 @@ class Settings with ChangeNotifier {
     if (isUserTransferring) return;
     isUserTransferring = true;
     notifyListeners();
+
+    // Check if the auth service is online. If not, we shouldn't switch the backend.
+    try {
+      await Auth.load(backend);
+    } catch (e) {
+      ToastMessage.showError("Das hat nicht funktioniert. Bitte versuche es erneut.");
+      isUserTransferring = false;
+      notifyListeners();
+      return;
+    }
+
     // Set release backend.
     await setBackend(backend);
 

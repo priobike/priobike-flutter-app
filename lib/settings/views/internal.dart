@@ -9,6 +9,7 @@ import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
@@ -24,6 +25,7 @@ import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/simulator/services/simulator.dart';
@@ -139,6 +141,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
   /// A callback that is executed when a backend is selected.
   Future<void> onSelectBackend(Backend backend) async {
+    // Check if the auth service is online. If not, we shouldn't switch the backend.
+    try {
+      await Auth.load(backend);
+    } catch (e) {
+      ToastMessage.showError("Auth service ist nicht online.");
+      return;
+    }
+
     // Tell the settings service that we selected the new backend.
     await settings.setBackend(backend);
 
