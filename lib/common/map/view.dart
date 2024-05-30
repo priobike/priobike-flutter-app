@@ -4,27 +4,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/map_design.dart';
-import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class AppMap extends StatefulWidget {
-  /// Sideload prefetched mapbox tiles.
-  /// NOTE: This feature is currently disabled.
-  static Future<void> loadOfflineTiles() async {
-    try {
-      // At the moment, this will result in black maps being displayed.
-      // Therefore we disable this feature for now.
-
-      // await installOfflineMapTiles("assets/offline/hamburg-light.db");
-      // await installOfflineMapTiles("assets/offline/hamburg-dark.db");
-    } catch (err) {
-      final hint = "Failed to load offline tiles: $err";
-      Logger("AppMap").e(hint);
-    }
-  }
-
   /// A callback that is executed when the map was created.
   final void Function(mapbox.MapboxMap)? onMapCreated;
 
