@@ -1,0 +1,85 @@
+class AuthConfig {
+  /// Access token used to fetch Mapbox tiles.
+  String mapboxAccessToken;
+
+  /// Username for the prediction service mqtt broker.
+  String predictionServiceMQTTUsername;
+
+  /// Password for the prediction service mqtt broker.
+  String predictionServiceMQTTPassword;
+
+  /// Username for the predictor mqtt broker.
+  String predictorMQTTUsername;
+
+  /// Password for the predictor mqtt broker.
+  String predictorMQTTPassword;
+
+  /// Username for the simulator mqtt broker.
+  String simulatorMQTTPublishUsername;
+
+  /// Password for the simulator mqtt broker.
+  String simulatorMQTTPublishPassword;
+
+  /// API key for the link shortener service.
+  String linkShortenerApiKey;
+
+  AuthConfig({
+    required this.mapboxAccessToken,
+    required this.predictionServiceMQTTUsername,
+    required this.predictionServiceMQTTPassword,
+    required this.predictorMQTTUsername,
+    required this.predictorMQTTPassword,
+    required this.simulatorMQTTPublishUsername,
+    required this.simulatorMQTTPublishPassword,
+    required this.linkShortenerApiKey,
+  });
+
+  factory AuthConfig.fromJson(Map<String, dynamic> json) {
+    return AuthConfig(
+      mapboxAccessToken: json['mapboxAccessToken'],
+      predictionServiceMQTTUsername: json['predictionServiceMQTTUsername'],
+      predictionServiceMQTTPassword: json['predictionServiceMQTTPassword'],
+      predictorMQTTUsername: json['predictorMQTTUsername'],
+      predictorMQTTPassword: json['predictorMQTTPassword'],
+      simulatorMQTTPublishUsername: json['simulatorMQTTPublishUsername'],
+      simulatorMQTTPublishPassword: json['simulatorMQTTPublishPassword'],
+      linkShortenerApiKey: json['linkShortenerApiKey'],
+    );
+  }
+
+  /// FIXME: This is only needed until we roll out the auth service to staging.
+  static final stagingBackup = AuthConfig(
+    mapboxAccessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
+    predictionServiceMQTTUsername: "user",
+    predictionServiceMQTTPassword: "mqtt@priobike-2022",
+    predictorMQTTUsername: "user",
+    predictorMQTTPassword: "mqtt@priobike-2022",
+    simulatorMQTTPublishUsername: "app",
+    simulatorMQTTPublishPassword: "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF",
+    linkShortenerApiKey: "8a1e47f1-36ac-44e8-b648-aae112f97208",
+  );
+
+  /// FIXME: This is only needed until we roll out the auth service to production.
+  static final productionBackup = AuthConfig(
+    mapboxAccessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
+    predictionServiceMQTTUsername: "user",
+    predictionServiceMQTTPassword: "mqtt@priobike-2022",
+    predictorMQTTUsername: "user",
+    predictorMQTTPassword: "mqtt@priobike-2022",
+    simulatorMQTTPublishUsername: "app",
+    simulatorMQTTPublishPassword: "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF",
+    linkShortenerApiKey: "EeLErcMKtThp36epbHZbTLJchhMAFgiBGty7Rbov",
+  );
+
+  /// FIXME: This is only needed until we roll out the auth service to release.
+  static final releaseBackup = AuthConfig(
+    mapboxAccessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
+    predictionServiceMQTTUsername: "user",
+    predictionServiceMQTTPassword: "mqtt@priobike-2022",
+    predictorMQTTUsername: "user",
+    predictorMQTTPassword: "mqtt@priobike-2022",
+    simulatorMQTTPublishUsername: "app",
+    simulatorMQTTPublishPassword: "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF",
+    linkShortenerApiKey: "8EmdUGwC52dtaVCT0A3w4ccv0GGjEmyd5X7cxr89",
+  );
+}

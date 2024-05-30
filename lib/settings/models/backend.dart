@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/common/keys.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -43,19 +42,6 @@ extension BackendName on Backend {
   }
 }
 
-extension LinkShortener on Backend {
-  String get linkShortenerApiKey {
-    switch (this) {
-      case Backend.production:
-        return Keys.linkShortenerApiKeyProduction;
-      case Backend.staging:
-        return Keys.linkShortenerApiKeyStaging;
-      case Backend.release:
-        return Keys.linkShortenerApiKeyRelease;
-    }
-  }
-}
-
 extension BackendPredictionServiceMqtt on Backend {
   String get predictionServiceMQTTPath {
     switch (this) {
@@ -76,28 +62,6 @@ extension BackendPredictionServiceMqtt on Backend {
         return 20032;
       case Backend.release:
         return 20050;
-    }
-  }
-
-  String get predictionServiceMQTTUsername {
-    switch (this) {
-      case Backend.production:
-        return "user";
-      case Backend.staging:
-        return "user";
-      case Backend.release:
-        return "user";
-    }
-  }
-
-  String get predictionServiceMQTTPassword {
-    switch (this) {
-      case Backend.production:
-        return "mqtt@priobike-2022";
-      case Backend.staging:
-        return "mqtt@priobike-2022";
-      case Backend.release:
-        return "mqtt@priobike-2022";
     }
   }
 }
@@ -122,28 +86,6 @@ extension BackendPredictorMqtt on Backend {
         return 20035;
       case Backend.release:
         return 20054;
-    }
-  }
-
-  String get predictorMQTTUsername {
-    switch (this) {
-      case Backend.production:
-        return "user";
-      case Backend.staging:
-        return "user";
-      case Backend.release:
-        return "user";
-    }
-  }
-
-  String get predictorMQTTPassword {
-    switch (this) {
-      case Backend.production:
-        return "mqtt@priobike-2022";
-      case Backend.staging:
-        return "mqtt@priobike-2022";
-      case Backend.release:
-        return "mqtt@priobike-2022";
     }
   }
 }
@@ -327,28 +269,6 @@ extension Simulator on Backend {
         return 20036;
       case Backend.release:
         return 20036;
-    }
-  }
-
-  String get simulatorMQTTPublishPassword {
-    switch (this) {
-      case Backend.production:
-        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
-      case Backend.staging:
-        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
-      case Backend.release:
-        return "JsAF0keyKjrJT9LwiUKV0YRdemhUFxhF";
-    }
-  }
-
-  String get simulatorMQTTPublishUsername {
-    switch (this) {
-      case Backend.production:
-        return "app";
-      case Backend.staging:
-        return "app";
-      case Backend.release:
-        return "app";
     }
   }
 }

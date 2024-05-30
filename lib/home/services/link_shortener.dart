@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class LinkShortener {
@@ -23,7 +24,8 @@ class LinkShortener {
       "validateUrl": false,
       "forwardQuery": true
     });
-    final apiKey = backend.linkShortenerApiKey;
+    final auth = await Auth.load(backend);
+    final apiKey = auth.linkShortenerApiKey;
     final shortLinkResponse = await Http.post(linkShortenerEndpoint, headers: {'X-Api-Key': apiKey}, body: longUrlJson);
     try {
       return json.decode(shortLinkResponse.body)['shortUrl'];
@@ -54,7 +56,8 @@ class LinkShortener {
       List<String> subUrls = shortLink.split('/');
       String backendPath = backend.path;
       final parseShortLinkEndpoint = Uri.parse('https://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
-      final apiKey = backend.linkShortenerApiKey;
+      final auth = await Auth.load(backend);
+      final apiKey = auth.linkShortenerApiKey;
       final longLinkResponse = await Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': apiKey});
       final String longUrl = json.decode(longLinkResponse.body)['longUrl'];
       return longUrl;

@@ -6,7 +6,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
 import 'package:priobike/common/fcm.dart';
-import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -34,6 +33,7 @@ import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/simulator/services/simulator.dart';
@@ -81,7 +81,11 @@ Future<void> main() async {
   // Init the HTTP client for all services.
   Http.initClient();
 
-  MapboxOptions.setAccessToken(Keys.mapboxAccessToken);
+  // Note: It is ok to set this once here, as the mapbox access token is not expected to change.
+  // If we want to support different mapbox tokens per deployment in the future, we need to
+  // add a listener to the settings service and update the token accordingly.
+  final auth = await Auth.load(settings.backend);
+  MapboxOptions.setAccessToken(auth.mapboxAccessToken);
 
   // Register the services.
   getIt.registerSingleton<Weather>(Weather());

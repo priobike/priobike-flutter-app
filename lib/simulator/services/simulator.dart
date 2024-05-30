@@ -13,6 +13,7 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -270,10 +271,11 @@ class Simulator with ChangeNotifier {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to Simulator MQTT broker.");
+      final auth = await Auth.load(settings.backend);
       await client!
           .connect(
-            settings.backend.simulatorMQTTPublishUsername,
-            settings.backend.simulatorMQTTPublishPassword,
+            auth.simulatorMQTTPublishUsername,
+            auth.simulatorMQTTPublishPassword,
           )
           .timeout(const Duration(seconds: 5));
 
