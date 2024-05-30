@@ -523,9 +523,12 @@ class Routing with ChangeNotifier {
     for (r.Route route in allRoutes!) {
       await status.fetch(route);
       status.updateStatus(route);
-      // Note: we should not await the pois.findPois(route) here, as it would block the loading of status.
-      pois.findPois(route);
     }
+
+    for (r.Route route in allRoutes!) {
+      await pois.findPois(route);
+    }
+
     // The Status and Pois must be first fetched for every route
     // before we can compare all routes with every other route to find the most unique attribute.
     for (r.Route route in allRoutes!) {
