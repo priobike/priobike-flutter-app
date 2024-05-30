@@ -12,7 +12,6 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -36,9 +35,6 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// The associated feedback service, which is injected by the provider.
   late Feedback feedback;
-
-  /// The associated statistics service, which is injected by the provider.
-  late Statistics statistics;
 
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
@@ -83,8 +79,6 @@ class FeedbackViewState extends State<FeedbackView> {
     tracking.addListener(update);
     feedback = getIt<Feedback>();
     feedback.addListener(update);
-    statistics = getIt<Statistics>();
-    statistics.addListener(update);
     settings = getIt<Settings>();
     settings.addListener(update);
 
@@ -127,7 +121,6 @@ class FeedbackViewState extends State<FeedbackView> {
     routing.removeListener(update);
     tracking.removeListener(update);
     feedback.removeListener(update);
-    statistics.removeListener(update);
     settings.removeListener(update);
     super.dispose();
   }
