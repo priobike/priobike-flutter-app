@@ -8,3 +8,5 @@ gradle-wrapper.jar
 GeneratedPluginRegistrant.java
 
 .settings/org.eclipse.buildship.core.prefs
+
+gradle.properties

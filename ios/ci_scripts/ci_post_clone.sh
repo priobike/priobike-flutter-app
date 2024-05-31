@@ -11,8 +11,8 @@ set -e
 # The default execution directory of this script is the ci_scripts directory.
 cd $CI_PRIMARY_REPOSITORY_PATH # change working directory to the root of your cloned repo.
 
-# Copy the .netrc to the home directory for mapbox
-cp .netrc $HOME/.netrc
+# Write the MAPBOX_DOWNLOADS_TOKEN to the .netrc file.
+echo "$NETRC_BASE64" | base64 --decode > $HOME/.netrc
 chmod 600 $HOME/.netrc
 
 # Install Flutter using git.

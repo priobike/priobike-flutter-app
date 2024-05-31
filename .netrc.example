@@ -1,0 +1,3 @@
+machine api.mapbox.com
+login mapbox
+password <your mapbox download token>

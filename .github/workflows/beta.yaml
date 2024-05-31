@@ -29,6 +29,17 @@ jobs:
     container: ghcr.io/cirruslabs/flutter:3.16.9
     steps:
       - uses: actions/checkout@v2
+      - name: Prepare secret files
+        run: |
+          echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
+          echo "$API_KEY_BASE64" | base64 --decode > android/fastlane/api-key.json
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/fastlane/keystore.jks
+          echo "$KEYSTORE_PASSWORD_BASE64" | base64 --decode > android/fastlane/keystore.password
+        env:
+          GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64 }}
+          API_KEY_BASE64: ${{ secrets.API_KEY_BASE64 }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD_BASE64: ${{ secrets.KEYSTORE_PASSWORD_BASE64 }}
       - name: Build the Android app bundle
         run: |
           flutter pub get

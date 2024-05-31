@@ -125,9 +125,6 @@ flutter:
     - assets/icon.png
     - assets/splash.png
 
-    # Sideloaded offline maps
-    - assets/offline/
-
     # Geojsons
     - assets/geo/
 
