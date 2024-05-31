@@ -130,7 +130,9 @@ class RideViewState extends State<RideView> {
             // Play audio instructions if enabled.
             if (settings.audioInstructionsEnabled) {
               ride.playAudioInstruction();
-              ride.playNewPredictionStatusInformation();
+              // causes problems for test route and has no benefits due to short distances.
+              // ride.playNewPredictionStatusInformation();
+              ride.playCountdownWhenWaitingForGreen();
             }
 
             // If we are > <x>m from the route, we need to reroute.
