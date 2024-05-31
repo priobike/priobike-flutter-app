@@ -92,21 +92,26 @@ class RoutingViewState extends State<RoutingView> {
         final hasPermission = await positioning.requestGeolocatorPermission();
         if (!hasPermission) {
           if (!mounted) return;
-          Navigator.of(context).pop();
+          // Prevents skipping the home view when pressing back.
+          Navigator.of(context).popUntil((route) => route.isFirst);
           showLocationAccessDeniedDialog(context, positioning.positionSource);
         }
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
         // Does not have to be awaited since this causes a delay in the initial loading of the map for android.
         positioning.requestSingleLocation(onNoPermission: () {
-          Navigator.of(context).pop();
+          if (!mounted) return;
+          // Prevents skipping the home view when pressing back.
+          Navigator.of(context).popUntil((route) => route.isFirst);
           showLocationAccessDeniedDialog(context, positioning.positionSource);
         });
         // Calling requestSingleLocation function to fill lastPosition of PositionService regularly.
         // Note: using dart timer because geolocator has no options for ios to set the gps interval.
         timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
           await positioning.requestSingleLocation(onNoPermission: () {
-            Navigator.of(context).pop();
+            if (!mounted) return;
+            // Prevents skipping the home view when pressing back.
+            Navigator.of(context).popUntil((route) => route.isFirst);
             showLocationAccessDeniedDialog(context, positioning.positionSource);
           });
           // Move screen if was centered before.
