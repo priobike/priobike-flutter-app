@@ -478,8 +478,12 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
-          // Add an instruction for each relevant waypoint
-          List<Instruction> instructions = createInstructions(sgSelectorResponse, path);
+          // Only create instructions if the user has enabled audio.
+          List<Instruction> instructions = List<Instruction>.empty(growable: true);
+          if (getIt<Settings>().audioInstructionsEnabled) {
+            // Add an instruction for each relevant waypoint.
+            instructions = createInstructions(sgSelectorResponse, path);
+          }
 
           final osmTagsForRoute = osmTags[i];
 
@@ -678,7 +682,7 @@ class Routing with ChangeNotifier {
     final instructions = List<Instruction>.empty(growable: true);
     LatLng? lastInstructionPoint;
 
-    // Check for all points in the route if there should be an instruction created.
+    // Check for every navigation node in the route if there should be an instruction created.
     for (var currentNavigationNodeIdx = 0;
         currentNavigationNodeIdx < sgSelectorResponse.route.length;
         currentNavigationNodeIdx++) {
@@ -756,7 +760,7 @@ class Routing with ChangeNotifier {
               signalGroupId: signalGroupId);
           instructions.add(secondInstructionCall);
           lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
-        } else if (instructions.last.instructionType != InstructionType.directionOnly) {
+        } else if (instructions.isNotEmpty && instructions.last.instructionType != InstructionType.directionOnly) {
           // Put the instruction call at the point when crossing the previous sg is finished
           // This point is equal to the last point in the signal crossing geometry attribute.
           var sgId = instructions.last.signalGroupId;
@@ -835,6 +839,8 @@ class Routing with ChangeNotifier {
   /// Concatenate the current instruction with the previous one.
   void concatenateInstructions(InstructionType instructionType, String ghInstructionText, String? signalGroupId,
       List<Instruction> instructions, String laneType) {
+    if (instructions.isEmpty) return;
+
     if (instructions.last.instructionType == InstructionType.signalGroupOnly &&
         instructionType == InstructionType.signalGroupOnly &&
         instructions.last.signalGroupId == signalGroupId) {
