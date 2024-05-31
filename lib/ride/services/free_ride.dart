@@ -12,6 +12,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 /// The distance model.
@@ -237,10 +238,11 @@ class FreeRide with ChangeNotifier {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to Prediction MQTT broker.");
+      final auth = await Auth.load(settings.backend);
       await client!
           .connect(
-            settings.backend.predictionServiceMQTTUsername,
-            settings.backend.predictionServiceMQTTPassword,
+            auth.predictionServiceMQTTUsername,
+            auth.predictionServiceMQTTPassword,
           )
           .timeout(const Duration(seconds: 5));
       client!.updates?.listen(onData);

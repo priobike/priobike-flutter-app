@@ -6,7 +6,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
 import 'package:priobike/common/fcm.dart';
-import 'package:priobike/common/keys.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -80,8 +79,6 @@ Future<void> main() async {
 
   // Init the HTTP client for all services.
   Http.initClient();
-
-  MapboxOptions.setAccessToken(Keys.mapboxAccessToken);
 
   // Register the services.
   getIt.registerSingleton<Weather>(Weather());

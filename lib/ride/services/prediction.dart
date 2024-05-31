@@ -12,6 +12,7 @@ import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 
@@ -82,12 +83,13 @@ class PredictionProvider {
     if (sg != null && (!psClientConn || !pClientConn)) {
       // Driving toward a signal group, connect the clients.
       final settings = getIt<Settings>();
+      final auth = await Auth.load(settings.backend);
       await psClient!
-          .connect(settings.backend.predictionServiceMQTTUsername, settings.backend.predictionServiceMQTTPassword)
+          .connect(auth.predictionServiceMQTTUsername, auth.predictionServiceMQTTPassword)
           .timeout(const Duration(seconds: 5));
       psClient!.updates!.listen(onPsData); // Needs to happen after connect!
       await pClient!
-          .connect(settings.backend.predictorMQTTUsername, settings.backend.predictorMQTTPassword)
+          .connect(auth.predictorMQTTUsername, auth.predictorMQTTPassword)
           .timeout(const Duration(seconds: 5));
       pClient!.updates!.listen(onPData); // Needs to happen after connect!
     }
