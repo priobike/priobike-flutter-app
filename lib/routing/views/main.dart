@@ -87,8 +87,18 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
+        // Check position permission.
+        // Has to be awaited before activating the bottom sheet.
+        final hasPermission = await positioning.requestGeolocatorPermission();
+        if (!hasPermission) {
+          if (!mounted) return;
+          Navigator.of(context).pop();
+          showLocationAccessDeniedDialog(context, positioning.positionSource);
+        }
+
         // Calling requestSingleLocation function to fill lastPosition of PositionService initially.
-        await positioning.requestSingleLocation(onNoPermission: () {
+        // Does not have to be awaited since this causes a delay in the initial loading of the map for android.
+        positioning.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning.positionSource);
         });
