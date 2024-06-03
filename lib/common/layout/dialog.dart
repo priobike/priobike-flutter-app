@@ -75,7 +75,7 @@ void showSaveShortcutSheet(context) {
             maxLength: 20,
             decoration: InputDecoration(
               hintText: "Heimweg, Zur Arbeit, ...",
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -86,14 +86,14 @@ void showSaveShortcutSheet(context) {
                 onPressed: () {
                   nameController.text = "";
                 },
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 fill: Colors.transparent,
                 // splash: Colors.transparent,
                 withBorder: false,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               counterStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
               ),
             ),
           ),
@@ -153,7 +153,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
             maxLength: 20,
             decoration: InputDecoration(
               hintText: "Zuhause, Arbeit, ...",
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -161,11 +161,11 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
               ),
               suffixIcon: Icon(
                 Icons.bookmark,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               counterStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
               ),
             ),
           ),
@@ -219,7 +219,7 @@ void showSaveShortcutFromShortcutSheet(context, {required Shortcut shortcut}) {
             maxLength: 20,
             decoration: InputDecoration(
               hintText: shortcut is ShortcutRoute ? "Importierte Route" : "Importierter Ort",
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -230,14 +230,14 @@ void showSaveShortcutFromShortcutSheet(context, {required Shortcut shortcut}) {
                 onPressed: () {
                   nameController.text = "";
                 },
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 fill: Colors.transparent,
                 // splash: Colors.transparent,
                 withBorder: false,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               counterStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
               ),
             ),
           ),
@@ -427,7 +427,7 @@ class DialogLayoutState extends State<DialogLayout> with WidgetsBindingObserver 
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(24)),
-              color: Theme.of(context).colorScheme.background.withOpacity(1),
+              color: Theme.of(context).colorScheme.surface.withOpacity(1),
             ),
             child: SingleChildScrollView(
               child: Column(

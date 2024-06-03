@@ -61,12 +61,12 @@ class QRCodeViewState extends State<QRCodeView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         // Prevent the keyboard from pushing the view up
         resizeToAvoidBottomInset: false,
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,7 +128,7 @@ class QRCodeViewState extends State<QRCodeView> {
                       child: Padding(
                         padding: const EdgeInsets.all(8),
                         child: Tile(
-                          fill: Theme.of(context).colorScheme.background,
+                          fill: Theme.of(context).colorScheme.surface,
                           shadowIntensity: 0.05,
                           shadow: Colors.black,
                           borderRadius: BorderRadius.circular(32),

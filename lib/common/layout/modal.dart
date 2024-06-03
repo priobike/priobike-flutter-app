@@ -20,7 +20,7 @@ void showAppSheet({
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
-    backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+    backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.95),
     isScrollControlled: isScrollControlled,
   );
 }

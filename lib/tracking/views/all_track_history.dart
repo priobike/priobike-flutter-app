@@ -133,7 +133,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         tracksToBeDisplayed.add(
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
               borderRadius: BorderRadius.circular(25),
             ),
             child: BlendIn(
@@ -166,7 +166,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         tracksToBeDisplayed.add(
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
               borderRadius: BorderRadius.circular(25),
             ),
             child: BlendIn(
@@ -290,7 +290,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: Fade(
@@ -335,7 +335,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                         text:
                             "${numberTracks > previousTracks.length ? previousTracks.length : numberTracks} von ${previousTracks.length} Fahrten geladen",
                         context: context,
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -349,7 +349,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                         child: Content(
                           text: "${usedDiskSpace!} Speicher auf Deinem Telefon belegt",
                           context: context,
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                           textAlign: TextAlign.center,
                         ),
                       ),

@@ -119,7 +119,7 @@ class GpxConversionWaypointsPictogramState extends State<GpxConversionWaypointsP
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Tile(
-            fill: Theme.of(context).colorScheme.background,
+            fill: Theme.of(context).colorScheme.surface,
             shadowIntensity: 0.05,
             shadow: Colors.black,
             borderRadius: BorderRadius.circular(32),

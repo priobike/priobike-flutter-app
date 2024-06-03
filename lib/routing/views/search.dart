@@ -46,7 +46,7 @@ class SearchItem extends StatelessWidget {
         title: BoldContent(
           text: waypoint.address!,
           context: context,
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         subtitle: distance == null
             ? null
@@ -77,7 +77,7 @@ class SearchItem extends StatelessWidget {
         ),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        tileColor: Theme.of(context).colorScheme.background,
+        tileColor: Theme.of(context).colorScheme.surface,
         onTap: () => onTapped(waypoint: waypoint, addToHistory: true),
       ),
     );
@@ -132,7 +132,7 @@ class HistoryItemState extends State<HistoryItem> {
         title: BoldContent(
           text: widget.waypoint.address!,
           context: context,
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         subtitle: widget.distance == null
             ? null
@@ -171,7 +171,7 @@ class HistoryItemState extends State<HistoryItem> {
               ),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        tileColor: Theme.of(context).colorScheme.background,
+        tileColor: Theme.of(context).colorScheme.surface,
         onTap: () => widget.onTapped(waypoint: widget.waypoint, addToHistory: true),
         onLongPress: () => temporarilyShowDeleteIcon(widget.waypoint),
       ),
@@ -402,7 +402,7 @@ class RouteSearchState extends State<RouteSearch> {
         children: [
           Container(
             padding: EdgeInsets.only(top: frame.padding.top),
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             child: Row(
               children: [
                 AppBackButton(
@@ -430,7 +430,7 @@ class RouteSearchState extends State<RouteSearch> {
                     onChanged: onSearchUpdated,
                     decoration: InputDecoration(
                       hintText: "Suche",
-                      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+                      fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                       filled: true,
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -439,12 +439,12 @@ class RouteSearchState extends State<RouteSearch> {
                       suffixIcon: searchTextFieldController.text != ""
                           ? SmallIconButtonTertiary(
                               icon: Icons.close,
-                              color: Theme.of(context).colorScheme.onBackground,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fill: Colors.transparent,
                               withBorder: false,
                               onPressed: resetSearchString,
                             )
-                          : Icon(Icons.search, color: Theme.of(context).colorScheme.onBackground),
+                          : Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface),
                       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
                     style: Theme.of(context).textTheme.displayMedium?.merge(
@@ -480,7 +480,7 @@ class RouteSearchState extends State<RouteSearch> {
                   Padding(
                     padding: const EdgeInsets.only(left: 28),
                     child: Divider(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   // Search History (sorted by recency of searches)
@@ -493,13 +493,13 @@ class RouteSearchState extends State<RouteSearch> {
                           BoldContent(
                             text: "Letzte Suchergebnisse",
                             context: context,
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           IconButton(
                             icon: Icon(
                               Icons.delete,
                               size: 20,
-                              color: Theme.of(context).colorScheme.onBackground,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             onPressed: () => deleteWholeSearchHistoryDialog(),
                           ),

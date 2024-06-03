@@ -85,7 +85,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
           Icon(
             Icons.warning_rounded,
             size: 50,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
           const SmallVSpace(),
           Content(
@@ -105,7 +105,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
           Icon(
             Icons.warning_rounded,
             size: 50,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
           const SmallVSpace(),
           Content(

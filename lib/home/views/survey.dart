@@ -45,7 +45,7 @@ class SurveyViewState extends State<SurveyView> {
             Radius.circular(24),
           ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      fill: Theme.of(context).colorScheme.surfaceVariant,
+      fill: Theme.of(context).colorScheme.surfaceContainer,
       onPressed: () {
         _launchSurvey();
       },
@@ -62,7 +62,7 @@ class SurveyViewState extends State<SurveyView> {
                   const SmallVSpace(),
                   Small(
                     text: "Wir würden uns freuen, wenn Du an unserer Umfrage teilnimmst.",
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
                     context: context,
                   ),
                 ],

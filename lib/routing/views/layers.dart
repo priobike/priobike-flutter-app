@@ -338,7 +338,7 @@ class LayerSelectionItem extends StatelessWidget {
           padding: const EdgeInsets.all(0),
           borderRadius: BorderRadius.circular(26),
           splash: Theme.of(context).colorScheme.surfaceTint,
-          fill: Theme.of(context).colorScheme.surfaceVariant,
+          fill: Theme.of(context).colorScheme.surfaceContainer,
           onPressed: onTap,
           content: Container(
             width: double.infinity,
@@ -355,7 +355,7 @@ class LayerSelectionItem extends StatelessWidget {
                   )
                 : BoxDecoration(
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(24),

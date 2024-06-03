@@ -60,7 +60,7 @@ class ShortcutView extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 margin: const EdgeInsets.all(4),
                 child: ShortcutPictogram(
@@ -74,7 +74,7 @@ class ShortcutView extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 margin: const EdgeInsets.all(4),
                 child: ShortcutPictogram(
@@ -100,8 +100,9 @@ class ShortcutView extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color:
-                              shortcut == null ? null : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
+                          color: shortcut == null
+                              ? null
+                              : Theme.of(context).colorScheme.surfaceContainer.withOpacity(0.75),
                         ),
                         child: shortcut == null
                             ? const Text(
@@ -136,7 +137,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ],
         ),
-        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.surfaceVariant,
+        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.surfaceContainer,
         splash: showSplash ? Theme.of(context).colorScheme.surfaceTint : Colors.transparent,
       ),
     );

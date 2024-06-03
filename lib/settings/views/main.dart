@@ -47,7 +47,7 @@ class SettingsElement extends StatelessWidget {
       child: Tile(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-        fill: Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceContainer,
         onPressed: callback,
         content: Row(
           children: [
@@ -103,7 +103,7 @@ class SettingsSelection<E> extends StatelessWidget {
             child: Tile(
               fill: elements[index] == selected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.background,
+                  : Theme.of(context).colorScheme.surface,
               onPressed: () => callback(elements[index]),
               content: Row(
                 children: [
@@ -114,7 +114,7 @@ class SettingsSelection<E> extends StatelessWidget {
                       context: context,
                       color: elements[index] == selected
                           ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onBackground,
+                          : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   Expanded(
@@ -247,7 +247,7 @@ class SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: Stack(children: [
@@ -264,9 +264,7 @@ class SettingsViewState extends State<SettingsView> {
                           AppBackButton(onPressed: () => Navigator.pop(context)),
                           const HSpace(),
                           SubHeader(
-                              text: "Einstellungen",
-                              context: context,
-                              color: Theme.of(context).colorScheme.onBackground),
+                              text: "Einstellungen", context: context, color: Theme.of(context).colorScheme.onSurface),
                         ],
                       ),
                       const SmallVSpace(),
@@ -274,7 +272,7 @@ class SettingsViewState extends State<SettingsView> {
                         margin: const EdgeInsets.only(left: 18, top: 12, bottom: 8, right: 18),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Row(

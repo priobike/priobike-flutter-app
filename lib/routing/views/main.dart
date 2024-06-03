@@ -231,7 +231,7 @@ class RoutingViewState extends State<RoutingView> {
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: const Center(
         child: SizedBox(
           height: 48,
@@ -250,7 +250,7 @@ class RoutingViewState extends State<RoutingView> {
       children: [
         Expanded(
           child: Tile(
-            fill: Theme.of(context).colorScheme.background,
+            fill: Theme.of(context).colorScheme.surface,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -343,7 +343,7 @@ class RoutingViewState extends State<RoutingView> {
     final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
 
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -379,15 +379,15 @@ class RoutingViewState extends State<RoutingView> {
                             width: 42,
                             height: 42,
                             child: Tile(
-                              fill: Theme.of(context).colorScheme.surfaceVariant,
+                              fill: Theme.of(context).colorScheme.surfaceContainer,
                               onPressed: onLayerSelection,
                               padding: const EdgeInsets.all(8),
                               borderColor: Theme.of(context).brightness == Brightness.light
                                   ? null
-                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
+                                  : Theme.of(context).colorScheme.onPrimary.withOpacity(0.35),
                               content: Icon(
                                 Icons.layers_rounded,
-                                color: Theme.of(context).colorScheme.onBackground,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           )

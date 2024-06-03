@@ -25,7 +25,7 @@ class WikiCardState extends State<WikiCard> {
           Radius.circular(24),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        fill: Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceContainer,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => WikiDetailView(article: widget.article)));
         },
@@ -41,7 +41,7 @@ class WikiCardState extends State<WikiCard> {
                     BoldSubHeader(text: widget.article.title, context: context, textAlign: TextAlign.left),
                     Small(
                       text: "${widget.article.subtitle} - ${widget.article.estimatedTime}",
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
                       context: context,
                     ),
                   ],

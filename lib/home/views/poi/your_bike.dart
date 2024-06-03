@@ -31,7 +31,7 @@ class YourBikeElementButton extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Tile(
-          fill: backgroundColor ?? theme.colorScheme.background,
+          fill: backgroundColor ?? theme.colorScheme.surface,
           splash: touchColor ?? theme.colorScheme.surfaceTint,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           borderColor: borderColor ?? theme.colorScheme.primary,
@@ -109,7 +109,7 @@ class YourBikeViewState extends State<YourBikeView> {
       child: BoldContent(
         text: metaText,
         context: context,
-        color: Theme.of(context).colorScheme.onBackground,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
 

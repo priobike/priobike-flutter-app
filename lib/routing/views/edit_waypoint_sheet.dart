@@ -77,7 +77,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
       child: Stack(children: [
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
           ),
@@ -147,7 +147,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                 Expanded(
                   child: BigButtonTertiary(
                     label: "Abbrechen",
-                    fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
                     onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _cancel,
                     addPadding: false,
                   ),
@@ -157,7 +157,7 @@ class EditWaypointBottomSheetState extends State<EditWaypointBottomSheet> {
                   child: BigButtonSecondary(
                     label: "Löschen",
                     onPressed: routing.isFetchingRoute || routing.selectedWaypoints == null ? null : _removeWaypoint,
-                    fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
                     addPadding: false,
                   ),
                 ),

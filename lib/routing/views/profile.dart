@@ -66,7 +66,7 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
                 child: Tile(
                   fill: BikeType.values[index] == profileService.bikeType
                       ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.background,
+                      : Theme.of(context).colorScheme.surface,
                   onPressed: () {
                     final newBikeType = BikeType.values[index];
                     profileService.bikeType = newBikeType;
@@ -87,7 +87,7 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
                               context: context,
                               color: BikeType.values[index] == profileService.bikeType
                                   ? Theme.of(context).colorScheme.onPrimary
-                                  : Theme.of(context).colorScheme.onBackground,
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
                             const SizedBox(height: 2),
                             Small(
@@ -95,7 +95,7 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
                               context: context,
                               color: BikeType.values[index] == profileService.bikeType
                                   ? Theme.of(context).colorScheme.onPrimary
-                                  : Theme.of(context).colorScheme.onBackground,
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
                           ],
                         ),
@@ -112,7 +112,7 @@ class ProfileSelectionSheetState extends State<ProfileSelectionSheet> {
                           image: AssetImage(BikeType.values[index].iconAsString()),
                           color: BikeType.values[index] == profileService.bikeType
                               ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onBackground,
+                              : Theme.of(context).colorScheme.onSurface,
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.center,
                         ),
@@ -172,14 +172,14 @@ class ProfileButtonState extends State<ProfileButton> {
       width: 42,
       height: 42,
       child: Tile(
-        fill: Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceContainer,
         onPressed: showSelectionDialog,
         borderColor: Theme.of(context).brightness == Brightness.light
             ? null
-            : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
+            : Theme.of(context).colorScheme.onPrimary.withOpacity(0.35),
         content: Image(
           image: AssetImage(profileService.bikeType.iconAsString()),
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,
         ),

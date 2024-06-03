@@ -87,7 +87,7 @@ class DatastreamViewState extends State<DatastreamView> {
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Tile(
-                fill: Theme.of(context).colorScheme.background,
+                fill: Theme.of(context).colorScheme.surface,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   bottomLeft: Radius.circular(24),
@@ -100,7 +100,7 @@ class DatastreamViewState extends State<DatastreamView> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                           width: 1,
                         ),
                         color: datastream.primarySignal?.state.color ?? Colors.grey,
@@ -127,7 +127,7 @@ class DatastreamViewState extends State<DatastreamView> {
                 (datastream.detectorCyclists != null && datastream.detectorCyclists!.pct > 0))
               Tile(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                fill: Theme.of(context).colorScheme.background,
+                fill: Theme.of(context).colorScheme.surface,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   bottomLeft: Radius.circular(24),

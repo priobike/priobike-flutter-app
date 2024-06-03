@@ -60,14 +60,14 @@ class ShortcutsState extends State<ShortcutsRow> {
       margin: const EdgeInsets.only(left: 8),
       child: Tile(
         onPressed: routing.isFetchingRoute ? null : () => _loadShortcutsRoute(shortcut),
-        fill: Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceContainer,
         splash: Theme.of(context).colorScheme.surfaceTint,
         shadowIntensity: 0,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         borderRadius: BorderRadius.circular(12),
         borderColor: Theme.of(context).brightness == Brightness.light
             ? null
-            : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
+            : Theme.of(context).colorScheme.onPrimary.withOpacity(0.35),
         content: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,

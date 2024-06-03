@@ -287,7 +287,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
             HapticFeedback.lightImpact();
           },
           child: AnnotatedRegionWrapper(
-            bottomBackgroundColor: Theme.of(context).colorScheme.background,
+            bottomBackgroundColor: Theme.of(context).colorScheme.surface,
             colorMode: Theme.of(context).brightness,
             child: CustomScrollView(
               slivers: <Widget>[
@@ -458,7 +458,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
             ? Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                color: Theme.of(context).colorScheme.background.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                   const SizedBox(
                     width: 40,

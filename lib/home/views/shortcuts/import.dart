@@ -95,7 +95,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(
-              fill: Theme.of(context).colorScheme.surfaceVariant,
+              fill: Theme.of(context).colorScheme.surfaceContainer,
               onPressed: openQRScanner,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -105,7 +105,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
                     child: Content(
                       text: "PrioBike QR-Code scannen",
                       context: context,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(width: 48, height: 48, child: Icon(Icons.qr_code_scanner_rounded)),
@@ -116,7 +116,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(
-              fill: Theme.of(context).colorScheme.surfaceVariant,
+              fill: Theme.of(context).colorScheme.surfaceContainer,
               onPressed: openImportGpxView,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,13 +128,13 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
                         Content(
                           text: "Aus GPX Datei laden",
                           context: context,
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         const SizedBox(height: 4),
                         Small(
                           text: "Lade eine Route aus einer GPX Datei.",
                           context: context,
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ],
                     ),

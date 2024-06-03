@@ -86,7 +86,7 @@ class MapLegendState extends State<MapLegend> {
             margin: const EdgeInsets.only(top: 20),
             width: 42,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
@@ -94,7 +94,7 @@ class MapLegendState extends State<MapLegend> {
               border: Border.all(
                 width: 1,
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
+                    ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
                     : Colors.black.withOpacity(0.07),
               ),
             ),
@@ -191,16 +191,16 @@ class MapLegendState extends State<MapLegend> {
           width: 42,
           height: 42,
           child: Tile(
-            fill: Theme.of(context).colorScheme.surfaceVariant,
+            fill: Theme.of(context).colorScheme.surfaceContainer,
             padding: const EdgeInsets.all(0),
             // Needed to center the icon
             onPressed: showMapLegendSheet,
             borderColor: Theme.of(context).brightness == Brightness.light
                 ? null
-                : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
+                : Theme.of(context).colorScheme.onPrimary.withOpacity(0.35),
             content: Icon(
               Icons.info_outline,
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),

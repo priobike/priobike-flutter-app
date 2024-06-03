@@ -129,7 +129,7 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderLoadingIndicator() {
     return Scaffold(
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -190,7 +190,7 @@ class FeedbackViewState extends State<FeedbackView> {
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return Container();
 
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         // To avoid recalculating the map and its painting when the keyboard appears.
@@ -209,7 +209,7 @@ class FeedbackViewState extends State<FeedbackView> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     BigButtonTertiary(
-                      fillColor: Theme.of(context).colorScheme.background.withOpacity(0.75),
+                      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.75),
                       label: "Geplante Route speichern",
                       onPressed: () => showSaveShortcutSheet(context),
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 40, minHeight: 64),
