@@ -87,7 +87,7 @@ class SimulatorStateState extends State<SimulatorState> {
     return everythingCorrectlySetup && widget.onlyShowErrors
         ? Container()
         : Tile(
-            fill: Theme.of(context).colorScheme.surfaceVariant,
+            fill: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: widget.tileAlignment == TileAlignment.right
                 ? const BorderRadius.only(
                     topLeft: Radius.circular(24),

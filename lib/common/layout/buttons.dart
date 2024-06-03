@@ -222,7 +222,7 @@ class AppBackButton extends StatelessWidget {
       height: 64,
       child: RawMaterialButton(
         elevation: elevation ?? 0,
-        fillColor: Theme.of(context).colorScheme.surfaceVariant,
+        fillColor: Theme.of(context).colorScheme.surfaceContainer,
         splashColor: Theme.of(context).colorScheme.surfaceTint,
         onPressed: onPressed,
         shape: RoundedRectangleBorder(

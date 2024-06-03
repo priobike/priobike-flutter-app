@@ -45,7 +45,7 @@ class SurveyViewState extends State<SurveyView> {
             Radius.circular(24),
           ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      fill: Theme.of(context).colorScheme.surfaceVariant,
+      fill: Theme.of(context).colorScheme.surfaceContainer,
       onPressed: () {
         _launchSurvey();
       },

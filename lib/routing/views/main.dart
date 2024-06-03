@@ -343,7 +343,7 @@ class RoutingViewState extends State<RoutingView> {
     final simulatorEnabled = getIt<Settings>().enableSimulatorMode;
 
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -379,7 +379,7 @@ class RoutingViewState extends State<RoutingView> {
                             width: 42,
                             height: 42,
                             child: Tile(
-                              fill: Theme.of(context).colorScheme.surfaceVariant,
+                              fill: Theme.of(context).colorScheme.surfaceContainer,
                               onPressed: onLayerSelection,
                               padding: const EdgeInsets.all(8),
                               borderColor: Theme.of(context).brightness == Brightness.light

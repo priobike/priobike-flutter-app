@@ -172,7 +172,7 @@ class App extends StatelessWidget {
               // For content on the background (color with high contrast).
               onSurface: Color(0xFF000000),
               // Neutral alternative for surface.
-              surfaceVariant: Color(0xFFFFFFFF),
+              surfaceContainer: Color(0xFFFFFFFF),
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFF000000),
               // For the splash effect on buttons.
@@ -271,7 +271,7 @@ class App extends StatelessWidget {
               // For content on the background (color with high contrast).
               onSurface: Color(0xFFFFFFFF),
               // Neutral alternative for surface.
-              surfaceVariant: Color(0xFF131313),
+              surfaceContainer: Color(0xFF131313),
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFFFFFFFF),
               // For the splash effect on buttons.

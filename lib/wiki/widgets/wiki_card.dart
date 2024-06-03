@@ -25,7 +25,7 @@ class WikiCardState extends State<WikiCard> {
           Radius.circular(24),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        fill: Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceContainer,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => WikiDetailView(article: widget.article)));
         },

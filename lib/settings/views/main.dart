@@ -47,7 +47,7 @@ class SettingsElement extends StatelessWidget {
       child: Tile(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-        fill: Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceContainer,
         onPressed: callback,
         content: Row(
           children: [

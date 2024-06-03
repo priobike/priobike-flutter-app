@@ -47,7 +47,7 @@ class CompassButtonState extends State<CompassButton> {
       width: 42,
       height: 42,
       child: Tile(
-        fill: Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceContainer,
         onPressed: _centerNorth,
         padding: const EdgeInsets.all(4),
         borderColor: Theme.of(context).brightness == Brightness.light
