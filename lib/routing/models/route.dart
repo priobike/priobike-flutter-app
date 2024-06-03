@@ -285,15 +285,17 @@ class Route {
     }
     return CoordinateBounds(
         southwest: Point(
-            coordinates: Position(
-          w,
-          s,
-        )).toJson(),
+          coordinates: Position(
+            w,
+            s,
+          ),
+        ),
         northeast: Point(
-            coordinates: Position(
-          e,
-          n,
-        )).toJson(),
+          coordinates: Position(
+            e,
+            n,
+          ),
+        ),
         infiniteBounds: false);
   }
 
@@ -301,45 +303,46 @@ class Route {
   CoordinateBounds get paddedBounds {
     final bounds = this.bounds;
     const pad = 0.003;
-    final coordinatesSouthwest = bounds.southwest["coordinates"] as List;
+    final coordinatesSouthwest = bounds.southwest.coordinates;
     final s = coordinatesSouthwest[0] as double;
     final w = coordinatesSouthwest[1] as double;
-    final coordinatesNortheast = bounds.northeast["coordinates"] as List;
+    final coordinatesNortheast = bounds.northeast.coordinates;
     final n = coordinatesNortheast[0] as double;
     final e = coordinatesNortheast[1] as double;
     return CoordinateBounds(
         southwest: Point(
-            coordinates: Position(
-          s - pad,
-          w - pad,
-        )).toJson(),
+          coordinates: Position(
+            s - pad,
+            w - pad,
+          ),
+        ),
         northeast: Point(
-            coordinates: Position(
-          n + pad,
-          e + pad,
-        )).toJson(),
+          coordinates: Position(
+            n + pad,
+            e + pad,
+          ),
+        ),
         infiniteBounds: false);
   }
 
   /// Calculate a camera position for this route.
   CameraOptions get cameraOptions {
     final bounds = this.bounds;
-    final geometrySouthwest = bounds.southwest["geometry"] as Map;
-    final coordinatesSouthwest = geometrySouthwest["coordinates"] as List;
+    final coordinatesSouthwest = bounds.southwest.coordinates;
     final s = coordinatesSouthwest[0] as double;
     final w = coordinatesSouthwest[1] as double;
-    final geometryNortheast = bounds.northeast["geometry"] as Map;
-    final coordinatesNortheast = geometryNortheast["coordinates"] as List;
+    final coordinatesNortheast = bounds.northeast.coordinates;
     final n = coordinatesNortheast[0] as double;
     final e = coordinatesNortheast[1] as double;
     // Calculate the center.
     final center = LatLng((s + n) / 2, (w + e) / 2);
     return CameraOptions(
       center: Point(
-          coordinates: Position(
-        center.longitude,
-        center.latitude,
-      )).toJson(),
+        coordinates: Position(
+          center.longitude,
+          center.latitude,
+        ),
+      ),
       zoom: 12.0,
       bearing: 0.0,
       pitch: 0.0,

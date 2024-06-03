@@ -19,13 +19,13 @@ class AppMap extends StatefulWidget {
   final void Function(mapbox.CameraChangedEventData)? onCameraChanged;
 
   /// A callback that is executed when the map is longclicked.
-  final void Function(mapbox.ScreenCoordinate)? onMapLongClick;
+  final void Function(mapbox.MapContentGestureContext)? onMapLongClick;
 
   /// A callback that is executed when the map is taped.
-  final void Function(mapbox.ScreenCoordinate)? onMapTap;
+  final void Function(mapbox.MapContentGestureContext)? onMapTap;
 
   /// A callback that is executed when the map is scrolled.
-  final void Function(mapbox.ScreenCoordinate)? onMapScroll;
+  final void Function(mapbox.MapContentGestureContext)? onMapScroll;
 
   /// A callback that is executed when the map is scrolled.
   final void Function(mapbox.MapIdleEventData)? onMapIdle;
@@ -137,10 +137,11 @@ class AppMapState extends State<AppMap> {
       ),
       cameraOptions: mapbox.CameraOptions(
         center: mapbox.Point(
-            coordinates: mapbox.Position(
-          settings.backend.center.longitude,
-          settings.backend.center.latitude,
-        )).toJson(),
+          coordinates: mapbox.Position(
+            settings.backend.center.longitude,
+            settings.backend.center.latitude,
+          ),
+        ),
         zoom: 12,
       ),
     );

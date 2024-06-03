@@ -282,7 +282,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
               lastPosition.longitude,
               lastPosition.latitude,
             ),
-          ).toJson(),
+          ),
           bearing: currentCalcBearing,
           zoom: 18.5,
           pitch: 60,
@@ -296,10 +296,10 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       if (mapController == null) return;
       final cameraBounds = await mapController!.getBounds();
       final cameraState = await mapController!.getCameraState();
-      final List coordinates = cameraState.center["coordinates"] as List;
+      final coordinates = cameraState.center.coordinates;
       if (coordinates.length != 2) return;
-      final double lat = coordinates[1];
-      final double lon = coordinates[0];
+      final double lat = double.parse(coordinates[1]!.toStringAsFixed(4));
+      final double lon = double.parse(coordinates[0]!.toStringAsFixed(4));
       freeRide.updateVisibleSgs(cameraBounds, LatLng(lat, lon), cameraState.zoom);
     });
 
