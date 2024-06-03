@@ -7,7 +7,8 @@ the [guide](https://docs.flutter.dev/get-started/install).
 
 ## Setting up for iOS development
 
-Make sure to `cp .netrc.example ~/.netrc` and replace `<your mapbox download token>` in `~/.netrc` with your MapBox secret.
+Make sure to `cp .netrc.example ~/.netrc` and replace `<your mapbox download token>` in `~/.netrc`
+with your MapBox secret.
 
 ## Setting up for Android development
 
