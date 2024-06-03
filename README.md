@@ -1,13 +1,14 @@
 # PrioBike-HH Flutter App
 
-**Required Flutter Version: `3.16.9`**
+**Required Flutter Version: `3.22.1`**
 
 For getting started with development you need to set up your development environment according to
 the [guide](https://docs.flutter.dev/get-started/install).
 
 ## Setting up for iOS development
 
-Make sure to `cp .netrc.example ~/.netrc` and replace `<your mapbox download token>` in `~/.netrc` with your MapBox secret.
+Make sure to `cp .netrc.example ~/.netrc` and replace `<your mapbox download token>` in `~/.netrc`
+with your MapBox secret.
 
 ## Setting up for Android development
 
