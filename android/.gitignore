@@ -11,4 +11,4 @@ GeneratedPluginRegistrant.java
 
 gradle.properties
 
-/android/fastlane/keystore.jks
+/fastlane/keystore.jks
