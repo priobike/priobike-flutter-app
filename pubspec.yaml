@@ -81,7 +81,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
   drift_dev: ^2.18.0 # Used for the sqlite database
-  build_runner: ^2.4.10 # Used to generate code with the drift package
+  build_runner: ^2.4.9 # Used to generate code with the drift package
 
 # Configuration of the splash screens.
 flutter_native_splash:

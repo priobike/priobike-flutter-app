@@ -86,7 +86,7 @@ class MapLegendState extends State<MapLegend> {
             margin: const EdgeInsets.only(top: 20),
             width: 42,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
+              color: Theme.of(context).colorScheme.surfaceVariant,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
@@ -191,7 +191,7 @@ class MapLegendState extends State<MapLegend> {
           width: 42,
           height: 42,
           child: Tile(
-            fill: Theme.of(context).colorScheme.surfaceContainer,
+            fill: Theme.of(context).colorScheme.surfaceVariant,
             padding: const EdgeInsets.all(0),
             // Needed to center the icon
             onPressed: showMapLegendSheet,

@@ -150,7 +150,7 @@ class FinishRideButton extends StatelessWidget {
                     topLeft: Radius.circular(24),
                     bottomLeft: Radius.circular(24),
                   ),
-            fill: Theme.of(context).colorScheme.surfaceContainer,
+            fill: Theme.of(context).colorScheme.surfaceVariant,
             content: Icon(
               Icons.close_rounded,
               size: 36,

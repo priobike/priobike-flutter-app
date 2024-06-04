@@ -112,7 +112,7 @@ class RoutingTutorialViewState extends State<RoutingTutorialView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      color: Theme.of(context).colorScheme.surfaceVariant,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(12),
                         bottomLeft: Radius.circular(12),

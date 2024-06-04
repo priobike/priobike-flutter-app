@@ -226,7 +226,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
             Expanded(
               child: BigButtonSecondary(
                 label: "Auf Karte auswählen",
-                fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                fillColor: Theme.of(context).colorScheme.surfaceVariant,
                 onPressed: routing.hadErrorDuringFetch ? null : onSelectOnMap,
               ),
             ),
@@ -357,7 +357,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
             }
             return Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainer,
+                color: Theme.of(context).colorScheme.surfaceVariant,
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
               ),
@@ -413,8 +413,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Theme.of(context).colorScheme.surfaceContainer.withOpacity(0),
-                  Theme.of(context).colorScheme.surfaceContainer,
+                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0),
+                  Theme.of(context).colorScheme.surfaceVariant,
                 ],
                 stops: const [0.0, 0.5],
               ),
@@ -429,7 +429,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 Expanded(
                   child: BigButtonSecondary(
                     label: "Speichern",
-                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                    fillColor: Theme.of(context).colorScheme.surfaceVariant,
                     onPressed:
                         routing.isFetchingRoute || routing.selectedRoute == null ? null : widget.onSelectSaveButton,
                     addPadding: false,
