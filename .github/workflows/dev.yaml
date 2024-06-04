@@ -13,7 +13,7 @@ jobs:
   test:
     runs-on: self-hosted
     # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
-    container: ghcr.io/cirruslabs/flutter:3.16.9
+    container: ghcr.io/cirruslabs/flutter:3.19.6
     steps:
       - uses: actions/checkout@v2
       - name: Run unit tests
@@ -25,7 +25,7 @@ jobs:
     runs-on: self-hosted
     needs: test
     # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
-    container: ghcr.io/cirruslabs/flutter:3.16.9
+    container: ghcr.io/cirruslabs/flutter:3.19.6
     steps:
       - uses: actions/checkout@v2
       - name: Prepare secret files
