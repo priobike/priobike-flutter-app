@@ -95,7 +95,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(
-              fill: Theme.of(context).colorScheme.surfaceContainer,
+              fill: Theme.of(context).colorScheme.surfaceVariant,
               onPressed: openQRScanner,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,7 +116,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(
-              fill: Theme.of(context).colorScheme.surfaceContainer,
+              fill: Theme.of(context).colorScheme.surfaceVariant,
               onPressed: openImportGpxView,
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

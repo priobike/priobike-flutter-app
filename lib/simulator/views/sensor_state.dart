@@ -51,7 +51,7 @@ class SensorStateState extends State<SensorState> {
     if (settings.positioningMode != PositioningMode.sensor) return Container();
 
     return Tile(
-      fill: Theme.of(context).colorScheme.surfaceContainer,
+      fill: Theme.of(context).colorScheme.surfaceVariant,
       borderRadius: const BorderRadius.only(
         topRight: Radius.circular(24),
         bottomRight: Radius.circular(24),

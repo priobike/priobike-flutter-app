@@ -172,7 +172,7 @@ class ProfileButtonState extends State<ProfileButton> {
       width: 42,
       height: 42,
       child: Tile(
-        fill: Theme.of(context).colorScheme.surfaceContainer,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
         onPressed: showSelectionDialog,
         borderColor: Theme.of(context).brightness == Brightness.light
             ? null
