@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/home/models/node_workload.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -10,9 +11,6 @@ import 'package:priobike/settings/services/settings.dart';
 class LoadStatus with ChangeNotifier {
   /// If the service is currently loading the status history.
   bool isLoading = false;
-
-  /// The warning that should be displayed.
-  String? text;
 
   /// If there exists a warning.
   bool hasWarning = false;
@@ -31,10 +29,16 @@ class LoadStatus with ChangeNotifier {
       final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
 
-      final url = "https://$baseUrl/load-service/static/load_response.json";
+      final url = "https://$baseUrl/load-service/load.json";
       final endpoint = Uri.parse(url);
 
-      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
+      // FIXME Do we want basic auth here? Needs to be placed in auth service then.
+      const user = "";
+      const pw = "";
+      String basicAuth = 'Basic ${base64.encode(utf8.encode('$user:$pw'))}';
+
+      final response = await Http.get(endpoint, headers: <String, String>{'authorization': basicAuth})
+          .timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
         isLoading = false;
         notifyListeners();
@@ -44,12 +48,12 @@ class LoadStatus with ChangeNotifier {
 
       final json = jsonDecode(response.body);
 
-      if (json["warning"]) {
+      final nodeWorkload = NodeWorkload.fromJson(json);
+
+      if (nodeWorkload.stateful > 0.8) {
         hasWarning = true;
-        text = json["response_text"];
       } else {
         hasWarning = false;
-        text = null;
       }
 
       isLoading = false;
@@ -85,7 +89,6 @@ class LoadStatus with ChangeNotifier {
   /// Reset the status.
   Future<void> reset() async {
     hasWarning = false;
-    text = null;
     isLoading = false;
     notifyListeners();
   }
