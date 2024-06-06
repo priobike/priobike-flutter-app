@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
+import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -25,7 +26,9 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/auth.dart';
+import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -68,6 +71,22 @@ class LoaderState extends State<Loader> {
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
+    // Check the load services to determine if the failover backend should be used.
+    // Only check the load status for users that can not enable internal features.
+    final feature = getIt<Feature>();
+    if (!feature.canEnableInternalFeatures) {
+      final loadStatus = getIt<LoadStatus>();
+      final shouldUseFailover = await loadStatus.shouldUseFailover();
+
+      if (shouldUseFailover) {
+        await settings.setBackend(Backend.production);
+        await FCM.selectTopic(settings.backend);
+      } else {
+        await settings.setBackend(Backend.release);
+        await FCM.selectTopic(settings.backend);
+      }
+    }
+
     // We have 2 types of services:
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
     // 2. Services that are not critically needed.
