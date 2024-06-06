@@ -123,7 +123,6 @@ class LoaderState extends State<Loader> {
 
     // Non critical services:
     final loadStatus = getIt<LoadStatus>();
-    loadStatus.sendAppStartNotification();
     loadStatus.fetch();
     getIt<News>().getArticles();
     getIt<PredictionStatusSummary>().fetch();

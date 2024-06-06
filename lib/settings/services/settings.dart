@@ -702,7 +702,6 @@ class Settings with ChangeNotifier {
     await shortcuts.loadShortcuts();
     await predictionStatusSummary.fetch();
     await loadStatus.fetch();
-    loadStatus.sendAppStartNotification();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 
