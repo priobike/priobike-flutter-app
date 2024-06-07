@@ -138,11 +138,10 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       const SmallVSpace(),
                       if (!privacyService.hasChanged!)
                         SubHeader(
-                            text:
-                                "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen. Das Wichtigste zuerst:",
-                            context: context),
+                            text: "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen.", context: context),
                       if (privacyService.hasChanged!)
                         SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
+                      const VSpace(),
                       const VSpace(),
                       Markdown(
                         data: privacyService.assetText!,

@@ -62,7 +62,7 @@ class PrivacyPolicy with ChangeNotifier {
     // Strings must be have their leading and tailing whitespaces trimmed
     // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
     isConfirmed = storedPrivacyPolicy?.trim() == assetText?.trim();
-    hasChanged = !isConfirmed!;
+    hasChanged = storedPrivacyPolicy != null && !isConfirmed!;
     hasLoaded = true;
     notifyListeners();
   }
