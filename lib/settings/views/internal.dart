@@ -595,16 +595,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     callback: () => MapboxTileImageCache.deleteAllImages(true),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Nutzertransfer zurücksetzen",
-                    icon: Icons.recycling,
-                    callback: () async {
-                      await getIt<Settings>().setDidViewUserTransfer(false);
-                    },
-                  ),
-                ),
                 const SmallVSpace(),
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),

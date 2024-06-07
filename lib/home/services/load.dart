@@ -96,7 +96,7 @@ class LoadStatus with ChangeNotifier {
 
       final jsonRelease = jsonDecode(responseRelease.body);
 
-      // jsonRelease['worker'] = jsonRelease['worker'] + 88.0;
+      jsonRelease['worker'] = jsonRelease['worker'] + 88.0;
       // print("jsonRelease" + jsonRelease.toString());
 
       nodeWorkloadRelease = NodeWorkload.fromJson(jsonRelease);
@@ -189,11 +189,15 @@ class LoadStatus with ChangeNotifier {
 
     // print("chanceOfUsingFailover" + chanceOfUsingFailover.toString());
 
+    // print("chanceOfUsingFailover" + chanceOfUsingFailover.toString());
+
     // Note: if multiple nodes are above the threshold, the chance of using the failover can be greater then 1.
     // A switch should be executed definitely in this case.
 
     final random = Random();
-    if (random.nextDouble() < chanceOfUsingFailover) return true;
+    final randomValue = random.nextDouble();
+    // print("randomValue" + randomValue.toString());
+    if (randomValue < chanceOfUsingFailover) return true;
 
     return false;
   }

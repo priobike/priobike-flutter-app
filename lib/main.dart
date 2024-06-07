@@ -15,7 +15,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/migration/user_transfer_view.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -147,9 +146,7 @@ class App extends StatelessWidget {
 
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
-                child: UserTransferView(
-                  child: Loader(shareUrl: url),
-                ),
+                child: Loader(shareUrl: url),
               ),
             );
           },

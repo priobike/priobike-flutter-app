@@ -56,14 +56,14 @@ class NavBarView extends StatelessWidget {
                     color: Colors.white,
                     context: context,
                   ),
-                  Flexible(
-                    fit: FlexFit.tight,
-                    child: Small(
-                      text: settings.backend == Backend.production ? "  beta" : "",
-                      color: Colors.white,
-                      context: context,
-                    ),
-                  ),
+                  settings.backend == Backend.production
+                      ? Content(
+                          text: ".",
+                          color: Colors.white,
+                          context: context,
+                        )
+                      : Container(),
+                  Expanded(child: Container()),
                   BoldContent(text: "Moin!", color: Colors.white, context: context),
                 ],
               ),
