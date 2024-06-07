@@ -17,7 +17,7 @@ class NodeWorkload {
         ingress: json['ingress'],
         worker: json['worker'],
         stateful: json['stateful'],
-        timestamp: DateTime.fromMillisecondsSinceEpoch(json['timestamp']),
+        timestamp: DateTime.fromMillisecondsSinceEpoch(json['timestamp'] * 1000),
       );
 
   Map<String, dynamic> toJson() => {

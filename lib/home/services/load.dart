@@ -9,6 +9,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
+// TODO maybe send these values from the load service.
 // Unknown thresholds. Lets leave it at 80% for now.
 const ingressLoadThreshold = 80.0;
 // Should increase with increase of users.
@@ -55,7 +56,9 @@ class LoadStatus with ChangeNotifier {
       final nodeWorkload = NodeWorkload.fromJson(json);
 
       // If one of the workloads is above 80%, we show a warning.
-      if (nodeWorkload.stateful > 80.0 || nodeWorkload.worker > 80.0 || nodeWorkload.ingress > 80.0) {
+      if (nodeWorkload.stateful > statefulLoadThreshold ||
+          nodeWorkload.worker > workerLoadThreshold ||
+          nodeWorkload.ingress > ingressLoadThreshold) {
         hasWarning = true;
       } else {
         hasWarning = false;
@@ -78,6 +81,7 @@ class LoadStatus with ChangeNotifier {
 
     // Try fetching status for release.
     try {
+      // final baseUrlRelease = Backend.staging.path;
       final baseUrlRelease = Backend.release.path;
 
       final urlRelease = "https://$baseUrlRelease/load-service/load.json";
@@ -92,6 +96,9 @@ class LoadStatus with ChangeNotifier {
 
       final jsonRelease = jsonDecode(responseRelease.body);
 
+      // jsonRelease['worker'] = jsonRelease['worker'] + 88.0;
+      // print("jsonRelease" + jsonRelease.toString());
+
       nodeWorkloadRelease = NodeWorkload.fromJson(jsonRelease);
     } catch (e, stacktrace) {
       final hint = "Error while fetching load status: $e $stacktrace";
@@ -100,7 +107,7 @@ class LoadStatus with ChangeNotifier {
 
     // Try fetching status for production.
     try {
-      final baseUrlProduction = Backend.release.path;
+      final baseUrlProduction = Backend.production.path;
 
       final urlProduction = "https://$baseUrlProduction/load-service/load.json";
       final endpointProduction = Uri.parse(urlProduction);
@@ -113,6 +120,8 @@ class LoadStatus with ChangeNotifier {
       }
 
       final jsonProduction = jsonDecode(responseProduction.body);
+
+      // print("jsonProduction" + jsonProduction.toString());
 
       nodeWorkloadProduction = NodeWorkload.fromJson(jsonProduction);
     } catch (e, stacktrace) {
@@ -148,13 +157,12 @@ class LoadStatus with ChangeNotifier {
     final diffWorkerNode = nodeWorkloadRelease.worker - nodeWorkloadProduction.worker;
     final diffIngressNode = nodeWorkloadRelease.ingress - nodeWorkloadProduction.ingress;
 
+    // print("diffStatefulNode" + diffStatefulNode.toString());
+    // print("diffWorkerNode" + diffWorkerNode.toString());
+    // print("diffIngressNode" + diffIngressNode.toString());
+
     // if the production backend is more loaded than the release backend. We do not use the failover.
     if (diffStatefulNode + diffWorkerNode + diffIngressNode < 0) return false;
-
-    // If the release backend has less load then the production backend, we should use the release backend by default.
-    if (diffStatefulNode > 0.0) return true;
-    if (diffWorkerNode > 0.0) return true;
-    if (diffIngressNode > 0.0) return true;
 
     // Increase the chance of using failover for all nodes.
     if (nodeWorkloadRelease.stateful > statefulLoadThreshold) {
@@ -163,17 +171,23 @@ class LoadStatus with ChangeNotifier {
       chanceOfUsingFailover += diffPercentage;
     }
 
+    // print("chanceOfUsingFailover" + chanceOfUsingFailover.toString());
+
     if (nodeWorkloadRelease.worker > workerLoadThreshold) {
       final diff = nodeWorkloadRelease.worker - workerLoadThreshold;
       final diffPercentage = diff / (100 - workerLoadThreshold);
       chanceOfUsingFailover += diffPercentage;
     }
 
+    // print("chanceOfUsingFailover" + chanceOfUsingFailover.toString());
+
     if (nodeWorkloadRelease.ingress > ingressLoadThreshold) {
       final diff = nodeWorkloadRelease.ingress - ingressLoadThreshold;
       final diffPercentage = diff / (100 - ingressLoadThreshold);
       chanceOfUsingFailover += diffPercentage;
     }
+
+    // print("chanceOfUsingFailover" + chanceOfUsingFailover.toString());
 
     // Note: if multiple nodes are above the threshold, the chance of using the failover can be greater then 1.
     // A switch should be executed definitely in this case.
