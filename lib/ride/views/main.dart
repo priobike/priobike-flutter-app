@@ -56,6 +56,9 @@ class RideViewState extends State<RideView> {
   /// A bool indicating whether the camera should follow the user location.
   bool cameraFollowsUserLocation = true;
 
+  /// A bool indicating whether the camera should follow the user location.
+  bool cameraOnSG = false;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -63,6 +66,7 @@ class RideViewState extends State<RideView> {
     if (ride.userSelectedSG == null) return;
     setState(() {
       cameraFollowsUserLocation = false;
+      cameraOnSG = false;
     });
   }
 
@@ -185,6 +189,11 @@ class RideViewState extends State<RideView> {
         cameraFollowsUserLocation = false;
       });
     }
+    if (cameraOnSG) {
+      setState(() {
+        cameraOnSG = false;
+      });
+    }
   }
 
   @override
@@ -251,6 +260,7 @@ class RideViewState extends State<RideView> {
                 RideMapView(
                   onMapMoved: onMapMoved,
                   cameraFollowUserLocation: cameraFollowsUserLocation,
+                  cameraOnSG: cameraOnSG,
                 ),
                 if (settings.saveBatteryModeEnabled && Platform.isAndroid)
                   Positioned(
