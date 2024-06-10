@@ -23,10 +23,11 @@ class RideMapView extends StatefulWidget {
   /// If the map should follow the user location.
   final bool cameraFollowUserLocation;
 
-  final bool cameraOnSG;
+  /// If the map should stay on the selected SG.
+  final bool stayOnSelectedSG;
 
   const RideMapView(
-      {super.key, required this.onMapMoved, required this.cameraFollowUserLocation, required this.cameraOnSG});
+      {super.key, required this.onMapMoved, required this.cameraFollowUserLocation, required this.stayOnSelectedSG});
 
   @override
   State<StatefulWidget> createState() => RideMapViewState();
@@ -292,7 +293,6 @@ class RideMapViewState extends State<RideMapView> {
       cameraHeading = userPosSnap.heading; // Look into the direction of the user.
     }
 
-    // FIXME also flyTo the new position of the sg with the new padding.
     if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {
       // Note: in the current version ease to is broken on ios devices.
       mapController!.flyTo(
@@ -308,7 +308,7 @@ class RideMapViewState extends State<RideMapView> {
           mapbox.MapAnimationOptions(duration: 1500));
     }
 
-    if (ride.userSelectedSG != null && widget.cameraOnSG) {
+    if (ride.userSelectedSG != null && widget.stayOnSelectedSG) {
       // The camera target is the selected SG.
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
       await mapController?.flyTo(
