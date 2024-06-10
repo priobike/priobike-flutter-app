@@ -430,34 +430,34 @@ class RoutingViewState extends State<RoutingView> {
               ),
             ),
 
-            simulatorEnabled
-                ? const Positioned(
-                    right: 0,
-                    top: 0,
-                    child: SafeArea(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: SimulatorState(
-                          tileAlignment: TileAlignment.right,
-                          onlyShowErrors: false,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-
-            const RoutingTutorialView(),
-
-            // Side Bar right
-            const Positioned(
-              right: 8,
+            Positioned(
+              right: 0,
+              top: 0,
               child: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: MapLegend(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    simulatorEnabled
+                        ? const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: SimulatorState(
+                              tileAlignment: TileAlignment.right,
+                              onlyShowErrors: false,
+                            ),
+                          )
+                        : Container(),
+                    // Side Bar right
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8, right: 8),
+                      child: MapLegend(),
+                    ),
+                  ],
                 ),
               ),
             ),
+
+            const RoutingTutorialView(),
 
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
