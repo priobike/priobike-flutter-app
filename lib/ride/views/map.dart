@@ -23,11 +23,7 @@ class RideMapView extends StatefulWidget {
   /// If the map should follow the user location.
   final bool cameraFollowUserLocation;
 
-  /// If the map should stay on the selected SG.
-  final bool stayOnSelectedSG;
-
-  const RideMapView(
-      {super.key, required this.onMapMoved, required this.cameraFollowUserLocation, required this.stayOnSelectedSG});
+  const RideMapView({super.key, required this.onMapMoved, required this.cameraFollowUserLocation});
 
   @override
   State<StatefulWidget> createState() => RideMapViewState();
@@ -64,6 +60,9 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The index of the basemap layers where the first label layer is located (the label layers are top most).
   int firstBaseMapLabelLayerIndex = 0;
+
+  /// A bool indicating whether the camera should stay on the selected sg.
+  bool stayOnSelectedSG = false;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -169,6 +168,7 @@ class RideMapViewState extends State<RideMapView> {
         mapbox.MapAnimationOptions(duration: 200),
       );
       ride.shouldMoveToUserSelectedSG = false;
+      stayOnSelectedSG = true;
     }
   }
 
@@ -308,7 +308,7 @@ class RideMapViewState extends State<RideMapView> {
           mapbox.MapAnimationOptions(duration: 1500));
     }
 
-    if (ride.userSelectedSG != null && widget.stayOnSelectedSG) {
+    if (ride.userSelectedSG != null && stayOnSelectedSG) {
       // The camera target is the selected SG.
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
       await mapController?.flyTo(
@@ -453,6 +453,9 @@ class RideMapViewState extends State<RideMapView> {
   /// A callback which is executed when the map is scrolled.
   Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
     widget.onMapMoved();
+    setState(() {
+      stayOnSelectedSG = false;
+    });
   }
 
   /// A callback that is called when the user taps a feature.
