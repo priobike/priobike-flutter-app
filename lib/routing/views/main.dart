@@ -462,7 +462,9 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: mapFunctions.tappedWaypointIdx == null && !mapFunctions.selectPointOnMap ? 0 : -140,
+              bottom: mapFunctions.tappedWaypointIdx == null && !mapFunctions.selectPointOnMap
+                  ? 0
+                  : -140 - MediaQuery.of(context).padding.bottom,
               left: 0,
               child: RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
@@ -475,7 +477,7 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: mapFunctions.tappedWaypointIdx == null ? -140 : 0,
+              bottom: mapFunctions.tappedWaypointIdx == null ? -140 - MediaQuery.of(context).padding.bottom : 0,
               left: 0,
               child: EditWaypointBottomSheet(
                 mapFunctions: mapFunctions,
@@ -485,7 +487,7 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: !mapFunctions.selectPointOnMap ? -140 : 0,
+              bottom: !mapFunctions.selectPointOnMap ? -140 - MediaQuery.of(context).padding.bottom : 0,
               left: 0,
               child: AddWaypointBottomSheet(
                 mapFunctions: mapFunctions,
