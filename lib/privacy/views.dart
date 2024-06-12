@@ -129,20 +129,20 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 164),
-                      if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!privacyService.hasChanged!)
+                      if (!privacyService.hasChanged!) ...[
+                        Header(text: "Diese App funktioniert mit", context: context),
                         Header(text: "Deinen Daten.", color: CI.radkulturRed, context: context),
-                      if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
-                      if (privacyService.hasChanged!)
-                        Header(text: "Datenschutz aktualisiert.", color: CI.radkulturRed, context: context),
-                      const SmallVSpace(),
-                      if (!privacyService.hasChanged!)
+                        const SmallVSpace(),
                         SubHeader(
-                            text:
-                                "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen. Das Wichtigste zuerst:",
-                            context: context),
-                      if (privacyService.hasChanged!)
+                            text: "Bitte lies Dir deshalb kurz durch, wie wir Deine Daten schützen.", context: context),
+                      ],
+                      if (privacyService.hasChanged!) ...[
+                        Header(text: "Wir haben die Erklärung zum", context: context),
+                        Header(text: "Datenschutz aktualisiert.", color: CI.radkulturRed, context: context),
+                        const SmallVSpace(),
                         SubHeader(text: "Lies Dir hierzu kurz unsere Änderungen durch.", context: context),
+                      ],
+                      const VSpace(),
                       const VSpace(),
                       Markdown(
                         data: privacyService.assetText!,
