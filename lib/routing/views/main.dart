@@ -87,6 +87,8 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
+        // Has to be initialized before checking the location service permission.
+        await positioning.initializePositionSource();
         // Check position permission.
         // Has to be awaited before activating the bottom sheet.
         final hasPermission = await positioning.requestGeolocatorPermission();
