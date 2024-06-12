@@ -433,7 +433,7 @@ class RoutingViewState extends State<RoutingView> {
             simulatorEnabled
                 ? const Positioned(
                     right: 0,
-                    top: 0,
+                    bottom: 220,
                     child: SafeArea(
                       child: Padding(
                         padding: EdgeInsets.only(top: 8),
