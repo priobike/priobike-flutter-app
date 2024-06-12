@@ -41,7 +41,7 @@ class WikiCardState extends State<WikiCard> {
                     BoldSubHeader(text: widget.article.title, context: context, textAlign: TextAlign.left),
                     Small(
                       text: "${widget.article.subtitle} - ${widget.article.estimatedTime}",
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
                       context: context,
                     ),
                   ],

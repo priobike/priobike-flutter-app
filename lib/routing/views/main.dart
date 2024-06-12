@@ -231,7 +231,7 @@ class RoutingViewState extends State<RoutingView> {
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: const Center(
         child: SizedBox(
           height: 48,
@@ -250,7 +250,7 @@ class RoutingViewState extends State<RoutingView> {
       children: [
         Expanded(
           child: Tile(
-            fill: Theme.of(context).colorScheme.background,
+            fill: Theme.of(context).colorScheme.surface,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -384,10 +384,10 @@ class RoutingViewState extends State<RoutingView> {
                               padding: const EdgeInsets.all(8),
                               borderColor: Theme.of(context).brightness == Brightness.light
                                   ? null
-                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.35),
+                                  : Theme.of(context).colorScheme.onPrimary.withOpacity(0.35),
                               content: Icon(
                                 Icons.layers_rounded,
-                                color: Theme.of(context).colorScheme.onBackground,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           )
@@ -462,7 +462,9 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: mapFunctions.tappedWaypointIdx == null && !mapFunctions.selectPointOnMap ? 0 : -140,
+              bottom: mapFunctions.tappedWaypointIdx == null && !mapFunctions.selectPointOnMap
+                  ? 0
+                  : -140 - MediaQuery.of(context).padding.bottom,
               left: 0,
               child: RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
@@ -475,7 +477,7 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: mapFunctions.tappedWaypointIdx == null ? -140 : 0,
+              bottom: mapFunctions.tappedWaypointIdx == null ? -140 - MediaQuery.of(context).padding.bottom : 0,
               left: 0,
               child: EditWaypointBottomSheet(
                 mapFunctions: mapFunctions,
@@ -485,7 +487,7 @@ class RoutingViewState extends State<RoutingView> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              bottom: !mapFunctions.selectPointOnMap ? -140 : 0,
+              bottom: !mapFunctions.selectPointOnMap ? -140 - MediaQuery.of(context).padding.bottom : 0,
               left: 0,
               child: AddWaypointBottomSheet(
                 mapFunctions: mapFunctions,

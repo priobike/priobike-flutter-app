@@ -158,27 +158,23 @@ class App extends StatelessWidget {
           navigatorObservers: [routeObserver],
           theme: ThemeData(
             dialogBackgroundColor: const Color(0xFFFFFFFF),
+            scaffoldBackgroundColor: const Color(0xFFFCFCFC),
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.light(
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
               onSecondary: Color(0xFFCCCCCC),
-              // FIXME Radkultur Grey.
               tertiary: Color(0xFF444444),
               onTertiary: Color(0xFFDDDDDD),
-              // For container/tiles/buttons/...
-              surface: CI.radkulturRed,
-              // For content on surfaces (color with high contrast).
+              // For the background of complete views/pages.
+              surface: Color(0xFFFCFCFC),
+              // For content on the background (color with high contrast).
               onSurface: Color(0xFF000000),
               // Neutral alternative for surface.
               surfaceVariant: Color(0xFFFFFFFF),
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFF000000),
-              // For the background of complete views/pages.
-              background: Color(0xFFFCFCFC),
-              // For content on the background (color with high contrast).
-              onBackground: Color(0xFF000000),
               // For the splash effect on buttons.
               surfaceTint: Color(0x6BFFFFFF),
               brightness: Brightness.light,
@@ -261,27 +257,23 @@ class App extends StatelessWidget {
           ),
           darkTheme: ThemeData(
             dialogBackgroundColor: const Color(0xFF232323),
+            scaffoldBackgroundColor: const Color(0xFF222222),
             fontFamily: 'HamburgSans',
             colorScheme: const ColorScheme.dark(
               primary: CI.radkulturRed,
               onPrimary: Colors.white,
               secondary: CI.radkulturRedDark,
               onSecondary: Color(0xFFCCCCCC),
-              // FIXME Radkultur Grey.
               tertiary: Color(0xFFDDDDDD),
               onTertiary: Color(0xFF333333),
-              // For container/tiles/buttons/...
-              surface: CI.radkulturRed,
-              // For content on surfaces (color with high contrast).
+              // For the background of complete views/pages.
+              surface: Color(0xFF222222),
+              // For content on the background (color with high contrast).
               onSurface: Color(0xFFFFFFFF),
               // Neutral alternative for surface.
               surfaceVariant: Color(0xFF131313),
               // For content on the alternative surface (color with high contrast).
               onSurfaceVariant: Color(0xFFFFFFFF),
-              // For the background of complete views/pages.
-              background: Color(0xFF222222),
-              // For content on the background (color with high contrast).
-              onBackground: Color(0xFFFFFFFF),
               // For the splash effect on buttons.
               surfaceTint: Color(0x6B232323),
               brightness: Brightness.dark,

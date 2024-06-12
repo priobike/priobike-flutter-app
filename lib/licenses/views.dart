@@ -20,12 +20,12 @@ class LicenseView extends StatelessWidget {
       data: Theme.of(context).copyWith(
         appBarTheme: AppBarTheme(
           elevation: 0,
-          titleTextStyle: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onBackground),
-          toolbarTextStyle: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onBackground),
-          color: Theme.of(context).colorScheme.background,
-          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onBackground),
+          titleTextStyle: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurface),
+          toolbarTextStyle: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurface),
+          color: Theme.of(context).colorScheme.surface,
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         ),
-        cardColor: Theme.of(context).colorScheme.background,
+        cardColor: Theme.of(context).colorScheme.surface,
       ),
       child: LicensePage(
         applicationName: appName,

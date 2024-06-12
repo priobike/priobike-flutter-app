@@ -22,7 +22,7 @@ class POIInfoPopup extends StatelessWidget {
         margin: const EdgeInsets.only(top: 15),
         width: widgetWidth,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(width: 1, color: Theme.of(context).colorScheme.onTertiary),
         ),
@@ -68,7 +68,7 @@ class TrianglePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint backgroundPaint = Paint()..color = Theme.of(context).colorScheme.background;
+    Paint backgroundPaint = Paint()..color = Theme.of(context).colorScheme.surface;
 
     Paint sidePaint = Paint()
       ..style = PaintingStyle.stroke

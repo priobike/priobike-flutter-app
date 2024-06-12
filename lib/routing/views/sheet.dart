@@ -62,13 +62,21 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   late double initialChildSize;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
+  void updateMapFunctions() {
     if (widget.mapFunctions.tappedWaypointIdx != null || widget.mapFunctions.selectPointOnMap) {
       // reset scroll extend when waypoint tapped.
       controller.animateTo(initialChildSize, duration: const Duration(milliseconds: 500), curve: Curves.easeInCubic);
     }
-    setState(() {});
+    setState(() {
+      resetScrollView = true;
+    });
   }
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
+  /// The bool that holds the state if the single child scroll view should be reset.
+  bool resetScrollView = false;
 
   /// A timer that updates the arrival time every minute.
   Timer? arrivalTimeUpdateTimer;
@@ -83,7 +91,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
-    widget.mapFunctions.addListener(update);
+    widget.mapFunctions.addListener(updateMapFunctions);
     controller = DraggableScrollableController();
   }
 
@@ -342,6 +350,11 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           minChildSize: initialChildSize,
           controller: controller,
           builder: (BuildContext context, ScrollController controller) {
+            // Initially resets the controller if the drag is reset.
+            if (resetScrollView) {
+              controller.jumpTo(0);
+              resetScrollView = false;
+            }
             return Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceVariant,

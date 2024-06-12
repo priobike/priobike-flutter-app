@@ -62,7 +62,7 @@ class SurveyViewState extends State<SurveyView> {
                   const SmallVSpace(),
                   Small(
                     text: "Wir würden uns freuen, wenn Du an unserer Umfrage teilnimmst.",
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
                     context: context,
                   ),
                 ],

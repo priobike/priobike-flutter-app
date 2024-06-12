@@ -161,7 +161,10 @@ class RideMapViewState extends State<RideMapView> {
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
       await mapController?.flyTo(
         mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
+          center: mapbox.Point(
+            coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude),
+          ),
+        ),
         mapbox.MapAnimationOptions(duration: 200),
       );
       ride.shouldMoveToUserSelectedSG = false;
@@ -177,7 +180,9 @@ class RideMapViewState extends State<RideMapView> {
     final secondPointLat = routing.selectedRoute!.route[1].lat;
     final bearingStart = vincenty.bearing(LatLng(startPointLat, startPointLon), LatLng(secondPointLat, secondPointLon));
     final cameraOptions = mapbox.CameraOptions(
-      center: mapbox.Point(coordinates: mapbox.Position(startPointLon, startPointLat)).toJson(),
+      center: mapbox.Point(
+        coordinates: mapbox.Position(startPointLon, startPointLat),
+      ),
       zoom: 16,
       bearing: bearingStart,
     );
@@ -233,7 +238,9 @@ class RideMapViewState extends State<RideMapView> {
       // Note: in the current version ease to is broken on ios devices.
       mapController!.flyTo(
           mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
+            center: mapbox.Point(
+              coordinates: mapbox.Position(userPos.longitude, userPos.latitude),
+            ),
             bearing: userPos.heading,
             zoom: 16,
             pitch: 60,
@@ -294,8 +301,8 @@ class RideMapViewState extends State<RideMapView> {
       mapController!.flyTo(
           mapbox.CameraOptions(
             center: mapbox.Point(
-                    coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
-                .toJson(),
+              coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude),
+            ),
             bearing: cameraHeading,
             zoom: zoom,
             pitch: 60,
@@ -435,7 +442,7 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// A callback which is executed when the map is scrolled.
-  Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
+  Future<void> onMapScroll(mapbox.MapContentGestureContext mapContentGestureContext) async {
     widget.onMapMoved();
   }
 
@@ -501,8 +508,9 @@ class RideMapViewState extends State<RideMapView> {
 
           await mapController?.flyTo(
             mapbox.CameraOptions(
-              center:
-                  mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+              center: mapbox.Point(
+                coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude),
+              ),
               padding: padding,
             ),
             mapbox.MapAnimationOptions(duration: 200),

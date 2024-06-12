@@ -54,7 +54,7 @@ void showEditShortcutSheet(context, int idx) {
             maxLength: 20,
             decoration: InputDecoration(
               hintText: "Heimweg, Zur Arbeit, ...",
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               filled: true,
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -65,14 +65,14 @@ void showEditShortcutSheet(context, int idx) {
                 onPressed: () {
                   nameController.text = "";
                 },
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 fill: Colors.transparent,
                 // splash: Colors.transparent,
                 withBorder: false,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               counterStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
               ),
             ),
           ),
@@ -310,18 +310,18 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   end: Alignment.topRight,
                   colors: Theme.of(context).colorScheme.brightness == Brightness.dark
                       ? [
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background.withOpacity(0.9),
-                          Theme.of(context).colorScheme.background.withOpacity(0.8),
-                          Theme.of(context).colorScheme.background.withOpacity(0.7),
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surface.withOpacity(0.9),
+                          Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                          Theme.of(context).colorScheme.surface.withOpacity(0.7),
                         ]
                       : [
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background.withOpacity(0.6),
-                          Theme.of(context).colorScheme.background.withOpacity(0.5),
-                          Theme.of(context).colorScheme.background.withOpacity(0.3),
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                          Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                          Theme.of(context).colorScheme.surface.withOpacity(0.3),
                         ],
                 ),
               ),
@@ -331,7 +331,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
             padding: const EdgeInsets.only(left: 8),
             showShadow: false,
             borderWidth: 0,
-            borderColor: Theme.of(context).colorScheme.background,
+            borderColor: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.all(
               Radius.circular(0),
             ),
@@ -347,7 +347,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         children: [
                           BoldContent(
                             text: shortcut.name,
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                             context: context,
                           ),
                           const SizedBox(height: 4),
@@ -355,7 +355,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             text: shortcut is ShortcutLocation
                                 ? "Ort"
                                 : "Route von ${shortcut.getWaypoints().first.address?.split(",").firstOrNull} nach ${shortcut.getWaypoints().last.address?.split(",").firstOrNull}",
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                             context: context,
                           ),
                         ],
@@ -366,7 +366,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       child: SmallIconButtonTertiary(
                         icon: Icons.more_horiz_rounded,
                         onPressed: () => onMorePressed(shortcut, key),
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                         withBorder: false,
                       ),
                     ),
@@ -404,7 +404,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                           const SizedBox(height: 4),
                           Content(
                             text: "Fahrtdauer",
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                             context: context,
                           ),
                           const SmallVSpace(),
@@ -412,7 +412,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                           const SizedBox(height: 4),
                           Content(
                             text: "Distanz",
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                             context: context,
                           ),
                           const SmallVSpace(),
@@ -420,7 +420,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                           const SizedBox(height: 4),
                           Content(
                             text: "Wegpunkte",
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                             context: context,
                           ),
                         ],
@@ -439,7 +439,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             const SizedBox(height: 4),
                             Content(
                               text: "Adresse",
-                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                               context: context,
                             ),
                           ],
@@ -450,7 +450,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 ),
                 const SmallVSpace(),
                 Divider(
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                   thickness: 0.5,
                 ),
                 const SmallVSpace(),
@@ -492,7 +492,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(

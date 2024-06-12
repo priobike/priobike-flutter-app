@@ -86,7 +86,7 @@ class UserTransferViewState extends State<UserTransferView> {
 
     return Scaffold(
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [

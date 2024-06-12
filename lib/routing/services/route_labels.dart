@@ -349,7 +349,7 @@ class RouteLabelManager extends ChangeNotifier {
       final screenCoordinate = await mapController.pixelForCoordinate(
         Point(
           coordinates: Position(coordinate.lon, coordinate.lat),
-        ).toJson(),
+        ),
       );
 
       if (_inScreenBounds(screenCoordinate)) {

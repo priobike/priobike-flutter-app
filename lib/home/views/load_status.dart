@@ -64,10 +64,10 @@ class LoadStatusViewState extends State<LoadStatusView> {
             ),
             SmallIconButtonSecondary(
               icon: Icons.info,
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colorScheme.onSurface,
               splash: Theme.of(context).colorScheme.surfaceTint,
               fill: Colors.transparent,
-              borderColor: Theme.of(context).colorScheme.onSurface,
+              borderColor: Theme.of(context).colorScheme.onPrimary,
               withBorder: false,
               onPressed: () => showMoreInformationDialog(),
             ),

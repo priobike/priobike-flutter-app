@@ -18,7 +18,7 @@ class NearbyResultsList extends StatelessWidget {
   /// A POI list element.
   Widget poiListElement(BuildContext context, POIElement poi) {
     return Material(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         splashColor: Theme.of(context).colorScheme.surfaceTint,
@@ -56,7 +56,7 @@ class NearbyResultsList extends StatelessWidget {
                       text: poi.name,
                       overflow: TextOverflow.ellipsis,
                       context: context,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SmallVSpace(),
@@ -66,7 +66,7 @@ class NearbyResultsList extends StatelessWidget {
                       text: poi.typeDescription,
                       overflow: TextOverflow.ellipsis,
                       context: context,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -114,7 +114,7 @@ class NearbyResultsList extends StatelessWidget {
         child: BoldContent(
           text: "Keine Ergebnisse",
           context: context,
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       );
     }

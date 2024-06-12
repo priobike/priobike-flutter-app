@@ -197,7 +197,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(

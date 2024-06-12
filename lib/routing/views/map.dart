@@ -363,7 +363,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             positioning.lastPosition!.longitude,
             positioning.lastPosition!.latitude,
           ),
-        ).toJson(),
+        ),
       ),
       MapAnimationOptions(duration: duration),
     );
@@ -384,7 +384,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             lon,
             lat,
           ),
-        ).toJson(),
+        ),
       ),
       MapAnimationOptions(duration: duration),
     );
@@ -821,7 +821,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 lon,
                 lat,
               ),
-            ).toJson(),
+            ),
           );
 
           setState(() {
@@ -965,10 +965,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback which is executed when a tap on the map is registered.
-  /// This also resolves if a certain feature is being tapped on. This function
-  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 1.0.0)
-  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
-  Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
+  /// This also resolves if a certain feature is being tapped on.
+  Future<void> onMapTap(MapContentGestureContext mapContentGestureContext) async {
     if (mapController == null || !mounted) return;
     // Do not handle onTap when add waypoint mode is active.
     if (widget.mapFunctions.selectPointOnMap) return;
@@ -977,21 +975,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       await resetPOISelection();
     }
 
-    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
-    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
-    // fixed in an upcoming version we need to remove this conversion.
-    final ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
-      Point(
-        coordinates: Position(
-          screenCoordinate.y,
-          screenCoordinate.x,
-        ),
-      ).toJson(),
-    );
-
     final List<QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
       RenderedQueryGeometry(
-        value: json.encode(actualScreenCoordinate.encode()),
+        value: json.encode(mapContentGestureContext.touchPosition.encode()),
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
@@ -1016,9 +1002,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback which is executed when a long tap on the map is registered.
-  /// This function should get screen coordinates. However, at the moment (mapbox_maps_flutter version 1.0.0)
-  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
-  Future<void> onMapLongTap(ScreenCoordinate screenCoordinate) async {
+  Future<void> onMapLongTap(MapContentGestureContext mapContentGestureContext) async {
     if (mapController == null || !mounted) return;
 
     // Do not handle onLongTap when add waypoint mode is active.
@@ -1028,21 +1012,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       await resetPOISelection();
     }
 
-    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
-    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
-    // fixed in an upcoming version we need to remove this conversion.
-    final ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
-      Point(
-        coordinates: Position(
-          screenCoordinate.y,
-          screenCoordinate.x,
-        ),
-      ).toJson(),
-    );
-
     final List<QueriedRenderedFeature?> features = await mapController!.queryRenderedFeatures(
       RenderedQueryGeometry(
-        value: json.encode(actualScreenCoordinate.encode()),
+        value: json.encode(mapContentGestureContext.touchPosition.encode()),
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
@@ -1099,11 +1071,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     if (routing.selectedWaypoints == null) return;
 
-    final centerCoordinate = await mapController!.coordinateForPixel(ScreenCoordinate(x: centerX, y: centerY));
-    final centerPoint = Point.fromJson(Map<String, dynamic>.from(centerCoordinate));
+    final Point centerCoordinate = await mapController!.coordinateForPixel(ScreenCoordinate(x: centerX, y: centerY));
 
     // Snap the screenCoordinates to the route.
-    final addedPosition = LatLng(centerPoint.coordinates.lat.toDouble(), centerPoint.coordinates.lng.toDouble());
+    final addedPosition =
+        LatLng(centerCoordinate.coordinates.lat.toDouble(), centerCoordinate.coordinates.lng.toDouble());
 
     final bestWaypointIndex = routing.getBestWaypointInsertIndex(addedPosition);
 
@@ -1145,12 +1117,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// we select the best position inbetween existing waypoints with
   /// regard to the route.
   Future<void> addWaypoint(ScreenCoordinate point, {atBestLocationOnRoute = false}) async {
-    final coord = await mapController!.coordinateForPixel(point);
+    final Point coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
     final fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
-    final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
-    final longitude = pointCoord.coordinates.lng.toDouble();
-    final latitude = pointCoord.coordinates.lat.toDouble();
+    final longitude = coord.coordinates.lng.toDouble();
+    final latitude = coord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
 
     final pointIsInBoundary = getIt<Boundary>().checkIfPointIsInBoundary(longitude, latitude);
@@ -1212,12 +1183,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Replaces a waypoint at the tapped position.
   Future<void> replaceWaypoint(ScreenCoordinate point, int idx) async {
-    final coord = await mapController!.coordinateForPixel(point);
+    final Point coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
     final fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
-    final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
-    final longitude = pointCoord.coordinates.lng.toDouble();
-    final latitude = pointCoord.coordinates.lat.toDouble();
+    final longitude = coord.coordinates.lng.toDouble();
+    final latitude = coord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
 
     final pointIsInBoundary = getIt<Boundary>().checkIfPointIsInBoundary(longitude, latitude);
@@ -1283,15 +1253,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Set bearing in mapFunctions.
     widget.mapValues.setCameraBearing(camera.bearing);
 
-    // When the camera position changed, set not centered.
-    if (camera.center["coordinates"] == null) return;
     // Cast from Object to List [lon, lat].
-    final List coordinates = camera.center["coordinates"] as List;
+    final coordinates = camera.center.coordinates;
     if (coordinates.length != 2) return;
     if (positioning.lastPosition == null) return;
     // To make the values comparable.
-    final double lat = double.parse(coordinates[1].toStringAsFixed(4));
-    final double lon = double.parse(coordinates[0].toStringAsFixed(4));
+    final double lat = double.parse(coordinates[1]!.toStringAsFixed(4));
+    final double lon = double.parse(coordinates[0]!.toStringAsFixed(4));
     final double latUser = double.parse(positioning.lastPosition!.latitude.toStringAsFixed(4));
     final double lonUser = double.parse(positioning.lastPosition!.longitude.toStringAsFixed(4));
 
@@ -1318,7 +1286,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           poiPopup!.poiElement.lon,
           poiPopup!.poiElement.lat,
         ),
-      ).toJson(),
+      ),
     );
 
     double x = poiPopup!.screenCoordinateX;
@@ -1494,7 +1462,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         if (!mapLayersFinishedLoading)
           Center(
             child: Tile(
-              fill: Theme.of(context).colorScheme.background,
+              fill: Theme.of(context).colorScheme.surface,
               shadowIntensity: 0.2,
               shadow: Colors.black,
               content: const CircularProgressIndicator(),

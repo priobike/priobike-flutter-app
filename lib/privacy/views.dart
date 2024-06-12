@@ -58,9 +58,9 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     // Display loading indicator.
     if (!privacyService.hasLoaded) {
       return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: AnnotatedRegionWrapper(
-          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          bottomBackgroundColor: Theme.of(context).colorScheme.surface,
           colorMode: Theme.of(context).brightness,
           child: const Center(
             child: SizedBox(
@@ -76,9 +76,9 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     // Display error text and retry button.
     if (privacyService.hasError) {
       return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: AnnotatedRegionWrapper(
-          bottomBackgroundColor: Theme.of(context).colorScheme.background,
+          bottomBackgroundColor: Theme.of(context).colorScheme.surface,
           colorMode: Theme.of(context).brightness,
           child: SafeArea(
             child: Pad(
@@ -115,9 +115,9 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     if ((privacyService.isConfirmed == true) && (widget.child != null)) return widget.child!;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: AnnotatedRegionWrapper(
-        bottomBackgroundColor: Theme.of(context).colorScheme.background,
+        bottomBackgroundColor: Theme.of(context).colorScheme.surface,
         colorMode: Theme.of(context).brightness,
         child: Stack(
           alignment: Alignment.bottomCenter,
