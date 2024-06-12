@@ -12,3 +12,5 @@ GeneratedPluginRegistrant.java
 gradle.properties
 
 /fastlane/keystore.jks
+
+key.properties
