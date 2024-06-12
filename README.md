@@ -14,6 +14,11 @@ Make sure to `cp .netrc.example ~/.netrc` and replace `<your mapbox download tok
 Make sure to `cp android/gradle.properties.example android/gradle.properties` and replace
 `<your mapbox download token>` in `android/gradle.properties` with your MapBox secret.
 
+Also make sure to `cp android/key.properties.example android/key.properties` and replace
+`<your keystore password>` and `<your key alias>` in `android/key.properties` with your keystore.
+
+Finally add your `keystore.jks` file to the `android/fastlane` directory.
+
 ## Generating App Icons and Splash Screen
 
 This project uses [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) to
