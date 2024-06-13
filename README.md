@@ -14,10 +14,7 @@ Make sure to `cp .netrc.example ~/.netrc` and replace `<your mapbox download tok
 Make sure to `cp android/gradle.properties.example android/gradle.properties` and replace
 `<your mapbox download token>` in `android/gradle.properties` with your MapBox secret.
 
-Also make sure to `cp android/key.properties.example android/key.properties` and replace
-`<your keystore password>` and `<your key alias>` in `android/key.properties` with your keystore.
-
-Finally add your `keystore.jks` file to the `android/fastlane` directory.
+Also make sure to `cp android/key.properties.example android/key.properties` and `cp android/fastlane/example-keystore.jks android/fastlane/keystore.jks` to be able to sign the app for local release builds. This is different from our Google Play upload keystore and therefore not confidential.
 
 ## Generating App Icons and Splash Screen
 
