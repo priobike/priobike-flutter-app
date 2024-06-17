@@ -34,7 +34,7 @@ jobs:
           echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
           echo "$API_KEY_BASE64" | base64 --decode > android/fastlane/api-key.json
           echo "$KEYSTORE_BASE64" | base64 --decode > android/fastlane/keystore.jks
-          echo "KEY_PROPERTIES_BASE64" | base64 --decode > android/fastlane/key.properties
+          echo "$KEY_PROPERTIES_BASE64" | base64 --decode > android/fastlane/key.properties
         env:
           GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64 }}
           API_KEY_BASE64: ${{ secrets.API_KEY_BASE64 }}
