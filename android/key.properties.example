@@ -1,4 +1,4 @@
-storePassword=<keystore_password>
-keyPassword=<key_password>
-keyAlias=<key_alias>
+storePassword=123456
+keyPassword=qwertz
+keyAlias=example-key
 storeFile=../fastlane/keystore.jks
