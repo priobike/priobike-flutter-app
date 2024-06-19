@@ -208,21 +208,11 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const routingEndpointKey = "priobike.settings.routingEndpoint";
   static const defaultRoutingEndpoint = RoutingEndpoint.graphhopperDRN;
 
-  Future<bool> setRoutingEndpoint(RoutingEndpoint routingEndpoint, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.routingEndpoint;
+  void setRoutingEndpoint(RoutingEndpoint routingEndpoint) async {
     this.routingEndpoint = routingEndpoint;
-    final bool success = await storage.setString(routingEndpointKey, routingEndpoint.name);
-    if (!success) {
-      log.e("Failed to set routingEndpoint to $routingEndpoint");
-      this.routingEndpoint = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
+    notifyListeners();
   }
 
   static const sgLabelsModeKey = "priobike.settings.sgLabelsMode";
@@ -341,21 +331,11 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const sgSelectorKey = "priobike.settings.sgSelector";
   static const defaultSGSelector = SGSelector.ml;
 
-  Future<bool> setSGSelector(SGSelector sgSelector, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.sgSelector;
+  void setSGSelector(SGSelector sgSelector) async {
     this.sgSelector = sgSelector;
-    final bool success = await storage.setString(sgSelectorKey, sgSelector.name);
-    if (!success) {
-      log.e("Failed to set sgSelector to $sgSelector");
-      this.sgSelector = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
+    notifyListeners();
   }
 
   static const dismissedSurveyKey = "priobike.settings.dissmissedSurvey";
@@ -367,7 +347,7 @@ class Settings with ChangeNotifier {
     this.dismissedSurvey = dismissedSurvey;
     final bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
     if (!success) {
-      log.e("Failed to set sgSelector to $sgSelector");
+      log.e("Failed to set dissmissedSurvey to $sgSelector");
       this.dismissedSurvey = prev;
     } else {
       notifyListeners();
@@ -576,16 +556,6 @@ class Settings with ChangeNotifier {
     }
     try {
       datastreamMode = DatastreamMode.values.byName(storage.getString(datastreamModeKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      sgSelector = SGSelector.values.byName(storage.getString(sgSelectorKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

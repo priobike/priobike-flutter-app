@@ -185,7 +185,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// A callback that is executed when a routing endpoint is selected.
   Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
     // Tell the settings service that we selected the new backend.
-    await settings.setRoutingEndpoint(routingEndpoint);
+    settings.setRoutingEndpoint(routingEndpoint);
 
     if (mounted) Navigator.pop(context);
   }
@@ -193,7 +193,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// A callback that is executed when a sg-selector is selected.
   Future<void> onSelectSGSelector(SGSelector sgSelector) async {
     // Tell the settings service that we selected the new sg-selector.
-    await settings.setSGSelector(sgSelector);
+    settings.setSGSelector(sgSelector);
 
     if (mounted) Navigator.pop(context);
   }
