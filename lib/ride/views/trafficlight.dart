@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -18,6 +20,9 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
+  /// The timer to update the ui when the countdown changes.
+  late Timer _timer;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -26,11 +31,39 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     super.initState();
     ride = getIt<Ride>();
     ride.addListener(update);
+
+    _startTimer();
+  }
+
+  /// Function that starts the timer to update the ui when the countdown changes.
+  void _startTimer() async {
+    // Set the timer to 250ms but only update every 4th tick. (reduce battery consumption)
+    _timer = Timer.periodic(const Duration(milliseconds: 250), (_) {
+      final currentPhaseTimeChange = ride.predictionProvider?.recommendation?.calcCurrentPhaseChangeTime;
+      if (currentPhaseTimeChange == null) return;
+      final countdown = currentPhaseTimeChange.difference(DateTime.now()).inMilliseconds;
+
+      // Only update in the top 250ms of a second, because in this range the new second is max 250 ms old.
+      // So updating the ui in this range is the most accurate.
+      if (countdown % 1000 < 750) return;
+
+      // Only update if the countdown is currently displayed.
+      if (!_showCountdown()) return;
+      if (ride.calcDistanceToNextSG != null && ride.calcDistanceToNextSG! > 500) return;
+      if (ride.calcCurrentSG == null && ride.userSelectedSG == null) return;
+      if (ride.predictionProvider?.recommendation == null) return;
+      if ((ride.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) return;
+      if (ride.predictionProvider!.recommendation!.calcCurrentPhaseChangeTime == null) return;
+
+      // Countdown currently displayed and therefore needs to be updated.
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
     ride.removeListener(update);
+    _timer.cancel();
     super.dispose();
   }
 
@@ -50,6 +83,18 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
           ),
         ),
       );
+
+  // Function that returns the bool if the countdown should be shown.
+  bool _showCountdown() {
+    // Only display the countdown if the distance to the next crossing is less than 500 meters and the prediction quality is good.
+    // Also display the countdown if the user has selected a crossing.
+    var showCountdown = (ride.calcDistanceToNextSG ?? double.infinity) < 500;
+    showCountdown =
+        showCountdown && (ride.predictionProvider?.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
+    showCountdown = ride.userSelectedSG != null ? true : showCountdown;
+
+    return showCountdown;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,13 +208,6 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       ),
     );
 
-    // Only display the countdown if the distance to the next crossing is less than 500 meters and the prediction quality is good.
-    // Also display the countdown if the user has selected a crossing.
-    var showCountdown = (ride.calcDistanceToNextSG ?? double.infinity) < 500;
-    showCountdown =
-        showCountdown && (ride.predictionProvider?.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
-    showCountdown = ride.userSelectedSG != null ? true : showCountdown;
-
     return AnimatedCrossFade(
       firstCurve: Curves.easeInOutCubic,
       secondCurve: Curves.easeInOutCubic,
@@ -177,7 +215,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       duration: const Duration(milliseconds: 500),
       firstChild: trafficLight,
       secondChild: alternativeView(""),
-      crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+      crossFadeState: _showCountdown() ? CrossFadeState.showFirst : CrossFadeState.showSecond,
     );
   }
 }
