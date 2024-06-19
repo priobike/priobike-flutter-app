@@ -31,6 +31,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -74,7 +75,8 @@ Future<void> main() async {
 
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
-  await FCM.load(settings.backend);
+  // Always use release backend if user is not an internal tester.
+  await FCM.load(feature.canEnableInternalFeatures ? settings.backend : Backend.release);
 
   // Init the HTTP client for all services.
   Http.initClient();

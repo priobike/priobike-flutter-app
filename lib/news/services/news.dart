@@ -10,6 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/models/article.dart';
 import 'package:priobike/news/models/category.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,7 +56,17 @@ class News with ChangeNotifier {
     }
 
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+
+    final feature = getIt<Feature>();
+    String baseUrl = settings.backend.path;
+
+    // News service should be excluded from failover.
+    // Use release backend if in hamburg else use staging.
+    // Internal testers use the selected backend.
+    if (!feature.canEnableInternalFeatures && settings.backend.regionName == "Hamburg") {
+      baseUrl = Backend.release.path;
+    }
+
     final newsArticlesUrl = newLastSyncDate == null
         ? "https://$baseUrl/news-service/news/articles"
         : "https://$baseUrl/news-service/news/articles?from=${DateFormat('yyyy-MM-ddTH:mm:ss').format(newLastSyncDate)}Z";

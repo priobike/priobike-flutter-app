@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
-import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -14,6 +13,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/home/models/node_status.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/routing/services/profile.dart';
@@ -74,16 +74,43 @@ class LoaderState extends State<Loader> {
     // Check the load services to determine if the failover backend should be used.
     // Only check the load status for users that can not enable internal features.
     final feature = getIt<Feature>();
+
+    // If the user is not able to enable internal features it is an release user.
+    // Therefore we have to check if we should use the failover backend.
     if (!feature.canEnableInternalFeatures) {
       final loadStatus = getIt<LoadStatus>();
-      final shouldUseFailover = await loadStatus.shouldUseFailover();
+      await loadStatus.fetch();
 
-      if (shouldUseFailover) {
+      NodeStatus? nodeStatusProduction = loadStatus.nodeStatusProduction;
+      NodeStatus? nodeStatusRelease = loadStatus.nodeStatusRelease;
+
+      // If production has no status, we should not use it.
+      if (nodeStatusProduction == null) {
+        settings.setBackend(Backend.release);
+        return;
+      }
+
+      // If release has no status, we should use the failover.
+      if (nodeStatusRelease == null) {
+        settings.setBackend(Backend.production);
+        return;
+      }
+
+      // Load status is updated every minute.
+      // If the timestamp of the release status is older than 5 minutes, we should use the failover.
+      if (DateTime.now().difference(nodeStatusRelease.timestamp).inMinutes > 5) {
+        return;
+      }
+
+      // If the timestamp of the production status is older than 5 minutes, we should not use the failover.
+      if (DateTime.now().difference(nodeStatusProduction.timestamp).inMinutes > 5) {
+        return;
+      }
+
+      if (loadStatus.hasWarning) {
         await settings.setBackend(Backend.production);
-        await FCM.selectTopic(settings.backend);
       } else {
         await settings.setBackend(Backend.release);
-        await FCM.selectTopic(settings.backend);
       }
     }
 
