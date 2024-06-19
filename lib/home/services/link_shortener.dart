@@ -26,7 +26,8 @@ class LinkShortener {
     });
     final auth = await Auth.load(backend);
     final apiKey = auth.linkShortenerApiKey;
-    final shortLinkResponse = await Http.post(linkShortenerEndpoint, headers: {'X-Api-Key': apiKey}, body: longUrlJson);
+    final shortLinkResponse = await Http.post(linkShortenerEndpoint,
+        headers: {'X-Api-Key': apiKey, 'Content-Type': 'application/json'}, body: longUrlJson);
     try {
       return json.decode(shortLinkResponse.body)['shortUrl'];
     } catch (e) {
