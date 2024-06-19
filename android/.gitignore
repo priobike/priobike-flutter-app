@@ -10,3 +10,7 @@ GeneratedPluginRegistrant.java
 .settings/org.eclipse.buildship.core.prefs
 
 gradle.properties
+
+/fastlane/keystore.jks
+
+key.properties

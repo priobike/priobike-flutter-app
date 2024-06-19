@@ -45,7 +45,7 @@ class TrackStats extends StatelessWidget {
                 Small(
                   text: "Dauer",
                   context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                 ),
                 BoldContent(text: timeText, context: context),
               ],
@@ -60,7 +60,7 @@ class TrackStats extends StatelessWidget {
                 Small(
                   text: "Distanz",
                   context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                 ),
                 BoldContent(
                   text: distanceText,
@@ -78,7 +78,7 @@ class TrackStats extends StatelessWidget {
                 Small(
                   text: "km/h",
                   context: context,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                 ),
                 BoldContent(text: speedText, context: context),
               ],

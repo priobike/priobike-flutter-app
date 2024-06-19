@@ -48,7 +48,7 @@ class Article {
   int get hashCode => _md5.hashCode;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return other is Article && other._md5 == _md5;
   }
 }

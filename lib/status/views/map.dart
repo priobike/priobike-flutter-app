@@ -355,7 +355,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.radkulturGreen),
     ];
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: Stack(
@@ -394,7 +394,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                       controller: searchController,
                       decoration: InputDecoration(
                         hintText: "Suche",
-                        fillColor: Theme.of(context).colorScheme.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         filled: true,
                         border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -407,7 +407,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                             highlightOnMap("");
                             setState(() {});
                           },
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fill: Colors.transparent,
                           withBorder: false,
                         ),
@@ -428,7 +428,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                     right: 12,
                   ),
                   child: Tile(
-                    fill: Theme.of(context).colorScheme.background,
+                    fill: Theme.of(context).colorScheme.surface,
                     content: SizedBox(
                       height: 60,
                       child: Column(

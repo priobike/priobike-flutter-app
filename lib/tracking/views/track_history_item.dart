@@ -386,7 +386,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                       child: Material(
-                        color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                         child: Container(),
                       ), // Extra container is required for the blur.
                     ),
@@ -396,7 +396,7 @@ class TrackHistoryItemDetailViewState extends State<TrackHistoryItemDetailView> 
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                     child: Material(
-                      color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
                         child: trackStats,
@@ -572,7 +572,7 @@ class TrackHistoryItemAppSheetViewState extends State<TrackHistoryItemAppSheetVi
       // width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
       ),
       child: Column(
         children: [

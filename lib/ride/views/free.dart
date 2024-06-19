@@ -130,7 +130,7 @@ class FreeRideViewState extends State<FreeRideView> {
                                 final positioning = getIt<Positioning>();
                                 await positioning.stopGeolocation();
 
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                                 Navigator.of(context).pushAndRemoveUntil(
                                   MaterialPageRoute<void>(builder: (BuildContext context) => const HomeView()),
                                   (route) => false,

@@ -112,7 +112,7 @@ class SmallIconButtonSecondary extends StatelessWidget {
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
-        fillColor: fill ?? Theme.of(context).colorScheme.background,
+        fillColor: fill ?? Theme.of(context).colorScheme.surface,
         splashColor: splash ?? Theme.of(context).colorScheme.onSecondary,
         onPressed: onPressed,
         shape: withBorder
@@ -290,7 +290,7 @@ class BigButtonPrimary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final usedFillColor = fillColor ?? Theme.of(context).colorScheme.surface;
+    final usedFillColor = fillColor ?? Theme.of(context).colorScheme.primary;
     final usedFillColorHSL = HSLColor.fromColor(usedFillColor);
     final fillSaturation = usedFillColorHSL.saturation;
     final disabledColor =
@@ -623,7 +623,7 @@ class IconTextButtonPrimary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      fillColor: fillColor ?? Theme.of(context).colorScheme.surface,
+      fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
       splashColor: splashColor ?? Theme.of(context).colorScheme.surfaceTint,
       constraints: boxConstraints,
       // Hide ugly material shadows.

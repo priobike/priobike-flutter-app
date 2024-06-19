@@ -1,6 +1,6 @@
 # PrioBike-HH Flutter App
 
-**Required Flutter Version: `3.16.9`**
+**Required Flutter Version: `3.19.6`**
 
 For getting started with development you need to set up your development environment according to
 the [guide](https://docs.flutter.dev/get-started/install).
@@ -13,6 +13,8 @@ Make sure to `cp .netrc.example ~/.netrc` and replace `<your mapbox download tok
 
 Make sure to `cp android/gradle.properties.example android/gradle.properties` and replace
 `<your mapbox download token>` in `android/gradle.properties` with your MapBox secret.
+
+Also make sure to `cp android/key.properties.example android/key.properties` and `cp android/fastlane/example-keystore.jks android/fastlane/keystore.jks` to be able to sign the app for local release builds. This is different from our Google Play upload keystore and therefore not confidential.
 
 ## Generating App Icons and Splash Screen
 

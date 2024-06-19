@@ -191,7 +191,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
       colorMode: Theme.of(context).brightness,
       bottomTextBrightness: Brightness.light,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -210,7 +210,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                 children: [
                   const SizedBox(height: 8),
                   Container(
-                    color: Theme.of(context).colorScheme.background,
+                    color: Theme.of(context).colorScheme.surface,
                     child: Row(
                       children: [
                         AppBackButton(onPressed: () => Navigator.pop(context)),
@@ -218,7 +218,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                         Expanded(
                           child: Container(
                             width: frame.size.width,
-                            color: Theme.of(context).colorScheme.background,
+                            color: Theme.of(context).colorScheme.surface,
                             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

@@ -85,7 +85,7 @@ class TargetMarkerPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
       ..style = PaintingStyle.stroke
-      ..color = Theme.of(context).colorScheme.onBackground
+      ..color = Theme.of(context).colorScheme.onSurface
       ..strokeWidth = 3;
 
     canvas.drawPath(getTargetPath(size.width, size.height), paint);

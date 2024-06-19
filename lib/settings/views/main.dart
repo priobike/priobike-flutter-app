@@ -101,7 +101,7 @@ class SettingsSelection<E> extends StatelessWidget {
             child: Tile(
               fill: elements[index] == selected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.background,
+                  : Theme.of(context).colorScheme.surface,
               onPressed: () => callback(elements[index]),
               content: Row(
                 children: [
@@ -112,7 +112,7 @@ class SettingsSelection<E> extends StatelessWidget {
                       context: context,
                       color: elements[index] == selected
                           ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onBackground,
+                          : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   Expanded(
@@ -240,7 +240,7 @@ class SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(

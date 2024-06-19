@@ -235,12 +235,12 @@ class LoaderState extends State<Loader> {
     return AnnotatedRegionWrapper(
       // Set to light to make sure the system bar is displayed in white on the red background of the loader.
       topTextBrightness: Brightness.light,
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Brightness.dark,
       child: Stack(
         children: [
           Container(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 1000),
               curve: Curves.easeInOutCubicEmphasized,
@@ -263,7 +263,7 @@ class LoaderState extends State<Loader> {
                     child: Center(
                       child: Tile(
                         shadowIntensity: 0.2,
-                        fill: Theme.of(context).colorScheme.background,
+                        fill: Theme.of(context).colorScheme.surface,
                         content: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           mainAxisSize: MainAxisSize.min,

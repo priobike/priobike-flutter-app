@@ -355,7 +355,7 @@ class LayerSelectionItem extends StatelessWidget {
                   )
                 : BoxDecoration(
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(24),

@@ -14,6 +14,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
 import 'package:priobike/ride/views/free.dart';
@@ -127,6 +128,9 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await settings.setPositioningMode(positioningMode);
     // Reset the position service since it depends on the positioning.
     await position.reset();
+    // Get latest position of the new positioning mode.
+    await position.requestSingleLocation(
+        onNoPermission: () => showLocationAccessDeniedDialog(context, position.positionSource));
 
     if (mounted) Navigator.pop(context);
   }
@@ -196,7 +200,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegionWrapper(
-      bottomBackgroundColor: Theme.of(context).colorScheme.background,
+      bottomBackgroundColor: Theme.of(context).colorScheme.surface,
       colorMode: Theme.of(context).brightness,
       child: Scaffold(
         body: SingleChildScrollView(

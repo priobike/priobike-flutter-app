@@ -178,10 +178,10 @@ class FreeRide with ChangeNotifier {
     final onScreenSGs = <String>{};
     // Only show predictions for close SGs if the camera is zoomed in.
     if (cameraZoom > 15) {
-      final coordinatesSouthwest = bounds.bounds.southwest["coordinates"] as List;
+      final coordinatesSouthwest = bounds.bounds.southwest.coordinates;
       final s = coordinatesSouthwest[1] as double;
       final w = coordinatesSouthwest[0] as double;
-      final coordinatesNortheast = bounds.bounds.northeast["coordinates"] as List;
+      final coordinatesNortheast = bounds.bounds.northeast.coordinates;
       final n = coordinatesNortheast[1] as double;
       final e = coordinatesNortheast[0] as double;
 
