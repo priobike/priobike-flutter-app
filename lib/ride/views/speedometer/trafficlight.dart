@@ -34,25 +34,26 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     var updateView = false;
 
     // Check if the countdown needs to be updated with new values.
-    final recommendation = ride.predictionProvider!.recommendation!;
-    final newPhase = recommendation.calcCurrentSignalPhase;
+    final recommendation = ride.predictionProvider?.recommendation;
+    final newPhase = recommendation?.calcCurrentSignalPhase;
     if (newPhase != currentPhase) {
       currentPhase = newPhase;
       updateView = true;
     }
-    final newPhaseChangeTime = recommendation.calcCurrentPhaseChangeTime;
+    final newPhaseChangeTime = recommendation?.calcCurrentPhaseChangeTime;
     if (newPhaseChangeTime != phaseChangeTime) {
       phaseChangeTime = newPhaseChangeTime;
       updateView = true;
     }
 
     // Check if the countdown should be displayed/hidden.
-    // Only display the countdown if the distance to the next crossing is less than 500 meters and the prediction quality is good.
-    // Also display the countdown if the user has selected a crossing.
-    var showCountdownNew = (ride.calcDistanceToNextSG ?? double.infinity) < 500;
-    showCountdownNew =
-        showCountdownNew && (ride.predictionProvider?.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
-    showCountdownNew = ride.userSelectedSG != null ? true : showCountdownNew;
+    var nextSGIsClose = (ride.calcDistanceToNextSG ?? double.infinity) < 500;
+    var goodPredictionQuality = (ride.predictionProvider?.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
+    var showCountdownNew = (nextSGIsClose || ride.userSelectedSG != null) &&
+        goodPredictionQuality &&
+        (currentPhase != null) &&
+        (phaseChangeTime != null);
+
     if (showCountdownNew != showCountdown) {
       showCountdown = showCountdownNew;
       updateView = true;
@@ -76,21 +77,15 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      firstCurve: Curves.easeInOutCubic,
-      secondCurve: Curves.easeInOutCubic,
-      sizeCurve: Curves.easeInOutCubic,
-      duration: const Duration(milliseconds: 500),
-      firstChild: CountdownView(
-        size: widget.size,
-        currentPhase: currentPhase!,
-        phaseChangeTime: phaseChangeTime!,
-      ),
-      secondChild: TrafficLightAlternativeInfoView(
-        size: widget.size,
-      ),
-      crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-    );
+    return showCountdown
+        ? CountdownView(
+            size: widget.size,
+            currentPhase: currentPhase!,
+            phaseChangeTime: phaseChangeTime!,
+          )
+        : TrafficLightAlternativeInfoView(
+            size: widget.size,
+          );
   }
 }
 
@@ -143,7 +138,6 @@ class TrafficLightAlternativeInfoViewState extends State<TrafficLightAlternative
 
   @override
   Widget build(BuildContext context) {
-    // Don't show a countdown if...
     // Not supported crossing.
     if (ride.calcCurrentSG == null && ride.userSelectedSG == null) {
       return alternativeView("Nicht\nunterstütze\nKreuzung");
@@ -172,7 +166,7 @@ class TrafficLightAlternativeInfoViewState extends State<TrafficLightAlternative
 
     // The gauge is not displayed if the distance to the next signal is too large.
     // But still display the distance to the next signal.
-    if (ride.calcDistanceToNextSG != null && ride.calcDistanceToNextSG! > 500) {
+    if (ride.calcDistanceToNextSG != null && ride.calcDistanceToNextSG! > 500 && ride.userSelectedSG == null) {
       // Display the distance to the next signal in m or km.
       final distance = ride.calcDistanceToNextSG! < 1000
           ? "${ride.calcDistanceToNextSG!.toStringAsFixed(0)} m"
@@ -229,8 +223,8 @@ class CountdownViewState extends State<CountdownView> {
     if (widget.currentPhase == Phase.redAmber) countdownLabel = "";
 
     return Container(
-      width: widget.size.width * 0.6,
-      height: widget.size.width * 0.6,
+      width: widget.size.width * 0.5,
+      height: widget.size.width * 0.5,
       decoration: BoxDecoration(
         gradient: RadialGradient(
           stops: const [0.2, 0.8, 1],
