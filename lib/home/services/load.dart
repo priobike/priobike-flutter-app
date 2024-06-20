@@ -79,7 +79,7 @@ class LoadStatus with ChangeNotifier {
       final nodeStatus = NodeStatus.fromJson(json);
 
       // Load status is updated every minute.
-      // If the timestamp of the status is older than 5 minutes, we should use the failover.
+      // If the timestamp of the status is older than 5 minutes, we assume the backend is not usable.
       if (DateTime.now().difference(nodeStatus.timestamp).inMinutes > 5) {
         return false;
       }
