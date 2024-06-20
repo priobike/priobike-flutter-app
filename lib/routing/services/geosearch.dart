@@ -41,7 +41,7 @@ class Geosearch with ChangeNotifier {
 
     try {
       final settings = getIt<Settings>();
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
 
       var url = "https://$baseUrl/photon/api";
       url += "?q=$query";
@@ -121,7 +121,7 @@ class Geosearch with ChangeNotifier {
   /// Delete the search history from the SharedPreferences.
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().backend;
+    final city = getIt<Settings>().city;
     await preferences.remove("priobike.routing.searchHistory.${backend.regionName}");
     searchHistory = [];
   }
@@ -129,7 +129,7 @@ class Geosearch with ChangeNotifier {
   /// Initialize the search history from the SharedPreferences by decoding it from a String List.
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(true);
     List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${backend.regionName}") ?? [];
     searchHistory = [];
     for (String waypoint in savedList) {

@@ -190,11 +190,11 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   Future<void> loadTracks() async {
     previousTracks.clear();
     if (tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) {
-      final backend = getIt<Settings>().backend;
+      final city = getIt<Settings>().city;
       for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
         Track track = tracking.previousTracks![i];
         // To get Production and Release or Staging.
-        if (track.backend.regionName == backend.regionName) {
+        if (track.city.name == city.name) {
           previousTracks.add(track);
         }
       }

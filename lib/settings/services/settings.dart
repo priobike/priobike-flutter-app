@@ -34,8 +34,14 @@ class Settings with ChangeNotifier {
   /// Whether the user has seen the warning at the start of the ride.
   bool didViewWarning;
 
+  /// The selected city.
+  City city;
+
+  /// The backend that should be used.
+  Backend backend(bool allowFallback) => city.selectedBackend(allowFallback);
+
   /// The selected backend.
-  Backend backend;
+  Backend? manuallySelectedBackend;
 
   /// The selected positioning mode.
   PositioningMode positioningMode;
@@ -159,16 +165,33 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const cityKey = "priobike.settings.city";
+  static const defaultCity = City.hamburg;
+
+  Future<bool> setCity(City city, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = city;
+    this.city = city;
+    final bool success = await storage.setString(cityKey, city.name);
+    if (!success) {
+      log.e("Failed to set city to $city");
+      this.city = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const backendKey = "priobike.settings.backend";
 
   Future<bool> setBackend(Backend backend, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.backend;
-    this.backend = backend;
+    final prev = manuallySelectedBackend;
+    manuallySelectedBackend = backend;
     final bool success = await storage.setString(backendKey, backend.name);
     if (!success) {
       log.e("Failed to set backend to $backend");
-      this.backend = prev;
+      manuallySelectedBackend = prev;
     } else {
       notifyListeners();
     }
@@ -492,8 +515,8 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  Settings(
-    this.backend, {
+  Settings({
+    this.city = defaultCity,
     this.enableLogPersistence = defaultEnableLogPersistence,
     this.enableTrafficLightSearchBar = defaultEnableTrafficLightSearchBar,
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -526,7 +549,12 @@ class Settings with ChangeNotifier {
     didViewWarning = storage.getBool(didViewWarningKey) ?? defaultDidViewWarning;
 
     try {
-      backend = Backend.values.byName(storage.getString(backendKey)!);
+      city = City.values.byName(storage.getString(cityKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      manuallySelectedBackend = Backend.values.byName(storage.getString(backendKey)!);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

@@ -105,7 +105,7 @@ class Traffic with ChangeNotifier {
     try {
       final settings = getIt<Settings>();
 
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
       String url = "https://$baseUrl/traffic-service/prediction.json";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));

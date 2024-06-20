@@ -21,10 +21,10 @@ class Boundary {
 
   /// Load the coordinates of the bounding box from the assets.
   Future<void> loadBoundaryCoordinates() async {
-    final backend = getIt<Settings>().backend;
+    final city = getIt<Settings>().city;
     var coords = List.empty(growable: true);
     boundaryCoords = List.empty(growable: true);
-    boundaryGeoJson = await backend.boundaryGeoJson;
+    boundaryGeoJson = await city.boundaryGeoJson;
     final geojsonDecoded = jsonDecode(boundaryGeoJson!);
     coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][1];
 

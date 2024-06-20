@@ -143,8 +143,16 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when a city is selected.
+  Future<void> onSelectCity(City city) async {
+    await settings.setCity(city);
+    await onSelectBackend(city.defaultBackend, popDialog: false);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   /// A callback that is executed when a backend is selected.
-  Future<void> onSelectBackend(Backend backend) async {
+  Future<void> onSelectBackend(Backend backend, {bool popDialog = true}) async {
     // Check if the auth service is online. If not, we shouldn't switch the backend.
     try {
       await Auth.load(backend);
@@ -173,7 +181,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 
-    if (mounted) Navigator.pop(context);
+    if (mounted && popDialog) Navigator.pop(context);
   }
 
   /// A callback that adds test migration data for testing.
@@ -307,15 +315,33 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     title: "Ort",
-                    subtitle: settings.backend.region,
+                    subtitle: settings.city.name,
                     icon: Icons.expand_more,
                     callback: () => showAppSheet(
                       context: context,
                       builder: (BuildContext context) {
                         return SettingsSelection(
-                            elements: Backend.values,
-                            selected: settings.backend,
-                            title: (Backend e) => e.region,
+                            elements: City.values,
+                            selected: settings.city,
+                            title: (City e) => e.name,
+                            callback: onSelectCity);
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Backend",
+                    subtitle: settings.manuallySelectedBackend?.name ?? settings.city.defaultBackend.name,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: settings.city.availableBackends,
+                            selected: settings.manuallySelectedBackend ?? settings.city.defaultBackend,
+                            title: (Backend e) => e.name,
                             callback: onSelectBackend);
                       },
                     ),

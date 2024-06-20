@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/node_status.dart';
 import 'package:priobike/http.dart';
@@ -13,6 +14,9 @@ class LoadStatus with ChangeNotifier {
 
   /// If there exists a warning.
   bool hasWarning = false;
+
+  /// If the fallback backend should be used.
+  bool useFallback = false;
 
   /// Logger for the status history.
   final log = Logger("Load");

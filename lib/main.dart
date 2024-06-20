@@ -66,7 +66,7 @@ Future<void> main() async {
   getIt.registerSingleton<Feature>(Feature());
   final feature = getIt<Feature>();
   await feature.load();
-  getIt.registerSingleton<Settings>(Settings(feature.defaultBackend));
+  getIt.registerSingleton<Settings>(Settings());
   final settings = getIt<Settings>();
   await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
@@ -75,8 +75,8 @@ Future<void> main() async {
 
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
-  // Always use release backend if user is not an internal tester.
-  await FCM.load(feature.canEnableInternalFeatures ? settings.backend : Backend.release);
+  // Don't use fallback backends for push notifications.
+  await FCM.load(settings.city.selectedBackend(false));
 
   // Init the HTTP client for all services.
   Http.initClient();

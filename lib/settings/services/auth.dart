@@ -16,6 +16,7 @@ class Auth {
   static AuthConfig? auth;
 
   /// Load the auth from the backend.
+  /// FIXME: Currently this won't work in our fallback case if two services use different backends and therefore need different auths.
   static Future<AuthConfig> load(Backend currentBackend) async {
     if (backend == currentBackend && auth != null) return Auth.auth!;
     final url = "https://${currentBackend.path}/auth/config.json";

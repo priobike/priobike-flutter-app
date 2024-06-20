@@ -15,7 +15,6 @@ import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/load.dart';
-import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
 import 'package:priobike/logging/logger.dart';
@@ -25,6 +24,8 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/profile.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -92,7 +93,7 @@ class LoaderState extends State<Loader> {
     try {
       // Check if the authentication service is online and load the auth config.
       // If the authentication service is not reachable, we won't open the app.
-      final auth = await Auth.load(settings.backend);
+      final auth = await Auth.load(settings.city.selectedBackend(true));
 
       // Note: It is ok to set this once here, as the mapbox access token is not expected to change.
       // If we want to support different mapbox tokens per deployment in the future, we need to

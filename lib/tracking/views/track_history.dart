@@ -56,10 +56,10 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
     // Get max. 4 newest tracks.
     var i = tracking.previousTracks!.length - 1;
-    final backend = getIt<Settings>().backend;
+    final city = getIt<Settings>().city;
     while (i >= 0) {
       // To get Production and Release or Staging.
-      if (tracking.previousTracks![i].backend.regionName == backend.regionName) {
+      if (tracking.previousTracks![i].city.name == city.name) {
         if (newestTracks.length < 4) {
           newestTracks.add(tracking.previousTracks![i]);
         }

@@ -28,7 +28,7 @@ class PredictionSGStatus with ChangeNotifier {
     log.i("Fetching sg status for ${route.signalGroups.length} sgs and ${route.crossings.length} crossings.");
 
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
 
     isLoading = true;
     notifyListeners();
