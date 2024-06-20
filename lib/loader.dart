@@ -13,7 +13,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
-import 'package:priobike/home/models/node_status.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/routing/services/profile.dart';
@@ -79,35 +78,9 @@ class LoaderState extends State<Loader> {
     // Therefore we have to check if we should use the failover backend.
     if (!feature.canEnableInternalFeatures) {
       final loadStatus = getIt<LoadStatus>();
-      await loadStatus.fetch();
 
-      NodeStatus? nodeStatusProduction = loadStatus.nodeStatusProduction;
-      NodeStatus? nodeStatusRelease = loadStatus.nodeStatusRelease;
-
-      // If production has no status, we should not use it.
-      if (nodeStatusProduction == null) {
-        settings.setBackend(Backend.release);
-        return;
-      }
-
-      // If release has no status, we should use the failover.
-      if (nodeStatusRelease == null) {
-        settings.setBackend(Backend.production);
-        return;
-      }
-
-      // Load status is updated every minute.
-      // If the timestamp of the release status is older than 5 minutes, we should use the failover.
-      if (DateTime.now().difference(nodeStatusRelease.timestamp).inMinutes > 5) {
-        return;
-      }
-
-      // If the timestamp of the production status is older than 5 minutes, we should not use the failover.
-      if (DateTime.now().difference(nodeStatusProduction.timestamp).inMinutes > 5) {
-        return;
-      }
-
-      if (loadStatus.hasWarning) {
+      // Select the backend based on the load status.
+      if (await loadStatus.useFailover()) {
         await settings.setBackend(Backend.production);
       } else {
         await settings.setBackend(Backend.release);
