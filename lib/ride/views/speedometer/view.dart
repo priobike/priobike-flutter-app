@@ -16,7 +16,7 @@ import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/shadow.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
-import 'package:priobike/ride/views/trafficlight.dart';
+import 'package:priobike/ride/views/speedometer/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
