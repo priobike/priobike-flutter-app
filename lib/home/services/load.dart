@@ -61,7 +61,7 @@ class LoadStatus with ChangeNotifier {
     }
   }
 
-  /// Fetches the status data and returns if backend is usable.
+  /// Fetches the status data and returns if the given backend is usable.
   Future<bool> backendUsable(String baseUrl) async {
     try {
       final url = "https://$baseUrl/load-service/load.json";

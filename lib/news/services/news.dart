@@ -60,8 +60,7 @@ class News with ChangeNotifier {
     final feature = getIt<Feature>();
     String baseUrl = settings.backend.path;
 
-    // News service should be excluded from failover.
-    // Use release backend if in hamburg else use staging.
+    // News service is excluded from failing over.
     // Internal testers use the selected backend.
     if (!feature.canEnableInternalFeatures && settings.backend.regionName == "Hamburg") {
       baseUrl = Backend.release.path;
