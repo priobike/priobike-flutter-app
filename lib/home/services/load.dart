@@ -93,15 +93,15 @@ class LoadStatus with ChangeNotifier {
   }
 
   /// Fetches the status data from release and production and decides which backend should be used.
-  Future<bool> useFailover() async {
+  Future<Backend> getUsableBackend() async {
     final releaseBackendUsable = await backendUsable(Backend.release.path);
-    if (releaseBackendUsable) return false;
+    if (releaseBackendUsable) return Backend.release;
 
     final productionBackendUsable = await backendUsable(Backend.production.path);
-    if (productionBackendUsable) return true;
+    if (productionBackendUsable) return Backend.production;
 
     // If both release and production have warnings, we should use release.
-    return false;
+    return Backend.release;
   }
 
   /// Reset the status.

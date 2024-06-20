@@ -25,7 +25,6 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -80,11 +79,7 @@ class LoaderState extends State<Loader> {
       final loadStatus = getIt<LoadStatus>();
 
       // Select the backend based on the load status.
-      if (await loadStatus.useFailover()) {
-        await settings.setBackend(Backend.production);
-      } else {
-        await settings.setBackend(Backend.release);
-      }
+      settings.setBackend(await loadStatus.getUsableBackend());
     }
 
     // We have 2 types of services:
