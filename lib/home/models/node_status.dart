@@ -11,13 +11,13 @@ class NodeStatus {
   NodeStatus({required this.recommendFallback, required this.warning, required this.timestamp});
 
   factory NodeStatus.fromJson(Map<String, dynamic> json) => NodeStatus(
-        recommendFallback: json['recommend_fallback'],
+        recommendFallback: json['recommendFallback'],
         warning: json['warning'],
         timestamp: DateTime.fromMillisecondsSinceEpoch(json['timestamp'] * 1000),
       );
 
   Map<String, dynamic> toJson() => {
-        'recommend_fallback': recommendFallback,
+        'recommendFallback': recommendFallback,
         'warning': warning,
         'timestamp': timestamp.millisecondsSinceEpoch,
       };
