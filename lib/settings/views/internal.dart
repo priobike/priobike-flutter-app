@@ -11,7 +11,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -182,11 +181,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await boundary.loadBoundaryCoordinates();
 
     if (mounted && popDialog) Navigator.pop(context);
-  }
-
-  /// A callback that adds test migration data for testing.
-  void addTestMigrationData() {
-    Migration.addTestMigrationData();
   }
 
   /// A callback that is executed when a routing endpoint is selected.
@@ -623,23 +617,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Hintergrundbilder löschen (Neustart notw.)",
                     icon: Icons.recycling,
                     callback: () => MapboxTileImageCache.deleteAllImages(true),
-                  ),
-                ),
-                const SmallVSpace(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                  child: Small(
-                    text:
-                        "Durch das Drücken von Migration testen werden jeweils ein Test-Shortcut und eine Test-Suchanfrage angelegt (staging, production, release). Diese müssten korrekterweise nach einem Neustart der App jeweils in den verschiedenen Versionen mit angezeigt werden.",
-                    context: context,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Migration testen",
-                    icon: Icons.start,
-                    callback: addTestMigrationData,
                   ),
                 ),
                 const SmallVSpace(),

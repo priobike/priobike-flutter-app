@@ -244,7 +244,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    final backend = getIt<Settings>().backend;
+    final city = getIt<Settings>().city;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -269,7 +269,7 @@ class RoutingViewState extends State<RoutingView> {
                         children: [
                           Small(
                             text:
-                                "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe Deine Wegpunkte an.",
+                                "Das Routing wird aktuell nur innerhalb von ${city.name} unterstützt. Bitte passe Deine Wegpunkte an.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),

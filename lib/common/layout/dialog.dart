@@ -31,11 +31,11 @@ void showInvalidShortcutSheet(context) {
       ),
     ),
     pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-      final backend = getIt<Settings>().backend;
+      final city = getIt<Settings>().city;
       return DialogLayout(
         title: 'Ungültige Strecke',
         text:
-            "Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${backend.region} liegen.\nPrioBike wird aktuell nur innerhalb von ${backend.region} unterstützt.",
+            "Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${city.name} liegen.\nPrioBike wird aktuell nur innerhalb von ${city.name} unterstützt.",
         actions: [
           BigButtonPrimary(
             label: 'Schließen',

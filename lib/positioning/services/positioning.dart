@@ -117,7 +117,7 @@ class Positioning with ChangeNotifier {
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
-          [settings.backend.center];
+          [settings.city.center];
       positionSource = PathMockPositionSource(idealSpeed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
@@ -125,7 +125,7 @@ class Positioning with ChangeNotifier {
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
-          [settings.backend.center];
+          [settings.city.center];
       positionSource = PathMockPositionSource(idealSpeed: 40 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (40 km/h).");
     } else if (settings.positioningMode == PositioningMode.autospeed) {
@@ -133,7 +133,7 @@ class Positioning with ChangeNotifier {
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
-          [settings.backend.center];
+          [settings.city.center];
       positionSource = PathMockPositionSource(idealSpeed: 18 / 3.6, positions: positions, autoSpeed: true);
       log.i("Using mocked auto speed positioning source.");
     } else if (settings.positioningMode == PositioningMode.sensor) {
@@ -141,7 +141,7 @@ class Positioning with ChangeNotifier {
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
-          [settings.backend.center];
+          [settings.city.center];
       positionSource = SpeedSensorPositioningSource(positions: positions);
       log.i("Using speed sensor positioning source.");
     } else if (settings.positioningMode == PositioningMode.recordedDresden) {

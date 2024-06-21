@@ -26,7 +26,7 @@ class GreenWaveLayer {
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/static_green_waves_v2.geojson"),
     );
@@ -83,7 +83,7 @@ class VeloRoutesLayer {
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/velo_routes_v2.geojson", tolerance: 1),
     );
@@ -135,7 +135,7 @@ class IntersectionsLayer {
   _installSource(mapbox.MapboxMap mapController) async {
     try {
       final settings = getIt<Settings>();
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
 
       final url = "https://$baseUrl/sg-selector-nginx/intersections.json.gz";
       final endpoint = Uri.parse(url);

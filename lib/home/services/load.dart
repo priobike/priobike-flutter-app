@@ -30,7 +30,7 @@ class LoadStatus with ChangeNotifier {
 
     try {
       final settings = getIt<Settings>();
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
 
       final url = "https://$baseUrl/load-service/load.json";
       final endpoint = Uri.parse(url);

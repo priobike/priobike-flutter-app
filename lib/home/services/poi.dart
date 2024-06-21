@@ -146,7 +146,7 @@ class POI with ChangeNotifier {
   /// A method which is used to fetch the POI data from the backend.
   Future<dynamic> _fetchData(String relativeUrl) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     final dataUrl = "https://$baseUrl$relativeUrl";
     final dataEndpoint = Uri.parse(dataUrl);
 

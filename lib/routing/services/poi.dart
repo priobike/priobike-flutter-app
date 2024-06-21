@@ -123,7 +123,7 @@ class Pois with ChangeNotifier {
     try {
       final settings = getIt<Settings>();
 
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
       final poisUrl = "https://$baseUrl/poi-service-backend/pois/match";
       final poisEndpoint = Uri.parse(poisUrl);
       log.i("Loading pois response from $poisUrl");

@@ -78,7 +78,7 @@ class FreeRide with ChangeNotifier {
   /// Fetch all SGs from the backend.
   Future<void> fetchSgs() async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
 
     final url = "https://$baseUrl/sg-selector-nginx/sgs_min.json.gz";
     final endpoint = Uri.parse(url);
@@ -108,7 +108,7 @@ class FreeRide with ChangeNotifier {
   /// Fetch all SG geometries from the backend.
   Future<void> fetchSgGeometries() async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
 
     final url = "https://$baseUrl/sg-selector-nginx/sgs_geo.json.gz";
     final endpoint = Uri.parse(url);
@@ -217,13 +217,13 @@ class FreeRide with ChangeNotifier {
     final clientId = 'priobike-app-free-ride-view-${UniqueKey().toString()}';
     try {
       client = MqttServerClient(
-        settings.backend.predictionServiceMQTTPath,
+        settings.city.selectedBackend(true).predictionServiceMQTTPath,
         clientId,
       );
       client!.logging(on: false);
       client!.keepAlivePeriod = 30;
       client!.secure = false;
-      client!.port = settings.backend.predictionServiceMQTTPort;
+      client!.port = settings.city.selectedBackend(true).predictionServiceMQTTPort;
       client!.autoReconnect = true;
       client!.resubscribeOnAutoReconnect = true;
       client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
@@ -238,7 +238,7 @@ class FreeRide with ChangeNotifier {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to Prediction MQTT broker.");
-      final auth = await Auth.load(settings.backend);
+      final auth = await Auth.load(settings.city.selectedBackend(true));
       await client!
           .connect(
             auth.predictionServiceMQTTUsername,

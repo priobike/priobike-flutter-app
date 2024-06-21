@@ -122,15 +122,15 @@ class Geosearch with ChangeNotifier {
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final city = getIt<Settings>().city;
-    await preferences.remove("priobike.routing.searchHistory.${backend.regionName}");
+    await preferences.remove("priobike.routing.searchHistory.${city.name}");
     searchHistory = [];
   }
 
   /// Initialize the search history from the SharedPreferences by decoding it from a String List.
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().city.selectedBackend(true);
-    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${backend.regionName}") ?? [];
+    final city = getIt<Settings>().city;
+    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${city.name}") ?? [];
     searchHistory = [];
     for (String waypoint in savedList) {
       try {
@@ -150,12 +150,12 @@ class Geosearch with ChangeNotifier {
   Future<void> saveSearchHistory() async {
     if (searchHistory.isEmpty) return;
     final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().backend;
+    final city = getIt<Settings>().city;
     List<String> newList = [];
     for (Waypoint waypoint in searchHistory) {
       newList.add(json.encode(waypoint.toJSON()));
     }
-    await preferences.setStringList("priobike.routing.searchHistory.${backend.regionName}", newList);
+    await preferences.setStringList("priobike.routing.searchHistory.${city.name}", newList);
   }
 
   /// Add a waypoint to the search history.

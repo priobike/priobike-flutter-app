@@ -10,7 +10,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/models/article.dart';
 import 'package:priobike/news/models/category.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,14 +56,7 @@ class News with ChangeNotifier {
 
     final settings = getIt<Settings>();
 
-    final feature = getIt<Feature>();
-    String baseUrl = settings.backend.path;
-
-    // News service is excluded from failing over.
-    // Internal testers use the selected backend.
-    if (!feature.canEnableInternalFeatures && settings.backend.regionName == "Hamburg") {
-      baseUrl = Backend.release.path;
-    }
+    String baseUrl = settings.city.selectedBackend(false).path;
 
     final newsArticlesUrl = newLastSyncDate == null
         ? "https://$baseUrl/news-service/news/articles"
@@ -128,7 +120,7 @@ class News with ChangeNotifier {
 
     // If the category doesn't exist already in the shared preferences get it from backend server.
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(false).path;
     final newsCategoryUrl = "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
     final newsCategoryEndpoint = Uri.parse(newsCategoryUrl);
 
@@ -159,7 +151,7 @@ class News with ChangeNotifier {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
 
     final jsonStr = jsonEncode(articles.map((e) => e.toJson()).toList());
     await storage.setString("priobike.news.articles.${backend.name}", jsonStr);
@@ -170,7 +162,7 @@ class News with ChangeNotifier {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
 
     final String jsonStr = jsonEncode(category.toJson());
     await storage.setString("priobike.news.categories.${backend.name}.${category.id}", jsonStr);
@@ -180,7 +172,7 @@ class News with ChangeNotifier {
   Future<List<Article>> _getStoredArticles() async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
 
     final storedArticlesStr = storage.getString("priobike.news.articles.${backend.name}");
 
@@ -200,7 +192,7 @@ class News with ChangeNotifier {
   Future<Category?> _getStoredCategory(int categoryId) async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
 
     final storedCategoryStr = storage.getString("priobike.news.categories.${backend.name}.$categoryId");
 
@@ -216,7 +208,7 @@ class News with ChangeNotifier {
     if (readArticles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
 
     final jsonStr = jsonEncode(readArticles.map((e) => e.toJson()).toList());
 
@@ -227,7 +219,7 @@ class News with ChangeNotifier {
   Future<Set<Article>> _getStoredReadArticles() async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
 
     final storedReadArticlesStr = storage.getString("priobike.news.read_articles.${backend.name}");
 
