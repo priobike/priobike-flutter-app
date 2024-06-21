@@ -309,7 +309,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     title: "Ort",
-                    subtitle: settings.city.name,
+                    subtitle: settings.city.nameDE,
                     icon: Icons.expand_more,
                     callback: () => showAppSheet(
                       context: context,
@@ -317,7 +317,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                         return SettingsSelection(
                             elements: City.values,
                             selected: settings.city,
-                            title: (City e) => e.name,
+                            title: (City e) => e.nameDE,
                             callback: onSelectCity);
                       },
                     ),

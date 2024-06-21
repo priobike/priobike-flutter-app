@@ -1143,7 +1143,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           return DialogLayout(
             title: 'Wegpunkt außerhalb des Stadtgebiets',
             text:
-                'Das Routing wird aktuell nur innerhalb von ${city.name} unterstützt. \nBitte passe Deinen Wegpunkt an.',
+                'Das Routing wird aktuell nur innerhalb von ${city.nameDE} unterstützt. \nBitte passe Deinen Wegpunkt an.',
             actions: [
               BigButtonPrimary(
                 label: "Ok",
@@ -1209,7 +1209,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           return DialogLayout(
             title: 'Wegpunkt außerhalb des Stadtgebiets',
             text:
-                'Das Routing wird aktuell nur innerhalb von ${city.name} unterstützt. \nBitte passe Deinen Wegpunkt an.',
+                'Das Routing wird aktuell nur innerhalb von ${city.nameDE} unterstützt. \nBitte passe Deinen Wegpunkt an.',
             actions: [
               BigButtonPrimary(
                 label: "Ok",

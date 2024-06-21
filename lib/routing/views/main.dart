@@ -269,7 +269,7 @@ class RoutingViewState extends State<RoutingView> {
                         children: [
                           Small(
                             text:
-                                "Das Routing wird aktuell nur innerhalb von ${city.name} unterstützt. Bitte passe Deine Wegpunkte an.",
+                                "Das Routing wird aktuell nur innerhalb von ${city.nameDE} unterstützt. Bitte passe Deine Wegpunkte an.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),

@@ -122,7 +122,7 @@ class Geosearch with ChangeNotifier {
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final city = getIt<Settings>().city;
-    await preferences.remove("priobike.routing.searchHistory.${city.name}");
+    await preferences.remove("priobike.routing.searchHistory.${city.nameDE}");
     searchHistory = [];
   }
 
@@ -130,7 +130,7 @@ class Geosearch with ChangeNotifier {
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final city = getIt<Settings>().city;
-    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${city.name}") ?? [];
+    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${city.nameDE}") ?? [];
     searchHistory = [];
     for (String waypoint in savedList) {
       try {
@@ -155,7 +155,7 @@ class Geosearch with ChangeNotifier {
     for (Waypoint waypoint in searchHistory) {
       newList.add(json.encode(waypoint.toJSON()));
     }
-    await preferences.setStringList("priobike.routing.searchHistory.${city.name}", newList);
+    await preferences.setStringList("priobike.routing.searchHistory.${city.nameDE}", newList);
   }
 
   /// Add a waypoint to the search history.

@@ -35,7 +35,7 @@ void showInvalidShortcutSheet(context) {
       return DialogLayout(
         title: 'Ungültige Strecke',
         text:
-            "Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${city.name} liegen.\nPrioBike wird aktuell nur innerhalb von ${city.name} unterstützt.",
+            "Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${city.nameDE} liegen.\nPrioBike wird aktuell nur innerhalb von ${city.nameDE} unterstützt.",
         actions: [
           BigButtonPrimary(
             label: 'Schließen',

@@ -16,7 +16,7 @@ enum City {
 }
 
 extension CityName on City {
-  String get name {
+  String get nameDE {
     switch (this) {
       case City.hamburg:
         return "Hamburg";
