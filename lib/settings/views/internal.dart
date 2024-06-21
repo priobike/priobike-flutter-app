@@ -176,7 +176,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await news.getArticles();
     await shortcuts.loadShortcuts();
     await predictionStatusSummary.fetch();
-    await loadStatus.fetch();
+    await loadStatus.checkLoad(backend.path);
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 

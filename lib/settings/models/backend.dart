@@ -68,6 +68,7 @@ extension BackendInfo on City {
   Backend selectedBackend(bool allowFallback) {
     switch (this) {
       case City.hamburg:
+        // If the internal version is used, we always use the default/selected backend.
         if (getIt<Feature>().canEnableInternalFeatures) {
           // If a backend is selected that does not belong to this city or if none is selected, we use the default backend.
           if (!availableBackends.contains(getIt<Settings>().manuallySelectedBackend) ||
@@ -77,10 +78,12 @@ extension BackendInfo on City {
           return getIt<Settings>().manuallySelectedBackend!;
         }
 
+        // If the internal version is not used, we check if the load status recommends another backend.
         if (allowFallback && getIt<LoadStatus>().useFallback) {
           return Backend.production;
         }
 
+        // Otherwise we use always release.
         return Backend.release;
       case City.dresden:
         return Backend.staging;

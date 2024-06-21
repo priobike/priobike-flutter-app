@@ -27,7 +27,6 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/auth.dart';
-import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -70,18 +69,8 @@ class LoaderState extends State<Loader> {
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
-    // Check the load services to determine if the failover backend should be used.
-    // Only check the load status for users that can not enable internal features.
-    final feature = getIt<Feature>();
-
-    // If the user is not able to enable internal features it is an release user.
-    // Therefore we have to check if we should use the failover backend.
-    if (!feature.canEnableInternalFeatures) {
-      final loadStatus = getIt<LoadStatus>();
-
-      // Select the backend based on the load status.
-      settings.setBackend(await loadStatus.getUsableBackend());
-    }
+    // Check the load. If it is too high, later on a fallback backend might be used.
+    await getIt<LoadStatus>().checkLoad(getIt<Settings>().city.selectedBackend(true).path);
 
     // We have 2 types of services:
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
@@ -137,8 +126,6 @@ class LoaderState extends State<Loader> {
     }
 
     // Non critical services:
-    final loadStatus = getIt<LoadStatus>();
-    loadStatus.fetch();
     getIt<News>().getArticles();
     getIt<PredictionStatusSummary>().fetch();
     getIt<Weather>().fetch();

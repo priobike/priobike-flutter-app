@@ -155,7 +155,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       predictionStatusSummary.fetch();
-      loadStatus.fetch();
       news.getArticles();
     }
   }
@@ -163,7 +162,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   @override
   void didPopNext() {
     predictionStatusSummary.fetch();
-    loadStatus.fetch();
     news.getArticles();
   }
 
@@ -272,7 +270,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           onRefresh: () async {
             HapticFeedback.lightImpact();
             await predictionStatusSummary.fetch();
-            await loadStatus.fetch();
             await news.getArticles();
             await getIt<Weather>().fetch();
             // Wait for one more second, otherwise the user will get impatient.
