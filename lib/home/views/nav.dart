@@ -52,11 +52,11 @@ class NavBarView extends StatelessWidget {
                     context: context,
                   ),
                   Content(
-                    text: settings.backend == Backend.staging ? " DD" : " HH",
+                    text: settings.city == City.dresden ? " DD" : " HH",
                     color: Colors.white,
                     context: context,
                   ),
-                  settings.backend == Backend.production
+                  settings.city.selectedBackend(true) == Backend.production
                       ? Content(
                           text: ".",
                           color: Colors.white,
