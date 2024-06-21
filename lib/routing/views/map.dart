@@ -649,6 +649,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load all route map layers.
   loadRouteMapLayers() async {
     if (mapController == null) return;
+    if (!mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     var index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
