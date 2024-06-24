@@ -167,7 +167,7 @@ class Settings with ChangeNotifier {
 
   Future<bool> setCity(City city, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = city;
+    final prev = this.city;
     this.city = city;
     final bool success = await storage.setString(cityKey, city.name);
     if (!success) {
