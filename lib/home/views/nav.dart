@@ -56,7 +56,7 @@ class NavBarView extends StatelessWidget {
                     color: Colors.white,
                     context: context,
                   ),
-                  settings.city.selectedBackend(true) == Backend.production
+                  settings.city.selectedBackend(true) == Backend.fallbackHH
                       ? Content(
                           text: ".",
                           color: Colors.white,

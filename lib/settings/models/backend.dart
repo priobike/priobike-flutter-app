@@ -69,25 +69,25 @@ extension BackendInfo on City {
   List<Backend> get availableBackends {
     switch (this) {
       case City.hamburg:
-        return [Backend.production, Backend.release];
+        return [Backend.fallbackHH, Backend.releaseHH];
       case City.dresden:
-        return [Backend.staging];
+        return [Backend.stagingDD];
     }
   }
 
   Backend get defaultBackend {
     switch (this) {
       case City.hamburg:
-        return Backend.release;
+        return Backend.releaseHH;
       case City.dresden:
-        return Backend.staging;
+        return Backend.stagingDD;
     }
   }
 
   Backend? get fallbackBackend {
     switch (this) {
       case City.hamburg:
-        return Backend.production;
+        return Backend.fallbackHH;
       case City.dresden:
         return null;
     }
@@ -108,13 +108,13 @@ extension BackendInfo on City {
 
         // If the internal version is not used, we check if the load status recommends another backend.
         if (allowFallback && getIt<LoadStatus>().useFallback) {
-          return Backend.production;
+          return Backend.fallbackHH;
         }
 
         // Otherwise we use always release.
-        return Backend.release;
+        return Backend.releaseHH;
       case City.dresden:
-        return Backend.staging;
+        return Backend.stagingDD;
     }
   }
 }
@@ -168,23 +168,24 @@ extension DefaultShortcuts on City {
 }
 
 /// The Backend enum which contains three types.
-/// Production (TUD).
-/// Staging (TUD).
-/// Release (flow-d).
+/// Fallback HH (TUD).
+/// Staging DD (TUD).
+/// Release HH (flow-d).
+/// Naming convention: [environment].[city]
 enum Backend {
-  production,
-  staging,
-  release,
+  fallbackHH,
+  stagingDD,
+  releaseHH,
 }
 
 extension BackendPath on Backend {
   String get path {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return "priobike.vkw.tu-dresden.de/production";
-      case Backend.staging:
+      case Backend.stagingDD:
         return "priobike.vkw.tu-dresden.de/staging";
-      case Backend.release:
+      case Backend.releaseHH:
         return "priobike-release.inf.tu-dresden.de";
     }
   }
@@ -193,12 +194,12 @@ extension BackendPath on Backend {
 extension BackendName on Backend {
   String get name {
     switch (this) {
-      case Backend.production:
-        return "production";
-      case Backend.staging:
-        return "staging";
-      case Backend.release:
-        return "release";
+      case Backend.fallbackHH:
+        return "fallback.HH";
+      case Backend.stagingDD:
+        return "staging.DD";
+      case Backend.releaseHH:
+        return "release.HH";
     }
   }
 }
@@ -206,22 +207,22 @@ extension BackendName on Backend {
 extension BackendPredictionServiceMqtt on Backend {
   String get predictionServiceMQTTPath {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return "priobike.vkw.tu-dresden.de";
-      case Backend.staging:
+      case Backend.stagingDD:
         return "priobike.vkw.tu-dresden.de";
-      case Backend.release:
+      case Backend.releaseHH:
         return "priobike.flow-d.de";
     }
   }
 
   int get predictionServiceMQTTPort {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return 20050;
-      case Backend.staging:
+      case Backend.stagingDD:
         return 20032;
-      case Backend.release:
+      case Backend.releaseHH:
         return 20050;
     }
   }
@@ -230,22 +231,22 @@ extension BackendPredictionServiceMqtt on Backend {
 extension BackendPredictorMqtt on Backend {
   String get predictorMQTTPath {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return "priobike.vkw.tu-dresden.de";
-      case Backend.staging:
+      case Backend.stagingDD:
         return "priobike.vkw.tu-dresden.de";
-      case Backend.release:
+      case Backend.releaseHH:
         return "priobike.flow-d.de";
     }
   }
 
   int get predictorMQTTPort {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return 20054;
-      case Backend.staging:
+      case Backend.stagingDD:
         return 20035;
-      case Backend.release:
+      case Backend.releaseHH:
         return 20054;
     }
   }
@@ -254,22 +255,22 @@ extension BackendPredictorMqtt on Backend {
 extension BackendFROSTMqtt on Backend {
   String get frostMQTTPath {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return "tld.iot.hamburg.de";
-      case Backend.staging:
+      case Backend.stagingDD:
         return "priobike.vkw.tu-dresden.de";
-      case Backend.release:
+      case Backend.releaseHH:
         return "priobike.flow-d.de";
     }
   }
 
   int get frostMQTTPort {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return 1883;
-      case Backend.staging:
+      case Backend.stagingDD:
         return 20056;
-      case Backend.release:
+      case Backend.releaseHH:
         return 1883;
     }
   }
@@ -278,22 +279,22 @@ extension BackendFROSTMqtt on Backend {
 extension LiveTracking on Backend {
   String get liveTrackingMQTTPath {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return "j5g.vkw.tu-dresden.de";
-      case Backend.staging:
+      case Backend.stagingDD:
         return "j5g.vkw.tu-dresden.de";
-      case Backend.release:
+      case Backend.releaseHH:
         return "j5g.vkw.tu-dresden.de";
     }
   }
 
   int get liveTrackingMQTTPort {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return 20001;
-      case Backend.staging:
+      case Backend.stagingDD:
         return 20001;
-      case Backend.release:
+      case Backend.releaseHH:
         return 20001;
     }
   }
@@ -302,22 +303,22 @@ extension LiveTracking on Backend {
 extension Simulator on Backend {
   String get simulatorMQTTPath {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return "priobike.vkw.tu-dresden.de";
-      case Backend.staging:
+      case Backend.stagingDD:
         return "priobike.vkw.tu-dresden.de";
-      case Backend.release:
+      case Backend.releaseHH:
         return "priobike.vkw.tu-dresden.de";
     }
   }
 
   int get simulatorMQTTPort {
     switch (this) {
-      case Backend.production:
+      case Backend.fallbackHH:
         return 20036;
-      case Backend.staging:
+      case Backend.stagingDD:
         return 20036;
-      case Backend.release:
+      case Backend.releaseHH:
         return 20036;
     }
   }
