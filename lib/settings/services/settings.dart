@@ -37,9 +37,6 @@ class Settings with ChangeNotifier {
   /// The selected city.
   City city;
 
-  /// The backend that should be used.
-  Backend backend(bool allowFallback) => city.selectedBackend(allowFallback);
-
   /// The selected backend.
   Backend? manuallySelectedBackend;
 

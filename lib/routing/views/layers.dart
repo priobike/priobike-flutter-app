@@ -8,8 +8,9 @@ import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 class LayerSelectionView extends StatefulWidget {
   const LayerSelectionView({super.key});
@@ -48,7 +49,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
       }
 
       List<LatLng> coords;
-      final boundingBox = getIt<Boundary>().getRoughBoundingBox();
+      final boundingBox = getIt<Settings>().city.roughBoundingBox;
       final latDiff = boundingBox["maxLat"]! - boundingBox["minLat"]!;
       final lonDiff = boundingBox["maxLon"]! - boundingBox["minLon"]!;
       const zoomFactor = 0.495;

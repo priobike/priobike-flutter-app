@@ -44,6 +44,25 @@ extension GeoInfo on City {
         return await rootBundle.loadString("assets/geo/dresden-boundary.geojson");
     }
   }
+
+  Map<String, double> get roughBoundingBox {
+    switch (this) {
+      case City.hamburg:
+        return {
+          "minLon": 9.65,
+          "maxLon": 10.4,
+          "minLat": 53.35,
+          "maxLat": 53.75,
+        };
+      case City.dresden:
+        return {
+          "minLon": 13.5,
+          "maxLon": 14.0,
+          "minLat": 50.9,
+          "maxLat": 51.2,
+        };
+    }
+  }
 }
 
 extension BackendInfo on City {

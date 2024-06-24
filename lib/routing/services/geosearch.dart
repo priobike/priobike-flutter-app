@@ -59,7 +59,7 @@ class Geosearch with ChangeNotifier {
       // The rough bounding box is nessessary for photon to limit the search results
       // while it checks below if every point is exactly within the city boundries
       final boundaryService = getIt<Boundary>();
-      final roughBoundingBox = boundaryService.getRoughBoundingBox();
+      final roughBoundingBox = settings.city.roughBoundingBox;
       if (roughBoundingBox.isNotEmpty) {
         final minLon = roughBoundingBox["minLon"];
         final maxLon = roughBoundingBox["maxLon"];

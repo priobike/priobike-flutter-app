@@ -152,7 +152,6 @@ class PredictionProvider {
     final backend = getIt<Settings>().city.selectedBackend(true);
     // Get the backend that is currently selected.
     try {
-      final settings = getIt<Settings>();
       psClient = initClient(
         "PredictionService",
         backend.predictionServiceMQTTPath,
