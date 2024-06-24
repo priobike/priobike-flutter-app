@@ -70,7 +70,7 @@ class LoaderState extends State<Loader> {
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
     // Check the load. If it is too high, later on a fallback backend might be used.
-    await getIt<LoadStatus>().checkLoad(getIt<Settings>().city.selectedBackend(true).path);
+    await getIt<LoadStatus>().checkLoad();
 
     // We have 2 types of services:
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.

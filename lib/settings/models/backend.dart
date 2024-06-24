@@ -84,6 +84,15 @@ extension BackendInfo on City {
     }
   }
 
+  Backend? get fallbackBackend {
+    switch (this) {
+      case City.hamburg:
+        return Backend.production;
+      case City.dresden:
+        return null;
+    }
+  }
+
   Backend selectedBackend(bool allowFallback) {
     switch (this) {
       case City.hamburg:
