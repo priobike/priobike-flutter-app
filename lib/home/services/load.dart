@@ -9,9 +9,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/settings/services/features.dart';
 
 class LoadStatus with ChangeNotifier {
-  /// If the service is currently loading the status history.
-  bool isLoading = false;
-
   /// If there exists a warning.
   bool hasWarning = false;
 
@@ -64,13 +61,6 @@ class LoadStatus with ChangeNotifier {
       useFallback = false;
     }
 
-    notifyListeners();
-  }
-
-  /// Reset the status.
-  Future<void> reset() async {
-    hasWarning = false;
-    isLoading = false;
     notifyListeners();
   }
 }
