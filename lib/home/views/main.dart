@@ -432,15 +432,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         child: WikiView(),
                       ),
                       const VSpace(),
-                      BlendIn(
-                        delay: const Duration(milliseconds: 1500),
-                        child: BoldSmall(
-                          text: "#radkultur hamburg",
-                          context: context,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const VSpace(),
                       const SizedBox(height: 32),
                     ],
                   ),
