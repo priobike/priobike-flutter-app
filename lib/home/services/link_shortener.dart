@@ -43,10 +43,10 @@ class LinkShortener {
     final backend = getIt<Settings>().city.selectedBackend(false);
     final String? result = await _fetch(backend, shortLink);
     if (result != null) return result;
-    if (backend == Backend.stagingDD) return null;
+    if (backend == Backend.staging) return null;
 
     // Try to fetch from the other backend.
-    final otherBackend = backend == Backend.fallbackHH ? Backend.releaseHH : Backend.fallbackHH;
+    final otherBackend = backend == Backend.production ? Backend.release : Backend.production;
     return await _fetch(otherBackend, shortLink);
   }
 
