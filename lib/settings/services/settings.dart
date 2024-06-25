@@ -641,7 +641,7 @@ class Settings with ChangeNotifier {
     try {
       await Auth.load(backend);
     } catch (e) {
-      ToastMessage.showError("Das hat nicht funktioniert. Bitte versuche es erneut.");
+      getIt<Toast>().showError("Das hat nicht funktioniert. Bitte versuche es erneut.");
       isUserTransferring = false;
       notifyListeners();
       return;

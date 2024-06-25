@@ -60,7 +60,7 @@ class FeedbackViewState extends State<FeedbackView> {
     await feedback.reset();
 
     if (didSendSomething) {
-      ToastMessage.showSuccess("Danke für's Testen!");
+      getIt<Toast>().showSuccess("Danke für's Testen!");
     }
 
     if (mounted) {

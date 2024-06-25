@@ -15,6 +15,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/migration/user_transfer_view.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -109,6 +110,7 @@ Future<void> main() async {
   getIt.registerSingleton<LiveTracking>(LiveTracking());
   getIt.registerSingleton<SpeedSensor>(SpeedSensor());
   getIt.registerSingleton<LoadStatus>(LoadStatus());
+  getIt.registerSingleton<Toast>(Toast());
   try {
     runApp(const App());
   } on Error catch (error, stack) {
@@ -148,7 +150,9 @@ class App extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(
-                  child: Loader(shareUrl: url),
+                  child: ToastWrapper(
+                    child: Loader(shareUrl: url),
+                  ),
                 ),
               ),
             );

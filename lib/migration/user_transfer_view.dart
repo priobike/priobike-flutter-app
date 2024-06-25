@@ -58,7 +58,7 @@ class UserTransferViewState extends State<UserTransferView> {
     try {
       await Auth.load(settings.backend);
     } catch (e) {
-      ToastMessage.showError("Das hat nicht funktioniert. Bitte versuche es erneut.");
+      getIt<Toast>().showError("Das hat nicht funktioniert. Bitte versuche es erneut.");
       setState(() => isUserTransferring = false);
       return;
     }

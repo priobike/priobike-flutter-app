@@ -54,7 +54,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
                 // In case there is any error fetching the route.
                 if (routing.hadErrorDuringFetch) {
                   // Display error toast message.
-                  ToastMessage.showError("Route konnte nicht geladen werden.");
+                  getIt<Toast>().showError("Route konnte nicht geladen werden.");
                   // Pop the dialog.
                 }
               }

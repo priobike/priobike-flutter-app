@@ -41,7 +41,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
       Trkseg seg = trk.trksegs[0];
       points = seg.trkpts;
       if (points.isEmpty) {
-        ToastMessage.showError('Die GPX Datei konnte nicht geladen werden.');
+        getIt<Toast>().showError('Die GPX Datei konnte nicht geladen werden.');
         return [];
       }
       // check if all waypoints are within Hamburg
@@ -50,7 +50,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
         initWaypoints.add(Waypoint(points[i].lat!, points[i].lon!));
       }
       if (!routing.inCityBoundary(initWaypoints)) {
-        ToastMessage.showError('Ein oder mehrere Punkte der GPX Datei liegen nicht in Hamburg.');
+        getIt<Toast>().showError('Ein oder mehrere Punkte der GPX Datei liegen nicht in Hamburg.');
         return [];
       }
       return points;

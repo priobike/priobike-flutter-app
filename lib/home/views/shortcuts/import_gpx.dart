@@ -38,7 +38,7 @@ class ImportGpxViewState extends State<ImportGpxView> {
   Future<void> convertGpxToWaypoints(List<Wpt> points) async {
     if (points.isEmpty) return;
     List<Waypoint> waypoints = await gpxConversionNotifier.reduceWpts(points, routing);
-    ToastMessage.showSuccess("Die GPX Strecke wurde erfolgreich konvertiert.");
+    getIt<Toast>().showSuccess("Die GPX Strecke wurde erfolgreich konvertiert.");
     if (mounted) {
       showSaveShortcutFromShortcutSheet(
         context,

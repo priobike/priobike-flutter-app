@@ -100,9 +100,9 @@ class Shortcuts with ChangeNotifier {
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     if (shortcut.runtimeType == ShortcutRoute) {
-      ToastMessage.showSuccess("Route gespeichert!");
+      getIt<Toast>().showSuccess("Route gespeichert!");
     } else if (shortcut.runtimeType == ShortcutLocation) {
-      ToastMessage.showSuccess("Ort gespeichert!");
+      getIt<Toast>().showSuccess("Ort gespeichert!");
     } else {
       final hint = "Error unknown type ${shortcut.runtimeType} in saveNewShortcutObject.";
       log.e(hint);

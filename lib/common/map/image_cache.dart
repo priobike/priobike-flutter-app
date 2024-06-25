@@ -141,7 +141,7 @@ class MapboxTileImageCache {
     if (!await imagesDir.exists()) return;
     await imagesDir.delete(recursive: true);
     log.i("Deleted all images from $dirPath");
-    if (showToast) ToastMessage.showSuccess("Alle Hintergrundbilder gelöscht");
+    if (showToast) getIt<Toast>().showSuccess("Alle Hintergrundbilder gelöscht");
   }
 
   /// Prunes all images that were not used within 7 days since last fetch of background image.
