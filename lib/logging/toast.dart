@@ -19,6 +19,7 @@ class Toast with ChangeNotifier {
         message,
       );
 
+  /// Show a message with a given icon widget as a toast.
   void showIconMessage(Widget icon, String message) => show(
         Container(
           height: 42,
@@ -124,8 +125,8 @@ class ToasterState extends State<Toaster> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
-    controller.dispose();
     toast.removeListener(show);
+    controller.dispose();
     super.dispose();
   }
 
@@ -141,6 +142,7 @@ class ToasterState extends State<Toaster> with SingleTickerProviderStateMixin {
       controller.forward(from: 0);
     }
     timer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
       controller.reverse();
       timer = null;
     });

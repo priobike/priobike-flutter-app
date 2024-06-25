@@ -21,7 +21,6 @@ import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/home/views/survey.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
@@ -31,6 +30,7 @@ import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
@@ -181,24 +181,21 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   /// A callback that is fired when the notification button is tapped.
   void onNotificationsButtonTapped() {
-    // TODO
-    // Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then(
-    //   (_) {
-    //     // Mark all notifications as read.
-    //     news.markAllArticlesAsRead();
-    //   },
-    // );
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then(
+      (_) {
+        // Mark all notifications as read.
+        news.markAllArticlesAsRead();
+      },
+    );
   }
 
   /// A callback that is fired when the settings button is tapped.
   void onSettingsButtonTapped() {
-    getIt<Toast>().showSuccess("Route gespeichert!");
-    // TODO
-    // Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (_) => const SettingsView(),
-    //   ),
-    // );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const SettingsView(),
+      ),
+    );
   }
 
   /// A callback that is fired when a shortcut was selected.
