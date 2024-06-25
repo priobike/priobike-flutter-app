@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -21,6 +23,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
@@ -130,19 +133,8 @@ class LoaderState extends State<Loader> {
     getIt<PredictionStatusSummary>().fetch();
     getIt<Weather>().fetch();
 
-    // Finish loading.
-    setState(() {
-      shouldMorph = true;
-      hasError = false;
-    });
-    settings.resetConnectionErrorCounter();
-
-    // After a short delay, we can show the home view.
-    await Future.delayed(const Duration(milliseconds: 1000));
-    setState(() => isLoading = false);
-    // Make this an additional step so that the animation is smooth.
-    await Future.delayed(const Duration(milliseconds: 10));
-    setState(() => shouldBlendIn = true);
+    // Check location permissions. After this is handled, we can show the home view.
+    checkLocation();
   }
 
   @override
@@ -210,6 +202,97 @@ class LoaderState extends State<Loader> {
         );
       },
     );
+  }
+
+  // This should only be called once and only after everything important is loaded.
+  Future<void> setFinishLoading() async {
+    // Finish loading.
+    setState(() {
+      shouldMorph = true;
+      hasError = false;
+    });
+    settings.resetConnectionErrorCounter();
+
+    // After a short delay, we can show the home view.
+    await Future.delayed(const Duration(milliseconds: 1000));
+    setState(() => isLoading = false);
+    // Make this an additional step so that the animation is smooth.
+    await Future.delayed(const Duration(milliseconds: 10));
+    setState(() => shouldBlendIn = true);
+  }
+
+  // Request location permissions if not already granted.
+  Future<void> checkLocation() async {
+    final positioning = getIt<Positioning>();
+    await positioning.initializePositionSource();
+    LocationPermission? permission = await positioning.checkGeolocatorPermission();
+    if (permission == null) {
+      setState(() => hasError = true);
+      return;
+    }
+    // We shall not show the request dialog again if it got denied forever.
+    // Later in the app, we still show dialogs that the location permission is missing and that the user can enable it
+    // in the settings.
+    if (permission == LocationPermission.deniedForever) {
+      setFinishLoading();
+      return;
+    }
+    if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
+      setFinishLoading();
+      return;
+    }
+    if (!mounted) return;
+    // Check location permissions which are required for the app to work.
+    // For Android, we need to explain the user why we need the location more explicitly.
+    if (Platform.isAndroid) {
+      showGeneralDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierColor: Colors.black.withOpacity(0.4),
+        transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        ),
+        pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+          return DialogLayout(
+            title: 'Standortfreigabe',
+            text:
+                "PrioBike benötigt deinen Standort für die Navigation, die Anzeige von Orten und Ampeln in deiner Nähe. Standortfreigabe erteilen?",
+            actions: [
+              BigButtonPrimary(
+                label: "Freigeben",
+                onPressed: () async {
+                  Navigator.of(dialogContext).pop();
+                  // We don't care whether the user has granted the permission or not.
+                  // The app won't really work without it, but we still want to show the home view.
+                  await positioning.requestGeolocatorPermission();
+                  setFinishLoading();
+                },
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+              ),
+              BigButtonTertiary(
+                label: "Abbrechen",
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  positioning.setLocationPermissionDialogShown();
+                  setFinishLoading();
+                },
+                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+              )
+            ],
+          );
+        },
+      );
+    } else {
+      // We don't care whether the user has granted the permission or not.
+      // The app won't really work without it, but we still want to show the home view.
+      await positioning.requestGeolocatorPermission();
+      setFinishLoading();
+    }
   }
 
   @override

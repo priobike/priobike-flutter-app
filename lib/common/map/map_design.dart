@@ -67,11 +67,11 @@ class MapDesign {
   /// The standard map design.
   static const standard = MapDesign(
     name: 'PrioBike',
-    lightStyle: 'mapbox://styles/snrmtths/clnsn1qcm00j601qyf67tekyh',
-    lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
+    lightStyle: 'mapbox://styles/priobike/clxsxd37v00qr01r25md4dyd5',
+    lightStyleNoText: 'mapbox://styles/priobike/clxsxf2pv00p201qqek90dhtw',
     fallbackLightScreenshot: 'assets/images/screenshots/standard-light.png',
-    darkStyle: 'mapbox://styles/snrmtths/clwal7o5z004201pn2qru87an',
-    darkStyleNoText: 'mapbox://styles/snrmtths/clwalkjaj004w01nyhkt39nom',
+    darkStyle: 'mapbox://styles/priobike/clxsx540g00rg01pc212c0bh5',
+    darkStyleNoText: 'mapbox://styles/priobike/clxsx6zvl00r301pfcabdebhv',
     fallbackDarkScreenshot: 'assets/images/screenshots/standard-dark.png',
   );
 
@@ -81,10 +81,10 @@ class MapDesign {
     MapDesign(
       name: 'Satellit',
       lightStyle: MapboxStyles.SATELLITE_STREETS,
-      lightStyleNoText: 'mapbox://styles/snrmtths/cllxh942m00ja01qy950n8vzf',
+      lightStyleNoText: 'mapbox://styles/priobike/clxsxf2pv00p201qqek90dhtw',
       fallbackLightScreenshot: 'assets/images/screenshots/satellite-streets.png',
       darkStyle: MapboxStyles.SATELLITE_STREETS,
-      darkStyleNoText: 'mapbox://styles/snrmtths/clwalkjaj004w01nyhkt39nom',
+      darkStyleNoText: 'mapbox://styles/priobike/clxsx6zvl00r301pfcabdebhv',
       fallbackDarkScreenshot: 'assets/images/screenshots/satellite-streets.png',
     ),
   ];

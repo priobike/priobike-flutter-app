@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/dialog.dart';
@@ -89,8 +90,10 @@ class RoutingViewState extends State<RoutingView> {
       (_) async {
         // Check position permission.
         // Has to be awaited before activating the bottom sheet.
-        final hasPermission = await positioning.requestGeolocatorPermission();
-        if (!hasPermission) {
+        final hasPermission = await positioning.checkGeolocatorPermission();
+        if (hasPermission == null ||
+            hasPermission == LocationPermission.denied ||
+            hasPermission == LocationPermission.deniedForever) {
           if (!mounted) return;
           // Prevents skipping the home view when pressing back.
           Navigator.of(context).popUntil((route) => route.isFirst);

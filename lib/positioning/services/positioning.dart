@@ -47,6 +47,9 @@ class Positioning with ChangeNotifier {
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
 
+  /// An indicator whether we already have shown the system dialog for location permission.
+  bool _locationPermissionDialogShown = false;
+
   Positioning({this.positionSource});
 
   /// Reset the position service.
@@ -68,11 +71,16 @@ class Positioning with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> requestGeolocatorPermission() async {
-    if (positionSource == null) return false;
+  /// Set whether the location permission dialog was shown.
+  void setLocationPermissionDialogShown() {
+    _locationPermissionDialogShown = true;
+  }
+
+  /// Check whether the geolocator permission is granted.
+  Future<LocationPermission?> checkGeolocatorPermission() async {
+    if (positionSource == null) return null;
 
     bool serviceEnabled;
-    LocationPermission permission;
 
     // Test if location services are enabled.
     serviceEnabled = await positionSource!.isLocationServicesEnabled();
@@ -80,24 +88,35 @@ class Positioning with ChangeNotifier {
       // Location services are not enabled - don't continue
       // accessing the position and request users of the
       // App to enable the location services.
+      return null;
+    }
+
+    return await positionSource!.checkPermission();
+  }
+
+  /// Request the geolocator permission
+  /// (only if it did not get denied permanently and if it did not get requested before).
+  Future<bool> requestGeolocatorPermission() async {
+    LocationPermission? permission = await checkGeolocatorPermission();
+    if (permission == null) {
       return false;
     }
 
-    permission = await positionSource!.checkPermission();
     if (permission == LocationPermission.denied) {
+      // Only show the dialog once per session. If the user wants to update it during a session, they can do so in the settings.
+      // We also provide hints for that. But since we have to show an extra explanation dialog before the system dialog,
+      // we only show the system dialog once, to make sure that we don't show too many dialogs.
+      if (_locationPermissionDialogShown) {
+        return false;
+      }
       permission = await positionSource!.requestPermission();
+      _locationPermissionDialogShown = true;
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again - this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
         return false;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
       return false;
     }
 
@@ -171,8 +190,10 @@ class Positioning with ChangeNotifier {
   Future<void> requestSingleLocation({required void Function() onNoPermission}) async {
     await initializePositionSource();
 
-    final hasPermission = await requestGeolocatorPermission();
-    if (!hasPermission) {
+    final hasPermission = await checkGeolocatorPermission();
+    if (hasPermission == null ||
+        hasPermission == LocationPermission.denied ||
+        hasPermission == LocationPermission.deniedForever) {
       onNoPermission();
       log.w('Permission to Geolocator denied');
       isGeolocating = false;
@@ -192,8 +213,10 @@ class Positioning with ChangeNotifier {
 
     await initializePositionSource();
 
-    final hasPermission = await requestGeolocatorPermission();
-    if (!hasPermission) {
+    final hasPermission = await checkGeolocatorPermission();
+    if (hasPermission == null ||
+        hasPermission == LocationPermission.denied ||
+        hasPermission == LocationPermission.deniedForever) {
       onNoPermission();
       log.w('Permission to Geolocator denied');
       isGeolocating = false;
