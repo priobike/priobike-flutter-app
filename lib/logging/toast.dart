@@ -7,11 +7,19 @@ class Toast with ChangeNotifier {
   /// The current content to display.
   Widget? content;
 
-  /// Show an error message as a toast.
-  void showError(String message) => showSuccess(message); // TODO
-
   /// Show a success message as a toast.
-  void showSuccess(String message) => show(
+  void showSuccess(String message) => showIconMessage(
+        const Icon(Icons.check_rounded, color: Colors.white, size: 26),
+        message,
+      );
+
+  /// Show an error message as a toast.
+  void showError(String message) => showIconMessage(
+        const Icon(Icons.error_rounded, color: Colors.white, size: 26),
+        message,
+      );
+
+  void showIconMessage(Widget icon, String message) => show(
         Container(
           height: 42,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -23,7 +31,7 @@ class Toast with ChangeNotifier {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.check_rounded, color: Colors.white, size: 26),
+              icon,
               const SizedBox(width: 8),
               Text(
                 message,

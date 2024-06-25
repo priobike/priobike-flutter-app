@@ -181,7 +181,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   /// A callback that is fired when the notification button is tapped.
   void onNotificationsButtonTapped() {
-    getIt<Toast>().showError("Funktion noch nicht verfügbar!");
     // TODO
     // Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then(
     //   (_) {
