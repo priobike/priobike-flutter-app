@@ -250,13 +250,13 @@ class Simulator with ChangeNotifier {
     final clientId = appId;
     try {
       client = MqttServerClient(
-        settings.backend.simulatorMQTTPath,
+        settings.city.selectedBackend(true).simulatorMQTTPath,
         clientId,
       );
       client!.logging(on: false);
       client!.keepAlivePeriod = 30;
       client!.secure = false;
-      client!.port = settings.backend.simulatorMQTTPort;
+      client!.port = settings.city.selectedBackend(true).simulatorMQTTPort;
       client!.autoReconnect = true;
       client!.resubscribeOnAutoReconnect = true;
       client!.onDisconnected = () => log.i("Simulator MQTT client disconnected");
@@ -271,7 +271,7 @@ class Simulator with ChangeNotifier {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to Simulator MQTT broker.");
-      final auth = await Auth.load(settings.backend);
+      final auth = await Auth.load(settings.city.selectedBackend(true));
       await client!
           .connect(
             auth.simulatorMQTTPublishUsername,

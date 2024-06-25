@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:priobike/common/fcm.dart';
-import 'package:priobike/home/services/load.dart';
-import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
-import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -18,10 +11,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
-import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/simulator/services/simulator.dart';
-import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/weather/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings with ChangeNotifier {
@@ -44,8 +34,11 @@ class Settings with ChangeNotifier {
   /// Whether the user has seen the warning at the start of the ride.
   bool didViewWarning;
 
+  /// The selected city.
+  City city;
+
   /// The selected backend.
-  Backend backend;
+  Backend? manuallySelectedBackend;
 
   /// The selected positioning mode.
   PositioningMode positioningMode;
@@ -85,12 +78,6 @@ class Settings with ChangeNotifier {
 
   /// If the audio instructions are enabled.
   bool audioInstructionsEnabled;
-
-  /// Whether the user has seen the user transfer dialog.
-  bool didViewUserTransfer;
-
-  /// If the user is transferring.
-  bool isUserTransferring = false;
 
   /// If the user had migrate background images.
   bool didMigrateBackgroundImages = false;
@@ -175,16 +162,33 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const cityKey = "priobike.settings.city";
+  static const defaultCity = City.hamburg;
+
+  Future<bool> setCity(City city, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.city;
+    this.city = city;
+    final bool success = await storage.setString(cityKey, city.name);
+    if (!success) {
+      log.e("Failed to set city to $city");
+      this.city = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const backendKey = "priobike.settings.backend";
 
   Future<bool> setBackend(Backend backend, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.backend;
-    this.backend = backend;
+    final prev = manuallySelectedBackend;
+    manuallySelectedBackend = backend;
     final bool success = await storage.setString(backendKey, backend.name);
     if (!success) {
       log.e("Failed to set backend to $backend");
-      this.backend = prev;
+      manuallySelectedBackend = prev;
     } else {
       notifyListeners();
     }
@@ -409,23 +413,6 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const didViewUserTransferKey = "priobike.settings.didViewUserTransfer";
-  static const defaultDidViewUserTransfer = false;
-
-  Future<bool> setDidViewUserTransfer(bool didViewUserTransfer, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.didViewUserTransfer;
-    this.didViewUserTransfer = didViewUserTransfer;
-    final bool success = await storage.setBool(didViewUserTransferKey, didViewUserTransfer);
-    if (!success) {
-      log.e("Failed to set didViewUserTransfer to $didViewUserTransfer");
-      this.didViewUserTransfer = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
   static const defaultSimulatorMode = false;
 
   Future<void> setSimulatorMode(bool enableSimulatorMode) async {
@@ -505,8 +492,8 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  Settings(
-    this.backend, {
+  Settings({
+    this.city = defaultCity,
     this.enableLogPersistence = defaultEnableLogPersistence,
     this.enableTrafficLightSearchBar = defaultEnableTrafficLightSearchBar,
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
@@ -524,7 +511,6 @@ class Settings with ChangeNotifier {
     this.audioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
-    this.didViewUserTransfer = defaultDidViewUserTransfer,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
@@ -540,7 +526,12 @@ class Settings with ChangeNotifier {
     didViewWarning = storage.getBool(didViewWarningKey) ?? defaultDidViewWarning;
 
     try {
-      backend = Backend.values.byName(storage.getString(backendKey)!);
+      city = City.values.byName(storage.getString(cityKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      manuallySelectedBackend = Backend.values.byName(storage.getString(backendKey)!);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
@@ -617,68 +608,12 @@ class Settings with ChangeNotifier {
       /* Do nothing and use the default value given by the constructor. */
     }
     try {
-      didViewUserTransfer = storage.getBool(didViewUserTransferKey) ?? defaultDidViewUserTransfer;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
       didMigrateBackgroundImages = storage.getBool(didMigrateBackgroundImagesKey) ?? defaultDidMigrateBackgroundImages;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
 
     hasLoaded = true;
-    notifyListeners();
-  }
-
-  /// Transfer a user to the given backend.
-  Future<void> transferUser(Backend backend) async {
-    if (isUserTransferring) return;
-    isUserTransferring = true;
-    notifyListeners();
-
-    // Check if the auth service is online. If not, we shouldn't switch the backend.
-    try {
-      await Auth.load(backend);
-    } catch (e) {
-      ToastMessage.showError("Das hat nicht funktioniert. Bitte versuche es erneut.");
-      isUserTransferring = false;
-      notifyListeners();
-      return;
-    }
-
-    // Set release backend.
-    await setBackend(backend);
-
-    // Tell the fcm service that we selected the new backend.
-    await FCM.selectTopic(backend);
-
-    PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
-    LoadStatus loadStatus = getIt<LoadStatus>();
-    Shortcuts shortcuts = getIt<Shortcuts>();
-    Routing routing = getIt<Routing>();
-    News news = getIt<News>();
-    Weather weather = getIt<Weather>();
-    Boundary boundary = getIt<Boundary>();
-
-    // Reset the associated services.
-    await predictionStatusSummary.reset();
-    await shortcuts.reset();
-    await routing.reset();
-    await news.reset();
-
-    // Load stuff for the new backend.
-    await news.getArticles();
-    await shortcuts.loadShortcuts();
-    await predictionStatusSummary.fetch();
-    await loadStatus.fetch();
-    loadStatus.sendAppStartNotification();
-    await weather.fetch();
-    await boundary.loadBoundaryCoordinates();
-
-    // Set did view user transfer screen.
-    await setDidViewUserTransfer(true);
-    isUserTransferring = false;
     notifyListeners();
   }
 }

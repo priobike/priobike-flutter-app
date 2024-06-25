@@ -16,7 +16,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/image_cache.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -190,11 +189,11 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   Future<void> loadTracks() async {
     previousTracks.clear();
     if (tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) {
-      final backend = getIt<Settings>().backend;
+      final city = getIt<Settings>().city;
       for (var i = tracking.previousTracks!.length - 1; i >= 0; i--) {
         Track track = tracking.previousTracks![i];
         // To get Production and Release or Staging.
-        if (track.backend.regionName == backend.regionName) {
+        if (track.city.name == city.name) {
           previousTracks.add(track);
         }
       }

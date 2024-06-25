@@ -5,7 +5,7 @@ import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Feature, Settings;
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -28,6 +28,7 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/profile.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -71,6 +72,9 @@ class LoaderState extends State<Loader> {
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {
+    // Check the load. If it is too high, later on a fallback backend might be used.
+    await getIt<LoadStatus>().checkLoad();
+
     // We have 2 types of services:
     // 1. Services that are critically needed for the app to work and without which we won't let the user continue.
     // 2. Services that are not critically needed.
@@ -81,7 +85,7 @@ class LoaderState extends State<Loader> {
     try {
       // Check if the authentication service is online and load the auth config.
       // If the authentication service is not reachable, we won't open the app.
-      final auth = await Auth.load(settings.backend);
+      final auth = await Auth.load(settings.city.selectedBackend(true));
 
       // Note: It is ok to set this once here, as the mapbox access token is not expected to change.
       // If we want to support different mapbox tokens per deployment in the future, we need to
@@ -125,9 +129,6 @@ class LoaderState extends State<Loader> {
     }
 
     // Non critical services:
-    final loadStatus = getIt<LoadStatus>();
-    loadStatus.sendAppStartNotification();
-    loadStatus.fetch();
     getIt<News>().getArticles();
     getIt<PredictionStatusSummary>().fetch();
     getIt<Weather>().fetch();

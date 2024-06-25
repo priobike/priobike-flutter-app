@@ -68,6 +68,9 @@ class Track {
   /// With this field we can determine tracks in debug mode.
   bool debug;
 
+  /// The city of the ride.
+  City city;
+
   /// The backend of the ride.
   /// This important when filtering out tracks in the backend.
   /// With this field we can determine tracks in production.
@@ -168,6 +171,7 @@ class Track {
     required this.startTime,
     this.endTime,
     required this.debug,
+    required this.city,
     required this.backend,
     required this.positioningMode,
     required this.userId,
@@ -199,6 +203,7 @@ class Track {
       'startTime': startTime,
       'endTime': endTime,
       'debug': debug,
+      'city': city.name,
       'backend': backend.name,
       'positioningMode': positioningMode.name,
       'userId': userId,
@@ -244,6 +249,7 @@ class Track {
       startTime: json['startTime'],
       endTime: json['endTime'],
       debug: json['debug'],
+      city: City.values.byName(json['city']),
       backend: Backend.values.byName(json['backend']),
       positioningMode: PositioningMode.values.byName(json['positioningMode']),
       userId: json['userId'],

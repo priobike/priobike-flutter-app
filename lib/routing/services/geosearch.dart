@@ -41,7 +41,7 @@ class Geosearch with ChangeNotifier {
 
     try {
       final settings = getIt<Settings>();
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
 
       var url = "https://$baseUrl/photon/api";
       url += "?q=$query";
@@ -59,7 +59,7 @@ class Geosearch with ChangeNotifier {
       // The rough bounding box is nessessary for photon to limit the search results
       // while it checks below if every point is exactly within the city boundries
       final boundaryService = getIt<Boundary>();
-      final roughBoundingBox = boundaryService.getRoughBoundingBox();
+      final roughBoundingBox = settings.city.roughBoundingBox;
       if (roughBoundingBox.isNotEmpty) {
         final minLon = roughBoundingBox["minLon"];
         final maxLon = roughBoundingBox["maxLon"];
@@ -121,16 +121,16 @@ class Geosearch with ChangeNotifier {
   /// Delete the search history from the SharedPreferences.
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().backend;
-    await preferences.remove("priobike.routing.searchHistory.${backend.regionName}");
+    final city = getIt<Settings>().city;
+    await preferences.remove("priobike.routing.searchHistory.${city.nameDE}");
     searchHistory = [];
   }
 
   /// Initialize the search history from the SharedPreferences by decoding it from a String List.
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().backend;
-    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${backend.regionName}") ?? [];
+    final city = getIt<Settings>().city;
+    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${city.nameDE}") ?? [];
     searchHistory = [];
     for (String waypoint in savedList) {
       try {
@@ -150,12 +150,12 @@ class Geosearch with ChangeNotifier {
   Future<void> saveSearchHistory() async {
     if (searchHistory.isEmpty) return;
     final preferences = await SharedPreferences.getInstance();
-    final backend = getIt<Settings>().backend;
+    final city = getIt<Settings>().city;
     List<String> newList = [];
     for (Waypoint waypoint in searchHistory) {
       newList.add(json.encode(waypoint.toJSON()));
     }
-    await preferences.setStringList("priobike.routing.searchHistory.${backend.regionName}", newList);
+    await preferences.setStringList("priobike.routing.searchHistory.${city.nameDE}", newList);
   }
 
   /// Add a waypoint to the search history.

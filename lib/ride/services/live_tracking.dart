@@ -72,17 +72,17 @@ class LiveTracking {
   Future<bool> _connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
-
+    final backend = settings.city.selectedBackend(true);
     final clientId = "priobike-app-$appId";
     try {
       client = MqttServerClient(
-        settings.backend.liveTrackingMQTTPath,
+        backend.liveTrackingMQTTPath,
         clientId,
       );
       client!.logging(on: false);
       client!.keepAlivePeriod = 30;
       client!.secure = false;
-      client!.port = settings.backend.liveTrackingMQTTPort;
+      client!.port = backend.liveTrackingMQTTPort;
       client!.autoReconnect = true;
       client!.resubscribeOnAutoReconnect = true;
       client!.onDisconnected = () => log.i("Simulator MQTT client disconnected");

@@ -138,8 +138,8 @@ class AppMapState extends State<AppMap> {
       cameraOptions: mapbox.CameraOptions(
         center: mapbox.Point(
           coordinates: mapbox.Position(
-            settings.backend.center.longitude,
-            settings.backend.center.latitude,
+            settings.city.center.longitude,
+            settings.city.center.latitude,
           ),
         ),
         zoom: 12,

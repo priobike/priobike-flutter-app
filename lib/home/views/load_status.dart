@@ -30,8 +30,8 @@ class LoadStatusViewState extends State<LoadStatusView> {
         context: context,
         builder: (BuildContext context) {
           return DialogLayout(
-            title: "Mehr Nutzende als normalerweise",
-            text: loadStatus.text ?? "",
+            title: "Starke Auslastung",
+            text: "Aktuell sind unsere Server außergewöhnlich stark ausgelastet.",
             actions: [
               BigButtonTertiary(
                 label: "Schließen",
@@ -58,7 +58,7 @@ class LoadStatusViewState extends State<LoadStatusView> {
           children: [
             Flexible(
               child: Content(
-                text: "Mehr Nutzende als normalerweise",
+                text: "Starke Auslastung",
                 context: context,
               ),
             ),

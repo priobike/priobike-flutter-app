@@ -15,7 +15,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/migration/user_transfer_view.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -32,6 +31,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -65,7 +65,7 @@ Future<void> main() async {
   getIt.registerSingleton<Feature>(Feature());
   final feature = getIt<Feature>();
   await feature.load();
-  getIt.registerSingleton<Settings>(Settings(feature.defaultBackend));
+  getIt.registerSingleton<Settings>(Settings());
   final settings = getIt<Settings>();
   await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
@@ -74,7 +74,8 @@ Future<void> main() async {
 
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
-  await FCM.load(settings.backend);
+  // Don't use fallback backends for push notifications.
+  await FCM.load(settings.city.selectedBackend(false));
 
   // Init the HTTP client for all services.
   Http.initClient();
@@ -145,9 +146,7 @@ class App extends StatelessWidget {
 
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
-                child: UserTransferView(
-                  child: Loader(shareUrl: url),
-                ),
+                child: Loader(shareUrl: url),
               ),
             );
           },

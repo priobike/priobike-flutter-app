@@ -1127,7 +1127,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final pointIsInBoundary = getIt<Boundary>().checkIfPointIsInBoundary(longitude, latitude);
     if (!pointIsInBoundary) {
       if (!mounted) return;
-      final backend = getIt<Settings>().backend;
+      final city = getIt<Settings>().city;
       await showGeneralDialog(
         context: context,
         barrierDismissible: true,
@@ -1144,7 +1144,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           return DialogLayout(
             title: 'Wegpunkt außerhalb des Stadtgebiets',
             text:
-                'Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe Deinen Wegpunkt an.',
+                'Das Routing wird aktuell nur innerhalb von ${city.nameDE} unterstützt. \nBitte passe Deinen Wegpunkt an.',
             actions: [
               BigButtonPrimary(
                 label: "Ok",
@@ -1193,7 +1193,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final pointIsInBoundary = getIt<Boundary>().checkIfPointIsInBoundary(longitude, latitude);
     if (!pointIsInBoundary) {
       if (!mounted) return;
-      final backend = getIt<Settings>().backend;
+      final city = getIt<Settings>().city;
       await showGeneralDialog(
         context: context,
         barrierDismissible: true,
@@ -1210,7 +1210,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           return DialogLayout(
             title: 'Wegpunkt außerhalb des Stadtgebiets',
             text:
-                'Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe Deinen Wegpunkt an.',
+                'Das Routing wird aktuell nur innerhalb von ${city.nameDE} unterstützt. \nBitte passe Deinen Wegpunkt an.',
             actions: [
               BigButtonPrimary(
                 label: "Ok",
