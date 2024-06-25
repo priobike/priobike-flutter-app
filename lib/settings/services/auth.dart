@@ -9,16 +9,12 @@ class Auth {
   /// The logger for this service.
   static final log = Logger("Auth");
 
-  /// The current loaded backend.
-  static Backend? backend;
-
-  /// The current loaded auth config.
-  static AuthConfig? auth;
+  /// The current loaded auth configs.
+  static Map<String, AuthConfig> authConfigs = {};
 
   /// Load the auth from the backend.
-  /// FIXME: Currently this won't work in our fallback case if two services use different backends and therefore need different auths.
   static Future<AuthConfig> load(Backend currentBackend) async {
-    if (backend == currentBackend && auth != null) return Auth.auth!;
+    if (authConfigs.containsKey(currentBackend.name)) return Auth.authConfigs[currentBackend.name]!;
     final url = "https://${currentBackend.path}/auth/config.json";
     // Note: it's intended that these credentials are public.
     final headers = {'authorization': 'Basic ${base64Encode(utf8.encode('auth:fMG3dtQtYRyMdE34'))}'};
@@ -32,8 +28,7 @@ class Auth {
       loadedAuth = AuthConfig.fromJson(decoded);
     }
 
-    auth = loadedAuth;
-    backend = currentBackend;
-    return auth!;
+    authConfigs[currentBackend.name] = loadedAuth;
+    return loadedAuth;
   }
 }
