@@ -95,6 +95,7 @@ class LoadStatus with ChangeNotifier {
       final hint = "Error while fetching load status for backend: $e $stacktrace";
       log.e(hint);
       hasWarning = true;
+      recommendOtherBackend = true;
     }
     return (hasWarning, recommendOtherBackend);
   }
