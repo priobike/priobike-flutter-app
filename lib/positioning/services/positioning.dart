@@ -236,7 +236,7 @@ class Positioning with ChangeNotifier {
             accuracy: desiredAccuracy,
             distanceFilter: 0,
             foregroundNotificationConfig: const ForegroundNotificationConfig(
-              notificationIcon: AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
+              notificationIcon: AndroidResource(name: 'ic_location', defType: 'drawable'),
               notificationText: "Die Navigation läuft.",
               notificationTitle: "Navigation",
               setOngoing: true,
