@@ -4,6 +4,7 @@ import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/link_shortener.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ShowQRCodeView extends StatefulWidget {
@@ -59,7 +60,7 @@ class ShowQRCodeViewState extends State<ShowQRCodeView> {
     final longLink = shortcutWithoutName.getLongLink();
     final newShortLink = await LinkShortener.createShortLink(longLink);
     if (newShortLink == null) {
-      ToastMessage.showError("Fehler beim Erstellen des QR Codes");
+      getIt<Toast>().showError("Fehler beim Erstellen des QR Codes");
       if (mounted) Navigator.pop(context);
       return;
     }

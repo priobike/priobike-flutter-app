@@ -102,11 +102,11 @@ void showSaveShortcutSheet(context) {
             onPressed: () async {
               final name = nameController.text;
               if (name.trim().isEmpty) {
-                ToastMessage.showError("Name darf nicht leer sein.");
+                getIt<Toast>().showError("Name darf nicht leer sein.");
                 return;
               }
               await getIt<Shortcuts>().saveNewShortcutRoute(name);
-              ToastMessage.showSuccess("Route gespeichert!");
+              getIt<Toast>().showSuccess("Route gespeichert!");
 
               if (!context.mounted) return;
               Navigator.pop(context);
@@ -174,12 +174,12 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
             onPressed: () async {
               final name = nameController.text;
               if (name.trim().isEmpty) {
-                ToastMessage.showError("Name darf nicht leer sein.");
+                getIt<Toast>().showError("Name darf nicht leer sein.");
                 return;
               }
               await getIt<Shortcuts>().saveNewShortcutLocation(name, waypoint);
               await getIt<Geosearch>().addToSearchHistory(waypoint);
-              ToastMessage.showSuccess("Ort gespeichert!");
+              getIt<Toast>().showSuccess("Ort gespeichert!");
               Navigator.pop(context);
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
@@ -246,7 +246,7 @@ void showSaveShortcutFromShortcutSheet(context, {required Shortcut shortcut}) {
             onPressed: () async {
               final name = nameController.text;
               if (name.trim().isEmpty) {
-                ToastMessage.showError("Name darf nicht leer sein.");
+                getIt<Toast>().showError("Name darf nicht leer sein.");
                 return;
               }
               final shortcuts = getIt<Shortcuts>();

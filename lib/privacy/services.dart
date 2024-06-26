@@ -72,8 +72,8 @@ class PrivacyPolicy with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
     bool success = await storage.remove(key);
     (success)
-        ? ToastMessage.showSuccess("Datenschutz zurückgesetzt")
-        : ToastMessage.showError("Datenschutz konnte nicht zurückgesetzt werden");
+        ? getIt<Toast>().showSuccess("Datenschutz zurückgesetzt")
+        : getIt<Toast>().showError("Datenschutz konnte nicht zurückgesetzt werden");
     isConfirmed = false;
     hasChanged = true;
     notifyListeners();

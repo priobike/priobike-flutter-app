@@ -156,7 +156,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     try {
       await Auth.load(backend);
     } catch (e) {
-      ToastMessage.showError("Auth service ist nicht online.");
+      getIt<Toast>().showError("Auth service ist nicht online.");
       return;
     }
 

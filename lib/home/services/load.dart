@@ -54,7 +54,7 @@ class LoadStatus with ChangeNotifier {
       // Don't switch the backend if the internal version is used. We want to keep the possibility
       // to manually set the backend.
       if (useFallback) {
-        ToastMessage.showError(
+        getIt<Toast>().showError(
             "Fallback müsste benutzt werden. Aufgrund der internen Version wird das Fallback jedoch nicht benutzt.");
       }
       useFallback = false;

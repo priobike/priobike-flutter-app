@@ -15,6 +15,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -108,6 +109,7 @@ Future<void> main() async {
   getIt.registerSingleton<LiveTracking>(LiveTracking());
   getIt.registerSingleton<SpeedSensor>(SpeedSensor());
   getIt.registerSingleton<LoadStatus>(LoadStatus());
+  getIt.registerSingleton<Toast>(Toast());
   try {
     runApp(const App());
   } on Error catch (error, stack) {
@@ -134,6 +136,9 @@ class App extends StatelessWidget {
         return MaterialApp(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
+          builder: (context, child) => ToastWrapper(
+            child: child ?? const SizedBox(),
+          ),
           onGenerateRoute: (routeSettings) {
             String? url = routeSettings.name!;
 

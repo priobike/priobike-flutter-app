@@ -513,7 +513,7 @@ class RouteSearchState extends State<RouteSearch> {
                         key: Key(waypointWithDistance.key.hashCode.toString()),
                         onDismissed: (direction) {
                           getIt<Geosearch>().removeItemFromSearchHistory(waypointWithDistance.key);
-                          ToastMessage.showSuccess("Eintrag gelöscht");
+                          getIt<Toast>().showSuccess("Eintrag gelöscht");
                         },
                         direction: DismissDirection.endToStart,
                         background: Container(color: CI.radkulturYellow),

@@ -81,11 +81,11 @@ void showEditShortcutSheet(context, int idx) {
             onPressed: () async {
               final name = nameController.text;
               if (name.trim().isEmpty) {
-                ToastMessage.showError("Name darf nicht leer sein.");
+                getIt<Toast>().showError("Name darf nicht leer sein.");
                 return;
               }
               await getIt<Shortcuts>().updateShortcutName(name, idx);
-              ToastMessage.showSuccess("Name gespeichert!");
+              getIt<Toast>().showSuccess("Name gespeichert!");
               Navigator.pop(context);
             },
             boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),

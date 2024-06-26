@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:priobike/logging/toast.dart';
 
@@ -40,8 +41,8 @@ class Tutorial with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
     bool success = await storage.remove("priobike.tutorial.completed");
     (success)
-        ? ToastMessage.showSuccess("Tutorials zurückgesetzt")
-        : ToastMessage.showError("Tutorials konnten nicht zurückgesetzt werden");
+        ? getIt<Toast>().showSuccess("Tutorials zurückgesetzt")
+        : getIt<Toast>().showError("Tutorials konnten nicht zurückgesetzt werden");
     completed = {};
     notifyListeners();
   }
@@ -86,8 +87,8 @@ class Tutorial with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
     bool success = await storage.remove("priobike.tutorial.activated");
     (success)
-        ? ToastMessage.showSuccess("Tutorials zurückgesetzt")
-        : ToastMessage.showError("Tutorials konnten nicht zurückgesetzt werden");
+        ? getIt<Toast>().showSuccess("Tutorials zurückgesetzt")
+        : getIt<Toast>().showError("Tutorials konnten nicht zurückgesetzt werden");
     active = {};
     notifyListeners();
   }

@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/mapbox_attribution.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -137,6 +138,20 @@ class RideViewState extends State<RideView> {
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance || needsReroute) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
+                getIt<Toast>().showIconMessage(
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 2,
+                    ),
+                  ),
+                  "Berechne neue Route",
+                  important: true,
+                );
+                ride.ftts?.speak("Berechne neue Route");
+
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes(fetchOptionalData: false);
 
@@ -154,6 +169,8 @@ class RideViewState extends State<RideView> {
                 await ride.selectRoute(routes.first);
                 await positioning.selectRoute(routes.first);
                 await tracking.selectRoute(routes.first);
+
+                getIt<Toast>().showSuccess("Neue Route berechnet");
               });
             }
           },
