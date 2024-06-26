@@ -111,6 +111,9 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Only update the animation if it is not already running.
+    if (timer != null) return;
+
     controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
