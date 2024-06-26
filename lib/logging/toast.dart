@@ -91,7 +91,7 @@ class Toaster extends StatefulWidget {
   ToasterState createState() => ToasterState();
 }
 
-class ToasterState extends State<Toaster> with SingleTickerProviderStateMixin {
+class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   late AnimationController controller;
   late Animation<Offset> offsetInAnimation;
 
