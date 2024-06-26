@@ -128,20 +128,6 @@ class RideViewState extends State<RideView> {
             await ride.updatePosition();
             await tracking.updatePosition();
 
-            // TODO: Just for testing
-
-            getIt<Toast>().showIconMessage(
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 2,
-                ),
-              ),
-              "Berechne neue Route",
-            );
-
             // Play audio instructions if enabled.
             if (settings.audioInstructionsEnabled) {
               ride.playAudioInstruction();
@@ -162,7 +148,9 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                   "Berechne neue Route",
+                  important: true,
                 );
+                ride.ftts?.speak("Berechne neue Route");
 
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes(fetchOptionalData: false);

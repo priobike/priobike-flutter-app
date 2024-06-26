@@ -137,6 +137,9 @@ class App extends StatelessWidget {
         return MaterialApp(
           title: 'PrioBike',
           showPerformanceOverlay: settings.enablePerformanceOverlay,
+          builder: (context, child) => ToastWrapper(
+            child: child ?? const SizedBox(),
+          ),
           onGenerateRoute: (routeSettings) {
             String? url = routeSettings.name!;
 
@@ -150,9 +153,7 @@ class App extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
                 child: UserTransferView(
-                  child: ToastWrapper(
-                    child: Loader(shareUrl: url),
-                  ),
+                  child: Loader(shareUrl: url),
                 ),
               ),
             );

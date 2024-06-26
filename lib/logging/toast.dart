@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/main.dart';
 
 class Toast with ChangeNotifier {
@@ -8,19 +9,21 @@ class Toast with ChangeNotifier {
   Widget? content;
 
   /// Show a success message as a toast.
-  void showSuccess(String message) => showIconMessage(
+  void showSuccess(String message, {bool important = false}) => showIconMessage(
         const Icon(Icons.check_rounded, color: Colors.white, size: 26),
         message,
+        important: important,
       );
 
   /// Show an error message as a toast.
-  void showError(String message) => showIconMessage(
+  void showError(String message, {bool important = false}) => showIconMessage(
         const Icon(Icons.error_rounded, color: Colors.white, size: 26),
         message,
+        important: important,
       );
 
   /// Show a message with a given icon widget as a toast.
-  void showIconMessage(Widget icon, String message) => show(
+  void showIconMessage(Widget icon, String message, {bool important = false}) => show(
         Container(
           height: 42,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -47,11 +50,15 @@ class Toast with ChangeNotifier {
             ],
           ),
         ),
+        important: important,
       );
 
   /// Show an arbitrary content as toast message.
-  void show(Widget content) {
+  void show(Widget content, {bool important = false}) {
     this.content = content;
+    if (important) {
+      HapticFeedback.heavyImpact();
+    }
     notifyListeners();
   }
 }
