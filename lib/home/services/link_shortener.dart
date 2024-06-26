@@ -9,7 +9,7 @@ import 'package:priobike/settings/services/settings.dart';
 class LinkShortener {
   /// Shorten long link.
   static Future<String?> createShortLink(String longLink) async {
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
     String backendPath = backend.path;
     final linkShortenerUrl = 'https://$backendPath/link/rest/v3/short-urls';
     final linkShortenerEndpoint = Uri.parse(linkShortenerUrl);
@@ -41,7 +41,7 @@ class LinkShortener {
     // Shortcuts from production and release should be working with each others backend.
     // Therefore, try fetch from the current backend and (if failed) from the other backend.
     // Only staging is not compatible with the other backends.
-    final backend = getIt<Settings>().backend;
+    final backend = getIt<Settings>().city.selectedBackend(false);
     final String? result = await _fetch(backend, shortLink);
     if (result != null) return result;
     if (backend == Backend.staging) return null;

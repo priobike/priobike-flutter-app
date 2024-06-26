@@ -83,7 +83,7 @@ class PredictionProvider {
     if (sg != null && (!psClientConn || !pClientConn)) {
       // Driving toward a signal group, connect the clients.
       final settings = getIt<Settings>();
-      final auth = await Auth.load(settings.backend);
+      final auth = await Auth.load(settings.city.selectedBackend(true));
       await psClient!
           .connect(auth.predictionServiceMQTTUsername, auth.predictionServiceMQTTPassword)
           .timeout(const Duration(seconds: 5));
@@ -149,18 +149,18 @@ class PredictionProvider {
 
   /// Establish a connection with the MQTT client.
   Future<void> connectMQTTClient() async {
+    final backend = getIt<Settings>().city.selectedBackend(true);
     // Get the backend that is currently selected.
     try {
-      final settings = getIt<Settings>();
       psClient = initClient(
         "PredictionService",
-        settings.backend.predictionServiceMQTTPath,
-        settings.backend.predictionServiceMQTTPort,
+        backend.predictionServiceMQTTPath,
+        backend.predictionServiceMQTTPort,
       );
       pClient = initClient(
         "Predictor",
-        settings.backend.predictorMQTTPath,
-        settings.backend.predictorMQTTPort,
+        backend.predictorMQTTPath,
+        backend.predictorMQTTPort,
       );
       onConnected();
     } catch (e) {

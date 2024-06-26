@@ -11,7 +11,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/migration/services.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -143,8 +142,16 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when a city is selected.
+  Future<void> onSelectCity(City city) async {
+    await settings.setCity(city);
+    await onSelectBackend(city.defaultBackend, popDialog: false);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   /// A callback that is executed when a backend is selected.
-  Future<void> onSelectBackend(Backend backend) async {
+  Future<void> onSelectBackend(Backend backend, {bool popDialog = true}) async {
     // Check if the auth service is online. If not, we shouldn't switch the backend.
     try {
       await Auth.load(backend);
@@ -169,17 +176,11 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await news.getArticles();
     await shortcuts.loadShortcuts();
     await predictionStatusSummary.fetch();
-    await loadStatus.fetch();
-    loadStatus.sendAppStartNotification();
+    await loadStatus.checkLoad();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 
-    if (mounted) Navigator.pop(context);
-  }
-
-  /// A callback that adds test migration data for testing.
-  void addTestMigrationData() {
-    Migration.addTestMigrationData();
+    if (mounted && popDialog) Navigator.pop(context);
   }
 
   /// A callback that is executed when a routing endpoint is selected.
@@ -308,15 +309,33 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     title: "Ort",
-                    subtitle: settings.backend.region,
+                    subtitle: settings.city.nameDE,
                     icon: Icons.expand_more,
                     callback: () => showAppSheet(
                       context: context,
                       builder: (BuildContext context) {
                         return SettingsSelection(
-                            elements: Backend.values,
-                            selected: settings.backend,
-                            title: (Backend e) => e.region,
+                            elements: City.values,
+                            selected: settings.city,
+                            title: (City e) => e.nameDE,
+                            callback: onSelectCity);
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Backend",
+                    subtitle: settings.manuallySelectedBackend?.name ?? settings.city.defaultBackend.name,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: settings.city.availableBackends,
+                            selected: settings.manuallySelectedBackend ?? settings.city.defaultBackend,
+                            title: (Backend e) => e.name,
                             callback: onSelectBackend);
                       },
                     ),
@@ -598,33 +617,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Hintergrundbilder löschen (Neustart notw.)",
                     icon: Icons.recycling,
                     callback: () => MapboxTileImageCache.deleteAllImages(true),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Nutzertransfer zurücksetzen",
-                    icon: Icons.recycling,
-                    callback: () async {
-                      await getIt<Settings>().setDidViewUserTransfer(false);
-                    },
-                  ),
-                ),
-                const SmallVSpace(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                  child: Small(
-                    text:
-                        "Durch das Drücken von Migration testen werden jeweils ein Test-Shortcut und eine Test-Suchanfrage angelegt (staging, production, release). Diese müssten korrekterweise nach einem Neustart der App jeweils in den verschiedenen Versionen mit angezeigt werden.",
-                    context: context,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Migration testen",
-                    icon: Icons.start,
-                    callback: addTestMigrationData,
                   ),
                 ),
                 const SmallVSpace(),

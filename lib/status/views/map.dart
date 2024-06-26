@@ -62,7 +62,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     final textColor =
         Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value;
 
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
 
     final sourceLocsExists = await mapController?.style.styleSourceExists("sg-locs");
     if (sourceLocsExists != null && !sourceLocsExists) {

@@ -16,7 +16,6 @@ import 'package:priobike/http.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/migration/user_transfer_view.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -33,6 +32,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/poi.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -41,7 +41,6 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 
@@ -67,7 +66,7 @@ Future<void> main() async {
   getIt.registerSingleton<Feature>(Feature());
   final feature = getIt<Feature>();
   await feature.load();
-  getIt.registerSingleton<Settings>(Settings(feature.defaultBackend));
+  getIt.registerSingleton<Settings>(Settings());
   final settings = getIt<Settings>();
   await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
@@ -76,7 +75,8 @@ Future<void> main() async {
 
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
-  await FCM.load(settings.backend);
+  // Don't use fallback backends for push notifications.
+  await FCM.load(settings.city.selectedBackend(false));
 
   // Init the HTTP client for all services.
   Http.initClient();
@@ -103,7 +103,6 @@ Future<void> main() async {
   getIt.registerSingleton<Feedback>(Feedback());
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<FreeRide>(FreeRide());
-  getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<POI>(POI());
   getIt.registerSingleton<Simulator>(Simulator());
@@ -152,9 +151,7 @@ class App extends StatelessWidget {
 
             return MaterialPageRoute(
               builder: (context) => PrivacyPolicyView(
-                child: UserTransferView(
-                  child: Loader(shareUrl: url),
-                ),
+                child: Loader(shareUrl: url),
               ),
             );
           },

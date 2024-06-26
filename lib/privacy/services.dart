@@ -35,9 +35,9 @@ class PrivacyPolicy with ChangeNotifier {
     resetLoading();
 
     try {
-      final response =
-          await Http.get(Uri.parse("https://${getIt<Settings>().backend.path}/privacy-policy/privacy-policy.md"))
-              .timeout(const Duration(seconds: 4));
+      final response = await Http.get(Uri.parse(
+              "https://${getIt<Settings>().city.selectedBackend(true).path}/privacy-policy/privacy-policy.md"))
+          .timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         privacyText = utf8.decode(response.bodyBytes);

@@ -26,7 +26,7 @@ class ParkingStationsLayer {
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking_v2.geojson"),
     );
@@ -129,7 +129,7 @@ class RentalStationsLayer {
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental_v2.geojson"),
     );
@@ -308,7 +308,7 @@ class BikeShopLayer {
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop_v2.geojson"),
     );
@@ -482,7 +482,7 @@ class BikeAirStationLayer {
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station_v2.geojson"),
     );

@@ -27,8 +27,8 @@ class Weather with ChangeNotifier {
   /// Fetch the weather for the given location.
   Future<void> fetch() async {
     final settings = getIt<Settings>();
-    final lat = settings.backend.center.latitude;
-    final lon = settings.backend.center.longitude;
+    final lat = settings.city.center.latitude;
+    final lon = settings.city.center.longitude;
 
     hasLoaded = false;
     notifyListeners();

@@ -9,6 +9,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/auth.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,7 +59,7 @@ class MapboxTileImageCache {
     try {
       // See: https://docs.mapbox.com/api/maps/static-images/
       final settings = getIt<Settings>();
-      final auth = await Auth.load(settings.backend);
+      final auth = await Auth.load(settings.city.selectedBackend(true));
       final accessTokenHeader = "access_token=${auth.mapboxAccessToken}";
       String styleId = "";
       // remove prefix "mapbox://styles/" from the styles

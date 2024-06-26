@@ -52,18 +52,18 @@ class NavBarView extends StatelessWidget {
                     context: context,
                   ),
                   Content(
-                    text: settings.backend == Backend.staging ? " DD" : " HH",
+                    text: settings.city == City.dresden ? " DD" : " HH",
                     color: Colors.white,
                     context: context,
                   ),
-                  Flexible(
-                    fit: FlexFit.tight,
-                    child: Small(
-                      text: settings.backend == Backend.production ? "  beta" : "",
-                      color: Colors.white,
-                      context: context,
-                    ),
-                  ),
+                  settings.city.selectedBackend(true) == Backend.production
+                      ? Content(
+                          text: ".",
+                          color: Colors.white,
+                          context: context,
+                        )
+                      : Container(),
+                  Expanded(child: Container()),
                   BoldContent(text: "Moin!", color: Colors.white, context: context),
                 ],
               ),

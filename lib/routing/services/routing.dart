@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -174,7 +173,7 @@ class Routing with ChangeNotifier {
   /// Resolves the OSM way IDs for the given route.
   Future<Map<int, Map<String, String>>> resolveOSMWayIds(List<GHSegment> osmWayId) async {
     final settings = getIt<Settings>();
-    final baseUrl = settings.backend.path;
+    final baseUrl = settings.city.selectedBackend(true).path;
     final overpassPath = settings.routingEndpoint.overpassServicePath;
     final osmWayIds = osmWayId.where((e) => e.value is int).map((e) => e.value).toSet();
     var formData = "data=[out:json];(";
@@ -252,7 +251,7 @@ class Routing with ChangeNotifier {
     try {
       final settings = getIt<Settings>();
 
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
       String usedRoutingParameter;
       if (settings.routingEndpoint == RoutingEndpoint.graphhopperDRN) {
         usedRoutingParameter = "drn";
@@ -293,7 +292,7 @@ class Routing with ChangeNotifier {
     try {
       final bikeType = getIt<Profile>().bikeType;
       final settings = getIt<Settings>();
-      final baseUrl = settings.backend.path;
+      final baseUrl = settings.city.selectedBackend(true).path;
       final servicePath = settings.routingEndpoint.servicePath;
       var ghUrl = "https://$baseUrl/$servicePath/route";
       ghUrl += "?type=json";
@@ -873,65 +872,6 @@ class Routing with ChangeNotifier {
     } else {
       return null;
     }
-  }
-
-  /// Load the routes from a route shortcut from the server (lightweight).
-  /// Note: this function should only be used for migration.
-  Future<r.Route?> loadRouteFromShortcutRouteForMigration(ShortcutRoute shortcutRoute) async {
-    // Do not allow shortcuts with waypoints length < 2.
-    if (shortcutRoute.waypoints.length < 2) {
-      return null;
-    }
-
-    // Check if the waypoints are inside of the city boundaries.
-    if (!inCityBoundary(shortcutRoute.waypoints)) {
-      return null;
-    }
-
-    // Load the GraphHopper response.
-    final ghResponse = await loadGHRouteResponse(shortcutRoute.waypoints);
-    if (ghResponse == null || ghResponse.paths.isEmpty) {
-      return null;
-    }
-
-    // Create the routes.
-    final routes = ghResponse.paths
-        .asMap()
-        .map((i, path) {
-          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-          // Snap each signal group to the route and calculate the distance.
-          final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
-
-          // Order the crossings by distance.
-          final tuples = List<TupleCrossingsDistances>.empty(growable: true);
-
-          tuples.sort((a, b) => a.distance.compareTo(b.distance));
-          final orderedCrossings = List<Crossing>.empty(growable: true);
-          final orderedCrossingsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final tuple in tuples) {
-            orderedCrossings.add(tuple.crossing);
-            orderedCrossingsDistancesOnRoute.add(tuple.distance);
-          }
-
-          var route = r.Route(
-            idx: i,
-            path: path,
-            route: [],
-            signalGroups: sgsInOrderOfRoute,
-            signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
-            crossings: orderedCrossings,
-            crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
-            instructions: [],
-            osmTags: {},
-          );
-          // Connect the route to the start and end points.
-          route = route.connected(shortcutRoute.waypoints.first, shortcutRoute.waypoints.last);
-          return MapEntry(i, route);
-        })
-        .values
-        .toList();
-
-    return routes.first;
   }
 
   /// Select a route.

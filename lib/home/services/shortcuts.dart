@@ -122,9 +122,9 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
+    final city = getIt<Settings>().city;
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
-    storage.setString("priobike.home.shortcuts.${backend.regionName}", jsonStr);
+    storage.setString("priobike.home.shortcuts.${city.nameDE}", jsonStr);
 
     // Activates the tutorial if more then 3 (+2 default shortcuts) shortcuts were stored.
     if (shortcuts!.length >= 5) {
@@ -137,11 +137,11 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts != null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt<Settings>().backend;
-    final jsonStr = storage.getString("priobike.home.shortcuts.${backend.regionName}");
+    final city = getIt<Settings>().city;
+    final jsonStr = storage.getString("priobike.home.shortcuts.${city.nameDE}");
 
     if (jsonStr == null) {
-      shortcuts = backend.defaultShortcuts;
+      shortcuts = city.defaultShortcuts;
       await storeShortcuts();
     } else {
       // Init shortcuts.

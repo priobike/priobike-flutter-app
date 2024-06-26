@@ -72,7 +72,7 @@ class Datastream with ChangeNotifier {
   Future<void> connect() async {
     try {
       // Get the backend that is currently selected.
-      final backend = getIt<Settings>().backend;
+      final backend = getIt<Settings>().city.selectedBackend(true);
       client = MqttServerClient(backend.frostMQTTPath, 'priobike-app-${UniqueKey().toString()}');
       client!.logging(on: false);
       client!.keepAlivePeriod = 30;
