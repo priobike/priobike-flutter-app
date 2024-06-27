@@ -99,11 +99,6 @@ class RideViewState extends State<RideView> {
         await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
 
-        if (settings.audioInstructionsEnabled) {
-          // Configure the TTS.
-          await ride.initializeTTS();
-        }
-
         // Save current route if the app crashes or the user unintentionally closes it.
         ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.idx);
 
@@ -127,12 +122,6 @@ class RideViewState extends State<RideView> {
           onNewPosition: () async {
             await ride.updatePosition();
             await tracking.updatePosition();
-
-            // Play audio instructions if enabled.
-            if (settings.audioInstructionsEnabled) {
-              ride.playAudioInstruction();
-              ride.playNewPredictionStatusInformation();
-            }
 
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance || needsReroute) {
