@@ -25,9 +25,9 @@ class Toast with ChangeNotifier {
   /// Show a message with a given icon widget as a toast.
   void showIconMessage(Widget icon, String message, {bool important = false}) => show(
         Container(
-          height: 42,
+          height: 64,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          margin: const EdgeInsets.only(top: 2),
+          margin: const EdgeInsets.only(top: 2, left: 8, right: 8),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.75),
             borderRadius: BorderRadius.circular(20),
@@ -37,14 +37,16 @@ class Toast with ChangeNotifier {
             children: [
               icon,
               const SizedBox(width: 8),
-              Text(
-                message,
-                // Note: context cannot be used here.
-                style: const TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+              Flexible(
+                child: Text(
+                  message,
+                  // Note: context cannot be used here.
+                  style: const TextStyle(
+                    fontFamily: 'HamburgSans',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
@@ -118,7 +120,7 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    const height = 42;
+    const height = 64;
     final pt = MediaQuery.of(context).padding.top; // Display below safe area
     var offset = 8 / height; // Below safe area + 8 pixels of padding
     if (pt > 0 && height > 0) {
@@ -161,7 +163,7 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final defaultContainer = Container(
-      height: 42,
+      height: 64,
       width: 32,
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.75),
