@@ -62,6 +62,7 @@ class Audio {
     lastRecommendation.clear();
   }
 
+  /// Check for rerouting.
   Future<void> _processRideUpdates() async {
     if (ride?.navigationIsActive != true) return;
     if (ftts == null) await _initializeTTS();
@@ -74,6 +75,7 @@ class Audio {
     }
   }
 
+  /// Check if the audio instructions setting has changed.
   Future<void> _processSettingsUpdates() async {
     if (initialized && !settings!.audioInstructionsEnabled) {
       initialized = false;
@@ -92,6 +94,7 @@ class Audio {
     ftts = null;
   }
 
+  /// Process positioning updates to play audio instructions.
   Future<void> _processPositioningUpdates() async {
     if (settings?.audioInstructionsEnabled != true) {
       return;
@@ -277,6 +280,7 @@ class Audio {
     }
   }
 
+  /// Play new prediction audio instruction.
   void _playNewPredictionStatusInformation() async {
     ride ??= getIt<Ride>();
     if (ftts == null) return;
