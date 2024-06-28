@@ -53,13 +53,20 @@ class Audio {
     positioning!.addListener(_processPositioningUpdates);
   }
 
-  /// Clean up the audio service.
+  /// Clean up the audio instructions feature.
   Future<void> cleanUp() async {
     ride = null;
     positioning?.removeListener(_processPositioningUpdates);
     positioning = null;
     await resetFTTS();
     lastRecommendation.clear();
+  }
+
+  /// Reset the complete audio service.
+  Future<void> reset() async {
+    settings?.removeListener(_processSettingsUpdates);
+    settings = null;
+    await cleanUp();
   }
 
   /// Check for rerouting.

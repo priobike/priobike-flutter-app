@@ -202,7 +202,7 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
-    audio?.cleanUp();
+    audio?.reset();
     audio = null;
 
     /// Reenable the bottom navigation bar on Android after hiding it.
