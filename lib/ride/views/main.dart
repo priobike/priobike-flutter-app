@@ -12,8 +12,10 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
+import 'package:priobike/ride/services/audio.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/audio_button.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -47,6 +49,9 @@ class RideViewState extends State<RideView> {
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
+  /// The associated audio service.
+  Audio? audio;
+
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
 
@@ -70,6 +75,8 @@ class RideViewState extends State<RideView> {
   @override
   void initState() {
     super.initState();
+
+    audio = Audio();
 
     settings = getIt<Settings>();
     settings.addListener(update);
@@ -139,7 +146,6 @@ class RideViewState extends State<RideView> {
                   "Berechne neue Route",
                   important: true,
                 );
-                ride.ftts?.speak("Berechne neue Route");
 
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes(fetchOptionalData: false);
@@ -196,6 +202,8 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
+    audio?.cleanUp();
+    audio = null;
 
     /// Reenable the bottom navigation bar on Android after hiding it.
     if (Platform.isAndroid) {
@@ -273,6 +281,7 @@ class RideViewState extends State<RideView> {
                 ),
                 if (settings.datastreamMode == DatastreamMode.enabled) const DatastreamView(),
                 FinishRideButton(),
+                const AudioButton(),
                 if (!cameraFollowsUserLocation)
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 8,

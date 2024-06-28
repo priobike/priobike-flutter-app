@@ -254,22 +254,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Sprachausgabe aktivieren",
-                    icon: settings.audioInstructionsEnabled ? Icons.check_box : Icons.check_box_outline_blank,
-                    callback: () => settings.setAudioInstructionsEnabled(!settings.audioInstructionsEnabled),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                  child: Small(
-                    text:
-                        "Aktiviere die Sprachausgabe, um während der Fahrt Informationen über Lautsprecher oder Kopfhörer zu erhalten. Du kannst die App somit jetzt auch ohne eingeschaltetes Display aus der Hosentasche heraus nutzen.",
-                    context: context,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
                     title: "Performance-Overlay",
                     icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),

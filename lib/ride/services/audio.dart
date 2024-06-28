@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/main.dart';
@@ -10,9 +9,10 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/instruction.dart';
+import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-class Audio with ChangeNotifier {
+class Audio {
   /// An instance for text-to-speach.
   FlutterTts? ftts;
 
@@ -31,21 +31,30 @@ class Audio with ChangeNotifier {
   /// A map that holds information about the last recommendation to check the difference when a new recommendation is received.
   Map<String, Object> lastRecommendation = {};
 
+  /// The current route.
+  Route? currentRoute;
+
   /// Constructor.
   Audio() {
     settings = getIt<Settings>();
     settings!.addListener(_processSettingsUpdates);
+
+    if (settings!.audioInstructionsEnabled) {
+      initialized = true;
+      _init();
+    }
   }
 
   /// Init the audio service.
   Future<void> _init() async {
     ride ??= getIt<Ride>();
+    ride!.addListener(_processRideUpdates);
     positioning ??= getIt<Positioning>();
     positioning!.addListener(_processPositioningUpdates);
   }
 
   /// Clean up the audio service.
-  Future<void> _cleanUp() async {
+  Future<void> cleanUp() async {
     ride = null;
     positioning?.removeListener(_processPositioningUpdates);
     positioning = null;
@@ -53,10 +62,22 @@ class Audio with ChangeNotifier {
     lastRecommendation.clear();
   }
 
+  Future<void> _processRideUpdates() async {
+    if (ride?.navigationIsActive != true) return;
+    if (ftts == null) await _initializeTTS();
+    // If the current route is null, we won't see a rerouting but the first route.
+    if (currentRoute == null) return;
+    // Rerouting
+    if (currentRoute != ride!.route && ride?.route != null) {
+      currentRoute = ride?.route;
+      ftts?.speak("Neue Route berechnet");
+    }
+  }
+
   Future<void> _processSettingsUpdates() async {
     if (initialized && !settings!.audioInstructionsEnabled) {
       initialized = false;
-      _cleanUp();
+      cleanUp();
     } else if (!initialized && settings!.audioInstructionsEnabled) {
       initialized = true;
       _init();
@@ -79,7 +100,7 @@ class Audio with ChangeNotifier {
       return;
     }
     if (ftts == null) {
-      await initializeTTS();
+      await _initializeTTS();
     }
     _playAudioInstruction();
     _playNewPredictionStatusInformation();
@@ -176,7 +197,7 @@ class Audio with ChangeNotifier {
   }
 
   /// Configure the TTS.
-  Future<void> initializeTTS() async {
+  Future<void> _initializeTTS() async {
     ftts = FlutterTts();
 
     if (Platform.isIOS) {
