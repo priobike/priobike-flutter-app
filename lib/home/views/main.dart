@@ -297,7 +297,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                           ),
                         ),
                       const VSpace(),
-                      const SmallVSpace(),
                       if (showStatusView)
                         const BlendIn(
                           child: Row(
