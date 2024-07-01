@@ -164,9 +164,7 @@ class FreeRideViewState extends State<FreeRideView> {
                         ),
                       ],
                     )
-                  : const Center(
-                      child: Text('Error.'),
-                    ),
+                  : Container(),
         ),
       ),
     );

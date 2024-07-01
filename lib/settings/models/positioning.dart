@@ -3,6 +3,7 @@ enum PositioningMode {
   follow18kmh,
   follow40kmh,
   autospeed,
+  hamburgInCircles,
   sensor,
   recordedDresden,
   recordedHamburg,
@@ -23,6 +24,8 @@ extension PositioningDescription on PositioningMode {
         return "Route mit 40 km/h folgen";
       case PositioningMode.autospeed:
         return "Der besten Grünphase folgen";
+      case PositioningMode.hamburgInCircles:
+        return "Hamburg im Kreis um den Millerntorplatz";
       case PositioningMode.sensor:
         return "Speed Sensor Daten";
       case PositioningMode.recordedDresden:

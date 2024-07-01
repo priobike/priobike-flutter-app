@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
@@ -16,6 +17,16 @@ import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutView extends StatelessWidget {
   final Shortcut? shortcut;
+
+  /// What text to show when no shortcut is available.
+  final String? alternativeText;
+
+  /// What icon to show when no shortcut is available.
+  final IconData? alternativeIcon;
+
+  /// The content of a small badge that is shown on the shortcut.
+  final String? badge;
+
   final void Function() onPressed;
   final void Function()? onLongPressed;
   final double width;
@@ -28,6 +39,9 @@ class ShortcutView extends StatelessWidget {
   const ShortcutView({
     super.key,
     this.shortcut,
+    this.alternativeText,
+    this.alternativeIcon,
+    this.badge,
     required this.onPressed,
     required this.width,
     required this.height,
@@ -52,9 +66,9 @@ class ShortcutView extends StatelessWidget {
         content: Stack(
           children: [
             if (shortcut == null)
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Icon(Icons.map_rounded, size: 64, color: Colors.white),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Icon(alternativeIcon ?? Icons.error, size: 64, color: Colors.white),
               )
             else if (shortcut is ShortcutRoute)
               Container(
@@ -93,6 +107,15 @@ class ShortcutView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: Container()),
+                    if (badge != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.1),
+                        ),
+                        child: Small(text: badge!, context: context, color: Colors.white),
+                      ),
                     FittedBox(
                       // Scale the text to fit the width.
                       fit: BoxFit.fitWidth,
@@ -104,9 +127,9 @@ class ShortcutView extends StatelessWidget {
                               shortcut == null ? null : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
                         ),
                         child: shortcut == null
-                            ? const Text(
-                                'Freie Route',
-                                style: TextStyle(
+                            ? Text(
+                                alternativeText ?? 'Missing alternative text',
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -150,9 +173,13 @@ class ShortcutsView extends StatefulWidget {
   /// A callback that will be executed when free routing is started.
   final void Function() onStartFreeRouting;
 
+  /// A callback that will be executed when free ride is started.
+  final void Function() onStartFreeRide;
+
   const ShortcutsView({
     required this.onSelectShortcut,
     required this.onStartFreeRouting,
+    required this.onStartFreeRide,
     super.key,
   });
 
@@ -227,9 +254,18 @@ class ShortcutsViewState extends State<ShortcutsView> {
         padding: EdgeInsets.only(left: leftPad),
       ),
       ShortcutView(
-        onPressed: () {
-          if (!routing.isFetchingRoute) widget.onStartFreeRouting();
-        },
+        alternativeText: 'Ohne Route fahren',
+        alternativeIcon: Icons.navigation,
+        onPressed: widget.onStartFreeRide,
+        width: shortcutWidth,
+        height: shortcutHeight,
+        rightPad: shortcutRightPad,
+      ),
+      ShortcutView(
+        alternativeText: 'Route planen',
+        alternativeIcon: Icons.map_rounded,
+        onPressed: widget.onStartFreeRouting,
+        badge: 'Empfohlen',
         width: shortcutWidth,
         height: shortcutHeight,
         rightPad: shortcutRightPad,
