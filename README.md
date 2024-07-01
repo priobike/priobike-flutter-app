@@ -1,5 +1,21 @@
 # PrioBike-HH Flutter App
 
+<p align="left">
+  <img width="200" src="https://github.com/priobike/priobike-flutter-app/assets/27271818/096b5754-b37b-4dcb-ad76-e72edc38fc94">
+  <img width="200" src="https://github.com/priobike/priobike-flutter-app/assets/27271818/32c799f9-80a5-4fcf-92c8-7ee9079dc1bd">
+  <img width="200" src="https://github.com/priobike/priobike-flutter-app/assets/27271818/c2595445-dbd4-461d-9240-a9764de60faf">
+</p>
+
+<h4>The PrioBike app gives speed advisories to cyclists in Hamburg to catch green lights. It is developed by TU Dresden and currently in open beta.</h4>
+
+# Download
+
+The PrioBike app is available for download:
+- On Google Play: https://play.google.com/apps/testing/de.tudresden.priobike 
+- On TestFlight: https://testflight.apple.com/join/GXdqWpdn
+
+# Quickstart
+
 **Required Flutter Version: `3.19.6`**
 
 For getting started with development you need to set up your development environment according to
