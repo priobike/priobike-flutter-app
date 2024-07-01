@@ -232,28 +232,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Freie Fahrt",
-                    icon: Icons.directions_bike_rounded,
-                    callback: () => Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const FreeRideView(),
-                      ),
-                      (route) => false,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Freie Fahrt Filter",
-                    icon: settings.isFreeRideFilterEnabled ? Icons.check_box : Icons.check_box_outline_blank,
-                    callback: () => settings.setFreeRideFilterEnabled(!settings.isFreeRideFilterEnabled),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
                     title: "Sprachausgabe aktivieren",
                     icon: settings.audioInstructionsEnabled ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setAudioInstructionsEnabled(!settings.audioInstructionsEnabled),
