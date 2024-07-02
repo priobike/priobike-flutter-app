@@ -18,7 +18,14 @@ class AllTrafficLightsPredictionLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  AllTrafficLightsPredictionLayer({Map<String, dynamic>? propertiesBySgId, double? userBearing}) {
+  /// If a dark version of the layer should be used.
+  final bool isDark;
+
+  AllTrafficLightsPredictionLayer(
+    this.isDark, {
+    Map<String, dynamic>? propertiesBySgId,
+    double? userBearing,
+  }) {
     final freeRide = getIt<FreeRide>();
     if (freeRide.sgs == null || freeRide.sgs!.isEmpty) return;
     if (freeRide.sgBearings == null || freeRide.sgBearings!.isEmpty) return;
@@ -96,14 +103,14 @@ class AllTrafficLightsPredictionLayer {
             ["get", "greenNow"],
             false
           ],
-          "free-ride-red",
+          isDark ? "free-ride-red-dark" : "free-ride-red-light",
           [
             "==",
             ["get", "greenNow"],
             true
           ],
-          "free-ride-green",
-          "free-ride-none-light",
+          isDark ? "free-ride-green-dark" : "free-ride-green-light",
+          isDark ? "free-ride-none-dark" : "free-ride-none-light",
         ]),
       );
 
@@ -177,7 +184,14 @@ class AllTrafficLightsPredictionGeometryLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  AllTrafficLightsPredictionGeometryLayer({Map<String, dynamic>? propertiesBySgId, double? userBearing}) {
+  /// If a dark version of the layer should be used.
+  final bool isDark;
+
+  AllTrafficLightsPredictionGeometryLayer(
+    this.isDark, {
+    Map<String, dynamic>? propertiesBySgId,
+    double? userBearing,
+  }) {
     final freeRide = getIt<FreeRide>();
     if (freeRide.sgGeometries == null || freeRide.sgGeometries!.isEmpty) return;
 
@@ -223,7 +237,7 @@ class AllTrafficLightsPredictionGeometryLayer {
             iconOpacity: 0.6,
             iconIgnorePlacement: true,
             iconRotate: 90,
-            iconImage: "routechevrondark",
+            iconImage: isDark ? "routechevronlight" : "routechevrondark",
           ),
           mapbox.LayerPosition(at: at));
 
@@ -265,8 +279,8 @@ class AllTrafficLightsPredictionGeometryLayer {
             ["get", "greenNow"],
             true
           ],
-          "#30c73f",
-          "#000000",
+          "#17F54D",
+          isDark ? "#000000" : "#FFFFFF",
         ]),
       );
 
@@ -287,11 +301,39 @@ class AllTrafficLightsPredictionGeometryLayer {
           id: layerIdBackground,
           lineJoin: mapbox.LineJoin.ROUND,
           lineCap: mapbox.LineCap.ROUND,
-          lineWidth: 24,
-          lineColor: const Color.fromARGB(255, 31, 31, 31).value,
+          lineWidth: 26,
         ),
         mapbox.LayerPosition(at: at),
       );
+
+      await mapController.style.setStyleLayerProperty(
+        layerIdBackground,
+        "line-color",
+        jsonEncode([
+          "case",
+          [
+            "==",
+            ["get", "greenNow"],
+            false
+          ],
+          isDark ? "#FF7B7B" : "#B50000",
+          [
+            "==",
+            ["get", "greenNow"],
+            true
+          ],
+          isDark ? "#8EFFB4" : "#00B01C",
+          isDark ? "#000000" : "#FFFFFF",
+        ]),
+      );
+
+      await mapController.style.setStyleLayerProperty(
+          layerIdBackground,
+          'line-opacity',
+          jsonEncode([
+            "get",
+            "opacity",
+          ]));
     }
   }
 

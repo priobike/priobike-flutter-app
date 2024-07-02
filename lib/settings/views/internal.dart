@@ -16,7 +16,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
-import 'package:priobike/ride/views/free.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;

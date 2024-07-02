@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/map/layers/sg_layers_free.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
@@ -93,6 +94,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   }
 
   void onFreeRideUpdate() {
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -185,6 +187,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     await getFirstLabelLayer();
 
@@ -196,10 +199,10 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     // await AllTrafficLightsLayer().install(mapController!, at: index);
     var index = await getIndex(AllTrafficLightsPredictionGeometryLayer.layerId);
     if (!mounted) return;
-    await AllTrafficLightsPredictionGeometryLayer().install(mapController!, at: index);
+    await AllTrafficLightsPredictionGeometryLayer(isDark).install(mapController!, at: index);
     index = await getIndex(AllTrafficLightsPredictionLayer.layerId);
     if (!mounted) return;
-    await AllTrafficLightsPredictionLayer().install(mapController!, at: index);
+    await AllTrafficLightsPredictionLayer(isDark).install(mapController!, at: index);
 
     onPositioningUpdate();
 
@@ -329,14 +332,21 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         propertiesBySgId[entry.key] = {
           "greenNow": greenNow,
           "countdown": secondsToPhaseChange?.toInt(),
-          "opacity": opacity,
+          "opacity": greenNow == null ? 0 : opacity,
           "lineWidth": 5,
         };
       }
-      AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: currentCalcBearing)
-          .update(mapController!);
-      AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: currentCalcBearing)
-          .update(mapController!);
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      AllTrafficLightsPredictionLayer(
+        isDark,
+        propertiesBySgId: propertiesBySgId,
+        userBearing: currentCalcBearing,
+      ).update(mapController!);
+      AllTrafficLightsPredictionGeometryLayer(
+        isDark,
+        propertiesBySgId: propertiesBySgId,
+        userBearing: currentCalcBearing,
+      ).update(mapController!);
     });
   }
 
@@ -357,15 +367,20 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       marginYAttribution = -5;
     }
 
-    return AppMap(
-      onMapCreated: onMapCreated,
-      onStyleLoaded: onStyleLoaded,
-      logoViewMargins: Point(10, marginYLogo),
-      logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
-      attributionButtonMargins: Point(10, marginYAttribution),
-      attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
-      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
-      useMapboxPositioning: true,
+    return AnnotatedRegionWrapper(
+      colorMode: Theme.of(context).brightness,
+      bottomBackgroundColor: const Color(0xFF000000),
+      bottomTextBrightness: Brightness.light,
+      child: AppMap(
+        onMapCreated: onMapCreated,
+        onStyleLoaded: onStyleLoaded,
+        logoViewMargins: Point(10, marginYLogo),
+        logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
+        attributionButtonMargins: Point(10, marginYAttribution),
+        attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
+        saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
+        useMapboxPositioning: true,
+      ),
     );
   }
 }
