@@ -51,7 +51,7 @@ platform :android do
   desc "Distribute the build to the 'Release'."
   lane :release do
     upload_to_play_store(
-      track: 'release', # Beta means "Open test"
+      track: 'production', # Production means "Release"
       aab: '../build/app/outputs/bundle/release/app-release.aab',
     )
   end
