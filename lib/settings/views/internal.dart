@@ -606,14 +606,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Umfrage zurücksetzen",
-                    icon: Icons.recycling,
-                    callback: () => getIt<Settings>().setDismissedSurvey(false),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
                     title: "Hintergrundbilder löschen (Neustart notw.)",
                     icon: Icons.recycling,
                     callback: () => MapboxTileImageCache.deleteAllImages(true),
