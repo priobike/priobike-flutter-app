@@ -127,10 +127,14 @@ flutter:
     # Geojsons
     - assets/geo/
 
-    # Files needed to get git info within the app, e.g. current branch or tag.
+    # Files needed to get git info within the app, e.g. current branch.
     # Please make sure that the repository is cloned by the branch name, and
     # not by the commit hash (as is the default for Jenkins CI pipelines).
-    - .git/HEAD # Branch/Tag Name for dev/beta feature unlocking
+    - .git/HEAD # Branch Name for dev/beta feature unlocking
+
+    # This file has to be updated by the CI pipeline to contain the current git tag.
+    # By doing so we determine if this is a release version.
+    - git_tag.txt
 
     # Privacy Policy & Aknowledgements
     - assets/text/

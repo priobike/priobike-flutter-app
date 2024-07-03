@@ -12,6 +12,9 @@ class Feature with ChangeNotifier {
   /// The current git head.
   late String gitHead;
 
+  /// The current git tag. Can be empty if the latest commit is not tagged. Only is set when the get_tag.sh is executed.
+  late String gitTag;
+
   /// The current app name.
   late String appName;
 
@@ -27,9 +30,6 @@ class Feature with ChangeNotifier {
   /// If internal features can be enabled.
   late bool canEnableInternalFeatures;
 
-  /// if beta features can be enabled.
-  late bool canEnableBetaFeatures;
-
   Feature();
 
   /// Load the service.
@@ -37,15 +37,12 @@ class Feature with ChangeNotifier {
     if (hasLoaded) return;
 
     gitHead = (await rootBundle.loadString('.git/HEAD')).trim();
+    gitTag = (await rootBundle.loadString('git_tag.txt')).trim();
 
     // Check if the user has the right to enable experimental features.
-    // This is the case, when the branch is not beta or release.
+    // This is the case, when the branch is not beta or the latest tag is not tagged as a release.
     // (Allow internal features on all development branches.)
-    canEnableInternalFeatures = !gitHead.contains('beta') && !gitHead.contains('release');
-
-    // Check if the user has the right to enable beta features.
-    // This is the case, when the branch is not release.
-    canEnableBetaFeatures = !gitHead.contains('release');
+    canEnableInternalFeatures = !gitHead.contains('beta') && !gitTag.contains('release-');
 
     final info = await PackageInfo.fromPlatform();
     appName = info.appName;
