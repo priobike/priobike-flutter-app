@@ -4,7 +4,7 @@ on:
   push:
     # Every branch that starts with "release"
     tags:
-      - release-*
+      - release-v*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
