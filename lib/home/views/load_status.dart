@@ -33,7 +33,7 @@ class LoadStatusViewState extends State<LoadStatusView> {
 
     return BlendIn(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(40, 16, 24, 0),
+        padding: const EdgeInsets.fromLTRB(40, 24, 36, 0),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,15 +45,10 @@ class LoadStatusViewState extends State<LoadStatusView> {
               ),
             ),
             const HSpace(),
-            SmallIconButtonSecondary(
-              icon: Icons.info,
+            Icon(
+              Icons.info,
               color: Theme.of(context).colorScheme.onSurface,
-              splash: Theme.of(context).colorScheme.surfaceTint,
-              fill: Colors.transparent,
-              borderColor: Theme.of(context).colorScheme.onPrimary,
-              withBorder: false,
-              onPressed: () => {},
-            ),
+            )
           ],
         ),
       ),
