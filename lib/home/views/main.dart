@@ -251,8 +251,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   /// A callback that is fired when free ride was selected.
   void onStartFreeRide() {
-    if (routing.isFetchingRoute) return;
-
     HapticFeedback.mediumImpact();
 
     if (settings.didViewWarning) {
