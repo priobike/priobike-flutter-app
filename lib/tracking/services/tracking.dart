@@ -145,7 +145,7 @@ class Tracking with ChangeNotifier {
         selectedWaypoints: routing.selectedWaypoints!,
         bikeType: profile.bikeType,
         routes: {startTime: routing.selectedRoute!},
-        subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+        subVersion: feature.buildTrigger,
         batteryStates: [],
         saveBatteryModeEnabled: saveBatteryModeEnabled,
         isDarkMode: isDarkMode,
