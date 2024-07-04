@@ -29,13 +29,14 @@ class Weather with ChangeNotifier {
     final settings = getIt<Settings>();
     final lat = settings.city.center.latitude;
     final lon = settings.city.center.longitude;
+    final backend = settings.city.selectedBackend(true);
 
     hasLoaded = false;
     notifyListeners();
 
     try {
       // Fetch the weather forecast.
-      var url = "https://api.brightsky.dev/weather?lat=$lat&lon=$lon&date=${DateTime.now().toIso8601String()}";
+      var url = "https://${backend.path}/bright-sky/weather?lat=$lat&lon=$lon&date=${DateTime.now().toIso8601String()}";
       var response = await Http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
 
       if (response.statusCode != 200) {
@@ -49,7 +50,7 @@ class Weather with ChangeNotifier {
       forecast = WeatherForecastResponse.fromJson(decoded).weather;
 
       // Fetch the current weather.
-      url = "https://api.brightsky.dev/current_weather?lat=$lat&lon=$lon";
+      url = "https://${backend.path}/bright-sky/current_weather?lat=$lat&lon=$lon";
       response = await Http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
 
       if (response.statusCode != 200) {
