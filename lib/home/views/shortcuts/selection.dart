@@ -16,40 +16,24 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutView extends StatelessWidget {
-  final Shortcut? shortcut;
-
-  /// What text to show when no shortcut is available.
-  final String? alternativeText;
-
-  /// What icon to show when no shortcut is available.
-  final IconData? alternativeIcon;
-
-  /// The content of a small badge that is shown on the shortcut.
-  final String? badge;
+  final Shortcut shortcut;
 
   final void Function() onPressed;
   final void Function()? onLongPressed;
   final double width;
   final double height;
   final double rightPad;
-  final bool selected;
   final bool showSplash;
-  final Color selectionColor;
 
   const ShortcutView({
     super.key,
-    this.shortcut,
-    this.alternativeText,
-    this.alternativeIcon,
-    this.badge,
+    required this.shortcut,
     required this.onPressed,
     required this.width,
     required this.height,
     required this.rightPad,
     this.onLongPressed,
-    this.selected = false,
     this.showSplash = true,
-    this.selectionColor = CI.radkulturRed,
   });
 
   @override
@@ -60,17 +44,12 @@ class ShortcutView extends StatelessWidget {
       child: Tile(
         onLongPressed: onLongPressed,
         onPressed: onPressed,
-        shadow: shortcut == null ? CI.radkulturRed : const Color.fromARGB(255, 45, 45, 45),
-        shadowIntensity: shortcut == null ? 0.3 : 0.1,
+        shadow: const Color.fromARGB(255, 45, 45, 45),
+        shadowIntensity: 0.1,
         padding: const EdgeInsets.all(0),
         content: Stack(
           children: [
-            if (shortcut == null)
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Icon(alternativeIcon ?? Icons.error, size: 64, color: Colors.white),
-              )
-            else if (shortcut is ShortcutRoute)
+            if (shortcut is ShortcutRoute)
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
@@ -107,15 +86,6 @@ class ShortcutView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: Container()),
-                    if (badge != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.1),
-                        ),
-                        child: Small(text: badge!, context: context, color: Colors.white),
-                      ),
                     FittedBox(
                       // Scale the text to fit the width.
                       fit: BoxFit.fitWidth,
@@ -123,34 +93,20 @@ class ShortcutView extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color:
-                              shortcut == null ? null : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
+                          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
                         ),
-                        child: shortcut == null
-                            ? Text(
-                                alternativeText ?? 'Missing alternative text',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                            : Padding(
-                                padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
-                                child: Text(
-                                  shortcut!.name,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).brightness == Brightness.light
-                                          ? Colors.black
-                                          : Colors.white),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
+                        child: Padding(
+                          padding: EdgeInsets.only(top: Platform.isAndroid ? 2 : 0),
+                          child: Text(
+                            shortcut.name,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -159,9 +115,108 @@ class ShortcutView extends StatelessWidget {
             ),
           ],
         ),
-        fill: shortcut == null || selected ? selectionColor : Theme.of(context).colorScheme.surfaceVariant,
+        fill: Theme.of(context).colorScheme.surfaceVariant,
         splash: showSplash ? Theme.of(context).colorScheme.surfaceTint : Colors.transparent,
       ),
+    );
+  }
+}
+
+class NoShortcutView extends StatelessWidget {
+  /// What text to show.
+  final String text;
+
+  /// What icon to show.
+  final IconData icon;
+
+  /// The content of a small badge that is shown.
+  final String? badge;
+
+  final void Function() onPressed;
+  final double width;
+  final double height;
+  final double rightPad;
+  final bool showSplash;
+
+  const NoShortcutView({
+    super.key,
+    required this.text,
+    required this.icon,
+    this.badge,
+    required this.onPressed,
+    required this.width,
+    required this.height,
+    required this.rightPad,
+    this.showSplash = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tile(
+      onPressed: onPressed,
+      shadow: CI.radkulturRed,
+      shadowIntensity: 0.3,
+      padding: const EdgeInsets.all(0),
+      content: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, size: 32, color: Colors.white),
+          ),
+          if (badge != null)
+            Positioned(
+              right: 8,
+              top: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.1),
+                  ),
+                  child: Small(text: badge!, context: context, color: Colors.white),
+                ),
+              ),
+            ),
+          SizedBox(
+            height: height,
+            width: width,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, bottom: 8, right: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: Container()),
+                  FittedBox(
+                    // Scale the text to fit the width.
+                    fit: BoxFit.fitWidth,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: null,
+                      ),
+                      child: Text(
+                        text,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      fill: CI.radkulturRed,
+      splash: showSplash ? Theme.of(context).colorScheme.surfaceTint : Colors.transparent,
     );
   }
 }
@@ -253,22 +308,34 @@ class ShortcutsViewState extends State<ShortcutsView> {
         curve: Curves.easeInOutCubic,
         padding: EdgeInsets.only(left: leftPad),
       ),
-      ShortcutView(
-        alternativeText: 'Ohne Route fahren',
-        alternativeIcon: Icons.navigation,
-        onPressed: widget.onStartFreeRide,
-        width: shortcutWidth,
-        height: shortcutHeight,
-        rightPad: shortcutRightPad,
-      ),
-      ShortcutView(
-        alternativeText: 'Route planen',
-        alternativeIcon: Icons.map_rounded,
-        onPressed: widget.onStartFreeRouting,
-        badge: 'Empfohlen',
-        width: shortcutWidth,
-        height: shortcutHeight,
-        rightPad: shortcutRightPad,
+      Padding(
+        padding: const EdgeInsets.only(right: shortcutRightPad, bottom: 26, top: 2),
+        child: SizedBox(
+          height: shortcutHeight,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              NoShortcutView(
+                text: 'Ohne Route fahren',
+                icon: Icons.navigation,
+                onPressed: widget.onStartFreeRide,
+                width: shortcutWidth,
+                height: shortcutHeight * 0.45,
+                rightPad: shortcutRightPad,
+              ),
+              NoShortcutView(
+                text: 'Route planen',
+                icon: Icons.map_rounded,
+                onPressed: widget.onStartFreeRouting,
+                badge: 'Empfohlen',
+                width: shortcutWidth,
+                height: shortcutHeight * 0.45,
+                rightPad: shortcutRightPad,
+              )
+            ],
+          ),
+        ),
       ),
     ];
 
@@ -315,7 +382,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
     return SingleChildScrollView(
       controller: scrollController,
       scrollDirection: Axis.horizontal,
-      child: Row(children: animatedViews),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: animatedViews),
     );
   }
 }
