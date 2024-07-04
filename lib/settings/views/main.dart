@@ -271,7 +271,7 @@ class SettingsViewState extends State<SettingsView> {
                           Content(text: "Version: ", context: context),
                           Flexible(
                             child: BoldContent(
-                              text: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+                              text: feature.buildTrigger,
                               context: context,
                               color: Theme.of(context).colorScheme.primary,
                             ),

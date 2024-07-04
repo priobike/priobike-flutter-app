@@ -549,7 +549,7 @@ class Settings with ChangeNotifier {
   }
 
   /// Load the stored settings.
-  Future<void> loadSettings(bool canEnableInternalFeatures, bool canEnableBetaFeatures) async {
+  Future<void> loadSettings(bool canEnableInternalFeatures) async {
     if (hasLoaded) return;
 
     final storage = await SharedPreferences.getInstance();

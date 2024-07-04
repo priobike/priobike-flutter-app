@@ -3,8 +3,8 @@ name: Dist / Android / Release
 on:
   push:
     # Every branch that starts with "release"
-    branches:
-      - release*
+    tags:
+      - release-*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -44,6 +44,7 @@ jobs:
           KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
       - name: Build the Android app bundle
         run: |
+          ./get_tag.sh
           flutter pub get
           flutter build appbundle
       - name: Install Fastlane
