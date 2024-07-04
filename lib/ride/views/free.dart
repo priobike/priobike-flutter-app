@@ -16,6 +16,7 @@ import 'package:priobike/ride/services/free_ride.dart';
 import 'package:priobike/ride/views/free_map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class FreeRideView extends StatefulWidget {
@@ -46,6 +47,10 @@ class FreeRideViewState extends State<FreeRideView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
+        final deviceWidth = MediaQuery.of(context).size.width;
+        final deviceHeight = MediaQuery.of(context).size.height;
+
+        final tracking = getIt<Tracking>();
         final positioning = getIt<Positioning>();
         freeRide.prepare();
 
@@ -56,9 +61,17 @@ class FreeRideViewState extends State<FreeRideView> {
             showLocationAccessDeniedDialog(context, positioning.positionSource);
           },
           onNewPosition: () async {
-            // Note: Only called in routing mode since it depends on the snapped position. (Maybe a FIXME)
+            await tracking.updatePosition();
           },
         );
+
+        bool? isDark;
+        if (mounted) {
+          isDark = Theme.of(context).brightness == Brightness.dark;
+        }
+
+        // Start tracking once the `sessionId` is set and the positioning stream is available.
+        await tracking.start(deviceWidth, deviceHeight, settings.saveBatteryModeEnabled, isDark, freeRide: true);
 
         // Allow user to rotate the screen in ride view.
         // Landscape-Mode will be removed in FinishRideButton.
@@ -126,9 +139,14 @@ class FreeRideViewState extends State<FreeRideView> {
                           child: SafeArea(
                             child: Tile(
                               onPressed: () async {
+                                // End the tracking and collect the data.
+                                await getIt<Tracking>().end(); // Performs all needed resets.
                                 await freeRide.reset();
                                 final positioning = getIt<Positioning>();
                                 await positioning.stopGeolocation();
+
+                                // Disable the wakelock which was set when the ride started.
+                                WakelockPlus.disable();
 
                                 if (!context.mounted) return;
                                 Navigator.of(context).pushAndRemoveUntil(
