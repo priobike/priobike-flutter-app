@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -360,7 +361,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   BoldSubHeader(
-                                    text: "Navigation",
+                                    text: "Navigation (empfohlen)",
                                     context: context,
                                   ),
                                   const SizedBox(height: 4),
@@ -418,7 +419,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             ShortcutsView(
                               onSelectShortcut: onSelectShortcut,
                               onStartFreeRouting: onStartFreeRouting,
-                              onStartFreeRide: onStartFreeRide,
                             )
                           ],
                         ),
@@ -427,14 +427,76 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         delay: Duration(milliseconds: 750),
                         child: YourBikeView(),
                       ),
-                      BlendIn(
-                        delay: const Duration(milliseconds: 1000),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                          child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
+                      const SmallVSpace(),
+                      HPad(
+                        child: Tile(
+                          onPressed: onStartFreeRide,
+                          shadowIntensity: 0,
+                          content: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width * 0.5,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        BoldSmall(
+                                          text: "Erkundungsmodus",
+                                          overflow: TextOverflow.ellipsis,
+                                          context: context,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          Icons.explore_rounded,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SmallVSpace(),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width * 0.5,
+                                    child: Small(
+                                      text: "Ohne Route durch die Stadt bewegen",
+                                      overflow: TextOverflow.ellipsis,
+                                      context: context,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.only(left: 8),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Row(
+                                  children: [
+                                    BoldSmall(
+                                        text: "Losfahren",
+                                        context: context,
+                                        color: Theme.of(context).colorScheme.tertiary),
+                                    Transform.translate(
+                                      offset: const Offset(2, 0),
+                                      child: Icon(
+                                        Icons.chevron_right_rounded,
+                                        color: Theme.of(context).colorScheme.tertiary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SmallVSpace(),
+                      const VSpace(),
                       const TrackHistoryView(),
                       BlendIn(
                         delay: const Duration(milliseconds: 1000),
