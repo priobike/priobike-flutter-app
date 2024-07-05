@@ -11,6 +11,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/services/features.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ReleaseInfoView extends StatefulWidget {
   const ReleaseInfoView({super.key});
@@ -82,6 +83,8 @@ const androidExplanation = """
 
 Um das Beta-Programm für Android zu verlassen, musst du erneut auf den Einladungslink und dann auf "Verlassen" klicken. Anschließend kannst du die App aus dem Google Play Store installieren. Danach solltest du in der Lage sein, deine App zu aktualisieren und verlierst somit nicht deine gespeicherten Routen.
 
+Einladungslink: https://play.google.com/apps/testing/de.tudresden.priobike
+
 Für interne Tester: Zunächst die Entwickleroptionen im Play Store aktivieren, um interner Tester zu werden. Dazu klickst du 7 Mal auf die Play Store-Version. Gehe anschließend zu Einstellungen -> Allgemein -> Entwickleroptionen und aktiviere die interne App-Bereitstellung. Nachdem du den Einladungslink akzeptiert hast, kann die interne Version aktualisiert werden.
 """;
 
@@ -111,7 +114,10 @@ class ReleaseInfoExplanation extends StatelessWidget {
     var styleSheet = MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
       h2: Theme.of(context).textTheme.headlineLarge!.copyWith(color: CI.radkulturRed),
       // Don't highlight links
-      a: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).colorScheme.onBackground),
+      a: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: CI.radkulturRed,
+            fontWeight: FontWeight.w700,
+          ),
     );
 
     return AnnotatedRegionWrapper(
@@ -142,6 +148,11 @@ class ReleaseInfoExplanation extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     styleSheet: styleSheet,
+                    onTapLink: (text, href, title) {
+                      if (href == null) return;
+                      final uri = Uri.parse(href);
+                      launchUrl(uri);
+                    },
                   ),
                   const SizedBox(height: 256),
                 ],
