@@ -27,7 +27,7 @@ class LoadStatusViewState extends State<LoadStatusView> {
   @override
   Widget build(BuildContext context) {
     if (!loadStatus.hasWarning) {
-      return const Padding(padding: EdgeInsets.fromLTRB(40, 16, 24, 0));
+      return Container();
     }
 
     return BlendIn(
