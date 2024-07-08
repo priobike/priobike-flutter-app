@@ -207,6 +207,7 @@ class Track {
       'startTime': startTime,
       'endTime': endTime,
       'debug': debug,
+      'freeRide': freeRide,
       'city': city.name,
       'backend': backend.name,
       'positioningMode': positioningMode.name,
