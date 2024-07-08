@@ -53,6 +53,8 @@
 	<string>Diese App nutzt TCP-Netzwerkdienste, um Verbindungen zu Ampeln herzustellen, und braucht hierfür deine Erlaubnis.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Die App benötigt den Standort zur Navigation.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Die App benötigt den Standort zur Navigation im Hintergrund.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Die App benötigt den Standort zur Navigation.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -87,7 +89,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationAlwaysUsageDescription</key>
-    <string>Die App benötigt den Standort zur Navigation im Hintergrund.</string>
 </dict>
 </plist>
