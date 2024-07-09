@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/map/layers/sg_layers_free.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
@@ -36,16 +37,11 @@ class FreeRideMapView extends StatefulWidget {
 class FreeRideMapViewState extends State<FreeRideMapView> {
   static const viewId = "free.ride.views.map";
 
-  static const bearingDiffThreshold = 90;
-
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
   /// The associated free ride service, which is injected by the provider.
   late FreeRide freeRide;
-
-  /// If the SG filter is active.
-  late bool sgFilterActive;
 
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
@@ -64,7 +60,9 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
+    AllTrafficLightsPredictionGeometryLayer.layerIdBackground,
     AllTrafficLightsPredictionGeometryLayer.layerId,
+    AllTrafficLightsPredictionGeometryLayer.layerIdChevrons,
     AllTrafficLightsPredictionLayer.layerId,
     AllTrafficLightsPredictionLayer.countdownLayerId,
   ];
@@ -93,10 +91,10 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     freeRide = getIt<FreeRide>();
     freeRide.addListener(onFreeRideUpdate);
     settings = getIt<Settings>();
-    sgFilterActive = settings.isFreeRideFilterEnabled;
   }
 
   void onFreeRideUpdate() {
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -189,6 +187,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     await getFirstLabelLayer();
 
@@ -200,10 +199,10 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
     // await AllTrafficLightsLayer().install(mapController!, at: index);
     var index = await getIndex(AllTrafficLightsPredictionGeometryLayer.layerId);
     if (!mounted) return;
-    await AllTrafficLightsPredictionGeometryLayer().install(mapController!, at: index);
+    await AllTrafficLightsPredictionGeometryLayer(isDark).install(mapController!, at: index);
     index = await getIndex(AllTrafficLightsPredictionLayer.layerId);
     if (!mounted) return;
-    await AllTrafficLightsPredictionLayer().install(mapController!, at: index);
+    await AllTrafficLightsPredictionLayer(isDark).install(mapController!, at: index);
 
     onPositioningUpdate();
 
@@ -303,7 +302,7 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       freeRide.updateVisibleSgs(cameraBounds, LatLng(lat, lon), cameraState.zoom);
     });
 
-    updateSgPredictionsTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    updateSgPredictionsTimer = Timer.periodic(const Duration(milliseconds: 499), (timer) async {
       if (mapController == null) return;
       final Map<String, dynamic> propertiesBySgId = {};
 
@@ -317,89 +316,37 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
         int? secondsToPhaseChange;
         (greenNow, secondsToPhaseChange) = await getGreenNowAndSecondsToPhaseChange(entry.value);
 
-        if (!sgFilterActive) {
-          propertiesBySgId[entry.key] = {
-            "greenNow": greenNow,
-            "opacity": 1,
-            "countdown": secondsToPhaseChange?.toInt(),
-            "lineWidth": 5,
-          };
-          continue;
-        }
-
-        // Bool that holds the state if a sg is most likely relevant for the user or not.
-        bool isRelevant = false;
-
-        final sgGeometry = freeRide.sgGeometries![entry.key];
         double sgBearing = freeRide.sgBearings![entry.key]!;
-
         // Fix sg bearing to make it comparable with user bearing.
         if (sgBearing < 0) {
           sgBearing = 180 + (180 - sgBearing.abs());
         }
-
-        // 1. A sg facing towards the user is considered as relevant.
-        // 360 need to be considered.
-
         final bearingDiff = getBearingDiff(currentCalcBearing!, sgBearing);
-        if (-45 < bearingDiff && bearingDiff < 45) {
-          isRelevant = true;
-        }
-
-        // 2. A sg facing to the left of the user with a lane going left from the user is considered as relevant.
-        final coordinates = sgGeometry?['coordinates'];
-
-        if (45 < bearingDiff && bearingDiff < 135) {
-          if (coordinates != null && coordinates.length > 1) {
-            final secondLast = coordinates[coordinates.length - 2];
-            final last = coordinates[coordinates.length - 1];
-            double laneEndBearing = vincenty.bearing(LatLng(secondLast[1], secondLast[0]), LatLng(last[1], last[0]));
-            if (laneEndBearing < 0) {
-              laneEndBearing = 180 + (180 - laneEndBearing.abs());
-            }
-
-            final bearingDiffLastSegment = getBearingDiff(currentCalcBearing!, laneEndBearing);
-
-            // relative left is okay.
-            // Just not
-            if (45 < bearingDiffLastSegment && bearingDiffLastSegment < 135) {
-              // Left sg.
-              isRelevant = true;
-            }
-          }
-        }
-
-        // 3. A sg facing to the right of the user and being oriented towards the right side of the user is considered as relevant.
-        if (-180 < bearingDiff && bearingDiff < 0) {
-          if (coordinates != null && coordinates.length > 1) {
-            final last = coordinates[coordinates.length - 1];
-            double laneEndPositionBearing = vincenty.bearing(
-              LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
-              LatLng(last[1], last[0]),
-            );
-            if (laneEndPositionBearing < 0) {
-              laneEndPositionBearing = 180 + (180 - laneEndPositionBearing.abs());
-            }
-
-            final bearingDiffUserSG = getBearingDiff(currentCalcBearing!, laneEndPositionBearing);
-
-            if (170 < bearingDiffUserSG && bearingDiffUserSG < 0) {
-              isRelevant = true;
-            }
-          }
+        var opacity = 1 - (bearingDiff.abs() / 135);
+        if (opacity < 0) {
+          opacity = 0;
+        } else if (opacity > 1) {
+          opacity = 1;
         }
 
         propertiesBySgId[entry.key] = {
           "greenNow": greenNow,
           "countdown": secondsToPhaseChange?.toInt(),
-          "opacity": isRelevant ? 1 : 0.25,
-          "lineWidth": isRelevant ? 5 : 1,
+          "opacity": greenNow == null ? 0 : opacity,
+          "lineWidth": 5,
         };
       }
-      AllTrafficLightsPredictionLayer(propertiesBySgId: propertiesBySgId, userBearing: currentCalcBearing)
-          .update(mapController!);
-      AllTrafficLightsPredictionGeometryLayer(propertiesBySgId: propertiesBySgId, userBearing: currentCalcBearing)
-          .update(mapController!);
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      AllTrafficLightsPredictionLayer(
+        isDark,
+        propertiesBySgId: propertiesBySgId,
+        userBearing: currentCalcBearing,
+      ).update(mapController!);
+      AllTrafficLightsPredictionGeometryLayer(
+        isDark,
+        propertiesBySgId: propertiesBySgId,
+        userBearing: currentCalcBearing,
+      ).update(mapController!);
     });
   }
 
@@ -420,15 +367,20 @@ class FreeRideMapViewState extends State<FreeRideMapView> {
       marginYAttribution = -5;
     }
 
-    return AppMap(
-      onMapCreated: onMapCreated,
-      onStyleLoaded: onStyleLoaded,
-      logoViewMargins: Point(10, marginYLogo),
-      logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
-      attributionButtonMargins: Point(10, marginYAttribution),
-      attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
-      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
-      useMapboxPositioning: true,
+    return AnnotatedRegionWrapper(
+      colorMode: Theme.of(context).brightness,
+      bottomBackgroundColor: const Color(0xFF000000),
+      bottomTextBrightness: Brightness.light,
+      child: AppMap(
+        onMapCreated: onMapCreated,
+        onStyleLoaded: onStyleLoaded,
+        logoViewMargins: Point(10, marginYLogo),
+        logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
+        attributionButtonMargins: Point(10, marginYAttribution),
+        attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
+        saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
+        useMapboxPositioning: true,
+      ),
     );
   }
 }

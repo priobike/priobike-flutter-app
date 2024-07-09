@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
@@ -23,6 +24,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/free.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/profile.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -226,6 +228,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
+    if (routing.isFetchingRoute) return;
+
     HapticFeedback.mediumImpact();
 
     pushRoutingView();
@@ -241,6 +245,43 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           routing.reset();
           predictionSGStatus.reset();
         }
+      },
+    );
+  }
+
+  /// A callback that is fired when free ride was selected.
+  void onStartFreeRide() {
+    HapticFeedback.mediumImpact();
+
+    if (settings.didViewWarning) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FreeRideView()));
+      return;
+    }
+
+    // Before we start the free ride view, we always notify the user of its drawbacks.
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return DialogLayout(
+          title: "Wirklich ohne Route fahren?",
+          text:
+              "In diesem Modus siehst Du lediglich Countdowns der Ampeln. Diese können ungenau sein. Mit Routenplanung erhältst Du genauere Geschwindigkeitsempfehlungen. Denke an Deine Sicherheit und achte stets auf Deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.",
+          actions: [
+            BigButtonPrimary(
+              label: "Fortfahren",
+              onPressed: () {
+                getIt<Settings>().setDidViewWarning(true);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FreeRideView()));
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+            BigButtonTertiary(
+              label: "Abbrechen",
+              onPressed: () => Navigator.pop(context),
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            ),
+          ],
+        );
       },
     );
   }
@@ -309,7 +350,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   BoldSubHeader(
-                                    text: "Navigation",
+                                    text: "Navigation (empfohlen)",
                                     context: context,
                                   ),
                                   const SizedBox(height: 4),
@@ -364,7 +405,10 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                                 padding: EdgeInsets.fromLTRB(25, 0, 25, 24),
                               ),
                             ),
-                            ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
+                            ShortcutsView(
+                              onSelectShortcut: onSelectShortcut,
+                              onStartFreeRouting: onStartFreeRouting,
+                            )
                           ],
                         ),
                       ),
@@ -372,14 +416,79 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         delay: Duration(milliseconds: 750),
                         child: YourBikeView(),
                       ),
+                      const SmallVSpace(),
                       BlendIn(
-                        delay: const Duration(milliseconds: 1000),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                          child: Divider(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)),
+                        delay: const Duration(milliseconds: 750),
+                        child: HPad(
+                          child: Tile(
+                            onPressed: onStartFreeRide,
+                            shadowIntensity: 0,
+                            content: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.5,
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          BoldSmall(
+                                            text: "Erkundungsmodus",
+                                            overflow: TextOverflow.ellipsis,
+                                            context: context,
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Icon(
+                                            Icons.explore_rounded,
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                            size: 16,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SmallVSpace(),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.5,
+                                      child: Small(
+                                        text: "Ohne Route durch die Stadt bewegen",
+                                        overflow: TextOverflow.ellipsis,
+                                        context: context,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      BoldSmall(
+                                          text: "Losfahren",
+                                          context: context,
+                                          color: Theme.of(context).colorScheme.tertiary),
+                                      Transform.translate(
+                                        offset: const Offset(2, 0),
+                                        child: Icon(
+                                          Icons.chevron_right_rounded,
+                                          color: Theme.of(context).colorScheme.tertiary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      const SmallVSpace(),
+                      const VSpace(),
                       const TrackHistoryView(),
                       BlendIn(
                         delay: const Duration(milliseconds: 1000),

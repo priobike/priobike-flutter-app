@@ -16,7 +16,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
-import 'package:priobike/ride/views/free.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
@@ -229,28 +228,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   ],
                 ),
                 const VSpace(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Freie Fahrt",
-                    icon: Icons.directions_bike_rounded,
-                    callback: () => Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const FreeRideView(),
-                      ),
-                      (route) => false,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Freie Fahrt Filter",
-                    icon: settings.isFreeRideFilterEnabled ? Icons.check_box : Icons.check_box_outline_blank,
-                    callback: () => settings.setFreeRideFilterEnabled(!settings.isFreeRideFilterEnabled),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(

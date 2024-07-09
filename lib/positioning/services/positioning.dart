@@ -155,6 +155,22 @@ class Positioning with ChangeNotifier {
           [settings.city.center];
       positionSource = PathMockPositionSource(idealSpeed: 18 / 3.6, positions: positions, autoSpeed: true);
       log.i("Using mocked auto speed positioning source.");
+    } else if (settings.positioningMode == PositioningMode.hamburgInCircles) {
+      // In circles around Millerntorplatz, an area with many traffic lights.
+      positionSource = PathMockPositionSource(idealSpeed: 18 / 3.6, positions: const [
+        LatLng(53.549912, 9.967677),
+        LatLng(53.550012, 9.971065),
+        LatLng(53.549654, 9.972879),
+        LatLng(53.549981, 9.973134),
+        LatLng(53.550216, 9.971639),
+        LatLng(53.551221, 9.969480),
+        LatLng(53.550957, 9.969092),
+        LatLng(53.550727, 9.969593),
+        LatLng(53.550174, 9.969269),
+        LatLng(53.550115, 9.967710),
+        LatLng(53.549912, 9.967677),
+      ]);
+      log.i("Using mocked position source for Hamburg in circles.");
     } else if (settings.positioningMode == PositioningMode.sensor) {
       final routing = getIt<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.

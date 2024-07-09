@@ -44,7 +44,7 @@ class FreeRide with ChangeNotifier {
   final Set<String> subscriptions = {};
 
   /// The max distance in meters for an SG to be considered on screen.
-  static const maxDistance = 200;
+  static const maxDistance = 300;
 
   final vincenty = const Distance(roundResult: false);
 
