@@ -70,7 +70,7 @@ const Article articlePrioBike = Article(
   "assets/images/wiki/wiki-das-projekt-icon.png",
   [
     "Hallo liebe Radfahrerinnen und Radfahrer! Ich bin PrioBike, eure freundliche Fahrrad-App. Aber ich bin nicht nur eine App, sondern Teil eines großen Projekts, das Hamburg zu einer fahrradfreundlicheren Stadt machen will.",
-    "Unser neuestes Ding sind die \"Grünen Welle\" entlang von Velorouten. Wenn ihr diese Routen benutzt, werdet ihr nicht nur mit frischer Luft und einer schönen Aussicht belohnt, sondern auch mit einer statischen Grünen Welle, die euch mit 18 km/h bei Grün durchfahren lässt. Wenn das kein Grund ist, sich aufs Rad zu schwingen...",
+    "Unser neuestes Ding sind die \"Grünen Wellen\" entlang von Velorouten. Wenn ihr diese Routen benutzt, werdet ihr nicht nur mit frischer Luft und einer schönen Aussicht belohnt, sondern auch mit einer statischen Grünen Welle, die euch mit 18 km/h bei Grün durchfahren lässt. Wenn das kein Grund ist, sich aufs Rad zu schwingen...",
     "Aber das ist noch lange nicht alles. Habt ihr schon die PrioBike-Säule auf der Rothenbaumchaussee entdeckt? Sie ist einzigartig in Deutschland und berechnet für jeden Radfahrenden eine individuelle Geschwindigkeitsempfehlung.",
     "Und als ob das noch nicht genug wäre, gibt es an einer Kreuzung sogar eine Umkehrung der klassischen Ampel-Priorisierung. Hier wird der Fuß- und Radverkehr bevorzugt, während der Kfz-Verkehr grünes Licht nur bei Bedarf erhält.",
     "Und wenn ihr denkt, das war schon alles, täuscht ihr euch. Wir haben noch viele weitere Radinfrastrukturverbesserungen in petto, wie die Erweiterung der Velorouten und vieles mehr. In Zukunft werden wir euch noch mehr coole Dinge bieten, damit ihr eure Radtouren in vollen Zügen genießen könnt.",
