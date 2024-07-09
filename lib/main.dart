@@ -68,7 +68,7 @@ Future<void> main() async {
   await feature.load();
   getIt.registerSingleton<Settings>(Settings());
   final settings = getIt<Settings>();
-  await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
+  await settings.loadSettings(feature.canEnableInternalFeatures);
 
   // Setup the logger.
   await Logger.init(settings.enableLogPersistence);

@@ -20,7 +20,6 @@ import 'package:priobike/home/views/restart_route_dialog.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
-import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
@@ -327,16 +326,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   child: Column(
                     children: [
                       const LoadStatusView(),
-                      if (settings.useCounter >= 3 && !settings.dismissedSurvey) const SmallVSpace(),
-                      if (settings.useCounter >= 3 && !settings.dismissedSurvey)
-                        BlendIn(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: const SurveyView(
-                              dismissible: true,
-                            ),
-                          ),
-                        ),
                       const VSpace(),
                       if (showStatusView)
                         const BlendIn(

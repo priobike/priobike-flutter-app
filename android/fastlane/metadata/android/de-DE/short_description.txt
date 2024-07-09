@@ -1,1 +1,1 @@
-Grüne Welle für Radfahrende in Hamburg
+App für Radfahrende in Hamburg mit Echtzeit-Ampelinformationen

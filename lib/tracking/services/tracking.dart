@@ -156,7 +156,7 @@ class Tracking with ChangeNotifier {
         bikeType: profile.bikeType,
         // Can be null if the free ride mode is selected.
         routes: routing.selectedRoute == null ? {} : {startTime: routing.selectedRoute!},
-        subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+        subVersion: feature.buildTrigger,
         batteryStates: [],
         saveBatteryModeEnabled: saveBatteryModeEnabled,
         isDarkMode: isDarkMode,

@@ -137,6 +137,8 @@ extension DefaultShortcuts on City {
               Waypoint(53.5522524, 9.9313068, address: "Altona-Altstadt, 22767, Hamburg, Deutschland"),
               Waypoint(53.5536507, 9.9893664, address: "Jungfernstieg, Altstadt, 20095, Hamburg, Deutschland"),
             ],
+            routeTimeText: "17 Min.",
+            routeLengthText: "4.8 km",
           ),
         ];
       case City.dresden:

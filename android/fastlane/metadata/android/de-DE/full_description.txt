@@ -1,1 +1,21 @@
-Nutze die PrioBike-App, um in Hamburg intelligenter radzufahren. Erhalte auf Dich, Dein Fahrrad und Deinen Fahrstil zugeschnittene Routenvorschläge. Mit der grünen Welle kannst Du entspannt cruisen, während sich andere zur nächsten roten Ampel hetzen. Sammle Radkilometer und spare CO2 für den Planeten, während Du Baustellen und Gefahrenstellen gekonnt umfährst. Oder finde Stellplätze, Luftpumpen, Reparaturshops und Fahrradleihstationen, wenn Du sie brauchst.
+Die PrioBike App gibt dir - als Fahrradfahrenden in Hamburg - die Möglichkeit, während der Fahrt Ampelinformationen zu erhalten. Diese kannst du nutzen, um dein Fahrverhalten anzupassen. So kannst du dich zum Beispiel ausrollen lassen, wenn du weißt, dass die Ampel sowieso rot bleiben wird oder beschleunigen, damit du die nächste Grünphase noch erreichst.
+
+Hintergrund
+Die App wird im Rahmen des PrioBike-Projekts an der TU Dresden entwickelt, um diese neuartige Art des Fahrradfahrens im Einklang mit den Ampeln zu erforschen. Dementsprechend wird die App aktuell aktiv weiterentwickelt und stetig verbessert. Wir freuen uns, dass die App nun frei zum Download verfügbar ist und danken allen, die sich die Zeit nehmen, um die App auszuprobieren. Teilt uns gerne über die E-Mail „priobike@tu-dresden.de“ eure Erfahrungen mit.
+
+Wie nutze ich die App?
+Als erstes legst du dir für deine Lieblingsstrecken Routen in der App an. Entlang dieser Routen findet die App automatisch Ampeln. Damit du möglichst viel von der App hast, gibt dir die App bei der Erstellung der Routen Informationen über die aktuelle Ampelabdeckung. Wenn du dann deine Fahrt antrittst, wirst du sehen, dass bei der Zufahrt auf Ampeln in dem Tacho Farben erscheinen. Diese entsprechen den Ampelfarben. In der Mitte des Tachos siehst du die aktuelle Farbe der Ampel sowie einen Countdown bis zum nächsten Wechsel der Ampelfarbe. Am Rand des Tachos siehst du deine Geschwindigkeit sowie die Farbe, die die Ampel bei deiner Ankunft haben wird, wenn du weiter mit dieser Geschwindigkeit weiterfährst. So siehst du, ob du bei rot oder grün ankommen wirst und kannst ganz individuell dein Fahrverhalten entsprechend anpassen.
+
+Wie funktioniert die App?
+Damit die App dir Informationen zur besten Geschwindigkeit entlang deiner Route bereitstellen kann, greift sie auf Ampeldaten zurück. Diese werden von der Stadt Hamburg als Open Data zur freien Verfügung bereitstellt. Diese Ampeldaten nutzt die App, um deiner Fahrtroute automatisch die richtigen Ampeln zuzuordnen und für diese Ampeln zukünftige Schaltzustände abzuleiten.
+Hamburg hat dazu ein System aufgebaut, das die Ampeldaten an den Ampelanlagen erfasst und bereitstellt. Gegenwärtig sind bereits ca. 5100 Ampeln an das System angebunden und der Ausbau des Systems läuft kontinuierlich weiter. Du kannst also davon ausgehen, das zukünftig für noch mehr Ampeln Daten zur Verfügung stehen.
+Du kannst dich direkt in der App darüber informieren, wie viele Ampeln im Stadtgebiet und auf deiner Route bereits Daten liefern können.
+
+Weitere Funktionen
+- Routen speichern und teilen
+- Import von GPX Routen
+- Platzieren von Zwischenziele bei Routen
+- Finden von Fahrrad-Stellplätzen, Luftpumpen, Service-Läden, Fahrradrouten, Ausleihstationen und grünen Wellen
+- Light/Dark Mode
+- Anzeige von Alternativ-Routen
+- Spezielle Routen für Stadtfahrräder, Mountainbikes, Lastenräder und Rennräder

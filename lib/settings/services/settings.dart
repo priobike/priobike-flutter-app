@@ -73,9 +73,6 @@ class Settings with ChangeNotifier {
   /// If the save battery mode is enabled.
   bool saveBatteryModeEnabled;
 
-  /// If the save battery mode is enabled.
-  bool dismissedSurvey;
-
   /// If the audio instructions are enabled.
   bool audioInstructionsEnabled;
 
@@ -339,23 +336,6 @@ class Settings with ChangeNotifier {
     notifyListeners();
   }
 
-  static const dismissedSurveyKey = "priobike.settings.dissmissedSurvey";
-  static const defaultDismissedSurvey = false;
-
-  Future<bool> setDismissedSurvey(bool dismissedSurvey, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.dismissedSurvey;
-    this.dismissedSurvey = dismissedSurvey;
-    final bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
-    if (!success) {
-      log.e("Failed to set dissmissedSurvey to $sgSelector");
-      this.dismissedSurvey = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
   static const trackingSubmissionPolicyKey = "priobike.settings.trackingSubmissionPolicy";
   static const defaultTrackingSubmissionPolicy = TrackingSubmissionPolicy.always;
 
@@ -490,7 +470,6 @@ class Settings with ChangeNotifier {
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
     this.audioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
     this.useCounter = defaultUseCounter,
-    this.dismissedSurvey = defaultDismissedSurvey,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
@@ -544,7 +523,7 @@ class Settings with ChangeNotifier {
   }
 
   /// Load the stored settings.
-  Future<void> loadSettings(bool canEnableInternalFeatures, bool canEnableBetaFeatures) async {
+  Future<void> loadSettings(bool canEnableInternalFeatures) async {
     if (hasLoaded) return;
 
     final storage = await SharedPreferences.getInstance();
@@ -573,11 +552,6 @@ class Settings with ChangeNotifier {
     }
     try {
       saveBatteryModeEnabled = storage.getBool(saveBatteryModeEnabledKey) ?? defaultSaveBatteryModeEnabled;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      dismissedSurvey = storage.getBool(dismissedSurveyKey) ?? defaultDismissedSurvey;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

@@ -17,7 +17,7 @@ class Article {
   /// The imges of the article.
   final List<String> images;
 
-  Article(
+  const Article(
     this.title,
     this.subtitle,
     this.estimatedTime,
