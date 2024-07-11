@@ -432,6 +432,13 @@ class Routing with ChangeNotifier {
       return null;
     }
 
+    List<List<GHInstruction>?> landmarkInstructionsPerPath = [];
+    final pois = getIt<Pois>();
+    for (final path in ghResponse.paths) {
+      final landmarkInstructions = await pois.getLandmarkInstructions(path);
+      landmarkInstructionsPerPath.add(landmarkInstructions);
+    }
+
     // Create the routes.
     final routes = ghResponse.paths
         .asMap()
@@ -481,7 +488,7 @@ class Routing with ChangeNotifier {
           List<Instruction> instructions = List<Instruction>.empty(growable: true);
           if (getIt<Settings>().audioInstructionsEnabled) {
             // Add an instruction for each relevant waypoint.
-            instructions = createInstructions(sgSelectorResponse, path);
+            instructions = createInstructions(sgSelectorResponse, path, landmarkInstructionsPerPath[i]);
           }
 
           final osmTagsForRoute = osmTags[i];
@@ -577,7 +584,8 @@ class Routing with ChangeNotifier {
   }
 
   /// Get the text of all GraphHopper instructions that belong to a specific waypoint.
-  String getGHInstructionTextForWaypoint(GHRouteResponsePath path, NavigationNode waypoint) {
+  String getGHInstructionTextForWaypoint(
+      GHRouteResponsePath path, NavigationNode waypoint, List<GHInstruction> instructions) {
     List<GHInstruction> instructionList = [];
 
     // Get the GraphHopper coordinates that matches lat and long of current waypoint.
@@ -588,13 +596,13 @@ class Routing with ChangeNotifier {
       final index = path.points.coordinates.indexOf(ghCoordinate);
 
       // Get all GraphHopper instructions that match the index of the coordinate.
-      for (final instruction in path.instructions) {
+      for (final instruction in instructions) {
         if (instruction.interval.first == index) {
           // Skip waypoint instructions and "Dem Straßenverlauf folgen" instruction after a waypoint.
           final isWaypoint = instruction.text.startsWith("Wegpunkt");
 
-          int instructionIndex = path.instructions.indexOf(instruction);
-          final previousInstruction = instructionIndex > 0 ? path.instructions[instructionIndex - 1] : null;
+          int instructionIndex = instructions.indexOf(instruction);
+          final previousInstruction = instructionIndex > 0 ? instructions[instructionIndex - 1] : null;
           final isFollowTheRouteInstructionAfterWaypoint = instruction.text.startsWith("Dem Straßenverlauf") &&
               previousInstruction != null &&
               previousInstruction.text.startsWith("Wegpunkt");
@@ -677,7 +685,9 @@ class Routing with ChangeNotifier {
   }
 
   /// Create the instructions for each route.
-  List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
+  List<Instruction> createInstructions(
+      SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path, List<GHInstruction>? customInstructions) {
+    final allInstructions = customInstructions ?? path.instructions;
     final instructions = List<Instruction>.empty(growable: true);
     LatLng? lastInstructionPoint;
 
@@ -686,7 +696,7 @@ class Routing with ChangeNotifier {
         currentNavigationNodeIdx < sgSelectorResponse.route.length;
         currentNavigationNodeIdx++) {
       final currentWaypoint = sgSelectorResponse.route[currentNavigationNodeIdx];
-      String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint);
+      String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint, allInstructions);
       String? signalGroupId = getSignalGroupIdForWaypoint(currentWaypoint, ghInstructionText.isNotEmpty, 25);
       String laneType = sgSelectorResponse.signalGroups[signalGroupId]?.laneType ?? "";
       InstructionType? instructionType = getInstructionType(ghInstructionText, signalGroupId);

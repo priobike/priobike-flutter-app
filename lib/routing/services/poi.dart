@@ -118,6 +118,32 @@ class Pois with ChangeNotifier {
     return coordinates;
   }
 
+  /// Load the landmarks from the POI service.
+  Future<List<GHInstruction>?> getLandmarkInstructions(GHRouteResponsePath path) async {
+    try {
+      final settings = getIt<Settings>();
+
+      final baseUrl = settings.city.selectedBackend(true).path;
+      final poisUrl = "https://$baseUrl/poi-service-backend/pois/landmarks";
+      final poisEndpoint = Uri.parse(poisUrl);
+      log.i("Loading landmarks response from $poisUrl");
+
+      final response = await Http.post(poisEndpoint, body: json.encode(path.toJson()));
+
+      if (response.statusCode == 200) {
+        log.i("Loaded landmarks response from $poisUrl");
+        return GHRouteResponsePath.fromJson(json.decode(response.body)).instructions;
+      } else {
+        log.e("Failed to load landmarks response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      final hint = "Failed to load landmarks response: $e";
+      log.e(hint);
+      return null;
+    }
+  }
+
   /// Load a pois response.
   Future<PoisResponse?> loadPoisResponse(GHRouteResponsePath path) async {
     try {
