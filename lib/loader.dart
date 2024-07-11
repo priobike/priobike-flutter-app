@@ -261,7 +261,9 @@ class LoaderState extends State<Loader> {
           return DialogLayout(
             title: 'Standortfreigabe',
             text:
-                "PrioBike benötigt deinen Standort für die Navigation, die Anzeige von Orten und Ampeln in deiner Nähe. Standortfreigabe erteilen?",
+                "PrioBike benötigt deinen Standort für die Navigation und die Anzeige von Orten und Ampeln in deiner Nähe.\n"
+                "Wenn Du während der Fahrt die App minimerst oder das Handy sperrst, benutzt die App den Standort im Hintergrund, damit die Fahrt nicht unterbrochen wird und diese beim Zurückkehren zur App direkt wieder fortgesetzt werden kann.\n\n"
+                "Standortfreigabe erteilen?",
             actions: [
               BigButtonPrimary(
                 label: "Freigeben",
