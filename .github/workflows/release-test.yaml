@@ -34,8 +34,6 @@ jobs:
         with:
           fetch-depth: 1
           fetch-tags: true
-      - name: Git Fetch Tags
-        run: git fetch --tags
       - name: Prepare secret files
         run: |
           echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
