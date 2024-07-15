@@ -34,6 +34,8 @@ jobs:
         with:
           fetch-depth: 1
           fetch-tags: true
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Prepare secret files
         run: |
           echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
@@ -47,6 +49,7 @@ jobs:
           KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
       - name: Build the Android app bundle
         run: |
+          echo $RELEASE_VERSION
           ./get_tag.sh
           flutter pub get
           flutter build appbundle

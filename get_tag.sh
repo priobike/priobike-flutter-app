@@ -14,3 +14,4 @@ if [[ $GIT_TAG == "release-"* ]]; then
   echo $GIT_TAG > git_tag.txt
 fi
 
+echo "Git tag fetched successfully."
