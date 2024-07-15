@@ -30,7 +30,7 @@ jobs:
     # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
     container: ghcr.io/cirruslabs/flutter:3.19.6
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Fetch all tags to get the latest version
           fetch-tags: true
