@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Fetching the latest Git tag..."
+
 # Fetch the latest Git tag
 GIT_TAG=$(git tag --points-at HEAD)
 

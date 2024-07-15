@@ -1,0 +1,54 @@
+name: Dist / Android / ReleaseTest
+
+on:
+  push:
+    # Every branch that starts with "release"
+    tags:
+      - release-test-v*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: self-hosted
+    # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
+    container: ghcr.io/cirruslabs/flutter:3.19.6
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run unit tests
+        run: |
+          flutter pub get
+          dart format --line-length 120 --set-exit-if-changed .
+          flutter analyze .
+          flutter test
+
+  distribute:
+    runs-on: self-hosted
+    needs: test
+    # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
+    container: ghcr.io/cirruslabs/flutter:3.19.6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Git Fetch Tags
+        run: git fetch --tags
+      - name: Prepare secret files
+        run: |
+          echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
+          echo "$API_KEY_BASE64" | base64 --decode > android/fastlane/api-key.json
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/fastlane/keystore.jks
+          echo "$KEY_PROPERTIES_BASE64" | base64 --decode > android/key.properties
+        env:
+          GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64 }}
+          API_KEY_BASE64: ${{ secrets.API_KEY_BASE64 }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
+      - name: Build the Android app bundle
+        run: |
+          ./get_tag.sh
+          flutter pub get
+          flutter build appbundle
