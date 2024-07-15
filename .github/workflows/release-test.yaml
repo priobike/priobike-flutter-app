@@ -50,4 +50,4 @@ jobs:
       - name: Build the Android app bundle
         run: |
           echo $RELEASE_VERSION
-          ./get_tag.sh
+          ./get_tag.sh $RELEASE_VERSION
