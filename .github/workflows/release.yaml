@@ -32,9 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          # Fetch all tags to get the latest version
+          fetch-depth: 0
           fetch-tags: true
-
       - name: Prepare secret files
         run: |
           echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
@@ -48,6 +47,7 @@ jobs:
           KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
       - name: Build the Android app bundle
         run: |
+          git fetch --tags origin
           ./get_tag.sh
           flutter pub get
           flutter build appbundle
