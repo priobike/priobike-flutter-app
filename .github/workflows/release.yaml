@@ -47,7 +47,7 @@ jobs:
           KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
       - name: Build the Android app bundle
         run: |
-          git fetch --tags origin
+          git fetch --tags
           ./get_tag.sh
           flutter pub get
           flutter build appbundle
