@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Fetching the latest Git tag..."
+echo "Setting the latest Git tag..."
 
 # Setting the tag if it provided as an argument
 GIT_TAG=$1
