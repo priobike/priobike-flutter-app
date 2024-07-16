@@ -34,12 +34,13 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-      - name: Prepare secret files
+      - name: Prepare secret file and env
         run: |
           echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
           echo "$API_KEY_BASE64" | base64 --decode > android/fastlane/api-key.json
           echo "$KEYSTORE_BASE64" | base64 --decode > android/fastlane/keystore.jks
           echo "$KEY_PROPERTIES_BASE64" | base64 --decode > android/key.properties
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
         env:
           GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64 }}
           API_KEY_BASE64: ${{ secrets.API_KEY_BASE64 }}
@@ -47,7 +48,7 @@ jobs:
           KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
       - name: Build the Android app bundle
         run: |
-          ./get_tag.sh
+          ./set_git_tag.sh $RELEASE_VERSION
           flutter pub get
           flutter build appbundle
       - name: Install Fastlane

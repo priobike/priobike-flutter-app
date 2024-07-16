@@ -1,8 +1,9 @@
 #!/bin/bash
 
-echo "Fetching the latest Git tag..."
+echo "Setting the latest Git tag..."
 
-GIT_TAG=$(git tag --points-at HEAD)
+# Setting the tag if it provided as an argument
+GIT_TAG=$1
 
 # To check in ci script
 echo $GIT_TAG
