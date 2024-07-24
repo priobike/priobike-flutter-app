@@ -94,6 +94,10 @@ class Settings with ChangeNotifier {
   /// If we want to show the speed with increased precision in the speedometer.
   bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
 
+  /// If we want to use audio instructions where only landmark informations are used.
+  /// Opposite would be a combination of landmark instructions with classical instructions.
+  bool onlyUseLandmarkInstructions;
+
   static const enableLogPersistenceKey = "priobike.settings.enableLogPersistence";
   static const defaultEnableLogPersistence = false;
 
@@ -492,6 +496,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const onlyUseLandmarkInstructionsKey = "priobike.settings.onlyUseLandmarkInstructions";
+  static const defaultOnlyUseLandmarkInstructions = false;
+
+  Future<bool> setOnlyUseLandmarkInstructions(bool onlyUseLandmarkInstructions, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.onlyUseLandmarkInstructions;
+    this.onlyUseLandmarkInstructions = onlyUseLandmarkInstructions;
+    final bool success = await storage.setBool(onlyUseLandmarkInstructionsKey, onlyUseLandmarkInstructions);
+    if (!success) {
+      log.e("Failed to set onlyUseLandmarkInstructions to $onlyUseLandmarkInstructions");
+      this.onlyUseLandmarkInstructions = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.city = defaultCity,
     this.enableLogPersistence = defaultEnableLogPersistence,
@@ -516,6 +537,7 @@ class Settings with ChangeNotifier {
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
     this.isFreeRideFilterEnabled = defaultIsFreeRideFilterEnabled,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
+    this.onlyUseLandmarkInstructions = defaultOnlyUseLandmarkInstructions,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -564,6 +586,12 @@ class Settings with ChangeNotifier {
     }
     try {
       audioInstructionsEnabled = storage.getBool(audioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      onlyUseLandmarkInstructions =
+          storage.getBool(onlyUseLandmarkInstructionsKey) ?? defaultOnlyUseLandmarkInstructions;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

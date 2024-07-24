@@ -254,6 +254,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Nur Landmarks für Nav.-Instruktionen nutzen",
+                    icon: settings.onlyUseLandmarkInstructions ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setOnlyUseLandmarkInstructions(!settings.onlyUseLandmarkInstructions),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "Performance-Overlay",
                     icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),

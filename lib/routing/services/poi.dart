@@ -122,9 +122,9 @@ class Pois with ChangeNotifier {
   Future<List<GHInstruction>?> getLandmarkInstructions(GHRouteResponsePath path) async {
     try {
       final settings = getIt<Settings>();
-
+      final replaceInstructions = settings.onlyUseLandmarkInstructions;
       final baseUrl = settings.city.selectedBackend(true).path;
-      final poisUrl = "https://$baseUrl/poi-service-backend/pois/landmarks";
+      final poisUrl = "https://$baseUrl/poi-service-backend/pois/landmarks?replaceInstructions=$replaceInstructions";
       final poisEndpoint = Uri.parse(poisUrl);
       log.i("Loading landmarks response from $poisUrl");
 
