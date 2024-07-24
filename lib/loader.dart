@@ -352,7 +352,9 @@ class LoaderState extends State<Loader> {
                             ),
                             const SmallVSpace(),
                             Content(
-                              text: locationDisabled ? "Der Standort ist nicht aktiviert auf dem Telefon. Bitte aktiviere den Standort (GPS) und versuche es erneut." : "Ein unbekannter Fehler ist aufgetreten.\nDie App kann nicht gestartet werden.",
+                              text: locationDisabled
+                                  ? "Der Standort ist nicht aktiviert auf dem Telefon. Bitte aktiviere den Standort (GPS) und versuche es erneut."
+                                  : "Ein unbekannter Fehler ist aufgetreten.\nDie App kann nicht gestartet werden.",
                               context: context,
                               textAlign: TextAlign.center,
                             ),
