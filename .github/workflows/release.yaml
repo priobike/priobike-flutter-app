@@ -48,7 +48,7 @@ jobs:
           KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
       - name: Build the Android app bundle
         run: |
-          ./set_git_tag.sh $RELEASE_VERSION
+          echo $RELEASE_VERSION > git_tag.txt 
           flutter pub get
           flutter build appbundle
       - name: Install Fastlane
