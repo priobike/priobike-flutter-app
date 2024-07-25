@@ -13,4 +13,6 @@ if [[ $GIT_TAG == "release-"* ]]; then
   # Write the tag to a text file
   echo $GIT_TAG > git_tag.txt
   cat git_tag.txt
+else
+  exit 1
 fi
