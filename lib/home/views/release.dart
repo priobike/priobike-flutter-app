@@ -81,11 +81,7 @@ Um das Beta-Programm für iOS zu verlassen, musst du das TestFlight-Programm ver
 const androidExplanation = """
 ## Android
 
-Um das Beta-Programm für Android zu verlassen, musst du erneut auf den Einladungslink und dann auf "Verlassen" klicken. Anschließend kannst du die App aus dem Google Play Store installieren. Danach solltest du in der Lage sein, deine App zu aktualisieren und verlierst somit nicht deine gespeicherten Routen.
-
-Einladungslink: https://play.google.com/apps/testing/de.tudresden.priobike
-
-Für interne Tester: Zunächst die Entwickleroptionen im Play Store aktivieren, um interner Tester zu werden. Dazu klickst du 7 Mal auf die Play Store-Version. Gehe anschließend zu Einstellungen -> Allgemein -> Entwickleroptionen und aktiviere die interne App-Bereitstellung. Nachdem du den Einladungslink akzeptiert hast, kann die interne Version aktualisiert werden.
+Um das Beta-Programm für Android zu verlassen, gehst du auf den App Eintrag von PrioBike im Google Play Store. Solltest du noch Betatester sein, befindet sich ein Abschnitt mit der Überschrift "Du bis ein Betatester" auf dieser Seite. Dort kannst du dann auf "Verlassen" klicken. Wichtige Shortcuts sollten über QR-Codes oder Links gespeichert werden, da diese eventuell beim Wechsel verloren gehen können.
 """;
 
 String explanationTemplate(e1, e2) => """
