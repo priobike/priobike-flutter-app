@@ -75,19 +75,19 @@ class ReleaseInfoViewState extends State<ReleaseInfoView> {
 const iosExplanation = """
 ## iOS
 
-Um das Beta-Programm für iOS zu verlassen, musst du das TestFlight-Programm verlassen und die App aus dem App Store installieren. Wir empfehlen dir, die App vorher nicht manuell zu löschen, da sonst deine gespeicherte Routen verloren gehen. Mit einer Installation aus dem App Store überschreibst du die TestFlight-Version und behältst deine Daten.
+Um das Beta-Programm für iOS zu verlassen, musst Du das TestFlight-Programm verlassen und die App aus dem App Store installieren. Wir empfehlen dir, die App vorher nicht manuell zu löschen, da sonst deine gespeicherte Routen verloren gehen. Mit einer Installation aus dem App Store überschreibst Du die TestFlight-Version und behältst deine Daten.
 """;
 
 const androidExplanation = """
 ## Android
 
-Um das Beta-Programm für Android zu verlassen, gehst du auf den App Eintrag von PrioBike im Google Play Store. Solltest du noch Betatester sein, befindet sich ein Abschnitt mit der Überschrift "Du bis ein Betatester" auf dieser Seite. Dort kannst du dann auf "Verlassen" klicken. Wichtige Shortcuts sollten über QR-Codes oder Links gespeichert werden, da diese eventuell beim Wechsel verloren gehen können.
+Um das Beta-Programm für Android zu verlassen, gehst Du auf den App Eintrag von PrioBike im Google Play Store. Solltest Du noch Betatester sein, befindet sich ein Abschnitt mit der Überschrift "Du bis ein Betatester" weiter unten auf dieser Seite. Dort kannst Du dann auf "Verlassen" klicken. Wichtige gespeicherte Orte oder Routen sollten vorher über QR-Codes oder Teilen-Links gespeichert werden, da diese eventuell beim Wechsel verloren gehen können. Nach der Installation der neuen Version kannst Du diese wieder importieren.
 """;
 
 String explanationTemplate(e1, e2) => """
 ## Wechsel zur offiziellen Version
 
-Du verwendest aktuell noch eine Testversion der App. Die offizielle Version kannst du dir nun in ein paar Schritten installieren.
+Du verwendest aktuell noch eine Testversion der App. Die offizielle Version kannst Du dir nun in ein paar Schritten installieren.
 
 $e1
 
