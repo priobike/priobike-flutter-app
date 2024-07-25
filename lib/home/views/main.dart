@@ -13,6 +13,7 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/release.dart';
 import 'package:priobike/home/views/load_status.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/poi/your_bike.dart';
@@ -326,6 +327,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   child: Column(
                     children: [
                       const LoadStatusView(),
+                      const ReleaseInfoView(),
                       const VSpace(),
                       if (showStatusView)
                         const BlendIn(

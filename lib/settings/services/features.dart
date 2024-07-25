@@ -32,6 +32,9 @@ class Feature with ChangeNotifier {
   /// If internal features can be enabled.
   late bool canEnableInternalFeatures;
 
+  /// If the app is a release version.
+  late bool isRelease;
+
   /// The used build trigger.
   late String buildTrigger;
 
@@ -54,6 +57,9 @@ class Feature with ChangeNotifier {
     // This is the case, when the branch is not beta or the latest tag is not tagged as a release.
     // (Allow internal features on all development branches.)
     canEnableInternalFeatures = !_gitHead.contains('beta') && !_gitTag.contains('release-');
+
+    // Check if the app is a release version.
+    isRelease = _gitTag.contains('release-');
 
     final info = await PackageInfo.fromPlatform();
     appName = info.appName;
