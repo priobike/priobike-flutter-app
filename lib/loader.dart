@@ -55,6 +55,9 @@ class LoaderState extends State<Loader> {
   /// If there was an error while loading.
   var hasError = false;
 
+  /// If the location is disabled on the device.
+  var locationDisabled = false;
+
   /// If the animation should morph.
   var shouldMorph = false;
 
@@ -210,6 +213,7 @@ class LoaderState extends State<Loader> {
     setState(() {
       shouldMorph = true;
       hasError = false;
+      locationDisabled = false;
     });
     settings.resetConnectionErrorCounter();
 
@@ -227,7 +231,11 @@ class LoaderState extends State<Loader> {
     await positioning.initializePositionSource();
     LocationPermission? permission = await positioning.checkGeolocatorPermission();
     if (permission == null) {
-      setState(() => hasError = true);
+      // --> Location services are disabled.
+      setState(() {
+        hasError = true;
+        locationDisabled = true;
+      });
       return;
     }
     // We shall not show the request dialog again if it got denied forever.
@@ -344,7 +352,9 @@ class LoaderState extends State<Loader> {
                             ),
                             const SmallVSpace(),
                             Content(
-                              text: "Ein unbekannter Fehler ist aufgetreten.\nDie App kann nicht gestartet werden.",
+                              text: locationDisabled
+                                  ? "Der Standort ist nicht aktiviert auf dem Telefon. Bitte aktiviere den Standort (GPS) und versuche es erneut."
+                                  : "Ein unbekannter Fehler ist aufgetreten.\nDie App kann nicht gestartet werden.",
                               context: context,
                               textAlign: TextAlign.center,
                             ),
