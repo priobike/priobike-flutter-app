@@ -34,6 +34,9 @@ class Audio {
   /// The current route.
   Route? currentRoute;
 
+  /// The last signal group id for which a wait for green info was played.
+  String? didPlayWaitForGreenInfoForSg;
+
   /// Constructor.
   Audio() {
     settings = getIt<Settings>();
@@ -84,6 +87,8 @@ class Audio {
       if (ftts == null) await _initializeTTS();
       ftts?.speak("Neue Route berechnet");
     }
+
+    // check phase change things TODO.
   }
 
   /// Check if the audio instructions setting has changed.
@@ -116,8 +121,14 @@ class Audio {
     if (ftts == null) {
       await _initializeTTS();
     }
-    _playAudioInstruction();
-    _playCountdownWhenWaitingForGreen();
+
+    if (settings?.audioRoutingInstructionsEnabled == true) {
+      await _playAudioRoutingInstruction();
+    } else {
+      // TODO create speed advisory only instructions.
+    }
+
+    _checkPlayCountdownWhenWaitingForGreen();
   }
 
   /// Check if instruction contains sg information and if so add countdown
@@ -211,7 +222,8 @@ class Audio {
     return null;
   }
 
-  void _playCountdownWhenWaitingForGreen() async {
+  /// Checks if the user is at slow speed or standing still close to a traffic light and plays a countdown for the next traffic light when waiting for green.
+  void _checkPlayCountdownWhenWaitingForGreen() async {
     ride ??= getIt<Ride>();
 
     final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
@@ -241,29 +253,18 @@ class Audio {
     final recommendation = ride!.predictionProvider!.recommendation!;
     if (recommendation.calcCurrentPhaseChangeTime == null) return;
 
+    // Find out if the current phase is not green and the next phase is green.
+    if (recommendation.calcPhasesFromNow[0] != Phase.green) return;
+
     // If there is only one color, instruction part must not be played.
     final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
     if (uniqueColors.length == 1) return;
 
-    // Do not play instruction part for amber or redamber.
-    if (recommendation.calcCurrentSignalPhase == Phase.amber) return;
-    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) return;
-
-    // Calculate the countdown.
+    // Get the countdown.
     int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
-    var timestamp = DateTime.now();
+
     // Do not play instruction if countdown < 5.
-    if (countdown < 3 || countdown > 5) return;
-    Phase? nextPhase;
-
-    // The current phase ends at index countdown + 2.
-    if (recommendation.calcPhasesFromNow.length > countdown + 2) {
-      // Calculate the color of the next phase after the current phase.
-      nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
-    }
-
-    // Do play instruction only for change to green.
-    if (nextPhase != Phase.green) return;
+    if (countdown < 5) return;
 
     final snap = getIt<Positioning>().snap;
     if (snap == null) return;
@@ -278,7 +279,7 @@ class Audio {
     }
     var distanceToSg = distSgOnRoute - distOnRoute;
     if (distanceToSg > 25) {
-      // Do not play instruction if the distance to the sg is more than 300m.
+      // Do not play instruction if the distance to the sg is more than 25m.
       return;
     }
 
@@ -286,9 +287,13 @@ class Audio {
     // Calc updatedCountdown since initial creation and time that has passed while speaking
     // (to avoid countdown inaccuracy)
     // Also take into account 1s delay for actually speaking the countdown.
-    int updatedCountdown =
-        countdown - (DateTime.now().difference(timestamp).inSeconds) + 1; // -1s delay and +2s for yellow
-    await ftts!.speak(updatedCountdown.toString());
+    countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+
+    await ftts!.speak(countdown.toString());
+
+    // TODO start the timer and cancel it, if phase changes.
+
+    didPlayWaitForGreenInfoForSg = ride!.calcCurrentSG!.id;
   }
 
   /// Check distance between current position and next sg.
@@ -344,8 +349,8 @@ class Audio {
     }
   }
 
-  /// Play audio instruction.
-  Future<void> _playAudioInstruction() async {
+  /// Play audio routing instruction.
+  Future<void> _playAudioRoutingInstruction() async {
     ride ??= getIt<Ride>();
     positioning ??= getIt<Positioning>();
     if (positioning!.snap == null || ride!.route == null) return;
