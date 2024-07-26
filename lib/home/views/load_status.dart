@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/animation.dart';
-import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/dialog.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/load.dart';
 import 'package:priobike/main.dart';
@@ -25,24 +24,6 @@ class LoadStatusViewState extends State<LoadStatusView> {
     loadStatus = getIt<LoadStatus>();
   }
 
-  /// Alert dialog for location accuracy
-  void showMoreInformationDialog() => showDialog<String>(
-        context: context,
-        builder: (BuildContext context) {
-          return DialogLayout(
-            title: "Starke Auslastung",
-            text: "Aktuell sind unsere Server außergewöhnlich stark ausgelastet.",
-            actions: [
-              BigButtonTertiary(
-                label: "Schließen",
-                onPressed: () => Navigator.pop(context),
-                boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-              ),
-            ],
-          );
-        },
-      );
-
   @override
   Widget build(BuildContext context) {
     if (!loadStatus.hasWarning) {
@@ -51,26 +32,22 @@ class LoadStatusViewState extends State<LoadStatusView> {
 
     return BlendIn(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(42, 16, 24, 0),
+        padding: const EdgeInsets.fromLTRB(40, 24, 36, 0),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Flexible(
-              child: Content(
-                text: "Starke Auslastung",
+              child: Small(
+                text: "Aktuell sind unsere Server außergewöhnlich stark ausgelastet.",
                 context: context,
               ),
             ),
-            SmallIconButtonSecondary(
-              icon: Icons.info,
+            const HSpace(),
+            Icon(
+              Icons.info,
               color: Theme.of(context).colorScheme.onSurface,
-              splash: Theme.of(context).colorScheme.surfaceTint,
-              fill: Colors.transparent,
-              borderColor: Theme.of(context).colorScheme.onPrimary,
-              withBorder: false,
-              onPressed: () => showMoreInformationDialog(),
-            ),
+            )
           ],
         ),
       ),

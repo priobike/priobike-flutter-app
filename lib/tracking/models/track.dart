@@ -68,6 +68,9 @@ class Track {
   /// With this field we can determine tracks in debug mode.
   bool debug;
 
+  /// If the track was recorded using the free ride mode.
+  bool freeRide;
+
   /// The city of the ride.
   City city;
 
@@ -171,6 +174,7 @@ class Track {
     required this.startTime,
     this.endTime,
     required this.debug,
+    required this.freeRide,
     required this.city,
     required this.backend,
     required this.positioningMode,
@@ -203,6 +207,7 @@ class Track {
       'startTime': startTime,
       'endTime': endTime,
       'debug': debug,
+      'freeRide': freeRide,
       'city': city.name,
       'backend': backend.name,
       'positioningMode': positioningMode.name,
@@ -249,6 +254,7 @@ class Track {
       startTime: json['startTime'],
       endTime: json['endTime'],
       debug: json['debug'],
+      freeRide: json['freeRide'] ?? false,
       city: City.values.byName(json['city']),
       backend: Backend.values.byName(json['backend']),
       positioningMode: PositioningMode.values.byName(json['positioningMode']),

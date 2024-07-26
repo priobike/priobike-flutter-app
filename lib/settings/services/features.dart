@@ -10,7 +10,12 @@ class Feature with ChangeNotifier {
   bool hasLoaded = false;
 
   /// The current git head.
-  late String gitHead;
+  /// Should only be used for setting the feature set of the app.
+  late String _gitHead;
+
+  /// The current git tag. Can be empty if the latest commit is not tagged. Only is set when the get_tag.sh is executed.
+  /// Should only be used for setting the feature set of the app.
+  late String _gitTag;
 
   /// The current app name.
   late String appName;
@@ -27,8 +32,11 @@ class Feature with ChangeNotifier {
   /// If internal features can be enabled.
   late bool canEnableInternalFeatures;
 
-  /// if beta features can be enabled.
-  late bool canEnableBetaFeatures;
+  /// If the app is a release version.
+  late bool isRelease;
+
+  /// The used build trigger.
+  late String buildTrigger;
 
   Feature();
 
@@ -36,16 +44,22 @@ class Feature with ChangeNotifier {
   Future<void> load() async {
     if (hasLoaded) return;
 
-    gitHead = (await rootBundle.loadString('.git/HEAD')).trim();
+    _gitHead = (await rootBundle.loadString('.git/HEAD')).trim();
+    _gitTag = (await rootBundle.loadString('git_tag.txt')).trim();
+
+    if (_gitTag.isEmpty) {
+      buildTrigger = _gitHead.replaceAll("ref: refs/heads/", "");
+    } else {
+      buildTrigger = _gitTag;
+    }
 
     // Check if the user has the right to enable experimental features.
-    // This is the case, when the branch is not beta or release.
+    // This is the case, when the branch is not beta or the latest tag is not tagged as a release.
     // (Allow internal features on all development branches.)
-    canEnableInternalFeatures = !gitHead.contains('beta') && !gitHead.contains('release');
+    canEnableInternalFeatures = !_gitHead.contains('beta') && !_gitTag.contains('release-');
 
-    // Check if the user has the right to enable beta features.
-    // This is the case, when the branch is not release.
-    canEnableBetaFeatures = !gitHead.contains('release');
+    // Check if the app is a release version.
+    isRelease = _gitTag.contains('release-');
 
     final info = await PackageInfo.fromPlatform();
     appName = info.appName;

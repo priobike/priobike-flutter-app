@@ -7,9 +7,9 @@ import 'package:priobike/feedback/models/question.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
 
 class Feedback with ChangeNotifier {
@@ -44,7 +44,11 @@ class Feedback with ChangeNotifier {
     isSendingFeedback = true;
     notifyListeners();
 
-    final sessionId = getIt<Ride>().sessionId;
+    final sessionId = getIt<Tracking>().track?.sessionId;
+    if (sessionId == null) {
+      log.e("Error sending feedback: No sessionId available.");
+      return false;
+    }
     final userId = await User.getOrCreateId();
 
     // Send all of the answered questions to the backend.

@@ -77,9 +77,12 @@ class ToastWrapper extends StatelessWidget {
       alignment: Alignment.topCenter,
       children: [
         child, // Should not be rebuilt in the widget tree
-        const Material(
-          color: Colors.transparent,
-          child: Toaster(),
+        const IgnorePointer(
+          // Prevents the toast from blocking clicks
+          child: Material(
+            color: Colors.transparent,
+            child: Toaster(),
+          ),
         ),
       ],
     );

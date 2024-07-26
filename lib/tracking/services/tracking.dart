@@ -95,7 +95,13 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start a new track.
-  Future<void> start(double deviceWidth, double deviceHeight, bool saveBatteryModeEnabled, bool? isDarkMode) async {
+  Future<void> start(
+    double deviceWidth,
+    double deviceHeight,
+    bool saveBatteryModeEnabled,
+    bool? isDarkMode, {
+    bool freeRide = false,
+  }) async {
     log.i("Starting a new track.");
 
     // Get some session- and device-specific data.
@@ -117,8 +123,9 @@ class Tracking with ChangeNotifier {
     final routing = getIt<Routing>();
     final settings = getIt<Settings>();
     final status = getIt<PredictionStatusSummary>();
-    final ride = getIt<Ride>();
     final profile = getIt<Profile>();
+
+    final sessionId = UniqueKey().toString();
 
     try {
       Feature feature = getIt<Feature>();
@@ -128,11 +135,12 @@ class Tracking with ChangeNotifier {
         startTime: startTime,
         endTime: null,
         debug: kDebugMode,
+        freeRide: freeRide,
         city: settings.city,
         backend: settings.city.selectedBackend(true),
         positioningMode: settings.positioningMode,
         userId: await User.getOrCreateId(),
-        sessionId: ride.sessionId!,
+        sessionId: sessionId,
         deviceType: deviceType,
         deviceWidth: deviceWidth,
         deviceHeight: deviceHeight,
@@ -140,12 +148,15 @@ class Tracking with ChangeNotifier {
         buildNumber: packageInfo.buildNumber,
         statusSummary: status.current!,
         taps: [],
+        // Predictions will be empty using the free ride mode.
         predictionServicePredictions: [],
         predictorPredictions: [],
-        selectedWaypoints: routing.selectedWaypoints!,
+        // Can be empty if the free ride mode is selected.
+        selectedWaypoints: routing.selectedWaypoints ?? [],
         bikeType: profile.bikeType,
-        routes: {startTime: routing.selectedRoute!},
-        subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+        // Can be null if the free ride mode is selected.
+        routes: routing.selectedRoute == null ? {} : {startTime: routing.selectedRoute!},
+        subVersion: feature.buildTrigger,
         batteryStates: [],
         saveBatteryModeEnabled: saveBatteryModeEnabled,
         isDarkMode: isDarkMode,

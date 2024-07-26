@@ -3,8 +3,8 @@ name: Dist / Android / Release
 on:
   push:
     # Every branch that starts with "release"
-    branches:
-      - release*
+    tags:
+      - release-v*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -24,4 +24,37 @@ jobs:
           flutter analyze .
           flutter test
 
-  # TODO: Distribute app
+  distribute:
+    runs-on: self-hosted
+    needs: test
+    # When upgrading: also upgrade dev.yaml, release.yaml, and test.yaml
+    container: ghcr.io/cirruslabs/flutter:3.19.6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Prepare secret file and env
+        run: |
+          echo "$GRADLE_PROPERTIES_BASE64" | base64 --decode > android/gradle.properties
+          echo "$API_KEY_BASE64" | base64 --decode > android/fastlane/api-key.json
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/fastlane/keystore.jks
+          echo "$KEY_PROPERTIES_BASE64" | base64 --decode > android/key.properties
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        env:
+          GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64 }}
+          API_KEY_BASE64: ${{ secrets.API_KEY_BASE64 }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_PROPERTIES_BASE64: ${{ secrets.KEY_PROPERTIES_BASE64 }}
+      - name: Build the Android app bundle
+        run: |
+          echo $RELEASE_VERSION > git_tag.txt 
+          flutter pub get
+          flutter build appbundle
+      - name: Install Fastlane
+        run: |
+          gem install fastlane
+      - name: Distribute via Fastlane to Production Track
+        run: |
+          cd android
+          fastlane release

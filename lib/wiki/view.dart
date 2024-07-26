@@ -48,7 +48,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
               tabController?.index = index;
             });
           },
-          children: [
+          children: const [
             WikiCard(article: articlePrioBike),
             WikiCard(article: articleDataFailures),
             WikiCard(article: articleSwitchingPrograms),

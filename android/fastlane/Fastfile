@@ -47,4 +47,12 @@ platform :android do
       aab: '../build/app/outputs/bundle/release/app-release.aab',
     )
   end
+
+  desc "Distribute the build to the 'Release'."
+  lane :release do
+    upload_to_play_store(
+      track: 'production', # Production means "Release"
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+    )
+  end
 end

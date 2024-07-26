@@ -16,6 +16,13 @@ import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutView extends StatelessWidget {
   final Shortcut? shortcut;
+
+  /// What text to show when no shortcut is available.
+  final String? alternativeText;
+
+  /// What icon to show when no shortcut is available.
+  final IconData? alternativeIcon;
+
   final void Function() onPressed;
   final void Function()? onLongPressed;
   final double width;
@@ -28,6 +35,8 @@ class ShortcutView extends StatelessWidget {
   const ShortcutView({
     super.key,
     this.shortcut,
+    this.alternativeText,
+    this.alternativeIcon,
     required this.onPressed,
     required this.width,
     required this.height,
@@ -52,9 +61,9 @@ class ShortcutView extends StatelessWidget {
         content: Stack(
           children: [
             if (shortcut == null)
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Icon(Icons.map_rounded, size: 64, color: Colors.white),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Icon(alternativeIcon ?? Icons.error, size: 64, color: Colors.white),
               )
             else if (shortcut is ShortcutRoute)
               Container(
@@ -104,9 +113,9 @@ class ShortcutView extends StatelessWidget {
                               shortcut == null ? null : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75),
                         ),
                         child: shortcut == null
-                            ? const Text(
-                                'Freie Route',
-                                style: TextStyle(
+                            ? Text(
+                                alternativeText ?? 'Missing alternative text',
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -227,9 +236,9 @@ class ShortcutsViewState extends State<ShortcutsView> {
         padding: EdgeInsets.only(left: leftPad),
       ),
       ShortcutView(
-        onPressed: () {
-          if (!routing.isFetchingRoute) widget.onStartFreeRouting();
-        },
+        alternativeText: 'Route planen',
+        alternativeIcon: Icons.map_rounded,
+        onPressed: widget.onStartFreeRouting,
         width: shortcutWidth,
         height: shortcutHeight,
         rightPad: shortcutRightPad,

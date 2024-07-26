@@ -22,6 +22,10 @@ export PATH="$PATH:$HOME/flutter/bin"
 # Install Flutter artifacts for iOS (--ios), or macOS (--macos) platforms.
 flutter precache --ios
 
+# Update the git_tag.txt file.
+git fetch --tags # Required since the repository is shallow cloned.
+./get_tag.sh
+
 # Install Flutter dependencies.
 flutter pub get
 

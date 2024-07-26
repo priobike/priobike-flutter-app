@@ -7,7 +7,6 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
@@ -272,7 +271,7 @@ class SettingsViewState extends State<SettingsView> {
                           Content(text: "Version: ", context: context),
                           Flexible(
                             child: BoldContent(
-                              text: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+                              text: feature.buildTrigger,
                               context: context,
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -388,17 +387,6 @@ class SettingsViewState extends State<SettingsView> {
                         final InAppReview inAppReview = InAppReview.instance;
                         inAppReview.openStoreListing(appStoreId: "1634224594");
                       },
-                    ),
-                    const VSpace(),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 16),
-                      child: SurveyView(
-                        dismissible: false,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(24),
-                          bottomLeft: Radius.circular(24),
-                        ),
-                      ),
                     ),
                     const VSpace(),
                     SettingsElement(title: "Fehler melden", icon: Icons.report_problem_rounded, callback: launchMailTo),

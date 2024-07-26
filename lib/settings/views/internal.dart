@@ -16,7 +16,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
-import 'package:priobike/ride/views/free.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
@@ -232,23 +231,17 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Freie Fahrt",
-                    icon: Icons.directions_bike_rounded,
-                    callback: () => Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const FreeRideView(),
-                      ),
-                      (route) => false,
-                    ),
+                    title: "Sprachausgabe aktivieren",
+                    icon: settings.audioInstructionsEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setAudioInstructionsEnabled(!settings.audioInstructionsEnabled),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Freie Fahrt Filter",
-                    icon: settings.isFreeRideFilterEnabled ? Icons.check_box : Icons.check_box_outline_blank,
-                    callback: () => settings.setFreeRideFilterEnabled(!settings.isFreeRideFilterEnabled),
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Aktiviere die Sprachausgabe, um während der Fahrt Informationen über Lautsprecher oder Kopfhörer zu erhalten. Du kannst die App somit jetzt auch ohne eingeschaltetes Display aus der Hosentasche heraus nutzen.",
+                    context: context,
                   ),
                 ),
                 Padding(
@@ -585,14 +578,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Sicherheits-Warnung zurücksetzen",
                     icon: Icons.recycling,
                     callback: () => getIt<Settings>().setDidViewWarning(false),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Umfrage zurücksetzen",
-                    icon: Icons.recycling,
-                    callback: () => getIt<Settings>().setDismissedSurvey(false),
                   ),
                 ),
                 Padding(

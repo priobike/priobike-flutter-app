@@ -55,9 +55,6 @@ class Ride with ChangeNotifier {
   /// The calculated distance to the next turn.
   double? calcDistanceToNextTurn;
 
-  /// The session id, set randomly by `startNavigation`.
-  String? sessionId;
-
   /// The prediction provider.
   PredictionProvider? predictionProvider;
 
@@ -199,8 +196,6 @@ class Ride with ChangeNotifier {
     );
     predictionProvider!.connectMQTTClient();
 
-    // Mark that navigation is now active.
-    sessionId = UniqueKey().toString();
     navigationIsActive = true;
   }
 

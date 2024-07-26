@@ -17,7 +17,7 @@ extension BikeTypeRoutingProfile on BikeType {
       case BikeType.racingbike:
         return "racingbike2_default";
       case BikeType.cargobike:
-        return "racingbike2_default";
+        return "cargo2_default";
     }
   }
 }
