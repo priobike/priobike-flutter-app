@@ -162,6 +162,17 @@ extension DefaultShortcuts on City {
               Waypoint(50.979067, 13.882596, address: "Elberadweg Heidenau"),
             ],
           ),
+          ShortcutRoute(
+            id: UniqueKey().toString(),
+            name: "Charly Evaluationsstrecke",
+            waypoints: [
+              Waypoint(51.029113, 13.738794, address: "Wegpunkt 1"),
+              Waypoint(51.034701, 13.738172, address: "Wegpunkt 2"),
+              Waypoint(51.034698, 13.738140, address: "Wegpunkt 3"),
+              Waypoint(51.030178, 13.744091, address: "Wegpunkt 4"),
+              Waypoint(51.028987, 13.741844, address: "Wegpunkt 5"),
+            ],
+          ),
         ];
     }
   }
