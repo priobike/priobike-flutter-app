@@ -76,6 +76,9 @@ class Settings with ChangeNotifier {
   /// If the audio instructions are enabled.
   bool audioInstructionsEnabled;
 
+  /// If the audio routing instructions are enabled.
+  bool audioRoutingInstructionsEnabled;
+
   /// If the user had migrate background images.
   bool didMigrateBackgroundImages = false;
 
@@ -374,7 +377,7 @@ class Settings with ChangeNotifier {
   }
 
   static const audioInstructionsEnabledKey = "priobike.settings.audioInstructionsEnabled";
-  static const defaultSaveAudioInstructionsEnabled = false;
+  static const defaultAudioInstructionsEnabled = false;
 
   Future<bool> setAudioInstructionsEnabled(bool audioInstructionsEnabled, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
@@ -384,6 +387,24 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set audioInstructionsEnabled to $audioInstructionsEnabled");
       this.audioInstructionsEnabled = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const audioRoutingInstructionsEnabledKey = "priobike.settings.audioRoutingInstructionsEnabled";
+  static const defaultAudioRoutingInstructionsEnabled = false;
+
+  Future<bool> setAudioRoutingInstructionsEnabled(bool audioRoutingInstructionsEnabled,
+      [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.audioRoutingInstructionsEnabled;
+    this.audioRoutingInstructionsEnabled = audioRoutingInstructionsEnabled;
+    final bool success = await storage.setBool(audioRoutingInstructionsEnabledKey, audioRoutingInstructionsEnabled);
+    if (!success) {
+      log.e("Failed to set audioRoutingInstructionsEnabled to $audioInstructionsEnabled");
+      this.audioRoutingInstructionsEnabled = prev;
     } else {
       notifyListeners();
     }
@@ -468,7 +489,8 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-    this.audioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
+    this.audioInstructionsEnabled = defaultAudioInstructionsEnabled,
+    this.audioRoutingInstructionsEnabled = defaultAudioRoutingInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
@@ -516,7 +538,13 @@ class Settings with ChangeNotifier {
       /* Do nothing and use the default value given by the constructor. */
     }
     try {
-      audioInstructionsEnabled = storage.getBool(audioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
+      audioInstructionsEnabled = storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      audioRoutingInstructionsEnabled =
+          storage.getBool(audioRoutingInstructionsEnabledKey) ?? defaultAudioRoutingInstructionsEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
