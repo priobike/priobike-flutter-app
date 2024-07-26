@@ -236,6 +236,16 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     callback: () => settings.setAudioInstructionsEnabled(!settings.audioInstructionsEnabled),
                   ),
                 ),
+                const VSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Navigationsanweisungen aktivieren",
+                    icon: settings.audioRoutingInstructionsEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () =>
+                        settings.setAudioRoutingInstructionsEnabled(!settings.audioRoutingInstructionsEnabled),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                   child: Small(
