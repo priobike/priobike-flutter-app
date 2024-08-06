@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' hide Category;
@@ -27,7 +28,7 @@ class News with ChangeNotifier {
   List<Article> articles = [];
 
   /// List with all articles that have been read by the user
-  Set<Article> readArticles = {};
+  HashSet<Article> readArticles = HashSet();
 
   /// Map with all categories
   Map<int, Category> categories = {};
@@ -35,35 +36,22 @@ class News with ChangeNotifier {
   /// Reset the service to its initial state.
   Future<void> reset() async {
     hasLoaded = false;
-    articles = [];
-    readArticles = {};
-    categories = {};
+    articles.clear();
+    readArticles.clear();
+    categories.clear();
     notifyListeners();
   }
 
   /// Returns all available articles from the shared preferences or if not stored locally from the backend server.
   Future<void> getArticles() async {
-    // Get articles that are already saved in the shared preferences on the device.
-    List<Article> localSavedArticles = await _getStoredArticles();
-
-    // If there are articles saved already in the shared preferences on the device
-    // get the lastSyncDate for later usage eg when deciding whether the "Neu"-tag
-    // should be shown on the article items in the list.
-    DateTime? newLastSyncDate;
-    if (localSavedArticles.isNotEmpty) {
-      newLastSyncDate = localSavedArticles[0].pubDate;
-    }
-
     final settings = getIt<Settings>();
 
     String baseUrl = settings.city.selectedBackend(false).path;
 
-    final newsArticlesUrl = newLastSyncDate == null
-        ? "https://$baseUrl/news-service/news/articles"
-        : "https://$baseUrl/news-service/news/articles?from=${DateFormat('yyyy-MM-ddTH:mm:ss').format(newLastSyncDate)}Z";
+    final newsArticlesUrl = "https://$baseUrl/news-service/news/articles";
     final newsArticlesEndpoint = Uri.parse(newsArticlesUrl);
 
-    List<Article> articlesFromServer = [];
+    List<Article> newArticles = [];
 
     // Catch the error if there is no connection to the internet.
     try {
@@ -77,7 +65,7 @@ class News with ChangeNotifier {
       await json.decode(response.body).forEach(
         (element) {
           final Article article = Article.fromJson(element);
-          articlesFromServer.add(article);
+          newArticles.add(article);
         },
       );
       hadError = false;
@@ -87,11 +75,9 @@ class News with ChangeNotifier {
       hadError = true;
     }
 
-    articles = [...articlesFromServer, ...localSavedArticles];
+    articles = newArticles;
 
     await _getCategories();
-
-    await _storeArticles();
 
     readArticles = await _getStoredReadArticles();
 
@@ -103,22 +89,13 @@ class News with ChangeNotifier {
   Future<void> _getCategories() async {
     for (final article in articles) {
       if (article.categoryId != null && !categories.containsKey(article.categoryId)) {
-        await _getCategory(article.categoryId!);
+        await _fetchCategory(article.categoryId!);
       }
     }
   }
 
-  /// Gets single category given the [categoryId] from the shared preferences or if not stored locally from the backend server
-  Future<void> _getCategory(int categoryId) async {
-    Category? category = await _getStoredCategory(categoryId);
-    if (category != null) {
-      if (!categories.containsKey(categoryId)) {
-        categories[categoryId] = category;
-      }
-      return;
-    }
-
-    // If the category doesn't exist already in the shared preferences get it from backend server.
+  /// Fetches single category given the [categoryId] from the backend server
+  Future<void> _fetchCategory(int categoryId) async {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(false).path;
     final newsCategoryUrl = "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
@@ -133,74 +110,15 @@ class News with ChangeNotifier {
         throw Exception(err);
       }
 
-      category = Category.fromJson(json.decode(response.body));
+      final category = Category.fromJson(json.decode(response.body));
 
       if (!categories.containsKey(categoryId)) {
         categories[categoryId] = category;
       }
-
-      await _storeCategory(category);
     } catch (e) {
       final hint = "Failed to load category: $e";
       log.e(hint);
     }
-  }
-
-  /// Store all articles in shared preferences.
-  Future<void> _storeArticles() async {
-    if (articles.isEmpty) return;
-    final storage = await SharedPreferences.getInstance();
-
-    final backend = getIt<Settings>().city.selectedBackend(false);
-
-    final jsonStr = jsonEncode(articles.map((e) => e.toJson()).toList());
-    await storage.setString("priobike.news.articles.${backend.name}", jsonStr);
-  }
-
-  /// Store category in shared preferences.
-  Future<void> _storeCategory(Category category) async {
-    if (articles.isEmpty) return;
-    final storage = await SharedPreferences.getInstance();
-
-    final backend = getIt<Settings>().city.selectedBackend(false);
-
-    final String jsonStr = jsonEncode(category.toJson());
-    await storage.setString("priobike.news.categories.${backend.name}.${category.id}", jsonStr);
-  }
-
-  /// Get all stored articles
-  Future<List<Article>> _getStoredArticles() async {
-    final storage = await SharedPreferences.getInstance();
-
-    final backend = getIt<Settings>().city.selectedBackend(false);
-
-    final storedArticlesStr = storage.getString("priobike.news.articles.${backend.name}");
-
-    if (storedArticlesStr == null) {
-      return [];
-    }
-
-    List<Article> storedArticles = [];
-    for (final articleMap in jsonDecode(storedArticlesStr)) {
-      storedArticles.add(Article.fromJson(articleMap));
-    }
-
-    return storedArticles;
-  }
-
-  /// Get stored category for given [categoryId]
-  Future<Category?> _getStoredCategory(int categoryId) async {
-    final storage = await SharedPreferences.getInstance();
-
-    final backend = getIt<Settings>().city.selectedBackend(false);
-
-    final storedCategoryStr = storage.getString("priobike.news.categories.${backend.name}.$categoryId");
-
-    if (storedCategoryStr == null) {
-      return null;
-    }
-
-    return Category.fromJson(jsonDecode(storedCategoryStr));
   }
 
   /// Store all read articles in shared preferences.
@@ -216,7 +134,7 @@ class News with ChangeNotifier {
   }
 
   /// Get stored articles that were already read by the user.
-  Future<Set<Article>> _getStoredReadArticles() async {
+  Future<HashSet<Article>> _getStoredReadArticles() async {
     final storage = await SharedPreferences.getInstance();
 
     final backend = getIt<Settings>().city.selectedBackend(false);
@@ -224,10 +142,10 @@ class News with ChangeNotifier {
     final storedReadArticlesStr = storage.getString("priobike.news.read_articles.${backend.name}");
 
     if (storedReadArticlesStr == null) {
-      return {};
+      return HashSet();
     }
 
-    Set<Article> storedReadArticles = {};
+    HashSet<Article> storedReadArticles = HashSet();
     for (final articleMap in jsonDecode(storedReadArticlesStr)) {
       storedReadArticles.add(Article.fromJson(articleMap));
     }
