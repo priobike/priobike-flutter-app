@@ -8,12 +8,6 @@ class AuthConfig {
   /// Password for the prediction service mqtt broker.
   String predictionServiceMQTTPassword;
 
-  /// Username for the predictor mqtt broker.
-  String predictorMQTTUsername;
-
-  /// Password for the predictor mqtt broker.
-  String predictorMQTTPassword;
-
   /// Username for the simulator mqtt broker.
   String simulatorMQTTPublishUsername;
 
@@ -27,8 +21,6 @@ class AuthConfig {
     required this.mapboxAccessToken,
     required this.predictionServiceMQTTUsername,
     required this.predictionServiceMQTTPassword,
-    required this.predictorMQTTUsername,
-    required this.predictorMQTTPassword,
     required this.simulatorMQTTPublishUsername,
     required this.simulatorMQTTPublishPassword,
     required this.linkShortenerApiKey,
@@ -39,8 +31,6 @@ class AuthConfig {
       mapboxAccessToken: json['mapboxAccessToken'],
       predictionServiceMQTTUsername: json['predictionServiceMQTTUsername'],
       predictionServiceMQTTPassword: json['predictionServiceMQTTPassword'],
-      predictorMQTTUsername: json['predictorMQTTUsername'],
-      predictorMQTTPassword: json['predictorMQTTPassword'],
       simulatorMQTTPublishUsername: json['simulatorMQTTPublishUsername'],
       simulatorMQTTPublishPassword: json['simulatorMQTTPublishPassword'],
       linkShortenerApiKey: json['linkShortenerApiKey'],

@@ -150,7 +150,6 @@ class Tracking with ChangeNotifier {
         taps: [],
         // Predictions will be empty using the free ride mode.
         predictionServicePredictions: [],
-        predictorPredictions: [],
         // Can be empty if the free ride mode is selected.
         selectedWaypoints: routing.selectedWaypoints ?? [],
         bikeType: profile.bikeType,
@@ -242,7 +241,6 @@ class Tracking with ChangeNotifier {
 
     final ride = getIt<Ride>();
     track?.predictionServicePredictions = ride.predictionProvider?.predictionServicePredictions ?? [];
-    track?.predictorPredictions = ride.predictionProvider?.predictorPredictions ?? [];
 
     batterySamplingTimer?.cancel();
     batterySamplingTimer = null;
