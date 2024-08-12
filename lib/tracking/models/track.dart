@@ -124,9 +124,6 @@ class Track {
   /// The prediction service predictions received during the ride.
   List<PredictionServicePrediction> predictionServicePredictions;
 
-  /// The predictor predictions received during the ride.
-  List<PredictorPrediction> predictorPredictions;
-
   /// The *initially* selected waypoints of the route.
   /// This may be used to re-visit the route if the user wishes to do so.
   /// Please note that the waypoints may change if the user deviates from the route.
@@ -188,7 +185,6 @@ class Track {
     required this.statusSummary,
     required this.taps,
     required this.predictionServicePredictions,
-    required this.predictorPredictions,
     required this.selectedWaypoints,
     required this.bikeType,
     required this.routes,
@@ -223,7 +219,6 @@ class Track {
       'statusSummary': statusSummary.toJsonCamelCase(),
       'taps': taps.map((e) => e.toJson()).toList(),
       'predictionServicePredictions': predictionServicePredictions.map((e) => e.toJson()).toList(),
-      'predictorPredictions': predictorPredictions.map((e) => e.toJson()).toList(),
       'selectedWaypoints': selectedWaypoints.map((e) => e!.toJSON()).toList(),
       'bikeType': bikeType?.name,
       'routes': routes.entries
@@ -270,8 +265,6 @@ class Track {
       predictionServicePredictions: (json['predictionServicePredictions'] as List<dynamic>)
           .map((e) => PredictionServicePrediction.fromJson(e))
           .toList(),
-      predictorPredictions:
-          (json['predictorPredictions'] as List<dynamic>).map((e) => PredictorPrediction.fromJson(e)).toList(),
       selectedWaypoints: (json['selectedWaypoints'] as List<dynamic>).map((e) => Waypoint.fromJson(e)).toList(),
       bikeType: json['bikeType'] == null ? null : BikeType.values.byName(json['bikeType']),
       routes: Map.fromEntries(

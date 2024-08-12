@@ -230,30 +230,6 @@ extension BackendPredictionServiceMqtt on Backend {
   }
 }
 
-extension BackendPredictorMqtt on Backend {
-  String get predictorMQTTPath {
-    switch (this) {
-      case Backend.production:
-        return "priobike.vkw.tu-dresden.de";
-      case Backend.staging:
-        return "priobike.vkw.tu-dresden.de";
-      case Backend.release:
-        return "priobike.flow-d.de";
-    }
-  }
-
-  int get predictorMQTTPort {
-    switch (this) {
-      case Backend.production:
-        return 20054;
-      case Backend.staging:
-        return 20035;
-      case Backend.release:
-        return 20054;
-    }
-  }
-}
-
 extension BackendFROSTMqtt on Backend {
   String get frostMQTTPath {
     switch (this) {
