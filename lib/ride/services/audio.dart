@@ -16,6 +16,9 @@ import 'package:priobike/settings/services/settings.dart';
 /// The distances before the crossings when a speed advisory instruction should be played.
 const List<int> speedAdvisoryDistances = [300, 100];
 
+/// The distances until an instruction is played even if the distance is smaller than the speedAdvisoryDistances.
+const List<int> speedAdvisoryMinDistances = [225, 50];
+
 /// The minimal distance before the crossing when a speed advisory instruction should be played. (Except wait for green)
 const int speedAdvisoryMinDistance = 50;
 
@@ -103,14 +106,13 @@ class Audio {
 
     // Search for the next state according to the distance.
     for (int i = 0; i < speedAdvisoryDistances.length; i++) {
-      // Use a margin of 66% of the distance to the next sg where the instruction should still be played.
-      if (ride!.calcDistanceToNextSG! > (speedAdvisoryDistances[i] * 0.66)) {
+      if (ride!.calcDistanceToNextSG! > speedAdvisoryMinDistances[i]) {
         return i;
       }
     }
 
     // Default state.
-    return 0;
+    return speedAdvisoryDistances.length;
   }
 
   /// Check for rerouting.
