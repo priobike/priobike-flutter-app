@@ -13,6 +13,12 @@ import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/services/settings.dart';
 
+/// The distances before the crossings when a speed advisory instruction should be played.
+const List<int> speedAdvisoryDistances = [300, 100];
+
+/// The minimal distance before the crossing when a speed advisory instruction should be played. (Except wait for green)
+const int speedAdvisoryMinDistance = 50;
+
 class Audio {
   /// An instance for text-to-speach.
   FlutterTts? ftts;
@@ -40,6 +46,12 @@ class Audio {
 
   /// The wait for green timer that is used to time the wait for green instruction.
   Timer? waitForGreenTimer;
+
+  /// The current state of the speed advisory instruction.
+  int currentSpeedAdvisoryInstructionState = 0;
+
+  /// The last signal group id.
+  int lastSignalGroupId = -1;
 
   /// Constructor.
   Audio() {
@@ -79,6 +91,28 @@ class Audio {
     await cleanUp();
   }
 
+  /// Returns the next speed advisory instruction state.
+  int _getNextSpeedAdvisoryInstructionState() {
+    // If there is no information on the distance, we start with state 0.
+    if (ride!.calcDistanceToNextSG == null) return 0;
+
+    // If the distance is to close, we skip to the last state.
+    if (ride!.calcDistanceToNextSG! < speedAdvisoryMinDistance) {
+      return speedAdvisoryDistances.length;
+    }
+
+    // Search for the next state according to the distance.
+    for (int i = 0; i < speedAdvisoryDistances.length; i++) {
+      // Use a margin of 66% of the distance to the next sg where the instruction should still be played.
+      if (ride!.calcDistanceToNextSG! > (speedAdvisoryDistances[i] * 0.66)) {
+        return i;
+      }
+    }
+
+    // Default state.
+    return 0;
+  }
+
   /// Check for rerouting.
   Future<void> _processRideUpdates() async {
     if (ride?.navigationIsActive != true) return;
@@ -93,6 +127,14 @@ class Audio {
       currentRoute = ride?.route;
       if (ftts == null) await _initializeTTS();
       ftts?.speak("Neue Route berechnet");
+    }
+
+    if (lastSignalGroupId != ride!.calcCurrentSGIndex?.toInt()) {
+      lastSignalGroupId = ride!.calcCurrentSGIndex?.toInt() ?? -1;
+      currentSpeedAdvisoryInstructionState = _getNextSpeedAdvisoryInstructionState();
+      didStartWaitForGreenInfoTimerForSg = null;
+      waitForGreenTimer?.cancel();
+      waitForGreenTimer = null;
     }
 
     // check phase change things TODO.
@@ -134,9 +176,8 @@ class Audio {
       // Create navigation and speed advisory instructions.
       await _playAudioRoutingInstruction();
     } else if (settings?.audioInstructionsEnabled == true) {
-      // TODO create speed advisory only instructions.
       // Create only speed advisory instructions.
-      // await playSpeedAdvisoryInstructions();
+      await _playSpeedAdvisoryInstruction();
     }
 
     _checkPlayCountdownWhenWaitingForGreen();
@@ -412,6 +453,48 @@ class Audio {
           await ftts!.speak(updatedCountdown.toString());
         }
       }
+    }
+  }
+
+  /// Play speed advisory instruction only.
+  Future<void> _playSpeedAdvisoryInstruction() async {
+    ride ??= getIt<Ride>();
+    positioning ??= getIt<Positioning>();
+    if (positioning!.snap == null || ride!.route == null) return;
+    if (ftts == null) return;
+
+    // If the state is higher than the length of the speed advisory distances, do not play any more instructions.
+    if (currentSpeedAdvisoryInstructionState > speedAdvisoryDistances.length - 1) {
+      return;
+    }
+
+    if (ride?.calcCurrentSG == null) return;
+
+    // Check if the distance of the current state is reached.
+    if (ride?.calcDistanceToNextSG != null &&
+        ride!.calcDistanceToNextSG! < speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]) {
+      // Create the audio advisory instruction.
+      String sgType = (ride!.calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
+      InstructionText instructionText = InstructionText(
+          text: "In ${speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]} meter $sgType ",
+          type: InstructionTextType.signalGroup,
+          distanceToNextSg: speedAdvisoryDistances[currentSpeedAdvisoryInstructionState].toDouble());
+
+      final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
+      var textToPlay = _generateTextToPlay(instructionText, speed);
+
+      if (textToPlay == null) {
+        return;
+      }
+      currentSpeedAdvisoryInstructionState++;
+
+      await ftts!.speak(textToPlay.text);
+      // Calc updatedCountdown since initial creation and time that has passed while speaking
+      // (to avoid countdown inaccuracy)
+      // Also take into account 1s delay for actually speaking the countdown.
+      int updatedCountdown =
+          textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) - 1;
+      await ftts!.speak(updatedCountdown.toString());
     }
   }
 
