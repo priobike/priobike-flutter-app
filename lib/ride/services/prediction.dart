@@ -26,9 +26,6 @@ class PredictionProvider {
   /// The current best status.
   SGStatusData? status;
 
-  /// Whether the current recommendation uses the predictor failover.
-  bool? usesPredictorFailover;
-
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
   late final Function notifyListeners;
 
@@ -46,14 +43,8 @@ class PredictionProvider {
   /// The predictions received during the ride, from the prediction service.
   final List<PredictionServicePrediction> predictionServicePredictions = [];
 
-  /// The predictions received during the ride, from the predictor.
-  final List<PredictorPrediction> predictorPredictions = [];
-
   /// The prediction service client.
   MqttServerClient? psClient;
-
-  /// The predictor client.
-  MqttServerClient? pClient;
 
   /// The currently subscribed signal group.
   Sg? subscribedSG;
@@ -79,8 +70,7 @@ class PredictionProvider {
     disconnectTimer = null;
 
     var psClientConn = psClient?.connectionStatus?.state == MqttConnectionState.connected;
-    var pClientConn = pClient?.connectionStatus?.state == MqttConnectionState.connected;
-    if (sg != null && (!psClientConn || !pClientConn)) {
+    if (sg != null && !psClientConn) {
       // Driving toward a signal group, connect the clients.
       final settings = getIt<Settings>();
       final auth = await Auth.load(settings.city.selectedBackend(true));
@@ -88,46 +78,35 @@ class PredictionProvider {
           .connect(auth.predictionServiceMQTTUsername, auth.predictionServiceMQTTPassword)
           .timeout(const Duration(seconds: 5));
       psClient!.updates!.listen(onPsData); // Needs to happen after connect!
-      await pClient!
-          .connect(auth.predictorMQTTUsername, auth.predictorMQTTPassword)
-          .timeout(const Duration(seconds: 5));
-      pClient!.updates!.listen(onPData); // Needs to happen after connect!
     }
 
     bool unsubscribed = false;
 
     psClientConn = psClient!.connectionStatus?.state == MqttConnectionState.connected;
-    pClientConn = pClient!.connectionStatus?.state == MqttConnectionState.connected;
     if (subscribedSG != null && subscribedSG != sg) {
       // If we transition from one to another signal group, unsubscribe from the previous one.
       if (psClientConn) psClient?.unsubscribe(subscribedSG!.id);
-      if (pClientConn) pClient?.unsubscribe(subscribedSG!.id);
 
       // Reset all values that were calculated for the previous signal group.
       prediction = null;
       recommendation = null;
-      usesPredictorFailover = null;
       status = null;
       unsubscribed = true;
     }
 
     psClientConn = psClient!.connectionStatus?.state == MqttConnectionState.connected;
-    pClientConn = pClient!.connectionStatus?.state == MqttConnectionState.connected;
     if (sg == null) {
       // If the signal group is null, disconnect the clients.
-      if (psClientConn || pClientConn) log.i("🛜🔋 No sg: disconnecting from Prediction brokers to save energy.");
+      if (psClientConn) log.i("🛜🔋 No sg: disconnecting from Prediction brokers to save energy.");
       if (psClientConn) psClient?.disconnect();
-      if (pClientConn) pClient?.disconnect();
     } else if (sg != subscribedSG || resubscribe) {
       // If the signal group is different from the previous one, subscribe to the new signal group.
       psClient?.subscribe(sg.id, MqttQos.atLeastOnce);
-      pClient?.subscribe(sg.id, MqttQos.atLeastOnce);
       // Launch a timer that will disconnect if no new prediction is arriving.
       disconnectTimer = Timer(const Duration(seconds: 5), () {
         if (prediction != null) return; // If a prediction arrived, don't disconnect.
         log.i("🛜🔋 No good prediction arrived: disconnecting from Prediction brokers to save energy.");
         psClient?.disconnect();
-        pClient?.disconnect();
       });
     } else {
       // If the signal group is the same as the previous one, do nothing.
@@ -157,15 +136,9 @@ class PredictionProvider {
         backend.predictionServiceMQTTPath,
         backend.predictionServiceMQTTPort,
       );
-      pClient = initClient(
-        "Predictor",
-        backend.predictorMQTTPath,
-        backend.predictorMQTTPort,
-      );
       onConnected();
     } catch (e) {
       psClient = null;
-      pClient = null;
       final hint = "⚠️ Failed to connect the prediction MQTT client: $e";
       log.e(hint);
       final ride = getIt<Ride>();
@@ -212,8 +185,6 @@ class PredictionProvider {
       predictionServicePredictions.add(prediction);
 
       final recommendation = await prediction.calculateRecommendation();
-      // Set the prediction status of the current prediction. Needs to be set before notifyListeners() is called,
-      // because based on that (if used) the hybrid mode selects the used prediction component.
       final status = SGStatusData(
         statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
         // Same as thing name. The prefix "hamburg/" is needed to match the naming schema of the status cache.
@@ -231,10 +202,9 @@ class PredictionProvider {
       final nextPredictionTime = prediction.startTime.add(const Duration(seconds: 60));
       // Unsubscribe while we don't expect a new prediction.
       if (nextPredictionTime.isAfter(DateTime.now())) {
-        // Disconnect both clients
-        log.i("🛜🔋 Disconnecting from both Prediction brokers to save energy.");
+        // Disconnect client
+        log.i("🛜🔋 Disconnecting from broker to save energy.");
         psClient?.disconnect();
-        pClient?.disconnect();
         // Schedule a reconnection.
         log.i("🛜🔁 Scheduling reconnection to the prediction MQTT broker at $nextPredictionTime");
         resubscribeTimer = Timer(nextPredictionTime.difference(DateTime.now()), () async {
@@ -246,57 +216,7 @@ class PredictionProvider {
       this.prediction = prediction;
       this.recommendation = recommendation;
       this.status = status;
-      usesPredictorFailover = false;
 
-      // Needs to be called before onNewPredictionStatusDuringRide() to ensure that (if used) the hybrid mode selects the
-      // used prediction component before correctly.
-      notifyListeners();
-    }
-  }
-
-  /// A callback that is executed when predictor data arrives.
-  Future<void> onPData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
-    if (messages == null) return;
-    for (final message in messages) {
-      final recMess = message.payload as MqttPublishMessage;
-      // Decode the payload.
-      final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      final json = jsonDecode(data);
-      log.i("🛜→🚦 Received prediction from predictor: $json");
-      final prediction = PredictorPrediction.fromJson(json);
-      predictorPredictions.add(prediction);
-
-      final recommendation = await prediction.calculateRecommendation();
-
-      // Set the prediction status of the current prediction.
-      // Needs to be set after calculateRecommendation() because there the prediction!.predictionQuality gets calculated.
-      // Needs to be set before notifyListeners() is called, because based on that (if used) the hybrid mode selects the used prediction component.
-      final status = SGStatusData(
-        statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        // The prefix "hamburg/" is needed to match the naming schema of the status cache.
-        thingName: "hamburg/${prediction.thingName}",
-        predictionQuality: prediction.predictionQuality,
-        predictionTime: prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
-      );
-
-      // Don't update the status if we have a prediction service prediction.
-      if (this.prediction != null && usesPredictorFailover == false) return;
-      // Don't update the status if the prediction is not ok.
-      if (status.predictionState != SGPredictionState.ok) return;
-      // Don't unsubscribe just yet. We might get a new prediction soon.
-      disconnectTimer?.cancel();
-      disconnectTimer = null;
-
-      this.prediction = prediction;
-      this.recommendation = recommendation;
-      this.status = status;
-      usesPredictorFailover = true;
-
-      // Note: for the predictor, we cannot disconnect,
-      // as a new prediction may arrive at any point in time.
-
-      // Needs to be called before onNewPredictionStatusDuringRide() to ensure that (if used) the hybrid mode selects the
-      // used prediction component before correctly.
       notifyListeners();
     }
   }
@@ -309,22 +229,16 @@ class PredictionProvider {
     resubscribeTimer = null;
     psClient?.disconnect();
     psClient = null;
-    pClient?.disconnect();
-    pClient = null;
   }
 
   /// Reset the service.
   Future<void> reset() async {
     psClient?.disconnect();
     psClient = null;
-    pClient?.disconnect();
-    pClient = null;
     predictionServicePredictions.clear();
-    predictorPredictions.clear();
     recommendation = null;
     prediction = null;
     status = null;
-    usesPredictorFailover = null;
     disconnectTimer?.cancel();
     disconnectTimer = null;
     resubscribeTimer?.cancel();

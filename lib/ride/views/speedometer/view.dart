@@ -158,7 +158,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
     super.dispose();
   }
 
-  /// Load the gauge colors and steps, from the predictor.
+  /// Load the gauge colors and steps, from the prediction service.
   void loadGauge() {
     fallback() {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
@@ -455,23 +455,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with SingleTic
                         style: Theme.of(context).textTheme.displaySmall!.merge(
                               const TextStyle(color: Colors.white, fontSize: 8),
                             ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: ride.predictionProvider?.usesPredictorFailover == true
-                            // Display a small dot to indicate that the fallback is active.
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                width: 4,
-                                height: 4,
-                              )
-                            : const SizedBox(width: 4, height: 4),
                       ),
                     ),
                   ],

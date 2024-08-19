@@ -1,7 +1,7 @@
 /// News-article object
 class Article {
   /// Primary key of the article
-  final int _id;
+  final int id;
 
   /// Body of the article
   final String text;
@@ -16,17 +16,15 @@ class Article {
   final int? categoryId;
 
   /// MD5 hash of the article
-  final String _md5;
+  final String md5;
 
   const Article(
-      {required id,
+      {required this.id,
       required this.text,
       required this.title,
       required this.pubDate,
       required this.categoryId,
-      required md5})
-      : _id = id,
-        _md5 = md5;
+      required this.md5});
 
   /// Returns an article given a [json] representation of an article.
   factory Article.fromJson(Map<String, dynamic> json) {
@@ -42,13 +40,13 @@ class Article {
 
   /// Returns a json representation of the article object calling this method.
   Map<String, Object?> toJson() =>
-      {'id': _id, 'title': title, 'text': text, 'pub_date': pubDate.toString(), 'category_id': categoryId, 'md5': _md5};
+      {'id': id, 'title': title, 'text': text, 'pub_date': pubDate.toString(), 'category_id': categoryId, 'md5': md5};
 
   @override
-  int get hashCode => _md5.hashCode;
+  int get hashCode => md5.hashCode;
 
   @override
   bool operator ==(Object other) {
-    return other is Article && other._md5 == _md5;
+    return other is Article && other.md5 == md5;
   }
 }
