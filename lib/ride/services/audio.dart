@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -35,7 +36,10 @@ class Audio {
   Route? currentRoute;
 
   /// The last signal group id for which a wait for green info was played.
-  String? didPlayWaitForGreenInfoForSg;
+  String? didStartWaitForGreenInfoTimerForSg;
+
+  /// The wait for green timer that is used to time the wait for green instruction.
+  Timer? waitForGreenTimer;
 
   /// Constructor.
   Audio() {
@@ -69,6 +73,9 @@ class Audio {
   Future<void> reset() async {
     settings?.removeListener(_processSettingsUpdates);
     settings = null;
+    waitForGreenTimer?.cancel();
+    waitForGreenTimer = null;
+    didStartWaitForGreenInfoTimerForSg = null;
     await cleanUp();
   }
 
@@ -112,9 +119,10 @@ class Audio {
 
   /// Process positioning updates to play audio instructions.
   Future<void> _processPositioningUpdates() async {
-    if (settings?.audioInstructionsEnabled != true) {
+    if (settings?.audioInstructionsEnabled != true && settings?.audioRoutingInstructionsEnabled != true) {
       return;
     }
+
     if (ride?.navigationIsActive != true) {
       return;
     }
@@ -123,9 +131,12 @@ class Audio {
     }
 
     if (settings?.audioRoutingInstructionsEnabled == true) {
+      // Create navigation and speed advisory instructions.
       await _playAudioRoutingInstruction();
-    } else {
+    } else if (settings?.audioInstructionsEnabled == true) {
       // TODO create speed advisory only instructions.
+      // Create only speed advisory instructions.
+      // await playSpeedAdvisoryInstructions();
     }
 
     _checkPlayCountdownWhenWaitingForGreen();
@@ -226,9 +237,25 @@ class Audio {
   void _checkPlayCountdownWhenWaitingForGreen() async {
     ride ??= getIt<Ride>();
 
+    if (didStartWaitForGreenInfoTimerForSg != null && didStartWaitForGreenInfoTimerForSg != ride!.calcCurrentSG?.id) {
+      // Do not play instruction if the sg is the same as the last played sg.
+      waitForGreenTimer?.cancel();
+      waitForGreenTimer = null;
+      didStartWaitForGreenInfoTimerForSg = null;
+      return;
+    }
+
     final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
-    if (speed > 7) {
+    if (speed * 3.6 > 7) {
       // All speed over 7 km/h is considered normal driving.
+      waitForGreenTimer?.cancel();
+      waitForGreenTimer = null;
+      didStartWaitForGreenInfoTimerForSg = null;
+      return;
+    }
+
+    // If the timer is already running, do not start a new one.
+    if (waitForGreenTimer != null) {
       return;
     }
 
@@ -254,7 +281,7 @@ class Audio {
     if (recommendation.calcCurrentPhaseChangeTime == null) return;
 
     // Find out if the current phase is not green and the next phase is green.
-    if (recommendation.calcPhasesFromNow[0] != Phase.green) return;
+    if (recommendation.calcPhasesFromNow[0] == Phase.green) return;
 
     // If there is only one color, instruction part must not be played.
     final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
@@ -283,17 +310,17 @@ class Audio {
       return;
     }
 
-    await ftts!.speak("Grün in ");
-    // Calc updatedCountdown since initial creation and time that has passed while speaking
-    // (to avoid countdown inaccuracy)
-    // Also take into account 1s delay for actually speaking the countdown.
-    countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    // Start a timer that executes the audio instruction 5 seconds before the traffic light turns green.
+    // Subtracting 5 seconds for the countdown and 1 second for the speaking delay.
+    waitForGreenTimer = Timer.periodic(Duration(seconds: countdown - 6), (timer) async {
+      await ftts!.speak("Grün in");
+      await ftts!.speak("5");
+      didStartWaitForGreenInfoTimerForSg = null;
+      timer.cancel();
+      waitForGreenTimer = null;
+    });
 
-    await ftts!.speak(countdown.toString());
-
-    // TODO start the timer and cancel it, if phase changes.
-
-    didPlayWaitForGreenInfoForSg = ride!.calcCurrentSG!.id;
+    didStartWaitForGreenInfoTimerForSg = ride!.calcCurrentSG!.id;
   }
 
   /// Check distance between current position and next sg.
