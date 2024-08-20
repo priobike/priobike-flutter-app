@@ -14,6 +14,9 @@ class Recommendation {
   /// The predicted current signal phase, calculated periodically.
   final Phase calcCurrentSignalPhase;
 
+  /// The timestamp of the last recommendation.
+  final DateTime timestamp = DateTime.now();
+
   Recommendation(
       this.calcPhasesFromNow, this.calcQualitiesFromNow, this.calcCurrentPhaseChangeTime, this.calcCurrentSignalPhase);
 }

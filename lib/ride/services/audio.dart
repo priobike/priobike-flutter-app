@@ -185,8 +185,9 @@ class Audio {
     _checkPlayCountdownWhenWaitingForGreen();
   }
 
-  /// Check if instruction contains sg information and if so add countdown
-  InstructionText? _generateTextToPlay(InstructionText instructionText, double speed) {
+  /// Check if instruction contains sg information and if so add countdown.
+  /// Speed in m/s.
+  InstructionText? generateTextToPlay(InstructionText instructionText, double speed) {
     // Check if Not supported crossing
     // or we do not have all auxiliary data that the app calculated
     // or prediction quality is not good enough.
@@ -194,6 +195,7 @@ class Audio {
 
     if (ride!.calcCurrentSG == null ||
         ride!.predictionProvider?.recommendation == null ||
+        // TODO check if this is the correct quality threshold.
         (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
       // No sg countdown information can be added and thus instruction part must not be played.
       return null;
@@ -208,6 +210,8 @@ class Audio {
     Phase? currentPhase = recommendation.calcCurrentSignalPhase;
     // Calculate the countdown.
     int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    int countdownOffset = DateTime.now().difference(recommendation.timestamp).inSeconds;
+
     if (countdown < 0) {
       countdown = 0; // Must not be negative for later calculations.
     }
@@ -217,33 +221,39 @@ class Audio {
     lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': DateTime.now()};
 
     Phase? nextPhase;
-    int durationNextPhase = double.infinity.toInt();
+    int? durationNextPhase;
     Phase? secondNextPhase;
 
-    // The current phase ends at index countdown + 2.
-    if (recommendation.calcPhasesFromNow.length > countdown + 2) {
+    // The current phase ends at index countdown + offset + 1.
+    if (recommendation.calcPhasesFromNow.length > countdown + countdownOffset + 1) {
       // Calculate the time and color of the next phase after the current phase.
-      durationNextPhase = _calcTimeToNextPhaseAfterIndex(countdown + 2) ?? double.infinity.toInt();
-      nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
+      durationNextPhase = _calcTimeToNextPhaseAfterIndex(countdown + countdownOffset + 1) ?? -1;
+      nextPhase = recommendation.calcPhasesFromNow[countdown + countdownOffset + 1];
 
-      if (recommendation.calcPhasesFromNow.length > countdown + durationNextPhase + 2) {
+      if (recommendation.calcPhasesFromNow.length > countdown + countdownOffset + 1 + durationNextPhase) {
         // Calculate the color of the second next phase after the current phase.
-        secondNextPhase = recommendation.calcPhasesFromNow[countdown + durationNextPhase + 2];
+        secondNextPhase = recommendation.calcPhasesFromNow[countdown + countdownOffset + 1 + durationNextPhase];
       }
     }
 
+    // If the current recommendation has no next phase, instruction part must not be played.
+    if (nextPhase == null || durationNextPhase == null) {
+      // If the next phase is null, instruction part must not be played.
+      return null;
+    }
+
     if (currentPhase == Phase.green && nextPhase == Phase.red) {
-      if (countdown >= instructionText.distanceToNextSg / max(25, speed) && countdown > 3) {
+      if (countdown >= instructionText.distanceToNextSg / max(6.94, speed) && countdown > 3) {
         // The traffic light is green and can be crossed with the max of current speed or 25km/h.
         // before turning red.
         instructionText.addCountdown(countdown);
         instructionText.text = "${instructionText.text} rot in";
         return instructionText;
       } else if ((secondNextPhase == Phase.green &&
-          instructionText.distanceToNextSg * 3.6 / (countdown + durationNextPhase) >= 7 &&
+          instructionText.distanceToNextSg / (countdown + durationNextPhase) >= 2.22 &&
           countdown + durationNextPhase > 3)) {
         // The traffic light will turn red and then green again
-        // and can be crossed with a minimum speed of 8km/h without stopping.
+        // and can be crossed with a minimum speed of 2.22m/s (8km/h) without stopping.
         instructionText.addCountdown(countdown + durationNextPhase);
         instructionText.text = "${instructionText.text} grün in";
         return instructionText;
@@ -303,32 +313,10 @@ class Audio {
     }
 
     if (ftts == null) return;
-    // Check if Not supported crossing
-    // or we do not have all auxiliary data that the app calculated
-    // or prediction quality is not good enough.
-    if (ride!.calcCurrentSG == null ||
-        ride!.predictionProvider?.recommendation == null ||
-        (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
-      // No sg countdown information can be added and thus instruction part must not be played.
-      return;
-    }
 
-    // Check if the prediction is a recommendation for the next traffic light on the route
-    // and do not play instruction if this is not the case.
-    final thingName = ride!.predictionProvider?.status?.thingName;
-    bool isRecommendation = thingName != null ? ride!.calcCurrentSG!.id == thingName : false;
-    if (!isRecommendation) return;
+    if (!_canCreateInstructionForRecommendation()) return;
 
-    // If the phase change time is null, instruction part must not be played.
     final recommendation = ride!.predictionProvider!.recommendation!;
-    if (recommendation.calcCurrentPhaseChangeTime == null) return;
-
-    // Find out if the current phase is not green and the next phase is green.
-    if (recommendation.calcPhasesFromNow[0] == Phase.green) return;
-
-    // If there is only one color, instruction part must not be played.
-    final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
-    if (uniqueColors.length == 1) return;
 
     // Get the countdown.
     int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
@@ -364,6 +352,39 @@ class Audio {
     });
 
     didStartWaitForGreenInfoTimerForSg = ride!.calcCurrentSG!.id;
+  }
+
+  bool _canCreateInstructionForRecommendation() {
+    ride ??= getIt<Ride>();
+
+    // Check if Not supported crossing
+    // or we do not have all auxiliary data that the app calculated
+    // or prediction quality is not good enough.
+    if (ride!.calcCurrentSG == null ||
+        ride!.predictionProvider?.recommendation == null ||
+        (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+      // No sg countdown information can be added and thus instruction part must not be played.
+      return false;
+    }
+
+    // Check if the prediction is a recommendation for the next traffic light on the route
+    // and do not play instruction if this is not the case.
+    final thingName = ride!.predictionProvider?.status?.thingName;
+    bool isRecommendation = thingName != null ? ride!.calcCurrentSG!.id == thingName : false;
+    if (!isRecommendation) return false;
+
+    // If the phase change time is null, instruction part must not be played.
+    final recommendation = ride!.predictionProvider!.recommendation!;
+    if (recommendation.calcCurrentPhaseChangeTime == null) return false;
+
+    // Find out if the current phase is not green and the next phase is green.
+    if (recommendation.calcPhasesFromNow[0] == Phase.green) return false;
+
+    // If there is only one color, instruction part must not be played.
+    final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
+    if (uniqueColors.length == 1) return false;
+
+    return true;
   }
 
   /// Check distance between current position and next sg.
@@ -441,7 +462,7 @@ class Audio {
         } else {
           final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
           // Check for countdown information.
-          var instructionTextToPlay = _generateTextToPlay(it.current, speed);
+          var instructionTextToPlay = generateTextToPlay(it.current, speed);
           if (instructionTextToPlay == null) {
             continue;
           }
@@ -463,6 +484,7 @@ class Audio {
     ride ??= getIt<Ride>();
     positioning ??= getIt<Positioning>();
     if (positioning!.snap == null || ride!.route == null) return;
+
     if (ftts == null) return;
 
     // If the state is higher than the length of the speed advisory distances, do not play any more instructions.
@@ -470,7 +492,7 @@ class Audio {
       return;
     }
 
-    if (ride?.calcCurrentSG == null) return;
+    if (!_canCreateInstructionForRecommendation()) return;
 
     // Check if the distance of the current state is reached.
     if (ride?.calcDistanceToNextSG != null &&
@@ -478,16 +500,17 @@ class Audio {
       // Create the audio advisory instruction.
       String sgType = (ride!.calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
       InstructionText instructionText = InstructionText(
-          text: "In ${speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]} meter $sgType ",
+          text: "In ${speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]} meter $sgType",
           type: InstructionTextType.signalGroup,
           distanceToNextSg: speedAdvisoryDistances[currentSpeedAdvisoryInstructionState].toDouble());
 
       final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
-      var textToPlay = _generateTextToPlay(instructionText, speed);
+      var textToPlay = generateTextToPlay(instructionText, speed);
 
       if (textToPlay == null) {
         return;
       }
+
       currentSpeedAdvisoryInstructionState++;
 
       await ftts!.speak(textToPlay.text);
@@ -610,7 +633,7 @@ class Audio {
       InstructionText instructionText =
           InstructionText(text: "Nächste $sgType", type: InstructionTextType.signalGroup, distanceToNextSg: 0);
       final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
-      var textToPlay = _generateTextToPlay(instructionText, speed);
+      var textToPlay = generateTextToPlay(instructionText, speed);
       if (textToPlay == null) return;
       await ftts!.speak(textToPlay.text);
       // Calc updatedCountdown since initial creation and time that has passed while speaking
