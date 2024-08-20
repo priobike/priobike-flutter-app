@@ -73,8 +73,8 @@ class Settings with ChangeNotifier {
   /// If the save battery mode is enabled.
   bool saveBatteryModeEnabled;
 
-  /// If the audio instructions are enabled.
-  bool audioInstructionsEnabled;
+  /// If the audio speed advisory instructions are enabled.
+  bool audioSpeedAdvisoryInstructionsEnabled;
 
   /// If the audio routing instructions are enabled.
   bool audioRoutingInstructionsEnabled;
@@ -376,17 +376,18 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const audioInstructionsEnabledKey = "priobike.settings.audioInstructionsEnabled";
+  static const audioInstructionsEnabledKey = "priobike.settings.audioSpeedAdvisoryInstructionsEnabled";
   static const defaultAudioInstructionsEnabled = false;
 
-  Future<bool> setAudioInstructionsEnabled(bool audioInstructionsEnabled, [SharedPreferences? storage]) async {
+  Future<bool> setAudioInstructionsEnabled(bool audioSpeedAdvisoryInstructionsEnabled,
+      [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.audioInstructionsEnabled;
-    this.audioInstructionsEnabled = audioInstructionsEnabled;
-    final bool success = await storage.setBool(audioInstructionsEnabledKey, audioInstructionsEnabled);
+    final prev = this.audioSpeedAdvisoryInstructionsEnabled;
+    this.audioSpeedAdvisoryInstructionsEnabled = audioSpeedAdvisoryInstructionsEnabled;
+    final bool success = await storage.setBool(audioInstructionsEnabledKey, audioSpeedAdvisoryInstructionsEnabled);
     if (!success) {
-      log.e("Failed to set audioInstructionsEnabled to $audioInstructionsEnabled");
-      this.audioInstructionsEnabled = prev;
+      log.e("Failed to set audioInstructionsEnabled to $audioSpeedAdvisoryInstructionsEnabled");
+      this.audioSpeedAdvisoryInstructionsEnabled = prev;
     } else {
       notifyListeners();
     }
@@ -403,7 +404,7 @@ class Settings with ChangeNotifier {
     this.audioRoutingInstructionsEnabled = audioRoutingInstructionsEnabled;
     final bool success = await storage.setBool(audioRoutingInstructionsEnabledKey, audioRoutingInstructionsEnabled);
     if (!success) {
-      log.e("Failed to set audioRoutingInstructionsEnabled to $audioInstructionsEnabled");
+      log.e("Failed to set audioRoutingInstructionsEnabled to $audioSpeedAdvisoryInstructionsEnabled");
       this.audioRoutingInstructionsEnabled = prev;
     } else {
       notifyListeners();
@@ -489,7 +490,7 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-    this.audioInstructionsEnabled = defaultAudioInstructionsEnabled,
+    this.audioSpeedAdvisoryInstructionsEnabled = defaultAudioInstructionsEnabled,
     this.audioRoutingInstructionsEnabled = defaultAudioRoutingInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
@@ -538,7 +539,8 @@ class Settings with ChangeNotifier {
       /* Do nothing and use the default value given by the constructor. */
     }
     try {
-      audioInstructionsEnabled = storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
+      audioSpeedAdvisoryInstructionsEnabled =
+          storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

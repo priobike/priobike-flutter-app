@@ -380,6 +380,26 @@ class SettingsViewState extends State<SettingsView> {
                       ),
                     ),
                     const VSpace(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SettingsElement(
+                        title: "Sprachausgabe aktivieren",
+                        icon: settings.audioSpeedAdvisoryInstructionsEnabled
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank,
+                        callback: () =>
+                            settings.setAudioInstructionsEnabled(!settings.audioSpeedAdvisoryInstructionsEnabled),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                      child: Small(
+                        text:
+                            "Somit kannst du die App auch mit ausgeschaltetem Display für bekannte Strecken verwenden. Dir werden die Ampelinformationen über Lautsprecher oder Kopfhörer ausgegeben.",
+                        context: context,
+                      ),
+                    ),
+                    const VSpace(),
                     SettingsElement(
                       title: "App bewerten",
                       icon: Icons.rate_review_outlined,

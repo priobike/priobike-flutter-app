@@ -479,7 +479,7 @@ class Routing with ChangeNotifier {
 
           // Only create instructions if the user has enabled audio.
           List<Instruction> instructions = List<Instruction>.empty(growable: true);
-          if (getIt<Settings>().audioInstructionsEnabled) {
+          if (getIt<Settings>().audioSpeedAdvisoryInstructionsEnabled) {
             // Add an instruction for each relevant waypoint.
             instructions = createInstructions(sgSelectorResponse, path);
           }

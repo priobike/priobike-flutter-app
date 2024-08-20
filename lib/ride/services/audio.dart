@@ -61,7 +61,7 @@ class Audio {
     settings = getIt<Settings>();
     settings!.addListener(_processSettingsUpdates);
 
-    if (settings!.audioInstructionsEnabled) {
+    if (settings!.audioSpeedAdvisoryInstructionsEnabled) {
       initialized = true;
       _init();
     }
@@ -144,10 +144,10 @@ class Audio {
 
   /// Check if the audio instructions setting has changed.
   Future<void> _processSettingsUpdates() async {
-    if (initialized && !settings!.audioInstructionsEnabled) {
+    if (initialized && !settings!.audioSpeedAdvisoryInstructionsEnabled) {
       initialized = false;
       cleanUp();
-    } else if (!initialized && settings!.audioInstructionsEnabled) {
+    } else if (!initialized && settings!.audioSpeedAdvisoryInstructionsEnabled) {
       initialized = true;
       _init();
     }
@@ -163,7 +163,7 @@ class Audio {
 
   /// Process positioning updates to play audio instructions.
   Future<void> _processPositioningUpdates() async {
-    if (settings?.audioInstructionsEnabled != true && settings?.audioRoutingInstructionsEnabled != true) {
+    if (settings?.audioSpeedAdvisoryInstructionsEnabled != true && settings?.audioRoutingInstructionsEnabled != true) {
       return;
     }
 
@@ -177,7 +177,7 @@ class Audio {
     if (settings?.audioRoutingInstructionsEnabled == true) {
       // Create navigation and speed advisory instructions.
       await _playAudioRoutingInstruction();
-    } else if (settings?.audioInstructionsEnabled == true) {
+    } else if (settings?.audioSpeedAdvisoryInstructionsEnabled == true) {
       // Create only speed advisory instructions.
       await _playSpeedAdvisoryInstruction();
     }

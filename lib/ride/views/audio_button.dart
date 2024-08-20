@@ -47,10 +47,10 @@ class _AudioButtonState extends State<AudioButton> {
           width: 58,
           height: 58,
           child: Tile(
-            onPressed: () => settings.setAudioInstructionsEnabled(!settings.audioInstructionsEnabled),
+            onPressed: () => settings.setAudioInstructionsEnabled(!settings.audioSpeedAdvisoryInstructionsEnabled),
             padding: const EdgeInsets.all(10),
             fill: Theme.of(context).colorScheme.surfaceVariant,
-            content: settings.audioInstructionsEnabled
+            content: settings.audioSpeedAdvisoryInstructionsEnabled
                 ? Icon(
                     Icons.volume_up,
                     size: 32,
