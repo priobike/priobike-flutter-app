@@ -217,13 +217,13 @@ class Audio {
     lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': DateTime.now()};
 
     Phase? nextPhase;
-    int durationNextPhase = -1;
+    int durationNextPhase = double.infinity.toInt();
     Phase? secondNextPhase;
 
     // The current phase ends at index countdown + 2.
     if (recommendation.calcPhasesFromNow.length > countdown + 2) {
       // Calculate the time and color of the next phase after the current phase.
-      durationNextPhase = _calcTimeToNextPhaseAfterIndex(countdown + 2) ?? -1;
+      durationNextPhase = _calcTimeToNextPhaseAfterIndex(countdown + 2) ?? double.infinity.toInt();
       nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
 
       if (recommendation.calcPhasesFromNow.length > countdown + durationNextPhase + 2) {
