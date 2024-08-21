@@ -36,6 +36,12 @@ void main() {
   final Prediction prediction = PredictionServicePrediction.fromJson(jsonDecode(predictionJson));
   ride.predictionProvider!.prediction = prediction;
 
+  List<double> lastSpeedValues3 = [3, 3, 3];
+  List<double> lastSpeedValues4 = [4, 4, 4];
+  List<double> lastSpeedValues5 = [5, 5, 5];
+  List<double> lastSpeedValues6 = [6, 6, 6];
+  List<double> lastSpeedValues7 = [7, 7, 7];
+
   group('300m #1', () {
     // Create the recommendation for this test.
     final List<Phase> redPhases = List<Phase>.generate(20, (_) => Phase.red);
@@ -57,15 +63,17 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 59);
+
+      expect(generatedText.countdown, 60);
     });
 
     test('4m/s', () {
@@ -80,7 +88,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -88,7 +98,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('5m/s', () {
@@ -103,7 +113,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -111,7 +123,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('6m/s', () {
@@ -126,15 +138,17 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
-      expect(generatedText.text, "In 300 meter Ampel grün in");
+      expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 60);
     });
 
     test('7m/s', () {
@@ -149,7 +163,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -157,7 +173,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
   });
 
@@ -183,19 +199,21 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 70);
+
+      expect(generatedText.countdown, 71);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 33));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -206,7 +224,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -214,11 +234,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 70);
+      expect(generatedText.countdown, 71);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 33));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -229,7 +249,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -237,11 +259,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 70);
+      expect(generatedText.countdown, 71);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 33));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -252,7 +274,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -260,11 +284,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 32);
+      expect(generatedText.countdown, 33);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 33));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -275,7 +299,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -283,7 +309,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 32);
+      expect(generatedText.countdown, 33);
     });
   });
 
@@ -308,19 +334,21 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 59);
+
+      expect(generatedText.countdown, 60);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -331,7 +359,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -339,11 +369,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -354,7 +384,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -362,11 +394,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -377,7 +409,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -385,11 +419,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -400,7 +434,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -408,7 +444,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
   });
 
@@ -433,19 +469,21 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
-      expect(generatedText.text, "In 300 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 119);
+      expect(generatedText.text, "In 300 meter Ampel grün in");
+
+      expect(generatedText.countdown, 60);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -456,7 +494,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -464,11 +504,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -479,7 +519,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -487,11 +529,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -502,7 +544,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -510,11 +554,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -525,7 +569,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -533,7 +579,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
   });
 
@@ -558,19 +604,21 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 59);
+
+      expect(generatedText.countdown, 60);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -581,7 +629,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -589,11 +639,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -604,7 +654,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -612,11 +664,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -627,7 +679,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -635,11 +689,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 49);
+      expect(generatedText.countdown, 50);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -650,7 +704,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -658,7 +714,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 49);
+      expect(generatedText.countdown, 50);
     });
   });
 
@@ -683,19 +739,21 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 59);
+
+      expect(generatedText.countdown, 60);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -706,7 +764,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -714,11 +774,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -729,7 +789,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -737,11 +799,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -752,7 +814,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -760,11 +824,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 49);
+      expect(generatedText.countdown, 50);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -775,7 +839,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -783,7 +849,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 49);
+      expect(generatedText.countdown, 50);
     });
   });
 
@@ -808,19 +874,21 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 119);
+
+      expect(generatedText.countdown, 110);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -831,7 +899,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -839,11 +909,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -854,7 +924,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -862,11 +934,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 59);
+      expect(generatedText.countdown, 60);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -877,7 +949,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -885,11 +959,11 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 49);
+      expect(generatedText.countdown, 50);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 50));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -900,7 +974,9 @@ void main() {
         distanceToNextSg: 300.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -908,7 +984,7 @@ void main() {
 
       expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 49);
+      expect(generatedText.countdown, 50);
     });
   });
 
@@ -934,15 +1010,17 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 39);
+
+      expect(generatedText.countdown, 40);
     });
 
     test('4m/s', () {
@@ -957,7 +1035,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -965,7 +1045,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
 
     test('5m/s', () {
@@ -980,7 +1060,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -988,7 +1070,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
 
     test('6m/s', () {
@@ -1003,7 +1085,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1011,7 +1095,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
 
     test('7m/s', () {
@@ -1026,7 +1110,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1034,7 +1120,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
   });
 
@@ -1059,15 +1145,17 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 19);
+
+      expect(generatedText.countdown, 20);
     });
 
     test('4m/s', () {
@@ -1082,7 +1170,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1090,7 +1180,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
 
     test('5m/s', () {
@@ -1105,7 +1195,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1113,7 +1205,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
 
     test('6m/s', () {
@@ -1128,7 +1220,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1136,7 +1230,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
 
     test('7m/s', () {
@@ -1151,7 +1245,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1159,7 +1255,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 19);
+      expect(generatedText.countdown, 20);
     });
   });
 
@@ -1184,19 +1280,21 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 39);
+
+      expect(generatedText.countdown, 40);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1207,7 +1305,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1215,11 +1315,11 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1230,7 +1330,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1238,11 +1340,11 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1253,7 +1355,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1261,11 +1365,11 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1276,7 +1380,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1284,7 +1390,7 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
   });
 
@@ -1298,7 +1404,7 @@ void main() {
     const Phase calcCurrentSignalPhase1 = Phase.red;
 
     test('3m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 60));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1309,19 +1415,21 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 3);
+      audio.lastSpeedValues = lastSpeedValues3;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
-      // 60 seconds - 1 second delay.
-      expect(generatedText.countdown, 39);
+
+      expect(generatedText.countdown, 40);
     });
 
     test('4m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1332,7 +1440,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 4);
+      audio.lastSpeedValues = lastSpeedValues4;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1340,11 +1450,11 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
 
     test('5m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1355,7 +1465,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      audio.lastSpeedValues = lastSpeedValues5;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1363,11 +1475,11 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
 
     test('6m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1378,7 +1490,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 6);
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1386,11 +1500,11 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
 
     test('7m/s', () {
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
 
       ride.predictionProvider!.recommendation = Recommendation(
           calcPhasesFromNow1, calcQualitiesFromNow1, calcCurrentPhaseChangeTime, calcCurrentSignalPhase1);
@@ -1401,7 +1515,9 @@ void main() {
         distanceToNextSg: 100.0,
       );
 
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 7);
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
@@ -1409,16 +1525,14 @@ void main() {
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
 
-      expect(generatedText.countdown, 39);
+      expect(generatedText.countdown, 40);
     });
   });
 
   group('Speed advisory with good quality but exceptions', () {
-    // Create the recommendation for this test.
-    final List<Phase> redPhases = List<Phase>.generate(20, (_) => Phase.red);
-    final List<Phase> greenPhases = List<Phase>.generate(20, (_) => Phase.green);
-
     test('Phase stays same', () {
+      // Create the recommendation for this test.
+      final List<Phase> redPhases = List<Phase>.generate(20, (_) => Phase.red);
       final List<Phase> calcPhasesFromNow = redPhases + redPhases;
       final List<double> calcQualitiesFromNow = List<double>.generate(40, (_) => 1.0);
       final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 20));
@@ -1432,28 +1546,10 @@ void main() {
         type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
-      // Generate the text to play. 100m to the next sg. 5m/s speed. => 20s to the sg.
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
 
-      expect(generatedText, null);
-    });
+      audio.lastSpeedValues = lastSpeedValues5;
 
-    test('Phases too small', () {
-      final List<Phase> calcPhasesFromNow = redPhases + greenPhases;
-      final List<double> calcQualitiesFromNow = List<double>.generate(40, (_) => 1.0);
-      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 40));
-      const Phase calcCurrentSignalPhase = Phase.red;
-
-      ride.predictionProvider!.recommendation =
-          Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
-
-      InstructionText instructionText = InstructionText(
-        text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
-        distanceToNextSg: 100.0,
-      );
-      // Generate the text to play. 100m to the next sg. 5m/s speed. => 20s to the sg.
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       expect(generatedText, null);
     });
@@ -1481,16 +1577,19 @@ void main() {
         type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
+
+      audio.lastSpeedValues = lastSpeedValues5;
+
       // Generate the text to play. 100m to the next sg. 5m/s speed. => 20s to the sg.
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 100 meter Ampel grün in");
-      // 20 seconds - 1 second delay - 2 simulated delay.
-      expect(generatedText.countdown, 17);
+
+      expect(generatedText.countdown, 18);
     });
 
     // Test for current phase green and next phase red.
@@ -1513,16 +1612,19 @@ void main() {
         type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
+
+      audio.lastSpeedValues = lastSpeedValues5;
+
       // Generate the text to play. 100m to the next sg. 5m/s speed. => 20s to the sg.
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       if (generatedText == null) {
         fail("Generated text is null");
       }
 
       expect(generatedText.text, "In 100 meter Ampel rot in");
-      // 20 seconds - 1 second delay - 2 simulated delay.
-      expect(generatedText.countdown, 17);
+
+      expect(generatedText.countdown, 18);
     });
   });
 }

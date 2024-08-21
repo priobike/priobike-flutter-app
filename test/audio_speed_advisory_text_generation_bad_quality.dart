@@ -56,8 +56,11 @@ void main() {
         type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
+
+      audio.lastSpeedValues = [5.0, 5.0, 5.0, 5.0, 5.0];
+
       // Generate the text to play. 100m to the next sg. 5m/s speed. => 20s to the sg.
-      InstructionText? generatedText = audio.generateTextToPlay(instructionText, 5);
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       expect(generatedText, null);
     });
