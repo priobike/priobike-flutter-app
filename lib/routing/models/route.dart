@@ -241,6 +241,19 @@ class Route {
     final last = route.isNotEmpty ? route.last : null;
     final distToLast =
         last == null ? null : vincenty.distance(LatLng(last.lat, last.lon), LatLng(endpoint.lat, endpoint.lon));
+
+    // The distance to the first waypoints needs to be added to the signal group distances to calculate correct distances on route.
+    if (distToFirst != null) {
+      for (var i = 0; i < signalGroupsDistancesOnRoute.length; i++) {
+        signalGroupsDistancesOnRoute[i] += distToFirst;
+      }
+
+      // Also add the start distance for crossing distances on route.
+      for (var i = 0; i < crossingsDistancesOnRoute.length; i++) {
+        crossingsDistancesOnRoute[i] += distToFirst;
+      }
+    }
+
     return Route(
       idx: idx,
       path: path,
