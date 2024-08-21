@@ -193,9 +193,9 @@ class Audio {
     // or prediction quality is not good enough.
     ride ??= getIt<Ride>();
 
+    // TODO check if this is the correct quality threshold.
     if (ride!.calcCurrentSG == null ||
         ride!.predictionProvider?.recommendation == null ||
-        // TODO check if this is the correct quality threshold.
         (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
       // No sg countdown information can be added and thus instruction part must not be played.
       return null;
@@ -244,7 +244,7 @@ class Audio {
 
     if (currentPhase == Phase.green && nextPhase == Phase.red) {
       if (countdown >= instructionText.distanceToNextSg / max(6.94, speed) && countdown > 3) {
-        // The traffic light is green and can be crossed with the max of current speed or 25km/h.
+        // The traffic light is green and can be crossed with the max of current speed or 25km/h. (6.94m/s)
         // before turning red.
         instructionText.addCountdown(countdown);
         instructionText.text = "${instructionText.text} rot in";
