@@ -21,10 +21,12 @@ const String greenInText = "grün in";
 const List<int> speedAdvisoryDistances = [300, 100];
 
 /// The distances until an instruction is played even if the distance is smaller than the speedAdvisoryDistances.
-const List<int> speedAdvisoryMinDistances = [225, 50];
+const List<int> speedAdvisoryMinDistances = [200, 50];
 
 /// The minimal distance before the crossing when a speed advisory instruction should be played. (Except wait for green)
 const int speedAdvisoryMinDistance = 50;
+
+const double predictionQualityThreshold = 0.85;
 
 class Audio {
   /// An instance for text-to-speach.
@@ -251,10 +253,9 @@ class Audio {
     ride ??= getIt<Ride>();
 
     // Check if prediction quality is not good enough.
-    // TODO check if this is the correct quality threshold.
     if (ride!.calcCurrentSG == null ||
         ride!.predictionProvider?.recommendation == null ||
-        (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+        (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < predictionQualityThreshold) {
       // No sg countdown information can be added and thus instruction part must not be played.
       return null;
     }
@@ -381,7 +382,7 @@ class Audio {
     // or prediction quality is not good enough.
     if (ride!.calcCurrentSG == null ||
         ride!.predictionProvider?.recommendation == null ||
-        (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
+        (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < predictionQualityThreshold) {
       // No sg countdown information can be added and thus instruction part must not be played.
       return false;
     }
@@ -514,8 +515,9 @@ class Audio {
         ride!.calcDistanceToNextSG! < speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]) {
       // Create the audio advisory instruction.
       String sgType = (ride!.calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
+      int roundedDistance = (ride!.calcDistanceToNextSG! / 25).ceil() * 25;
       InstructionText instructionText = InstructionText(
-        text: "In ${speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]} meter $sgType",
+        text: "In $roundedDistance meter $sgType",
         type: InstructionTextType.signalGroup,
         distanceToNextSg: ride!.calcDistanceToNextSG!,
       );
