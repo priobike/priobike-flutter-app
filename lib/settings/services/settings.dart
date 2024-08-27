@@ -1,3 +1,4 @@
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -90,6 +91,11 @@ class Settings with ChangeNotifier {
 
   /// If we want to show the speed with increased precision in the speedometer.
   bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
+
+  AndroidAudioFocusGainType androidAudioFocusGainType = AndroidAudioFocusGainType.gainTransientMayDuck;
+
+  /// The speech rate for the audio instructions.
+  bool speechRateFast = false;
 
   static const enableLogPersistenceKey = "priobike.settings.enableLogPersistence";
   static const defaultEnableLogPersistence = false;
@@ -474,6 +480,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const speechRateFastKey = "priobike.settings.speechRateFast";
+  static const defaultSpeechRateFast = false;
+
+  Future<bool> setSpeechRateFast(bool speechRateFast, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.speechRateFast;
+    this.speechRateFast = speechRateFast;
+    final bool success = await storage.setBool(speechRateFastKey, speechRateFast);
+    if (!success) {
+      log.e("Failed to set speechRateFast to $speechRateFast");
+      this.speechRateFast = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.city = defaultCity,
     this.enableLogPersistence = defaultEnableLogPersistence,
@@ -497,6 +520,7 @@ class Settings with ChangeNotifier {
     this.enableSimulatorMode = defaultSimulatorMode,
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
+    this.speechRateFast = defaultSpeechRateFast,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -547,6 +571,11 @@ class Settings with ChangeNotifier {
     try {
       audioRoutingInstructionsEnabled =
           storage.getBool(audioRoutingInstructionsEnabledKey) ?? defaultAudioRoutingInstructionsEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      speechRateFast = storage.getBool(speechRateFastKey) ?? defaultSpeechRateFast;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

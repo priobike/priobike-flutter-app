@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:latlong2/latlong.dart';
@@ -12,6 +13,7 @@ import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 const String redInText = "rot in";
@@ -65,6 +67,9 @@ class Audio {
   /// The last 11 values of the user speed.
   List<double> lastSpeedValues = [];
 
+  /// An instance of the audio session.
+  AudioSession? audioSession;
+
   /// Constructor.
   Audio() {
     settings = getIt<Settings>();
@@ -90,6 +95,7 @@ class Audio {
     positioning?.removeListener(_processPositioningUpdates);
     positioning = null;
     await resetFTTS();
+    audioSession = null;
     lastRecommendation.clear();
   }
 
@@ -242,9 +248,13 @@ class Audio {
     return changeTimes;
   }
 
-  /// Returns the closest change time.
-  int _getClosestChangeTime(int arrivalTime, List<int> changeTimes) {
-    return changeTimes.reduce((a, b) => (a - arrivalTime).abs() < (b - arrivalTime).abs() ? a : b);
+  /// Returns the closest change time in reach.
+  int _getClosestChangeTimeInReach(
+      int arrivalTime, List<int> changeTimes, SpeedMode speedMode, double distanceToNextSg) {
+    double maxSpeed = (speedMode.maxSpeed - 3) / 3.6; // Convert to m/s.
+
+    return changeTimes
+        .reduce((a, b) => (a - arrivalTime).abs() < (b - arrivalTime).abs() && distanceToNextSg / a < maxSpeed ? a : b);
   }
 
   /// Check if instruction contains sg information and if so add countdown.
@@ -280,19 +290,20 @@ class Audio {
       arrivalTime = (instructionText.distanceToNextSg / max(5, lastMedianSpeed)).round();
     }
 
-    // Get the closest change time to the arrival time.
-    int closestChangeTime = _getClosestChangeTime(arrivalTime, changeTimes);
+    // Get the closest change time to the arrival time that is in reach.
+    int closestChangeTimeInReach = _getClosestChangeTimeInReach(
+        arrivalTime, changeTimes, settings?.speedMode ?? SpeedMode.max30kmh, instructionText.distanceToNextSg);
 
     // Check if closest change time switches to red or green.
-    if (recommendation.calcPhasesFromNow[closestChangeTime] == Phase.red) {
+    if (recommendation.calcPhasesFromNow[closestChangeTimeInReach] == Phase.red) {
       // If the closest change time switches to red, add countdown to red.
-      int countdown = closestChangeTime - countdownOffset;
+      int countdown = closestChangeTimeInReach - countdownOffset;
       instructionText.addCountdown(countdown);
       instructionText.text = "${instructionText.text} $redInText";
       return instructionText;
-    } else if (recommendation.calcPhasesFromNow[closestChangeTime] == Phase.green) {
+    } else if (recommendation.calcPhasesFromNow[closestChangeTimeInReach] == Phase.green) {
       // If the closest change time switches to green, add countdown to green.
-      int countdown = closestChangeTime - countdownOffset;
+      int countdown = closestChangeTimeInReach - countdownOffset;
       instructionText.addCountdown(countdown);
       instructionText.text = "${instructionText.text} $greenInText";
       return instructionText;
@@ -419,6 +430,8 @@ class Audio {
   Future<void> _initializeTTS() async {
     ftts = FlutterTts();
 
+    await initAudioService();
+
     if (Platform.isIOS) {
       // Use siri voice if available.
       List<dynamic> voices = await ftts!.getVoices;
@@ -429,20 +442,18 @@ class Audio {
         });
       }
 
-      await ftts!.setSpeechRate(0.55); //speed of speech
-      await ftts!.setVolume(1); //volume of speech
-      await ftts!.setPitch(1); //pitch of sound
-      await ftts!.awaitSpeakCompletion(true);
+      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.4 : 0.55); //speed of speech
+      await ftts!.setVolume(1.0); //volume of speech
+      await ftts!.setPitch(1.0); //pitch of sound
       await ftts!.autoStopSharedSession(false);
+      await ftts!.awaitSpeakCompletion(true);
 
-      await ftts!.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
-        IosTextToSpeechAudioCategoryOptions.duckOthers,
-        IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-        IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP
-      ]);
+      await ftts!.setIosAudioCategory(IosTextToSpeechAudioCategory.playback,
+          [IosTextToSpeechAudioCategoryOptions.allowBluetooth, IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP]);
     } else {
       // Use android voice if available.
       List<dynamic> voices = await ftts!.getVoices;
+
       if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
         await ftts!.setVoice({
           "name": "de-DE-language",
@@ -450,11 +461,36 @@ class Audio {
         });
       }
 
-      await ftts!.setSpeechRate(0.7); //speed of speech
-      await ftts!.setVolume(1); //volume of speech
-      await ftts!.setPitch(1); //pitch of sound
+      List<dynamic> engines = await ftts!.getEngines;
+      if (engines.any((element) => element == "com.google.android.tts")) {
+        await ftts!.setEngine("com.google.android.tts");
+      }
+
       await ftts!.awaitSpeakCompletion(true);
+      await ftts!.setQueueMode(0);
+
+      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.6 : 0.5); //speed of speech
+      await ftts!.setVolume(1.0); //volume of speech
+      await ftts!.setPitch(1.0); //pitch of sound
     }
+  }
+
+  Future initAudioService() async {
+    audioSession = await AudioSession.instance;
+    await audioSession!.configure(const AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playback,
+      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
+      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+      avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+      androidAudioAttributes: AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.speech,
+        flags: AndroidAudioFlags.none,
+        usage: AndroidAudioUsage.media,
+      ),
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientMayDuck,
+      androidWillPauseWhenDucked: true,
+    ));
   }
 
   /// Play audio routing instruction.
@@ -487,7 +523,7 @@ class Audio {
           // (to avoid countdown inaccuracy)
           // Also take into account 1s delay for actually speaking the countdown.
           int updatedCountdown = instructionTextToPlay.countdown! -
-              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp!).inSeconds) -
+              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp).inSeconds) -
               1;
           await ftts!.speak(updatedCountdown.toString());
         }
@@ -529,14 +565,20 @@ class Audio {
       }
 
       currentSpeedAdvisoryInstructionState++;
+      await audioSession!.setActive(true);
+      await Future.delayed(const Duration(milliseconds: 500));
 
       await ftts!.speak(textToPlay.text);
+
       // Calc updatedCountdown since initial creation and time that has passed while speaking
       // (to avoid countdown inaccuracy)
-      // Also take into account 1s delay for actually speaking the countdown.
       int updatedCountdown =
-          textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) - 2;
+          textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp).inSeconds) - 1;
+      if (Platform.isIOS) updatedCountdown -= 2;
+
       await ftts!.speak(updatedCountdown.toString());
+
+      await audioSession!.setActive(false);
     }
   }
 
@@ -657,7 +699,7 @@ class Audio {
       // (to avoid countdown inaccuracy)
       // Also take into account 1s delay for actually speaking the countdown.
       int updatedCountdown = textToPlay.countdown! -
-          (DateTime.now().difference(textToPlay.countdownTimeStamp!).inSeconds) +
+          (DateTime.now().difference(textToPlay.countdownTimeStamp).inSeconds) +
           1; // -1s delay and +2s yellow
       await ftts!.speak(updatedCountdown.toString());
     } else {

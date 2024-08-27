@@ -11,13 +11,14 @@ import 'package:priobike/ride/services/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 void main() {
   /// The central getIt instance that is used to access the singleton services.
   final getIt = GetIt.instance;
 
-  getIt.registerSingleton<Settings>(Settings());
+  getIt.registerSingleton<Settings>(Settings(speedMode: SpeedMode.max30kmh));
   getIt.registerSingleton<Audio>(Audio());
   getIt.registerSingleton<Ride>(Ride());
 
@@ -171,9 +172,9 @@ void main() {
         fail("Generated text is null");
       }
 
-      expect(generatedText.text, "In 300 meter Ampel grün in");
+      expect(generatedText.text, "In 300 meter Ampel rot in");
 
-      expect(generatedText.countdown, 40);
+      expect(generatedText.countdown, 60);
     });
   });
 
@@ -282,9 +283,9 @@ void main() {
         fail("Generated text is null");
       }
 
-      expect(generatedText.text, "In 300 meter Ampel rot in");
+      expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 33);
+      expect(generatedText.countdown, 71);
     });
 
     test('7m/s', () {
@@ -307,9 +308,9 @@ void main() {
         fail("Generated text is null");
       }
 
-      expect(generatedText.text, "In 300 meter Ampel rot in");
+      expect(generatedText.text, "In 300 meter Ampel grün in");
 
-      expect(generatedText.countdown, 33);
+      expect(generatedText.countdown, 71);
     });
   });
 
@@ -1552,6 +1553,112 @@ void main() {
       InstructionText? generatedText = audio.generateTextToPlay(instructionText);
 
       expect(generatedText, null);
+    });
+  });
+
+  group('Speed advisory with regards to max speed 300m and 30km/h max', () {
+    // Create the recommendation for this test.
+    final List<Phase> redPhases10 = List<Phase>.generate(10, (_) => Phase.red);
+    final List<Phase> greenPhases25 = List<Phase>.generate(25, (_) => Phase.green);
+    final List<Phase> redPhases25 = List<Phase>.generate(25, (_) => Phase.red);
+    final List<Phase> greenPhases20 = List<Phase>.generate(20, (_) => Phase.red);
+    final List<Phase> greenPhases3 = List<Phase>.generate(34, (_) => Phase.green);
+    final List<Phase> redPhases3 = List<Phase>.generate(16, (_) => Phase.green);
+
+    final List<Phase> calcPhasesFromNowMax = redPhases10 + greenPhases25 + redPhases25 + greenPhases20;
+    final List<double> calcQualitiesFromNow = List<double>.generate(80, (_) => 1.0);
+    const Phase calcCurrentSignalPhase = Phase.red;
+
+    test('6m/s', () {
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 10));
+
+      ride.predictionProvider!.recommendation = Recommendation(
+          calcPhasesFromNowMax, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
+
+      InstructionText instructionText = InstructionText(
+        text: "In 300 meter Ampel",
+        type: InstructionTextType.signalGroup,
+        distanceToNextSg: 300.0,
+      );
+
+      audio.lastSpeedValues = lastSpeedValues6;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
+
+      if (generatedText == null) {
+        fail("Generated text is null");
+      }
+
+      expect(generatedText.text, "In 300 meter Ampel grün in");
+
+      expect(generatedText.countdown, 60);
+    });
+
+    test('7m/s', () {
+      final calcPhasesFromNow2 = redPhases10 + greenPhases3 + redPhases3 + greenPhases20;
+
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 10));
+
+      ride.predictionProvider!.recommendation =
+          Recommendation(calcPhasesFromNow2, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
+
+      InstructionText instructionText = InstructionText(
+        text: "In 300 meter Ampel",
+        type: InstructionTextType.signalGroup,
+        distanceToNextSg: 300.0,
+      );
+
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
+
+      if (generatedText == null) {
+        fail("Generated text is null");
+      }
+
+      expect(generatedText.text, "In 300 meter Ampel rot in");
+
+      expect(generatedText.countdown, 60);
+    });
+  });
+
+  group('Speed advisory with regards to max speed 300m and 40km/h max', () {
+    // Create the recommendation for this test.
+    final List<Phase> redPhases = List<Phase>.generate(10, (_) => Phase.red);
+    final List<Phase> greenPhases = List<Phase>.generate(25, (_) => Phase.green);
+    final List<Phase> redPhases2 = List<Phase>.generate(25, (_) => Phase.red);
+    final List<Phase> greenPhases2 = List<Phase>.generate(20, (_) => Phase.red);
+
+    List<Phase> calcPhasesFromNow = redPhases + greenPhases + redPhases2 + greenPhases2;
+    final List<double> calcQualitiesFromNow = List<double>.generate(80, (_) => 1.0);
+    const Phase calcCurrentSignalPhase = Phase.red;
+
+    getIt.unregister<Settings>();
+    getIt.registerSingleton<Settings>(Settings(speedMode: SpeedMode.max40kmh));
+
+    test('7m/s', () {
+      final DateTime calcCurrentPhaseChangeTime = DateTime.now().add(const Duration(seconds: 10));
+
+      ride.predictionProvider!.recommendation =
+          Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
+
+      InstructionText instructionText = InstructionText(
+        text: "In 300 meter Ampel",
+        type: InstructionTextType.signalGroup,
+        distanceToNextSg: 300.0,
+      );
+
+      audio.lastSpeedValues = lastSpeedValues7;
+
+      InstructionText? generatedText = audio.generateTextToPlay(instructionText);
+
+      if (generatedText == null) {
+        fail("Generated text is null");
+      }
+
+      expect(generatedText.text, "In 300 meter Ampel rot in");
+
+      expect(generatedText.countdown, 35);
     });
   });
 
