@@ -442,7 +442,7 @@ class Audio {
         });
       }
 
-      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.4 : 0.55); //speed of speech
+      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.55 : 0.4); //speed of speech
       await ftts!.setVolume(1.0); //volume of speech
       await ftts!.setPitch(1.0); //pitch of sound
       await ftts!.autoStopSharedSession(false);
