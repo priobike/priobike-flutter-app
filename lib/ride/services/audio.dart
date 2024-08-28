@@ -99,6 +99,8 @@ class Audio {
     positioning?.removeListener(_processPositioningUpdates);
     positioning = null;
     await resetFTTS();
+    // Deactivate the audio session to allow other audio to play.
+    audioSession?.setActive(false);
     audioSession = null;
     lastRecommendation.clear();
   }
@@ -295,7 +297,7 @@ class Audio {
     // Calculate the arrival time at the sg.
     int arrivalTime = (instructionText.distanceToNextSg / lastMedianSpeed).round();
 
-    int countdownOffset = DateTime.now().difference(recommendation.timestamp).inSeconds;
+    int countdownOffset = (DateTime.now().difference(recommendation.timestamp).inMilliseconds / 1000).round();
 
     // Check if the arrival is at red or to far away.
     if (recommendation.calcPhasesFromNow.length <= arrivalTime ||
@@ -311,13 +313,15 @@ class Audio {
     // Check if closest change time switches to red or green.
     if (recommendation.calcPhasesFromNow[closestChangeTimeInReach] == Phase.red) {
       // If the closest change time switches to red, add countdown to red.
-      int countdown = closestChangeTimeInReach - countdownOffset;
+      // Subtract 2 for starting at second 0 and 1 for the second before change.
+      int countdown = closestChangeTimeInReach - countdownOffset - 2;
       instructionText.addCountdown(countdown);
       instructionText.text = "${instructionText.text} $redInText";
       return instructionText;
     } else if (recommendation.calcPhasesFromNow[closestChangeTimeInReach] == Phase.green) {
       // If the closest change time switches to green, add countdown to green.
-      int countdown = closestChangeTimeInReach - countdownOffset;
+      // Subtract 2 for starting at second 0 and 1 for the second before change.
+      int countdown = closestChangeTimeInReach - countdownOffset - 2;
       instructionText.addCountdown(countdown);
       instructionText.text = "${instructionText.text} $greenInText";
       return instructionText;
@@ -579,22 +583,30 @@ class Audio {
     currentSpeedAdvisoryInstructionState++;
 
     // Activate the audio session to duck others in case of music or other audio playing.
+    // Needs to be checked because function is async.
+    if (audioSession == null) return;
     await audioSession!.setActive(true);
     await Future.delayed(const Duration(milliseconds: 500));
 
+    // Needs to be checked because function is async.
+    if (ftts == null) return;
     await ftts!.speak(textToPlay.text);
 
     // Calc updatedCountdown since initial creation and time that has passed while speaking
     // (to avoid countdown inaccuracy)
-    int updatedCountdown =
-        textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp).inSeconds) - 1;
-    if (Platform.isIOS) updatedCountdown -= 2;
+    int updatedCountdown = textToPlay.countdown! -
+        ((DateTime.now().difference(textToPlay.countdownTimeStamp).inMilliseconds) / 1000).round();
+
+    // Needs to be checked because function is async.
+    if (ftts == null) return;
 
     await ftts!.speak(updatedCountdown.toString());
 
     // Add some buffer because the end of speak can not be detected.
     await Future.delayed(const Duration(milliseconds: 500));
 
+    // Needs to be checked because function is async.
+    if (audioSession == null) return;
     // Deactivate the audio session to allow other audio to play.
     await audioSession!.setActive(false);
   }
