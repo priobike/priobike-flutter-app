@@ -8,6 +8,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -69,6 +70,9 @@ class Audio {
 
   /// An instance of the audio session.
   AudioSession? audioSession;
+
+  /// The last prediction from the prediction service.
+  Prediction? lastPrediction;
 
   /// Constructor.
   Audio() {
@@ -152,9 +156,19 @@ class Audio {
       didStartWaitForGreenInfoTimerForSg = null;
       waitForGreenTimer?.cancel();
       waitForGreenTimer = null;
+    } else {
+      // Check if the current prediction is still valid.
+      if (lastPrediction == null) return;
+      if (lastPrediction != null &&
+          ride!.predictionProvider?.prediction == null &&
+          lastSignalGroupId == ride!.calcCurrentSGIndex?.toInt() &&
+          currentSpeedAdvisoryInstructionState > 0) {
+        // Inform the user that the prediction is not valid any more.
+        _playPredictionNotValidAnymore();
+      }
     }
 
-    // check phase change things TODO.
+    lastPrediction = ride!.predictionProvider?.prediction;
   }
 
   /// Check if the audio instructions setting has changed.
@@ -442,9 +456,9 @@ class Audio {
         });
       }
 
-      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.55 : 0.4); //speed of speech
+      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.54 : 0.5); //speed of speech
       await ftts!.setVolume(1.0); //volume of speech
-      await ftts!.setPitch(1.0); //pitch of sound
+      await ftts!.setPitch(1.1); //pitch of sound
       await ftts!.autoStopSharedSession(false);
       await ftts!.awaitSpeakCompletion(true);
 
@@ -466,12 +480,11 @@ class Audio {
         await ftts!.setEngine("com.google.android.tts");
       }
 
-      await ftts!.awaitSpeakCompletion(true);
       await ftts!.setQueueMode(0);
-
-      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.6 : 0.5); //speed of speech
+      await ftts!.awaitSpeakCompletion(true);
+      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.7 : 0.6); //speed of speech
       await ftts!.setVolume(1.0); //volume of speech
-      await ftts!.setPitch(1.0); //pitch of sound
+      await ftts!.setPitch(1.1); //pitch of sound
     }
   }
 
@@ -707,5 +720,15 @@ class Audio {
       lastRecommendation.clear();
       lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': DateTime.timestamp()};
     }
+  }
+
+  Future<void> _playPredictionNotValidAnymore() async {
+    if (ftts == null) return;
+    if (audioSession == null) return;
+
+    audioSession!.setActive(true);
+    await Future.delayed(const Duration(milliseconds: 500));
+    ftts!.speak("Achtung, aktuelle Prognose nicht mehr gültig");
+    await audioSession!.setActive(false);
   }
 }
