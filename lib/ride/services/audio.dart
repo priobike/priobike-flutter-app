@@ -151,6 +151,7 @@ class Audio {
     }
 
     if (lastSignalGroupId != ride!.calcCurrentSGIndex?.toInt()) {
+      // Reset the state if the signal group has changed.
       lastSignalGroupId = ride!.calcCurrentSGIndex?.toInt() ?? -1;
       currentSpeedAdvisoryInstructionState = _getNextSpeedAdvisoryInstructionState();
       didStartWaitForGreenInfoTimerForSg = null;
@@ -159,10 +160,7 @@ class Audio {
     } else {
       // Check if the current prediction is still valid.
       if (lastPrediction == null) return;
-      if (lastPrediction != null &&
-          ride!.predictionProvider?.prediction == null &&
-          lastSignalGroupId == ride!.calcCurrentSGIndex?.toInt() &&
-          currentSpeedAdvisoryInstructionState > 0) {
+      if (ride!.predictionProvider?.prediction == null && currentSpeedAdvisoryInstructionState > 0) {
         // Inform the user that the prediction is not valid any more.
         _playPredictionNotValidAnymore();
       }
@@ -214,6 +212,7 @@ class Audio {
       await _playSpeedAdvisoryInstruction();
     }
 
+    // In both modes we check if the user is waiting for green and play a countdown.
     _checkPlayCountdownWhenWaitingForGreen();
   }
 
@@ -232,6 +231,7 @@ class Audio {
     lastSpeedValues.add(positioning!.lastPosition?.speed ?? 0);
   }
 
+  /// Returns the median speed of the last speed values.
   double _getMedianSpeedOfLastSpeedValues() {
     if (lastSpeedValues.isEmpty) {
       return 0;
@@ -560,39 +560,43 @@ class Audio {
     if (!_canCreateInstructionForRecommendation()) return;
 
     // Check if the distance of the current state is reached.
-    if (ride?.calcDistanceToNextSG != null &&
-        ride!.calcDistanceToNextSG! < speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]) {
-      // Create the audio advisory instruction.
-      String sgType = (ride!.calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
-      int roundedDistance = (ride!.calcDistanceToNextSG! / 25).ceil() * 25;
-      InstructionText instructionText = InstructionText(
-        text: "In $roundedDistance meter $sgType",
-        type: InstructionTextType.signalGroup,
-        distanceToNextSg: ride!.calcDistanceToNextSG!,
-      );
+    if (ride?.calcDistanceToNextSG == null ||
+        ride!.calcDistanceToNextSG! >= speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]) return;
 
-      var textToPlay = generateTextToPlay(instructionText);
+    // Create the audio advisory instruction.
+    String sgType = (ride!.calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
+    int roundedDistance = (ride!.calcDistanceToNextSG! / 25).ceil() * 25;
+    InstructionText instructionText = InstructionText(
+      text: "In $roundedDistance meter $sgType",
+      type: InstructionTextType.signalGroup,
+      distanceToNextSg: ride!.calcDistanceToNextSG!,
+    );
 
-      if (textToPlay == null) {
-        return;
-      }
+    var textToPlay = generateTextToPlay(instructionText);
 
-      currentSpeedAdvisoryInstructionState++;
-      await audioSession!.setActive(true);
-      await Future.delayed(const Duration(milliseconds: 500));
+    if (textToPlay == null) return;
 
-      await ftts!.speak(textToPlay.text);
+    currentSpeedAdvisoryInstructionState++;
 
-      // Calc updatedCountdown since initial creation and time that has passed while speaking
-      // (to avoid countdown inaccuracy)
-      int updatedCountdown =
-          textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp).inSeconds) - 1;
-      if (Platform.isIOS) updatedCountdown -= 2;
+    // Activate the audio session to duck others in case of music or other audio playing.
+    await audioSession!.setActive(true);
+    await Future.delayed(const Duration(milliseconds: 500));
 
-      await ftts!.speak(updatedCountdown.toString());
+    await ftts!.speak(textToPlay.text);
 
-      await audioSession!.setActive(false);
-    }
+    // Calc updatedCountdown since initial creation and time that has passed while speaking
+    // (to avoid countdown inaccuracy)
+    int updatedCountdown =
+        textToPlay.countdown! - (DateTime.now().difference(textToPlay.countdownTimeStamp).inSeconds) - 1;
+    if (Platform.isIOS) updatedCountdown -= 2;
+
+    await ftts!.speak(updatedCountdown.toString());
+
+    // Add some buffer because the end of speak can not be detected.
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Deactivate the audio session to allow other audio to play.
+    await audioSession!.setActive(false);
   }
 
   /// Play new prediction audio instruction.
