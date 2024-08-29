@@ -2,6 +2,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/ride/models/audio.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/color_mode.dart';
@@ -95,8 +96,7 @@ class Settings with ChangeNotifier {
   AndroidAudioFocusGainType androidAudioFocusGainType = AndroidAudioFocusGainType.gainTransientMayDuck;
 
   /// The speech rate for the audio instructions.
-  bool speechRateFast = false;
-
+  SpeechRate speechRate = SpeechRate.normal;
   static const enableLogPersistenceKey = "priobike.settings.enableLogPersistence";
   static const defaultEnableLogPersistence = false;
 
@@ -480,17 +480,17 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const speechRateFastKey = "priobike.settings.speechRateFast";
-  static const defaultSpeechRateFast = false;
+  static const speechRateKey = "priobike.settings.speechRate";
+  static const defaultSpeechRateFast = SpeechRate.normal;
 
-  Future<bool> setSpeechRateFast(bool speechRateFast, [SharedPreferences? storage]) async {
+  Future<bool> setSpeechRateFast(SpeechRate speechRate, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.speechRateFast;
-    this.speechRateFast = speechRateFast;
-    final bool success = await storage.setBool(speechRateFastKey, speechRateFast);
+    final prev = this.speechRate;
+    this.speechRate = speechRate;
+    final bool success = await storage.setString(speechRateKey, speechRate.name);
     if (!success) {
-      log.e("Failed to set speechRateFast to $speechRateFast");
-      this.speechRateFast = prev;
+      log.e("Failed to set speechRateFast to $speechRate");
+      this.speechRate = prev;
     } else {
       notifyListeners();
     }
@@ -520,7 +520,7 @@ class Settings with ChangeNotifier {
     this.enableSimulatorMode = defaultSimulatorMode,
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
-    this.speechRateFast = defaultSpeechRateFast,
+    this.speechRate = defaultSpeechRateFast,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -575,7 +575,7 @@ class Settings with ChangeNotifier {
       /* Do nothing and use the default value given by the constructor. */
     }
     try {
-      speechRateFast = storage.getBool(speechRateFastKey) ?? defaultSpeechRateFast;
+      speechRate = SpeechRate.values.byName(storage.getString(speechRateKey) ?? defaultSpeechRateFast.name);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

@@ -10,6 +10,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/models/audio.dart';
 import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/instruction.dart';
@@ -117,8 +118,8 @@ class Audio {
 
   /// Returns the next speed advisory instruction state.
   int _getNextSpeedAdvisoryInstructionState() {
-    // If there is no information on the distance, we start with state 0.
-    if (ride!.calcDistanceToNextSG == null) return 0;
+    // If there is no information on the distance, we start with state end.
+    if (ride!.calcDistanceToNextSG == null) return speedAdvisoryDistances.length;
 
     // If the distance is to close, we skip to the last state.
     if (ride!.calcDistanceToNextSG! < speedAdvisoryMinDistance) {
@@ -151,6 +152,8 @@ class Audio {
       if (ftts == null) await _initializeTTS();
       ftts?.speak("Neue Route berechnet");
     }
+
+    if (ride!.calcCurrentSG == null) return;
 
     if (lastSignalGroupId != ride!.calcCurrentSGIndex?.toInt()) {
       // Reset the state if the signal group has changed.
@@ -460,7 +463,7 @@ class Audio {
         });
       }
 
-      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.54 : 0.5); //speed of speech
+      await ftts!.setSpeechRate(settings!.speechRate == SpeechRate.fast ? 0.54 : 0.5); //speed of speech
       await ftts!.setVolume(1.0); //volume of speech
       await ftts!.setPitch(1.1); //pitch of sound
       await ftts!.autoStopSharedSession(false);
@@ -470,6 +473,11 @@ class Audio {
           [IosTextToSpeechAudioCategoryOptions.allowBluetooth, IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP]);
     } else {
       // Use android voice if available.
+      List<dynamic> engines = await ftts!.getEngines;
+      if (engines.any((element) => element == "com.google.android.tts")) {
+        await ftts!.setEngine("com.google.android.tts");
+      }
+
       List<dynamic> voices = await ftts!.getVoices;
 
       if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
@@ -479,14 +487,9 @@ class Audio {
         });
       }
 
-      List<dynamic> engines = await ftts!.getEngines;
-      if (engines.any((element) => element == "com.google.android.tts")) {
-        await ftts!.setEngine("com.google.android.tts");
-      }
-
       await ftts!.setQueueMode(0);
       await ftts!.awaitSpeakCompletion(true);
-      await ftts!.setSpeechRate(settings!.speechRateFast ? 0.7 : 0.6); //speed of speech
+      await ftts!.setSpeechRate(settings!.speechRate == SpeechRate.fast ? 0.7 : 0.6); //speed of speech
       await ftts!.setVolume(1.0); //volume of speech
       await ftts!.setPitch(1.1); //pitch of sound
     }

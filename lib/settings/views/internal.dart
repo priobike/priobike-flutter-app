@@ -245,15 +245,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     context: context,
                   ),
                 ),
-                const VSpace(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Schnelle Sprachausgabe",
-                    icon: settings.speechRateFast ? Icons.check_box : Icons.check_box_outline_blank,
-                    callback: () => settings.setSpeechRateFast(!settings.speechRateFast),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
