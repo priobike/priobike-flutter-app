@@ -17,6 +17,8 @@ import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/tracking/models/speed_advisory_instruction.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 
 const String redInText = "rot in";
 const String greenInText = "grün in";
@@ -36,7 +38,10 @@ class Audio {
   /// An instance for text-to-speach.
   FlutterTts? ftts;
 
-  /// The positioning service instance.
+  /// The tracking service instance.
+  Tracking? tracking;
+
+  /// The ride service instance.
   Ride? ride;
 
   /// The settings service instance.
@@ -119,7 +124,7 @@ class Audio {
   /// Returns the next speed advisory instruction state.
   int _getNextSpeedAdvisoryInstructionState() {
     // If there is no information on the distance, we start with state end.
-    if (ride!.calcDistanceToNextSG == null) return speedAdvisoryDistances.length;
+    if (ride!.calcDistanceToNextSG == null) return 0;
 
     // If the distance is to close, we skip to the last state.
     if (ride!.calcDistanceToNextSG! < speedAdvisoryMinDistance) {
@@ -134,7 +139,7 @@ class Audio {
     }
 
     // Default state.
-    return speedAdvisoryDistances.length;
+    return 0;
   }
 
   /// Check for rerouting.
@@ -155,20 +160,32 @@ class Audio {
 
     if (ride!.calcCurrentSG == null) return;
 
+    // Check if the prediction is not valid anymore.
+    // If same signal group.
+    if (lastSignalGroupId == ride!.calcCurrentSGIndex?.toInt()) {
+      // Check if the current prediction is still valid.
+      // If there was a last prediction.
+      if (lastPrediction != null && lastPrediction!.predictionQuality != null) {
+        // If the last prediction was valid and the current prediction is not valid anymore.
+        if (lastPrediction!.predictionQuality! > predictionQualityThreshold &&
+            (ride!.predictionProvider?.prediction?.predictionQuality == null ||
+                ride!.predictionProvider!.prediction!.predictionQuality! < predictionQualityThreshold) &&
+            currentSpeedAdvisoryInstructionState > 0) {
+          // Inform the user that the prediction is not valid any more.
+          _playPredictionNotValidAnymore();
+        }
+      }
+    }
+
     if (lastSignalGroupId != ride!.calcCurrentSGIndex?.toInt()) {
       // Reset the state if the signal group has changed.
       lastSignalGroupId = ride!.calcCurrentSGIndex?.toInt() ?? -1;
+      lastPrediction = null;
       currentSpeedAdvisoryInstructionState = _getNextSpeedAdvisoryInstructionState();
       didStartWaitForGreenInfoTimerForSg = null;
       waitForGreenTimer?.cancel();
       waitForGreenTimer = null;
-    } else {
-      // Check if the current prediction is still valid.
-      if (lastPrediction == null) return;
-      if (ride!.predictionProvider?.prediction == null && currentSpeedAdvisoryInstructionState > 0) {
-        // Inform the user that the prediction is not valid any more.
-        _playPredictionNotValidAnymore();
-      }
+      return;
     }
 
     lastPrediction = ride!.predictionProvider?.prediction;
@@ -554,6 +571,7 @@ class Audio {
   /// Play speed advisory instruction only.
   Future<void> _playSpeedAdvisoryInstruction() async {
     ride ??= getIt<Ride>();
+    tracking ??= getIt<Tracking>();
     positioning ??= getIt<Positioning>();
     if (positioning!.snap == null || ride!.route == null) return;
 
@@ -602,6 +620,17 @@ class Audio {
 
     // Needs to be checked because function is async.
     if (ftts == null) return;
+
+    // Add the speed advisory instruction to the current track.
+    if (tracking != null) {
+      tracking!.addSpeedAdvisoryInstruction(
+        SpeedAdvisoryInstruction(
+            text: instructionText.text,
+            countdown: updatedCountdown,
+            lat: positioning!.snap!.position.latitude,
+            lon: positioning!.snap!.position.longitude),
+      );
+    }
 
     await ftts!.speak(updatedCountdown.toString());
 
@@ -748,6 +777,17 @@ class Audio {
     audioSession!.setActive(true);
     await Future.delayed(const Duration(milliseconds: 500));
     ftts!.speak("Achtung, aktuelle Prognose nicht mehr gültig");
+
+    if (positioning?.snap != null) {
+      tracking!.addSpeedAdvisoryInstruction(
+        SpeedAdvisoryInstruction(
+            text: "Achtung, aktuelle Prognose nicht mehr gültig",
+            countdown: 0,
+            lat: positioning!.snap!.position.latitude,
+            lon: positioning!.snap!.position.longitude),
+      );
+    }
+
     await audioSession!.setActive(false);
   }
 }
