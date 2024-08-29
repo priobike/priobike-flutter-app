@@ -158,6 +158,7 @@ class Audio {
       ftts?.speak("Neue Route berechnet");
     }
 
+    if (ride!.userSelectedSG != null) return;
     if (ride!.calcCurrentSG == null) return;
 
     // Check if the prediction is not valid anymore.
@@ -417,8 +418,24 @@ class Audio {
     // Start a timer that executes the audio instruction 5 seconds before the traffic light turns green.
     // Subtracting 5 seconds for the countdown and 1 second for the speaking delay.
     waitForGreenTimer = Timer.periodic(Duration(seconds: countdown - 6), (timer) async {
+      if (audioSession == null) return;
+      didStartWaitForGreenInfoTimerForSg = null;
+      timer.cancel();
+      waitForGreenTimer = null;
+
+      await audioSession!.setActive(true);
+      await Future.delayed(const Duration(milliseconds: 500));
+
       await ftts!.speak("Grün in");
       await ftts!.speak("5");
+
+      // Add some buffer because the end of speak can not be detected.
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Needs to be checked because function is async.
+      if (audioSession == null) return;
+      // Deactivate the audio session to allow other audio to play.
+      await audioSession!.setActive(false);
 
       // Add the speed advisory instruction to the current track.
       if (tracking != null && positioning?.snap != null) {
@@ -430,10 +447,6 @@ class Audio {
               lon: positioning!.snap!.position.longitude),
         );
       }
-
-      didStartWaitForGreenInfoTimerForSg = null;
-      timer.cancel();
-      waitForGreenTimer = null;
     });
   }
 
