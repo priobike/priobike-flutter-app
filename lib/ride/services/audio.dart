@@ -164,28 +164,15 @@ class Audio {
     // If same signal group.
     if (lastSignalGroupId == ride!.calcCurrentSGIndex?.toInt()) {
       // Check if the current prediction is still valid.
-      // If there was a last prediction.
-      if (lastPrediction != null && lastPrediction!.predictionQuality != null) {
-        // If the last prediction was valid and the current prediction is not valid anymore.
-        if (lastPrediction!.predictionQuality! > predictionQualityThreshold &&
-            (ride!.predictionProvider?.prediction?.predictionQuality == null ||
-                ride!.predictionProvider!.prediction!.predictionQuality! < predictionQualityThreshold) &&
-            currentSpeedAdvisoryInstructionState > 0) {
-          // Inform the user that the prediction is not valid any more.
-          _playPredictionNotValidAnymore();
-        }
+      // If the prediction quality is not good enough and the last prediction was good enough, inform the user.
+      if (lastPrediction?.predictionQuality != null &&
+          lastPrediction!.predictionQuality! > predictionQualityThreshold &&
+          (ride!.predictionProvider?.prediction?.predictionQuality == null ||
+              ride!.predictionProvider!.prediction!.predictionQuality! < predictionQualityThreshold) &&
+          currentSpeedAdvisoryInstructionState > 0) {
+        // Inform the user that the prediction is not valid any more.
+        _playPredictionNotValidAnymore();
       }
-    }
-
-    if (lastSignalGroupId != ride!.calcCurrentSGIndex?.toInt()) {
-      // Reset the state if the signal group has changed.
-      lastSignalGroupId = ride!.calcCurrentSGIndex?.toInt() ?? -1;
-      lastPrediction = null;
-      currentSpeedAdvisoryInstructionState = _getNextSpeedAdvisoryInstructionState();
-      didStartWaitForGreenInfoTimerForSg = null;
-      waitForGreenTimer?.cancel();
-      waitForGreenTimer = null;
-      return;
     }
 
     lastPrediction = ride!.predictionProvider?.prediction;
@@ -236,6 +223,17 @@ class Audio {
 
     // In both modes we check if the user is waiting for green and play a countdown.
     _checkPlayCountdownWhenWaitingForGreen();
+
+    // Check if sg was passed.
+    if (lastSignalGroupId != ride!.calcCurrentSGIndex?.toInt()) {
+      // Reset the state if the signal group has changed.
+      lastSignalGroupId = ride!.calcCurrentSGIndex?.toInt() ?? -1;
+      lastPrediction = null;
+      currentSpeedAdvisoryInstructionState = _getNextSpeedAdvisoryInstructionState();
+      didStartWaitForGreenInfoTimerForSg = null;
+      waitForGreenTimer?.cancel();
+      waitForGreenTimer = null;
+    }
   }
 
   /// Add the current speed value to the last speed values list.
@@ -354,6 +352,7 @@ class Audio {
   /// Checks if the user is at slow speed or standing still close to a traffic light and plays a countdown for the next traffic light when waiting for green.
   void _checkPlayCountdownWhenWaitingForGreen() async {
     ride ??= getIt<Ride>();
+    positioning ??= getIt<Positioning>();
 
     if (didStartWaitForGreenInfoTimerForSg != null && didStartWaitForGreenInfoTimerForSg != ride!.calcCurrentSG?.id) {
       // Do not play instruction if the sg is the same as the last played sg.
@@ -417,6 +416,18 @@ class Audio {
     waitForGreenTimer = Timer.periodic(Duration(seconds: countdown - 6), (timer) async {
       await ftts!.speak("Grün in");
       await ftts!.speak("5");
+
+      // Add the speed advisory instruction to the current track.
+      if (tracking != null && positioning?.snap != null) {
+        tracking!.addSpeedAdvisoryInstruction(
+          SpeedAdvisoryInstruction(
+              text: "Grün in",
+              countdown: 5,
+              lat: positioning!.snap!.position.latitude,
+              lon: positioning!.snap!.position.longitude),
+        );
+      }
+
       didStartWaitForGreenInfoTimerForSg = null;
       timer.cancel();
       waitForGreenTimer = null;
