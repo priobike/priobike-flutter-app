@@ -312,6 +312,9 @@ class Audio {
 
     double lastMedianSpeed = _getMedianSpeedOfLastSpeedValues();
 
+    // Check if the median speed is less then 1.5m/s and replace with 5m/s.
+    if (lastMedianSpeed < 1.5) lastMedianSpeed = 5;
+
     // Calculate the arrival time at the sg.
     int arrivalTime = (instructionText.distanceToNextSg / lastMedianSpeed).round();
 
