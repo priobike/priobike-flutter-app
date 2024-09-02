@@ -32,7 +32,7 @@ class ShortcutLocation implements Shortcut {
 
   factory ShortcutLocation.fromJson(Map<String, dynamic> json) {
     return ShortcutLocation(
-      id: json.keys.contains('id') ? json['id'] : const UuidV4().generate(), 
+      id: json.keys.contains('id') ? json['id'] : const UuidV4().generate(),
       name: json['name'],
       waypoint: Waypoint.fromJson(json["waypoint"]),
     );

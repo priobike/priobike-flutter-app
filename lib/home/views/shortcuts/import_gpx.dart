@@ -44,7 +44,7 @@ class ImportGpxViewState extends State<ImportGpxView> {
       showSaveShortcutFromShortcutSheet(
         context,
         shortcut: ShortcutRoute(
-          id: const UuidV4().generate(), 
+          id: const UuidV4().generate(),
           name: "Strecke aus GPX",
           waypoints: waypoints,
         ),

@@ -38,14 +38,14 @@ class ShowQRCodeViewState extends State<ShowQRCodeView> {
     if (widget.shortcut is ShortcutLocation) {
       shortcutWithoutName = ShortcutLocation(
         waypoint: (widget.shortcut as ShortcutLocation).waypoint,
-        id: const UuidV4().generate(), 
+        id: const UuidV4().generate(),
         // Fill with empty name.
         name: "",
       );
     } else if (widget.shortcut is ShortcutRoute) {
       shortcutWithoutName = ShortcutRoute(
         waypoints: (widget.shortcut as ShortcutRoute).waypoints,
-        id: const UuidV4().generate(), 
+        id: const UuidV4().generate(),
         // Fill with empty name.
         name: "",
         routeTimeText: (widget.shortcut as ShortcutRoute).routeTimeText,

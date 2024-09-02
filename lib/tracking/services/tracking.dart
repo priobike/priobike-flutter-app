@@ -126,7 +126,7 @@ class Tracking with ChangeNotifier {
     final status = getIt<PredictionStatusSummary>();
     final profile = getIt<Profile>();
 
-    final sessionId = const UuidV7().generate(); 
+    final sessionId = const UuidV7().generate();
 
     try {
       Feature feature = getIt<Feature>();

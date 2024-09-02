@@ -12,7 +12,7 @@ class User {
     final prefs = await SharedPreferences.getInstance();
     id = prefs.getString("priobike.userId");
     if (id == null) {
-      id = const UuidV7().generate(); 
+      id = const UuidV7().generate();
       await prefs.setString("priobike.userId", id!);
     }
     return id!;

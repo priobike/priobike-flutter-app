@@ -45,7 +45,7 @@ class Shortcuts with ChangeNotifier {
     }
 
     final newShortcut = ShortcutRoute(
-      id: const UuidV4().generate(), 
+      id: const UuidV4().generate(),
       name: name,
       waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList(),
       routeTimeText: routing.selectedRoute?.timeText,

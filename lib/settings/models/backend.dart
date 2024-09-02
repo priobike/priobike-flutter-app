@@ -121,7 +121,7 @@ extension BackendInfo on City {
 }
 
 extension DefaultShortcuts on City {
-    static const uuidV4 = UuidV4();
+  static const uuidV4 = UuidV4();
   List<Shortcut> get defaultShortcuts {
     switch (this) {
       case City.hamburg:

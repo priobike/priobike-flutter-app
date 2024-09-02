@@ -65,7 +65,8 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
           BigButtonSecondary(
             label: "Speichern",
             onPressed: () {
-              ShortcutRoute shortcutRoute = ShortcutRoute(id: const UuidV4().generate(), name: "", waypoints: lastRoute);
+              ShortcutRoute shortcutRoute =
+                  ShortcutRoute(id: const UuidV4().generate(), name: "", waypoints: lastRoute);
               // Set waypoints and load ride view.
               Navigator.pop(context);
               showSaveShortcutFromShortcutSheet(context, shortcut: shortcutRoute);

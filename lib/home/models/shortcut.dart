@@ -59,7 +59,7 @@ abstract class Shortcut {
       final shortcutBytes = base64.decode(shortcutBase64);
       final shortcutUTF8 = utf8.decode(shortcutBytes);
       final Map<String, dynamic> shortcutJson = json.decode(shortcutUTF8);
-      shortcutJson['id'] = const UuidV4().generate(); 
+      shortcutJson['id'] = const UuidV4().generate();
       Shortcut shortcut;
       if (shortcutJson['type'] == "ShortcutLocation") {
         shortcut = ShortcutLocation.fromJson(shortcutJson);
