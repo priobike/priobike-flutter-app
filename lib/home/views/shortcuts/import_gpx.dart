@@ -13,6 +13,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:uuid/v4.dart';
 
 class ImportGpxView extends StatefulWidget {
   final List<Wpt> initPoints;
@@ -43,7 +44,7 @@ class ImportGpxViewState extends State<ImportGpxView> {
       showSaveShortcutFromShortcutSheet(
         context,
         shortcut: ShortcutRoute(
-          id: UniqueKey().toString(),
+          id: const UuidV4().generate(), 
           name: "Strecke aus GPX",
           waypoints: waypoints,
         ),

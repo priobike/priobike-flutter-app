@@ -9,6 +9,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:uuid/v4.dart';
 
 /// Show a sheet to edit the current shortcuts name.
 void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) {
@@ -64,7 +65,7 @@ void showRestartRouteDialog(context, int lastRouteID, List<Waypoint> lastRoute) 
           BigButtonSecondary(
             label: "Speichern",
             onPressed: () {
-              ShortcutRoute shortcutRoute = ShortcutRoute(id: UniqueKey().toString(), name: "", waypoints: lastRoute);
+              ShortcutRoute shortcutRoute = ShortcutRoute(id: const UuidV4().generate(), name: "", waypoints: lastRoute);
               // Set waypoints and load ride view.
               Navigator.pop(context);
               showSaveShortcutFromShortcutSheet(context, shortcut: shortcutRoute);
