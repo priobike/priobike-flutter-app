@@ -420,10 +420,6 @@ class SettingsViewState extends State<SettingsView> {
                     Container(
                       margin: const EdgeInsets.only(left: 18, top: 12, bottom: 8, right: 18),
                       padding: const EdgeInsets.only(left: 16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
