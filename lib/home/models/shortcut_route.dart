@@ -5,6 +5,7 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
+import 'package:uuid/v4.dart';
 
 /// The shortcut represents a saved route with a name.
 class ShortcutRoute implements Shortcut {
@@ -39,7 +40,7 @@ class ShortcutRoute implements Shortcut {
 
   factory ShortcutRoute.fromJson(Map<String, dynamic> json) {
     return ShortcutRoute(
-      id: json.keys.contains('id') ? json['id'] : UniqueKey().toString(),
+      id: json.keys.contains('id') ? json['id'] : const UuidV4().generate(),
       name: json['name'],
       waypoints: (json['waypoints'] as List).map((e) => Waypoint.fromJson(e)).toList(),
       routeLengthText: json['routeLengthText'],
