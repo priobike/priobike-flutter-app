@@ -13,6 +13,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/v4.dart';
 
 class Shortcuts with ChangeNotifier {
   /// All available shortcuts.
@@ -44,7 +45,7 @@ class Shortcuts with ChangeNotifier {
     }
 
     final newShortcut = ShortcutRoute(
-      id: UniqueKey().toString(),
+      id: const UuidV4().generate(),
       name: name,
       waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList(),
       routeTimeText: routing.selectedRoute?.timeText,
@@ -63,7 +64,7 @@ class Shortcuts with ChangeNotifier {
 
   /// Save a new location shortcut.
   Future<void> saveNewShortcutLocation(String name, Waypoint waypoint) async {
-    final newShortcut = ShortcutLocation(id: UniqueKey().toString(), name: name, waypoint: waypoint);
+    final newShortcut = ShortcutLocation(id: const UuidV4().generate(), name: name, waypoint: waypoint);
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;

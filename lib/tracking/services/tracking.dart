@@ -27,6 +27,7 @@ import 'package:priobike/tracking/models/speed_advisory_instruction.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/v7.dart';
 
 /// A track of a bicycle ride.
 class Tracking with ChangeNotifier {
@@ -127,7 +128,7 @@ class Tracking with ChangeNotifier {
     final status = getIt<PredictionStatusSummary>();
     final profile = getIt<Profile>();
 
-    final sessionId = UniqueKey().toString();
+    final sessionId = const UuidV7().generate();
 
     try {
       Feature feature = getIt<Feature>();

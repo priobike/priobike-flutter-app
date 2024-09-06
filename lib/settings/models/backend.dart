@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -9,6 +8,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:uuid/v4.dart';
 
 enum City {
   hamburg,
@@ -120,18 +120,19 @@ extension BackendInfo on City {
 }
 
 extension DefaultShortcuts on City {
+  static const uuidV4 = UuidV4();
   List<Shortcut> get defaultShortcuts {
     switch (this) {
       case City.hamburg:
         return [
           ShortcutLocation(
-            id: UniqueKey().toString(),
+            id: uuidV4.generate(),
             name: "Elbphilharmonie",
             waypoint: Waypoint(53.5415701077766, 9.984275605794686,
                 address: "Elbphilharmonie Hamburg, Platz der Deutschen Einheit, Hamburg"),
           ),
           ShortcutRoute(
-            id: UniqueKey().toString(),
+            id: uuidV4.generate(),
             name: "Altona ➔ City",
             waypoints: [
               Waypoint(53.5522524, 9.9313068, address: "Altona-Altstadt, 22767, Hamburg, Deutschland"),
@@ -144,7 +145,7 @@ extension DefaultShortcuts on City {
       case City.dresden:
         return [
           ShortcutRoute(
-            id: UniqueKey().toString(),
+            id: uuidV4.generate(),
             name: "Teststrecke POT",
             waypoints: [
               Waypoint(51.03148, 13.72757, address: "Wegpunkt 1"),
@@ -157,7 +158,7 @@ extension DefaultShortcuts on City {
             ],
           ),
           ShortcutRoute(
-            id: UniqueKey().toString(),
+            id: uuidV4.generate(),
             name: "Quer durch Dresden",
             waypoints: [
               Waypoint(51.038294, 13.703280, address: "Clara-Viebig-Straße 9"),

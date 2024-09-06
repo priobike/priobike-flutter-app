@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/licenses/views.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/models/audio.dart';
@@ -22,6 +23,7 @@ import 'package:priobike/status/views/map.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 class SettingsElement extends StatelessWidget {
   /// The title of the settings element.
@@ -267,29 +269,6 @@ class SettingsViewState extends State<SettingsView> {
                             text: "Einstellungen", context: context, color: Theme.of(context).colorScheme.onBackground),
                       ],
                     ),
-                    const SmallVSpace(),
-                    Container(
-                      margin: const EdgeInsets.only(left: 18, top: 12, bottom: 8, right: 18),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.background.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          Content(text: "Version: ", context: context),
-                          Flexible(
-                            child: BoldContent(
-                              text: feature.buildTrigger,
-                              context: context,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          Content(text: ", App-ID: ", context: context),
-                          Content(text: userId, context: context),
-                        ],
-                      ),
-                    ),
                     if (feature.canEnableInternalFeatures) ...[
                       const SmallVSpace(),
                       SettingsElement(
@@ -302,11 +281,6 @@ class SettingsViewState extends State<SettingsView> {
                         },
                       ),
                     ],
-                    const VSpace(),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32),
-                      child: Content(text: "Nutzbarkeit", context: context),
-                    ),
                     const SmallVSpace(),
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -491,7 +465,54 @@ class SettingsViewState extends State<SettingsView> {
                       },
                     ),
                     const VSpace(),
-                    const SizedBox(height: 128),
+                    Container(
+                      margin: const EdgeInsets.only(left: 18, top: 12, bottom: 8, right: 18),
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Content(text: "Version", context: context),
+                          BoldContent(
+                            text: feature.buildTrigger,
+                            context: context,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SmallVSpace(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width - (16 + 48 + 18 + 18),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Content(text: "App-ID", context: context),
+                                    InkWell(
+                                      child: BoldSmall(
+                                        text: "${userId.substring(0, 5)}...",
+                                        context: context,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SmallIconButtonTertiary(
+                                icon: Icons.copy,
+                                withBorder: false,
+                                onPressed: () async {
+                                  await Clipboard.setData(
+                                    ClipboardData(text: userId),
+                                  );
+                                  getIt<Toast>().showSuccess("App-ID kopiert!");
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 64),
                   ],
                 ),
               ],

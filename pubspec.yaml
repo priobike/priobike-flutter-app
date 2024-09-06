@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.5
+version: 1.0.6
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -68,6 +68,7 @@ dependencies:
   flutter_blue_plus: 1.20.8 # Used for connecting to BLE devices. Note: keep this Version due to problems with newer versions.
   flutter_markdown: ^0.7.1 # Used to display the privacy policy
   audio_session: ^0.1.21 # Used to play audio in the background
+  uuid: ^4.5.0 # Used for user and session IDs
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Generate app icons
