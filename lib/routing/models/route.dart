@@ -4,7 +4,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
-import 'package:priobike/routing/models/instruction.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/sg.dart';
@@ -164,9 +163,6 @@ class Route {
   /// A list of crossing distances on the route, in the order of `crossings`.
   final List<double> crossingsDistancesOnRoute;
 
-  /// A list of instructions.
-  final List<Instruction> instructions;
-
   /// The most unique attribute of the route within a set of routes.
   String? mostUniqueAttribute;
 
@@ -196,7 +192,6 @@ class Route {
     required this.signalGroupsDistancesOnRoute,
     required this.crossings,
     required this.crossingsDistancesOnRoute,
-    required this.instructions,
     required this.osmTags,
   }) {
     osmWayNames = {};
@@ -227,7 +222,6 @@ class Route {
         signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
         crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
-        instructions: [],
         osmTags:
             (json['osmTags'] as Map).map((key, value) => MapEntry(int.parse(key), Map<String, String>.from(value))),
       );
@@ -279,7 +273,6 @@ class Route {
       ],
       crossings: crossings,
       crossingsDistancesOnRoute: crossingsDistancesOnRoute,
-      instructions: instructions,
       osmTags: osmTags,
     );
   }

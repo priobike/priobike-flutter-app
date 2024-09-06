@@ -477,13 +477,6 @@ class Routing with ChangeNotifier {
             orderedCrossingsDistancesOnRoute.add(tuple.distance);
           }
 
-          // Only create instructions if the user has enabled audio.
-          List<Instruction> instructions = List<Instruction>.empty(growable: true);
-          if (getIt<Settings>().audioRoutingInstructionsEnabled) {
-            // Add an instruction for each relevant waypoint.
-            instructions = createInstructions(sgSelectorResponse, path);
-          }
-
           final osmTagsForRoute = osmTags[i];
 
           var route = r.Route(
@@ -494,7 +487,6 @@ class Routing with ChangeNotifier {
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
             crossings: orderedCrossings,
             crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
-            instructions: instructions,
             osmTags: osmTagsForRoute,
           );
           // Connect the route to the start and end points.
@@ -674,152 +666,6 @@ class Routing with ChangeNotifier {
   String getSGTypeForSignalGroupId(String signalGroupId, SGSelectorResponse sgSelectorResponse) {
     final signalGroup = sgSelectorResponse.signalGroups[signalGroupId];
     return signalGroup!.id;
-  }
-
-  /// Create the instructions for each route.
-  List<Instruction> createInstructions(SGSelectorResponse sgSelectorResponse, GHRouteResponsePath path) {
-    final instructions = List<Instruction>.empty(growable: true);
-    LatLng? lastInstructionPoint;
-
-    // Check for every navigation node in the route if there should be an instruction created.
-    for (var currentNavigationNodeIdx = 0;
-        currentNavigationNodeIdx < sgSelectorResponse.route.length;
-        currentNavigationNodeIdx++) {
-      final currentWaypoint = sgSelectorResponse.route[currentNavigationNodeIdx];
-      String ghInstructionText = getGHInstructionTextForWaypoint(path, currentWaypoint);
-      String? signalGroupId = getSignalGroupIdForWaypoint(currentWaypoint, ghInstructionText.isNotEmpty, 25);
-      String laneType = sgSelectorResponse.signalGroups[signalGroupId]?.laneType ?? "";
-      InstructionType? instructionType = getInstructionType(ghInstructionText, signalGroupId);
-      if (instructionType == null) {
-        continue; // no instruction to be created.
-      }
-
-      // Try to create first instruction call 300m before the point the instruction is referring to
-      // Or to concatenate with the previous instruction if the distance is less than 300m
-      // If concatenation is not possible no firstInstructionCall will be added to the route.
-      var waypointFirstInstructionCall = findWaypointMetersBeforeInstruction(
-          300, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
-      if (waypointFirstInstructionCall != null) {
-        Instruction firstInstructionCall = Instruction(
-            lat: waypointFirstInstructionCall.latitude,
-            lon: waypointFirstInstructionCall.longitude,
-            text: createInstructionText(true, instructionType, ghInstructionText, signalGroupId, laneType, 300, 300),
-            instructionType: instructionType,
-            signalGroupId: signalGroupId);
-        instructions.add(firstInstructionCall);
-        lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
-      } else if (lastInstructionPoint != null &&
-          (!instructions.last.alreadyConcatenated || instructionType == InstructionType.signalGroupOnly)) {
-        if (instructions.last.instructionType != InstructionType.directionOnly) {
-          // Put the instruction call under the previous sg
-          // This point is equal to the middle point in the signal crossing geometry attribute.
-          var sgId = instructions.last.signalGroupId;
-          var previousSgLaneEnd = getActualSgPosition(sgId!, sgSelectorResponse);
-          var previousDistToSg = instructions.last.text.last.distanceToNextSg;
-          var distanceToActualInstructionPoint = Snapper.vincenty.distance(
-              LatLng(previousSgLaneEnd[1], previousSgLaneEnd[0]), LatLng(currentWaypoint.lat, currentWaypoint.lon));
-          var threshold = (instructionType != InstructionType.directionOnly) ? 150 : 50;
-          if (distanceToActualInstructionPoint > threshold) {
-            // Only put firstInstructionCall if distance to actual instruction point is greater than threshold.
-            Instruction firstInstructionCall = Instruction(
-                lat: previousSgLaneEnd[1],
-                lon: previousSgLaneEnd[0],
-                text: createInstructionText(true, instructionType, ghInstructionText, signalGroupId, laneType,
-                    previousDistToSg, distanceToActualInstructionPoint.toInt()),
-                instructionType: instructionType,
-                signalGroupId: signalGroupId);
-            instructions.add(firstInstructionCall);
-            lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
-          }
-        } else {
-          var distanceToActualInstructionPoint =
-              Snapper.vincenty.distance(lastInstructionPoint, LatLng(currentWaypoint.lat, currentWaypoint.lon));
-          var threshold = (instructionType != InstructionType.directionOnly) ? 150 : 50;
-          // Only concatenate firstInstructionCall if distance to actual instruction point is greater than threshold.
-          if (distanceToActualInstructionPoint > threshold) {
-            var distanceToPlay = ((distanceToActualInstructionPoint / 10).round() * 10).toInt();
-            concatenateInstructions(
-                instructionType, ghInstructionText, signalGroupId, instructions, laneType, distanceToPlay);
-          }
-        }
-      }
-
-      // Create second instruction call at the point the instruction is referring to.
-      if (instructionType != InstructionType.directionOnly) {
-        // Put instruction point 100m before sg.
-        var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(
-            100, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
-        if (waypointSecondInstructionCall != null &&
-            lastInstructionPoint != null &&
-            Snapper.vincenty.distance(lastInstructionPoint, waypointSecondInstructionCall) > 50) {
-          // Only put secondInstructionCall if distance to actual instruction point is greater than 50m for reasons of overlapping speak times.
-          Instruction secondInstructionCall = Instruction(
-              lat: waypointSecondInstructionCall.latitude,
-              lon: waypointSecondInstructionCall.longitude,
-              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType, 100, 0),
-              instructionType: instructionType,
-              signalGroupId: signalGroupId);
-          instructions.add(secondInstructionCall);
-          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
-        } else if (instructions.isNotEmpty && instructions.last.instructionType != InstructionType.directionOnly) {
-          // Put the instruction call at the point when crossing the previous sg is finished
-          // This point is equal to the last point in the signal crossing geometry attribute.
-          var sgId = instructions.last.signalGroupId;
-          var previousSgLaneEnd = sgSelectorResponse.signalGroups[sgId]!.geometry!.last;
-          var previousDistToSg = instructions.last.text.last.distanceToNextSg;
-          Instruction secondInstructionCall = Instruction(
-              lat: previousSgLaneEnd[1],
-              lon: previousSgLaneEnd[0],
-              text: createInstructionText(
-                  false, instructionType, ghInstructionText, signalGroupId, laneType, previousDistToSg, 0),
-              instructionType: instructionType,
-              signalGroupId: signalGroupId);
-          instructions.add(secondInstructionCall);
-          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
-        } else {
-          var dist = Snapper.vincenty.distance(lastInstructionPoint!, LatLng(currentWaypoint.lat, currentWaypoint.lon));
-          var distanceToPlay = ((dist / 10).round() * 10).toInt();
-          concatenateInstructions(
-              instructionType, ghInstructionText, signalGroupId, instructions, laneType, distanceToPlay);
-        }
-      } else {
-        // Put instruction point 25m before the crossing.
-        var waypointSecondInstructionCall = findWaypointMetersBeforeInstruction(
-            25, sgSelectorResponse, currentNavigationNodeIdx, lastInstructionPoint, instructions.isEmpty);
-        if (waypointSecondInstructionCall != null) {
-          // Put the instruction at the point provided by GraphHopper.
-          Instruction secondInstructionCall = Instruction(
-              lat: waypointSecondInstructionCall.latitude,
-              lon: waypointSecondInstructionCall.longitude,
-              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType,
-                  currentWaypoint.distanceToNextSignal ?? 0, 0),
-              instructionType: instructionType,
-              signalGroupId: signalGroupId);
-          instructions.add(secondInstructionCall);
-          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
-        } else if (instructions.isNotEmpty &&
-            instructions.last.instructionType == InstructionType.directionOnly &&
-            !instructions.last.alreadyConcatenated) {
-          // Concatenate instructions if possible.
-          var dist = Snapper.vincenty.distance(lastInstructionPoint!, LatLng(currentWaypoint.lat, currentWaypoint.lon));
-          var distanceToPlay = ((dist / 10).round() * 10).toInt();
-          concatenateInstructions(
-              instructionType, ghInstructionText, signalGroupId, instructions, laneType, distanceToPlay);
-        } else {
-          // Put the instruction at the point provided by GraphHopper.
-          Instruction secondInstructionCall = Instruction(
-              lat: currentWaypoint.lat,
-              lon: currentWaypoint.lon,
-              text: createInstructionText(false, instructionType, ghInstructionText, signalGroupId, laneType,
-                  currentWaypoint.distanceToNextSignal ?? 0, 0),
-              instructionType: instructionType,
-              signalGroupId: signalGroupId);
-          instructions.add(secondInstructionCall);
-          lastInstructionPoint = LatLng(currentWaypoint.lat, currentWaypoint.lon);
-        }
-      }
-    }
-    return instructions;
   }
 
   /// Get the actual position of the signal group.

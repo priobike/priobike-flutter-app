@@ -3,9 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_session/audio_session.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/interfaces/prediction.dart';
@@ -20,18 +18,17 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/speed_advisory_instruction.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
-const String redInText = "rot in";
-const String greenInText = "grün in";
+/// The distances in front of a traffic light when a speed advisory instruction should be played (triggered).
+const List<int> speedAdvisoryInstructionTriggerDistances = [300, 100];
 
-/// The distances before the crossings when a speed advisory instruction should be played.
-const List<int> speedAdvisoryDistances = [300, 100];
+/// The maximum distances in front of a traffic light when a speed advisory instruction can still be played (triggered).
+/// Means when starting an approach to a traffic light this distances decide the currentSpeedAdvisoryInstructionState.
+const List<int> speedAdvisoryInstructionTriggerThresholds = [200, 50];
 
-/// The distances until an instruction is played even if the distance is smaller than the speedAdvisoryDistances.
-const List<int> speedAdvisoryMinDistances = [200, 50];
-
-/// The minimal distance before the crossing when a speed advisory instruction should be played. (Except wait for green)
+/// The minimum distance in front of a traffic light when a speed advisory instruction can still be played. (Except wait for green)
 const int speedAdvisoryMinDistance = 50;
 
+/// The threshold of the prediction quality that needs to be covered when giving speed advisory instructions.
 const double predictionQualityThreshold = 0.85;
 
 class Audio {
@@ -99,16 +96,91 @@ class Audio {
     positioning!.addListener(_processPositioningUpdates);
   }
 
+  /// Configure the TTS.
+  Future<void> _initializeTTS() async {
+    ftts = FlutterTts();
+
+    await _initAudioService();
+
+    if (Platform.isIOS) {
+      // Use siri voice if available.
+      List<dynamic> voices = await ftts!.getVoices;
+      if (voices.any((element) => element["name"] == "Helena" && element["locale"] == "de-DE")) {
+        await ftts!.setVoice({
+          "name": "Helena",
+          "locale": "de-DE",
+        });
+      }
+
+      await ftts!.setSpeechRate(settings!.speechRate == SpeechRate.fast ? 0.54 : 0.5); //speed of speech
+      await ftts!.setVolume(1.0); //volume of speech
+      await ftts!.setPitch(1.1); //pitch of sound
+      await ftts!.autoStopSharedSession(false);
+      await ftts!.awaitSpeakCompletion(true);
+
+      await ftts!.setIosAudioCategory(IosTextToSpeechAudioCategory.playback,
+          [IosTextToSpeechAudioCategoryOptions.allowBluetooth, IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP]);
+    } else {
+      // Use android voice if available.
+      List<dynamic> engines = await ftts!.getEngines;
+      if (engines.any((element) => element == "com.google.android.tts")) {
+        await ftts!.setEngine("com.google.android.tts");
+      }
+
+      List<dynamic> voices = await ftts!.getVoices;
+
+      if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
+        await ftts!.setVoice({
+          "name": "de-DE-language",
+          "locale": "de-DE",
+        });
+      }
+
+      await ftts!.setQueueMode(0);
+      await ftts!.awaitSpeakCompletion(true);
+      await ftts!.setSpeechRate(settings!.speechRate == SpeechRate.fast ? 0.7 : 0.6); //speed of speech
+      await ftts!.setVolume(1.0); //volume of speech
+      await ftts!.setPitch(1.1); //pitch of sound
+    }
+  }
+
+  /// Initializes the audio service.
+  Future _initAudioService() async {
+    audioSession = await AudioSession.instance;
+    await audioSession!.configure(const AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playback,
+      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
+      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+      avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+      androidAudioAttributes: AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.speech,
+        flags: AndroidAudioFlags.none,
+        usage: AndroidAudioUsage.media,
+      ),
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientMayDuck,
+      androidWillPauseWhenDucked: true,
+    ));
+  }
+
   /// Clean up the audio instructions feature.
-  Future<void> cleanUp() async {
+  Future<void> _cleanUp() async {
     ride = null;
     positioning?.removeListener(_processPositioningUpdates);
     positioning = null;
-    await resetFTTS();
+    await _resetFTTS();
     // Deactivate the audio session to allow other audio to play.
     audioSession?.setActive(false);
     audioSession = null;
     lastRecommendation.clear();
+  }
+
+  /// Reset the text-to-speach instance.
+  Future<void> _resetFTTS() async {
+    await ftts?.pause();
+    await ftts?.stop();
+    await ftts?.clearVoice();
+    ftts = null;
   }
 
   /// Reset the complete audio service.
@@ -118,28 +190,7 @@ class Audio {
     waitForGreenTimer?.cancel();
     waitForGreenTimer = null;
     didStartWaitForGreenInfoTimerForSg = null;
-    await cleanUp();
-  }
-
-  /// Returns the next speed advisory instruction state.
-  int _getNextSpeedAdvisoryInstructionState() {
-    // If there is no information on the distance, we start with state end.
-    if (ride!.calcDistanceToNextSG == null) return 0;
-
-    // If the distance is to close, we skip to the last state.
-    if (ride!.calcDistanceToNextSG! < speedAdvisoryMinDistance) {
-      return speedAdvisoryDistances.length;
-    }
-
-    // Search for the next state according to the distance.
-    for (int i = 0; i < speedAdvisoryDistances.length; i++) {
-      if (ride!.calcDistanceToNextSG! > speedAdvisoryMinDistances[i]) {
-        return i;
-      }
-    }
-
-    // Default state.
-    return 0;
+    await _cleanUp();
   }
 
   /// Check for rerouting.
@@ -183,24 +234,16 @@ class Audio {
   Future<void> _processSettingsUpdates() async {
     if (initialized && !settings!.audioSpeedAdvisoryInstructionsEnabled) {
       initialized = false;
-      cleanUp();
+      _cleanUp();
     } else if (!initialized && settings!.audioSpeedAdvisoryInstructionsEnabled) {
       initialized = true;
       _init();
     }
   }
 
-  /// Reset the text-to-speach instance.
-  Future<void> resetFTTS() async {
-    await ftts?.pause();
-    await ftts?.stop();
-    await ftts?.clearVoice();
-    ftts = null;
-  }
-
   /// Process positioning updates to play audio instructions.
   Future<void> _processPositioningUpdates() async {
-    if (settings?.audioSpeedAdvisoryInstructionsEnabled != true && settings?.audioRoutingInstructionsEnabled != true) {
+    if (settings?.audioSpeedAdvisoryInstructionsEnabled != true) {
       return;
     }
 
@@ -214,13 +257,7 @@ class Audio {
 
     _addSpeedValueToLastSpeedValues();
 
-    if (settings?.audioRoutingInstructionsEnabled == true) {
-      // Create navigation and speed advisory instructions.
-      await _playAudioRoutingInstruction();
-    } else if (settings?.audioSpeedAdvisoryInstructionsEnabled == true) {
-      // Create only speed advisory instructions.
-      await _playSpeedAdvisoryInstruction();
-    }
+    await _playSpeedAdvisoryInstruction();
 
     // In both modes we check if the user is waiting for green and play a countdown.
     _checkPlayCountdownWhenWaitingForGreen();
@@ -235,6 +272,27 @@ class Audio {
       waitForGreenTimer?.cancel();
       waitForGreenTimer = null;
     }
+  }
+
+  /// Returns the next speed advisory instruction state regarding the distance to the sg.
+  int _getNextSpeedAdvisoryInstructionState() {
+    // If there is no information on the distance, we start with state end.
+    if (ride!.calcDistanceToNextSG == null) return 0;
+
+    // If the distance is to close, we skip to the last state.
+    if (ride!.calcDistanceToNextSG! < speedAdvisoryMinDistance) {
+      return speedAdvisoryInstructionTriggerDistances.length;
+    }
+
+    // Search for the next state according to the distance.
+    for (int i = 0; i < speedAdvisoryInstructionTriggerDistances.length; i++) {
+      if (ride!.calcDistanceToNextSG! > speedAdvisoryInstructionTriggerThresholds[i]) {
+        return i;
+      }
+    }
+
+    // Default state.
+    return 0;
   }
 
   /// Add the current speed value to the last speed values list.
@@ -338,14 +396,14 @@ class Audio {
       // Subtract 2 for starting at second 0 and 1 for the second before change.
       int countdown = closestChangeTimeInReach - countdownOffset - 2;
       instructionText.addCountdown(countdown);
-      instructionText.text = "${instructionText.text} $redInText";
+      instructionText.text = "${instructionText.text} rot in";
       return instructionText;
     } else if (recommendation.calcPhasesFromNow[closestChangeTimeInReach] == Phase.green) {
       // If the closest change time switches to green, add countdown to green.
       // Subtract 2 for starting at second 0 and 1 for the second before change.
       int countdown = closestChangeTimeInReach - countdownOffset - 2;
       instructionText.addCountdown(countdown);
-      instructionText.text = "${instructionText.text} $greenInText";
+      instructionText.text = "${instructionText.text} grün in";
       return instructionText;
     }
 
@@ -354,7 +412,7 @@ class Audio {
   }
 
   /// Checks if the user is at slow speed or standing still close to a traffic light and plays a countdown for the next traffic light when waiting for green.
-  void _checkPlayCountdownWhenWaitingForGreen() async {
+  void _checkPlayCountdownWhenWaitingForGreen() {
     ride ??= getIt<Ride>();
     positioning ??= getIt<Positioning>();
 
@@ -480,121 +538,6 @@ class Audio {
     return true;
   }
 
-  /// Check distance between current position and next sg.
-  double? calcDistanceBetweenPositionAndNextSg(LatLng currentPosition) {
-    var currentPosOnRoute = currentRoute!.route.firstWhereOrNull(
-        (element) => element.lat == currentPosition.latitude && element.lon == currentPosition.longitude);
-
-    if (currentPosOnRoute == null) {
-      return currentPosOnRoute?.distanceToNextSignal;
-    }
-    return null;
-  }
-
-  /// Configure the TTS.
-  Future<void> _initializeTTS() async {
-    ftts = FlutterTts();
-
-    await initAudioService();
-
-    if (Platform.isIOS) {
-      // Use siri voice if available.
-      List<dynamic> voices = await ftts!.getVoices;
-      if (voices.any((element) => element["name"] == "Helena" && element["locale"] == "de-DE")) {
-        await ftts!.setVoice({
-          "name": "Helena",
-          "locale": "de-DE",
-        });
-      }
-
-      await ftts!.setSpeechRate(settings!.speechRate == SpeechRate.fast ? 0.54 : 0.5); //speed of speech
-      await ftts!.setVolume(1.0); //volume of speech
-      await ftts!.setPitch(1.1); //pitch of sound
-      await ftts!.autoStopSharedSession(false);
-      await ftts!.awaitSpeakCompletion(true);
-
-      await ftts!.setIosAudioCategory(IosTextToSpeechAudioCategory.playback,
-          [IosTextToSpeechAudioCategoryOptions.allowBluetooth, IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP]);
-    } else {
-      // Use android voice if available.
-      List<dynamic> engines = await ftts!.getEngines;
-      if (engines.any((element) => element == "com.google.android.tts")) {
-        await ftts!.setEngine("com.google.android.tts");
-      }
-
-      List<dynamic> voices = await ftts!.getVoices;
-
-      if (voices.any((element) => element["name"] == "de-DE-language" && element["locale"] == "de-DE")) {
-        await ftts!.setVoice({
-          "name": "de-DE-language",
-          "locale": "de-DE",
-        });
-      }
-
-      await ftts!.setQueueMode(0);
-      await ftts!.awaitSpeakCompletion(true);
-      await ftts!.setSpeechRate(settings!.speechRate == SpeechRate.fast ? 0.7 : 0.6); //speed of speech
-      await ftts!.setVolume(1.0); //volume of speech
-      await ftts!.setPitch(1.1); //pitch of sound
-    }
-  }
-
-  Future initAudioService() async {
-    audioSession = await AudioSession.instance;
-    await audioSession!.configure(const AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playback,
-      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
-      avAudioSessionMode: AVAudioSessionMode.defaultMode,
-      avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
-      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
-      androidAudioAttributes: AndroidAudioAttributes(
-        contentType: AndroidAudioContentType.speech,
-        flags: AndroidAudioFlags.none,
-        usage: AndroidAudioUsage.media,
-      ),
-      androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientMayDuck,
-      androidWillPauseWhenDucked: true,
-    ));
-  }
-
-  /// Play audio routing instruction.
-  Future<void> _playAudioRoutingInstruction() async {
-    ride ??= getIt<Ride>();
-    positioning ??= getIt<Positioning>();
-    if (positioning!.snap == null || ride!.route == null) return;
-    if (ftts == null) return;
-
-    Instruction? currentInstruction = ride!.route!.instructions.firstWhereOrNull((element) =>
-        !element.executed && vincenty.distance(LatLng(element.lat, element.lon), positioning!.snap!.position) < 20);
-
-    if (currentInstruction != null) {
-      currentInstruction.executed = true;
-
-      Iterator it = currentInstruction.text.iterator;
-      while (it.moveNext()) {
-        // Put this here to avoid music interruption in case that there is no instruction to play.
-        if (it.current.type == InstructionTextType.direction) {
-          // No countdown information needs to be added.
-          await ftts!.speak(it.current.text);
-        } else {
-          // Check for countdown information.
-          var instructionTextToPlay = generateTextToPlay(it.current);
-          if (instructionTextToPlay == null) {
-            continue;
-          }
-          await ftts!.speak(instructionTextToPlay.text);
-          // Calc updatedCountdown since initial creation and time that has passed while speaking
-          // (to avoid countdown inaccuracy)
-          // Also take into account 1s delay for actually speaking the countdown.
-          int updatedCountdown = instructionTextToPlay.countdown! -
-              (DateTime.now().difference(instructionTextToPlay.countdownTimeStamp).inSeconds) -
-              1;
-          await ftts!.speak(updatedCountdown.toString());
-        }
-      }
-    }
-  }
-
   /// Play speed advisory instruction only.
   Future<void> _playSpeedAdvisoryInstruction() async {
     ride ??= getIt<Ride>();
@@ -605,15 +548,17 @@ class Audio {
     if (ftts == null) return;
 
     // If the state is higher than the length of the speed advisory distances, do not play any more instructions.
-    if (currentSpeedAdvisoryInstructionState > speedAdvisoryDistances.length - 1) {
+    if (currentSpeedAdvisoryInstructionState > speedAdvisoryInstructionTriggerDistances.length - 1) {
       return;
     }
 
     if (!_canCreateInstructionForRecommendation()) return;
 
-    // Check if the distance of the current state is reached.
+    // Check if the activation distance of the current state is reached.
     if (ride?.calcDistanceToNextSG == null ||
-        ride!.calcDistanceToNextSG! >= speedAdvisoryDistances[currentSpeedAdvisoryInstructionState]) return;
+        ride!.calcDistanceToNextSG! >= speedAdvisoryInstructionTriggerDistances[currentSpeedAdvisoryInstructionState]) {
+      return;
+    }
 
     // Create the audio advisory instruction.
     String sgType = (ride!.calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
@@ -668,133 +613,6 @@ class Audio {
     if (audioSession == null) return;
     // Deactivate the audio session to allow other audio to play.
     await audioSession!.setActive(false);
-  }
-
-  /// Play new prediction audio instruction.
-  // Currently not used. Will be checked in later optimizations.
-  // ignore: unused_element
-  void _playNewPredictionStatusInformation() async {
-    ride ??= getIt<Ride>();
-    if (ftts == null) return;
-    // Check if Not supported crossing
-    // or we do not have all auxiliary data that the app calculated
-    // or prediction quality is not good enough.
-    if (ride!.calcCurrentSG == null ||
-        ride!.predictionProvider?.recommendation == null ||
-        (ride!.predictionProvider?.prediction?.predictionQuality ?? 0) < Ride.qualityThreshold) {
-      // No sg countdown information can be added and thus instruction part must not be played.
-      return;
-    }
-
-    // Check if the prediction is a recommendation for the next traffic light on the route
-    // and do not play instruction if this is not the case.
-    final thingName = ride!.predictionProvider?.status?.thingName;
-    bool isRecommendation = thingName != null ? ride!.calcCurrentSG!.id == thingName : false;
-    if (!isRecommendation) return;
-
-    // If the phase change time is null, instruction part must not be played.
-    final recommendation = ride!.predictionProvider!.recommendation!;
-    if (recommendation.calcCurrentPhaseChangeTime == null) return;
-
-    // If there is only one color, instruction part must not be played.
-    final uniqueColors = recommendation.calcPhasesFromNow.map((e) => e.color).toSet();
-    if (uniqueColors.length == 1) return;
-
-    // Do not play instruction part for amber or redamber.
-    if (recommendation.calcCurrentSignalPhase == Phase.amber) return;
-    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) return;
-
-    Phase? currentPhase = recommendation.calcCurrentSignalPhase;
-    // Calculate the countdown.
-    int countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
-    // Do not play instruction if countdown < 5.
-    if (countdown < 5) return;
-    Phase? nextPhase;
-
-    // The current phase ends at index countdown + 2.
-    if (recommendation.calcPhasesFromNow.length > countdown + 2) {
-      // Calculate the color of the next phase after the current phase.
-      nextPhase = recommendation.calcPhasesFromNow[countdown + 2];
-    }
-
-    // Check if the recommendation phase has changed.
-    bool hasPhaseChanged =
-        lastRecommendation['phase'] == null ? true : lastRecommendation['phase'] as Phase != currentPhase;
-    // Check if the countdown has changed more than 3 seconds.
-    bool hasSignificantTimeChange;
-    int? lastCountdown = lastRecommendation['countdown'] as int?;
-    if (lastCountdown != null) {
-      int lastTimeDifference = DateTime.now().difference(lastRecommendation['timestamp'] as DateTime).inSeconds;
-      hasSignificantTimeChange = ((lastCountdown - lastTimeDifference) - countdown).abs() > 3;
-    } else {
-      hasSignificantTimeChange = true;
-    }
-
-    bool closeToInstruction;
-    final snap = getIt<Positioning>().snap;
-    if (snap == null) {
-      closeToInstruction = false;
-    } else {
-      var distOnRoute = snap.distanceOnRoute;
-      var idx = currentRoute!.signalGroups.indexWhere((element) => element.id == ride!.calcCurrentSG!.id);
-      var distSgOnRoute = 0.0;
-      if (idx != -1) {
-        distSgOnRoute = currentRoute!.signalGroupsDistancesOnRoute[idx];
-      } else {
-        // Do not play instruction if the sg is not on the route.
-        return;
-      }
-      var distanceToSg = distSgOnRoute - distOnRoute;
-      if (distanceToSg > 300) {
-        // Do not play instruction if the distance to the sg is more than 300m.
-        return;
-      }
-
-      var nextInstruction = currentRoute!.instructions.firstWhereOrNull((element) => element.executed == false);
-      int nextInstructionIdx = currentRoute!.instructions.indexOf(nextInstruction!);
-      var lastInstruction = currentRoute!.instructions[nextInstructionIdx - 1];
-
-      if (lastInstruction.signalGroupId != thingName) {
-        // Do not play instruction if the sg is not in the last instruction.
-        return;
-      }
-
-      // Check if the current position is in a radius of 50m of an instruction that contains sg information.
-      var nextSgInstruction = currentRoute!.instructions.firstWhereOrNull((element) =>
-          (element.instructionType != InstructionType.directionOnly) &&
-          vincenty.distance(LatLng(element.lat, element.lon), snap.position) < 50);
-      closeToInstruction = nextSgInstruction != null;
-    }
-
-    if (!closeToInstruction && (hasPhaseChanged || hasSignificantTimeChange)) {
-      var instructionTimeStamp = DateTime.now();
-
-      // Save the current recommendation information for comparison with updates later BEFORE playing the instruction.
-      lastRecommendation.clear();
-      lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': instructionTimeStamp};
-
-      // Cannot make a recommendation if the next phase is not known.
-      if (nextPhase == null) return;
-
-      String sgType = (ride!.calcCurrentSG!.laneType == "Radfahrer") ? "Radampel" : "Ampel";
-      InstructionText instructionText =
-          InstructionText(text: "Nächste $sgType", type: InstructionTextType.signalGroup, distanceToNextSg: 0);
-
-      var textToPlay = generateTextToPlay(instructionText);
-      if (textToPlay == null) return;
-      await ftts!.speak(textToPlay.text);
-      // Calc updatedCountdown since initial creation and time that has passed while speaking
-      // (to avoid countdown inaccuracy)
-      // Also take into account 1s delay for actually speaking the countdown.
-      int updatedCountdown = textToPlay.countdown! -
-          (DateTime.now().difference(textToPlay.countdownTimeStamp).inSeconds) +
-          1; // -1s delay and +2s yellow
-      await ftts!.speak(updatedCountdown.toString());
-    } else {
-      // Nevertheless save the current recommendation information for comparison with updates later.
-      lastRecommendation.clear();
-      lastRecommendation = {'phase': currentPhase, 'countdown': countdown, 'timestamp': DateTime.timestamp()};
-    }
   }
 
   Future<void> _playPredictionNotValidAnymore() async {

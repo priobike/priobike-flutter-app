@@ -1,4 +1,3 @@
-import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -78,9 +77,6 @@ class Settings with ChangeNotifier {
   /// If the audio speed advisory instructions are enabled.
   bool audioSpeedAdvisoryInstructionsEnabled;
 
-  /// If the audio routing instructions are enabled.
-  bool audioRoutingInstructionsEnabled;
-
   /// If the user had migrate background images.
   bool didMigrateBackgroundImages = false;
 
@@ -92,8 +88,6 @@ class Settings with ChangeNotifier {
 
   /// If we want to show the speed with increased precision in the speedometer.
   bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
-
-  AndroidAudioFocusGainType androidAudioFocusGainType = AndroidAudioFocusGainType.gainTransientMayDuck;
 
   /// The speech rate for the audio instructions.
   SpeechRate speechRate = SpeechRate.normal;
@@ -400,24 +394,6 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const audioRoutingInstructionsEnabledKey = "priobike.settings.audioRoutingInstructionsEnabled";
-  static const defaultAudioRoutingInstructionsEnabled = false;
-
-  Future<bool> setAudioRoutingInstructionsEnabled(bool audioRoutingInstructionsEnabled,
-      [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.audioRoutingInstructionsEnabled;
-    this.audioRoutingInstructionsEnabled = audioRoutingInstructionsEnabled;
-    final bool success = await storage.setBool(audioRoutingInstructionsEnabledKey, audioRoutingInstructionsEnabled);
-    if (!success) {
-      log.e("Failed to set audioRoutingInstructionsEnabled to $audioSpeedAdvisoryInstructionsEnabled");
-      this.audioRoutingInstructionsEnabled = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
   static const defaultSimulatorMode = false;
 
   Future<void> setSimulatorMode(bool enableSimulatorMode) async {
@@ -514,7 +490,6 @@ class Settings with ChangeNotifier {
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
     this.audioSpeedAdvisoryInstructionsEnabled = defaultAudioInstructionsEnabled,
-    this.audioRoutingInstructionsEnabled = defaultAudioRoutingInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
@@ -565,12 +540,6 @@ class Settings with ChangeNotifier {
     try {
       audioSpeedAdvisoryInstructionsEnabled =
           storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      audioRoutingInstructionsEnabled =
-          storage.getBool(audioRoutingInstructionsEnabledKey) ?? defaultAudioRoutingInstructionsEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
