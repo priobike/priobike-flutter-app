@@ -537,11 +537,6 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
-    try {
-      speechRate = SpeechRate.values.byName(storage.getString(speechRateKey) ?? defaultSpeechRate.name);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
   }
 
   /// Load the stored settings.
@@ -585,6 +580,11 @@ class Settings with ChangeNotifier {
     try {
       audioSpeedAdvisoryInstructionsEnabled =
           storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      speechRate = SpeechRate.values.byName(storage.getString(speechRateKey) ?? defaultSpeechRate.name);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
