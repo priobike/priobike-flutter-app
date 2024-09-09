@@ -457,15 +457,15 @@ class Settings with ChangeNotifier {
   }
 
   static const speechRateKey = "priobike.settings.speechRate";
-  static const defaultSpeechRateFast = SpeechRate.normal;
+  static const defaultSpeechRate = SpeechRate.normal;
 
-  Future<bool> setSpeechRateFast(SpeechRate speechRate, [SharedPreferences? storage]) async {
+  Future<bool> setSpeechRate(SpeechRate speechRate, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.speechRate;
     this.speechRate = speechRate;
     final bool success = await storage.setString(speechRateKey, speechRate.name);
     if (!success) {
-      log.e("Failed to set speechRateFast to $speechRate");
+      log.e("Failed to set speechRate to $speechRate");
       this.speechRate = prev;
     } else {
       notifyListeners();
@@ -495,7 +495,7 @@ class Settings with ChangeNotifier {
     this.enableSimulatorMode = defaultSimulatorMode,
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
-    this.speechRate = defaultSpeechRateFast,
+    this.speechRate = defaultSpeechRate,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -538,13 +538,7 @@ class Settings with ChangeNotifier {
       /* Do nothing and use the default value given by the constructor. */
     }
     try {
-      audioSpeedAdvisoryInstructionsEnabled =
-          storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
-    try {
-      speechRate = SpeechRate.values.byName(storage.getString(speechRateKey) ?? defaultSpeechRateFast.name);
+      speechRate = SpeechRate.values.byName(storage.getString(speechRateKey) ?? defaultSpeechRate.name);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
@@ -585,6 +579,12 @@ class Settings with ChangeNotifier {
     }
     try {
       didMigrateBackgroundImages = storage.getBool(didMigrateBackgroundImagesKey) ?? defaultDidMigrateBackgroundImages;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      audioSpeedAdvisoryInstructionsEnabled =
+          storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

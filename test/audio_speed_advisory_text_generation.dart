@@ -60,7 +60,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -85,7 +84,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -110,7 +108,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -135,7 +132,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -160,7 +156,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -196,7 +191,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -221,7 +215,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -246,7 +239,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -271,7 +263,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -296,7 +287,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -331,7 +321,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -356,7 +345,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -381,7 +369,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -406,7 +393,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -431,7 +417,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -466,7 +451,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -491,7 +475,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -516,7 +499,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -541,7 +523,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -566,7 +547,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -601,7 +581,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -626,7 +605,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -651,7 +629,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -676,7 +653,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -701,7 +677,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -736,7 +711,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -761,7 +735,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -786,7 +759,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -811,7 +783,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -836,7 +807,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -871,7 +841,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -896,7 +865,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -921,7 +889,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -946,7 +913,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -971,7 +937,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -1007,7 +972,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1032,7 +996,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1057,7 +1020,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1082,7 +1044,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1107,7 +1068,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1142,7 +1102,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1167,7 +1126,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1192,7 +1150,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1217,7 +1174,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1242,7 +1198,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1277,7 +1232,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1302,7 +1256,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1327,7 +1280,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1352,7 +1304,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1377,7 +1328,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1412,7 +1362,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1437,7 +1386,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1462,7 +1410,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1487,7 +1434,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1512,7 +1458,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1544,7 +1489,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1577,7 +1521,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -1604,7 +1547,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -1644,7 +1586,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 300 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 300.0,
       );
 
@@ -1681,7 +1622,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 
@@ -1716,7 +1656,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 

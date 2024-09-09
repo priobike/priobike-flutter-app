@@ -576,7 +576,6 @@ class Audio {
     int roundedDistance = (ride!.calcDistanceToNextSG! / 25).ceil() * 25;
     InstructionText instructionText = InstructionText(
       text: "In $roundedDistance meter $sgType",
-      type: InstructionTextType.signalGroup,
       distanceToNextSg: ride!.calcDistanceToNextSG!,
     );
 

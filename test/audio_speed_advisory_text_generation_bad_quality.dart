@@ -53,7 +53,6 @@ void main() {
 
       InstructionText instructionText = InstructionText(
         text: "In 100 meter Ampel",
-        type: InstructionTextType.signalGroup,
         distanceToNextSg: 100.0,
       );
 

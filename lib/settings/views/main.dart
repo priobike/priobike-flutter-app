@@ -215,7 +215,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a tracking submission policy is selected.
   Future<void> onSelectSpeechRate(SpeechRate speechRate) async {
     // Tell the settings service that we selected the new tracking submission policy.
-    await settings.setSpeechRateFast(speechRate);
+    await settings.setSpeechRate(speechRate);
 
     if (mounted) Navigator.pop(context);
   }
