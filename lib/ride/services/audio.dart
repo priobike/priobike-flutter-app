@@ -318,24 +318,20 @@ class Audio {
       return;
     }
 
-    if (lastSpeedValues.length >= 11) {
+    // Store the last 20 seconds of speed values.
+    if (lastSpeedValues.length > 20) {
       lastSpeedValues.removeAt(0);
     }
     lastSpeedValues.add(positioning!.lastPosition?.speed ?? 0);
   }
 
   /// Returns the median speed of the last speed values.
-  double _getMedianSpeedOfLastSpeedValues() {
+  double getAverageOfLastSpeedValues() {
     if (lastSpeedValues.isEmpty) {
       // Default is 5m/s (18km/h) since this is considered average driving speed for cyclists.
       return 5;
     }
-    lastSpeedValues.sort();
-    if (lastSpeedValues.length % 2 == 0) {
-      return (lastSpeedValues[lastSpeedValues.length ~/ 2 - 1] + lastSpeedValues[lastSpeedValues.length ~/ 2]) / 2;
-    } else {
-      return lastSpeedValues[lastSpeedValues.length ~/ 2];
-    }
+    return lastSpeedValues.reduce((speedSum, speed) => speedSum + speed) / lastSpeedValues.length;
   }
 
   /// Returns a list with the change times of the recommendation.
@@ -384,13 +380,10 @@ class Audio {
 
     if (changeTimes.isEmpty) return null;
 
-    double lastMedianSpeed = _getMedianSpeedOfLastSpeedValues();
-
-    // Check if the median speed is less then 1.5m/s and replace with 5m/s.
-    if (lastMedianSpeed < 1.5) lastMedianSpeed = 5;
+    double lastAverageSpeed = getAverageOfLastSpeedValues();
 
     // Calculate the arrival time at the sg.
-    int arrivalTime = (instructionText.distanceToNextSg / lastMedianSpeed).round();
+    int arrivalTime = (instructionText.distanceToNextSg / lastAverageSpeed).round();
 
     int countdownOffset = (DateTime.now().difference(recommendation.timestamp).inMilliseconds / 1000).round();
 
@@ -398,7 +391,7 @@ class Audio {
     if (recommendation.calcPhasesFromNow.length <= arrivalTime ||
         recommendation.calcPhasesFromNow[arrivalTime] == Phase.red) {
       // If the arrival is at red, we use the max of 5m/s and median speed for the arrival time.
-      arrivalTime = (instructionText.distanceToNextSg / max(5, lastMedianSpeed)).round();
+      arrivalTime = (instructionText.distanceToNextSg / max(5, lastAverageSpeed)).round();
     }
 
     // Get the closest change time to the arrival time that is in reach.
@@ -491,9 +484,6 @@ class Audio {
     waitForGreenTimer = Timer.periodic(Duration(seconds: countdown - 6), (timer) async {
       if (ftts == null) return;
       if (audioSession == null) return;
-      didStartWaitForGreenInfoTimerForSg = null;
-      timer.cancel();
-      waitForGreenTimer = null;
 
       await audioSession!.setActive(true);
       await Future.delayed(const Duration(milliseconds: 500));
@@ -508,6 +498,10 @@ class Audio {
       if (audioSession == null) return;
       // Deactivate the audio session to allow other audio to play.
       await audioSession!.setActive(false);
+
+      didStartWaitForGreenInfoTimerForSg = null;
+      timer.cancel();
+      waitForGreenTimer = null;
 
       // Add the speed advisory instruction to the current track.
       if (tracking != null && positioning?.snap != null) {
