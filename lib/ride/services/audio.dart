@@ -271,10 +271,8 @@ class Audio {
 
     _addSpeedValueToLastSpeedValues();
 
+    // The next two functions check if an instruction should be triggered.
     await _playSpeedAdvisoryInstruction();
-
-    // In both modes we check if the user is waiting for green and play a countdown.
-    _checkPlayCountdownWhenWaitingForGreen();
 
     // Check if sg was passed.
     if (lastSignalGroupId != ride!.calcCurrentSGIndex?.toInt()) {
@@ -315,7 +313,8 @@ class Audio {
     if (positioning!.lastPosition == null) {
       return;
     }
-    if (positioning!.lastPosition!.speed < 5) {
+    // Only store values greater the 1.5 m/s since the can be considered start or stop motions.
+    if (positioning!.lastPosition!.speed < 1.5) {
       return;
     }
 
@@ -328,7 +327,8 @@ class Audio {
   /// Returns the median speed of the last speed values.
   double _getMedianSpeedOfLastSpeedValues() {
     if (lastSpeedValues.isEmpty) {
-      return 0;
+      // Default is 5m/s (18km/h) since this is considered average driving speed for cyclists.
+      return 5;
     }
     lastSpeedValues.sort();
     if (lastSpeedValues.length % 2 == 0) {
@@ -453,8 +453,6 @@ class Audio {
       return;
     }
 
-    if (ftts == null) return;
-
     if (!_canCreateInstructionForRecommendation()) return;
 
     final recommendation = ride!.predictionProvider!.recommendation!;
@@ -491,6 +489,7 @@ class Audio {
     // Start a timer that executes the audio instruction 5 seconds before the traffic light turns green.
     // Subtracting 5 seconds for the countdown and 1 second for the speaking delay.
     waitForGreenTimer = Timer.periodic(Duration(seconds: countdown - 6), (timer) async {
+      if (ftts == null) return;
       if (audioSession == null) return;
       didStartWaitForGreenInfoTimerForSg = null;
       timer.cancel();
@@ -561,6 +560,8 @@ class Audio {
     if (positioning!.snap == null || ride!.route == null) return;
 
     if (ftts == null) return;
+
+    _checkPlayCountdownWhenWaitingForGreen();
 
     // If the state is higher than the length of the speed advisory distances, do not play any more instructions.
     if (currentSpeedAdvisoryInstructionState > _speedAdvisoryInstructionTriggerDistances.length - 1) {
