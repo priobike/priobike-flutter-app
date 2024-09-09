@@ -200,7 +200,7 @@ class Audio {
     await _cleanUp();
   }
 
-  /// Check for rerouting.
+  /// Process updates by the ride service to detect rerouting and prediction invalidation.
   Future<void> _processRideUpdates() async {
     if (ride?.navigationIsActive != true) return;
     if (ride?.route == null) return;
@@ -209,7 +209,7 @@ class Audio {
       currentRoute = ride!.route;
       return;
     }
-    // Rerouting
+    // Notify user if a rerouting was triggered.
     if (currentRoute != ride!.route && ride?.route != null) {
       currentRoute = ride?.route;
       if (ftts == null) await _initializeTTS();
@@ -220,7 +220,6 @@ class Audio {
     if (ride!.calcCurrentSG == null) return;
 
     // Check if the prediction is not valid anymore.
-    // If same signal group.
     if (lastSignalGroupId == ride!.calcCurrentSGIndex?.toInt()) {
       // Check if the current prediction is still valid.
       // If the prediction quality is not good enough and the last prediction was good enough, inform the user.
