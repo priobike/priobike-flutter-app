@@ -18,15 +18,22 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/models/speed_advisory_instruction.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
+/// The class that represents a trigger range for speed advisory instructions.
+class _SpeedAdvisoryInstructionTriggerRange {
+  /// The minimum distance to the next traffic light when a speed advisory can be triggered.
+  int minDistance;
+
+  /// The maximum distance to the next traffic light until a speed advisory can be triggered.
+  int maxDistance;
+
+  _SpeedAdvisoryInstructionTriggerRange(this.minDistance, this.maxDistance);
+}
+
 /// The distances in front of a traffic light when a speed advisory instruction should be played (triggered).
-const List<int> speedAdvisoryInstructionTriggerDistances = [300, 100];
-
-/// The maximum distances in front of a traffic light when a speed advisory instruction can still be played (triggered).
-/// Means when starting an approach to a traffic light this distances decide the currentSpeedAdvisoryInstructionState.
-const List<int> speedAdvisoryInstructionTriggerThresholds = [200, 50];
-
-/// The minimum distance in front of a traffic light when a speed advisory instruction can still be played. (Except wait for green)
-const int speedAdvisoryMinDistance = 50;
+List<_SpeedAdvisoryInstructionTriggerRange> _speedAdvisoryInstructionTriggerDistances = [
+  _SpeedAdvisoryInstructionTriggerRange(300, 200),
+  _SpeedAdvisoryInstructionTriggerRange(100, 50)
+];
 
 /// The threshold of the prediction quality that needs to be covered when giving speed advisory instructions.
 const double predictionQualityThreshold = 0.85;
@@ -280,13 +287,14 @@ class Audio {
     if (ride!.calcDistanceToNextSG == null) return 0;
 
     // If the distance is to close, we skip to the last state.
-    if (ride!.calcDistanceToNextSG! < speedAdvisoryMinDistance) {
-      return speedAdvisoryInstructionTriggerDistances.length;
+    if (ride!.calcDistanceToNextSG! <
+        _speedAdvisoryInstructionTriggerDistances[_speedAdvisoryInstructionTriggerDistances.length - 1].minDistance) {
+      return _speedAdvisoryInstructionTriggerDistances.length;
     }
 
     // Search for the next state according to the distance.
-    for (int i = 0; i < speedAdvisoryInstructionTriggerDistances.length; i++) {
-      if (ride!.calcDistanceToNextSG! > speedAdvisoryInstructionTriggerThresholds[i]) {
+    for (int i = 0; i < _speedAdvisoryInstructionTriggerDistances.length; i++) {
+      if (ride!.calcDistanceToNextSG! > _speedAdvisoryInstructionTriggerDistances[i].maxDistance) {
         return i;
       }
     }
@@ -548,7 +556,7 @@ class Audio {
     if (ftts == null) return;
 
     // If the state is higher than the length of the speed advisory distances, do not play any more instructions.
-    if (currentSpeedAdvisoryInstructionState > speedAdvisoryInstructionTriggerDistances.length - 1) {
+    if (currentSpeedAdvisoryInstructionState > _speedAdvisoryInstructionTriggerDistances.length - 1) {
       return;
     }
 
@@ -556,7 +564,8 @@ class Audio {
 
     // Check if the activation distance of the current state is reached.
     if (ride?.calcDistanceToNextSG == null ||
-        ride!.calcDistanceToNextSG! >= speedAdvisoryInstructionTriggerDistances[currentSpeedAdvisoryInstructionState]) {
+        ride!.calcDistanceToNextSG! >=
+            _speedAdvisoryInstructionTriggerDistances[currentSpeedAdvisoryInstructionState].minDistance) {
       return;
     }
 
