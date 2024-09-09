@@ -490,7 +490,7 @@ class SettingsViewState extends State<SettingsView> {
                                     Content(text: "App-ID", context: context),
                                     InkWell(
                                       child: BoldSmall(
-                                        text: "${userId.substring(0, 5)}...",
+                                        text: "${userId.length > 5 ? userId.substring(0, 5) : userId}...",
                                         context: context,
                                       ),
                                     ),

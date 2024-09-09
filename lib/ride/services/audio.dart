@@ -95,15 +95,16 @@ class Audio {
     }
   }
 
-  /// Init the audio service.
+  /// Initializes the audio service.
   Future<void> _init() async {
     ride ??= getIt<Ride>();
     ride!.addListener(_processRideUpdates);
     positioning ??= getIt<Positioning>();
     positioning!.addListener(_processPositioningUpdates);
+    _initializeTTS();
   }
 
-  /// Configure the TTS.
+  /// Initializes the text-to-speech instance.
   Future<void> _initializeTTS() async {
     ftts = FlutterTts();
 
@@ -149,6 +150,11 @@ class Audio {
       await ftts!.setVolume(1.0); //volume of speech
       await ftts!.setPitch(1.1); //pitch of sound
     }
+
+    // Trigger the speak function with an empty text to prevent wait time when the first instruction should be played.
+    // In the current implementation of the tts package there is always an error that causes a delay when first using the speak method.
+    // The delay at this point doesn't effect the user.
+    ftts!.speak(" ");
   }
 
   /// Initializes the audio service.
@@ -170,7 +176,16 @@ class Audio {
     ));
   }
 
-  /// Clean up the audio instructions feature.
+  /// Resets the text-to-speech instance.
+  Future<void> _resetFTTS() async {
+    await ftts?.pause();
+    await ftts?.stop();
+    await ftts?.clearVoice();
+    ftts = null;
+  }
+
+  /// Cleans up the audio instructions feature.
+  /// Can be called internally when the audio settings changes.
   Future<void> _cleanUp() async {
     ride = null;
     positioning?.removeListener(_processPositioningUpdates);
@@ -180,23 +195,16 @@ class Audio {
     audioSession?.setActive(false);
     audioSession = null;
     lastRecommendation.clear();
-  }
-
-  /// Reset the text-to-speach instance.
-  Future<void> _resetFTTS() async {
-    await ftts?.pause();
-    await ftts?.stop();
-    await ftts?.clearVoice();
-    ftts = null;
-  }
-
-  /// Reset the complete audio service.
-  Future<void> reset() async {
-    settings?.removeListener(_processSettingsUpdates);
-    settings = null;
     waitForGreenTimer?.cancel();
     waitForGreenTimer = null;
     didStartWaitForGreenInfoTimerForSg = null;
+  }
+
+  /// Resets the complete audio service.
+  /// Should be called when the audio service instance can be discarded.
+  Future<void> reset() async {
+    settings?.removeListener(_processSettingsUpdates);
+    settings = null;
     await _cleanUp();
   }
 
