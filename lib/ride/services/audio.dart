@@ -184,7 +184,7 @@ class Audio {
     ftts = null;
   }
 
-  /// Cleans up the audio instructions feature.
+  /// Cleans up the audio service when deactivated.
   /// Can be called internally when the audio settings changes.
   Future<void> _cleanUp() async {
     ride = null;
