@@ -157,7 +157,7 @@ class Audio {
     ftts!.speak(" ");
   }
 
-  /// Initializes the audio service.
+  /// Initializes the audio service (package).
   Future _initAudioService() async {
     audioSession = await AudioSession.instance;
     await audioSession!.configure(const AudioSessionConfiguration(
