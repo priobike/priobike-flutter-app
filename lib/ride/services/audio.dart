@@ -222,9 +222,13 @@ class Audio {
       currentRoute = ride?.route;
       if (ftts == null) await _initializeTTS();
       ftts?.speak("Neue Route berechnet");
+      currentSpeedAdvisoryInstructionState = _getNextSpeedAdvisoryInstructionState();
     }
 
-    if (ride!.userSelectedSG != null) return;
+    if (ride!.userSelectedSG != null) {
+      lastPrediction = null;
+      return;
+    }
     if (ride!.calcCurrentSG == null) return;
 
     // Check if the prediction is not valid anymore.
@@ -293,7 +297,7 @@ class Audio {
 
     // If the distance is to close, we skip to the last state.
     if (ride!.calcDistanceToNextSG! <
-        _speedAdvisoryInstructionTriggerDistances[_speedAdvisoryInstructionTriggerDistances.length - 1].minDistance) {
+        _speedAdvisoryInstructionTriggerDistances[_speedAdvisoryInstructionTriggerDistances.length - 1].maxDistance) {
       return _speedAdvisoryInstructionTriggerDistances.length;
     }
 
@@ -482,8 +486,13 @@ class Audio {
     // Start a timer that executes the audio instruction 5 seconds before the traffic light turns green.
     // Subtracting 5 seconds for the countdown and 1 second for the speaking delay.
     waitForGreenTimer = Timer.periodic(Duration(seconds: countdown - 6), (timer) async {
-      if (ftts == null) return;
-      if (audioSession == null) return;
+      // If wait for green instruction can't be played close the timer.
+      if (ftts == null || audioSession == null || ride!.userSelectedSG != null) {
+        didStartWaitForGreenInfoTimerForSg = null;
+        timer.cancel();
+        waitForGreenTimer = null;
+        return;
+      }
 
       await audioSession!.setActive(true);
       await Future.delayed(const Duration(milliseconds: 500));
@@ -499,6 +508,7 @@ class Audio {
       // Deactivate the audio session to allow other audio to play.
       await audioSession!.setActive(false);
 
+      // Timer should be canceled after instruction was played.
       didStartWaitForGreenInfoTimerForSg = null;
       timer.cancel();
       waitForGreenTimer = null;
@@ -554,6 +564,9 @@ class Audio {
     if (positioning!.snap == null || ride!.route == null) return;
 
     if (ftts == null) return;
+
+    // Do not play audio instructions when user selects sg manually.
+    if (ride!.userSelectedSG != null) return;
 
     _checkPlayCountdownWhenWaitingForGreen();
 
