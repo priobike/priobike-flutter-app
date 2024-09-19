@@ -67,7 +67,8 @@ dependencies:
   flutter_tts: ^4.0.2 # Used for text-to-speech
   flutter_blue_plus: 1.20.8 # Used for connecting to BLE devices. Note: keep this Version due to problems with newer versions.
   flutter_markdown: ^0.7.1 # Used to display the privacy policy
-  uuid: ^4.5.0 # Used for user and session IDs 
+  audio_session: ^0.1.21 # Used to play audio in the background
+  uuid: ^4.5.0 # Used for user and session IDs
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Generate app icons

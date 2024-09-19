@@ -22,6 +22,8 @@ import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/tracking/models/battery_history.dart';
+import 'package:priobike/tracking/models/speed_advisory_instruction.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -158,6 +160,7 @@ class Tracking with ChangeNotifier {
         routes: routing.selectedRoute == null ? {} : {startTime: routing.selectedRoute!},
         subVersion: feature.buildTrigger,
         batteryStates: [],
+        speedAdvisoryInstructions: [],
         saveBatteryModeEnabled: saveBatteryModeEnabled,
         isDarkMode: isDarkMode,
       );
@@ -198,6 +201,11 @@ class Tracking with ChangeNotifier {
     } catch (e, stacktrace) {
       log.e("Could not sample battery state: $e $stacktrace");
     }
+  }
+
+  void addSpeedAdvisoryInstruction(SpeedAdvisoryInstruction speedAdvisoryInstruction) {
+    if (track == null) return;
+    track!.speedAdvisoryInstructions.add(speedAdvisoryInstruction);
   }
 
   /// Start collecting GPS data.

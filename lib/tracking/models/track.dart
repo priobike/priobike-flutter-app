@@ -8,44 +8,9 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/status/messages/summary.dart';
+import 'package:priobike/tracking/models/battery_history.dart';
+import 'package:priobike/tracking/models/speed_advisory_instruction.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
-
-class BatteryHistory {
-  /// The battery level, in percent.
-  int? level;
-
-  /// The timestamp of the battery state.
-  int? timestamp;
-
-  /// The state of the battery.
-  String? batteryState;
-
-  /// If the system is in battery save mode.
-  bool? isInBatterySaveMode;
-
-  BatteryHistory(
-      {required this.level, required this.timestamp, required this.batteryState, required this.isInBatterySaveMode});
-
-  /// Convert the battery state to a json object.
-  Map<String, dynamic> toJson() {
-    return {
-      'level': level,
-      'timestamp': timestamp,
-      'batteryState': batteryState,
-      'isInBatterySaveMode': isInBatterySaveMode,
-    };
-  }
-
-  /// Create a battery state from a json object.
-  factory BatteryHistory.fromJson(Map<String, dynamic> json) {
-    return BatteryHistory(
-      level: json.containsKey('level') ? json['level'] : null,
-      timestamp: json.containsKey('timestamp') ? json['timestamp'] : null,
-      batteryState: json.containsKey('batteryState') ? json['batteryState'] : null,
-      isInBatterySaveMode: json.containsKey('isInBatterySaveMode') ? json['isInBatterySaveMode'] : null,
-    );
-  }
-}
 
 class Track {
   /// The start time of this track, in milliseconds since the epoch.
@@ -147,6 +112,9 @@ class Track {
   /// The battery states sampled during the ride.
   List<BatteryHistory> batteryStates = [];
 
+  /// The speed advisory instructions during the ride.
+  List<SpeedAdvisoryInstruction> speedAdvisoryInstructions = [];
+
   /// The lightning mode.
   bool? isDarkMode;
 
@@ -190,6 +158,7 @@ class Track {
     required this.routes,
     required this.subVersion,
     required this.batteryStates,
+    required this.speedAdvisoryInstructions,
     this.canUseGamification = false,
     required this.isDarkMode,
     required this.saveBatteryModeEnabled,
@@ -228,6 +197,7 @@ class Track {
               })
           .toList(),
       'batteryStates': batteryStates.map((e) => e.toJson()).toList(),
+      'speedAdvisoryInstructions': speedAdvisoryInstructions.map((e) => e.toJson()).toList(),
       'isDarkMode': isDarkMode,
       'saveBatteryModeEnabled': saveBatteryModeEnabled,
     };
@@ -241,6 +211,14 @@ class Track {
     if (json.containsKey("batteryStates")) {
       batteryStates = (json['batteryStates'] as List<dynamic>).map((e) => BatteryHistory.fromJson(e)).toList();
     }
+
+    List<SpeedAdvisoryInstruction> speedAdvisoryInstructions = [];
+    if (json.containsKey("speedAdvisoryInstructions")) {
+      speedAdvisoryInstructions = (json['speedAdvisoryInstructions'] as List<dynamic>)
+          .map((e) => SpeedAdvisoryInstruction.fromJson(e))
+          .toList();
+    }
+
     return Track(
       uploaded: json['uploaded'],
       // If the track was stored before we added the hasFileData field,
@@ -272,6 +250,7 @@ class Track {
       subVersion: json['subVersion'],
       canUseGamification: json['canUseGamification'],
       batteryStates: batteryStates,
+      speedAdvisoryInstructions: speedAdvisoryInstructions,
       isDarkMode: json.containsKey("isDarkMode") ? json["isDarkMode"] : null,
       saveBatteryModeEnabled: json.containsKey("saveBatteryModeEnabled") ? json["saveBatteryModeEnabled"] : null,
     );

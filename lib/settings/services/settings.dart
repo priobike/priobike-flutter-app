@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/ride/models/audio.dart';
 import 'package:priobike/ride/services/live_tracking.dart';
 import 'package:priobike/settings/models/backend.dart' hide Simulator, LiveTracking;
 import 'package:priobike/settings/models/color_mode.dart';
@@ -73,8 +74,8 @@ class Settings with ChangeNotifier {
   /// If the save battery mode is enabled.
   bool saveBatteryModeEnabled;
 
-  /// If the audio instructions are enabled.
-  bool audioInstructionsEnabled;
+  /// If the audio speed advisory instructions are enabled.
+  bool audioSpeedAdvisoryInstructionsEnabled;
 
   /// If the user had migrate background images.
   bool didMigrateBackgroundImages = false;
@@ -88,6 +89,8 @@ class Settings with ChangeNotifier {
   /// If we want to show the speed with increased precision in the speedometer.
   bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
 
+  /// The speech rate for the audio instructions.
+  SpeechRate speechRate = SpeechRate.normal;
   static const enableLogPersistenceKey = "priobike.settings.enableLogPersistence";
   static const defaultEnableLogPersistence = false;
 
@@ -373,17 +376,18 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const audioInstructionsEnabledKey = "priobike.settings.audioInstructionsEnabled";
-  static const defaultSaveAudioInstructionsEnabled = false;
+  static const audioInstructionsEnabledKey = "priobike.settings.audioSpeedAdvisoryInstructionsEnabled";
+  static const defaultAudioInstructionsEnabled = false;
 
-  Future<bool> setAudioInstructionsEnabled(bool audioInstructionsEnabled, [SharedPreferences? storage]) async {
+  Future<bool> setAudioInstructionsEnabled(bool audioSpeedAdvisoryInstructionsEnabled,
+      [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.audioInstructionsEnabled;
-    this.audioInstructionsEnabled = audioInstructionsEnabled;
-    final bool success = await storage.setBool(audioInstructionsEnabledKey, audioInstructionsEnabled);
+    final prev = this.audioSpeedAdvisoryInstructionsEnabled;
+    this.audioSpeedAdvisoryInstructionsEnabled = audioSpeedAdvisoryInstructionsEnabled;
+    final bool success = await storage.setBool(audioInstructionsEnabledKey, audioSpeedAdvisoryInstructionsEnabled);
     if (!success) {
-      log.e("Failed to set audioInstructionsEnabled to $audioInstructionsEnabled");
-      this.audioInstructionsEnabled = prev;
+      log.e("Failed to set audioInstructionsEnabled to $audioSpeedAdvisoryInstructionsEnabled");
+      this.audioSpeedAdvisoryInstructionsEnabled = prev;
     } else {
       notifyListeners();
     }
@@ -452,6 +456,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const speechRateKey = "priobike.settings.speechRate";
+  static const defaultSpeechRate = SpeechRate.normal;
+
+  Future<bool> setSpeechRate(SpeechRate speechRate, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.speechRate;
+    this.speechRate = speechRate;
+    final bool success = await storage.setString(speechRateKey, speechRate.name);
+    if (!success) {
+      log.e("Failed to set speechRate to $speechRate");
+      this.speechRate = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.city = defaultCity,
     this.enableLogPersistence = defaultEnableLogPersistence,
@@ -468,12 +489,13 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-    this.audioInstructionsEnabled = defaultSaveAudioInstructionsEnabled,
+    this.audioSpeedAdvisoryInstructionsEnabled = defaultAudioInstructionsEnabled,
     this.useCounter = defaultUseCounter,
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
+    this.speechRate = defaultSpeechRate,
   });
 
   /// Load the internal settings from the shared preferences.
@@ -515,11 +537,6 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
-    try {
-      audioInstructionsEnabled = storage.getBool(audioInstructionsEnabledKey) ?? defaultSaveAudioInstructionsEnabled;
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
   }
 
   /// Load the stored settings.
@@ -557,6 +574,17 @@ class Settings with ChangeNotifier {
     }
     try {
       didMigrateBackgroundImages = storage.getBool(didMigrateBackgroundImagesKey) ?? defaultDidMigrateBackgroundImages;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      audioSpeedAdvisoryInstructionsEnabled =
+          storage.getBool(audioInstructionsEnabledKey) ?? defaultAudioInstructionsEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      speechRate = SpeechRate.values.byName(storage.getString(speechRateKey) ?? defaultSpeechRate.name);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

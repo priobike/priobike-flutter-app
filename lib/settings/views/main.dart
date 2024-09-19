@@ -11,6 +11,7 @@ import 'package:priobike/licenses/views.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
+import 'package:priobike/ride/models/audio.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
@@ -211,6 +212,14 @@ class SettingsViewState extends State<SettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when a tracking submission policy is selected.
+  Future<void> onSelectSpeechRate(SpeechRate speechRate) async {
+    // Tell the settings service that we selected the new tracking submission policy.
+    await settings.setSpeechRate(speechRate);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   /// A callback that is executed when the save battery mode is changed.
   Future<void> onChangeSaveBatteryMode(bool saveBatteryModeEnabled) async {
     // Tell the settings service that we selected the new save battery mode.
@@ -354,6 +363,45 @@ class SettingsViewState extends State<SettingsView> {
                       ),
                     ),
                     const VSpace(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SettingsElement(
+                        title: "Sprachausgabe aktivieren",
+                        icon: settings.audioSpeedAdvisoryInstructionsEnabled
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank,
+                        callback: () =>
+                            settings.setAudioInstructionsEnabled(!settings.audioSpeedAdvisoryInstructionsEnabled),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                      child: Small(
+                        text:
+                            "Somit kannst du die App auch mit ausgeschaltetem Display für bekannte Strecken verwenden. Dir werden die Ampelinformationen über Lautsprecher oder Kopfhörer ausgegeben.",
+                        context: context,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SettingsElement(
+                          title: "Sprachausgabe Geschwindigkeit",
+                          subtitle: settings.speechRate.description,
+                          icon: Icons.expand_more,
+                          callback: () {
+                            showAppSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SettingsSelection(
+                                    elements: SpeechRate.values,
+                                    selected: settings.speechRate,
+                                    title: (SpeechRate e) => e.description,
+                                    callback: onSelectSpeechRate);
+                              },
+                            );
+                          }),
+                    ),
+                    const VSpace(),
                     SettingsElement(
                       title: "App bewerten",
                       icon: Icons.rate_review_outlined,
@@ -442,7 +490,7 @@ class SettingsViewState extends State<SettingsView> {
                                     Content(text: "App-ID", context: context),
                                     InkWell(
                                       child: BoldSmall(
-                                        text: "${userId.substring(0, 5)}...",
+                                        text: "${userId.length > 5 ? userId.substring(0, 5) : userId}...",
                                         context: context,
                                       ),
                                     ),
