@@ -49,8 +49,10 @@ abstract class Shortcut {
       // Try to resolve a potential short link.
       String? longLink = await LinkShortener.resolveShortLink(link);
 
-      // If resolving failed we don't have a corresponding long link, this either means the link
-      // got created with an old version of the app (thus the short link is already a long link) or the link is invalid.
+      // If resolving failed, this can have two reasons.
+      // 1. The short link was invalid. If this is the case, the subsequent steps will fail, but since we are catching this, this is not a problem.
+      // 2. The link is already a short link. This can be the case, if the link got resolved before opening the app.
+      // This is usually the case, when the short link is opened in a browser, and due to the resolving of the link in the browser, the app gets openend.
       longLink ??= link;
 
       // Create a new shortcut from the long link.
