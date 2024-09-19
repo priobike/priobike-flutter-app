@@ -165,8 +165,8 @@ class EditOptionsViewState extends State<EditOptionsView> {
     String? shortLink = await LinkShortener.createShortLink(longLink);
     if (shortLink == null) return;
     const getAppText = 'Falls Du die PrioBike App noch nicht hast, kannst Du sie Dir hier holen:';
-    const playStoreLink = 'https://play.google.com/apps/testing/de.tudresden.priobike';
-    const appStoreLink = 'https://testflight.apple.com/join/GXdqWpdn';
+    const playStoreLink = 'https://play.google.com/store/apps/details?id=de.tudresden.priobike&hl=de';
+    const appStoreLink = 'https://apps.apple.com/de/app/priobike/id1634224594';
     String subject = '';
     shortcut.type == "ShortcutLocation" ? subject = 'Ort teilen' : subject = 'Route teilen';
     await Share.share('$text \n$shortLink \n$getAppText \n$playStoreLink \n$appStoreLink', subject: subject);
