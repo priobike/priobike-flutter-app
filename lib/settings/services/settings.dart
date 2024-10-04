@@ -86,6 +86,9 @@ class Settings with ChangeNotifier {
   /// Enable live tracking mode for app.
   bool enableLiveTrackingMode;
 
+  /// The password for the tracking MQTT broker.
+  String liveTrackingMQTTPassword;
+
   /// If we want to show the speed with increased precision in the speedometer.
   bool isIncreasedSpeedPrecisionInSpeedometerEnabled = false;
 
@@ -418,6 +421,23 @@ class Settings with ChangeNotifier {
     notifyListeners();
   }
 
+  static const liveTrackingMQTTPasswordKey = "priobike.settings.liveTrackingMQTTPassword";
+  static const defaultLiveTrackingMQTTPassword = "";
+
+  Future<bool> setLiveTrackingMQTTPassword(String liveTrackingMQTTPassword, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.liveTrackingMQTTPassword;
+    this.liveTrackingMQTTPassword = liveTrackingMQTTPassword;
+    final bool success = await storage.setString(liveTrackingMQTTPasswordKey, liveTrackingMQTTPassword);
+    if (!success) {
+      log.e("Failed to set liveTrackingMQTTPassword to $liveTrackingMQTTPassword");
+      this.liveTrackingMQTTPassword = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const didMigrateBackgroundImagesKey = "priobike.settings.didMigrateBackgroundImages";
   static const defaultDidMigrateBackgroundImages = false;
 
@@ -494,6 +514,7 @@ class Settings with ChangeNotifier {
     this.didMigrateBackgroundImages = defaultDidMigrateBackgroundImages,
     this.enableSimulatorMode = defaultSimulatorMode,
     this.enableLiveTrackingMode = defaultLiveTrackingMode,
+    this.liveTrackingMQTTPassword = defaultLiveTrackingMQTTPassword,
     this.isIncreasedSpeedPrecisionInSpeedometerEnabled = defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled,
     this.speechRate = defaultSpeechRate,
   });
@@ -534,6 +555,11 @@ class Settings with ChangeNotifier {
       isIncreasedSpeedPrecisionInSpeedometerEnabled =
           storage.getBool(isIncreasedSpeedPrecisionInSpeedometerEnabledKey) ??
               defaultIsIncreasedSpeedPrecisionInSpeedometerEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      liveTrackingMQTTPassword = storage.getString(liveTrackingMQTTPasswordKey) ?? defaultLiveTrackingMQTTPassword;
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }

@@ -72,7 +72,7 @@ class LiveTracking {
   Future<bool> _connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt<Settings>();
-    final backend = settings.city.selectedBackend(true);
+    final backend = settings.city.selectedBackend(false);
     final clientId = "priobike-app-$appId";
     try {
       client = MqttServerClient(
@@ -81,7 +81,7 @@ class LiveTracking {
       );
       client!.logging(on: false);
       client!.keepAlivePeriod = 30;
-      client!.secure = false;
+      client!.secure = true;
       client!.port = backend.liveTrackingMQTTPort;
       client!.autoReconnect = true;
       client!.resubscribeOnAutoReconnect = true;
@@ -97,7 +97,9 @@ class LiveTracking {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to live tracking MQTT broker.");
-      await client!.connect().timeout(const Duration(seconds: 5));
+      await client!
+          .connect(settings.city.selectedBackend(false).liveTrackingMQTTUsername, settings.liveTrackingMQTTPassword)
+          .timeout(const Duration(seconds: 5));
 
       client!.connectionMessage = MqttConnectMessage()
           .withClientIdentifier(client!.clientIdentifier)
