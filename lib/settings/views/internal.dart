@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/annotated_region.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/dialog.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -110,6 +113,76 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     weather.removeListener(update);
     simulator.removeListener(update);
     super.dispose();
+  }
+
+  /// Show a sheet to edit the current live tracking MQTT password.
+  void showEditLiveTrackingMQTTPasswordSheet(context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionBuilder: (context, animation, secondaryAnimation, child) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4 * animation.value, sigmaY: 4 * animation.value),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+      pageBuilder: (BuildContext dialogContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        final passwordController = TextEditingController();
+        passwordController.text = settings.liveTrackingMQTTPassword;
+        return DialogLayout(
+          title: 'Live Tracking MQTT Passwort',
+          text: "Bitte gib ein Passwort ein.",
+          actions: [
+            TextField(
+              autofocus: false,
+              controller: passwordController,
+              maxLength: 20,
+              enableSuggestions: false,
+              autocorrect: false,
+              decoration: InputDecoration(
+                fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                filled: true,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  borderSide: BorderSide.none,
+                ),
+                suffixIcon: SmallIconButtonTertiary(
+                  icon: Icons.close,
+                  onPressed: () {
+                    passwordController.text = "";
+                  },
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fill: Colors.transparent,
+                  // splash: Colors.transparent,
+                  withBorder: false,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                counterStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                ),
+              ),
+            ),
+            BigButtonPrimary(
+              label: "Speichern",
+              onPressed: () async {
+                final password = passwordController.text;
+                if (password.trim().isEmpty) {
+                  getIt<Toast>().showError("Das Passwort darf nicht leer sein.");
+                  return;
+                }
+                await settings.setLiveTrackingMQTTPassword(password);
+                getIt<Toast>().showSuccess("Passwort gespeichert!");
+                Navigator.pop(context);
+              },
+              boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+            )
+          ],
+        );
+      },
+    );
   }
 
   /// A callback that is executed when a sg labels mode is selected.
@@ -538,6 +611,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Live Tracking aktivieren (App-ID: ${getIt<LiveTracking>().appId})",
                     icon: settings.enableLiveTrackingMode ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setLiveTrackingMode(!settings.enableLiveTrackingMode),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Live Tracking MQTT Passwort",
+                    icon: Icons.password_rounded,
+                    callback: () => showEditLiveTrackingMQTTPasswordSheet(context),
                   ),
                 ),
                 Padding(

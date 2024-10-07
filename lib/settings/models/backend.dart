@@ -277,6 +277,17 @@ extension LiveTracking on Backend {
         return 20001;
     }
   }
+
+  String get liveTrackingMQTTUsername {
+    switch (this) {
+      case Backend.production:
+        return "priobike";
+      case Backend.staging:
+        return "priobike";
+      case Backend.release:
+        return "priobike";
+    }
+  }
 }
 
 extension Simulator on Backend {
