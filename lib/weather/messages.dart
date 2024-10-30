@@ -1,4 +1,4 @@
-/// A response from https://brightsky.dev/docs/#get-/current_weather
+/// A response from http://brightsky.dev/docs/#get-/current_weather
 class WeatherForecastResponse {
   /// The data points.
   final List<WeatherForecast> weather;
@@ -12,7 +12,7 @@ class WeatherForecastResponse {
       );
 }
 
-/// A data point from https://brightsky.dev/docs/#get-/current_weather
+/// A data point from http://brightsky.dev/docs/#get-/current_weather
 class WeatherForecast {
   /// ISO 8601-formatted timestamp of this weather record/forecast.
   final DateTime timestamp;
@@ -102,7 +102,7 @@ class WeatherForecast {
       );
 }
 
-/// A response from https://brightsky.dev/docs/#get-/current_weather
+/// A response from http://brightsky.dev/docs/#get-/current_weather
 class CurrentWeatherResponse {
   /// The weather.
   final CurrentWeather weather;

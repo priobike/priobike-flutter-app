@@ -435,7 +435,7 @@ class RouteLabelManager extends ChangeNotifier {
   _doRouteLabelBoxesIntersect(RouteLabelBox? routeLabelBox1, RouteLabelBox? routeLabelBox2) {
     if (routeLabelBox1 == null || routeLabelBox2 == null) return false;
 
-    // https://silentmatt.com/rectangle-intersection/
+    // http://silentmatt.com/rectangle-intersection/
     if (routeLabelBox1.topLeft.x < routeLabelBox2.topRight.x &&
         routeLabelBox1.topRight.x > routeLabelBox2.topLeft.x &&
         routeLabelBox1.topLeft.y < routeLabelBox2.bottomLeft.y &&
@@ -688,7 +688,7 @@ class RouteLabelManager extends ChangeNotifier {
   /// Means if they are collinear, clockwise or anti clockwise oriented.
   /// 0 means collinear, <0 means anti clockwise and >0 means clockwise.
   /// Formula from:
-  /// https://math.stackexchange.com/questions/405966/if-i-have-three-points-is-there-an-easy-way-to-tell-if-they-are-collinear
+  /// http://math.stackexchange.com/questions/405966/if-i-have-three-points-is-there-an-easy-way-to-tell-if-they-are-collinear
   double _orientation(ScreenCoordinate startLine, ScreenCoordinate endLine, ScreenCoordinate point) {
     return (endLine.y - startLine.y) * (point.x - endLine.x) - (point.y - endLine.y) * (endLine.x - startLine.x);
   }

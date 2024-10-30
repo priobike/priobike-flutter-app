@@ -142,7 +142,7 @@ class ShortcutRoute implements Shortcut {
     final str = json.encode(shortcutJson);
     final bytes = utf8.encode(str);
     final base64Str = base64.encode(bytes);
-    const scheme = 'https';
+    const scheme = 'http';
     const host = 'priobike.vkw.tu-dresden.de';
     const route = 'import';
     return '$scheme://$host/$route/$base64Str';

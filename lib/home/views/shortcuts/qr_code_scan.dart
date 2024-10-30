@@ -67,7 +67,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
     listener = controller.scannedDataStream.listen((scanData) async {
       if (shortcut != null) return;
       if (scanData.code == null) return;
-      if (!scanData.code!.contains("https://") && !scanData.code!.contains("/link/")) return;
+      if (!scanData.code!.contains("http://") && !scanData.code!.contains("/link/")) return;
       final scannedShortcut = await Shortcut.fromLink(scanData.code!);
       if (scannedShortcut != null && shortcut == null) {
         shortcut = scannedShortcut;

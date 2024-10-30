@@ -75,7 +75,7 @@ class SymbolLoader {
 
   /// Adds an asset image to the currently displayed style
   Future<void> add(String name, String assetName, int width, int height) async {
-    // This can't be used right now. See: https://github.com/mapbox/mapbox-maps-flutter/issues/411
+    // This can't be used right now. See: http://github.com/mapbox/mapbox-maps-flutter/issues/411
     // if (await mapController.style.hasStyleImage(name)) return;
 
     final bytes = await rootBundle.load(assetName);

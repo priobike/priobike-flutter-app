@@ -8,7 +8,7 @@ import 'package:priobike/logging/logger.dart';
 /// the Android operating system and is not part of the app. For our app
 /// to work on older Android devices, we need to ignore the certificate error.
 /// Note that this is a workaround and should be handled with care.
-/// See: https://github.com/flutter/flutter/issues/19588#issuecomment-406779390
+/// See: http://github.com/flutter/flutter/issues/19588#issuecomment-406779390
 class OldAndroidHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {

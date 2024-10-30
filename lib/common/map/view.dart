@@ -121,12 +121,12 @@ class AppMapState extends State<AppMap> {
       // "Although SurfaceView is very efficient, it might not fit all use cases as it creates a separate window and
       // cannot be moved, transformed, or animated. For these situations where you need more flexibility,
       // it’s usually best to use a TextureView. This is less performant than SurfaceView, but it behaves as a standard
-      // View and can be manipulated as such." https://blog.mapbox.com/asynchronous-rendering-on-android-831722ac1837
+      // View and can be manipulated as such." http://blog.mapbox.com/asynchronous-rendering-on-android-831722ac1837
       // We use this to mitigate blank maps (observed when using the surfaceView and using the app excessively
       // (e.g. starting a lot of rides/opening and closing map views without closing the app in between))
       textureView: true,
       // Using TLHC since this is the recommended hosting mode and VD as fallback to make sure performance is not an issue.
-      // See: https://github.com/flutter/flutter/wiki/Android-Platform-Views for more detailed information.
+      // See: http://github.com/flutter/flutter/wiki/Android-Platform-Views for more detailed information.
       androidHostingMode: mapbox.AndroidPlatformViewHostingMode.TLHC_VD,
       mapOptions: mapbox.MapOptions(
         // Setting this to UNIQUE allows Mapbox to perform optimizations (only possible if the GL context is not

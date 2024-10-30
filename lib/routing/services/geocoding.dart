@@ -39,7 +39,7 @@ class Geocoding with ChangeNotifier {
       final settings = getIt<Settings>();
       final baseUrl = settings.city.selectedBackend(true).path;
 
-      var url = "https://$baseUrl/photon/reverse";
+      var url = "http://$baseUrl/photon/reverse";
       url += "?lon=${coordinate.longitude}";
       url += "&lat=${coordinate.latitude}";
       final endpoint = Uri.parse(url);

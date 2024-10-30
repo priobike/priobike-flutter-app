@@ -240,7 +240,7 @@ class Positioning with ChangeNotifier {
     }
 
     // Only use kCLLocationAccuracyBestForNavigation if the device is charging.
-    // See: https://developer.apple.com/documentation/corelocation/kcllocationaccuracybestfornavigation
+    // See: http://developer.apple.com/documentation/corelocation/kcllocationaccuracybestfornavigation
     final desiredAccuracy = await Battery().batteryState == BatteryState.charging
         ? LocationAccuracy.bestForNavigation // Requires additional energy for sensor fusion.
         : LocationAccuracy.best;

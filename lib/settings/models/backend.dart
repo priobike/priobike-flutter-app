@@ -185,9 +185,9 @@ extension BackendPath on Backend {
   String get path {
     switch (this) {
       case Backend.production:
-        return "priobike.vkw.tu-dresden.de/production";
+        return "10.0.2.2:20051/production";
       case Backend.staging:
-        return "priobike.vkw.tu-dresden.de/staging";
+        return "10.0.2.2:20051/staging";
       case Backend.release:
         return "priobike-release.inf.tu-dresden.de";
     }

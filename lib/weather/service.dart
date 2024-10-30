@@ -36,7 +36,7 @@ class Weather with ChangeNotifier {
 
     try {
       // Fetch the weather forecast.
-      var url = "https://${backend.path}/bright-sky/weather?lat=$lat&lon=$lon&date=${DateTime.now().toIso8601String()}";
+      var url = "http://${backend.path}/bright-sky/weather?lat=$lat&lon=$lon&date=${DateTime.now().toIso8601String()}";
       var response = await Http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
 
       if (response.statusCode != 200) {
@@ -50,7 +50,7 @@ class Weather with ChangeNotifier {
       forecast = WeatherForecastResponse.fromJson(decoded).weather;
 
       // Fetch the current weather.
-      url = "https://${backend.path}/bright-sky/current_weather?lat=$lat&lon=$lon";
+      url = "http://${backend.path}/bright-sky/current_weather?lat=$lat&lon=$lon";
       response = await Http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
 
       if (response.statusCode != 200) {

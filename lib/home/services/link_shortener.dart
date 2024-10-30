@@ -11,7 +11,7 @@ class LinkShortener {
   static Future<String?> createShortLink(String longLink) async {
     final backend = getIt<Settings>().city.selectedBackend(false);
     String backendPath = backend.path;
-    final linkShortenerUrl = 'https://$backendPath/link/rest/v3/short-urls';
+    final linkShortenerUrl = 'http://$backendPath/link/rest/v3/short-urls';
     final linkShortenerEndpoint = Uri.parse(linkShortenerUrl);
     DateTime now = DateTime.now();
     String validUntil = DateTime(now.year, now.month + 1, now.day).toIso8601String();
@@ -56,7 +56,7 @@ class LinkShortener {
     try {
       List<String> subUrls = shortLink.split('/');
       String backendPath = backend.path;
-      final parseShortLinkEndpoint = Uri.parse('https://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
+      final parseShortLinkEndpoint = Uri.parse('http://$backendPath/link/rest/v3/short-urls/${subUrls.last}');
       final auth = await Auth.load(backend);
       final apiKey = auth.linkShortenerApiKey;
       final longLinkResponse = await Http.get(parseShortLinkEndpoint, headers: {'X-Api-Key': apiKey});

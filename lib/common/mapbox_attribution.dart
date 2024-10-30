@@ -41,20 +41,20 @@ class MapboxAttribution extends StatelessWidget {
     final List<Map<String, dynamic>> attributionEntries = [
       {
         'title': 'Mapbox',
-        'url': Uri.parse('https://www.mapbox.com/about/maps/'),
+        'url': Uri.parse('http://www.mapbox.com/about/maps/'),
       },
       {
         'title': 'OpenStreetMap',
-        'url': Uri.parse('https://www.openstreetmap.org/copyright'),
+        'url': Uri.parse('http://www.openstreetmap.org/copyright'),
       },
       {
         'title': 'Verbessere diese Karte',
-        'url': Uri.parse('https://www.mapbox.com/map-feedback/'),
+        'url': Uri.parse('http://www.mapbox.com/map-feedback/'),
       },
       if (satelliteAttributionRequired)
         {
           'title': 'Maxar',
-          'url': Uri.parse('https://www.maxar.com/'),
+          'url': Uri.parse('http://www.maxar.com/'),
         },
     ];
     const title = "Powered by Mapbox Maps";

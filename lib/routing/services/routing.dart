@@ -178,7 +178,7 @@ class Routing with ChangeNotifier {
       formData += "way($id);";
     }
     formData += ");out tags;";
-    final overpassUrl = "https://$baseUrl/$overpassPath/api/interpreter";
+    final overpassUrl = "http://$baseUrl/$overpassPath/api/interpreter";
     final overpassEndpoint = Uri.parse(overpassUrl);
     log.i("Loading OSM way IDs from $overpassUrl - $formData");
 
@@ -256,7 +256,7 @@ class Routing with ChangeNotifier {
         usedRoutingParameter = "osm";
       }
       final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/select?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
+          "http://$baseUrl/sg-selector-backend/routing/select?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
@@ -291,7 +291,7 @@ class Routing with ChangeNotifier {
       final settings = getIt<Settings>();
       final baseUrl = settings.city.selectedBackend(true).path;
       final servicePath = settings.routingEndpoint.servicePath;
-      var ghUrl = "https://$baseUrl/$servicePath/route";
+      var ghUrl = "http://$baseUrl/$servicePath/route";
       ghUrl += "?type=json";
       ghUrl += "&locale=de";
       ghUrl += "&elevation=true";

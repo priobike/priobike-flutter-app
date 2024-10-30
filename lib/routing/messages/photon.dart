@@ -54,7 +54,7 @@ class PhotonAddress {
     required this.boundingBox,
   });
 
-  // For API Info see: https://github.com/komoot/photon
+  // For API Info see: http://github.com/komoot/photon
   factory PhotonAddress.fromJson(Map<String, dynamic> json) {
     return PhotonAddress(
       osmType: json["properties"]['osm_type'] as String?,

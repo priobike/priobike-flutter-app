@@ -147,7 +147,7 @@ class POI with ChangeNotifier {
   Future<dynamic> _fetchData(String relativeUrl) async {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
-    final dataUrl = "https://$baseUrl$relativeUrl";
+    final dataUrl = "http://$baseUrl$relativeUrl";
     final dataEndpoint = Uri.parse(dataUrl);
 
     Response response = await Http.get(dataEndpoint).timeout(const Duration(seconds: 4));

@@ -9,7 +9,7 @@ import 'package:priobike/routing/models/poi.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
-/// Adopted from https://github.com/priobike/priobike-graphhopper-drn/blob/main/converter/mapping.py
+/// Adopted from http://github.com/priobike/priobike-graphhopper-drn/blob/main/converter/mapping.py
 /// Note: This is not exactly the same mapping. In the DRN data,
 /// there are many redundant / transport engineering related
 /// way types that the regular user won't understand. These are

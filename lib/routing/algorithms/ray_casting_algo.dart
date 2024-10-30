@@ -1,4 +1,4 @@
-/// This file was taken from: https://github.com/molteo-engineering-team/point_in_polygon
+/// This file was taken from: http://github.com/molteo-engineering-team/point_in_polygon
 /// It is used to check if the coordinates are inside the bounding box of the city
 /// by checking if a point is inside a polygon.
 ///
@@ -52,7 +52,7 @@ class Poly {
   /// Ray-Casting algorithm implementation
   /// Calculate whether a horizontal ray cast eastward from [point]
   /// will intersect with the line between [vertA] and [vertB]
-  /// Refer to `https://en.wikipedia.org/wiki/Point_in_polygon` for more explanation
+  /// Refer to `http://en.wikipedia.org/wiki/Point_in_polygon` for more explanation
   /// or the example comment bloc at the end of this file
   static bool rayCastIntersect(Point point, Point vertA, Point vertB) {
     final double aY = vertA.y;
@@ -91,7 +91,7 @@ class Poly {
   }
 
 /**
- * Ray-Casting algorithm: https://en.wikipedia.org/wiki/Point_in_polygon
+ * Ray-Casting algorithm: http://en.wikipedia.org/wiki/Point_in_polygon
  * 
  * Example case
  *

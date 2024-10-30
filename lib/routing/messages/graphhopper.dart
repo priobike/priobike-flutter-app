@@ -75,7 +75,7 @@ class GHRouteResponsePath {
   /// streets: The first, Frankfurter Straße, is used between points[0] and points[2],
   /// and the second, Zollweg, between points[2] and points[6].
   ///
-  /// Read more about the usage of path details here: https://discuss.graphhopper.com/t/2539
+  /// Read more about the usage of path details here: http://discuss.graphhopper.com/t/2539
   final GHDetails details;
 
   /// An array of indices (zero-based), specifiying the order in which the input points are visited.

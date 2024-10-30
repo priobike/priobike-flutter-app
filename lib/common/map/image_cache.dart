@@ -57,7 +57,7 @@ class MapboxTileImageCache {
     if (await File(path).exists()) return MemoryImage(await File(path).readAsBytes());
 
     try {
-      // See: https://docs.mapbox.com/api/maps/static-images/
+      // See: http://docs.mapbox.com/api/maps/static-images/
       final settings = getIt<Settings>();
       final auth = await Auth.load(settings.city.selectedBackend(true));
       final accessTokenHeader = "access_token=${auth.mapboxAccessToken}";
@@ -75,7 +75,7 @@ class MapboxTileImageCache {
 
       // The background image that should be displayed in the feedback view.
       final feedbackUrl =
-          "https://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessTokenHeader";
+          "http://api.mapbox.com/styles/v1/$styleId/static/$bboxStr/1000x1000/?attribution=false&logo=false&$accessTokenHeader";
 
       final feedbackEndpoint = Uri.parse(feedbackUrl);
       final feedbackResponse = await Http.get(feedbackEndpoint).timeout(const Duration(seconds: 4));

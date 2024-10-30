@@ -35,7 +35,7 @@ class PredictionStatusSummary with ChangeNotifier {
       final settings = getIt<Settings>();
       final baseUrl = settings.city.selectedBackend(true).path;
       // Primarily use the status of the prediction service.
-      var url = "https://$baseUrl/prediction-monitor-nginx/status.json";
+      var url = "http://$baseUrl/prediction-monitor-nginx/status.json";
       final endpoint = Uri.parse(url);
 
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));

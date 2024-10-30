@@ -54,7 +54,7 @@ class Feedback with ChangeNotifier {
     // Send all of the answered questions to the backend.
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
-    final endpoint = Uri.parse('https://$baseUrl/tracking-service/answers/post/');
+    final endpoint = Uri.parse('http://$baseUrl/tracking-service/answers/post/');
     for (final entry in pending.values.toList().asMap().entries) {
       final request = PostAnswerRequest(
         userId: userId,

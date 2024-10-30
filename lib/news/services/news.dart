@@ -47,7 +47,7 @@ class News with ChangeNotifier {
 
     String baseUrl = settings.city.selectedBackend(false).path;
 
-    final newsArticlesUrl = "https://$baseUrl/news-service/news/articles";
+    final newsArticlesUrl = "http://$baseUrl/news-service/news/articles";
     final newsArticlesEndpoint = Uri.parse(newsArticlesUrl);
 
     List<Article> newArticles = [];
@@ -97,7 +97,7 @@ class News with ChangeNotifier {
   Future<void> _fetchCategory(int categoryId) async {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(false).path;
-    final newsCategoryUrl = "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
+    final newsCategoryUrl = "http://$baseUrl/news-service/news/category/${categoryId.toString()}";
     final newsCategoryEndpoint = Uri.parse(newsCategoryUrl);
 
     // Catch the error if there is no connection to the internet.

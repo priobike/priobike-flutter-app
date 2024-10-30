@@ -68,7 +68,7 @@ class LoadStatus with ChangeNotifier {
     bool hasWarning = false;
     bool recommendOtherBackend = false;
     try {
-      final url = "https://$baseUrl/load-service/load.json";
+      final url = "http://$baseUrl/load-service/load.json";
       final endpoint = Uri.parse(url);
 
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));

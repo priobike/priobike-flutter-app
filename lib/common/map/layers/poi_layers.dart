@@ -28,7 +28,7 @@ class ParkingStationsLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking_v2.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "http://$baseUrl/map-data/bicycle_parking_v2.geojson"),
     );
   }
 
@@ -131,7 +131,7 @@ class RentalStationsLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental_v2.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "http://$baseUrl/map-data/bicycle_rental_v2.geojson"),
     );
   }
 
@@ -310,7 +310,7 @@ class BikeShopLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop_v2.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "http://$baseUrl/map-data/bicycle_shop_v2.geojson"),
     );
   }
 
@@ -484,7 +484,7 @@ class BikeAirStationLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station_v2.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "http://$baseUrl/map-data/bike_air_station_v2.geojson"),
     );
   }
 

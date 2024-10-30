@@ -298,7 +298,7 @@ class Tracking with ChangeNotifier {
     notifyListeners();
 
     final baseUrl = track.backend.path;
-    final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
+    final endpoint = Uri.parse('http://$baseUrl/tracking-service/tracks/post/');
 
     log.i("Sending track with id ${track.sessionId} to $endpoint ...");
     try {

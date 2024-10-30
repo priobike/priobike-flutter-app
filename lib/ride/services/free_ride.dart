@@ -80,7 +80,7 @@ class FreeRide with ChangeNotifier {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
 
-    final url = "https://$baseUrl/sg-selector-nginx/sgs_min.json.gz";
+    final url = "http://$baseUrl/sg-selector-nginx/sgs_min.json.gz";
     final endpoint = Uri.parse(url);
 
     final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
@@ -110,7 +110,7 @@ class FreeRide with ChangeNotifier {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
 
-    final url = "https://$baseUrl/sg-selector-nginx/sgs_geo.json.gz";
+    final url = "http://$baseUrl/sg-selector-nginx/sgs_geo.json.gz";
     final endpoint = Uri.parse(url);
 
     final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));

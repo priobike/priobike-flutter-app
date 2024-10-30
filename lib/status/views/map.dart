@@ -67,7 +67,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     final sourceLocsExists = await mapController?.style.styleSourceExists("sg-locs");
     if (sourceLocsExists != null && !sourceLocsExists) {
       // Fetch the geojson from the server.
-      final url = Uri.parse("https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson");
+      final url = Uri.parse("http://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson");
       final response = await Http.get(url);
       if (response.statusCode != 200) return;
       sgLocs = jsonDecode(response.body);
@@ -79,7 +79,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     final sourceSGLanesExists = await mapController?.style.styleSourceExists("sg-lanes");
     if (sourceSGLanesExists != null && !sourceSGLanesExists) {
       // Fetch the geojson from the server.
-      final url = Uri.parse("https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson");
+      final url = Uri.parse("http://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson");
       final response = await Http.get(url);
       if (response.statusCode != 200) return;
       sgLanes = jsonDecode(response.body);

@@ -43,7 +43,7 @@ class Geosearch with ChangeNotifier {
       final settings = getIt<Settings>();
       final baseUrl = settings.city.selectedBackend(true).path;
 
-      var url = "https://$baseUrl/photon/api";
+      var url = "http://$baseUrl/photon/api";
       url += "?q=$query";
 
       // Bias search results to current position

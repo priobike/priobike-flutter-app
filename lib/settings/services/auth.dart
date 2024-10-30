@@ -15,7 +15,7 @@ class Auth {
   /// Load the auth from the backend.
   static Future<AuthConfig> load(Backend currentBackend) async {
     if (authConfigs.containsKey(currentBackend.name)) return Auth.authConfigs[currentBackend.name]!;
-    final url = "https://${currentBackend.path}/auth/config.json";
+    final url = "http://${currentBackend.path}/auth/config.json";
     // Note: it's intended that these credentials are public.
     final headers = {'authorization': 'Basic ${base64Encode(utf8.encode('auth:fMG3dtQtYRyMdE34'))}'};
     final response = await Http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 4));

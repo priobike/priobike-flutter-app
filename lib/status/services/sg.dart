@@ -43,7 +43,7 @@ class PredictionSGStatus with ChangeNotifier {
 
       try {
         // Primarily use the status of the prediction service.
-        var url = "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
+        var url = "http://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 

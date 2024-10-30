@@ -28,7 +28,7 @@ class GreenWaveLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/static_green_waves_v2.geojson"),
+      mapbox.GeoJsonSource(id: sourceId, data: "http://$baseUrl/map-data/static_green_waves_v2.geojson"),
     );
   }
 
@@ -85,7 +85,7 @@ class VeloRoutesLayer {
     final settings = getIt<Settings>();
     final baseUrl = settings.city.selectedBackend(true).path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/velo_routes_v2.geojson", tolerance: 1),
+      mapbox.GeoJsonSource(id: sourceId, data: "http://$baseUrl/map-data/velo_routes_v2.geojson", tolerance: 1),
     );
   }
 
@@ -137,7 +137,7 @@ class IntersectionsLayer {
       final settings = getIt<Settings>();
       final baseUrl = settings.city.selectedBackend(true).path;
 
-      final url = "https://$baseUrl/sg-selector-nginx/intersections.json.gz";
+      final url = "http://$baseUrl/sg-selector-nginx/intersections.json.gz";
       final endpoint = Uri.parse(url);
 
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));

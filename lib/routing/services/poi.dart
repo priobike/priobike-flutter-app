@@ -24,7 +24,7 @@ enum WarnType {
 }
 
 // Use the surface values to determine unsmooth sections.
-// See: https://wiki.openstreetmap.org/wiki/Key:surface
+// See: http://wiki.openstreetmap.org/wiki/Key:surface
 const warnTypeMap = {
   "paved": WarnType.warnNone,
   "asphalt": WarnType.warnNone,
@@ -124,7 +124,7 @@ class Pois with ChangeNotifier {
       final settings = getIt<Settings>();
 
       final baseUrl = settings.city.selectedBackend(true).path;
-      final poisUrl = "https://$baseUrl/poi-service-backend/pois/match";
+      final poisUrl = "http://$baseUrl/poi-service-backend/pois/match";
       final poisEndpoint = Uri.parse(poisUrl);
       log.i("Loading pois response from $poisUrl");
 
@@ -304,7 +304,7 @@ class Pois with ChangeNotifier {
     }
 
     // Use the speed limit values to determine uncomfortable sections.
-    // See: https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
+    // See: http://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
     final unwantedSpeed = List.empty(growable: true);
     for (final segment in path.details.maxSpeed) {
       if (segment.value == null) continue;

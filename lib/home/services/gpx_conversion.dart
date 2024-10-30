@@ -10,7 +10,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:proj4dart/src/classes/point.dart';
 
 /// Models the possible states before, during and after a gpx file conversion.
-/// Debugging of the algorithm can also be done using this python script: https://github.com/priobike/priobike-gpx-converter
+/// Debugging of the algorithm can also be done using this python script: http://github.com/priobike/priobike-gpx-converter
 enum GpxConversionState {
   /// The GPX file was loaded.
   init,

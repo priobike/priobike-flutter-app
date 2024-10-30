@@ -10,7 +10,7 @@ import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 /// The translation from of the road class.
-/// Information from: https://wiki.openstreetmap.org/wiki/Key:highway and https://wiki.openstreetmap.org/wiki/Attribuierung_von_Stra%C3%9Fen_in_Deutschland
+/// Information from: http://wiki.openstreetmap.org/wiki/Key:highway and http://wiki.openstreetmap.org/wiki/Attribuierung_von_Stra%C3%9Fen_in_Deutschland
 final roadClassTranslation = {
   // A restricted access major divided highway, normally with 2 or more running lanes plus emergency hard shoulder. Equivalent to the Freeway, Autobahn, etc..
   "motorway": "Autobahn",
