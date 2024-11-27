@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
@@ -75,36 +76,90 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     // Display error text and retry button.
     if (privacyService.hasError) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: AnnotatedRegionWrapper(
-          bottomBackgroundColor: Theme.of(context).colorScheme.surface,
-          colorMode: Theme.of(context).brightness,
-          child: SafeArea(
+      return AnnotatedRegionWrapper(
+        bottomBackgroundColor: Theme.of(context).colorScheme.surface,
+        colorMode: Theme.of(context).brightness,
+        child: Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: SafeArea(
             child: Pad(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  BoldSubHeader(
-                    context: context,
-                    text: "Achtung",
-                  ),
-                  const SmallVSpace(),
-                  Content(
-                    context: context,
-                    textAlign: TextAlign.center,
-                    text:
-                        "Die PrioBike-Services sind zur Zeit nicht erreichbar. Vergewissere Dich außerdem, dass eine Verbindung zum Internet besteht und versuche es erneut.",
-                  ),
-                  const VSpace(),
-                  BigButtonPrimary(
-                    label: "Erneut versuchen",
-                    onPressed: () {
-                      privacyService.loadPolicy();
-                    },
-                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                  ),
-                ],
+              child: Fade(
+                child: ListView(
+                  children: [
+                    const VSpace(),
+                    BoldSubHeader(
+                      context: context,
+                      text: "Achtung",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SmallVSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text:
+                          "Die PrioBike-Services sind zur Zeit nicht erreichbar. Vergewissere Dich außerdem, dass eine Verbindung zum Internet besteht und versuche es erneut.",
+                    ),
+                    const VSpace(),
+                    BigButtonPrimary(
+                      label: "Erneut versuchen",
+                      onPressed: () {
+                        privacyService.loadPolicy();
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                    ),
+                    const VSpace(),
+                    const VSpace(),
+                    Content(
+                      context: context,
+                      text:
+                          "Ab dem 10.12.2024 sind die PrioBike-Services und die App eingestellt. Leider hat sich kein Weiterbetrieb der App nach Projektende (31.12.2024) ergeben.",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SmallVSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text:
+                          "Wir bedanken uns bei allen, die die App ausprobiert und damit einen bedeutenden Beitrag zur Forschung und Entwicklung beigetragen haben. Über die letzten Jahre hatten wir eine geschlossene Testphase, eine offene Testphase und zuletzt die Veröffentlichung der App. Währenddessen konnten wir regelmäßig Fahrten verzeichnen und auf Feedback vertrauen.",
+                    ),
+                    const VSpace(),
+                    BoldContent(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text: "Vielen Dank und allzeit gute Fahrt!",
+                    ),
+                    const VSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text: "Für weitere Informationen zum Projekt könnt ihr euch an folgende E-Mail Adresse wenden:",
+                    ),
+                    const SmallVSpace(),
+                    BigButtonPrimary(
+                      label: "priobike@tu-dresden.de",
+                      onPressed: () {
+                        launchUrl(Uri.parse("mailto:priobike@tu-dresden.de"), mode: LaunchMode.externalApplication);
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                    ),
+                    const VSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text:
+                          "Für die Technikbegeisterten: Auf unserer Github Seite könnt ihr den Großteil des PrioBike-Codes einsehen. Im Laufe des Jahres haben wir diesen veröffentlicht: ",
+                    ),
+                    const SmallVSpace(),
+                    BigButtonPrimary(
+                      label: "github.com/priobike",
+                      onPressed: () {
+                        launchUrl(Uri.parse("https://github.com/priobike"), mode: LaunchMode.externalApplication);
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                    ),
+                    const VSpace(),
+                  ],
+                ),
               ),
             ),
           ),
