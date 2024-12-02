@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
@@ -75,36 +76,94 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     // Display error text and retry button.
     if (privacyService.hasError) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: AnnotatedRegionWrapper(
-          bottomBackgroundColor: Theme.of(context).colorScheme.surface,
-          colorMode: Theme.of(context).brightness,
-          child: SafeArea(
+      return AnnotatedRegionWrapper(
+        bottomBackgroundColor: Theme.of(context).colorScheme.surface,
+        colorMode: Theme.of(context).brightness,
+        child: Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: SafeArea(
             child: Pad(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  BoldSubHeader(
-                    context: context,
-                    text: "Achtung",
-                  ),
-                  const SmallVSpace(),
-                  Content(
-                    context: context,
-                    textAlign: TextAlign.center,
-                    text:
-                        "Die PrioBike-Services sind zur Zeit nicht erreichbar. Vergewissere Dich außerdem, dass eine Verbindung zum Internet besteht und versuche es erneut.",
-                  ),
-                  const VSpace(),
-                  BigButtonPrimary(
-                    label: "Erneut versuchen",
-                    onPressed: () {
-                      privacyService.loadPolicy();
-                    },
-                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
-                  ),
-                ],
+              child: Fade(
+                child: ListView(
+                  children: [
+                    const VSpace(),
+                    BoldSubHeader(
+                      context: context,
+                      text: "Achtung",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SmallVSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text:
+                          "Die PrioBike-Services sind zur Zeit nicht erreichbar. Vergewissere Dich außerdem, dass eine Verbindung zum Internet besteht und versuche es erneut.",
+                    ),
+                    const VSpace(),
+                    BigButtonPrimary(
+                      label: "Erneut versuchen",
+                      onPressed: () {
+                        privacyService.loadPolicy();
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                    ),
+                    const VSpace(),
+                    const VSpace(),
+                    Content(
+                      context: context,
+                      text:
+                          "Mit dem Jahr 2024 endet die Förderung für das Forschungs- und Entwicklungsprojekt PrioBike-HH und damit auch die Bereitstellung der PrioBike-App. Konkret wird die App noch bis zum 10. Dezember 2024 zum Erproben in den App Stores verfügbar sein. Mit dem Stichtag 10. Dezember muss die App dann aber aus den App Stores entfernt werden. Auch bereits installierte Apps werden nicht mehr weiter funktionieren, da parallel auch die Hintergrunddienste abgeschaltet werden.",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SmallVSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text:
+                          "Wir bedanken uns an dieser Stelle nochmals ganz herzlich bei allen Testenden für die insgesamt über 10.000 geradelten Kilometer und die wertvollen Rückmeldungen zur App. Mit dem Ausprobieren habt ihr einen wichtigen Beitrag zur Forschung und Entwicklung der PrioBike-App geleistet.",
+                    ),
+                    const VSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text: "Ihr könnt euch auf der folgenden Webseite über das PrioBike-HH Projekt informieren: ",
+                    ),
+                    const SmallVSpace(),
+                    BigButtonPrimary(
+                      label: "Projektwebseite",
+                      onPressed: () {
+                        launchUrl(
+                            Uri.parse(
+                                "https://www.hamburg.de/politik-und-verwaltung/behoerden/bvm/die-themen-der-behoerde/intelligente-verkehrssysteme/priobike-192572"),
+                            mode: LaunchMode.externalApplication);
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                    ),
+                    const VSpace(),
+                    BoldContent(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text: "Vielen Dank und allzeit gute Fahrt!",
+                    ),
+                    const VSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text:
+                          "Für die Technikbegeisterten: Auf unserer Github Seite könnt ihr den Großteil des PrioBike-Codes einsehen. Im Laufe des Jahres haben wir diesen veröffentlicht: ",
+                    ),
+                    const SmallVSpace(),
+                    BigButtonPrimary(
+                      label: "github.com/priobike",
+                      onPressed: () {
+                        launchUrl(Uri.parse("https://github.com/priobike"), mode: LaunchMode.externalApplication);
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
+                    ),
+                    const VSpace(),
+                    const VSpace(),
+                  ],
+                ),
               ),
             ),
           ),
