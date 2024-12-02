@@ -112,7 +112,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     Content(
                       context: context,
                       text:
-                          "Ab dem 10.12.2024 sind die PrioBike-Services und die App eingestellt. Leider hat sich kein Weiterbetrieb der App nach Projektende (31.12.2024) ergeben.",
+                          "Mit dem Jahr 2024 endet die Förderung für das Forschungs- und Entwicklungsprojekt PrioBike-HH und damit auch die Bereitstellung der PrioBike-App. Konkret wird die App noch bis zum 10. Dezember 2024 zum Erproben in den App Stores verfügbar sein. Mit dem Stichtag 10. Dezember muss die App dann aber aus den App Stores entfernt werden. Auch bereits installierte Apps werden nicht mehr weiter funktionieren, da parallel auch die Hintergrunddienste abgeschaltet werden.",
                       textAlign: TextAlign.center,
                     ),
                     const SmallVSpace(),
@@ -120,27 +120,30 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       context: context,
                       textAlign: TextAlign.center,
                       text:
-                          "Wir bedanken uns bei allen, die die App ausprobiert und damit einen bedeutenden Beitrag zur Forschung und Entwicklung beigetragen haben. Über die letzten Jahre hatten wir eine geschlossene Testphase, eine offene Testphase und zuletzt die Veröffentlichung der App. Währenddessen konnten wir regelmäßig Fahrten verzeichnen und auf Feedback vertrauen.",
+                          "Wir bedanken uns an dieser Stelle nochmals ganz herzlich bei allen Testenden für die insgesamt über 10.000 geradelten Kilometer und die wertvollen Rückmeldungen zur App. Mit dem Ausprobieren habt ihr einen wichtigen Beitrag zur Forschung und Entwicklung der PrioBike-App geleistet.",
+                    ),
+                    const VSpace(),
+                    Content(
+                      context: context,
+                      textAlign: TextAlign.center,
+                      text: "Ihr könnt euch auf der folgenden Webseite über das PrioBike-HH Projekt informieren: ",
+                    ),
+                    const SmallVSpace(),
+                    BigButtonPrimary(
+                      label: "Projektwebseite",
+                      onPressed: () {
+                        launchUrl(
+                            Uri.parse(
+                                "https://www.hamburg.de/politik-und-verwaltung/behoerden/bvm/die-themen-der-behoerde/intelligente-verkehrssysteme/priobike-192572"),
+                            mode: LaunchMode.externalApplication);
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                     ),
                     const VSpace(),
                     BoldContent(
                       context: context,
                       textAlign: TextAlign.center,
                       text: "Vielen Dank und allzeit gute Fahrt!",
-                    ),
-                    const VSpace(),
-                    Content(
-                      context: context,
-                      textAlign: TextAlign.center,
-                      text: "Für weitere Informationen zum Projekt könnt ihr euch an folgende E-Mail Adresse wenden:",
-                    ),
-                    const SmallVSpace(),
-                    BigButtonPrimary(
-                      label: "priobike@tu-dresden.de",
-                      onPressed: () {
-                        launchUrl(Uri.parse("mailto:priobike@tu-dresden.de"), mode: LaunchMode.externalApplication);
-                      },
-                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                     ),
                     const VSpace(),
                     Content(
@@ -157,6 +160,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       },
                       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width, minHeight: 36),
                     ),
+                    const VSpace(),
                     const VSpace(),
                   ],
                 ),
